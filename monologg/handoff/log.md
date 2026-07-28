@@ -360,3 +360,43 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/api/vitest.config.ts`, `src/config/paymentProviders.test.ts`, `prisma/schema.test.ts` | **New** — fast, no-network CI-gated tests |
 | `apps/api/vitest.integration.config.ts`, `test-setup.integration.ts`, `prisma/seed.integration.test.ts` | **New** — live-Supabase tests, run manually via `test:integration`, not CI-gated |
 | `package.json` (workspace root) | `test` script now runs both `@monologg/web` and `@monologg/api` tests |
+
+## Session 13 — `features.md` Phase 3: Fastify backend scaffold + provider interfaces
+
+**Goal:** Implement the Fastify API server scaffold, validate all configuration variables at boot, define the provider interface pattern (with mock implementations default in test/dev), and implement health check and centralized platform fees arithmetic.
+
+- **Dependencies & Configuration:** Installed `fastify`, `@fastify/cors`, `@fastify/helmet`, `@fastify/rate-limit`, `@fastify/sensible` and `argon2` inside `@monologg/api`. Changed TypeScript target resolution settings in `tsconfig.json` to `NodeNext` to support proper ECMAScript Module imports. Appended required validation secrets (JWT access/refresh tokens) and provider flags into `.env` and `.env.example`.
+- **Boot-Time Environment Validation:** Implemented `src/config/env.ts` validating all environment variables using Zod at load time. If required variables (e.g. `DATABASE_URL` or JWT secrets) are missing, the server prints a clear report to `stderr` and exits immediately with code `1`. Merged in dummy mock secrets under `NODE_ENV=test` to allow tests and CI to execute without real environment parameters.
+- **Provider Interface Pattern (All Mocked):** Created boundaries under `src/providers/` with interfaces (`*.interface.ts`), local-friendly mock implementations (`*.mock.ts`), and stubbed real implementations (`*.real.ts`) throwing Phase 6/7/8/9 errors. Provider choices are consolidated via `src/providers/index.ts` resolving to mocks in test mode or based on env config. Enforced critical separation X3 (KYC vs AI tagging).
+- **Core App Scaffold:** Configured `src/app.ts` as a reusable Fastify factory setting up structured Pino logging (`pino-pretty` in dev), helmet headers, CORS restricted to client origin, global IP rate limits (100 reqs/min), sensible error helpers, and a central error handler to sanitise responses and block stack trace leaks in production.
+- **Central Fee Calculations:** Implemented `src/services/fees.ts` performing integer math (kobo/cents) based on `PLATFORM_FEES` config (11% talent / 15% client, conflict X2).
+- **Health Route:** Implemented `GET /api/v1/health` executing a database round-trip check and returning `503` if Supabase Postgres is unreachable.
+- **Testing:** Wrote unit tests for env schemas, health checkpoints, fee split ratios (default vs custom configs), and provider mock selections. Resolved TypeScript import extension and type-safety issues inside `seed.integration.test.ts`. 
+
+### File inventory additions (Phase 3)
+
+| File | Change |
+|---|---|
+| `apps/api/package.json` | Added Fastify dependencies, `argon2` for auth preparation, and the server start scripts |
+| `apps/api/tsconfig.json` | Switch to NodeNext module resolution rules to support correct ESM imports |
+| `apps/api/.env` | Added JWT mock keys and provider configurations to local environment |
+| `apps/api/.env.example` | Upgraded to reflect all environment configurations validated at boot |
+| `apps/api/README.md` | Rewritten to document Phase 3 server specs, launch guide, and test suite commands |
+| `apps/api/src/index.ts` | Real server entry binding to HOST/PORT from parsed configuration |
+| `apps/api/src/app.ts` | Fastify factory configuring logs, security plugins, error handlers, and registering routes |
+| `apps/api/src/config/env.ts` | Env loader validating environment configurations at startup using Zod schemas |
+| `apps/api/src/config/platformFees.ts` | Platform fee constants enforcing conflict correction X2 |
+| `apps/api/src/config/paymentRails.ts` | Mappings routing locations to stripe, airwallex, or paystack (never fincra, X1) |
+| `apps/api/src/services/fees.ts` | Single source of truth for platform fee splits calculations (minor units) |
+| `apps/api/src/services/fees.test.ts` | Tests checking fee splits calculations under default and custom fee inputs |
+| `apps/api/src/config/env.test.ts` | Test suite validating required/optional variables and default values in config parser |
+| `apps/api/src/routes/health.ts` | Endpoint returning status of database round-trip checks |
+| `apps/api/src/routes/health.test.ts` | Tests mock testing health route with DB up and down states |
+| `apps/api/src/routes/index.ts` | Fastify plugin register aggregator |
+| `apps/api/src/providers/index.ts` | Selection module registering and routing calls to real stubs or mock providers |
+| `apps/api/src/providers/*.interface.ts` | Interfaces defining the contracts for payments, KYC, AI tagging, calendar, and email/SMS alerts |
+| `apps/api/src/providers/*.mock.ts` | Zero-dependency mock files returning simulated success data for test/dev settings |
+| `apps/api/src/providers/*.real.ts` | Real integrations stubs throwing descriptive TODO exceptions for their future implementation phases |
+| `apps/api/src/providers/providers.test.ts` | Test suite asserting correct mock resolution under test environment and mock behaviors |
+| `apps/api/prisma/seed.integration.test.ts` | Fixed NodeNext relative import extensions and added typed variables to clear compiler warnings |
+

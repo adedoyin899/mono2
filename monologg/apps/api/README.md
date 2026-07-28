@@ -1,15 +1,45 @@
 # @monologg/api
 
-Still an empty scaffold as far as a running server goes — the real Fastify server, provider
-interfaces, config, and routes land in Phase 3 onward, per `features.md`.
+The running Fastify backend server for Monologg.
 
-What does exist, per `features.md` Phase 2:
+## Implemented in Phase 3
 
-- `prisma/schema.prisma` — the full relational schema (15 models), migrated against Supabase.
-- `prisma/seed.ts` — idempotent seed reproducing the prototype's demo data (`pnpm run db:seed`).
-- `src/config/paymentProviders.ts` — the payment-provider allowlist (X1), ahead of Phase 3's
-  provider-interface work, which should import this rather than redeclare it.
-- `src/db/client.ts` — a `PrismaClient` singleton for Phase 3+ to build on.
+- **Fastify Server Scaffold**: Configured with CORS (locked to client origin), Helmet (secure headers), global rate limiting (100 requests per minute per IP), standard HTTP error helpers (`@fastify/sensible`), structured JSON logging (`pino-pretty` in development), and a central error handler that prevents stack trace leaks in production.
+- **Boot-Time Env Validation**: Environment variables (`.env`) are parsed and validated using a Zod schema at boot (`src/config/env.ts`). The server fails fast with a clear explanation if variables are missing or misconfigured.
+- **Provider Interface Pattern**: Every external integration is defined via a TypeScript interface with a deterministic mock implementation (`providers/*.mock.ts`) and a real stub implementation (`providers/*.real.ts`) for subsequent phases:
+  - `PaymentProvider` (Phase 6: Paystack-first, no Fincra `// TODO(conflict:X1)`)
+  - `KycProvider` (Phase 7: Smile Identity)
+  - `AiTaggingProvider` (Phase 7: Style/vibe tagging only, separate from identity verification `// TODO(conflict:X3)`)
+  - `CalendarProvider` (Phase 8: Google Calendar + Meet)
+  - `NotifyProvider` (Phase 9: SendGrid + Twilio)
+  The registry (`src/providers/index.ts`) resolves providers to mocks under test mode or per configuration flag.
+- **Health Check Route**: `GET /api/v1/health` performs a query (`SELECT 1`) against Supabase to check database status, returning `503` if the database is down.
+- **Fee Computation**: Centralized fee-split math in `src/services/fees.ts` that enforces the platform splits (11% talent / 15% client, `// TODO(conflict:X2)`). Uses integer minor units (kobo/cents) to prevent rounding drift.
 
-See `../../CONTRIBUTING.md` ("Database (Supabase + Prisma)") for the commands, and
-`../../handoff/log.md` (Sessions 11–12) for how the Supabase connection was set up and why.
+## Running Locally
+
+1. Ensure the workspace dependencies are installed:
+   ```bash
+   pnpm install
+   ```
+2. Copy `.env.example` to `.env` and fill in local values:
+   ```bash
+   cp .env.example .env
+   ```
+3. Run the development server:
+   ```bash
+   pnpm run dev
+   ```
+   The API will listen at `http://localhost:3001`.
+
+## Testing
+
+Run unit and mock integration tests:
+```bash
+pnpm test
+```
+
+For integration tests against the live database, run:
+```bash
+pnpm run test:integration
+```

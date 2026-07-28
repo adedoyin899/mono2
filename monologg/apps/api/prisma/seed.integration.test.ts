@@ -3,14 +3,15 @@
 //   pnpm --filter @monologg/api run db:seed
 //   pnpm --filter @monologg/api run test:integration
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PAYMENT_PROVIDER_ALLOWLIST } from "../src/config/paymentProviders";
+import { PAYMENT_PROVIDER_ALLOWLIST } from "../src/config/paymentProviders.js";
+import type { Creator, Brief, Booking } from "@prisma/client";
 // Reuses seed.ts's own client rather than opening a second one — Supabase's transaction
 // pooler has few enough slots that two concurrent PrismaClient instances in one process can
 // starve each other out (observed directly while building this test). This client still
 // talks over DATABASE_URL (the pooled/transaction-pooler connection), the same connection
 // the running app uses, per the Phase 2 acceptance criterion "app queries succeed via pooled
 // DATABASE_URL".
-import { prisma, seed } from "./seed";
+import { prisma, seed } from "./seed.js";
 
 beforeAll(async () => {
   await prisma.$connect();
@@ -32,7 +33,7 @@ describe("seed parity — reproduces apps/web/src/mocks demo data", () => {
     const creators = await prisma.creator.findMany({ orderBy: { name: "asc" } });
     expect(creators).toHaveLength(6);
 
-    const byName = Object.fromEntries(creators.map((c) => [c.name, c]));
+    const byName = Object.fromEntries(creators.map((c: Creator) => [c.name, c]));
     expect(byName["Adaeze Obi"]?.niche).toBe("VO_ARTIST");
     expect(byName["Adaeze Obi"]?.styleTags).toEqual(["Warm", "Multilingual", "Corporate"]);
     expect(byName["Chidi Okeke"]?.niche).toBe("ACTOR");
@@ -52,7 +53,7 @@ describe("seed parity — reproduces apps/web/src/mocks demo data", () => {
   it("seeded 4 briefs from clientProjects.ts", async () => {
     const briefs = await prisma.brief.findMany();
     expect(briefs).toHaveLength(4);
-    expect(briefs.map((b) => b.projectName).sort()).toEqual(
+    expect(briefs.map((b: Brief) => b.projectName).sort()).toEqual(
       [
         "Fintech Radio Ads",
         "Film Auditions Jan 2025",
@@ -65,7 +66,7 @@ describe("seed parity — reproduces apps/web/src/mocks demo data", () => {
   it("seeded exactly one booking per BookingState", async () => {
     const bookings = await prisma.booking.findMany();
     expect(bookings).toHaveLength(6);
-    const states = bookings.map((b) => b.state).sort();
+    const states = bookings.map((b: Booking) => b.state).sort();
     expect(states).toEqual(
       [
         "PENDING_PAYMENT",

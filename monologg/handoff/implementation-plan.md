@@ -106,6 +106,24 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Updated CI to install/typecheck/lint/test/build via `pnpm` from the new workspace root
 - [x] Verified all three build targets green, CSS byte-identical across all of them, dev server + both standalone HTML files regenerated
 
+### `features.md` Phase 2 — Database schema, Prisma, migrations, seed
+- [x] Implemented a 15-model database schema in `prisma/schema.prisma` mapping all domain concepts (Users, Creators, Clients, Bookings, RateCards, AvailabilityBlocks, Payments, Messages, etc.).
+- [x] Resolved conflicts X1 (Paystack/Stripe/Airwallex, no Fincra), X2 (11% talent / 15% client platform fee variables), and X3 (Fully separate `styleTags` AI tagging and `verification` KYC status columns).
+- [x] Configured multi-connection URL system: pooled connection `DATABASE_URL` for the client runtime, and session pooler `DIRECT_URL` for DDL migrations.
+- [x] Generated database schema migration `20260728221646_init` and applied it to Supabase Postgres instance.
+- [x] Created idempotent `prisma/seed.ts` seeding all 6 mock creators, 4 client projects, 8 rate cards, 4 briefs, plus one booking for each of the 6 booking states with exact fee calculations.
+- [x] Verified seeded database entries in manual integration tests against Supabase.
+
+### `features.md` Phase 3 — Backend scaffold, config, and provider interfaces (all mocked)
+- [x] Scaffolded the Fastify backend application structure under `apps/api/src`.
+- [x] Added validated environment loader `src/config/env.ts` with strict Zod parsing, failing fast on start with clear exit message if required vars are missing.
+- [x] Centralized fee math in `src/services/fees.ts` checking defaults against custom config, unit-tested without rounding drift (money minor units rule).
+- [x] Defined TypeScript interfaces for all five external provider boundaries: `PaymentProvider`, `KycProvider`, `AiTaggingProvider`, `CalendarProvider`, and `NotifyProvider`.
+- [x] Created mock implementations (`*.mock.ts`) and real stubs (`*.real.ts`) for all 5 providers, integrated via a provider selection registry module.
+- [x] Configured request logging (pino/pino-pretty), CORS, security headers (helmet), and rate limiting.
+- [x] Implemented `GET /api/v1/health` verifying database connectivity.
+- [x] Wrote automated test suite covering fees, environment validation, health check, and mock provider resolution.
+
 ---
 
 ## 🔄 In Progress
@@ -123,8 +141,8 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 ### Infrastructure spine (Phases 0–12)
 - [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
 - [x] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`, pnpm workspaces) + typed `api-client` seam, `VITE_API_MODE=mock|live` — done, see the Done section above
-- [ ] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
-- [ ] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
+- [x] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
+- [x] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
 - [ ] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware
 - [ ] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam
 - [ ] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent

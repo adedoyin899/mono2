@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(node -e ' *)",
+      "Bash(npx --yes pnpm@9 add -D prisma --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 add @prisma/client --filter @monologg/api)",
+      "Bash(npx prisma *)",
+      "Bash(npm view *)",
+      "Bash(npx --yes pnpm@9 add -D prisma@6.19.3 --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 add @prisma/client@6.19.3 --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 add -D tsx --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 add zod@^3.23.8 --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 --filter @monologg/api run typecheck)",
+      "Bash(npx --yes pnpm@9 add -D vitest --filter @monologg/api)",
+      "Bash(npx --yes pnpm@9 --filter @monologg/api run test)",
+      "Bash(npx --yes pnpm@9 --filter @monologg/api run test:integration)",
+      "Bash(timeout 30 npx tsx -e ' *)",
+      "Bash(npx tsx -e ' *)",
+      "Bash(npx tsx *)"
+    ]
+  }
+}

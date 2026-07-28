@@ -3,7 +3,7 @@ import {
   PAYMENT_PROVIDER_ALLOWLIST,
   assertAllowedPaymentProvider,
   isAllowedPaymentProvider,
-} from "./paymentProviders";
+} from "./paymentProviders.js";
 
 describe("payment provider allowlist (X1)", () => {
   it("accepts every allowlisted provider", () => {
