@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
 import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles } from "lucide-react";
 
@@ -202,7 +203,7 @@ export function CreatorOnboarding() {
             exit={{ opacity: 0 }}
             className="flex-1 flex flex-col items-center justify-center px-8 text-center"
           >
-            <div className="font-display text-[20px] text-[var(--color-text-primary)] absolute top-10">Monologg</div>
+            <Logo className="h-5 w-auto absolute top-10" style={{ color: "var(--color-text-primary)" }} />
 
             <div className="relative w-[120px] h-[120px] rounded-[var(--radius-full)] flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] mb-10">
               <motion.div

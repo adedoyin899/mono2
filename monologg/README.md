@@ -26,12 +26,16 @@ Then open `http://localhost:5173`.
 | `monologg-design-system.html` | The design-system reference page, same idea — one file, no server needed. |
 | `app/` | The actual source code and local dev server. This is what a developer opens to make changes. |
 | `handoff/` | All project documentation: what the product is, the tech stack, a running implementation log, every bug found and fixed, and a plain-language walkthrough of how it was all built. **Read this before making changes**, and keep it updated after. |
-| `brand/` | Logo files (purple and white versions), not yet wired into the running app. |
+| `brand/` | `icon.svg` (mark) and `logo.svg` (wordmark) — the real brand assets, wired into the app via `app/src/app/components/ui/Logo.tsx` everywhere the wordmark appears. |
 | `ATTRIBUTIONS.md` | Required credit for third-party components (shadcn/ui) and photos (Unsplash) used in the original design. |
 
 ## The one thing everyone should know before touching anything
 
-**There is no backend, database, or real login yet.** Everything you see running is frontend-only, with sample data built into the page code. Sign-in, payments, and AI verification are all working demos of the *interface*, not real systems. Full detail in `handoff/design.md`.
+**There is no backend, database, or real login yet.** Everything you see running is frontend-only, with sample data built into the page code. Sign-in, payments, and AI verification are all working demos of the *interface*, not real systems. Full detail in `handoff/design.md` — and see `handoff/features.md` for the full plan to build the real thing.
+
+## Source control
+
+This lives in `github.com/adedoyin899/mono2`, inside this `monologg/` folder (that repo also holds an unrelated project at its root — kept separate on purpose). Push access uses a repo-scoped deploy key, not a general account key — see `handoff/design.md` §7 if you need to push and don't have it configured.
 
 ## Inside `app/`
 

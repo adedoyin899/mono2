@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check } from "lucide-react";
 
@@ -61,7 +62,7 @@ export function AuthFlow() {
     >
       {/* Top bar */}
       <div className="h-16 flex items-center justify-between px-5 md:px-8" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-        <Link to="/" className="font-display text-[20px] tracking-[-0.02em]" style={s.primary}>Monologg</Link>
+        <Link to="/" aria-label="Monologg"><Logo className="h-5 w-auto" style={s.primary} /></Link>
         <button
           onClick={toggle}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}

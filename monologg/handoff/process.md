@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-07-27
+**Last updated:** 2026-07-28
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -103,6 +103,14 @@ A written handoff is only useful the day it's written unless something forces it
 - **`implementation-plan.md`** — a status board with checkboxes for what's done, what's actively in progress, and what's not started yet, so anyone can see the current state in ten seconds instead of reading four documents to piece it together.
 - **`README.md`** — a short index explaining what each document is for, and a rule: **every future change to the app must update the relevant document(s) in the same session as the change**, not as a separate cleanup pass later. The same principle applied to the design tokens (one source of truth, updated at the point of change) now applies to the documentation about the project.
 
+### Step 15: Put it under real version control
+
+The project was moved into a `monologg/` subfolder and pushed to a real GitHub repository, sharing space with an unrelated existing project the same account already had there — rather than starting a brand new repo, the existing history was kept and Monologg was added alongside it, on the user's instruction. From this point on, `git log` is the authoritative record of every change; this handoff folder explains the *why*, git explains the exact *what* and *when*.
+
+### Step 16: Scope the next phase — turning the prototype into a real product
+
+The user provided a large, detailed technical plan (`features.md`) for building the actual backend: a database, real accounts and login, real payments held safely in escrow, identity verification, and several brand-new features (a proper booking calendar, talent applying to job posts, a public profile page anyone can book from without an account first). Before touching any code, the plan was read in full, checked against what's already built, and a couple of open questions (mainly: how the new backend code should be organized inside the shared GitHub repo) were confirmed with the user. Only once that was settled were the handoff documents updated to describe the new phase — no backend code has been written yet; that starts next, one carefully-reviewed step at a time rather than all at once.
+
 ---
 
 ## If you're picking this up next: suggested reading order
@@ -110,8 +118,9 @@ A written handoff is only useful the day it's written unless something forces it
 1. **`README.md`** — the index, and the rule for keeping all of this current.
 2. **`implementation-plan.md`** — current status at a glance: done, in progress, not started.
 3. **`design.md`** — what the product is, what's actually built vs. only designed, and the full technical stack (including the important fact that there's currently no backend/database/login).
-4. **`log.md`** — the detailed, technical, file-by-file record of every change made.
-5. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
-6. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
+4. **`features.md`** — if you're picking up backend work next, read this in full before starting; it's the detailed, phase-by-phase build plan.
+5. **`log.md`** — the detailed, technical, file-by-file record of every change made.
+6. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
+7. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
 
-And practically: this folder is **not currently a git repository**. If you're a developer continuing this work, initializing git and making a first commit of the current state should be one of your very first steps — everything past this point should be tracked properly, unlike the work described in this handoff.
+And practically: this project is a real git repository now, pushed to GitHub. Anyone continuing the work should pull the latest, make changes on top of it, and keep committing — the days of "not tracked anywhere" described earlier in this document are over.

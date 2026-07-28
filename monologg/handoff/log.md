@@ -1,11 +1,11 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-07-27
+**Last updated:** 2026-07-28
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
-Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision (note: this project is **not** currently a git repository — see `process.md` if you want to fix that first).
+Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
-All work below happened in one continuous engagement, split into two sessions by subject matter. Dates use the session date, 2026-07-27, since there's no commit history to derive exact timestamps from.
+Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
 
 ---
 
@@ -182,6 +182,34 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 
 ---
 
+## Session 7 — Pushed to GitHub (`github.com/adedoyin899/mono2`)
+
+**Goal:** the user asked to push the project to a specific GitHub repo.
+
+- **Found the target repo wasn't empty:** it already held one commit — an unrelated `gstack` CLI/skills project (`.agent/skills/gstack/...`, `CLAUDE.md`) authored by the same account. Asked the user how to handle it rather than assuming; they chose **keep the existing history, add Monologg alongside it** (not overwrite, not a separate repo).
+- **Caught and fixed a drift before committing anything:** the `imports/` reference folder (PRD, UX spec, historical drafts, screenshots) had somehow ended up sitting at the outer project root instead of its documented home at `app/src/imports/` — no code referenced it either way (it's documentation, not an import dependency), but it didn't match what `design.md`/`log.md` describe. Restored it to `app/src/imports/` before proceeding.
+- **Restructured locally:** created a `monologg/` folder and moved everything (`app/`, `brand/`, `handoff/`, `README.md`, `ATTRIBUTIONS.md`, both standalone HTML files, both `.skill` files) inside it, so the two unrelated projects in one repo stay cleanly separated on disk, not just in intent.
+- **Set up git:** `git init` at the outer project root, local `user.name`/`user.email` set to match the existing repo's author (confirmed with the user first, rather than guessing), `git remote add origin` + `git fetch` + `git checkout -b main origin/main` to bring in the existing history without touching it, added a root `.gitignore` (`monologg/app/node_modules/`, all three `dist*` output folders, `.vite`, `.DS_Store` — none of which existed anywhere in the history yet).
+- **Reviewed the full staged file list before committing** (80 files) — confirmed no `node_modules`/build output slipped in, no secrets, nothing unexpected beyond the two now-explainable oddities below.
+- **Two things noticed and flagged, not fixed (out of scope for a push):** `brand/logo purple.png` and `brand/logo white.png` (present in earlier sessions) are no longer on disk — gone before this session, cause unknown; and `app/src/app/pages/Dashboard.tsx` is a harmless 2-line legacy re-export (`export { TalentDashboard as Dashboard }`) not wired into any route, likely predates this engagement.
+- **Committed and attempted to push over HTTPS** — failed, no credentials configured (`fatal: could not read Username for 'https://github.com'`). Tried the existing SSH key (`id_ed25519_monologg`) — GitHub identified it as a **deploy key scoped to a different repo** (`monologg`, not `mono2`), so it was correctly rejected for this one.
+- **User asked for a dedicated key for this repo.** Generated a new keypair (`~/.ssh/id_ed25519_mono2`), added an SSH config host alias (`github.com-mono2`) so this repo's remote uses it automatically without extra flags, pointed the local remote at `git@github.com-mono2:adedoyin899/mono2.git`, and gave the user the public key to add as a **deploy key with write access** on the repo's GitHub settings.
+- **Verified and pushed:** once the user confirmed the key was added, re-ran `ssh -T git@github.com-mono2` to confirm it resolved to `adedoyin899/mono2` (not the other repo) before pushing — then `git push origin main` succeeded (`10c240e..4f77f35`).
+- Restarted the local dev server from the new path (`monologg/app/`) per the user's request, once it was confirmed the earlier `pkill` (used to stop the server before the directory move) had — as intended — only stopped that one process.
+
+## Session 8 — `features.md` scope review + finishing the logo integration
+
+**Goal:** the user added a large consolidated PRD (`New features.md`, at the project root) covering the full backend build-out plus four new feature areas, and asked for confirmation of understanding before the handoff docs were updated to reflect it.
+
+- **Read the full 1,119-line document.** It's an 18-phase (0–17), dependency-ordered, agent-executable PRD that supersedes both an earlier backend PRD and a separate features PRD. Phases 0–12 are the infrastructure spine (repo tooling → monorepo split → Postgres/Prisma → Fastify backend with a provider-interface pattern for every external dependency → real JWT auth → core endpoints → Paystack-first escrow → Smile Identity KYC split from AI style-tagging → calendar sync → notifications → system screens → design-token/font cleanup → hardening). Phases 13–16 are new, previously-unscoped feature areas built on top (rich time-slot availability, two-sided project applications with an applicant cap, a public logged-out marketplace profile, and the flagship external-visitor booking flow with deferred account creation). Phase 17 is an independent QA/security/UAT gate.
+- **Flagged explicit conflict corrections the PRD calls out (X1–X3):** payment provider is Paystack/Stripe/Airwallex, not FINCRA; fees are 11% talent / 15% client, not 9%/12%; "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system. All three contradict current landing-page copy, `Checkout.tsx`, and `design.md` — noted as corrections to apply when the relevant backend phase lands, not retroactively rewriting frontend copy now.
+- **Two structural questions asked and resolved before documenting anything:** (1) the PRD assumes a clean repo root for its `apps/web`/`apps/api`/`packages/types` monorepo split, but this repo already holds the unrelated `gstack` project — user chose to nest the new structure under `monologg/` when Phase 1 begins, consistent with Session 7's separation. (2) The PRD itself says its companion files belong "in the repo root" — user chose to move `New features.md` into `handoff/features.md` alongside the other docs rather than leave it at the outer project root.
+- **Updated `implementation-plan.md`, `design.md`, and `log.md`** (this entry) to reflect the new phase of work — see those files for the actual content changes; `implementation-plan.md`'s old flat gap-list backlog is now fully superseded by the 18-phase list mirroring `features.md`.
+- **Finished an interrupted task from Session 6/7's gap:** `Logo.tsx`/`LogoMark` components (built from the user-supplied `brand/icon.svg` and `brand/logo.svg`, converted from hardcoded white fills to `currentColor` so they inherit an accessible color from whatever surface they sit on) had been created but only partially wired in before the GitHub-push request interrupted the work — `Sidebar.tsx` had the import added but the actual JSX swap never happened, and `AuthFlow.tsx`/`CreatorOnboarding.tsx`/`LandingPage.tsx` (nav + footer) hadn't been touched at all. Completed all five swaps, rebuilt all three targets clean, and regenerated both standalone HTML files.
+- **No Phase 0/1 backend work started** — this session was scope confirmation and documentation only, per the user's explicit ask.
+
+---
+
 ## File inventory: what changed and why (quick reference)
 
 | File | Change |
@@ -213,3 +241,9 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `src/styles/tokens.css` | Added `--gradient-brand`/`--gradient-brand-soft`/`--shadow-cutout`/`--shadow-cutout-sm` — additive only, landing-page-only |
 | `src/app/components/ui/Avatar.tsx` | Added optional `src`/`alt` photo prop, backward compatible |
 | `src/app/pages/LandingPage.tsx` | Full visual rework (hero, bento features, 3D icon tiles, photography) — copy unchanged, see Session 6 |
+| Project root (`figj monol/`) → `monologg/` | Everything (`app/`, `brand/`, `handoff/`, `README.md`, `ATTRIBUTIONS.md`, both standalone HTML files, both `.skill` files) moved into a `monologg/` subfolder so this project shares a git repo with unrelated existing content without colliding |
+| `.gitignore` (repo root, one level above `monologg/`) | **New** — excludes `monologg/app/node_modules/`, all three `dist*` build-output folders, `.vite`, `.DS_Store` |
+| `brand/icon.svg`, `brand/logo.svg` | **New** (user-supplied) — the real brand mark/wordmark, superseding the old PNG logo files |
+| `src/app/components/ui/Logo.tsx` | **New** — `Logo`/`LogoMark` components built from the SVGs, converted to `fill="currentColor"` so they inherit an accessible color from whatever surface they sit on (default `var(--color-text-primary)`) |
+| `src/app/components/ui/Sidebar.tsx`, `src/app/pages/AuthFlow.tsx`, `src/app/pages/CreatorOnboarding.tsx`, `src/app/pages/LandingPage.tsx` (nav + footer) | Plain-text "Monologg" wordmark replaced with the real `<Logo>` component, all 5 sites |
+| `handoff/features.md` (moved from `New features.md` at the outer project root) | The consolidated backend + new-features PRD — 18 phases (0–17), now the authoritative backlog superseding the old flat gap list in `design.md` §6 / `implementation-plan.md` |

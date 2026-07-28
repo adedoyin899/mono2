@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Avatar } from "../components/ui/Avatar";
+import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import { cn } from "../../lib/utils";
 import {
@@ -213,9 +214,7 @@ export function LandingPage() {
         className="h-20 sticky top-0 z-50 px-5 md:px-16 flex items-center justify-between backdrop-blur-xl"
         style={{ background: "color-mix(in srgb, var(--color-bg-canvas) 72%, transparent)", borderBottom: "1px solid var(--color-hairline)" }}
       >
-        <div className="font-display text-[22px] tracking-[-0.02em]" style={{ color: "var(--color-text-primary)" }}>
-          Monologg
-        </div>
+        <Logo className="h-6 w-auto" style={{ color: "var(--color-text-primary)" }} title="Monologg" />
         <nav className="hidden md:flex items-center gap-9">
           {["Features", "How It Works", "Talent", "Pricing"].map(item => (
             <button
@@ -975,7 +974,7 @@ export function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-start justify-between gap-8 mb-8">
             <div>
-              <div className="font-display text-xl mb-2">Monologg</div>
+              <Logo className="h-6 w-auto mb-2" style={{ color: "var(--color-text-primary)" }} />
               <p className="text-sm font-body max-w-xs" style={{ color: "var(--color-text-tertiary)" }}>
                 The world's first brief-to-booking pipeline for performing arts and the creator economy.
               </p>

@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-07-27
-**Status:** Frontend prototype / design-preview build. No backend, database, or real authentication exists yet — see [Section 6](#6-what-is-not-built-yet-gaps-vs-the-prd) before assuming anything works end-to-end.
+**Last updated:** 2026-07-28
+**Status:** Frontend prototype / design-preview build, now in git. No backend, database, or real authentication exists yet — see [Section 6](#6-what-is-not-built-yet-gaps-vs-the-prd) before assuming anything works end-to-end. The full-stack build-out is scoped in detail in `features.md` — read that before starting backend work; some facts below (FINCRA, 9%/12% fees, "Thespian AI" as verification) are the **current, stale** state that `features.md` explicitly corrects.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -48,7 +48,7 @@ The PRD describes a large product (public marketing site with waitlist, full onb
 | PWA-08 (Scheduling) | Embedded inside `TalentDashboard.tsx` ("Availability" tab) | Built, no real calendar sync |
 | PWA-09 (Client Brief) | `ProjectBrief.tsx` | Built |
 | PWA-10 (Casting Directory) | Embedded inside `ClientDashboard.tsx` ("Find Talent" tab) | Built |
-| PWA-11 (Calendar/Checkout sheet) + PWA-12 (Payment) | `Checkout.tsx` | Built; payment is a **2.5-second `setTimeout`**, not a real gateway (no FINCRA integration) |
+| PWA-11 (Calendar/Checkout sheet) + PWA-12 (Payment) | `Checkout.tsx` | Built; payment is a **2.5-second `setTimeout`**, not a real gateway. Copy currently says "FINCRA" — **stale**, `features.md` (X1) specifies Paystack-first (+ Stripe/Airwallex), to be corrected when Phase 6 lands |
 | PWA-13 (Order Room + escrow bar) | `OrderRoom.tsx` | Built; escrow "release" is local state, not a real transaction |
 | SET-01–05 (Settings) | `Settings.tsx` | Built |
 | SYS-01–04 (Notifications, Transaction History, Help, Terms) | Partial — a notifications *panel* exists inside the dashboards; no dedicated transaction-history or help/support screens | Not built |
@@ -139,18 +139,20 @@ Key token groups:
 
 ## 6. What is NOT built yet (gaps vs. the PRD)
 
-For a future dev/agent prioritizing backend work, in rough order of what would unblock the most:
+**This section is now superseded by `features.md` and `implementation-plan.md`**, which turn this same gap list into an 18-phase (0–17), dependency-ordered, test-gated build plan — including corrected values (Paystack not FINCRA, 11%/15% fees not 9%/12%, KYC split from AI style-tagging) and four entirely new feature areas (rich availability, project applications, public profile, external booking) that weren't scoped here at all. Kept below as a quick-reference snapshot; `features.md` is authoritative for anything more than a one-line summary.
 
-1. **No API/backend service of any kind.**
-2. **No database/data model.** Mock constants per page are the closest thing to a schema today.
-3. **No real authentication** (no password check, no session, no JWT, no protected routes).
-4. **No real payment/escrow integration** (PRD specifies FINCRA; currently a fake delay).
-5. **No real AI verification** (Thespian AI is a scripted animation).
-6. **No calendar sync** (Google Calendar "sync" button is UI-only).
-7. **No notifications backend** (panel exists, data is hardcoded).
-8. **No transaction history / help-support / terms screens** (SYS-01–04 from the PRD, mostly unbuilt).
-9. **Type scale tokens exist but aren't applied everywhere** — cosmetic/consistency debt, not a functional gap.
-10. **Font loading depends on external CDNs** (Fontshare, Google Fonts) — will silently fall back to system fonts in offline/restricted-network environments (e.g. this is why the Artifact preview shown earlier in this project didn't render the exact brand fonts).
+1. **No API/backend service of any kind.** → `features.md` Phases 1–3.
+2. **No database/data model.** Mock constants per page are the closest thing to a schema today. → Phase 2.
+3. **No real authentication** (no password check, no session, no JWT, no protected routes). → Phase 4.
+4. **No real payment/escrow integration** (currently a fake delay; copy says FINCRA — stale, see X1). → Phase 6.
+5. **No real AI verification** (Thespian AI is a scripted animation; will split into KYC + style-tagging, see X3). → Phase 7.
+6. **No calendar sync** (Google Calendar "sync" button is UI-only). → Phase 8.
+7. **No notifications backend** (panel exists, data is hardcoded). → Phase 9.
+8. **No transaction history / help-support / terms screens** (SYS-01–04 from the PRD, mostly unbuilt). → Phase 10.
+9. **Type scale tokens exist but aren't applied everywhere** — cosmetic/consistency debt, not a functional gap. → Phase 11.
+10. **Font loading depends on external CDNs** (Fontshare, Google Fonts) — will silently fall back to system fonts in offline/restricted-network environments. → Phase 11.
+
+**Also newly scoped, not previously tracked anywhere:** a real time-slot availability calendar (Phase 13), two-sided project applications with an applicant cap (Phase 14), a fully public logged-out marketplace profile (Phase 15), and the flagship external-visitor booking flow with deferred account creation (Phase 16). See `features.md` for full specs on all of these.
 
 ---
 
@@ -165,5 +167,6 @@ For a future dev/agent prioritizing backend work, in rough order of what would u
   npm run build:designsystem                   # design system
   ```
   then re-inline the built JS/CSS into the two root-level HTML files (ask whoever/whatever is continuing this project to re-run the inlining step, or script it — it's a few lines of Python, see `log.md`).
+- **Source control:** `github.com/adedoyin899/mono2`, this project under the `monologg/` folder (that repo also holds an unrelated `gstack` project at its root — kept deliberately separate). Push access is via a repo-scoped deploy key (`~/.ssh/id_ed25519_mono2`, host alias `github.com-mono2`), not the account's general SSH key.
 
-See `log.md` for exactly how `app/` came to exist and what was changed inside it, `bug.md` for defects found and fixed, and `process.md` for a plain-language walkthrough of the whole engagement.
+See `log.md` for exactly how `app/` came to exist and what was changed inside it, `bug.md` for defects found and fixed, `process.md` for a plain-language walkthrough of the whole engagement, and `features.md` for everything not yet built.

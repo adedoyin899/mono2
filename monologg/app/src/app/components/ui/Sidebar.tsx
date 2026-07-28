@@ -38,7 +38,7 @@ export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, on
       style={{ background: "var(--color-bg-surface)", borderRight: "1px solid var(--color-border-default)" }}
     >
       <div className="p-5 mb-2" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
-        <div className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Monologg</div>
+        <Logo className="h-6 w-auto" style={{ color: "var(--color-text-primary)" }} />
         <div className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>{portalLabel}</div>
       </div>
 

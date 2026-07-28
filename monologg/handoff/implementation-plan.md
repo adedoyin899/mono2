@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-07-27
-**Status:** Frontend prototype running locally. No backend/database/auth yet.
+**Last updated:** 2026-07-28
+**Status:** Frontend prototype, pushed to git, full-stack build-out scoped and ready to start. No backend/database/auth yet — that's the next phase, spec'd in full in `features.md`.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -74,6 +74,17 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Rebuild `LandingPage.tsx`: hero mockup + gradient atmosphere, photo social-proof cluster, bento feature grid, 3D-style icon tiles, full-bleed photography section, real testimonial photos — all existing copy retained
 - [x] Rebuild all three targets + regenerate `monologg-app.html`; open for user review
 
+### Phase 9 — Pushed to git
+- [x] Diagnosed and restored an accidental drift (`imports/` had ended up outside `app/src/`) before committing
+- [x] Restructured locally into a `monologg/` subfolder so the project can share a repo with unrelated existing content without collision
+- [x] Initialized git, merged with the existing history at `github.com/adedoyin899/mono2` (kept, didn't overwrite), added a scoped `.gitignore` (`node_modules`, `dist*`, `.vite`, `.DS_Store`)
+- [x] Set up a dedicated deploy key (`id_ed25519_mono2`, write access, this repo only) and pushed
+
+### Phase 10 — Full-stack build-out scope review
+- [x] Read `features.md` (the consolidated backend + new-features PRD, 18 phases, 0–17) in full
+- [x] Confirmed the new monorepo structure nests under `monologg/` (not the true repo root, to stay separate from the unrelated content) and moved `New features.md` → `handoff/features.md`
+- [x] Updated `implementation-plan.md`, `design.md`, `log.md` to reflect the new phase of work — this pass
+
 ---
 
 ## 🔄 In Progress
@@ -82,21 +93,35 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 
 ---
 
-## ⏳ Not started (backlog, roughly in unblocking order)
+## ⏳ Not started — full-stack build-out (see `features.md` for complete specs)
 
-These are gaps against the original PRD, carried over from `design.md` §6. None of this has been started.
+This supersedes the old flat gap list (previously here and in `design.md` §6) — `features.md` is now the authoritative, dependency-ordered backlog. **Phases are ordered by dependency, not priority; build one at a time, with tests as a gate, and stop for review between phases** — don't batch several in one unreviewed pass.
 
-- [ ] **Backend/API layer** — zero server-side code exists today
-- [ ] **Database / real data model** — mock constants per page are the closest thing to a schema
-- [ ] **Real authentication** — no password check, session, JWT, or protected routes
-- [ ] **Real payment/escrow integration** — PRD specifies FINCRA; currently a fake 2.5s delay
-- [ ] **Real AI verification** — "Thespian AI" is a scripted animation, not a model call
-- [ ] **Calendar sync** — Google Calendar "sync" button is UI-only
-- [ ] **Notifications backend** — panel exists, data is hardcoded
-- [ ] **Transaction history / help-support / terms screens** (PRD SYS-01–04) — mostly unbuilt
-- [ ] **Type-scale token adoption** — `--font-size-*` tokens exist but most page headings still use ad-hoc pixel values
-- [ ] **Font self-hosting** — currently loads General Sans / Plus Jakarta Sans / JetBrains Mono from Fontshare/Google Fonts CDNs; silently falls back to system fonts offline
-- [ ] **Git initialization** — this folder is still not a version-controlled repository; recommended as the first step for whoever picks this up next
+**⚠️ Known conflicts to resolve during the relevant phase** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1); fees are 11% talent / 15% client, not 9%/12% (X2); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3). Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects the old values — do not carry them into the new backend.
+
+### Infrastructure spine (Phases 0–12)
+- [ ] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` (git itself is already done, see Phase 9 above)
+- [ ] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`) + typed `api-client` seam, `VITE_API_MODE=mock|live` — pure refactor, zero visual change
+- [ ] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
+- [ ] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
+- [ ] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware
+- [ ] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam
+- [ ] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent
+- [ ] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems
+- [ ] **Phase 8** — Google Calendar sync + real Meet links
+- [ ] **Phase 9** — Notifications backend (email/SMS/in-app)
+- [ ] **Phase 10** — System screens: transaction history, help/support, terms/privacy (PRD SYS-01–04)
+- [ ] **Phase 11** — Design-token adoption everywhere + font self-hosting (closes the two known design-consistency gaps)
+- [ ] **Phase 12** — Hardening: security (OWASP pass, NDPA), test coverage, observability, deployment
+
+### New feature areas (Phases 13–16, built on the spine above)
+- [ ] **Phase 13** — Rich availability calendar & time-slot booking (default-free rule, server-authoritative `getOpenSlots`)
+- [ ] **Phase 14** — Two-sided project applications with a server-enforced applicant cap; new talent "Projects" nav item
+- [ ] **Phase 15** — Public, logged-out marketplace profile at `/[handle]` with Open Graph previews
+- [ ] **Phase 16** — Flagship: external-visitor booking, escrow-first, deferred account creation from checkout info
+
+### Production gate
+- [ ] **Phase 17** — Independent QA, security/pen-test, load testing, and UAT — a human sign-off gate, not automated
 
 ---
 
