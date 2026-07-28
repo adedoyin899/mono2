@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+/** A talent profile as shown in client-side discovery/browse — mirrors the
+ * eventual Creator + RateCard read model (see features.md Phase 2). */
+export const TalentSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  role: z.string(),
+  location: z.string(),
+  /** Pre-formatted display string (e.g. "₦28,000"), matching the prototype's
+   * current UI exactly. Phase 2 stores money as integer minor units +
+   * currency (per the money-handling invariant); this field becomes a
+   * formatted projection of that, not the source of truth. */
+  price: z.string(),
+  tags: z.array(z.string()),
+  verified: z.boolean(),
+  rating: z.number(),
+  reviews: z.number().int(),
+  available: z.boolean(),
+  avatar: z.string(),
+});
+export type Talent = z.infer<typeof TalentSchema>;

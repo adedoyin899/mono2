@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import { Avatar } from "../components/ui/Avatar";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
+import { apiClient } from "../../lib/api-client";
+import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle,
@@ -15,21 +17,9 @@ import {
 type Phase = "briefing" | "deliverables" | "review" | "complete";
 type UserRole = "talent" | "client";
 
-interface Message {
-  id: number;
-  from: "talent" | "client" | "system";
-  text: string;
-  time: string;
-  attachment?: { name: string; size: string; type: "file" | "image" };
-}
-
-const INITIAL_MESSAGES: Message[] = [
-  { id: 1, from: "system", text: "Order Room created. Escrow of ₦120,000 is now locked securely.", time: "Dec 14, 9:00 AM" },
-  { id: 2, from: "client", text: "Hi Elias! Excited to work with you on this. I'm uploading the script now. Please review and let me know if you have any questions.", time: "Dec 14, 9:05 AM" },
-  { id: 3, from: "client", text: "Brief attached.", time: "Dec 14, 9:06 AM", attachment: { name: "Nike_Campaign_Brief_v2.pdf", size: "1.2 MB", type: "file" } },
-  { id: 4, from: "talent", text: "Perfect, thank you! I've reviewed the brief. The tone requirements are clear — I'll go for warm-authoritative to match the brand voice. I should have the first take ready within 24 hours.", time: "Dec 14, 10:30 AM" },
-  { id: 5, from: "system", text: "Elias Thorne has confirmed the brief. Phase advanced to Deliverables.", time: "Dec 14, 10:31 AM" },
-];
+// Same shape as @monologg/types' OrderMessage — aliased locally so the rest
+// of this file's `Message` references didn't need touching.
+type Message = OrderMessage;
 
 const PHASES: { id: Phase; label: string; desc: string }[] = [
   { id: "briefing", label: "Briefing", desc: "Review and confirm the project brief" },
@@ -41,7 +31,7 @@ const PHASES: { id: Phase; label: string; desc: string }[] = [
 export function OrderRoom() {
   const [phase, setPhase] = useState<Phase>("deliverables");
   const [role, setRole] = useState<UserRole>("talent");
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [showReleaseModal, setShowReleaseModal] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
@@ -50,6 +40,11 @@ export function OrderRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
+  const { id: orderId } = useParams();
+
+  useEffect(() => {
+    apiClient.getOrderMessages(orderId ?? "unknown").then(setMessages);
+  }, [orderId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

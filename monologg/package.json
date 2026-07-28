@@ -1,0 +1,18 @@
+{
+  "name": "monologg",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @monologg/web dev",
+    "build": "pnpm --filter @monologg/web build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm --filter @monologg/web lint",
+    "format": "pnpm --filter @monologg/web format",
+    "format:check": "pnpm --filter @monologg/web format:check",
+    "test": "pnpm --filter @monologg/web test"
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -9,117 +9,18 @@ import { Avatar } from "../components/ui/Avatar";
 import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
+import { apiClient } from "../../lib/api-client";
+import type { ClientProject, Order, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
-  Plus, Star, Shield, Filter, DollarSign, Users,
+  Plus, Star, Shield, Filter, Users,
   ChevronRight, Play, X
 } from "lucide-react";
 
 type Tab = "home" | "discover" | "projects" | "orders" | "shortlist";
 
-const CLIENT_STATS = [
-  { label: "Active Projects", value: "4", delta: "2 in review", icon: Briefcase, color: "var(--color-accent)" },
-  { label: "Talents Hired", value: "12", delta: "+3 this month", icon: Users, color: "var(--color-success)" },
-  { label: "Total Spent", value: "₦850K", delta: "Dec budget: ₦200K", icon: DollarSign, color: "var(--color-accent)" },
-  { label: "Avg. Rating Given", value: "4.8", delta: "Excellent", icon: Star, color: "var(--color-gold)" },
-];
-
-const TALENTS = [
-  {
-    id: 1,
-    name: "Adaeze Obi",
-    role: "Voice-Over Artist",
-    location: "Lagos",
-    price: "₦28,000",
-    tags: ["Warm", "Multilingual", "Corporate"],
-    verified: true,
-    rating: 4.9,
-    reviews: 48,
-    available: true,
-    avatar: "AO",
-  },
-  {
-    id: 2,
-    name: "Chidi Okeke",
-    role: "Actor",
-    location: "Abuja",
-    price: "₦120,000",
-    tags: ["Dramatic", "Deep Voice", "Nollywood"],
-    verified: true,
-    rating: 4.8,
-    reviews: 32,
-    available: true,
-    avatar: "CO",
-  },
-  {
-    id: 3,
-    name: "Kofi Mensah",
-    role: "Comedian · Compere",
-    location: "Accra",
-    price: "₦60,000",
-    tags: ["Corporate", "Witty", "Energetic"],
-    verified: true,
-    rating: 5.0,
-    reviews: 24,
-    available: false,
-    avatar: "KM",
-  },
-  {
-    id: 4,
-    name: "Amara Diallo",
-    role: "Voice-Over Artist",
-    location: "Accra",
-    price: "₦35,000",
-    tags: ["Storytelling", "Animated", "French"],
-    verified: true,
-    rating: 4.7,
-    reviews: 61,
-    available: true,
-    avatar: "AD",
-  },
-  {
-    id: 5,
-    name: "Temi Adeleke",
-    role: "Content Creator",
-    location: "Lagos",
-    price: "₦50,000",
-    tags: ["Lifestyle", "Charismatic", "Storyteller"],
-    verified: false,
-    rating: 4.5,
-    reviews: 18,
-    available: true,
-    avatar: "TA",
-  },
-  {
-    id: 6,
-    name: "Ibrahim Bello",
-    role: "Actor · Model",
-    location: "Kano",
-    price: "₦90,000",
-    tags: ["Commercial", "Bilingual", "Athletic"],
-    verified: true,
-    rating: 4.9,
-    reviews: 27,
-    available: true,
-    avatar: "IB",
-  },
-];
-
-const PROJECTS = [
-  { id: "P-001", name: "Nike Q1 Campaign", niche: "Voice-Over", budget: "₦200,000", status: "active", applicants: 8, posted: "Dec 14" },
-  { id: "P-002", name: "Tech Summit Compere", niche: "Compere", budget: "₦120,000", status: "in_review", applicants: 3, posted: "Dec 10" },
-  { id: "P-003", name: "Fintech Radio Ads", niche: "Voice-Over", budget: "₦80,000", status: "draft", applicants: 0, posted: "Dec 8" },
-  { id: "P-004", name: "Film Auditions Jan 2025", niche: "Actor", budget: "₦500,000", status: "active", applicants: 21, posted: "Dec 5" },
-];
-
-const ORDERS = [
-  { id: "ORD-001", talent: "Adaeze Obi", project: "Nike Commercial VO", amount: "₦45,000", phase: "Deliverables", status: "active", due: "Dec 18" },
-  { id: "ORD-002", talent: "Kofi Mensah", project: "Tech Summit Compere", amount: "₦80,000", phase: "Review", status: "review", due: "Dec 22" },
-  { id: "ORD-003", talent: "Chidi Okeke", project: "Film Auditions Jan 25", amount: "₦120,000", phase: "Briefing", status: "new", due: "Dec 28" },
-];
-
-const SHORTLIST = [1, 3, 5];
-
+// Filter option list — UI configuration, not domain data; stays local
+// (see apps/web/src/lib/api-client.ts doc comment for the mock-data boundary).
 const NICHES = ["All", "Actor", "Voice-Over", "Comedian", "Compere", "Speaker", "Content Creator"];
 
 const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
@@ -142,15 +43,27 @@ export function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
-  const [shortlist, setShortlist] = useState<number[]>(SHORTLIST);
-  const [selectedTalent, setSelectedTalent] = useState<typeof TALENTS[0] | null>(null);
+  const [shortlist, setShortlist] = useState<number[]>([]);
+  const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
+  const [stats, setStats] = useState<StatMetric[]>([]);
+  const [talents, setTalents] = useState<Talent[]>([]);
+  const [projects, setProjects] = useState<ClientProject[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    apiClient.getClientStats().then(setStats);
+    apiClient.listTalents().then(setTalents);
+    apiClient.listClientProjects().then(setProjects);
+    apiClient.listClientOrders().then(setOrders);
+    apiClient.getShortlistedTalentIds().then(setShortlist);
+  }, []);
 
   const toggleShortlist = (id: number) => {
     setShortlist(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  const filteredTalents = TALENTS.filter(t => {
+  const filteredTalents = talents.filter(t => {
     const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.role.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesNiche = selectedNiche === "All" || t.role.toLowerCase().includes(selectedNiche.toLowerCase());
     return matchesSearch && matchesNiche;
@@ -277,7 +190,7 @@ export function ClientDashboard() {
                   className="grid grid-cols-3 mb-6 p-5 rounded-[var(--radius-lg)]"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
                 >
-                  {CLIENT_STATS.filter((_, i) => i !== 2).map((stat, i) => (
+                  {stats.filter((_, i) => i !== 2).map((stat, i) => (
                     <div key={i} className="text-center px-2" style={{ borderLeft: i > 0 ? "1px solid var(--color-hairline)" : undefined }}>
                       <div className="font-display text-2xl tnum" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
                       <div className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
@@ -291,7 +204,7 @@ export function ClientDashboard() {
                   <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("projects")}>View all →</button>
                 </div>
                 <div className="space-y-2.5">
-                  {PROJECTS.slice(0, 3).map((project, i) => (
+                  {projects.slice(0, 3).map((project, i) => (
                     <motion.div
                       key={project.id}
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
@@ -505,7 +418,7 @@ export function ClientDashboard() {
                 </div>
 
                 <div className="space-y-4">
-                  {PROJECTS.map(project => (
+                  {projects.map(project => (
                     <div key={project.id} className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div>
@@ -553,7 +466,7 @@ export function ClientDashboard() {
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
                 <div className="space-y-4">
-                  {ORDERS.map(order => (
+                  {orders.map(order => (
                     <div
                       key={order.id}
                       className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
@@ -564,7 +477,7 @@ export function ClientDashboard() {
                         <div>
                           <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
                           <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Talent: {order.talent}</p>
+                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Talent: {order.counterpart}</p>
                         </div>
                         <div className="text-right">
                           <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
@@ -616,7 +529,7 @@ export function ClientDashboard() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {TALENTS.filter(t => shortlist.includes(t.id)).map(talent => (
+                    {talents.filter(t => shortlist.includes(t.id)).map(talent => (
                       <div key={talent.id} className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                         <div className="flex items-center gap-3 mb-3">
                           <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">

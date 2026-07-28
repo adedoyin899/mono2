@@ -1,8 +1,8 @@
 # Monologg (monologg/)
 monologg/**/node_modules/
 monologg/**/dist/
-monologg/app/dist-designsystem/
-monologg/app/dist-standalone/
+monologg/apps/web/dist-designsystem/
+monologg/apps/web/dist-standalone/
 monologg/**/.vite/
 monologg/**/coverage/
 

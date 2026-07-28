@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -8,52 +8,20 @@ import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
+import { apiClient } from "../../lib/api-client";
+import type { ActivityItem, AvailabilityWeek, Order, ServiceRateCard, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight,
-  MessageSquare, DollarSign, Eye, CheckCircle2, X,
+  MessageSquare, DollarSign, CheckCircle2, X,
   BarChart2, Award
 } from "lucide-react";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings";
 
-const STATS = [
-  { label: "This Month", value: "₦148,000", delta: "+18%", icon: DollarSign, color: "var(--color-success)" },
-  { label: "Active Bookings", value: "3", delta: "2 new", icon: Calendar, color: "var(--color-accent)" },
-  { label: "Profile Views", value: "1,240", delta: "+34%", icon: Eye, color: "var(--color-accent)" },
-  { label: "Response Rate", value: "96%", delta: "Excellent", icon: MessageSquare, color: "var(--color-success)" },
-];
-
-const ACTIVITY = [
-  { type: "booking", client: "Brand Agency NG", service: "Commercial Voice-Over", amount: "₦45,000", time: "2h ago", status: "pending" },
-  { type: "payment", client: "FilmCraft Lagos", service: "Feature Film Audition", amount: "₦120,000", time: "1d ago", status: "paid" },
-  { type: "message", client: "EventPro Abuja", service: "Compere Booking", amount: "₦80,000", time: "2d ago", status: "active" },
-];
-
-const SERVICES = [
-  { id: 1, title: "Feature Film Audition", price: "₦120,000", delivery: "48 Hours", bookings: 24 },
-  { id: 2, title: "Commercial Voice-Over", price: "₦45,000", delivery: "Same Day", bookings: 67 },
-  { id: 3, title: "Script Table Reading", price: "₦80,000", delivery: "2–3 Days", bookings: 12 },
-];
-
+// UI configuration, not domain data — stays local (see api-client.ts).
 const CALENDAR_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const CALENDAR_DATA: Record<string, ("available" | "booked" | "off")[]> = {
-  Mon: ["available", "available", "booked", "off"],
-  Tue: ["booked", "booked", "available", "available"],
-  Wed: ["available", "off", "off", "available"],
-  Thu: ["available", "available", "available", "booked"],
-  Fri: ["booked", "available", "available", "off"],
-  Sat: ["off", "off", "off", "off"],
-  Sun: ["off", "off", "off", "off"],
-};
 const TIME_SLOTS = ["9am–12pm", "12pm–3pm", "3pm–6pm", "6pm–9pm"];
-
-const ORDERS = [
-  { id: "ORD-001", client: "FilmCraft Lagos", project: "Nike Commercial VO", amount: "₦120,000", status: "in_progress", phase: "Deliverables", due: "Dec 18" },
-  { id: "ORD-002", client: "EventPro Abuja", project: "Tech Summit Compere", amount: "₦80,000", status: "review", phase: "Review", due: "Dec 22" },
-  { id: "ORD-003", client: "Brand Agency NG", project: "Radio Ad Campaign", amount: "₦45,000", status: "new", phase: "Briefing", due: "Dec 28" },
-];
-
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
 
 const TALENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
@@ -82,10 +50,22 @@ export function TalentDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedDay, setSelectedDay] = useState<{day: string, slot: number} | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
-  const [calendarData, setCalendarData] = useState(CALENDAR_DATA);
+  const [calendarData, setCalendarData] = useState<AvailabilityWeek>({});
   const navigate = useNavigate();
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [stats, setStats] = useState<StatMetric[]>([]);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [services, setServices] = useState<ServiceRateCard[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    apiClient.getTalentStats().then(setStats);
+    apiClient.listTalentActivity().then(setActivity);
+    apiClient.listServices().then(setServices);
+    apiClient.listTalentOrders().then(setOrders);
+    apiClient.getAvailability().then(setCalendarData);
+  }, []);
 
   const screenTitle =
     activeTab === "home" ? "Dashboard"
@@ -237,7 +217,7 @@ export function TalentDashboard() {
                   className="grid grid-cols-3 mb-6 p-5 rounded-[var(--radius-lg)]"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
                 >
-                  {STATS.slice(1).map((stat, i) => (
+                  {stats.slice(1).map((stat, i) => (
                     <div key={i} className="text-center px-2" style={{ borderLeft: i > 0 ? "1px solid var(--color-hairline)" : undefined }}>
                       <div className="font-display text-2xl tnum" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
                       <div className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
@@ -253,7 +233,7 @@ export function TalentDashboard() {
                   </button>
                 </div>
                 <div className="space-y-2.5">
-                  {ACTIVITY.map((item, i) => (
+                  {activity.map((item, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
@@ -373,7 +353,7 @@ export function TalentDashboard() {
                     {/* Rate Cards */}
                     <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Booking Services</h3>
                     <div className="space-y-3">
-                      {SERVICES.map(service => (
+                      {services.map(service => (
                         <div
                           key={service.id}
                           className="p-4 rounded-[var(--radius-md)]"
@@ -408,7 +388,7 @@ export function TalentDashboard() {
                 </div>
 
                 <div className="space-y-4">
-                  {SERVICES.map(service => (
+                  {services.map(service => (
                     <div
                       key={service.id}
                       className="p-5 rounded-[var(--radius-lg)]"
@@ -486,7 +466,7 @@ export function TalentDashboard() {
                             </label>
                             <Input
                               placeholder="e.g., Voice-Over Recording"
-                              defaultValue={editServiceId ? SERVICES.find(s => s.id === editServiceId)?.title : ""}
+                              defaultValue={editServiceId ? services.find(s => s.id === editServiceId)?.title : ""}
                             />
                           </div>
                           <div>
@@ -495,7 +475,7 @@ export function TalentDashboard() {
                             </label>
                             <div className="relative">
                               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-body text-sm" style={{ color: "var(--color-text-secondary)" }}>₦</span>
-                              <Input className="pl-8" placeholder="45,000" defaultValue={editServiceId ? SERVICES.find(s => s.id === editServiceId)?.price.replace("₦", "").replace(",", "") : ""} />
+                              <Input className="pl-8" placeholder="45,000" defaultValue={editServiceId ? services.find(s => s.id === editServiceId)?.price.replace("₦", "").replace(",", "") : ""} />
                             </div>
                           </div>
                           <div>
@@ -652,7 +632,7 @@ export function TalentDashboard() {
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
-                {ORDERS.length === 0 ? (
+                {orders.length === 0 ? (
                   <div className="text-center py-16">
                     <MessageSquare className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
                     <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No active orders</h3>
@@ -661,7 +641,7 @@ export function TalentDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {ORDERS.map(order => (
+                    {orders.map(order => (
                       <div
                         key={order.id}
                         className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
@@ -672,7 +652,7 @@ export function TalentDashboard() {
                           <div>
                             <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
                             <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                            <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{order.client}</p>
+                            <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{order.counterpart}</p>
                           </div>
                           <div className="text-right">
                             <div className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
