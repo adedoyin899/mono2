@@ -1,0 +1,10 @@
+# Monologg (monologg/)
+monologg/app/node_modules/
+monologg/app/dist/
+monologg/app/dist-designsystem/
+monologg/app/dist-standalone/
+monologg/app/.vite/
+
+# OS junk
+.DS_Store
+**/.DS_Store
