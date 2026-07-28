@@ -4,12 +4,15 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:db": "node scripts/verify-supabase-connection.mjs"
   },
   "dependencies": {
-    "@monologg/types": "workspace:*"
+    "@monologg/types": "workspace:*",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.20.0",
     "typescript": "^5.9.3"
   }
 }

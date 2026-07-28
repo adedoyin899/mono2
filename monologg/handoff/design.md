@@ -1,6 +1,6 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-28 (Session 11: Supabase project provisioned)
 **Status:** Frontend prototype / design-preview build, now in git. No backend, database, or real authentication exists yet — see [Section 6](#6-what-is-not-built-yet-gaps-vs-the-prd) before assuming anything works end-to-end. The full-stack build-out is scoped in detail in `features.md` — read that before starting backend work; some facts below (FINCRA, 9%/12% fees, "Thespian AI" as verification) are the **current, stale** state that `features.md` explicitly corrects.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
@@ -86,7 +86,7 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 
 This is the most important fact for anyone continuing this project: **Monologg today is 100% frontend.** There is:
 - **No server / API layer.** Zero `fetch`/`axios`/API calls anywhere in the codebase.
-- **No database.** Every list of data (orders, talents, projects, stats, messages) is a hardcoded JavaScript constant defined at the top of its page file (e.g. `TALENTS`, `PROJECTS`, `ORDERS`, `STATS` in `ClientDashboard.tsx`/`TalentDashboard.tsx`).
+- **No database — but a Supabase Postgres project now exists** (provisioned in Phase 1's Supabase addendum, Session 11), credentials only, **no schema yet** (that's Phase 2). Every list of data (orders, talents, projects, stats, messages) is still a hardcoded JavaScript constant defined at the top of its page file (e.g. `TALENTS`, `PROJECTS`, `ORDERS`, `STATS` in `ClientDashboard.tsx`/`TalentDashboard.tsx`).
 - **No real authentication.** `AuthFlow.tsx`'s "Sign In" just inspects whether the typed email contains the substring `"client"` or `"brand"` and routes to `/client` or `/dashboard` accordingly — it does not check a password, call any endpoint, or issue a session token. "Register" navigates straight to onboarding. There is no logged-in/logged-out state anywhere in the app; every route is reachable directly by URL.
 - **No persistence** except one thing: the light/dark theme preference, stored in `localStorage` under the key `monologg-theme` (`src/app/Root.tsx`). Everything else resets to its hardcoded initial state on page refresh.
 - **No real payment integration.** The PRD specifies FINCRA as the escrow payment gateway; `Checkout.tsx` simulates this with a 2.5-second delay before showing a "confirmed" state.
@@ -175,6 +175,7 @@ Key token groups:
   ```
   then re-inline the built JS/CSS into the two root-level HTML files (ask whoever/whatever is continuing this project to re-run the inlining step, or script it — it's a few lines of Python, see `log.md`).
 - **Data seam:** every screen reads/writes through `apps/web/src/lib/api-client.ts`, controlled by `VITE_API_MODE` (`mock`, the default — returns fixtures from `apps/web/src/mocks/`; `live` — calls `/api/v1/...`, not real until Phase 5+). See `apps/web/.env.example`.
+- **Database (Supabase):** a Supabase Postgres project exists (`apps/api/.env`, gitignored, not committed — see `apps/api/.env.example` for the shape). `DATABASE_URL` is the pooled/pgbouncer connection (port 6543, `aws-0-eu-west-1.pooler.supabase.com`) the running app will use; `DIRECT_URL` is the direct connection (port 5432, `db.<ref>.supabase.co`) for tooling that needs a non-pooled session (e.g. Prisma migrations in Phase 2). **The direct host is IPv6-only** unless the project's IPv4 add-on is purchased — verify `DIRECT_URL` from an IPv6-capable network, since some sandboxes/CI runners without an IPv6 route will see it as unreachable even with correct credentials. Run `pnpm --filter @monologg/api run verify:db` to smoke-test both. Supabase Auth and the Data API are deliberately **not** enabled — schema and further Supabase config land in Phase 2+.
 - **CI:** `.github/workflows/monologg-ci.yml` (repo root — the only place GitHub Actions looks), path-scoped to `monologg/**`, runs `pnpm install --frozen-lockfile → typecheck → lint → test → build` from `monologg/`.
 - **Source control:** `github.com/adedoyin899/mono2`, this project under the `monologg/` folder (that repo also holds an unrelated `gstack` project at its root — kept deliberately separate). Push access is via a repo-scoped deploy key (`~/.ssh/id_ed25519_mono2`, host alias `github.com-mono2`), not the account's general SSH key.
 

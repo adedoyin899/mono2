@@ -26,6 +26,10 @@ All four are exactly what CI runs on every push/PR (`.github/workflows/monologg-
 
 Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (`/api/v1/...`, not real until Phase 5+).
 
+## Database (Supabase)
+
+`apps/api/.env` (gitignored — copy `apps/api/.env.example`) holds `DATABASE_URL` (pooled/pgbouncer, port 6543 — what the running app uses) and `DIRECT_URL` (direct, port 5432 — for migrations/tooling that need a non-pooled session). No schema exists yet (Phase 2). `DIRECT_URL`'s host is IPv6-only unless the project's IPv4 add-on is enabled — some networks won't reach it even with correct credentials. Run `pnpm --filter @monologg/api run verify:db` to smoke-test both.
+
 ## Working on the backend build-out (`features.md`)
 
 This project is mid-way through turning from a frontend prototype into a full-stack app, following `handoff/features.md` — an 18-phase (0–17), dependency-ordered PRD. The rules that matter most:
