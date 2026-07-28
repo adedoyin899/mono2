@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
 **Last updated:** 2026-07-28
-**Status:** Frontend prototype, pushed to git, full-stack build-out scoped and ready to start. No backend/database/auth yet — that's the next phase, spec'd in full in `features.md`.
+**Status:** Frontend prototype, pushed to git, CI-backed (`features.md` Phase 0 done). No backend/database/auth yet — Phase 1 (monorepo restructure) is next.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -85,6 +85,16 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Confirmed the new monorepo structure nests under `monologg/` (not the true repo root, to stay separate from the unrelated content) and moved `New features.md` → `handoff/features.md`
 - [x] Updated `implementation-plan.md`, `design.md`, `log.md` to reflect the new phase of work — this pass
 
+### `features.md` Phase 0 — Repo tooling (done, reviewed below)
+- [x] Committed the UI-complete prototype as an explicit baseline (safety-net diff point) before any tooling changes
+- [x] Added strict TypeScript (`tsconfig.json`) — surfaced and fixed 38 pre-existing issues (mostly dead icon imports; one real bug, see `bug.md` #9) once the missing `@types/react`/`@types/react-dom`/`@types/node` packages were installed
+- [x] Added ESLint (flat config, `typescript-eslint` + React hooks/refresh plugins) and Prettier — lint is a CI gate (0 errors required; warnings are visible but non-blocking), format is available but not yet enforced (codebase predates it, not bulk-reformatted)
+- [x] Added Vitest + a real placeholder test suite against the existing `cn()` utility (not a vacuous assertion)
+- [x] Added `typecheck`/`lint`/`format`/`format:check`/`test` npm scripts
+- [x] Added GitHub Actions CI (`.github/workflows/monologg-ci.yml`, at the true repo root — the only place Actions looks — path-scoped to `monologg/**` so it doesn't fire on the unrelated project sharing this repo) running `typecheck → lint → test → build`, blocking on failure
+- [x] Added `CONTRIBUTING.md` and updated `README.md` with the new commands and CI description
+- [x] Verified all four gates green locally before committing
+
 ---
 
 ## 🔄 In Progress
@@ -97,11 +107,11 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 
 This supersedes the old flat gap list (previously here and in `design.md` §6) — `features.md` is now the authoritative, dependency-ordered backlog. **Phases are ordered by dependency, not priority; build one at a time, with tests as a gate, and stop for review between phases** — don't batch several in one unreviewed pass.
 
-**⚠️ Known conflicts to resolve during the relevant phase** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1); fees are 11% talent / 15% client, not 9%/12% (X2); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3). Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects the old values — do not carry them into the new backend.
+**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1); fees are 11% talent / 15% client, not 9%/12% (X2); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — none of these resolve until their backend phase lands (6, 3, 7 respectively). **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects the old X1–X3 values — do not carry them into the new backend.
 
 ### Infrastructure spine (Phases 0–12)
-- [ ] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` (git itself is already done, see Phase 9 above)
-- [ ] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`) + typed `api-client` seam, `VITE_API_MODE=mock|live` — pure refactor, zero visual change
+- [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
+- [ ] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`, pnpm workspaces) + typed `api-client` seam, `VITE_API_MODE=mock|live` — pure refactor, zero visual change
 - [ ] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
 - [ ] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
 - [ ] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware

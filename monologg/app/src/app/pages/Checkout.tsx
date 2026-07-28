@@ -6,7 +6,7 @@ import { Input } from "../components/ui/Input";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import {
   ChevronLeft, Lock, Shield, CreditCard, CheckCircle2,
-  AlertTriangle, ArrowRight, Smartphone, Building2, Check
+  ArrowRight, Smartphone, Building2
 } from "lucide-react";
 
 type PaymentMethod = "card" | "bank_transfer" | "ussd";

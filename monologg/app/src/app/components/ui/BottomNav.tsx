@@ -1,4 +1,3 @@
-import * as React from "react";
 import { motion } from "motion/react";
 import type { SidebarNavItem } from "./Sidebar";
 

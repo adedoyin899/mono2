@@ -1,0 +1,44 @@
+name: Monologg CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "monologg/**"
+      - ".github/workflows/monologg-ci.yml"
+  pull_request:
+    paths:
+      - "monologg/**"
+      - ".github/workflows/monologg-ci.yml"
+
+defaults:
+  run:
+    working-directory: monologg/app
+
+jobs:
+  ci:
+    name: typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: monologg/app/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

@@ -12,8 +12,7 @@ import { BottomNav } from "../components/ui/BottomNav";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
   Plus, Star, Shield, Filter, DollarSign, Users,
-  BarChart2, ChevronRight, Play, X, Check, Mic, User, Video,
-  Clock, Eye, TrendingUp, BookOpen, Calendar
+  ChevronRight, Play, X
 } from "lucide-react";
 
 type Tab = "home" | "discover" | "projects" | "orders" | "shortlist";

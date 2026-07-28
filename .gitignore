@@ -1,9 +1,15 @@
 # Monologg (monologg/)
-monologg/app/node_modules/
-monologg/app/dist/
+monologg/**/node_modules/
+monologg/**/dist/
 monologg/app/dist-designsystem/
 monologg/app/dist-standalone/
-monologg/app/.vite/
+monologg/**/.vite/
+monologg/**/coverage/
+
+# Secrets — never commit real env values; .env.example is the exception
+monologg/**/.env
+monologg/**/.env.*
+!monologg/**/.env.example
 
 # OS junk
 .DS_Store

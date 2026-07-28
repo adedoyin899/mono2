@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -9,10 +9,10 @@ import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import {
-  Home, Calendar, Search, Bell, User, Share2, Shield, Play, TrendingUp,
+  Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight,
-  Star, MessageSquare, DollarSign, Eye, Clock, CheckCircle2, X,
-  BarChart2, Mic, Video, Award, MoreHorizontal
+  MessageSquare, DollarSign, Eye, CheckCircle2, X,
+  BarChart2, Award
 } from "lucide-react";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings";

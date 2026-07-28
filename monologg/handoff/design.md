@@ -74,6 +74,11 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 | Utility | `clsx` + `tailwind-merge` via `src/lib/utils.ts` (`cn()` helper) | Standard shadcn-style class merging |
 | Fonts | General Sans (display), Plus Jakarta Sans (body), JetBrains Mono (data) | Loaded via `@import url(...)` in `src/styles/fonts.css` from Fontshare/Google Fonts CDNs — **requires internet access to render correctly**; falls back to system fonts otherwise |
 | Standalone builds | `vite.config.standalone.ts` (hash-router app build) | For the double-clickable, no-server HTML files — see Section 7 |
+| Type checking | TypeScript 5, `strict: true` (`tsconfig.json`) | Added in `features.md` Phase 0 — first time this codebase has ever been type-checked (previously esbuild-transpiled only, types stripped not verified) |
+| Linting | ESLint 9 (flat config), `typescript-eslint` + React hooks/refresh plugins | `npm run lint` — CI-blocking on errors (0 currently), 5 pre-existing warnings are non-blocking (documented in `log.md` Session 9) |
+| Formatting | Prettier 3 | `npm run format` / `format:check` — available, not yet a CI gate; codebase predates it and hasn't been bulk-reformatted |
+| Testing | Vitest 3 | `npm test` — CI-blocking; one real suite so far, `src/lib/utils.test.ts` |
+| CI | GitHub Actions, `.github/workflows/monologg-ci.yml` (repo root) | `typecheck → lint → test → build`, path-scoped to `monologg/**`, blocks merge on failure |
 
 **Full dependency list, post-cleanup (2026-07-27):** `clsx`, `lucide-react`, `motion`, `react-router`, `tailwind-merge` (runtime) + `@tailwindcss/vite`, `@vitejs/plugin-react`, `tailwindcss`, `vite` (dev/build). Everything else that shipped in the original Figma Make export — `@emotion/react`, `@emotion/styled`, `class-variance-authority`, `cmdk`, `date-fns`, `embla-carousel-react`, `input-otp`, `next-themes`, `react-day-picker`, `react-dnd`, `react-dnd-html5-backend`, `react-hook-form`, `react-popper`, `react-resizable-panels`, `react-responsive-masonry`, `react-slick`, `recharts`, `sonner`, `tw-animate-css`, `vaul`, plus `vite-plugin-dts` and its `@microsoft`/`@rushstack` transitive tree — was never imported by any page and has been removed (`node_modules` went from 292MB to 134MB). See `bug.md` and `log.md` for what broke and how it was caught.
 

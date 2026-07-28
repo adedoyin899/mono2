@@ -109,6 +109,15 @@ This tracks every defect found during this engagement — both classic "the buil
 - **How it was fixed:** Removed the orphaned `</g>`, matching the JSX structure back to the original SVG's actual nesting (one `<g>` around the icon paths only, the text path as a sibling).
 - **Lesson for next time:** When hand-converting an existing SVG's tag structure into JSX (e.g. to swap `fill="white"` for `fill="currentColor"`), diff the opening/closing tag count against the source rather than assuming a straight copy — it's easy to add or drop a wrapping tag when the file is large and repetitive.
 
+### 9. `Card`'s `style` prop was silently dropped in `DesignSystem.tsx`
+
+- **Severity:** Low (cosmetic — one text color override never applied; found by strict typecheck, not by a report)
+- **What happened:** The local `Card` helper in `DesignSystem.tsx` only ever declared `{ children, className }` in its props type and hardcoded its own inline `style` (background/border/shadow), never merging in a caller-supplied `style`. One call site (the "Known gaps" section) passed `style={{ color: "var(--color-text-secondary)" }}` expecting it to apply — it was silently ignored at runtime, not just a type error.
+- **What it meant:** That one card's text rendered in the default color instead of the intended secondary/muted tone. Purely visual, no functional impact.
+- **How it was found:** Turning on strict TypeScript for the first time (`features.md` Phase 0) — the call site failed to typecheck (`Property 'style' does not exist`) because `Card`'s props type never declared it, which is what strict mode is for: this bug existed silently before, the type system just had no way to catch it without `strict: true`.
+- **How it was fixed:** Added an optional `style?: React.CSSProperties` prop to `Card` and merged it into the div's inline style (spread after the hardcoded values, so callers can override).
+- **Lesson for next time:** A component that hardcodes its own `style` object and doesn't accept/merge a caller override will silently swallow any `style` prop passed to it — worth deciding explicitly whether a component should accept style overrides, rather than leaving it ambiguous.
+
 ---
 
 ## Design-system consistency issues (found via audit, not crashes — but real bugs in the "will silently drift" sense)
@@ -130,8 +139,8 @@ These didn't break anything today, but they meant a future change to a design to
 
 | Issue | Severity | Why it wasn't fixed |
 |---|---|---|
-| Several unused icon imports in `TalentDashboard.tsx` (`Search`, `Star`, `Clock`, `Mic`, `Video`, `MoreHorizontal`) | Low | Pre-existing dead code from the original Figma Make export, unrelated to design-system work; purely cosmetic, no functional or build impact |
-| Fonts (General Sans, Plus Jakarta Sans, JetBrains Mono) load from external CDNs (Fontshare, Google Fonts) | Low–Medium | Not a bug introduced here, but worth flagging: in any environment without internet access (e.g. a strict sandboxed preview), fonts silently fall back to system fonts. Not fixed because it requires a product decision (self-host the fonts, or accept the CDN dependency) |
+| ~~Several unused icon imports in `TalentDashboard.tsx`~~ | — | **Fixed** in `features.md` Phase 0 — strict TypeScript's `noUnusedLocals` surfaced 38 unused imports/variables across 12 files (this one included); all removed, see `log.md` |
+| Fonts (General Sans, Plus Jakarta Sans, JetBrains Mono) load from external CDNs (Fontshare, Google Fonts) | Low–Medium | Not a bug introduced here, but worth flagging: in any environment without internet access (e.g. a strict sandboxed preview), fonts silently fall back to system fonts. Not fixed because it requires a product decision (self-host the fonts, or accept the CDN dependency) — planned for `features.md` Phase 11 |
 | Type-scale tokens (`--font-size-*`) exist but aren't applied to most page headings yet | Low | Explicitly scoped out during this engagement as a larger, riskier change (would touch heading markup across every page); tokens were added so the option exists, adoption was left for a follow-up pass |
 
 **Not a bug — a scope gap, documented separately:** the entire absence of a real backend, database, authentication, and payment integration is **not** logged here as a "bug" — it's the current, intentional state of a frontend-only prototype. See `design.md` §6 for the full list of what still needs to be built.

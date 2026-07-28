@@ -7,7 +7,7 @@ import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
-  Check, Mic, User, Star, Video, Music, Briefcase, X
+  Check, Mic, User, Star, Video, Music
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;

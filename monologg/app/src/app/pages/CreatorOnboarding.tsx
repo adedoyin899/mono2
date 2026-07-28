@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -11,8 +11,7 @@ export function CreatorOnboarding() {
   const [step, setStep] = useState(1);
   const [selectedNiche, setSelectedNiche] = useState<string | null>("actor");
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [tags, setTags] = useState(["Warm Texture", "Conversational", "Expressive", "High Energy"]);
+  const [tags] = useState(["Warm Texture", "Conversational", "Expressive", "High Energy"]);
   const navigate = useNavigate();
 
   const handleNext = () => setStep(s => s + 1);

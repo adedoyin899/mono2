@@ -7,9 +7,9 @@ import { Avatar } from "../components/ui/Avatar";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import {
-  ChevronLeft, Shield, Send, Paperclip, MoreHorizontal, CheckCircle2,
-  Clock, Lock, FileText, Image, Download, AlertTriangle, Check,
-  ThumbsUp, UploadCloud, X, Sun, Moon, DollarSign, MessageSquare
+  ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
+  Lock, FileText, Download, AlertTriangle,
+  UploadCloud, X, Sun, Moon, DollarSign
 } from "lucide-react";
 
 type Phase = "briefing" | "deliverables" | "review" | "complete";

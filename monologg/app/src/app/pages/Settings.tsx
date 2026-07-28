@@ -9,7 +9,7 @@ import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, X, Smartphone, Trash2, Plus
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus
 } from "lucide-react";
 
 type Section = "main" | "profile" | "payment" | "notifications" | "security";
