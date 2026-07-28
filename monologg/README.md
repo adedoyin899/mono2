@@ -24,7 +24,7 @@ pnpm dev         # http://localhost:5173
 | `monologg-app.html` | The whole product, as one double-clickable file. Regenerate from `apps/web/` after any code change (see `handoff/design.md` §7). |
 | `monologg-design-system.html` | The design-system reference page, same idea — one file, no server needed. |
 | `apps/web/` | The actual source code and local dev server. This is what a developer opens to make changes. |
-| `apps/api/` | Empty scaffold — the real backend lands in `features.md` Phase 3+. Nothing runs here yet. |
+| `apps/api/` | No running server yet (that's `features.md` Phase 3+), but the real Prisma schema/migration/seed against Supabase exist as of Phase 2 — see `apps/api/README.md`. |
 | `packages/types/` | Shared zod schemas/TypeScript types — the single source of truth for every data shape, imported by both `apps/web` and (eventually) `apps/api`. |
 | `handoff/` | All project documentation: what the product is, the tech stack, a running implementation log, every bug found and fixed, and a plain-language walkthrough of how it was all built. **Read this before making changes**, and keep it updated after. |
 | `brand/` | `icon.svg` (mark) and `logo.svg` (wordmark) — the real brand assets, wired into the app via `apps/web/src/app/components/ui/Logo.tsx` everywhere the wordmark appears. |

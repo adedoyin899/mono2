@@ -13,6 +13,6 @@
     "lint": "pnpm --filter @monologg/web lint",
     "format": "pnpm --filter @monologg/web format",
     "format:check": "pnpm --filter @monologg/web format:check",
-    "test": "pnpm --filter @monologg/web test"
+    "test": "pnpm --filter @monologg/web test && pnpm --filter @monologg/api test"
   }
 }

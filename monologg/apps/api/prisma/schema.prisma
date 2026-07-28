@@ -1,0 +1,273 @@
+// Monologg — features.md Phase 2. Source of truth for the relational schema.
+// Money rule: every monetary field is Int (integer minor units) + a currency string. No floats.
+// X3: Creator.styleTags (AI vibe tags) and Creator.verification (identity KYC) are separate
+// columns, never coupled. X1: Payment.provider is free-text validated at the app layer against
+// an allowlist that excludes "fincra" (see src/config/paymentProviders.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// --- Users & identity ---------------------------------------------------
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  userType      UserType
+  emailVerified Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  creator       Creator?
+  client        Client?
+  refreshTokens RefreshToken[]
+  notifications Notification[]
+}
+
+enum UserType {
+  TALENT
+  CLIENT
+}
+
+model Creator {
+  id             String              @id @default(cuid())
+  userId         String              @unique
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  niche          Niche
+  bio            String?
+  location       String
+  styleTags      String[] // X3: AI-generated vibe tags — NOT identity
+  verification   VerificationState   @default(UNVERIFIED) // X3: identity KYC, separate
+  celebrityBadge Boolean             @default(false) // referral-earned, distinct from KYC
+  referralCode   String              @unique
+  media          MediaAsset[]
+  rateCards      RateCard[]
+  availability   AvailabilityBlock[]
+  bookings       Booking[]           @relation("CreatorBookings")
+  kycChecks      KycCheck[]
+}
+
+enum Niche {
+  ACTOR
+  VO_ARTIST
+  COMEDIAN
+  COMPERE
+  SPEAKER_PASTOR
+  MUSICIAN
+  CONTENT_CREATOR
+}
+
+enum VerificationState {
+  UNVERIFIED
+  PROCESSING
+  VERIFIED
+  FAILED
+}
+
+model Client {
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name     String
+  orgName  String?
+  orgType  OrgType?
+  location String
+  briefs   Brief[]
+  bookings Booking[] @relation("ClientBookings")
+}
+
+enum OrgType {
+  STUDIO
+  EVENT
+  BRAND
+  CHURCH
+}
+
+// --- Creator profile detail ----------------------------------------------
+
+model MediaAsset {
+  id          String    @id @default(cuid())
+  creatorId   String
+  creator     Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  kind        MediaKind
+  url         String
+  sizeBytes   Int
+  durationSec Int?
+  createdAt   DateTime  @default(now())
+}
+
+enum MediaKind {
+  VIDEO
+  AUDIO
+}
+
+model RateCard {
+  id                String  @id @default(cuid())
+  creatorId         String
+  creator           Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  serviceTitle      String
+  basePriceAmount   Int // minor units (kobo/cents)
+  basePriceCurrency String // NGN, USD, GBP…
+  deliveryTimeline  String
+}
+
+model AvailabilityBlock {
+  id              String   @id @default(cuid())
+  creatorId       String
+  creator         Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  date            DateTime
+  slots           Json // [{start,end,booked}]
+  calendarEventId String? // Google Calendar linkage
+}
+
+// --- Briefs & bookings ----------------------------------------------------
+
+model Brief {
+  id             String   @id @default(cuid())
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectName    String
+  projectType    String
+  nicheReq       Niche[]
+  budgetAmount   Int
+  budgetCurrency String
+  createdAt      DateTime @default(now())
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  creatorId       String
+  creator         Creator        @relation("CreatorBookings", fields: [creatorId], references: [id])
+  clientId        String
+  client          Client         @relation("ClientBookings", fields: [clientId], references: [id])
+  rateCardId      String
+  engagementType  EngagementType @default(ONE_OFF)
+  slotDate        DateTime
+  slotStart       String
+  slotEnd         String
+  recurrence      String? // when RETAINER
+  baseAmount      Int
+  currency        String
+  talentFeeAmount Int // computed from PLATFORM_FEES at creation, stored for audit
+  clientFeeAmount Int
+  state           BookingState   @default(PENDING_PAYMENT)
+  meetUrl         String? // Google Meet live call
+  payment         Payment?
+  orderRoom       OrderRoom?
+  createdAt       DateTime       @default(now())
+}
+
+enum EngagementType {
+  ONE_OFF
+  RETAINER
+}
+
+enum BookingState {
+  PENDING_PAYMENT
+  ESCROW_LOCKED
+  DELIVERABLES_PROVIDED
+  PAYMENT_RELEASED
+  CANCELLED
+  DISPUTED
+}
+
+// --- Payments --------------------------------------------------------------
+
+model Payment {
+  id          String         @id @default(cuid())
+  bookingId   String         @unique
+  booking     Booking        @relation(fields: [bookingId], references: [id])
+  provider    String // "paystack" | "stripe" | "airwallex" — X1, never "fincra"
+  providerRef String? // provider transaction/charge id
+  status      PaymentStatus  @default(INITIATED)
+  escrowHeld  Boolean        @default(false)
+  amount      Int
+  currency    String
+  events      PaymentEvent[] // webhook audit trail
+  createdAt   DateTime       @default(now())
+}
+
+enum PaymentStatus {
+  INITIATED
+  AUTHORIZED
+  ESCROW_HELD
+  RELEASED
+  REFUNDED
+  FAILED
+}
+
+model PaymentEvent {
+  id        String   @id @default(cuid())
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+  type      String // provider event name
+  raw       Json // full webhook payload for audit/idempotency
+  createdAt DateTime @default(now())
+}
+
+// --- Order room & messaging -------------------------------------------------
+
+model OrderRoom {
+  id        String    @id @default(cuid())
+  bookingId String    @unique
+  booking   Booking   @relation(fields: [bookingId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  orderRoomId String
+  orderRoom   OrderRoom   @relation(fields: [orderRoomId], references: [id], onDelete: Cascade)
+  senderId    String
+  kind        MessageKind
+  content     String
+  createdAt   DateTime    @default(now())
+}
+
+enum MessageKind {
+  TEXT
+  VOICE
+  DOCUMENT
+  CALL
+  SYSTEM
+}
+
+// --- Auth & platform ---------------------------------------------------------
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String // store a hash, never the raw token
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  payload   Json
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model KycCheck {
+  id          String            @id @default(cuid())
+  creatorId   String
+  creator     Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  provider    String // "smile_identity"
+  providerRef String?
+  status      VerificationState
+  raw         Json?
+  createdAt   DateTime          @default(now())
+}

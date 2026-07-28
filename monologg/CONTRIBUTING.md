@@ -14,7 +14,7 @@ pnpm dev            # http://localhost:5173
 ```
 pnpm run typecheck   # tsc --noEmit across all three packages, strict
 pnpm run lint        # eslint . in apps/web — warnings are OK, errors block CI
-pnpm run test        # vitest run in apps/web
+pnpm run test        # vitest run in apps/web, then apps/api (fast/no-network tests only)
 pnpm run build       # production build
 ```
 
@@ -26,9 +26,20 @@ All four are exactly what CI runs on every push/PR (`.github/workflows/monologg-
 
 Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (`/api/v1/...`, not real until Phase 5+).
 
-## Database (Supabase)
+## Database (Supabase + Prisma)
 
-`apps/api/.env` (gitignored — copy `apps/api/.env.example`) holds `DATABASE_URL` (pooled/pgbouncer, port 6543 — what the running app uses) and `DIRECT_URL` (direct, port 5432 — for migrations/tooling that need a non-pooled session). No schema exists yet (Phase 2). `DIRECT_URL`'s host is IPv6-only unless the project's IPv4 add-on is enabled — some networks won't reach it even with correct credentials. Run `pnpm --filter @monologg/api run verify:db` to smoke-test both.
+`apps/api/.env` (gitignored — copy `apps/api/.env.example`) holds `DATABASE_URL` (transaction pooler, port 6543, `?pgbouncer=true` — what the running app/Prisma client uses at runtime) and `DIRECT_URL` (session pooler, port 5432, same pooler host — what `prisma migrate` uses). Both route through Supabase's pooler host, not the raw direct host (`db.<ref>.supabase.co`) — that host is IPv6-only unless the project's IPv4 add-on is enabled, and some networks (including the one this was built in) can't reach it at all.
+
+Schema lives in `apps/api/prisma/schema.prisma` (15 models per `features.md` Phase 2). Useful commands, all from `monologg/`:
+
+```
+pnpm --filter @monologg/api run verify:db          # smoke-test both connection strings
+pnpm --filter @monologg/api exec prisma migrate dev # apply schema changes
+pnpm --filter @monologg/api run db:seed             # idempotent seed (safe to re-run)
+pnpm --filter @monologg/api run test:integration    # live-DB tests — NOT part of `pnpm test`/CI
+```
+
+`test:integration` isn't CI-gated: CI has no Supabase secrets or per-run branching configured. `pnpm test`/CI only run `apps/api`'s fast, no-network tests (payment-provider allowlist, schema shape via Prisma's DMMF).
 
 ## Working on the backend build-out (`features.md`)
 

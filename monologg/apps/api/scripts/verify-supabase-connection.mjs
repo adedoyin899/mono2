@@ -1,13 +1,15 @@
-// One-off smoke test for features.md Phase 1: confirms DATABASE_URL (pooled) and
-// DIRECT_URL (direct) are present and reachable. No schema exists yet (that's Phase 2),
-// so this only runs `select 1` — it proves connectivity + auth, nothing more.
+// One-off smoke test for features.md Phase 1/2: confirms DATABASE_URL (transaction pooler,
+// used by the app/Prisma client at runtime) and DIRECT_URL (session pooler, used by
+// `prisma migrate`) are present and reachable. This only runs `select 1` — it proves
+// connectivity + auth, nothing about schema.
 //
 // Run with: pnpm --filter @monologg/api run verify:db
 //
-// DIRECT_URL uses Supabase's direct host, which is IPv6-only unless the project has the
-// IPv4 add-on. Networks without an IPv6 route (some sandboxes, some CI runners) will not
-// be able to reach it — that's an environment limitation, not a bad credential. This
-// script reports that case distinctly from an auth/config failure instead of masking it.
+// Both URLs route through Supabase's pooler host (different ports), not the raw direct
+// host (db.<ref>.supabase.co) — that host is IPv6-only unless the project has the paid
+// IPv4 add-on, and this environment has no IPv6 route. The session pooler (port 5432 on
+// the pooler host) is Supabase's documented IPv4-compatible substitute for tools like
+// Prisma migrate that need session semantics — see handoff/log.md Session 12.
 
 import { Client } from "pg";
 
@@ -34,27 +36,20 @@ async function check(name, connectionString) {
   }
 }
 
-const pooledOk = await check("DATABASE_URL (pooled)", process.env.DATABASE_URL);
-const directOk = await check("DIRECT_URL (direct)", process.env.DIRECT_URL);
+const pooledOk = await check("DATABASE_URL (transaction pooler)", process.env.DATABASE_URL);
+const directOk = await check("DIRECT_URL (session pooler)", process.env.DIRECT_URL);
 
 console.log("\nSummary:");
-console.log(`  DATABASE_URL (pooled): ${pooledOk ? "reachable" : "NOT reachable"}`);
-console.log(`  DIRECT_URL (direct):   ${directOk ? "reachable" : "NOT reachable"}`);
+console.log(`  DATABASE_URL (transaction pooler): ${pooledOk ? "reachable" : "NOT reachable"}`);
+console.log(`  DIRECT_URL (session pooler):       ${directOk ? "reachable" : "NOT reachable"}`);
 
-if (!pooledOk) {
+if (!pooledOk || !directOk) {
   console.error(
-    "\nDATABASE_URL is required to be reachable in every environment — this is a real failure.",
+    "\nBoth URLs are expected to be reachable — they route through the same IPv4 pooler host " +
+      "(different ports). If one fails with ENOTFOUND/ETIMEDOUT, check the pooler host/port in " +
+      "apps/api/.env before assuming a network limitation.",
   );
   process.exit(1);
-}
-
-if (!directOk) {
-  console.warn(
-    "\nDIRECT_URL was not reachable from this machine. If the cause is ENOTFOUND/ETIMEDOUT " +
-      "and this network lacks an IPv6 route, that's expected (Supabase's direct host is " +
-      "IPv6-only without the IPv4 add-on) — verify DIRECT_URL from an IPv6-capable network " +
-      "before treating this as a credential problem.",
-  );
 }
 
 process.exit(0);

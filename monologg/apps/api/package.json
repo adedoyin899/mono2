@@ -4,15 +4,27 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
-    "verify:db": "node scripts/verify-supabase-connection.mjs"
+    "verify:db": "node scripts/verify-supabase-connection.mjs",
+    "db:seed": "prisma db seed",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@monologg/types": "workspace:*",
-    "pg": "^8.22.0"
+    "@prisma/client": "^6.19.3",
+    "pg": "^8.22.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
-    "typescript": "^5.9.3"
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
   }
 }
