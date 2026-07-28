@@ -20,7 +20,7 @@ The product is deliberately **role-adaptive**: the same app shell serves both si
 
 ### Source documents (the real PRD)
 
-The original product brief, UX spec, and a design-system prompt live in `app/src/imports/`:
+The original product brief, UX spec, and a design-system prompt live in `apps/web/src/imports/`:
 
 | File | What it is |
 |---|---|
@@ -109,7 +109,7 @@ This is the most important fact for anyone continuing this project: **Monologg t
 
 ## 5. Design system
 
-### Single source of truth: `app/src/styles/tokens.css`
+### Single source of truth: `apps/web/src/styles/tokens.css`
 
 All colors, radii, shadows, motion durations/easings, and (a partial) type scale are defined once as CSS custom properties on `:root`, with overrides under `.dark` (dark mode), `.role-talent` and `.role-client` (accent color scoping). Every component and page references these via `var(--token-name)` — see the live, self-updating reference at **`/design-system`** (route) or the generated static snapshot `handoff`-adjacent artifact.
 
@@ -163,15 +163,19 @@ Key token groups:
 
 ## 7. Where to run it / see it
 
-- **Local dev app:** `app/` — `npm run dev` → `http://localhost:5173`. Routes: `/`, `/auth`, `/onboarding`, `/onboarding/client`, `/dashboard`, `/client`, `/order/:id`, `/brief`, `/checkout`, `/settings`, `/design-system`.
-- **Design system reference:** `http://localhost:5173/design-system`, or regenerate the standalone static file with `npm run build:designsystem` (outputs to `dist-designsystem/`, wraps into a single HTML file for sharing).
-- **Standalone, no-server HTML files** (double-click, open in any browser, no `npm run dev` needed): `monologg-app.html` and `monologg-design-system.html` at the project root. The app version uses a hash router (`#/dashboard` style URLs) instead of the browser-history router the localhost version uses, since `file://` pages can't use `pushState`. Regenerate after any code change:
+**As of `features.md` Phase 1, this is a pnpm workspace** (`monologg/pnpm-workspace.yaml`): `apps/web` (the client, formerly the standalone `app/` folder), `apps/api` (empty scaffold, Phase 3+), `packages/types` (shared zod schemas/DTOs). Install once from `monologg/` with `pnpm install` (or `npx pnpm install` if pnpm isn't installed globally) — this links all three packages together.
+
+- **Local dev app:** from `monologg/`, `pnpm dev` (or `cd apps/web && npm run dev`) → `http://localhost:5173`. Routes: `/`, `/auth`, `/onboarding`, `/onboarding/client`, `/dashboard`, `/client`, `/order/:id`, `/brief`, `/checkout`, `/settings`, `/design-system`.
+- **Design system reference:** `http://localhost:5173/design-system`, or regenerate the standalone static file with `npm run build:designsystem` from `apps/web/` (outputs to `dist-designsystem/`, wraps into a single HTML file for sharing).
+- **Standalone, no-server HTML files** (double-click, open in any browser, no dev server needed): `monologg-app.html` and `monologg-design-system.html` at the project root. The app version uses a hash router (`#/dashboard` style URLs) instead of the browser-history router the localhost version uses, since `file://` pages can't use `pushState`. Regenerate after any code change:
   ```
-  cd app
+  cd apps/web
   npm run build && npm run build:standalone   # app
   npm run build:designsystem                   # design system
   ```
   then re-inline the built JS/CSS into the two root-level HTML files (ask whoever/whatever is continuing this project to re-run the inlining step, or script it — it's a few lines of Python, see `log.md`).
+- **Data seam:** every screen reads/writes through `apps/web/src/lib/api-client.ts`, controlled by `VITE_API_MODE` (`mock`, the default — returns fixtures from `apps/web/src/mocks/`; `live` — calls `/api/v1/...`, not real until Phase 5+). See `apps/web/.env.example`.
+- **CI:** `.github/workflows/monologg-ci.yml` (repo root — the only place GitHub Actions looks), path-scoped to `monologg/**`, runs `pnpm install --frozen-lockfile → typecheck → lint → test → build` from `monologg/`.
 - **Source control:** `github.com/adedoyin899/mono2`, this project under the `monologg/` folder (that repo also holds an unrelated `gstack` project at its root — kept deliberately separate). Push access is via a repo-scoped deploy key (`~/.ssh/id_ed25519_mono2`, host alias `github.com-mono2`), not the account's general SSH key.
 
-See `log.md` for exactly how `app/` came to exist and what was changed inside it, `bug.md` for defects found and fixed, `process.md` for a plain-language walkthrough of the whole engagement, and `features.md` for everything not yet built.
+See `log.md` for exactly how `apps/web` came to exist (as `app/`, then moved) and what was changed inside it, `bug.md` for defects found and fixed, `process.md` for a plain-language walkthrough of the whole engagement, and `features.md` for everything not yet built.

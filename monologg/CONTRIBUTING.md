@@ -2,24 +2,29 @@
 
 ## Running it locally
 
+This is a pnpm workspace (`apps/web`, `apps/api`, `packages/types`) as of `features.md` Phase 1. Everything below runs from **this folder** (`monologg/`), not from inside `apps/web/`.
+
 ```
-cd app
-npm install
-npm run dev        # http://localhost:5173
+pnpm install        # or: npx pnpm install, if pnpm isn't installed globally
+pnpm dev            # http://localhost:5173
 ```
 
 ## Before you commit
 
 ```
-npm run typecheck   # tsc --noEmit, strict
-npm run lint        # eslint . — warnings are OK, errors block CI
-npm test            # vitest run
-npm run build       # production build
+pnpm run typecheck   # tsc --noEmit across all three packages, strict
+pnpm run lint        # eslint . in apps/web — warnings are OK, errors block CI
+pnpm run test        # vitest run in apps/web
+pnpm run build       # production build
 ```
 
 All four are exactly what CI runs on every push/PR (`.github/workflows/monologg-ci.yml`, scoped to `monologg/**`). If it's not green here, it won't be green there.
 
-`npm run format` reformats with Prettier. It's available but not currently a CI gate — the codebase predates Prettier adoption and hasn't been bulk-reformatted yet (see `handoff/log.md`); new code is expected to already match `.prettierrc.json`, and full normalization can happen as a dedicated pass later.
+`pnpm run format` reformats `apps/web` with Prettier. It's available but not currently a CI gate — the codebase predates Prettier adoption and hasn't been bulk-reformatted yet (see `handoff/log.md`); new code is expected to already match `.prettierrc.json`, and full normalization can happen as a dedicated pass later.
+
+## The data seam
+
+Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (`/api/v1/...`, not real until Phase 5+).
 
 ## Working on the backend build-out (`features.md`)
 

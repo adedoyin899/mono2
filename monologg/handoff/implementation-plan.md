@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
 **Last updated:** 2026-07-28
-**Status:** Frontend prototype, pushed to git, CI-backed (`features.md` Phase 0 done). No backend/database/auth yet — Phase 1 (monorepo restructure) is next.
+**Status:** Frontend prototype, pushed to git, CI-backed, now a pnpm workspace with a typed `api-client` seam (`features.md` Phases 0–1 done). No backend/database/auth yet — Phase 2 (Postgres/Prisma schema) is next.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -95,6 +95,17 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Added `CONTRIBUTING.md` and updated `README.md` with the new commands and CI description
 - [x] Verified all four gates green locally before committing
 
+### `features.md` Phase 1 — Monorepo restructure + api-client seam
+- [x] Converted to pnpm workspaces: `apps/web` (moved from `app/` via `git mv`, preserves history), `apps/api` (empty scaffold), `packages/types` (shared zod schemas/DTOs)
+- [x] Fixed a real pre-existing bug surfaced along the way: `apps/web`'s `react`/`react-dom` were declared as optional `peerDependencies` (a library-mode leftover) instead of real `dependencies`, now corrected
+- [x] Built `apps/web/src/lib/api-client.ts` — one typed seam, every function mocked by default; added `VITE_API_MODE=mock|live` (`.env.example`)
+- [x] Moved every domain-entity mock constant (talents, projects, orders, stats, activity, services, availability, order messages, shortlist) into `apps/web/src/mocks/`, typed against `@monologg/types`; left static UI copy/config (marketing copy, form dropdown options, weekday labels) local, since that's not "mock data standing in for a backend" — see `log.md` for the exact boundary
+- [x] Refactored `ClientDashboard.tsx`, `TalentDashboard.tsx`, `OrderRoom.tsx` to load all domain data through `apiClient`, zero visual change (production CSS build hash unchanged)
+- [x] Added a grep-based test enforcing the boundary (no file under `src/app` imports `../mocks` directly) and DOM-parity tests (React Testing Library) proving each refactored page still renders the same real data
+- [x] Added `api-client.test.ts` covering both `VITE_API_MODE` paths (mock returns fixtures; live calls `fetch('/api/v1/...')`, mocked transport, including an error-response path)
+- [x] Updated CI to install/typecheck/lint/test/build via `pnpm` from the new workspace root
+- [x] Verified all three build targets green, CSS byte-identical across all of them, dev server + both standalone HTML files regenerated
+
 ---
 
 ## 🔄 In Progress
@@ -111,7 +122,7 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 
 ### Infrastructure spine (Phases 0–12)
 - [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
-- [ ] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`, pnpm workspaces) + typed `api-client` seam, `VITE_API_MODE=mock|live` — pure refactor, zero visual change
+- [x] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`, pnpm workspaces) + typed `api-client` seam, `VITE_API_MODE=mock|live` — done, see the Done section above
 - [ ] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
 - [ ] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
 - [ ] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware
