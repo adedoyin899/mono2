@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
+import { checkProductionDbUrls } from "./env.js";
 
 // ---------------------------------------------------------------------------
 // env.ts boot-validation tests — Phase 3 gate
@@ -155,5 +156,75 @@ describe("env.ts schema validation", () => {
       expect(paths).toContain("JWT_ACCESS_SECRET");
       expect(paths).toContain("JWT_REFRESH_SECRET");
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkProductionDbUrls — Phase 12 gate (P3 Supabase ops rule): production
+// must not accidentally swap the pooled (DATABASE_URL) and session/direct
+// (DIRECT_URL) connection strings. This IS imported directly from env.ts
+// (unlike the schema above) since it's a pure function with no process.exit
+// side effect — safe to exercise for real rather than duplicating its logic.
+// ---------------------------------------------------------------------------
+describe("checkProductionDbUrls (Phase 12)", () => {
+  const POOLED = "postgresql://postgres.ref:pw@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true";
+  const SESSION = "postgresql://postgres.ref:pw@aws-0-region.pooler.supabase.com:5432/postgres";
+
+  it("passes silently outside production, regardless of URL shape", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      { NODE_ENV: "development", DATABASE_URL: SESSION, DIRECT_URL: SESSION },
+      issues,
+    );
+    expect(issues).toHaveLength(0);
+  });
+
+  it("passes in production when DATABASE_URL is pooled (6543 + pgbouncer=true) and DIRECT_URL is session (5432)", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      { NODE_ENV: "production", DATABASE_URL: POOLED, DIRECT_URL: SESSION },
+      issues,
+    );
+    expect(issues).toHaveLength(0);
+  });
+
+  it("flags DATABASE_URL missing the pooled port/flag in production", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      { NODE_ENV: "production", DATABASE_URL: SESSION, DIRECT_URL: SESSION },
+      issues,
+    );
+    expect(issues.some((i) => i.includes("DATABASE_URL"))).toBe(true);
+  });
+
+  it("flags DIRECT_URL not on port 5432 in production", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      { NODE_ENV: "production", DATABASE_URL: POOLED, DIRECT_URL: POOLED },
+      issues,
+    );
+    expect(issues.some((i) => i.includes("DIRECT_URL") && i.includes("5432"))).toBe(true);
+  });
+
+  it("flags DIRECT_URL carrying pgbouncer=true even if otherwise on port 5432", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      {
+        NODE_ENV: "production",
+        DATABASE_URL: POOLED,
+        DIRECT_URL: `${SESSION}?pgbouncer=true`,
+      },
+      issues,
+    );
+    expect(issues.some((i) => i.includes("pgbouncer=true"))).toBe(true);
+  });
+
+  it("flags DATABASE_URL and DIRECT_URL being identical in production", () => {
+    const issues: string[] = [];
+    checkProductionDbUrls(
+      { NODE_ENV: "production", DATABASE_URL: POOLED, DIRECT_URL: POOLED },
+      issues,
+    );
+    expect(issues.some((i) => i.includes("identical"))).toBe(true);
   });
 });

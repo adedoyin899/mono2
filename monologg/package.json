@@ -13,6 +13,15 @@
     "lint": "pnpm --filter @monologg/web lint",
     "format": "pnpm --filter @monologg/web format",
     "format:check": "pnpm --filter @monologg/web format:check",
-    "test": "pnpm --filter @monologg/web test && pnpm --filter @monologg/api test"
+    "test": "pnpm --filter @monologg/web test && pnpm --filter @monologg/api test",
+    "audit": "pnpm audit --audit-level=high"
+  },
+  "pnpm": {
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-qwww-vcr4-c8h2",
+        "GHSA-mh99-v99m-4gvg"
+      ]
+    }
   }
 }

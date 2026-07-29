@@ -19,10 +19,13 @@ The two dev servers aren't proxied to each other — `apps/web` with `VITE_API_M
 pnpm run typecheck   # tsc --noEmit across all three packages, strict
 pnpm run lint        # eslint . in apps/web — warnings are OK, errors block CI
 pnpm run test        # vitest run in apps/web, then apps/api (fast/no-network tests only)
+pnpm run audit       # pnpm audit --audit-level=high — Phase 12; see apps/api/README.md for the one reviewed exception
 pnpm run build       # production build
 ```
 
-All four are exactly what CI runs on every push/PR (`.github/workflows/monologg-ci.yml`, scoped to `monologg/**`). If it's not green here, it won't be green there.
+All five are exactly what CI's `ci` job runs on every push/PR (`.github/workflows/monologg-ci.yml`, scoped to `monologg/**`). If it's not green here, it won't be green there. A second `docker` job (Phase 12) builds `apps/api/Dockerfile` and `apps/web/Dockerfile` on the same trigger — there's no local command that substitutes for it if Docker isn't installed; see apps/api/README.md's "Deployment" section.
+
+`pnpm --filter @monologg/api run test:coverage` runs the same test suite with coverage thresholds enforced on the money/auth/state modules (`apps/api/vitest.config.ts`) — not part of the CI-blocking `pnpm run test`, but worth running before touching `services/fees.ts`, `services/payment.ts`, `services/auth.ts`, `middlewares/auth.ts`, or `services/booking.ts`.
 
 `pnpm run format` reformats `apps/web` with Prettier. It's available but not currently a CI gate — the codebase predates Prettier adoption and hasn't been bulk-reformatted yet (see `handoff/log.md`); new code is expected to already match `.prettierrc.json`, and full normalization can happen as a dedicated pass later.
 

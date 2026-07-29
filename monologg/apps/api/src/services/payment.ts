@@ -5,6 +5,7 @@ import { assertAllowedPaymentProvider, type PaymentProvider as PaymentProviderNa
 import { assertLegalTransition, IllegalBookingTransitionError } from "./booking.js";
 import { createMeetForBooking } from "./calendar.js";
 import { enqueueEmailNotification } from "./notifications.js";
+import { recordPaymentOutcome } from "../lib/metrics.js";
 
 // Escrow / payment service (features.md Phase 6). The single place that moves
 // Payment.status and the money-side of BookingState — nothing outside this file
@@ -131,6 +132,7 @@ export async function processPaystackWebhookEvent(
         });
         if (claimed.count > 0) {
           await tx.booking.update({ where: { id: payment.bookingId }, data: { state: "ESCROW_LOCKED" } });
+          recordPaymentOutcome("escrow_locked");
         }
       }
     });
@@ -212,6 +214,7 @@ export async function releaseEscrowForBooking(bookingId: string) {
       where: { id: booking.payment.id, status: "RELEASING" },
       data: { status: "ESCROW_HELD" },
     });
+    recordPaymentOutcome("release_failed");
     throw err;
   }
 
@@ -219,6 +222,7 @@ export async function releaseEscrowForBooking(bookingId: string) {
     prisma.payment.update({ where: { id: booking.payment.id }, data: { status: "RELEASED" } }),
     prisma.booking.update({ where: { id: bookingId }, data: { state: "PAYMENT_RELEASED" } }),
   ]);
+  recordPaymentOutcome("released");
 
   await notifyProvider
     .inApp(booking.creator.userId, { kind: "payment_released", bookingId, amount: talentNet })
@@ -265,6 +269,7 @@ export async function refundEscrowForBooking(bookingId: string) {
       where: { id: booking.payment.id, status: "REFUNDING" },
       data: { status: "ESCROW_HELD" },
     });
+    recordPaymentOutcome("refund_failed");
     throw err;
   }
 
@@ -272,6 +277,7 @@ export async function refundEscrowForBooking(bookingId: string) {
     prisma.payment.update({ where: { id: booking.payment.id }, data: { status: "REFUNDED" } }),
     prisma.booking.update({ where: { id: bookingId }, data: { state: "CANCELLED" } }),
   ]);
+  recordPaymentOutcome("refunded");
 
   await notifyProvider
     .inApp(booking.client.userId, { kind: "payment_refunded", bookingId })

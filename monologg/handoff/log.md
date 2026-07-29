@@ -664,3 +664,42 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/app/pages/AuthFlow.tsx`, `.test.tsx` | Real Terms/Privacy links, `acceptedTermsVersion` sent on register; 2 new tests |
 | `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 10 |
 
+---
+
+## Session 21 — `features.md` Phase 12: hardening (security, testing, observability, deployment)
+
+**Goal:** make Phases 0–11 production-ready — nothing new feature-wise, a consolidation pass. (Note: Phase 11, design-token adoption + font self-hosting, landed between Session 20 and this one per `git log` but has no log entry of its own — a documentation gap from that session, not something this entry backfills; see the Phase 11 commit directly if the detail is needed.)
+
+- **Security**: most of the OWASP checklist was already real as of Phase 3/4 (Helmet, CORS locked, global + auth-specific rate limiting) — this phase closed the remaining gaps rather than starting from zero. Helmet's CSP went from `false` to `default-src 'none'` (apps/api never serves HTML, so the Phase 3 "tighten later" comment's condition was already met). Added pino log redaction (defense-in-depth — `routes/auth.test.ts`'s Phase 4 "Sanitized Logs" test already proved nothing logs a raw secret today). Added a production-only `config/env.ts` check (`checkProductionDbUrls`) that fails boot if `DATABASE_URL`/`DIRECT_URL` aren't the correct Supabase pooled/session pair — the two are easy to swap since both point at the same host. Audited and *proved*, not just assumed, two things: CSRF doesn't apply (no cookie-based session anywhere — grepped for `@fastify/cookie`, found none) and KYC PII is never persisted at all (`KycCheck` has no name/DOB/ID-number column — locked in with a new schema test and a service test, stronger than "encrypt it once stored" for data this sensitive). `pnpm audit --audit-level=high` is now CI-blocking; fixed by bumping `react-router` and `vite`. Two advisories are allowlisted with documented reasons, not silently ignored: `GHSA-qwww-vcr4-c8h2` (react-router's RSC-mode CSRF bypass, needs 8.3.0+ — this app has zero RSC usage, confirmed by grep, and a major-version bump two months post-release wasn't judged worth the regression risk in a phase with no budget for a routing-layer rewrite) and `GHSA-mh99-v99m-4gvg` (a transitive `brace-expansion` DoS, dev-tooling-only via eslint/vitest — a `pnpm.overrides` pin was tried first and reverted after it silently broke ESLint at runtime, caught by re-running `pnpm run lint` before it ever shipped; no glob pattern in this codebase is attacker-controlled input, so the DoS has no real trigger here).
+- **Testing**: coverage thresholds (`vitest.config.ts`) gate money/auth/state modules specifically (`services/fees.ts` 95%, `services/payment.ts` 85%, `services/auth.ts`/`middlewares/auth.ts` 90%, `services/booking.ts` 90%) — closing the one real gap this surfaced (`middlewares/auth.ts` at 79%) meant writing tests for previously-untested defensive branches, not lowering the threshold. New cross-cutting test file (`src/app.hardening.test.ts`) covers what Phase 4's auth tests didn't: headers/CSP on a non-auth route, the new request-ID header, the new `/ready`/`/metrics` routes. New e2e test (`src/e2e.happyPath.test.ts`) is the first test in the codebase to run a booking through *continuous* state — create → pay → webhook → deliver → approve — against one stateful mocked-Prisma fake, rather than each route test resetting mocks fresh; also proves the negative (no webhook ⇒ stuck at `PENDING_PAYMENT`, approve 409s).
+- **Observability**: `x-request-id` response header (mirrors Fastify's existing per-request log ID). New `GET /api/v1/ready` (same DB check as `/health`, kept as a genuinely separate route for deploy targets that wire liveness/readiness differently). New `GET /api/v1/metrics` (`src/lib/metrics.ts`) — in-process JSON counters for request/error rate and payment success rate; deliberately not Prometheus format or a real metrics backend, since none exists in any prior phase. New optional Sentry integration (`src/lib/sentry.ts`), no-op without `SENTRY_DSN`, never active under `NODE_ENV=test`.
+- **Deployment**: `apps/api/Dockerfile` + `apps/web/Dockerfile` (both built from the monorepo root for pnpm workspace resolution), `docker-compose.yml` (postgres+redis+api+web, all-mock except `CACHE_PROVIDER=redis` to exercise the real refresh-token denylist), `.dockerignore` (caught and fixed a real risk before it happened: without it, `COPY apps/api apps/api` would have baked this developer's actual `.env` secrets into an image layer). `apps/api`'s new `start` script (`prisma migrate deploy && tsx src/index.ts`) is the image's `CMD`, so migrations always run before the server binds. **No Docker daemon was available in this session's environment** — the Dockerfiles/compose file were reviewed line-by-line (including working through why `--ignore-scripts` would silently break `argon2`'s native addon, and why every workspace member's `package.json` needs copying in for `--frozen-lockfile` to pass) but never actually built locally. CI's new `docker` job builds both images for real on every push — treat that as this piece's actual acceptance check, not this session's say-so.
+- **Docs**: `apps/api/README.md` gained a full "Implemented in Phase 12" section plus new "Deployment" and "Supabase operational notes" sections (pause/backup/Pro-upgrade guidance, folded in from a standing user note about the project's actual Supabase plan). Root `README.md`'s "one thing everyone should know" was rewritten — it still said "there is no backend... yet," which had been stale since Phase 3 and actively wrong by Phase 6. `CONTRIBUTING.md` updated to include the new `audit` step CI runs.
+- **Re-verified the full baseline**: `apps/api` 350/350 tests green (up from 327, +23), coverage thresholds passing with no per-file errors. `apps/web` 46/46 tests green, unchanged in count but re-run after the `react-router`/`vite` bumps (typecheck clean, build clean, no new warnings). Root `pnpm run test` confirmed green end-to-end. `pnpm run audit`: 1 vulnerability found, 1 ignored (the reviewed exception above), exit 0.
+
+### File inventory additions (Phase 12)
+
+| File | Change |
+|---|---|
+| `apps/api/src/config/env.ts`, `env.test.ts` | New `checkProductionDbUrls` (exported, pure) + `SENTRY_DSN`; 6 new tests |
+| `apps/api/src/app.ts` | Pino `redact`, strict CSP, `x-request-id` hook, metrics-recording hook, Sentry init/capture wiring |
+| `apps/api/src/lib/metrics.ts` | **New** — in-process request/payment counters |
+| `apps/api/src/lib/sentry.ts` | **New** — optional Sentry init/capture, no-op without `SENTRY_DSN` |
+| `apps/api/src/routes/health.ts` | Added `GET /api/v1/ready` |
+| `apps/api/src/routes/metrics.ts` | **New** — `GET /api/v1/metrics` |
+| `apps/api/src/routes/index.ts` | Registered `metricsRoutes` |
+| `apps/api/src/services/payment.ts` | `recordPaymentOutcome` calls at each terminal/failure point |
+| `apps/api/src/services/kyc.test.ts`, `prisma/schema.test.ts` | New tests locking in KYC PII non-persistence |
+| `apps/api/src/middlewares/auth.test.ts` | 4 new tests closing the coverage-threshold gap |
+| `apps/api/src/app.hardening.test.ts` | **New** — 9 cross-cutting tests |
+| `apps/api/src/e2e.happyPath.test.ts` | **New** — 2 tests (continuous book→pay→release flow + the negative case) |
+| `apps/api/vitest.config.ts` | Coverage config + per-file thresholds |
+| `apps/api/package.json` | Added `@sentry/node`, `@vitest/coverage-v8`; new `start`, `test:coverage` scripts |
+| `apps/api/.env.example` | Added `SENTRY_DSN` |
+| `apps/api/Dockerfile`, `apps/web/Dockerfile`, `apps/web/nginx.conf` | **New** |
+| `docker-compose.yml`, `.dockerignore` (repo root) | **New** |
+| `.github/workflows/monologg-ci.yml` | Added `audit` step to the `ci` job; new `docker` job |
+| `package.json` (repo root) | `pnpm.auditConfig.ignoreGhsas` (2 reviewed exceptions), new `audit` script |
+| `apps/web/package.json` | `react-router` 7.13.0 → 7.18.2, `vite` 6.3.5 → 6.3.7 |
+| `apps/api/README.md`, root `README.md`, `CONTRIBUTING.md` | Documented Phase 12; corrected the stale "no backend yet" line in root `README.md` |
+

@@ -44,5 +44,38 @@ jobs:
       - name: Test
         run: pnpm run test
 
+      - name: Audit (fails on any high/critical not in the reviewed allowlist)
+        # The allowlist lives in package.json's pnpm.auditConfig.ignoreGhsas —
+        # two reviewed entries: GHSA-qwww-vcr4-c8h2 (react-router RSC-mode CSRF;
+        # this app has no RSC/unstable_middleware usage anywhere, confirmed by
+        # repo-wide grep) and GHSA-mh99-v99m-4gvg (a brace-expansion DoS reachable
+        # only via eslint's/vitest's own dev-tooling dependency trees — see
+        # apps/api/README.md's Phase 12 section for why a version-pin fix was
+        # tried and reverted after it broke ESLint). A NEW high/critical
+        # anywhere else still fails the build.
+        run: pnpm run audit
+
       - name: Build
         run: pnpm run build
+
+  docker:
+    name: docker images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build api image
+        uses: docker/build-push-action@v6
+        with:
+          context: monologg
+          file: monologg/apps/api/Dockerfile
+          push: false
+
+      - name: Build web image
+        uses: docker/build-push-action@v6
+        with:
+          context: monologg
+          file: monologg/apps/web/Dockerfile
+          push: false
+          build-args: |
+            VITE_API_MODE=live

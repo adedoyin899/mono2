@@ -69,9 +69,54 @@ const envSchema = z.object({
   // Optional — when unset, new tickets simply aren't relayed to an internal
   // inbox (the ticket + confirmation email to the submitter still work).
   SUPPORT_INBOX_EMAIL: z.string().email().optional(),
+
+  // ── Observability (Phase 12) ─────────────────────────────────────────────
+  // Optional — error tracking is a no-op (logged locally only) when unset, in
+  // dev/test and even in prod (fails open: a missing DSN degrades observability,
+  // never availability).
+  SENTRY_DSN: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
+
+// ---------------------------------------------------------------------------
+// Production-only cross-field checks (Phase 12 — P3 Supabase ops rule): the
+// pooled/direct URLs are easy to swap by accident since both point at the same
+// Supabase project host. DATABASE_URL must be the transaction-mode pooler
+// (port 6543, pgbouncer=true) that Prisma's query engine uses at request time;
+// DIRECT_URL must be the session-mode connection (port 5432, no pgbouncer=true)
+// that `prisma migrate`/advisory-lock-requiring operations need. Getting these
+// backwards silently breaks migrations or, worse, exhausts pooled connections
+// by routing every request through the session pooler. See apps/api/README.md
+// "Supabase operational notes" for the full pooled-vs-direct rationale.
+// ---------------------------------------------------------------------------
+export function checkProductionDbUrls(envData: Record<string, string | undefined>, issues: string[]): void {
+  if (envData.NODE_ENV !== "production") return;
+
+  const dbUrl = envData.DATABASE_URL ?? "";
+  const directUrl = envData.DIRECT_URL ?? "";
+
+  if (!dbUrl.includes(":6543") || !dbUrl.includes("pgbouncer=true")) {
+    issues.push(
+      "  • DATABASE_URL: in production this must be the Supabase transaction pooler (port 6543, `?pgbouncer=true`) — got a URL missing one or both markers.",
+    );
+  }
+  if (!directUrl.includes(":5432")) {
+    issues.push(
+      "  • DIRECT_URL: in production this must be the Supabase session pooler/direct connection (port 5432) — got a URL not on port 5432.",
+    );
+  }
+  if (directUrl.includes("pgbouncer=true")) {
+    issues.push(
+      "  • DIRECT_URL: must NOT include `pgbouncer=true` — that flag belongs on DATABASE_URL only; DIRECT_URL needs session semantics (prepared statements, advisory locks) for migrations.",
+    );
+  }
+  if (dbUrl && directUrl && dbUrl === directUrl) {
+    issues.push(
+      "  • DATABASE_URL and DIRECT_URL: must not be identical in production — one is the pooled connection, the other the session/direct one.",
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Validate and export. Throws (and exits) at module-load time if any required
@@ -89,16 +134,20 @@ function parseEnv(): Env {
   }
 
   const result = envSchema.safeParse(envData);
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((i) => `  • ${i.path.join(".")}: ${i.message}`)
-      .join("\n");
+  const issues = result.success
+    ? []
+    : result.error.issues.map((i) => `  • ${i.path.join(".")}: ${i.message}`);
+  if (result.success) {
+    checkProductionDbUrls(envData, issues);
+  }
+
+  if (issues.length > 0) {
     // Print to stderr and exit — don't throw, since a top-level throw won't
     // always produce a readable message in all Node runners.
-    process.stderr.write(`\n[config/env] Invalid environment configuration:\n${issues}\n\n`);
+    process.stderr.write(`\n[config/env] Invalid environment configuration:\n${issues.join("\n")}\n\n`);
     process.exit(1);
   }
-  return result.data;
+  return result.data as Env;
 }
 
 export const env = parseEnv();

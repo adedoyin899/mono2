@@ -115,6 +115,21 @@ describe("Auth Middlewares (requireAuth, requireRole, requireOwner)", () => {
       expect(response.statusCode).toBe(200);
       expect(response.json().secret).toBe("creators-only");
     });
+
+    it("Phase 12: returns 401 if called without requireAuth having set request.user (defensive branch)", async () => {
+      // Exercises requireRole's own guard directly, bypassing requireAuth —
+      // this is unreachable via any real route (every route chains
+      // [requireAuth, requireRole(...)]) but is the code's own safety net if
+      // that ordering is ever gotten wrong, and money/auth code gets full
+      // branch coverage regardless of how "reachable" a defensive check is.
+      const reply: any = { status: vi.fn().mockReturnThis(), send: vi.fn() };
+      const request: any = { user: undefined };
+
+      await requireRole("TALENT")(request, reply);
+
+      expect(reply.status).toHaveBeenCalledWith(401);
+      expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ message: "Authentication required" }));
+    });
   });
 
   describe("requireOwner Hook", () => {
@@ -294,6 +309,65 @@ describe("Auth Middlewares (requireAuth, requireRole, requireOwner)", () => {
       // code 444 (nginx's "no response" code) instead of a real 404.
       expect(response.statusCode).toBe(404);
       expect(response.json().message).toContain("not found");
+    });
+
+    it("returns 404 if the owned client resource does not exist", async () => {
+      const payload = { userId: "user-client", userType: "CLIENT", email: "user@monologg.com" };
+      const token = generateAccessToken(payload);
+
+      prismaMock.client.findUnique.mockResolvedValue(null);
+
+      server.get(
+        "/clients/:clientId/briefs",
+        { preHandler: [requireAuth, requireOwner("client", "clientId")] },
+        async () => {
+          return { allowed: true };
+        }
+      );
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/clients/missing-client/briefs",
+        headers: { authorization: `Bearer ${token}` },
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.json().message).toContain("not found");
+    });
+
+    it("returns 400 if the route is missing the resource-id param entirely", async () => {
+      const payload = { userId: "user-123", userType: "TALENT", email: "user@monologg.com" };
+      const token = generateAccessToken(payload);
+
+      // No :id in the route at all — requireOwner("user", "id") looks for a
+      // param that will never be there. A route wiring mistake, not a real
+      // user input, but the middleware's own guard against it is still real code.
+      server.get(
+        "/users/settings",
+        { preHandler: [requireAuth, requireOwner("user", "id")] },
+        async () => {
+          return { success: true };
+        }
+      );
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/users/settings",
+        headers: { authorization: `Bearer ${token}` },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json().message).toContain('Missing required route parameter: "id"');
+    });
+
+    it("Phase 12: returns 401 if called without requireAuth having set request.user (defensive branch)", async () => {
+      const reply: any = { status: vi.fn().mockReturnThis(), send: vi.fn() };
+      const request: any = { user: undefined, params: {} };
+
+      await requireOwner("user", "id")(request, reply);
+
+      expect(reply.status).toHaveBeenCalledWith(401);
+      expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ message: "Authentication required" }));
     });
   });
 });

@@ -73,6 +73,33 @@ describe("KYC service (features.md Phase 7)", () => {
       expect(kycProviderMock.startCheck).not.toHaveBeenCalled();
     });
 
+    it("Phase 12 (NDPA minimal retention): never persists any field of KycData — only provider/ref/status", async () => {
+      kycProviderMock.startCheck.mockResolvedValue({ ref: "mock_kyc_creator-1_1" });
+      prismaMock.$transaction.mockResolvedValue([
+        { id: "creator-1", verification: "PROCESSING" },
+        { id: "check-1", status: "PROCESSING" },
+      ]);
+
+      await startKycCheck(creator(), KYC_DATA);
+
+      // The provider (which stores/forwards it for the real check) receives the
+      // full KycData — that's the intended, sole destination for it.
+      expect(kycProviderMock.startCheck).toHaveBeenCalledWith("creator-1", KYC_DATA);
+
+      // Our own DB write must not contain any of it.
+      expect(prismaMock.kycCheck.create).toHaveBeenCalledTimes(1);
+      const createArgs = prismaMock.kycCheck.create.mock.calls[0][0];
+      for (const piiField of Object.keys(KYC_DATA)) {
+        expect(createArgs.data).not.toHaveProperty(piiField);
+      }
+      expect(createArgs.data).toMatchObject({
+        creatorId: "creator-1",
+        provider: "smile_identity",
+        providerRef: "mock_kyc_creator-1_1",
+        status: "PROCESSING",
+      });
+    });
+
     it("allows retrying after a FAILED check", async () => {
       kycProviderMock.startCheck.mockResolvedValue({ ref: "mock_kyc_creator-1_2" });
       prismaMock.$transaction.mockResolvedValue([

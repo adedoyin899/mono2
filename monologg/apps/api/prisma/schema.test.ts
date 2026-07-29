@@ -78,3 +78,21 @@ describe("Prisma schema — X1: payment provider is free text, not an enum", () 
     expect(provider.type).toBe("String");
   });
 });
+
+describe("Prisma schema — Phase 12: KYC PII has no column to leak from (minimal retention)", () => {
+  it("KycCheck has no column for legal name / DOB / ID number — only provider/ref/status", () => {
+    // features.md Phase 7's KycData (firstName, lastName, dateOfBirth, idNumber,
+    // etc.) is validated at the route boundary and passed straight to
+    // KycProvider.startCheck — src/services/kyc.ts never writes it anywhere.
+    // This test locks that in at the schema level: there is no column it COULD
+    // land in even if a future change tried, which is a stronger guarantee than
+    // "encrypt it once it's stored" for data this sensitive (NDPA minimal-
+    // retention). See src/services/kyc.persistence.test.ts for the service-level
+    // half of this guarantee.
+    const piiFieldNames = ["firstName", "lastName", "dateOfBirth", "idNumber", "idType", "country"];
+    const kycCheckFieldNames = model("KycCheck").fields.map((f) => f.name);
+    for (const pii of piiFieldNames) {
+      expect(kycCheckFieldNames).not.toContain(pii);
+    }
+  });
+});

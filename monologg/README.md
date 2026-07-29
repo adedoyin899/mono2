@@ -24,8 +24,9 @@ pnpm dev         # http://localhost:5173
 | `monologg-app.html` | The whole product, as one double-clickable file. Regenerate from `apps/web/` after any code change (see `handoff/design.md` §7). |
 | `monologg-design-system.html` | The design-system reference page, same idea — one file, no server needed. |
 | `apps/web/` | The actual source code and local dev server. This is what a developer opens to make changes. |
-| `apps/api/` | No running server yet (that's `features.md` Phase 3+), but the real Prisma schema/migration/seed against Supabase exist as of Phase 2 — see `apps/api/README.md`. |
-| `packages/types/` | Shared zod schemas/TypeScript types — the single source of truth for every data shape, imported by both `apps/web` and (eventually) `apps/api`. |
+| `apps/api/` | The real Fastify/Prisma backend (auth, payments/escrow, KYC, calendar, notifications — Phases 3–12). Run it with `pnpm --filter @monologg/api dev`, or the whole stack via Docker (see below) — see `apps/api/README.md` for the full phase-by-phase build log. |
+| `packages/types/` | Shared zod schemas/TypeScript types — the single source of truth for every data shape, imported by both `apps/web` and `apps/api`. |
+| `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `.dockerignore` | `features.md` Phase 12 — the full stack (Postgres + Redis + API + web), all-mock, no real keys: `docker compose up --build`. See `apps/api/README.md`'s "Deployment" section for local vs. real-deploy config. |
 | `handoff/` | All project documentation: what the product is, the tech stack, a running implementation log, every bug found and fixed, and a plain-language walkthrough of how it was all built. **Read this before making changes**, and keep it updated after. |
 | `brand/` | `icon.svg` (mark) and `logo.svg` (wordmark) — the real brand assets, wired into the app via `apps/web/src/app/components/ui/Logo.tsx` everywhere the wordmark appears. |
 | `ATTRIBUTIONS.md` | Required credit for third-party components (shadcn/ui) and photos (Unsplash) used in the original design. |
@@ -35,13 +36,13 @@ pnpm dev         # http://localhost:5173
 
 ## The one thing everyone should know before touching anything
 
-**There is no backend, database, or real login yet.** Everything you see running is frontend-only, with sample data served through a typed `api-client` seam (`apps/web/src/lib/api-client.ts`) that currently returns local fixtures. Sign-in, payments, and AI verification are all working demos of the *interface*, not real systems. Full detail in `handoff/design.md` — and see `handoff/features.md` for the full plan to build the real thing.
+**As of `features.md` Phase 12, the backend is real** — Postgres/Prisma, real auth (JWT + argon2id), real Paystack-first escrow, real KYC (Smile Identity) + AI style-tagging as two independent systems, real Google Calendar/Meet, real notifications, and now hardening (security headers, coverage-gated tests, observability, Docker deploy). `apps/web`'s `api-client` seam (`apps/web/src/lib/api-client.ts`) still defaults to `VITE_API_MODE=mock` (local fixtures) so the frontend can be developed/demoed with zero setup; flip it to `live` (or run `docker compose up --build` from this folder) to talk to the real API. Phases 13–16 (rich availability calendar, two-sided project applications, public marketplace profile, external-visitor booking) are the new-feature work still ahead — not yet built. Full detail in `handoff/design.md`; the full phase-by-phase plan and what's actually done vs. open is `handoff/features.md` + `apps/api/README.md`.
 
 ## Source control & CI
 
 This lives in `github.com/adedoyin899/mono2`, inside this `monologg/` folder (that repo also holds an unrelated project at its root — kept separate on purpose). Push access uses a repo-scoped deploy key, not a general account key — see `handoff/design.md` §7 if you need to push and don't have it configured.
 
-CI (`.github/workflows/monologg-ci.yml`, at the true repo root since that's the only place GitHub Actions looks — scoped to trigger only on changes under `monologg/**`) runs `pnpm install --frozen-lockfile → typecheck → lint → test → build` from this folder on every push/PR and blocks merge on failure. Run the same commands locally before pushing — see `CONTRIBUTING.md`.
+CI (`.github/workflows/monologg-ci.yml`, at the true repo root since that's the only place GitHub Actions looks — scoped to trigger only on changes under `monologg/**`) runs two jobs on every push/PR and blocks merge on failure: `pnpm install --frozen-lockfile → typecheck → lint → test → audit → build`, and (Phase 12) a separate `docker` job that builds both `apps/api/Dockerfile` and `apps/web/Dockerfile` for real — the actual verification that the Docker deploy path works, written in an environment with no Docker daemon available to the author. Run the same commands locally before pushing — see `CONTRIBUTING.md`.
 
 ## Inside `apps/web/`
 
