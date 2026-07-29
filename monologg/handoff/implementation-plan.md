@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
 **Last updated:** 2026-07-29
-**Status:** pnpm workspace, migrated Supabase/Prisma schema, running Fastify server, real authentication, and real domain endpoints (creators, rate-cards, availability, briefs, talent discovery, bookings, order-rooms) behind the api-client seam (`features.md` Phases 0–5 done). No payment/escrow integration yet — Phase 6 is next.
+**Status:** pnpm workspace, migrated Supabase/Prisma schema, running Fastify server, real authentication, real domain endpoints, and a real Paystack-first escrow/payment backend (`features.md` Phases 0–6 done). `Checkout.tsx` itself is not yet wired to the Phase 6 backend — a known, deliberately-left-open gap, not an oversight (see `log.md` Session 16). Phase 7 (KYC + AI style-tagging) is next.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -144,6 +144,17 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Verified in a real browser: shortlist toggling, rate-card editing, sending an Order Room message, and a full project-brief publish — zero console errors, zero visual change.
 - [x] Re-verified the full baseline: `typecheck`/`lint`/`test`/`build` green across all three packages (172 tests), CSS hash confirmed byte-identical.
 
+### `features.md` Phase 6 — Payment & escrow integration
+- [x] `PaymentProvider.real` — genuine Paystack implementation (initialize/verify/refund/HMAC-SHA512 webhook verification); `payment.stripe.ts`/`payment.airwallex.ts` stub the same interface for later regions. Real payouts (`releaseFunds`) throw a descriptive, flagged error: Paystack transfers need a `recipient_code` from creator bank details, which no phase through Phase 6 collects — a real, documented gap, not an oversight.
+- [x] Ledger-based escrow: `POST /bookings/:id/pay` charges `base+clientFee` and never advances `BookingState`; only the signature-verified `POST /webhooks/paystack` sets `ESCROW_LOCKED`. No endpoint anywhere lets a client-side callback advance state on its own.
+- [x] Idempotency without a generic key-store table: `Payment.providerRef` is `@unique`; `PaymentEvent` gained `eventId` + a `@@unique([paymentId, type, eventId])` constraint so a replayed webhook hits a DB unique-violation and no-ops; release/refund atomically claim the transition via conditional `updateMany` before calling the provider (two new transient `PaymentStatus` values, `RELEASING`/`REFUNDING`, make the claim window observable and rollback-able on provider failure).
+- [x] Full booking money-lifecycle routes: `POST /:id/pay`, `PATCH /:id/deliver`, `PATCH /:id/approve` (releases escrow, base−11% to the talent), `PATCH /:id/dispute`, `POST /:id/refund`.
+- [x] Tests (highest-coverage, money path): escrow ledger/fee-split math; idempotent webhook replay; unsigned/tampered webhook rejected; client-callback-never-advances-state (authority); concurrency (two simultaneous webhooks, two simultaneous releases — no double-pay); grep-equivalent allowlist assertions that `Payment.provider` is never `"fincra"`.
+- [x] Live-Supabase e2e integration test: real checkout → webhook → `ESCROW_LOCKED` → deliver → approve → `PAYMENT_RELEASED` with correct fee splits, replay-safety, and a full refund path — all against the real seeded Supabase project (`prisma/phase6.integration.test.ts`).
+- [x] Fixed a latent cross-file race in the live-DB integration suite, surfaced (not caused) by adding a third live-DB test file: Vitest ran integration files in parallel by default, letting a row-count-idempotency check in one file race against in-flight bookings from another. Fixed with `fileParallelism: false` in `vitest.integration.config.ts` — these files share one live database and were never isolated from each other.
+- [x] **Known, deliberately-left-open gap:** `Checkout.tsx` is not wired to any of this — still the scripted 2.5s delay, still says "FINCRA" three times. Phase 6's kickoff was API-only scope; asked explicitly whether to fold the frontend rewiring in now, and the answer was to leave it and log the gap instead (this entry, plus `log.md` Session 16) rather than silently carry a known acceptance-criteria gap forward.
+- [x] Re-verified the full baseline: `apps/api` typecheck/tests green (186 unit + 16 live-DB integration tests); `apps/web` untouched this phase.
+
 ---
 
 ## 🔄 In Progress
@@ -156,7 +167,7 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 
 This supersedes the old flat gap list (previously here and in `design.md` §6) — `features.md` is now the authoritative, dependency-ordered backlog. **Phases are ordered by dependency, not priority; build one at a time, with tests as a gate, and stop for review between phases** — don't batch several in one unreviewed pass.
 
-**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1); fees are 11% talent / 15% client, not 9%/12% (X2); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — none of these resolve until their backend phase lands (6, 3, 7 respectively). **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects the old X1–X3 values — do not carry them into the new backend.
+**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1) — **backend resolved as of Phase 6**, but `Checkout.tsx`'s own copy still says FINCRA (a known, separate, deliberately-left-open frontend gap — see Phase 6's Done entry above); fees are 11% talent / 15% client, not 9%/12% (X2, backend resolved since Phase 3); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — unresolved until Phase 7. **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects some old X1–X3 values in the frontend prototype — do not carry them into any new backend work.
 
 ### Infrastructure spine (Phases 0–12)
 - [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
@@ -165,7 +176,7 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 - [x] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
 - [x] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware — done, see the Done section above
 - [x] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam — done, see the Done section above
-- [ ] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent
+- [x] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent — done, see the Done section above (backend only — `Checkout.tsx` frontend wiring is a known, separate open gap)
 - [ ] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems
 - [ ] **Phase 8** — Google Calendar sync + real Meet links
 - [ ] **Phase 9** — Notifications backend (email/SMS/in-app)

@@ -9,6 +9,7 @@ import { talentRoutes } from "./talent.js";
 import { bookingRoutes } from "./bookings.js";
 import { orderRoomRoutes } from "./orderRooms.js";
 import { uploadRoutes } from "./uploads.js";
+import { webhookRoutes } from "./webhooks.js";
 
 /**
  * Route aggregator — registers all route plugins onto the Fastify instance.
@@ -25,5 +26,5 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(bookingRoutes);
   await app.register(orderRoomRoutes);
   await app.register(uploadRoutes);
-  // Phase 6: webhooks/paystack
+  await app.register(webhookRoutes);
 }

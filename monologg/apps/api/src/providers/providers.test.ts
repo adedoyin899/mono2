@@ -24,6 +24,8 @@ import { mockCalendarProvider } from "../providers/calendar.mock.js";
 import { mockNotifyProvider } from "../providers/notify.mock.js";
 
 import { realPaymentProvider } from "../providers/payment.real.js";
+import { stripePaymentProvider } from "../providers/payment.stripe.js";
+import { airwallexPaymentProvider } from "../providers/payment.airwallex.js";
 import { realKycProvider } from "../providers/kyc.real.js";
 import { realAiTaggingProvider } from "../providers/aiTagging.real.js";
 import { realCalendarProvider } from "../providers/calendar.real.js";
@@ -123,8 +125,21 @@ describe("Provider registry (NODE_ENV=test)", () => {
   });
 
   describe("real providers throw descriptive errors (not yet implemented)", () => {
-    it("realPaymentProvider.initEscrow throws a Phase 6 error", async () => {
-      await expect(realPaymentProvider.initEscrow("b1", 100, "NGN")).rejects.toThrow("Phase 6");
+    // realPaymentProvider (Paystack) is genuinely implemented as of Phase 6 —
+    // it's the two later-region stubs and the two later-phase providers below
+    // that still throw "not yet implemented" placeholders. Calling the real
+    // Paystack provider with no PAYSTACK_SECRET_KEY configured (as in this test
+    // env) throws a distinct, descriptive configuration error instead.
+    it("realPaymentProvider.initEscrow throws a descriptive config error when unconfigured", async () => {
+      await expect(realPaymentProvider.initEscrow("b1", 100, "NGN")).rejects.toThrow("PAYSTACK_SECRET_KEY");
+    });
+
+    it("stripePaymentProvider.initEscrow throws a later-region-phase error", async () => {
+      await expect(stripePaymentProvider.initEscrow("b1", 100, "NGN")).rejects.toThrow(/later region phase/i);
+    });
+
+    it("airwallexPaymentProvider.initEscrow throws a later-region-phase error", async () => {
+      await expect(airwallexPaymentProvider.initEscrow("b1", 100, "NGN")).rejects.toThrow(/later region phase/i);
     });
 
     it("realKycProvider.startCheck throws a Phase 7 error", async () => {

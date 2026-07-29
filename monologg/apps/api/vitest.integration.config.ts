@@ -16,5 +16,11 @@ export default defineConfig({
     // need a generous budget since this suite doesn't run on every commit.
     testTimeout: 90000,
     pool: "forks",
+    // These files all read/write the same live, shared Supabase project — unlike
+    // the mocked-Prisma unit tests, they aren't isolated from each other. Running
+    // them in parallel let a row-count-idempotency check in one file race against
+    // in-flight bookings created by another (surfaced once a third live-DB file
+    // was added in Phase 6); force sequential execution instead.
+    fileParallelism: false,
   },
 });

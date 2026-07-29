@@ -7,6 +7,12 @@ import { findOwnCreator, findOwnClient, bookingParticipantRole } from "../lib/ow
 import { paginationQuerySchema, paginate, toSkipTake } from "../lib/pagination.js";
 import { formatMoney } from "../lib/display.js";
 import { createBooking, transitionBooking, IllegalBookingTransitionError } from "../services/booking.js";
+import {
+  initEscrowForBooking,
+  releaseEscrowForBooking,
+  refundEscrowForBooking,
+  BookingNotPayableError,
+} from "../services/payment.js";
 
 const createBookingSchema = z.object({
   creatorId: z.string().min(1),
@@ -206,6 +212,146 @@ export async function bookingRoutes(app: FastifyInstance): Promise<void> {
         return reply.send(updated);
       } catch (err) {
         if (err instanceof IllegalBookingTransitionError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // POST /bookings/:id/pay — client initiates the escrow charge (features.md
+  // Phase 6). Returns a provider checkout URL; this call NEVER advances
+  // BookingState itself — only a verified Paystack webhook does that (see
+  // routes/webhooks.ts + services/payment.ts).
+  app.post(
+    "/api/v1/bookings/:id/pay",
+    { preHandler: [requireAuth, requireRole("CLIENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const booking = await prisma.booking.findUnique({ where: { id }, include: { creator: true, client: true } });
+      if (!booking) {
+        return reply.status(404).send({ error: "Not Found", message: `Booking "${id}" not found`, statusCode: 404 });
+      }
+      if (bookingParticipantRole(booking, request.user!.userId) !== "client") {
+        return reply.status(403).send({ error: "Forbidden", message: "You are not the client on this booking", statusCode: 403 });
+      }
+
+      try {
+        const { payment, checkoutUrl } = await initEscrowForBooking(id);
+        return reply.send({ checkoutUrl, providerRef: payment.providerRef, status: payment.status });
+      } catch (err) {
+        if (err instanceof BookingNotPayableError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // PATCH /bookings/:id/deliver — talent marks deliverables provided. No money
+  // moves here; it just unlocks the client's ability to approve release.
+  app.patch(
+    "/api/v1/bookings/:id/deliver",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const booking = await prisma.booking.findUnique({ where: { id }, include: { creator: true, client: true } });
+      if (!booking) {
+        return reply.status(404).send({ error: "Not Found", message: `Booking "${id}" not found`, statusCode: 404 });
+      }
+      if (bookingParticipantRole(booking, request.user!.userId) !== "creator") {
+        return reply.status(403).send({ error: "Forbidden", message: "You are not the talent on this booking", statusCode: 403 });
+      }
+
+      try {
+        const updated = await transitionBooking(id, "DELIVERABLES_PROVIDED");
+        return reply.send(updated);
+      } catch (err) {
+        if (err instanceof IllegalBookingTransitionError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // PATCH /bookings/:id/approve — client approves delivered work, releasing the
+  // held escrow to the creator (base − talentFee). Idempotent: approving twice
+  // is a safe no-op (services/payment.ts's atomic claim on Payment.status).
+  app.patch(
+    "/api/v1/bookings/:id/approve",
+    { preHandler: [requireAuth, requireRole("CLIENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const booking = await prisma.booking.findUnique({ where: { id }, include: { creator: true, client: true } });
+      if (!booking) {
+        return reply.status(404).send({ error: "Not Found", message: `Booking "${id}" not found`, statusCode: 404 });
+      }
+      if (bookingParticipantRole(booking, request.user!.userId) !== "client") {
+        return reply.status(403).send({ error: "Forbidden", message: "You are not the client on this booking", statusCode: 403 });
+      }
+
+      try {
+        const result = await releaseEscrowForBooking(id);
+        return reply.send(result.payment);
+      } catch (err) {
+        if (err instanceof IllegalBookingTransitionError || err instanceof BookingNotPayableError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // PATCH /bookings/:id/dispute — either participant can flag a dispute while
+  // funds are held. No dedicated admin/resolution flow exists yet (not part of
+  // any phase through Phase 6) — refund below is a placeholder resolution path
+  // reachable by either participant until real dispute adjudication lands.
+  app.patch(
+    "/api/v1/bookings/:id/dispute",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const booking = await prisma.booking.findUnique({ where: { id }, include: { creator: true, client: true } });
+      if (!booking) {
+        return reply.status(404).send({ error: "Not Found", message: `Booking "${id}" not found`, statusCode: 404 });
+      }
+      if (!bookingParticipantRole(booking, request.user!.userId)) {
+        return reply.status(403).send({ error: "Forbidden", message: "You are not a participant in this booking", statusCode: 403 });
+      }
+
+      try {
+        const updated = await transitionBooking(id, "DISPUTED");
+        return reply.send(updated);
+      } catch (err) {
+        if (err instanceof IllegalBookingTransitionError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // POST /bookings/:id/refund — refund path for disputes. Only legal from
+  // DISPUTED; idempotent the same way /approve is (atomic claim on Payment.status).
+  app.post(
+    "/api/v1/bookings/:id/refund",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const booking = await prisma.booking.findUnique({ where: { id }, include: { creator: true, client: true } });
+      if (!booking) {
+        return reply.status(404).send({ error: "Not Found", message: `Booking "${id}" not found`, statusCode: 404 });
+      }
+      if (!bookingParticipantRole(booking, request.user!.userId)) {
+        return reply.status(403).send({ error: "Forbidden", message: "You are not a participant in this booking", statusCode: 403 });
+      }
+
+      try {
+        const result = await refundEscrowForBooking(id);
+        return reply.send(result.payment);
+      } catch (err) {
+        if (err instanceof IllegalBookingTransitionError || err instanceof BookingNotPayableError) {
           return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
         }
         throw err;

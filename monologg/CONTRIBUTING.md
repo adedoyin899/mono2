@@ -51,6 +51,12 @@ Real: `POST /api/v1/auth/{register,login,refresh,logout,verify-email,forgot-pass
 
 `apps/web/src/lib/api-client.ts` calls these in `VITE_API_MODE=live` (attaches the access token to every request, retries once on a 401 via silent refresh); `mock` mode (the default) is unchanged from before Phase 4 — no login needed to reach any page. `apps/web/src/app/RequireAuth.tsx` gates the six protected routes the same way: a no-op in `mock`, real in `live`.
 
+## Payments & escrow (Phase 6)
+
+Real: `POST /api/v1/bookings/:id/pay` (Paystack-first checkout via `PaymentProvider.real`) → `POST /api/v1/webhooks/paystack` (HMAC-SHA512-verified, idempotent — the **only** thing that sets `ESCROW_LOCKED`) → `PATCH /api/v1/bookings/:id/deliver` → `PATCH /api/v1/bookings/:id/approve` (releases escrow) → `PATCH /api/v1/bookings/:id/dispute` / `POST /api/v1/bookings/:id/refund`. A client-side "payment succeeded" redirect is advisory only; nothing in the API lets it advance state on its own. Requires `PAYSTACK_SECRET_KEY` in `apps/api/.env` only when `PAYMENT_PROVIDER != mock` — the default `mock` provider needs no real keys.
+
+**`apps/web/src/app/pages/Checkout.tsx` is not wired to any of this yet.** It's still the original prototype's scripted 2.5-second delay and still says "FINCRA" three times — Phase 6's scope was API-only, and this was left as a known, explicitly-flagged gap rather than silently fixed or silently ignored. Rewiring it is its own future, reviewed piece of work.
+
 ## Working on the backend build-out (`features.md`)
 
 This project is mid-way through turning from a frontend prototype into a full-stack app, following `handoff/features.md` — an 18-phase (0–17), dependency-ordered PRD. The rules that matter most:

@@ -16,6 +16,8 @@ import { env } from "../config/env.js";
 
 import { mockPaymentProvider } from "./payment.mock.js";
 import { realPaymentProvider } from "./payment.real.js";
+import { stripePaymentProvider } from "./payment.stripe.js";
+import { airwallexPaymentProvider } from "./payment.airwallex.js";
 import { mockKycProvider } from "./kyc.mock.js";
 import { realKycProvider } from "./kyc.real.js";
 import { mockAiTaggingProvider } from "./aiTagging.mock.js";
@@ -36,9 +38,17 @@ import type { StorageProvider } from "./storage.interface.js";
 
 const isTest = env.NODE_ENV === "test";
 
+// Phase 6: real providers are Paystack-first, with Stripe/Airwallex stubbed behind
+// the same interface for later regions (TODO(conflict:X1) — never "fincra").
+const REAL_PAYMENT_PROVIDERS = {
+  paystack: realPaymentProvider,
+  stripe: stripePaymentProvider,
+  airwallex: airwallexPaymentProvider,
+} as const;
+
 export const paymentProvider: PaymentProvider = isTest || env.PAYMENT_PROVIDER === "mock"
   ? mockPaymentProvider
-  : realPaymentProvider;
+  : REAL_PAYMENT_PROVIDERS[env.PAYMENT_PROVIDER];
 
 export const kycProvider: KycProvider = isTest || env.KYC_PROVIDER === "mock"
   ? mockKycProvider

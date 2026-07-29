@@ -9,11 +9,27 @@ vi.mock("../db/client.js", () => ({
     creator: { findUnique: vi.fn() },
     rateCard: { findUnique: vi.fn(), findMany: vi.fn() },
     booking: { create: vi.fn(), findMany: vi.fn(), count: vi.fn(), findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), update: vi.fn() },
+    payment: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), create: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
+    $transaction: vi.fn(),
   },
 }));
 
+vi.mock("../providers/index.js", () => ({
+  paymentProvider: {
+    initEscrow: vi.fn(),
+    holdFunds: vi.fn(),
+    releaseFunds: vi.fn(),
+    refund: vi.fn(),
+    verifyWebhook: vi.fn(),
+  },
+  notifyProvider: { email: vi.fn(), sms: vi.fn(), inApp: vi.fn() },
+}));
+
 import { prisma } from "../db/client.js";
+import { paymentProvider, notifyProvider } from "../providers/index.js";
 const prismaMock = prisma as any;
+const paymentProviderMock = paymentProvider as any;
+const notifyProviderMock = notifyProvider as any;
 
 const CLIENT_TOKEN = generateAccessToken({ userId: "user-client-1", userType: "CLIENT", email: "c@monologg.dev" });
 const TALENT_TOKEN = generateAccessToken({ userId: "user-talent-1", userType: "TALENT", email: "t@monologg.dev" });
@@ -26,6 +42,7 @@ describe("Bookings", () => {
     app = await buildApp({ logger: false });
     await app.ready();
     vi.clearAllMocks();
+    notifyProviderMock.inApp.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -266,6 +283,293 @@ describe("Bookings", () => {
       const response = await app.inject({
         method: "PATCH",
         url: "/api/v1/bookings/b1/cancel",
+        headers: { authorization: `Bearer ${OTHER_TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(prismaMock.booking.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("POST /bookings/:id/pay", () => {
+    it("client initiates escrow and gets a checkout URL back", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({
+        id: "b1",
+        state: "PENDING_PAYMENT",
+        baseAmount: 1000,
+        clientFeeAmount: 150,
+        currency: "NGN",
+        payment: null,
+      });
+      paymentProviderMock.initEscrow.mockResolvedValue({ ref: "ref-1", checkoutUrl: "https://pay/1" });
+      prismaMock.payment.create.mockResolvedValue({ id: "p1", status: "INITIATED", providerRef: "ref-1" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/pay",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().checkoutUrl).toBe("https://pay/1");
+    });
+
+    it("rejects a non-client-participant (e.g. the talent) from initiating payment", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/pay",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(paymentProviderMock.initEscrow).not.toHaveBeenCalled();
+    });
+
+    it("409s when the booking isn't payable (already past PENDING_PAYMENT)", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({ id: "b1", state: "ESCROW_LOCKED", payment: null });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/pay",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(paymentProviderMock.initEscrow).not.toHaveBeenCalled();
+    });
+
+    it("Authority: a successful /pay call alone never sets ESCROW_LOCKED — booking.update is never called by this route", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({
+        id: "b1",
+        state: "PENDING_PAYMENT",
+        baseAmount: 1000,
+        clientFeeAmount: 150,
+        currency: "NGN",
+        payment: null,
+      });
+      paymentProviderMock.initEscrow.mockResolvedValue({ ref: "ref-1", checkoutUrl: "https://pay/1" });
+      prismaMock.payment.create.mockResolvedValue({ id: "p1", status: "INITIATED", providerRef: "ref-1" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/pay",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.booking.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PATCH /bookings/:id/deliver", () => {
+    it("talent marks deliverables provided", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({ id: "b1", state: "ESCROW_LOCKED" });
+      prismaMock.booking.update.mockResolvedValue({ id: "b1", state: "DELIVERABLES_PROVIDED" });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/deliver",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().state).toBe("DELIVERABLES_PROVIDED");
+    });
+
+    it("rejects the client from marking deliverables provided", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/deliver",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+    });
+  });
+
+  describe("PATCH /bookings/:id/approve", () => {
+    it("client approves and escrow releases with correct fee split", async () => {
+      const baseAmount = 4_500_000;
+      const fees = computeFees(baseAmount);
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({
+        id: "b1",
+        state: "DELIVERABLES_PROVIDED",
+        baseAmount,
+        talentFeeAmount: fees.talentFee,
+        currency: "NGN",
+        payment: { id: "p1", status: "ESCROW_HELD", providerRef: "ref-1" },
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.payment.updateMany.mockResolvedValue({ count: 1 });
+      paymentProviderMock.releaseFunds.mockResolvedValue(undefined);
+      prismaMock.$transaction.mockResolvedValue([{ id: "p1", status: "RELEASED" }, { id: "b1", state: "PAYMENT_RELEASED" }]);
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/approve",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(paymentProviderMock.releaseFunds).toHaveBeenCalledWith("ref-1", baseAmount - fees.talentFee, "NGN");
+    });
+
+    it("409s approving a booking still in ESCROW_LOCKED (deliverables not yet provided)", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        payment: { id: "p1", status: "ESCROW_HELD" },
+      });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/approve",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(paymentProviderMock.releaseFunds).not.toHaveBeenCalled();
+    });
+
+    it("rejects the talent from approving their own booking", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/approve",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+    });
+  });
+
+  describe("PATCH /bookings/:id/dispute + POST /bookings/:id/refund", () => {
+    it("either participant can raise a dispute", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({ id: "b1", state: "ESCROW_LOCKED" });
+      prismaMock.booking.update.mockResolvedValue({ id: "b1", state: "DISPUTED" });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/dispute",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().state).toBe("DISPUTED");
+    });
+
+    it("refunds a disputed booking back to the client", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({
+        id: "b1",
+        state: "DISPUTED",
+        payment: { id: "p1", status: "ESCROW_HELD", providerRef: "ref-1" },
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.payment.updateMany.mockResolvedValue({ count: 1 });
+      paymentProviderMock.refund.mockResolvedValue(undefined);
+      prismaMock.$transaction.mockResolvedValue([{ id: "p1", status: "REFUNDED" }, { id: "b1", state: "CANCELLED" }]);
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/refund",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(paymentProviderMock.refund).toHaveBeenCalledWith("ref-1");
+    });
+
+    it("409s refunding a booking that isn't DISPUTED", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({ id: "b1", state: "ESCROW_LOCKED", payment: null });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings/b1/refund",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(paymentProviderMock.refund).not.toHaveBeenCalled();
+    });
+
+    it("returns 403 for a non-participant trying to dispute", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/dispute",
         headers: { authorization: `Bearer ${OTHER_TALENT_TOKEN}` },
       });
 
