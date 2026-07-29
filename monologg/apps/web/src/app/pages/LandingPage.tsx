@@ -219,7 +219,7 @@ export function LandingPage() {
           {["Features", "How It Works", "Talent", "Pricing"].map(item => (
             <button
               key={item}
-              className="font-body text-[14px] opacity-70 hover:opacity-100 transition-opacity"
+              className="font-body text-[length:var(--font-size-sm)] opacity-70 hover:opacity-100 transition-opacity"
               style={{ color: "var(--color-text-secondary)" }}
             >
               {item}
@@ -670,7 +670,7 @@ export function LandingPage() {
                 transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
               >
                 <Eyebrow tone="purple">For Clients &amp; Brands</Eyebrow>
-                <h2 className="font-display text-4xl md:text-[44px] leading-[1.05] mb-5">
+                <h2 className="font-display text-4xl md:text-[length:var(--font-size-4xl)] leading-[1.05] mb-5">
                   Find the right talent in minutes, not weeks
                 </h2>
                 <p className="text-base font-body mb-8 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>

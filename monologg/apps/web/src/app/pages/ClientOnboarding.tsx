@@ -71,7 +71,7 @@ export function ClientOnboarding() {
               className="flex-1 flex flex-col"
             >
               <div className="mb-7">
-                <h2 className="font-display text-[28px] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
+                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
                   Tell us about your company
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
@@ -81,7 +81,7 @@ export function ClientOnboarding() {
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[12px] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
                     Company / Organization Name
                   </label>
                   <Input
@@ -92,7 +92,7 @@ export function ClientOnboarding() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
                     Type of Organization
                   </label>
                   <div className="grid grid-cols-2 gap-2.5">
@@ -110,7 +110,7 @@ export function ClientOnboarding() {
                           }}
                         >
                           <type.icon className="w-4 h-4 shrink-0" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-tertiary)" }} />
-                          <span className="text-[14px] font-body font-medium" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-primary)" }}>{type.label}</span>
+                          <span className="text-[length:var(--font-size-sm)] font-body font-medium" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-primary)" }}>{type.label}</span>
                           {selected && (
                             <motion.div
                               initial={{ scale: 0 }}
@@ -129,7 +129,7 @@ export function ClientOnboarding() {
                 </div>
 
                 <div>
-                  <label className="block text-[12px] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
                     Website (optional)
                   </label>
                   <Input
@@ -160,7 +160,7 @@ export function ClientOnboarding() {
               className="flex-1 flex flex-col"
             >
               <div className="mb-7">
-                <h2 className="font-display text-[28px] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
+                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
                   What are you looking for?
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
@@ -169,7 +169,7 @@ export function ClientOnboarding() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
                   How often do you hire talent?
                 </label>
                 <div className="space-y-2.5">
@@ -220,7 +220,7 @@ export function ClientOnboarding() {
               className="flex-1 flex flex-col"
             >
               <div className="mb-6">
-                <h2 className="font-display text-[28px] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
+                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
                   Set up your payment
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
@@ -240,16 +240,16 @@ export function ClientOnboarding() {
 
               <div className="rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5 space-y-4">
                 <div>
-                  <label className="block text-[12px] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Card Number</label>
+                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Card Number</label>
                   <Input className="font-mono tnum" placeholder="0000 0000 0000 0000" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[12px] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Expiry</label>
+                    <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Expiry</label>
                     <Input className="font-mono tnum" placeholder="MM/YY" />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>CVV</label>
+                    <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>CVV</label>
                     <Input className="font-mono tnum" type="password" placeholder="•••" />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export function ClientOnboarding() {
                   </Button>
                 </div>
                 <button
-                  className="w-full text-[14px] font-body font-medium text-center mt-4 py-2"
+                  className="w-full text-[length:var(--font-size-sm)] font-body font-medium text-center mt-4 py-2"
                   style={{ color: "var(--color-text-tertiary)" }}
                   onClick={() => navigate("/client")}
                 >

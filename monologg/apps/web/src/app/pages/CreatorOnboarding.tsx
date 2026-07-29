@@ -125,7 +125,7 @@ export function CreatorOnboarding() {
             className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto"
           >
             <div className="mt-4 mb-8">
-              <h2 className="font-display text-[28px] leading-[1.15] text-[var(--color-text-primary)] mb-2">What best describes your craft?</h2>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">What best describes your craft?</h2>
               <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
                 Select your primary niche to personalize your storefront.
               </p>
@@ -155,7 +155,7 @@ export function CreatorOnboarding() {
                     }`}
                   >
                     <niche.icon className={`w-7 h-7 transition-colors ${selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`} />
-                    <span className={`font-body text-[14px] font-semibold ${selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>{niche.label}</span>
+                    <span className={`font-body text-[length:var(--font-size-sm)] font-semibold ${selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}>{niche.label}</span>
                     {selected && (
                       <motion.div
                         initial={{ scale: 0 }}
@@ -190,7 +190,7 @@ export function CreatorOnboarding() {
             className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto"
           >
             <div className="mt-4 mb-8">
-              <h2 className="font-display text-[28px] leading-[1.15] text-[var(--color-text-primary)] mb-2">Upload your showcase reel</h2>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">Upload your showcase reel</h2>
               <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
                 MP4, MOV, AVI — up to 150MB
               </p>
@@ -220,7 +220,7 @@ export function CreatorOnboarding() {
                     <Video className="w-6 h-6 text-[var(--color-success)]" />
                   </div>
                   <p className="font-body text-[15px] font-semibold text-[var(--color-text-primary)]">{file.name}</p>
-                  <p className="font-body text-[12px] text-[var(--color-text-secondary)] mt-1 tnum">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                  <p className="font-body text-[length:var(--font-size-xs)] text-[var(--color-text-secondary)] mt-1 tnum">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
                   <Button variant="ghost" className="h-9 mt-2 z-10 relative text-[var(--color-error)] opacity-100 hover:opacity-80" onClick={() => setFile(null)}>Remove</Button>
                 </>
               )}
@@ -277,7 +277,7 @@ export function CreatorOnboarding() {
                 <p className="font-display text-[19px] text-[var(--color-text-primary)] mb-3 leading-snug max-w-[300px]">
                   Thespian AI is analysing your reel to generate style tags…
                 </p>
-                <p className="font-body text-[14px] text-[var(--color-text-secondary)]">
+                <p className="font-body text-[length:var(--font-size-sm)] text-[var(--color-text-secondary)]">
                   This usually takes 15–45 seconds. Stay with us.
                 </p>
               </>
@@ -289,7 +289,7 @@ export function CreatorOnboarding() {
                 <p className="font-display text-[19px] text-[var(--color-text-primary)] mb-3 leading-snug max-w-[300px]">
                   Style tagging didn't complete.
                 </p>
-                <p className="font-body text-[14px] text-[var(--color-text-secondary)] mb-6 max-w-[300px]">
+                <p className="font-body text-[length:var(--font-size-sm)] text-[var(--color-text-secondary)] mb-6 max-w-[300px]">
                   Your reel is saved — we just couldn't generate tags this time. You can try again.
                 </p>
                 <Button onClick={() => setStep(2)} className="w-full max-w-[220px]">
@@ -327,7 +327,7 @@ export function CreatorOnboarding() {
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--color-success-bg)] mb-6">
                 <Sparkles className="w-3.5 h-3.5 text-[var(--color-success)]" />
-                <span className="font-body text-[12px] font-semibold text-[var(--color-success)] uppercase tracking-wider">Style Tags Generated</span>
+                <span className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-success)] uppercase tracking-wider">Style Tags Generated</span>
               </div>
 
               <h2 className="font-display text-[26px] leading-[1.15] text-[var(--color-text-primary)] mb-2">Your style tags are ready.</h2>
@@ -337,7 +337,7 @@ export function CreatorOnboarding() {
             <div className="mb-8 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5">
               <div className="flex items-center gap-1.5 mb-4">
                 <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                <h3 className="font-body text-[12px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Your performance profile</h3>
+                <h3 className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Your performance profile</h3>
               </div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => (
@@ -363,7 +363,7 @@ export function CreatorOnboarding() {
             className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto"
           >
             <div className="mt-4 mb-6">
-              <h2 className="font-display text-[28px] leading-[1.15] text-[var(--color-text-primary)] mb-2">Set your booking rates</h2>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">Set your booking rates</h2>
               <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
                 Create purchasable services for your storefront.
               </p>
@@ -373,19 +373,19 @@ export function CreatorOnboarding() {
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--color-accent)]" />
               <div className="space-y-4">
                 <div>
-                  <label className="font-body text-[12px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Booking Service Title</label>
+                  <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Booking Service Title</label>
                   <Input defaultValue="Feature Film Audition" />
                 </div>
                 <div>
-                  <label className="font-body text-[12px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Base Price</label>
+                  <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Base Price</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] font-mono text-[16px]">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] font-mono text-[length:var(--font-size-base)]">$</span>
                     <Input className="pl-8 font-mono tnum" defaultValue="250" />
                   </div>
                 </div>
                 <div>
-                  <label className="font-body text-[12px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Delivery Timeline</label>
-                  <select className="w-full h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-4 font-body text-[16px] text-[var(--color-text-primary)] focus:border-[var(--color-border-active)] focus:shadow-[0_0_0_4px_var(--color-accent-glow)] outline-none appearance-none">
+                  <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Delivery Timeline</label>
+                  <select className="w-full h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-4 font-body text-[length:var(--font-size-base)] text-[var(--color-text-primary)] focus:border-[var(--color-border-active)] focus:shadow-[0_0_0_4px_var(--color-accent-glow)] outline-none appearance-none">
                     <option>Same Day</option>
                     <option>24 Hours</option>
                     <option>2–3 Days</option>
