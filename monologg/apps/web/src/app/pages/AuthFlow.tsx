@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
+import { apiClient } from "../../lib/api-client";
 import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check } from "lucide-react";
 
 type View = "splash" | "register" | "login" | "forgot";
@@ -19,31 +20,56 @@ export function AuthFlow() {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role === "talent") {
-      navigate("/onboarding");
-    } else {
-      navigate("/onboarding/client");
+    setError(null);
+    setSubmitting(true);
+    try {
+      await apiClient.register({
+        email,
+        password,
+        name,
+        userType: role === "talent" ? "TALENT" : "CLIENT",
+      });
+      navigate(role === "talent" ? "/onboarding" : "/onboarding/client");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock: detect client vs talent by email suffix
-    if (email.includes("client") || email.includes("brand")) {
-      navigate("/client");
-    } else {
-      navigate("/dashboard");
+    setError(null);
+    setSubmitting(true);
+    try {
+      const user = await apiClient.login(email, password);
+      navigate(user.userType === "CLIENT" ? "/client" : "/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid email or password.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleForgot = (e: React.FormEvent) => {
+  const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
-    setForgotSent(true);
+    setError(null);
+    setSubmitting(true);
+    try {
+      await apiClient.forgotPassword(email);
+      setForgotSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const s = {
@@ -251,12 +277,16 @@ export function AuthFlow() {
                       </span>
                     </label>
 
+                    {error && (
+                      <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                    )}
+
                     <Button
                       type="submit"
                       className="w-full h-12 mt-2"
-                      disabled={!agreed || !name || !email || password.length < 8}
+                      disabled={!agreed || !name || !email || password.length < 8 || submitting}
                     >
-                      {role === "talent" ? "Create My Talent Profile" : "Create Client Account"}
+                      {submitting ? "Creating account…" : role === "talent" ? "Create My Talent Profile" : "Create Client Account"}
                     </Button>
                   </form>
 
@@ -319,7 +349,12 @@ export function AuthFlow() {
                         Forgot password?
                       </button>
                     </div>
-                    <Button type="submit" className="w-full h-12 mt-2">Sign In</Button>
+                    {error && (
+                      <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                    )}
+                    <Button type="submit" className="w-full h-12 mt-2" disabled={submitting}>
+                      {submitting ? "Signing in…" : "Sign In"}
+                    </Button>
                   </form>
 
                   <div
@@ -376,7 +411,12 @@ export function AuthFlow() {
                           onChange={e => setEmail(e.target.value)}
                           required
                         />
-                        <Button type="submit" className="w-full h-12 mt-2">Send Reset Link</Button>
+                        {error && (
+                          <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                        )}
+                        <Button type="submit" className="w-full h-12 mt-2" disabled={submitting}>
+                          {submitting ? "Sending…" : "Send Reset Link"}
+                        </Button>
                       </form>
                     </>
                   ) : (

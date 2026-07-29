@@ -16,6 +16,14 @@ The running Fastify backend server for Monologg.
 - **Health Check Route**: `GET /api/v1/health` performs a query (`SELECT 1`) against Supabase to check database status, returning `503` if the database is down.
 - **Fee Computation**: Centralized fee-split math in `src/services/fees.ts` that enforces the platform splits (11% talent / 15% client, `// TODO(conflict:X2)`). Uses integer minor units (kobo/cents) to prevent rounding drift.
 
+## Implemented in Phase 4
+
+- **Auth endpoints** (`/api/v1/auth/*`): `register`, `login`, `refresh`, `logout`, `verify-email`, `forgot-password`, `reset-password` (`src/routes/auth.ts`). Generic error messages throughout to avoid user enumeration; `login`/`forgot-password` are rate-limited (10 req / 15 min per IP).
+- **Passwords**: argon2id (`src/services/auth.ts`). Never stored, logged, or returned in plaintext.
+- **Tokens**: short-lived (~15 min) access JWT + rotating (~30 day) refresh JWT. Refresh tokens are stored hashed (SHA-256) in `RefreshToken`; reuse of an already-rotated token revokes the entire token family. `CacheProvider` (`src/providers/cache.*` — in-memory mock / Redis real) backs the revocation denylist and short-lived verify/reset tokens.
+- **Auth middleware** (`src/middlewares/auth.ts`): `requireAuth` (valid access token → 401), `requireRole('TALENT'|'CLIENT')` (→ 403), `requireOwner('user'|'creator'|'client', paramName)` (→ 403 not-owned, 404 not-found). Not yet applied to any domain route — those don't exist until Phase 5.
+- **Client wiring** (`apps/web`): `api-client.ts` gained `register`/`login`/`logout`/`forgotPassword`/`isAuthenticated`; every live-mode request now attaches the access token and retries once on a 401 via silent refresh. `AuthFlow.tsx` calls these; a `RequireAuth` route guard wraps the six pages that need a session. Both are no-ops in the default `VITE_API_MODE=mock`.
+
 ## Running Locally
 
 1. Ensure the workspace dependencies are installed:

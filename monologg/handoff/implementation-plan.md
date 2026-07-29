@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-07-28
-**Status:** Frontend prototype, pushed to git, CI-backed, now a pnpm workspace with a typed `api-client` seam (`features.md` Phases 0–1 done). No backend/database/auth yet — Phase 2 (Postgres/Prisma schema) is next.
+**Last updated:** 2026-07-29
+**Status:** pnpm workspace with a typed `api-client` seam, a migrated Supabase/Prisma schema, a running Fastify server, and real authentication (`features.md` Phases 0–4 done). No domain endpoints yet (creators, bookings, etc.) — Phase 5 is next.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -124,6 +124,15 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] Implemented `GET /api/v1/health` verifying database connectivity.
 - [x] Wrote automated test suite covering fees, environment validation, health check, and mock provider resolution.
 
+### `features.md` Phase 4 — Real authentication
+- [x] Backend built in a separate tool ("antigravity") from this plan/`features.md`, then audited and completed in this session (Session 14): `services/auth.ts` (argon2id, JWT issue/verify, refresh-token hashing), `routes/auth.ts` (all 7 endpoints — register/login/refresh/logout/verify-email/forgot-password/reset-password), `middlewares/auth.ts` (`requireAuth`/`requireRole`/`requireOwner`), `providers/cache.*` (refresh-token denylist + verify/reset TTLs, mock in-memory + real Redis).
+- [x] Fixed a real bug found in review: `requireOwner` returned the non-standard status `444` instead of `404` on a missing owned resource.
+- [x] Closed test-gate gaps: verify-email/reset-password/logout endpoint tests, rate-limit tests (login + forgot-password), a real sanitized-logs test (replacing a placeholder assertion), `requireOwner`'s missing `client`-scope tests, and a full register→verify-email→login→protected-route→refresh→logout integration test. 91 `apps/api` tests passing.
+- [x] Wired the client half (`features.md` spec item 6, previously entirely missing): `api-client.ts` gained `register`/`login`/`logout`/`forgotPassword`/`isAuthenticated`, attaches the access token to every live-mode request, and retries once on a 401 via a silent refresh. `AuthFlow.tsx` calls these instead of just navigating locally. A new `RequireAuth` guard wraps the six protected routes — a no-op in the default `mock` mode, real gating only in `live` mode.
+- [x] Verified in a real browser (headless Chromium), not just the test suite: mock-mode register/login navigate correctly, protected routes stay directly reachable with no login, zero console errors.
+- [x] Fixed a real, pre-existing `apps/web` test-infrastructure gap surfaced by the new tests: `@testing-library/react`'s per-test DOM cleanup was never registering (no `test.globals: true`), so `render()` output silently accumulated across tests in a file. Fixed once in `test-setup.ts`.
+- [x] Re-verified the full baseline: `typecheck`/`lint`/`test`/`build` green across both packages, production CSS hash unchanged.
+
 ---
 
 ## 🔄 In Progress
@@ -143,7 +152,7 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 - [x] **Phase 1** — Monorepo restructure (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`, pnpm workspaces) + typed `api-client` seam, `VITE_API_MODE=mock|live` — done, see the Done section above
 - [x] **Phase 2** — Postgres schema via Prisma, migrations, seed data reproducing today's mock fixtures
 - [x] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
-- [ ] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware
+- [x] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware — done, see the Done section above
 - [ ] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam
 - [ ] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent
 - [ ] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems

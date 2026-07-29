@@ -6,8 +6,12 @@ This is a pnpm workspace (`apps/web`, `apps/api`, `packages/types`) as of `featu
 
 ```
 pnpm install        # or: npx pnpm install, if pnpm isn't installed globally
-pnpm dev            # http://localhost:5173
+pnpm dev            # http://localhost:5173 — apps/web only
+
+pnpm --filter @monologg/api run dev   # http://localhost:3001 — apps/api, needs apps/api/.env
 ```
+
+The two dev servers aren't proxied to each other — `apps/web` with `VITE_API_MODE=live` won't reach `localhost:3001` locally without a Vite proxy (Phase 5+). Until then, run `apps/api` on its own to hit its routes directly (`curl localhost:3001/api/v1/health`, Postman, etc.).
 
 ## Before you commit
 
@@ -40,6 +44,12 @@ pnpm --filter @monologg/api run test:integration    # live-DB tests — NOT part
 ```
 
 `test:integration` isn't CI-gated: CI has no Supabase secrets or per-run branching configured. `pnpm test`/CI only run `apps/api`'s fast, no-network tests (payment-provider allowlist, schema shape via Prisma's DMMF).
+
+## Authentication (Phase 4)
+
+Real: `POST /api/v1/auth/{register,login,refresh,logout,verify-email,forgot-password,reset-password}` — argon2id passwords, rotating JWT refresh tokens (reuse revokes the whole family), `requireAuth`/`requireRole`/`requireOwner` middleware (`apps/api/src/middlewares/auth.ts`). Requires `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` (≥32 chars) in `apps/api/.env`.
+
+`apps/web/src/lib/api-client.ts` calls these in `VITE_API_MODE=live` (attaches the access token to every request, retries once on a 401 via silent refresh); `mock` mode (the default) is unchanged from before Phase 4 — no login needed to reach any page. `apps/web/src/app/RequireAuth.tsx` gates the six protected routes the same way: a no-op in `mock`, real in `live`.
 
 ## Working on the backend build-out (`features.md`)
 

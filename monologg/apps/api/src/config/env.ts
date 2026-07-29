@@ -35,6 +35,10 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(["mock", "openai"]).default("mock"),
   CALENDAR_PROVIDER: z.enum(["mock", "google"]).default("mock"),
   NOTIFY_PROVIDER: z.enum(["mock", "sendgrid_twilio"]).default("mock"),
+  CACHE_PROVIDER: z.enum(["mock", "redis"]).default("mock"),
+
+  // ── Redis Cache (optional, used when CACHE_PROVIDER is "redis") ──────────
+  REDIS_URL: z.string().optional(),
 
   // ── External service keys (optional — only validated when provider≠mock) ─
   PAYSTACK_SECRET_KEY: z.string().optional(),

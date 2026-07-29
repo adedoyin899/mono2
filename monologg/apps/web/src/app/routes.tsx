@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { Root } from "./Root";
+import { RequireAuth } from "./RequireAuth";
 import { LandingPage } from "./pages/LandingPage";
 import { AuthFlow } from "./pages/AuthFlow";
 import { CreatorOnboarding } from "./pages/CreatorOnboarding";
@@ -11,6 +12,18 @@ import { ProjectBrief } from "./pages/ProjectBrief";
 import { Checkout } from "./pages/Checkout";
 import { Settings } from "./pages/Settings";
 import { DesignSystem } from "./pages/DesignSystem";
+
+// Wraps a page component with the auth guard (features.md Phase 4) — a no-op in the
+// default `mock` API mode, real gating once `live` mode + Phase 5 endpoints land.
+function protect(Component: React.ComponentType) {
+  return function Protected() {
+    return (
+      <RequireAuth>
+        <Component />
+      </RequireAuth>
+    );
+  };
+}
 
 // Shared route tree — reused by both the browser-history router (dev server /
 // real hosting, see below) and the hash router used for the standalone,
@@ -25,12 +38,12 @@ export const routeTree = [
       { path: "auth", Component: AuthFlow },
       { path: "onboarding", Component: CreatorOnboarding },
       { path: "onboarding/client", Component: ClientOnboarding },
-      { path: "dashboard", Component: TalentDashboard },
-      { path: "client", Component: ClientDashboard },
-      { path: "order/:id", Component: OrderRoom },
-      { path: "brief", Component: ProjectBrief },
-      { path: "checkout", Component: Checkout },
-      { path: "settings", Component: Settings },
+      { path: "dashboard", Component: protect(TalentDashboard) },
+      { path: "client", Component: protect(ClientDashboard) },
+      { path: "order/:id", Component: protect(OrderRoom) },
+      { path: "brief", Component: protect(ProjectBrief) },
+      { path: "checkout", Component: protect(Checkout) },
+      { path: "settings", Component: protect(Settings) },
       { path: "design-system", Component: DesignSystem },
     ],
   },
