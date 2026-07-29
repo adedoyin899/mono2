@@ -6,6 +6,7 @@ monologg/apps/web/dist-standalone/
 monologg/**/.vite/
 monologg/**/coverage/
 monologg/apps/api/uploads/
+monologg/**/.vercel/
 
 # Secrets — never commit real env values; .env.example is the exception
 monologg/**/.env
@@ -15,3 +16,5 @@ monologg/**/.env.*
 # OS junk
 .DS_Store
 **/.DS_Store
+.vercel
+.env*
