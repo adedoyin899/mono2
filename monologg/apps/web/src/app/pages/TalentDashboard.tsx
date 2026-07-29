@@ -8,7 +8,8 @@ import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
-import { apiClient } from "../../lib/api-client";
+import { apiClient, type AppNotification } from "../../lib/api-client";
+import { formatRelativeTime } from "../../lib/utils";
 import type { ActivityItem, AvailabilityWeek, Order, ServiceRateCard, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
@@ -23,6 +24,27 @@ type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings";
 const CALENDAR_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIME_SLOTS = ["9am–12pm", "12pm–3pm", "3pm–6pm", "6pm–9pm"];
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
+
+// features.md Phase 9: display metadata per notification `kind` — the backend
+// sends kind + a small payload (e.g. {bookingId}), not pre-formatted copy.
+const NOTIFICATION_META: Record<string, { title: string; tone: "accent" | "success" }> = {
+  booking_created: { title: "New Booking Request", tone: "accent" },
+  payment_escrow_locked: { title: "Booking Confirmed", tone: "success" },
+  deliverables_provided: { title: "Deliverables Submitted", tone: "accent" },
+  payment_released: { title: "Payment Received", tone: "success" },
+  payment_refunded: { title: "Payment Refunded", tone: "accent" },
+  kyc_verified: { title: "Identity Verified", tone: "success" },
+  kyc_failed: { title: "Verification Unsuccessful", tone: "accent" },
+  new_message: { title: "New Message", tone: "accent" },
+  tagging_done: { title: "Style Tags Generated", tone: "success" },
+  calendar_disconnected: { title: "Calendar Disconnected", tone: "accent" },
+};
+
+function describeNotification(n: { kind: string; payload: Record<string, unknown> }): string {
+  if (typeof n.payload.message === "string") return n.payload.message;
+  if (typeof n.payload.bookingId === "string") return `Booking ${n.payload.bookingId}`;
+  return "Tap to view details.";
+}
 
 const TALENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
@@ -58,6 +80,8 @@ export function TalentDashboard() {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [services, setServices] = useState<ServiceRateCard[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     apiClient.getTalentStats().then(setStats);
@@ -65,7 +89,27 @@ export function TalentDashboard() {
     apiClient.listServices().then(setServices);
     apiClient.listTalentOrders().then(setOrders);
     apiClient.getAvailability().then(setCalendarData);
+    apiClient.listNotifications().then(({ notifications, unreadCount }) => {
+      setNotifications(notifications);
+      setUnreadCount(unreadCount);
+    });
   }, []);
+
+  // Refetch on open so the badge/count reflect anything that arrived since
+  // the initial load — real per-user data, not a static fixture.
+  const openNotifications = () => {
+    setShowNotifications(true);
+    apiClient.listNotifications().then(({ notifications, unreadCount }) => {
+      setNotifications(notifications);
+      setUnreadCount(unreadCount);
+    });
+  };
+
+  const handleMarkNotificationRead = (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n)));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    apiClient.markNotificationRead(id);
+  };
 
   const screenTitle =
     activeTab === "home" ? "Dashboard"
@@ -104,9 +148,11 @@ export function TalentDashboard() {
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button aria-label="View notifications" onClick={() => setShowNotifications(true)} className="w-10 h-10 rounded-full flex items-center justify-center relative hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }}>
+          <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center relative hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }}>
             <Bell className="w-[18px] h-[18px]" style={{ color: "var(--color-text-secondary)" }} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2" style={{ background: "var(--color-accent)", "--tw-ring-color": "var(--color-bg-surface)" } as React.CSSProperties}></span>
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2" style={{ background: "var(--color-accent)", "--tw-ring-color": "var(--color-bg-surface)" } as React.CSSProperties}></span>
+            )}
           </button>
           <button
             aria-label="Go to settings"
@@ -154,9 +200,11 @@ export function TalentDashboard() {
                   <Plus className="w-4 h-4" /> Add Service
                 </Button>
               )}
-              <button aria-label="View notifications" onClick={() => setShowNotifications(true)} className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity relative" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+              <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity relative" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
                 <Bell className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
-                <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full" style={{ background: "var(--color-accent)" }}></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full" style={{ background: "var(--color-accent)" }}></span>
+                )}
               </button>
             </div>
           </div>
@@ -896,16 +944,37 @@ export function TalentDashboard() {
                     </button>
                   </div>
                   <div className="flex-1 overflow-y-auto space-y-4">
-                    <div className="p-4 rounded-[var(--radius-md)] border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-accent)" }}>New Booking Request</div>
-                      <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Brand Agency NG requested a Commercial Voice-Over.</p>
-                      <div className="text-xs mt-2" style={{ color: "var(--color-text-tertiary)" }}>2h ago</div>
-                    </div>
-                    <div className="p-4 rounded-[var(--radius-md)] border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-success)" }}>Payment Received</div>
-                      <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>₦120,000 released from escrow for FilmCraft Lagos.</p>
-                      <div className="text-xs mt-2" style={{ color: "var(--color-text-tertiary)" }}>1d ago</div>
-                    </div>
+                    {notifications.length === 0 && (
+                      <p className="text-sm text-center py-8" style={{ color: "var(--color-text-tertiary)" }}>
+                        No notifications yet.
+                      </p>
+                    )}
+                    {notifications.map((n) => {
+                      const meta = NOTIFICATION_META[n.kind] ?? { title: n.kind, tone: "accent" as const };
+                      const unread = !n.readAt;
+                      return (
+                        <button
+                          key={n.id}
+                          onClick={() => unread && handleMarkNotificationRead(n.id)}
+                          className="w-full text-left p-4 rounded-[var(--radius-md)] border relative"
+                          style={{
+                            background: "var(--color-bg-elevated)",
+                            borderColor: unread ? "var(--color-accent)" : "var(--color-border-default)",
+                          }}
+                        >
+                          <div
+                            className="text-xs font-semibold mb-1"
+                            style={{ color: meta.tone === "success" ? "var(--color-success)" : "var(--color-accent)" }}
+                          >
+                            {meta.title}
+                          </div>
+                          <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>{describeNotification(n)}</p>
+                          <div className="text-xs mt-2" style={{ color: "var(--color-text-tertiary)" }}>
+                            {formatRelativeTime(n.createdAt)}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </Modal>

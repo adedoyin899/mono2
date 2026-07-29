@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Provider-selection tests — Phase 3 gate
@@ -11,6 +11,14 @@ import { describe, it, expect } from "vitest";
 // references as the known mock objects (reference equality, not duck-typing).
 // ---------------------------------------------------------------------------
 
+// Phase 9: mockNotifyProvider.inApp now genuinely persists to Notification —
+// mocked here purely so this file's light behavioral smoke test doesn't need
+// a real Supabase row to satisfy the userId foreign key. Real persistence
+// behavior is covered by providers/notify.real.test.ts and services/notifications.test.ts.
+vi.mock("../db/client.js", () => ({
+  prisma: { notification: { create: vi.fn().mockResolvedValue({}) } },
+}));
+
 import { paymentProvider } from "../providers/index.js";
 import { kycProvider } from "../providers/index.js";
 import { aiTaggingProvider } from "../providers/index.js";
@@ -20,7 +28,8 @@ import { notifyProvider } from "../providers/index.js";
 import { mockPaymentProvider } from "../providers/payment.mock.js";
 import { mockKycProvider } from "../providers/kyc.mock.js";
 import { mockAiTaggingProvider } from "../providers/aiTagging.mock.js";
-import { mockCalendarProvider } from "../providers/calendar.mock.js";
+import { mockCalendarProvider, MOCK_REVOKED_REFRESH_TOKEN } from "../providers/calendar.mock.js";
+import { CalendarAuthRevokedError } from "../providers/calendar.interface.js";
 import { mockNotifyProvider } from "../providers/notify.mock.js";
 
 import { realPaymentProvider } from "../providers/payment.real.js";
@@ -109,8 +118,31 @@ describe("Provider registry (NODE_ENV=test)", () => {
     });
 
     it("mockCalendarProvider.createMeet returns a meet URL", async () => {
-      const { meetUrl } = await mockCalendarProvider.createMeet("booking-abc");
+      const { meetUrl } = await mockCalendarProvider.createMeet("booking-abc", "mock_refresh_token");
       expect(meetUrl).toMatch(/^https:\/\/meet\.google\.com\//);
+    });
+
+    it("mockCalendarProvider.connect/completeConnect round-trip a state token", async () => {
+      const { authUrl } = await mockCalendarProvider.connect("state-123");
+      expect(authUrl).toContain("state=state-123");
+      const { refreshToken, scopes } = await mockCalendarProvider.completeConnect("auth-code-abc");
+      expect(refreshToken).toContain("auth-code-abc");
+      expect(scopes.length).toBeGreaterThan(0);
+    });
+
+    it("mockCalendarProvider throws CalendarAuthRevokedError for the revoked sentinel token", async () => {
+      await expect(
+        mockCalendarProvider.pushAvailability(
+          { id: "block-1", date: new Date("2026-08-01"), slots: [] },
+          MOCK_REVOKED_REFRESH_TOKEN,
+        ),
+      ).rejects.toThrow(CalendarAuthRevokedError);
+      await expect(mockCalendarProvider.getBusyTimes(new Date("2026-08-01"), MOCK_REVOKED_REFRESH_TOKEN)).rejects.toThrow(
+        CalendarAuthRevokedError,
+      );
+      await expect(mockCalendarProvider.createMeet("booking-abc", MOCK_REVOKED_REFRESH_TOKEN)).rejects.toThrow(
+        CalendarAuthRevokedError,
+      );
     });
 
     it("mockNotifyProvider methods resolve without throwing", async () => {

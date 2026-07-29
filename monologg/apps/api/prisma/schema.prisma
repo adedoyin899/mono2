@@ -19,6 +19,11 @@ datasource db {
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
+  // Phase 9: SMS recipient. Nullable — no phase through Phase 9 collects this at
+  // registration/onboarding, so it starts empty for every user. SMS dispatch
+  // (services/notifications.ts) simply skips a user with no phone rather than
+  // failing — a real, flagged gap, not a fabricated data source.
+  phone         String?
   passwordHash  String
   userType      UserType
   emailVerified Boolean        @default(false)
@@ -28,6 +33,8 @@ model User {
   client        Client?
   refreshTokens RefreshToken[]
   notifications Notification[]
+  calendarConnection    CalendarConnection?
+  notificationPreference NotificationPreference?
 }
 
 enum UserType {
@@ -292,6 +299,19 @@ model Notification {
   createdAt DateTime  @default(now())
 }
 
+// Phase 9: per-user, per-channel opt-out. In-app notifications are never
+// gated by this (a notification centre isn't the legally-sensitive channel;
+// email/SMS unsubscribe is) — only enqueueEmailNotification/enqueueSmsNotification
+// (services/notifications.ts) check it. No row = both channels default enabled.
+model NotificationPreference {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailEnabled Boolean  @default(true)
+  smsEnabled   Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+}
+
 model KycCheck {
   id          String            @id @default(cuid())
   creatorId   String
@@ -301,4 +321,26 @@ model KycCheck {
   status      VerificationState
   raw         Json?
   createdAt   DateTime          @default(now())
+}
+
+// Phase 8: Google Calendar OAuth, per user. The refresh token is the only
+// long-lived secret this app stores for a third-party account — it is NEVER
+// persisted in plaintext (see src/lib/encryption.ts, AES-256-GCM) and never
+// logged. One connection per user; a revoke/reconnect flips status + revokedAt
+// rather than deleting the row, so history isn't lost.
+model CalendarConnection {
+  id                     String                   @id @default(cuid())
+  userId                 String                   @unique
+  user                   User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider               String // "google"
+  encryptedRefreshToken  String // AES-256-GCM ciphertext, base64 — never plaintext
+  scopes                 String[]
+  status                 CalendarConnectionStatus @default(CONNECTED)
+  connectedAt            DateTime                 @default(now())
+  revokedAt              DateTime?
+}
+
+enum CalendarConnectionStatus {
+  CONNECTED
+  REVOKED
 }

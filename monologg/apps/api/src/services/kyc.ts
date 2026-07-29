@@ -1,6 +1,7 @@
 import type { Creator } from "@prisma/client";
 import { prisma } from "../db/client.js";
 import { kycProvider, notifyProvider } from "../providers/index.js";
+import { enqueueEmailNotification } from "./notifications.js";
 import type { KycData } from "../providers/kyc.interface.js";
 
 // Identity KYC service (features.md Phase 7). This is the ONLY place that ever
@@ -73,9 +74,9 @@ export async function pollKycStatus(creator: Creator) {
     prisma.kycCheck.update({ where: { id: latestCheck.id }, data: { status } }),
   ]);
 
-  await notifyProvider
-    .inApp(creator.userId, { kind: status === "VERIFIED" ? "kyc_verified" : "kyc_failed", creatorId: creator.id })
-    .catch(() => {});
+  const kind = status === "VERIFIED" ? "kyc_verified" : "kyc_failed";
+  await notifyProvider.inApp(creator.userId, { kind, creatorId: creator.id }).catch(() => {});
+  await enqueueEmailNotification(creator.userId, kind, { creatorId: creator.id });
 
   return { verification: updatedCreator.verification, check: updatedCheck };
 }

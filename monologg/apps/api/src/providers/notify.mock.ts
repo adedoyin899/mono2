@@ -1,8 +1,12 @@
 import type { NotifyProvider } from "./notify.interface.js";
+import { persistInAppNotification } from "./notify.shared.js";
 
 // Mock NotifyProvider — for dev and test environments.
-// Logs notifications to stdout instead of sending real emails/SMS.
-// Safe to use in tests — zero real sends, but the log output is inspectable.
+// email/sms log to stdout instead of sending real emails/SMS — zero real
+// sends, but the log output is inspectable. inApp is NOT logged-only: it
+// always persists for real (see notify.shared.ts) — there's no meaningful
+// "mock in-app notification" distinct from a real one, since Notification is
+// our own table either way.
 
 export const mockNotifyProvider: NotifyProvider = {
   async email(to, template, data) {
@@ -14,6 +18,6 @@ export const mockNotifyProvider: NotifyProvider = {
   },
 
   async inApp(userId, payload) {
-    console.log(`[notify.mock] IN-APP → user:${userId} | payload:`, JSON.stringify(payload));
+    await persistInAppNotification(userId, payload);
   },
 };

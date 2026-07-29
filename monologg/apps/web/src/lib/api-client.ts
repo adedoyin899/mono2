@@ -122,6 +122,15 @@ export interface CreatorProfile {
   verification: VerificationState;
 }
 
+// features.md Phase 9: notifications backend.
+export interface AppNotification {
+  id: string;
+  kind: string;
+  payload: Record<string, unknown>;
+  readAt: string | null;
+  createdAt: string;
+}
+
 export interface RegisterInput {
   email: string;
   password: string;
@@ -296,6 +305,40 @@ export const apiClient = {
   async getVerificationStatus(): Promise<{ verification: VerificationState }> {
     if (API_MODE !== "live") return { verification: "UNVERIFIED" };
     return request("/creators/me/verify");
+  },
+
+  // ── Notifications (features.md Phase 9) ────────────────────────────────────
+  // Mock mode preserves the original two hardcoded panel entries (no network) —
+  // only live mode reads real, per-user notifications.
+  async listNotifications(): Promise<{ notifications: AppNotification[]; unreadCount: number }> {
+    if (API_MODE !== "live") {
+      const now = Date.now();
+      return {
+        notifications: [
+          {
+            id: "mock-1",
+            kind: "booking_created",
+            payload: { message: "Brand Agency NG requested a Commercial Voice-Over." },
+            readAt: null,
+            createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            id: "mock-2",
+            kind: "payment_released",
+            payload: { message: "₦120,000 released from escrow for FilmCraft Lagos." },
+            readAt: null,
+            createdAt: new Date(now - 24 * 60 * 60 * 1000).toISOString(),
+          },
+        ],
+        unreadCount: 2,
+      };
+    }
+    const page = await request<{ data: AppNotification[]; unreadCount: number }>("/notifications?pageSize=50");
+    return { notifications: page.data, unreadCount: page.unreadCount };
+  },
+  async markNotificationRead(id: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/notifications/${id}/read`, { method: "POST" });
   },
 
   // ── Order Room ────────────────────────────────────────────────────

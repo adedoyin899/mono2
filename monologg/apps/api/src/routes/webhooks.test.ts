@@ -9,11 +9,22 @@ vi.mock("../db/client.js", () => ({
   },
 }));
 
+// Phase 8: processPaystackWebhookEvent best-effort-triggers Meet creation on
+// escrow lock (services/calendar.ts's createMeetForBooking). Mocked here for
+// the same reason as services/payment.test.ts — this route's own mocked
+// Prisma doesn't model booking.findUniqueOrThrow/creator/etc., and shouldn't
+// need to just to prove the webhook itself is signature-verified + idempotent.
+vi.mock("../services/calendar.js", () => ({
+  createMeetForBooking: vi.fn().mockResolvedValue(null),
+}));
+
 import { buildApp } from "../app.js";
 import { prisma } from "../db/client.js";
 import { mockPaymentProvider } from "../providers/payment.mock.js";
+import { createMeetForBooking } from "../services/calendar.js";
 
 const prismaMock = prisma as any;
+const createMeetForBookingMock = createMeetForBooking as any;
 
 // Under NODE_ENV=test, providers/index.ts always resolves to mockPaymentProvider —
 // including for signature verification (which defaults to "always valid" so the
@@ -28,6 +39,10 @@ describe("POST /api/v1/webhooks/paystack", () => {
     app = await buildApp({ logger: false });
     await app.ready();
     vi.clearAllMocks();
+    // afterEach's vi.restoreAllMocks() (below) wipes vi.mock() factory-configured
+    // implementations too, not just the vi.spyOn it's meant for — re-establish
+    // this one every test rather than relying on the factory's one-time default.
+    createMeetForBookingMock.mockResolvedValue(null);
   });
 
   afterEach(async () => {

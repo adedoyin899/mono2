@@ -13,6 +13,8 @@ import {
   refundEscrowForBooking,
   BookingNotPayableError,
 } from "../services/payment.js";
+import { notifyProvider } from "../providers/index.js";
+import { enqueueEmailNotification } from "../services/notifications.js";
 
 const createBookingSchema = z.object({
   creatorId: z.string().min(1),
@@ -87,7 +89,10 @@ export async function bookingRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const { creatorId, rateCardId, slotDate, slotStart, slotEnd } = parsed.data;
-      const rateCard = await prisma.rateCard.findUnique({ where: { id: rateCardId } });
+      const rateCard = await prisma.rateCard.findUnique({
+        where: { id: rateCardId },
+        include: { creator: { select: { userId: true } } },
+      });
       if (!rateCard || rateCard.creatorId !== creatorId) {
         return reply.status(400).send({
           error: "Bad Request",
@@ -106,6 +111,13 @@ export async function bookingRoutes(app: FastifyInstance): Promise<void> {
         slotStart,
         slotEnd,
       });
+
+      // features.md Phase 9: domain event — a new booking request notifies the
+      // talent. Best-effort: a notification failure must never fail booking creation.
+      await notifyProvider
+        .inApp(rateCard.creator.userId, { kind: "booking_created", bookingId: booking.id })
+        .catch(() => {});
+      await enqueueEmailNotification(rateCard.creator.userId, "booking_created", { bookingId: booking.id });
 
       return reply.status(201).send(booking);
     },
@@ -265,6 +277,14 @@ export async function bookingRoutes(app: FastifyInstance): Promise<void> {
 
       try {
         const updated = await transitionBooking(id, "DELIVERABLES_PROVIDED");
+
+        // features.md Phase 9: domain event — the client is notified their
+        // deliverables are ready for review. Best-effort, never fails the transition.
+        await notifyProvider
+          .inApp(booking.client.userId, { kind: "deliverables_provided", bookingId: id })
+          .catch(() => {});
+        await enqueueEmailNotification(booking.client.userId, "deliverables_provided", { bookingId: id });
+
         return reply.send(updated);
       } catch (err) {
         if (err instanceof IllegalBookingTransitionError) {

@@ -9,8 +9,22 @@ vi.mock("../db/client.js", () => ({
   },
 }));
 
+vi.mock("../providers/index.js", () => ({
+  notifyProvider: { email: vi.fn(), sms: vi.fn(), inApp: vi.fn() },
+}));
+
+// Phase 9: enqueueEmailNotification mocked so this file doesn't need to model
+// prisma.user too — services/notifications.test.ts owns its own behavior.
+vi.mock("../services/notifications.js", () => ({
+  enqueueEmailNotification: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { prisma } from "../db/client.js";
+import { notifyProvider } from "../providers/index.js";
+import { enqueueEmailNotification } from "../services/notifications.js";
 const prismaMock = prisma as any;
+const notifyProviderMock = notifyProvider as any;
+const enqueueEmailNotificationMock = enqueueEmailNotification as any;
 
 const TALENT_TOKEN = generateAccessToken({ userId: "user-talent-1", userType: "TALENT", email: "t@monologg.dev" });
 const CLIENT_TOKEN = generateAccessToken({ userId: "user-client-1", userType: "CLIENT", email: "c@monologg.dev" });
@@ -30,6 +44,7 @@ describe("Order-room messages (participants only)", () => {
     app = await buildApp({ logger: false });
     await app.ready();
     vi.clearAllMocks();
+    notifyProviderMock.inApp.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -105,6 +120,32 @@ describe("Order-room messages (participants only)", () => {
         data: { orderRoomId: "room-1", senderId: "user-client-1", kind: "TEXT", content: "New message" },
       });
       expect(response.json().from).toBe("client");
+    });
+
+    it("features.md Phase 9: notifies the OTHER participant, never the sender", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue(BOOKING);
+      prismaMock.message.create.mockResolvedValue({
+        id: "m3",
+        kind: "TEXT",
+        content: "New message",
+        senderId: "user-client-1",
+        createdAt: new Date(),
+      });
+
+      await app.inject({
+        method: "POST",
+        url: "/api/v1/order-rooms/b1/messages",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+        payload: { text: "New message" },
+      });
+
+      // Client sent it — the talent (creator) is notified, not the client themselves.
+      expect(notifyProviderMock.inApp).toHaveBeenCalledWith(
+        "user-talent-1",
+        expect.objectContaining({ kind: "new_message", bookingId: "b1" }),
+      );
+      expect(notifyProviderMock.inApp).not.toHaveBeenCalledWith("user-client-1", expect.anything());
+      expect(enqueueEmailNotificationMock).toHaveBeenCalledWith("user-talent-1", "new_message", { bookingId: "b1" });
     });
 
     it("rejects a non-participant trying to send a message", async () => {

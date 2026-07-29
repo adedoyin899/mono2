@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { rm } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { buildApp } from "../app.js";
 import { pendingUploads } from "../providers/storage.mock.js";
@@ -13,6 +13,12 @@ describe("PUT /uploads/local/:token — the mock StorageProvider's presigned end
     app = await buildApp({ logger: false });
     await app.ready();
     pendingUploads.clear();
+    // These tests register tokens directly via pendingUploads.set(), bypassing
+    // createPresignedUpload() — which is normally what creates UPLOAD_DIR (see
+    // storage.mock.ts) before any token exists. Without this, writeFile() below
+    // 500s with ENOENT unless some other test file happened to create the dir
+    // first — a real, order-dependent flake, not a hypothetical one.
+    await mkdir(UPLOAD_DIR, { recursive: true });
   });
 
   afterEach(async () => {

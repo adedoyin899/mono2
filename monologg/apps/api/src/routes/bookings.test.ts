@@ -25,11 +25,20 @@ vi.mock("../providers/index.js", () => ({
   notifyProvider: { email: vi.fn(), sms: vi.fn(), inApp: vi.fn() },
 }));
 
+// Phase 9: booking_created/deliverables_provided also enqueue email — mocked
+// here (not exercised) so this file doesn't need to model prisma.user too;
+// services/notifications.test.ts owns enqueueEmailNotification's own behavior.
+vi.mock("../services/notifications.js", () => ({
+  enqueueEmailNotification: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { prisma } from "../db/client.js";
 import { paymentProvider, notifyProvider } from "../providers/index.js";
+import { enqueueEmailNotification } from "../services/notifications.js";
 const prismaMock = prisma as any;
 const paymentProviderMock = paymentProvider as any;
 const notifyProviderMock = notifyProvider as any;
+const enqueueEmailNotificationMock = enqueueEmailNotification as any;
 
 const CLIENT_TOKEN = generateAccessToken({ userId: "user-client-1", userType: "CLIENT", email: "c@monologg.dev" });
 const TALENT_TOKEN = generateAccessToken({ userId: "user-talent-1", userType: "TALENT", email: "t@monologg.dev" });
@@ -58,6 +67,7 @@ describe("Bookings", () => {
         creatorId: "creator-1",
         basePriceAmount: baseAmount,
         basePriceCurrency: "NGN",
+        creator: { userId: "user-creator-1" },
       });
       prismaMock.booking.create.mockResolvedValue({ id: "booking-new", state: "PENDING_PAYMENT" });
 
@@ -82,6 +92,33 @@ describe("Bookings", () => {
           clientFeeAmount: expected.clientFee,
           state: "PENDING_PAYMENT",
         }),
+      });
+    });
+
+    it("features.md Phase 9: notifies the talent in-app and by email of the new booking request", async () => {
+      prismaMock.client.findUnique.mockResolvedValue({ id: "client-1", userId: "user-client-1" });
+      prismaMock.rateCard.findUnique.mockResolvedValue({
+        id: "rc-1",
+        creatorId: "creator-1",
+        basePriceAmount: 1_000_000,
+        basePriceCurrency: "NGN",
+        creator: { userId: "user-creator-1" },
+      });
+      prismaMock.booking.create.mockResolvedValue({ id: "booking-new", state: "PENDING_PAYMENT" });
+
+      await app.inject({
+        method: "POST",
+        url: "/api/v1/bookings",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+        payload: { creatorId: "creator-1", rateCardId: "rc-1", slotDate: "2026-08-01", slotStart: "10:00", slotEnd: "12:00" },
+      });
+
+      expect(notifyProviderMock.inApp).toHaveBeenCalledWith(
+        "user-creator-1",
+        expect.objectContaining({ kind: "booking_created", bookingId: "booking-new" }),
+      );
+      expect(enqueueEmailNotificationMock).toHaveBeenCalledWith("user-creator-1", "booking_created", {
+        bookingId: "booking-new",
       });
     });
 
@@ -401,6 +438,31 @@ describe("Bookings", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json().state).toBe("DELIVERABLES_PROVIDED");
+    });
+
+    it("features.md Phase 9: notifies the client in-app and by email that deliverables are ready", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        state: "ESCROW_LOCKED",
+        creator: { userId: "user-talent-1" },
+        client: { userId: "user-client-1" },
+      });
+      prismaMock.booking.findUniqueOrThrow.mockResolvedValue({ id: "b1", state: "ESCROW_LOCKED" });
+      prismaMock.booking.update.mockResolvedValue({ id: "b1", state: "DELIVERABLES_PROVIDED" });
+
+      await app.inject({
+        method: "PATCH",
+        url: "/api/v1/bookings/b1/deliver",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(notifyProviderMock.inApp).toHaveBeenCalledWith(
+        "user-client-1",
+        expect.objectContaining({ kind: "deliverables_provided", bookingId: "b1" }),
+      );
+      expect(enqueueEmailNotificationMock).toHaveBeenCalledWith("user-client-1", "deliverables_provided", {
+        bookingId: "b1",
+      });
     });
 
     it("rejects the client from marking deliverables provided", async () => {

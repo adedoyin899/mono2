@@ -3,6 +3,8 @@ import { paymentProvider, notifyProvider } from "../providers/index.js";
 import { env } from "../config/env.js";
 import { assertAllowedPaymentProvider, type PaymentProvider as PaymentProviderName } from "../config/paymentProviders.js";
 import { assertLegalTransition, IllegalBookingTransitionError } from "./booking.js";
+import { createMeetForBooking } from "./calendar.js";
+import { enqueueEmailNotification } from "./notifications.js";
 
 // Escrow / payment service (features.md Phase 6). The single place that moves
 // Payment.status and the money-side of BookingState — nothing outside this file
@@ -160,6 +162,15 @@ export async function processPaystackWebhookEvent(
       await notifyProvider
         .inApp(booking.client.userId, { kind: "payment_escrow_locked", bookingId: booking.id })
         .catch(() => {});
+      await enqueueEmailNotification(booking.creator.userId, "payment_escrow_locked", { bookingId: booking.id });
+      await enqueueEmailNotification(booking.client.userId, "payment_escrow_locked", { bookingId: booking.id });
+
+      // Best-effort (features.md Phase 8): a missing/revoked calendar connection
+      // is never a reason to fail this webhook — the booking just has no
+      // meetUrl yet, which degrades gracefully in the order room.
+      await createMeetForBooking(booking.id).catch((err) => {
+        console.error(`[services/payment] createMeetForBooking failed for ${booking.id}:`, err);
+      });
     }
   }
 
@@ -215,6 +226,7 @@ export async function releaseEscrowForBooking(bookingId: string) {
   await notifyProvider
     .inApp(booking.client.userId, { kind: "payment_released", bookingId })
     .catch(() => {});
+  await enqueueEmailNotification(booking.creator.userId, "payment_released", { bookingId, amount: talentNet });
 
   return { alreadyProcessed: false, payment };
 }
@@ -267,6 +279,7 @@ export async function refundEscrowForBooking(bookingId: string) {
   await notifyProvider
     .inApp(booking.creator.userId, { kind: "payment_refunded", bookingId })
     .catch(() => {});
+  await enqueueEmailNotification(booking.client.userId, "payment_refunded", { bookingId });
 
   return { alreadyProcessed: false, payment };
 }

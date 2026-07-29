@@ -37,6 +37,11 @@ const envSchema = z.object({
   NOTIFY_PROVIDER: z.enum(["mock", "sendgrid_twilio"]).default("mock"),
   CACHE_PROVIDER: z.enum(["mock", "redis"]).default("mock"),
   STORAGE_PROVIDER: z.enum(["mock", "s3"]).default("mock"),
+  // Phase 9: the async job queue email/SMS delivery runs through (src/jobs/).
+  // Not one of the *Provider interfaces above — features.md's own architecture
+  // section lists "jobs" as a separate concern from "providers" — but the same
+  // mock-in-test/real-in-prod selection convention applies.
+  JOB_QUEUE_PROVIDER: z.enum(["mock", "bullmq"]).default("mock"),
 
   // ── Redis Cache (optional, used when CACHE_PROVIDER is "redis") ──────────
   REDIS_URL: z.string().optional(),
@@ -47,9 +52,18 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional(),
+
+  // ── Encryption (Phase 8: encrypts CalendarConnection.encryptedRefreshToken) ─
+  // 64 hex chars = 32 bytes, for AES-256-GCM. Generate with: openssl rand -hex 32
+  CALENDAR_TOKEN_ENCRYPTION_KEY: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/i, "CALENDAR_TOKEN_ENCRYPTION_KEY must be 64 hex chars (32 bytes)")
+    .optional(),
   SENDGRID_API_KEY: z.string().optional(),
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_FROM_NUMBER: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -65,6 +79,8 @@ function parseEnv(): Env {
     envData.DIRECT_URL = envData.DIRECT_URL || "postgresql://mock:mock@localhost:5432/mock";
     envData.JWT_ACCESS_SECRET = envData.JWT_ACCESS_SECRET || "mock_access_secret_length_minimum_32_chars";
     envData.JWT_REFRESH_SECRET = envData.JWT_REFRESH_SECRET || "mock_refresh_secret_length_minimum_32_chars";
+    envData.CALENDAR_TOKEN_ENCRYPTION_KEY =
+      envData.CALENDAR_TOKEN_ENCRYPTION_KEY || "0".repeat(63) + "1"; // 64 hex chars, test-only
   }
 
   const result = envSchema.safeParse(envData);

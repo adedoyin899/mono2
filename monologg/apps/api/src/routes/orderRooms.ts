@@ -5,6 +5,8 @@ import { prisma } from "../db/client.js";
 import { requireAuth } from "../middlewares/auth.js";
 import { bookingParticipantRole } from "../lib/ownership.js";
 import { paginationQuerySchema, paginate, toSkipTake } from "../lib/pagination.js";
+import { notifyProvider } from "../providers/index.js";
+import { enqueueEmailNotification } from "../services/notifications.js";
 
 const sendMessageSchema = z.object({
   text: z.string().min(1),
@@ -107,6 +109,15 @@ export async function orderRoomRoutes(app: FastifyInstance): Promise<void> {
           content: parsed.data.text,
         },
       });
+
+      // features.md Phase 9: domain event — notify the OTHER participant, never
+      // the sender. Best-effort: a notification failure must never fail the send.
+      const recipientUserId =
+        result.role === "creator" ? result.booking.client.userId : result.booking.creator.userId;
+      await notifyProvider
+        .inApp(recipientUserId, { kind: "new_message", bookingId })
+        .catch(() => {});
+      await enqueueEmailNotification(recipientUserId, "new_message", { bookingId });
 
       return reply.status(201).send(mapMessageToOrderMessage(message, result.booking));
     },

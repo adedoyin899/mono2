@@ -15,6 +15,14 @@ vi.mock("../db/client.js", () => ({
   },
 }));
 
+// Phase 8: processPaystackWebhookEvent best-effort-triggers Meet creation on
+// escrow lock. Mocked here (not exercised) — services/calendar.test.ts owns
+// createMeetForBooking's own behavior; these tests only need to know it's
+// called, not re-verify its internals with unrelated mocked Prisma state.
+vi.mock("./calendar.js", () => ({
+  createMeetForBooking: vi.fn().mockResolvedValue(null),
+}));
+
 vi.mock("../providers/index.js", () => ({
   paymentProvider: {
     initEscrow: vi.fn(),
@@ -32,6 +40,7 @@ vi.mock("../providers/index.js", () => ({
 
 import { prisma } from "../db/client.js";
 import { paymentProvider, notifyProvider } from "../providers/index.js";
+import { createMeetForBooking } from "./calendar.js";
 import { computeFees } from "./fees.js";
 import { IllegalBookingTransitionError } from "./booking.js";
 import {
@@ -45,6 +54,7 @@ import {
 const prismaMock = prisma as any;
 const paymentProviderMock = paymentProvider as any;
 const notifyProviderMock = notifyProvider as any;
+const createMeetForBookingMock = createMeetForBooking as any;
 
 describe("Payment / escrow service (features.md Phase 6)", () => {
   beforeEach(() => {
@@ -157,6 +167,32 @@ describe("Payment / escrow service (features.md Phase 6)", () => {
       expect(result.processed).toBe(true);
       expect(paymentProviderMock.holdFunds).toHaveBeenCalledWith("ref-1");
       expect(notifyProviderMock.inApp).toHaveBeenCalledTimes(2);
+      // Phase 8: escrow lock best-effort-triggers Meet link generation.
+      expect(createMeetForBookingMock).toHaveBeenCalledWith("b1");
+    });
+
+    it("a createMeetForBooking failure never fails the webhook (best-effort)", async () => {
+      prismaMock.payment.findUnique.mockResolvedValue({ id: "p1", bookingId: "b1", status: "INITIATED" });
+      prismaMock.$transaction.mockImplementation(async (fn: any) => {
+        const tx = {
+          paymentEvent: { create: vi.fn().mockResolvedValue({}) },
+          payment: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+          booking: { update: vi.fn().mockResolvedValue({}) },
+        };
+        await fn(tx);
+        return tx;
+      });
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-creator" },
+        client: { userId: "user-client" },
+      });
+      paymentProviderMock.holdFunds.mockResolvedValue(undefined);
+      createMeetForBookingMock.mockRejectedValueOnce(new Error("google is down"));
+
+      const result = await processPaystackWebhookEvent(payload);
+
+      expect(result.processed).toBe(true);
     });
 
     it("Authority: a client-side callback (calling holdFunds/notify directly) never runs — only this function, driven by a verified webhook, does", async () => {
