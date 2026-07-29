@@ -120,8 +120,25 @@ export interface MediaAssetStatus {
 export type VerificationState = "UNVERIFIED" | "PROCESSING" | "VERIFIED" | "FAILED";
 export interface CreatorProfile {
   id: string;
+  name: string;
+  bio: string | null;
+  location: string;
   styleTags: string[];
   verification: VerificationState;
+}
+
+// features.md Phase 12: the client-side equivalent of CreatorProfile. Not yet
+// consumed by any screen — Settings.tsx (the one screen that edits a profile)
+// is only reachable from TalentDashboard.tsx's nav today, so there's no client
+// entry point to wire this into yet. Added now, alongside the backend route
+// (routes/clients.ts), so that gap is one screen away from closed, not a new
+// backend build too, whenever a client "Account" screen is added.
+export interface ClientProfile {
+  id: string;
+  name: string;
+  orgName: string | null;
+  orgType: "STUDIO" | "EVENT" | "BRAND" | "CHURCH" | null;
+  location: string;
 }
 
 // features.md Phase 9: notifications backend.
@@ -284,8 +301,54 @@ export const apiClient = {
     return request(`/creators/me/media/${mediaAssetId}`);
   },
   async getCreatorProfile(): Promise<CreatorProfile> {
-    if (API_MODE !== "live") return { id: "mock-creator", styleTags: [], verification: "UNVERIFIED" };
+    if (API_MODE !== "live") {
+      // "Elias Thorne" is the mock talent persona used everywhere else in this
+      // prototype (TalentDashboard.tsx, OrderRoom.tsx, Checkout.tsx) — matched
+      // here rather than inventing a different placeholder for this one screen.
+      return {
+        id: "mock-creator",
+        name: "Elias Thorne",
+        bio: "Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years stage experience.",
+        location: "Lagos, Nigeria",
+        styleTags: [],
+        verification: "UNVERIFIED",
+      };
+    }
     return request("/creators/me");
+  },
+  /** Settings.tsx "Save Changes" — features.md Phase 12. No-op network-wise in
+   * mock mode (echoes the input back, matching every other mock-mode write). */
+  async updateCreatorProfile(
+    data: Partial<Pick<CreatorProfile, "name" | "bio" | "location">>,
+  ): Promise<CreatorProfile> {
+    if (API_MODE !== "live") {
+      const current = await apiClient.getCreatorProfile();
+      return { ...current, ...data };
+    }
+    return request("/creators/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  },
+  async getClientProfile(): Promise<ClientProfile> {
+    if (API_MODE !== "live") {
+      return { id: "mock-client", name: "Brand Agency NG", orgName: "Brand Agency NG", orgType: "BRAND", location: "Lagos, Nigeria" };
+    }
+    return request("/clients/me");
+  },
+  async updateClientProfile(
+    data: Partial<Pick<ClientProfile, "name" | "orgName" | "orgType" | "location">>,
+  ): Promise<ClientProfile> {
+    if (API_MODE !== "live") {
+      const current = await apiClient.getClientProfile();
+      return { ...current, ...data };
+    }
+    return request("/clients/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
   },
 
   // ── Identity KYC (features.md Phase 7) ─────────────────────────────────────

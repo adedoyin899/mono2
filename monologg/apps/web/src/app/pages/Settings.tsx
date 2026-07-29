@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,7 @@ import { FormField } from "../components/ui/FormField";
 import { Badge } from "../components/ui/Badge";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
+import { apiClient } from "../../lib/api-client";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText
@@ -35,14 +36,53 @@ export function Settings() {
   const [name, setName] = useState("Elias Thorne");
   const [email, setEmail] = useState("elias@example.com");
   const [bio, setBio] = useState("Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years stage experience.");
+  const [location, setLocation] = useState("Lagos, Nigeria");
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
   const [saved, setSaved] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
+
+  // features.md Phase 12: this screen previously never read or wrote real data
+  // in either mock or live mode (handleSave below was purely a "Saved" toast).
+  // Fetches the real profile once on mount so a live-mode name/bio/location
+  // edit actually starts from — and persists back to — the signed-in talent's
+  // Creator row. Mock mode's fetch is a same-shape, no-network echo (see
+  // api-client.ts's getCreatorProfile), so this doesn't change mock behavior.
+  useEffect(() => {
+    let cancelled = false;
+    apiClient.getCreatorProfile().then((profile) => {
+      if (cancelled) return;
+      setName(profile.name);
+      setBio(profile.bio ?? "");
+      setLocation(profile.location);
+    }).catch(() => {
+      // No creator profile for this session (e.g. viewing as a client, or
+      // logged out in live mode) — keep the mock-shaped defaults above rather
+      // than surfacing an error on a settings screen.
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const initials = name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
 
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const updated = await apiClient.updateCreatorProfile({ name, bio, location });
+      setName(updated.name);
+      setBio(updated.bio ?? "");
+      setLocation(updated.location);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const sectionBack = () => setSection("main");
@@ -186,7 +226,7 @@ export function Settings() {
               <div className="flex flex-col items-center py-2">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full flex items-center justify-center font-semibold text-2xl font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                    ET
+                    {initials}
                   </div>
                   <button
                     aria-label="Change profile photo"
@@ -215,7 +255,7 @@ export function Settings() {
                 <Input defaultValue="Actor & Voice Artist" />
               </FormField>
               <FormField label="Location">
-                <Input defaultValue="Lagos, Nigeria" />
+                <Input value={location} onChange={e => setLocation(e.target.value)} />
               </FormField>
               <FormField label="Bio">
                 <textarea
@@ -226,7 +266,9 @@ export function Settings() {
                   style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                 />
               </FormField>
-              <Button className="w-full h-12" onClick={handleSave}>Save Changes</Button>
+              <Button className="w-full h-12" onClick={handleSaveProfile} disabled={savingProfile}>
+                {savingProfile ? "Saving…" : "Save Changes"}
+              </Button>
             </motion.div>
           )}
 

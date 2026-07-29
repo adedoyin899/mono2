@@ -3,6 +3,7 @@ import { healthRoutes } from "./health.js";
 import { metricsRoutes } from "./metrics.js";
 import { authRoutes } from "./auth.js";
 import { creatorRoutes } from "./creators.js";
+import { clientRoutes } from "./clients.js";
 import { rateCardRoutes } from "./rateCards.js";
 import { availabilityRoutes } from "./availability.js";
 import { briefRoutes } from "./briefs.js";
@@ -25,6 +26,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(metricsRoutes);
   await app.register(authRoutes);
   await app.register(creatorRoutes);
+  await app.register(clientRoutes);
   await app.register(rateCardRoutes);
   await app.register(availabilityRoutes);
   await app.register(briefRoutes);

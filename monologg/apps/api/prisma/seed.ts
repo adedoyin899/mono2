@@ -11,6 +11,7 @@
 // duplicate source of truth for the real app.
 import { PrismaClient, type Niche, type OrgType } from "@prisma/client";
 import { scryptSync, randomBytes } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 // Exported so the integration test suite can reuse this exact client instead of opening a
 // second one — Supabase's transaction pooler has few enough slots that two concurrent
@@ -120,6 +121,26 @@ const CREATORS: CreatorSeed[] = [
     verified: true,
     referralCode: "REF-IBRAHIM",
   },
+  {
+    id: "seed-creator-zainab",
+    email: "zainab.yusuf@seed.monologg.dev",
+    name: "Zainab Yusuf",
+    niche: "SPEAKER_PASTOR",
+    location: "Kaduna",
+    styleTags: ["Inspirational", "Baritone", "Bilingual"],
+    verified: true,
+    referralCode: "REF-ZAINAB",
+  },
+  {
+    id: "seed-creator-femi",
+    email: "femi.adisa@seed.monologg.dev",
+    name: "Femi Adisa",
+    niche: "MUSICIAN",
+    location: "Ibadan",
+    styleTags: ["Afrobeat", "Smooth", "Session Vocalist"],
+    verified: false,
+    referralCode: "REF-FEMI",
+  },
 ];
 
 interface ClientSeed {
@@ -163,6 +184,22 @@ const CLIENTS: ClientSeed[] = [
     orgName: "Brand Agency NG",
     orgType: "BRAND",
     location: "Lagos",
+  },
+  {
+    id: "seed-client-saharamedia",
+    email: "bookings@sahara-media.seed.monologg.dev",
+    name: "Sahara Media Group",
+    orgName: "Sahara Media Group",
+    orgType: "STUDIO",
+    location: "Port Harcourt",
+  },
+  {
+    id: "seed-client-greenline",
+    email: "bookings@greenline-network.seed.monologg.dev",
+    name: "Greenline Church Network",
+    orgName: "Greenline Church Network",
+    orgType: "CHURCH",
+    location: "Enugu",
   },
 ];
 
@@ -270,6 +307,20 @@ async function seedRateCards() {
       serviceTitle: "Acting / Modelling Booking",
       basePriceAmount: nairaToKobo("₦90,000"),
       deliveryTimeline: "48 Hours",
+    },
+    {
+      id: "seed-ratecard-zainab-keynote-address",
+      creatorId: "seed-creator-zainab",
+      serviceTitle: "Keynote / Sermon Address",
+      basePriceAmount: nairaToKobo("₦70,000"),
+      deliveryTimeline: "3–5 Days",
+    },
+    {
+      id: "seed-ratecard-femi-session-vocals",
+      creatorId: "seed-creator-femi",
+      serviceTitle: "Session Vocals Recording",
+      basePriceAmount: nairaToKobo("₦55,000"),
+      deliveryTimeline: "2–3 Days",
     },
   ];
 
@@ -525,7 +576,16 @@ export async function seed() {
 // Only auto-run when executed directly (`prisma db seed` / `tsx prisma/seed.ts`), not when
 // imported — the integration test suite imports `seed()` to re-run it in-process rather than
 // shelling out to a CLI.
-if (import.meta.url === `file://${process.argv[1]}`) {
+//
+// NOT a naive `file://${process.argv[1]}` string comparison (the previous form of this
+// check) — that silently never matches when the repo path contains characters `file://`
+// URLs percent-encode (this project's own path has a space: ".../figj monol/monologg/...",
+// which import.meta.url renders as "...figj%20monol...") or when argv[1] is a relative path
+// (`tsx prisma/seed.ts`, exactly how `package.json`'s `prisma.seed` invokes it, never resolves
+// argv[1] to absolute). Both defeated the old check, meaning `prisma db seed` reported success
+// while silently never calling `seed()` at all, in this environment. `pathToFileURL` resolves
+// relative-to-absolute AND percent-encodes correctly, matching `import.meta.url`'s own format.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   seed()
     .catch((err) => {
       console.error(err);

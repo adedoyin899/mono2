@@ -30,8 +30,12 @@ describe("pooled connection", () => {
 
 describe("seed parity — reproduces apps/web/src/mocks demo data", () => {
   it("seeded all 6 creators from talents.ts with matching names/niches", async () => {
+    // >= 6, not === 6: seed.ts also carries extra, non-mock-fixture creators
+    // added directly for manual DB verification (see CREATORS below Ibrahim
+    // Bello) — this test's own job is mock-parity for the original 6, not an
+    // exhaustive count of everything the seed has ever grown to contain.
     const creators = await prisma.creator.findMany({ orderBy: { name: "asc" } });
-    expect(creators).toHaveLength(6);
+    expect(creators.length).toBeGreaterThanOrEqual(6);
 
     const byName = Object.fromEntries(creators.map((c: Creator) => [c.name, c]));
     expect(byName["Adaeze Obi"]?.niche).toBe("VO_ARTIST");
