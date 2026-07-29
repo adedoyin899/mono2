@@ -36,6 +36,7 @@ const envSchema = z.object({
   CALENDAR_PROVIDER: z.enum(["mock", "google"]).default("mock"),
   NOTIFY_PROVIDER: z.enum(["mock", "sendgrid_twilio"]).default("mock"),
   CACHE_PROVIDER: z.enum(["mock", "redis"]).default("mock"),
+  STORAGE_PROVIDER: z.enum(["mock", "s3"]).default("mock"),
 
   // ── Redis Cache (optional, used when CACHE_PROVIDER is "redis") ──────────
   REDIS_URL: z.string().optional(),

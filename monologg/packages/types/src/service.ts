@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-/** A talent's purchasable service listing. Mirrors the eventual RateCard
- * model (features.md Phase 2). */
+/** A talent's purchasable service listing. Mirrors the real RateCard model
+ * (features.md Phase 2/5). `id` is a cuid string (RateCard.id) as of Phase 5. */
 export const ServiceRateCardSchema = z.object({
-  id: z.number().int(),
+  id: z.string(),
   title: z.string(),
   price: z.string(),
   delivery: z.string(),

@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
+import { apiClient } from "../../lib/api-client";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
   Check, Mic, User, Star, Video, Music
@@ -21,6 +22,18 @@ const NICHES = [
   { id: "musician", label: "Musician", icon: Music },
   { id: "creator", label: "Content Creator", icon: Video },
 ];
+
+// Maps this form's local niche ids to the real Niche enum (features.md Phase 2/5) —
+// used only when actually publishing to the live API.
+const NICHE_TO_ENUM: Record<string, string> = {
+  actor: "ACTOR",
+  vo: "VO_ARTIST",
+  comedian: "COMEDIAN",
+  compere: "COMPERE",
+  speaker: "SPEAKER_PASTOR",
+  musician: "MUSICIAN",
+  creator: "CONTENT_CREATOR",
+};
 
 const PROJECT_TYPES = [
   "Commercial / Ad Campaign",
@@ -60,6 +73,7 @@ export function ProjectBrief() {
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const navigate = useNavigate();
 
   const toggleNiche = (id: string) => {
@@ -74,9 +88,29 @@ export function ProjectBrief() {
     return false;
   };
 
-  const handleNext = () => {
-    if (step < 4) setStep((step + 1) as Step);
-    else setSubmitSuccess(true);
+  const handleNext = async () => {
+    if (step < 4) {
+      setStep((step + 1) as Step);
+      return;
+    }
+    // Live mode: actually create the Brief so it shows up in ClientDashboard's real
+    // "My Projects" list. Mock mode: unchanged — just show the success screen.
+    setPublishing(true);
+    try {
+      // The budget picker is a range ("50000-150000" / "1000000+") — the real Brief
+      // needs one number, so this uses the range's lower bound in kobo.
+      const lowerBoundNaira = Number(selectedBudget.split("-")[0].replace("+", ""));
+      await apiClient.createBrief({
+        projectName,
+        projectType,
+        nicheReq: selectedNiches.map(id => NICHE_TO_ENUM[id]).filter(Boolean),
+        budgetAmount: Math.round(lowerBoundNaira * 100),
+        budgetCurrency: "NGN",
+      });
+      setSubmitSuccess(true);
+    } finally {
+      setPublishing(false);
+    }
   };
 
   if (submitSuccess) {
@@ -440,10 +474,10 @@ export function ProjectBrief() {
             )}
             <Button
               className="flex-1 h-12"
-              disabled={!canAdvance()}
+              disabled={!canAdvance() || publishing}
               onClick={handleNext}
             >
-              {step === 4 ? "Publish Project" : "Continue"}
+              {step === 4 ? (publishing ? "Publishing…" : "Publish Project") : "Continue"}
             </Button>
           </div>
 

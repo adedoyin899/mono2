@@ -23,14 +23,14 @@ describe("api-client", () => {
     expect(messages.length).toBeGreaterThan(0);
   });
 
-  it("in live mode, calls /api/v1 instead of returning fixtures", async () => {
+  it("in live mode, calls /api/v1 (unwrapping the paginated envelope) instead of returning fixtures", async () => {
     vi.stubEnv("VITE_API_MODE", "live");
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      expect(String(input)).toBe("/api/v1/talent");
-      return new Response(JSON.stringify([{ id: 99, name: "Live Talent" }]), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
+      expect(String(input)).toBe("/api/v1/talent?pageSize=100");
+      return new Response(
+        JSON.stringify({ data: [{ id: "99", name: "Live Talent" }], page: 1, pageSize: 100, total: 1, totalPages: 1 }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -39,7 +39,7 @@ describe("api-client", () => {
 
     const talents = await apiClient.listTalents();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(talents).toEqual([{ id: 99, name: "Live Talent" }]);
+    expect(talents).toEqual([{ id: "99", name: "Live Talent" }]);
   });
 
   it("in live mode, throws on a non-ok response instead of silently succeeding", async () => {
@@ -96,9 +96,12 @@ describe("api-client", () => {
             { status: 200, headers: { "content-type": "application/json" } },
           );
         }
-        if (String(input) === "/api/v1/talent") {
+        if (String(input) === "/api/v1/talent?pageSize=100") {
           expect((init?.headers as Headers).get("Authorization")).toBe("Bearer access-token-abc");
-          return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+          return new Response(
+            JSON.stringify({ data: [], page: 1, pageSize: 100, total: 0, totalPages: 1 }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
         }
         throw new Error(`Unexpected fetch: ${input}`);
       });
@@ -112,7 +115,7 @@ describe("api-client", () => {
       expect(window.localStorage.getItem("monologg_refresh_token")).toBe("refresh-token-xyz");
 
       await apiClient.listTalents();
-      expect(fetchMock).toHaveBeenCalledWith("/api/v1/talent", expect.anything());
+      expect(fetchMock).toHaveBeenCalledWith("/api/v1/talent?pageSize=100", expect.anything());
     });
 
     it("live mode: a 401 triggers one silent refresh-and-retry, then succeeds", async () => {
@@ -122,15 +125,15 @@ describe("api-client", () => {
       let talentCallCount = 0;
       const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
         const url = String(input);
-        if (url === "/api/v1/talent") {
+        if (url === "/api/v1/talent?pageSize=100") {
           talentCallCount += 1;
           if (talentCallCount === 1) {
             return new Response("unauthorized", { status: 401 });
           }
-          return new Response(JSON.stringify([{ id: 1, name: "Refreshed" }]), {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({ data: [{ id: "1", name: "Refreshed" }], page: 1, pageSize: 100, total: 1, totalPages: 1 }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
         }
         if (url === "/api/v1/auth/refresh") {
           return new Response(
@@ -145,7 +148,7 @@ describe("api-client", () => {
       const { apiClient } = await import("./api-client");
       const talents = await apiClient.listTalents();
 
-      expect(talents).toEqual([{ id: 1, name: "Refreshed" }]);
+      expect(talents).toEqual([{ id: "1", name: "Refreshed" }]);
       expect(talentCallCount).toBe(2);
       expect(window.localStorage.getItem("monologg_refresh_token")).toBe("new-refresh-token");
     });
@@ -169,6 +172,97 @@ describe("api-client", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(window.localStorage.getItem("monologg_refresh_token")).toBeNull();
       expect(apiClient.isAuthenticated()).toBe(false);
+    });
+  });
+
+  describe("Phase 5 — resources with no backing endpoint yet stay mock-only", () => {
+    it("getClientStats/getTalentStats/listTalentActivity/getShortlistedTalentIds/getAvailability never call fetch, even in live mode", async () => {
+      vi.stubEnv("VITE_API_MODE", "live");
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      await apiClient.getClientStats();
+      await apiClient.getTalentStats();
+      await apiClient.listTalentActivity();
+      await apiClient.getShortlistedTalentIds();
+      await apiClient.getAvailability();
+
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Phase 5 — briefs and order-room messages", () => {
+    it("mock mode: createBrief is a no-op, never calls fetch", async () => {
+      vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      await apiClient.createBrief({
+        projectName: "Test",
+        projectType: "Voice-Over",
+        nicheReq: ["VO_ARTIST"],
+        budgetAmount: 1000,
+        budgetCurrency: "NGN",
+      });
+
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("live mode: createBrief POSTs to /briefs with the given payload", async () => {
+      vi.stubEnv("VITE_API_MODE", "live");
+      const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        expect(String(input)).toBe("/api/v1/briefs");
+        expect(init?.method).toBe("POST");
+        expect(JSON.parse(init!.body as string)).toMatchObject({ projectName: "Test" });
+        return new Response(JSON.stringify({ id: "brief-1" }), {
+          status: 201,
+          headers: { "content-type": "application/json" },
+        });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      await apiClient.createBrief({
+        projectName: "Test",
+        projectType: "Voice-Over",
+        nicheReq: ["VO_ARTIST"],
+        budgetAmount: 1000,
+        budgetCurrency: "NGN",
+      });
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("mock mode: sendOrderMessage returns null and never calls fetch", async () => {
+      vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      const result = await apiClient.sendOrderMessage("booking-1", "hello");
+
+      expect(result).toBeNull();
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("live mode: sendOrderMessage POSTs and returns the created message", async () => {
+      vi.stubEnv("VITE_API_MODE", "live");
+      const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        expect(String(input)).toBe("/api/v1/order-rooms/booking-1/messages");
+        expect(JSON.parse(init!.body as string)).toEqual({ text: "hello" });
+        return new Response(JSON.stringify({ id: "msg-1", from: "client", text: "hello", time: "9:00 AM" }), {
+          status: 201,
+          headers: { "content-type": "application/json" },
+        });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      const result = await apiClient.sendOrderMessage("booking-1", "hello");
+
+      expect(result).toEqual({ id: "msg-1", from: "client", text: "hello", time: "9:00 AM" });
     });
   });
 });

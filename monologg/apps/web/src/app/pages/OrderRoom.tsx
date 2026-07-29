@@ -50,16 +50,21 @@ export function OrderRoom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = () => {
-    if (!inputText.trim()) return;
-    const newMsg: Message = {
-      id: messages.length + 1,
+  const sendMessage = async () => {
+    const text = inputText.trim();
+    if (!text) return;
+    setInputText("");
+
+    // Live mode: persist for real and use the server's own message (real id/time).
+    // Mock mode: append optimistically, exactly as before this phase.
+    const sent = orderId ? await apiClient.sendOrderMessage(orderId, text) : null;
+    const newMsg: Message = sent ?? {
+      id: `local-${messages.length + 1}`,
       from: role,
-      text: inputText,
+      text,
       time: "Just now",
     };
     setMessages(prev => [...prev, newMsg]);
-    setInputText("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -79,7 +84,7 @@ export function OrderRoom() {
       setMessages(prev => [
         ...prev,
         {
-          id: prev.length + 1,
+          id: `local-${prev.length + 1}`,
           from: "system",
           text: `Phase advanced to ${PHASES[nextIndex].label}.`,
           time: "Just now",
@@ -456,7 +461,7 @@ export function OrderRoom() {
                   setPaymentReleased(true);
                   setPhase("complete");
                   setMessages(prev => [...prev, {
-                    id: prev.length + 1, from: "system",
+                    id: `local-${prev.length + 1}`, from: "system",
                     text: "Payment of ₦108,000 has been released to Elias Thorne. Order complete!",
                     time: "Just now",
                   }]);
@@ -514,7 +519,7 @@ export function OrderRoom() {
                   setShowSubmitModal(false);
                   advancePhase();
                   setMessages(prev => [...prev, {
-                    id: prev.length + 1, from: "talent",
+                    id: `local-${prev.length + 1}`, from: "talent",
                     text: "I've submitted the final voice-over recording. Please review and let me know if any revisions are needed.",
                     time: "Just now",
                     attachment: { name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" },

@@ -5,6 +5,7 @@ monologg/apps/web/dist-designsystem/
 monologg/apps/web/dist-standalone/
 monologg/**/.vite/
 monologg/**/coverage/
+monologg/apps/api/uploads/
 
 # Secrets — never commit real env values; .env.example is the exception
 monologg/**/.env

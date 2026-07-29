@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 /** A talent profile as shown in client-side discovery/browse — mirrors the
- * eventual Creator + RateCard read model (see features.md Phase 2). */
+ * real Creator + RateCard read model (features.md Phase 2/5). `id` is a cuid
+ * string (Creator.id) as of Phase 5 — was a mock-only sequential number
+ * before the real /talent discovery endpoint existed. */
 export const TalentSchema = z.object({
-  id: z.number().int(),
+  id: z.string(),
   name: z.string(),
   role: z.string(),
   location: z.string(),

@@ -43,7 +43,7 @@ const TALENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
 
 export function TalentDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
-  const [editServiceId, setEditServiceId] = useState<number | null>(null);
+  const [editServiceId, setEditServiceId] = useState<string | null>(null);
   const [showAddService, setShowAddService] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [calendarEditing, setCalendarEditing] = useState(false);
@@ -646,7 +646,7 @@ export function TalentDashboard() {
                         key={order.id}
                         className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                        onClick={() => navigate("/order/1")}
+                        onClick={() => navigate(`/order/${order.id}`)}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div>

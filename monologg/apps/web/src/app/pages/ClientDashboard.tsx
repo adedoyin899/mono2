@@ -43,7 +43,7 @@ export function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
-  const [shortlist, setShortlist] = useState<number[]>([]);
+  const [shortlist, setShortlist] = useState<string[]>([]);
   const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
   const [stats, setStats] = useState<StatMetric[]>([]);
   const [talents, setTalents] = useState<Talent[]>([]);
@@ -59,7 +59,7 @@ export function ClientDashboard() {
     apiClient.getShortlistedTalentIds().then(setShortlist);
   }, []);
 
-  const toggleShortlist = (id: number) => {
+  const toggleShortlist = (id: string) => {
     setShortlist(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
@@ -471,7 +471,7 @@ export function ClientDashboard() {
                       key={order.id}
                       className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
                       style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                      onClick={() => navigate("/order/1")}
+                      onClick={() => navigate(`/order/${order.id}`)}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>

@@ -1,6 +1,14 @@
 import type { FastifyInstance } from "fastify";
 import { healthRoutes } from "./health.js";
 import { authRoutes } from "./auth.js";
+import { creatorRoutes } from "./creators.js";
+import { rateCardRoutes } from "./rateCards.js";
+import { availabilityRoutes } from "./availability.js";
+import { briefRoutes } from "./briefs.js";
+import { talentRoutes } from "./talent.js";
+import { bookingRoutes } from "./bookings.js";
+import { orderRoomRoutes } from "./orderRooms.js";
+import { uploadRoutes } from "./uploads.js";
 
 /**
  * Route aggregator — registers all route plugins onto the Fastify instance.
@@ -9,6 +17,13 @@ import { authRoutes } from "./auth.js";
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(healthRoutes);
   await app.register(authRoutes);
-  // Phase 5: creators, rate-cards, availability, briefs, bookings, order-rooms
+  await app.register(creatorRoutes);
+  await app.register(rateCardRoutes);
+  await app.register(availabilityRoutes);
+  await app.register(briefRoutes);
+  await app.register(talentRoutes);
+  await app.register(bookingRoutes);
+  await app.register(orderRoomRoutes);
+  await app.register(uploadRoutes);
   // Phase 6: webhooks/paystack
 }

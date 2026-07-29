@@ -28,7 +28,7 @@ All four are exactly what CI runs on every push/PR (`.github/workflows/monologg-
 
 ## The data seam
 
-Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (`/api/v1/...`, not real until Phase 5+).
+Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (real `/api/v1/...` endpoints for talent discovery/briefs/rate-cards/bookings/order-room messages as of Phase 5). Four methods (stats ×2, activity, shortlist) and the availability-calendar UI stay mock-only regardless of the flag — see `handoff/design.md` §6 for why. List endpoints paginate server-side (`apps/api/src/lib/pagination.ts`, `{data, page, pageSize, total, totalPages}`); live-mode list calls fetch one `pageSize=100` page and unwrap it rather than building pagination UI.
 
 ## Database (Supabase + Prisma)
 

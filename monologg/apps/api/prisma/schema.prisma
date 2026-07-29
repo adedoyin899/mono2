@@ -130,15 +130,26 @@ model AvailabilityBlock {
 // --- Briefs & bookings ----------------------------------------------------
 
 model Brief {
-  id             String   @id @default(cuid())
+  id             String      @id @default(cuid())
   clientId       String
-  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client         Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
   projectName    String
   projectType    String
   nicheReq       Niche[]
   budgetAmount   Int
   budgetCurrency String
-  createdAt      DateTime @default(now())
+  // Not in the original features.md Phase 2 listing — added in Phase 5 since the
+  // "briefs (client CRUD)" resource needs a real lifecycle field (a client can save a
+  // draft before publishing). applicantCap/applicationsOpen land in Phase 14.
+  status         BriefStatus @default(DRAFT)
+  createdAt      DateTime    @default(now())
+}
+
+enum BriefStatus {
+  DRAFT
+  ACTIVE
+  IN_REVIEW
+  CLOSED
 }
 
 model Booking {

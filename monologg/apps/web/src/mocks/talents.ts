@@ -2,7 +2,7 @@ import type { Talent } from "@monologg/types";
 
 export const TALENTS: Talent[] = [
   {
-    id: 1,
+    id: "1",
     name: "Adaeze Obi",
     role: "Voice-Over Artist",
     location: "Lagos",
@@ -15,7 +15,7 @@ export const TALENTS: Talent[] = [
     avatar: "AO",
   },
   {
-    id: 2,
+    id: "2",
     name: "Chidi Okeke",
     role: "Actor",
     location: "Abuja",
@@ -28,7 +28,7 @@ export const TALENTS: Talent[] = [
     avatar: "CO",
   },
   {
-    id: 3,
+    id: "3",
     name: "Kofi Mensah",
     role: "Comedian · Compere",
     location: "Accra",
@@ -41,7 +41,7 @@ export const TALENTS: Talent[] = [
     avatar: "KM",
   },
   {
-    id: 4,
+    id: "4",
     name: "Amara Diallo",
     role: "Voice-Over Artist",
     location: "Accra",
@@ -54,7 +54,7 @@ export const TALENTS: Talent[] = [
     avatar: "AD",
   },
   {
-    id: 5,
+    id: "5",
     name: "Temi Adeleke",
     role: "Content Creator",
     location: "Lagos",
@@ -67,7 +67,7 @@ export const TALENTS: Talent[] = [
     avatar: "TA",
   },
   {
-    id: 6,
+    id: "6",
     name: "Ibrahim Bello",
     role: "Actor · Model",
     location: "Kano",

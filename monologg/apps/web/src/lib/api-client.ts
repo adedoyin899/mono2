@@ -93,6 +93,20 @@ async function request<T>(path: string, init: RequestInit = {}, allowRetry = tru
   return res.json() as Promise<T>;
 }
 
+// features.md Phase 5: every list endpoint paginates server-side, but no current
+// screen has "load more"/page-number UI — they all just render "the list". Rather
+// than build pagination UI as a side effect of this phase, live-mode list calls
+// fetch one generously-sized page and unwrap it, so today's no-pagination UI stays
+// exactly as it is. The pagination itself is proven correct by apps/api's own tests.
+interface Paginated<T> {
+  data: T[];
+}
+async function requestList<T>(path: string): Promise<T[]> {
+  const separator = path.includes("?") ? "&" : "?";
+  const page = await request<Paginated<T>>(`${path}${separator}pageSize=100`);
+  return page.data;
+}
+
 export interface RegisterInput {
   email: string;
   password: string;
@@ -147,53 +161,84 @@ export const apiClient = {
   },
 
   // ── Client dashboard ──────────────────────────────────────────────
+  // getClientStats/getShortlistedTalentIds stay mock-only: features.md Phase 5 doesn't
+  // define a stats or shortlist resource (no schema/endpoint exists for either yet).
   async getClientStats(): Promise<StatMetric[]> {
-    if (API_MODE === "live") return request("/client/stats");
     return mocks.CLIENT_STATS;
   },
   async listTalents(): Promise<Talent[]> {
-    if (API_MODE === "live") return request("/talent");
+    if (API_MODE === "live") return requestList("/talent");
     return mocks.TALENTS;
   },
   async listClientProjects(): Promise<ClientProject[]> {
-    if (API_MODE === "live") return request("/briefs");
+    if (API_MODE === "live") return requestList("/briefs");
     return mocks.CLIENT_PROJECTS;
   },
   async listClientOrders(): Promise<Order[]> {
-    if (API_MODE === "live") return request("/orders?role=client");
+    if (API_MODE === "live") return requestList("/bookings?role=client");
     return mocks.CLIENT_ORDERS;
   },
-  async getShortlistedTalentIds(): Promise<number[]> {
-    if (API_MODE === "live") return request("/client/shortlist");
+  async getShortlistedTalentIds(): Promise<string[]> {
     return mocks.SHORTLIST_IDS;
+  },
+  /** Creates a real Brief (features.md Phase 5). Mock mode is a no-op — ProjectBrief.tsx's
+   * "Publish" already simulates success locally without this. */
+  async createBrief(input: {
+    projectName: string;
+    projectType: string;
+    nicheReq: string[];
+    budgetAmount: number;
+    budgetCurrency: string;
+  }): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request("/briefs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
   },
 
   // ── Talent dashboard ──────────────────────────────────────────────
+  // getTalentStats/listTalentActivity stay mock-only, same reason as getClientStats
+  // above. getAvailability also stays mock-only: the real AvailabilityBlock model
+  // (per-date, {start,end,booked} slots) is a genuinely different shape from this
+  // prototype's fixed weekly grid, which @monologg/types' own doc comment already
+  // flags as superseded by Phase 13's real day/time-of-day model — translating one
+  // into the other now would be exactly the premature redesign that comment warns
+  // against. The real /availability CRUD endpoint exists and is tested; this UI
+  // just doesn't consume it yet.
   async getTalentStats(): Promise<StatMetric[]> {
-    if (API_MODE === "live") return request("/talent/me/stats");
     return mocks.TALENT_STATS;
   },
   async listTalentActivity(): Promise<ActivityItem[]> {
-    if (API_MODE === "live") return request("/talent/me/activity");
     return mocks.TALENT_ACTIVITY;
   },
   async listServices(): Promise<ServiceRateCard[]> {
-    if (API_MODE === "live") return request("/rate-cards");
+    if (API_MODE === "live") return requestList("/rate-cards");
     return mocks.SERVICES;
   },
   async getAvailability(): Promise<AvailabilityWeek> {
-    if (API_MODE === "live") return request("/availability");
     return mocks.AVAILABILITY;
   },
   async listTalentOrders(): Promise<Order[]> {
-    if (API_MODE === "live") return request("/orders?role=talent");
+    if (API_MODE === "live") return requestList("/bookings?role=talent");
     return mocks.TALENT_ORDERS;
   },
 
   // ── Order Room ────────────────────────────────────────────────────
-  async getOrderMessages(_orderId: string): Promise<OrderMessage[]> {
-    if (API_MODE === "live") return request(`/order-rooms/${_orderId}/messages`);
+  async getOrderMessages(orderId: string): Promise<OrderMessage[]> {
+    if (API_MODE === "live") return requestList(`/order-rooms/${orderId}/messages`);
     return mocks.ORDER_MESSAGES;
+  },
+  /** Sends a real message (features.md Phase 5). Mock mode returns null — OrderRoom.tsx
+   * keeps appending to local state itself, exactly as before this phase. */
+  async sendOrderMessage(orderId: string, text: string): Promise<OrderMessage | null> {
+    if (API_MODE !== "live") return null;
+    return request(`/order-rooms/${orderId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
   },
 };
 

@@ -303,6 +303,7 @@ async function seedBriefs() {
       projectType: "Voice-Over",
       nicheReq: ["VO_ARTIST"] as Niche[],
       budgetAmount: nairaToKobo("₦200,000"),
+      status: "ACTIVE" as const,
     },
     {
       id: "seed-brief-p002",
@@ -310,6 +311,7 @@ async function seedBriefs() {
       projectType: "Compere",
       nicheReq: ["COMPERE"] as Niche[],
       budgetAmount: nairaToKobo("₦120,000"),
+      status: "IN_REVIEW" as const,
     },
     {
       id: "seed-brief-p003",
@@ -317,6 +319,7 @@ async function seedBriefs() {
       projectType: "Voice-Over",
       nicheReq: ["VO_ARTIST"] as Niche[],
       budgetAmount: nairaToKobo("₦80,000"),
+      status: "DRAFT" as const,
     },
     {
       id: "seed-brief-p004",
@@ -324,6 +327,7 @@ async function seedBriefs() {
       projectType: "Actor",
       nicheReq: ["ACTOR"] as Niche[],
       budgetAmount: nairaToKobo("₦500,000"),
+      status: "ACTIVE" as const,
     },
   ];
 
@@ -336,6 +340,7 @@ async function seedBriefs() {
         nicheReq: b.nicheReq,
         budgetAmount: b.budgetAmount,
         budgetCurrency: "NGN",
+        status: b.status,
       },
       create: {
         id: b.id,
@@ -345,6 +350,7 @@ async function seedBriefs() {
         nicheReq: b.nicheReq,
         budgetAmount: b.budgetAmount,
         budgetCurrency: "NGN",
+        status: b.status,
       },
     });
   }
