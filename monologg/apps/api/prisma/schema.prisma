@@ -93,19 +93,29 @@ enum OrgType {
 // --- Creator profile detail ----------------------------------------------
 
 model MediaAsset {
-  id          String    @id @default(cuid())
-  creatorId   String
-  creator     Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  kind        MediaKind
-  url         String
-  sizeBytes   Int
-  durationSec Int?
-  createdAt   DateTime  @default(now())
+  id            String        @id @default(cuid())
+  creatorId     String
+  creator       Creator       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  kind          MediaKind
+  url           String
+  sizeBytes     Int
+  durationSec   Int?
+  // Phase 7: drives the onboarding UI's real job state (queued -> tagging -> done),
+  // replacing the old scripted "Thespian AI" timer. Independent of Creator.verification (X3).
+  taggingStatus TaggingStatus @default(QUEUED)
+  createdAt     DateTime      @default(now())
 }
 
 enum MediaKind {
   VIDEO
   AUDIO
+}
+
+enum TaggingStatus {
+  QUEUED
+  TAGGING
+  DONE
+  FAILED
 }
 
 model RateCard {

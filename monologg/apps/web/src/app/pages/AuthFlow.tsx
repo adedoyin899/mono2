@@ -120,14 +120,14 @@ export function AuthFlow() {
               Your career belongs here.
             </h2>
             <p className="text-[15px] font-body leading-relaxed" style={s.secondary}>
-              Join 3,200+ verified performers who've taken control of their bookings with escrow-protected payments and AI-verified profiles.
+              Join 3,200+ verified performers who've taken control of their bookings with escrow-protected payments and AI-generated style tags.
             </p>
           </div>
 
           <div className="relative space-y-4">
             {[
               "Free to join — no subscription fees",
-              "AI Thespian verification in 45 seconds",
+              "AI-generated style tags in 45 seconds",
               "Get paid the same day work is approved",
               "Full escrow protection on every booking",
             ].map((item, i) => (

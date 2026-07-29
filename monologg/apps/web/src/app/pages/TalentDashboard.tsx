@@ -307,7 +307,7 @@ export function TalentDashboard() {
                       </div>
                       <div className="pb-1">
                         <Badge tone="success" className="border border-[var(--color-success)]">
-                          <Shield className="w-3 h-3" /> Thespian Verified
+                          <Shield className="w-3 h-3" /> Verified
                         </Badge>
                       </div>
                     </div>

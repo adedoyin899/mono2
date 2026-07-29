@@ -4,6 +4,13 @@ import { prisma } from "../db/client.js";
 import { requireAuth, requireRole } from "../middlewares/auth.js";
 import { findOwnCreator } from "../lib/ownership.js";
 import { storageProvider } from "../providers/index.js";
+import {
+  startKycCheck,
+  pollKycStatus,
+  KycCheckInProgressError,
+  KycAlreadyVerifiedError,
+} from "../services/kyc.js";
+import { confirmMediaUpload, TaggingAlreadyStartedError } from "../services/aiTagging.js";
 
 const NICHE_VALUES = ["ACTOR", "VO_ARTIST", "COMEDIAN", "COMPERE", "SPEAKER_PASTOR", "MUSICIAN", "CONTENT_CREATOR"] as const;
 
@@ -21,6 +28,17 @@ const MAX_UPLOAD_BYTES = 150 * 1024 * 1024; // 150MB, per features.md Phase 5
 const presignSchema = z.object({
   kind: z.enum(["VIDEO", "AUDIO"]),
   sizeBytes: z.number().int().positive(),
+});
+
+// features.md Phase 7 — identity KYC input. Kept separate from every other
+// schema in this file: it's the only endpoint allowed to move Creator.verification.
+const kycDataSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  dateOfBirth: z.string().date(),
+  country: z.string().length(2),
+  idType: z.string().min(1),
+  idNumber: z.string().min(1),
 });
 
 export async function creatorRoutes(app: FastifyInstance): Promise<void> {
@@ -108,6 +126,108 @@ export async function creatorRoutes(app: FastifyInstance): Promise<void> {
       });
 
       return reply.status(201).send({ ...presigned, mediaAssetId: mediaAsset.id });
+    },
+  );
+
+  // GET /creators/me/media/:id — polled by the client to drive the real
+  // queued -> tagging -> done/failed UI state (features.md Phase 7). No fixed
+  // timer: this is the actual job status.
+  app.get(
+    "/api/v1/creators/me/media/:id",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const creator = await findOwnCreator(request.user!.userId);
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: "No creator profile for this user", statusCode: 404 });
+      }
+
+      const { id } = request.params as { id: string };
+      const asset = await prisma.mediaAsset.findUnique({ where: { id } });
+      if (!asset || asset.creatorId !== creator.id) {
+        return reply.status(404).send({ error: "Not Found", message: `Media asset "${id}" not found`, statusCode: 404 });
+      }
+
+      return reply.send(asset);
+    },
+  );
+
+  // POST /creators/me/media/:id/confirm — call once the client has finished
+  // PUTting the file to the presigned URL. Enqueues the AI style-tagging job.
+  // X3: writes ONLY to MediaAsset.taggingStatus / Creator.styleTags — never
+  // Creator.verification. See services/aiTagging.ts.
+  app.post(
+    "/api/v1/creators/me/media/:id/confirm",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const creator = await findOwnCreator(request.user!.userId);
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: "No creator profile for this user", statusCode: 404 });
+      }
+
+      const { id } = request.params as { id: string };
+      const asset = await prisma.mediaAsset.findUnique({ where: { id } });
+      if (!asset || asset.creatorId !== creator.id) {
+        return reply.status(404).send({ error: "Not Found", message: `Media asset "${id}" not found`, statusCode: 404 });
+      }
+
+      try {
+        const updated = await confirmMediaUpload(asset);
+        return reply.status(202).send(updated);
+      } catch (err) {
+        if (err instanceof TaggingAlreadyStartedError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // POST /creators/me/verify — starts identity KYC via KycProvider (Smile
+  // Identity). The Verified badge reflects ONLY this flow (features.md Phase 7,
+  // X3). Never touches styleTags — see services/kyc.ts.
+  app.post(
+    "/api/v1/creators/me/verify",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const creator = await findOwnCreator(request.user!.userId);
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: "No creator profile for this user", statusCode: 404 });
+      }
+
+      const parsed = kycDataSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({
+          error: "Bad Request",
+          message: parsed.error.issues.map((i) => i.message).join(", "),
+          statusCode: 400,
+        });
+      }
+
+      try {
+        const check = await startKycCheck(creator, parsed.data);
+        return reply.status(202).send({ verification: "PROCESSING", check });
+      } catch (err) {
+        if (err instanceof KycCheckInProgressError || err instanceof KycAlreadyVerifiedError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // GET /creators/me/verify — polls the latest KYC check's current status,
+  // updating the badge only on a real PROCESSING -> VERIFIED|FAILED transition.
+  app.get(
+    "/api/v1/creators/me/verify",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const creator = await findOwnCreator(request.user!.userId);
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: "No creator profile for this user", statusCode: 404 });
+      }
+
+      const result = await pollKycStatus(creator);
+      return reply.send(result);
     },
   );
 }

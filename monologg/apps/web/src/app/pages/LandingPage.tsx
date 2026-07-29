@@ -11,7 +11,7 @@ import { cn } from "../../lib/utils";
 import {
   Copy, Star, Shield, Zap, ArrowRight, Mic, Video, User,
   Sun, Moon, Check, ChevronDown, Play, TrendingUp, Clock,
-  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote
+  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote, Sparkles
 } from "lucide-react";
 
 const NICHES = [
@@ -24,9 +24,9 @@ const NICHES = [
 const STEPS = [
   {
     num: "01",
-    title: "Create Your Verified Profile",
-    body: "Upload your showcase reel. Thespian AI analyzes your performance parameters in seconds — no middleman, no gatekeeping.",
-    icon: Shield,
+    title: "Build Your Style Profile",
+    body: "Upload your showcase reel. Thespian AI analyzes your performance parameters and generates style tags in seconds — no middleman, no gatekeeping.",
+    icon: Sparkles,
   },
   {
     num: "02",
@@ -44,9 +44,9 @@ const STEPS = [
 
 const FEATURES = [
   {
-    icon: Shield,
-    title: "Thespian AI Verification",
-    desc: "Our proprietary AI reviews your reel to extract performance parameters — acting as a quality KYC. Verified profiles get 3× more bookings.",
+    icon: Sparkles,
+    title: "Thespian AI Style Tagging",
+    desc: "Our proprietary AI reviews your reel and generates style tags — warm, dramatic, high-energy — so clients find your vibe fast. Identity verification is a separate, independent check.",
     badge: "AI-Powered",
   },
   {
@@ -95,7 +95,7 @@ const TESTIMONIALS = [
     role: "Commercial Actor · Abuja",
     avatar: "TB",
     photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop",
-    quote: "The AI verification gave me instant credibility. I got my first international booking within 72 hours of going live. This platform is the future.",
+    quote: "Having real style tags on my profile gave me instant credibility. I got my first international booking within 72 hours of going live. This platform is the future.",
     stars: 5,
   },
   {
@@ -121,8 +121,8 @@ const FAQS = [
     a: "We charge a 9% platform fee on completed transactions. There's also a 12% escrow processing fee that clients pay — so your rate is what you earn.",
   },
   {
-    q: "How does the AI verification work?",
-    a: "You upload a performance reel (video or audio, up to 150MB). Thespian AI analyzes vocal patterns, pacing, clarity, and presence — then generates your profile tags. The process takes 15–45 seconds.",
+    q: "How does the AI style tagging work?",
+    a: "You upload a performance reel (video or audio, up to 150MB). Thespian AI analyzes vocal patterns, pacing, clarity, and presence — then generates your profile's style tags. The process takes 15–45 seconds. This is separate from identity verification, which uses a dedicated ID check.",
   },
   {
     q: "When do I get paid?",
@@ -674,11 +674,11 @@ export function LandingPage() {
                   Find the right talent in minutes, not weeks
                 </h2>
                 <p className="text-base font-body mb-8 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  Post a brief, browse AI-verified profiles, and book with one click. Our escrow system means you only pay when you're completely satisfied.
+                  Post a brief, browse verified profiles with AI-generated style tags, and book with one click. Our escrow system means you only pay when you're completely satisfied.
                 </p>
                 <div className="space-y-4 mb-8">
                   {[
-                    { icon: Users, text: "3,200+ verified, AI-screened talents across 8 creative niches" },
+                    { icon: Users, text: "3,200+ verified talents across 8 creative niches, each with AI-generated style tags" },
                     { icon: Lock, text: "Escrow protection — your money is safe until work is approved" },
                     { icon: Clock, text: "Real-time availability — no more scheduling email chains" },
                     { icon: Award, text: "Performance reels, client reviews, and AI vibe tags on every profile" },
@@ -818,7 +818,7 @@ export function LandingPage() {
                   perks: [
                     "Free profile creation",
                     "Unlimited rate cards",
-                    "AI Thespian verification included",
+                    "AI-generated style tags included",
                     "Availability calendar",
                     "Earnings analytics dashboard",
                     "Direct client messaging",

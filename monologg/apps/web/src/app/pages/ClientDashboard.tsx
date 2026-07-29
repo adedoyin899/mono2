@@ -118,7 +118,7 @@ export function ClientDashboard() {
               </h1>
               <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
                 {activeTab === "home" && "Your next project is just a few clicks away."}
-                {activeTab === "discover" && "Browse AI-verified talent across all niches."}
+                {activeTab === "discover" && "Browse verified talent, style-tagged by AI, across all niches."}
                 {activeTab === "projects" && "Manage your project briefs and applications."}
                 {activeTab === "orders" && "Track your active collaborations."}
                 {activeTab === "shortlist" && "Talent you've saved for future bookings."}

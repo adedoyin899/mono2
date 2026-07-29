@@ -53,6 +53,24 @@ describe("Prisma schema — X3: styleTags/verification are separate", () => {
   });
 });
 
+describe("Prisma schema — X3: tagging job state is independent of identity verification", () => {
+  it("MediaAsset.taggingStatus is its own enum, unrelated to Creator.verification", () => {
+    const taggingStatus = field("MediaAsset", "taggingStatus");
+    const verification = field("Creator", "verification");
+
+    expect(taggingStatus.kind).toBe("enum");
+    expect(taggingStatus.type).toBe("TaggingStatus");
+    expect(taggingStatus.type).not.toBe(verification.type);
+  });
+
+  it("KycCheck (identity) and MediaAsset (tagging) are separate models with no shared relation", () => {
+    const kycCheck = model("KycCheck");
+    const mediaAsset = model("MediaAsset");
+    expect(kycCheck.fields.some((f) => f.type === "MediaAsset")).toBe(false);
+    expect(mediaAsset.fields.some((f) => f.type === "KycCheck")).toBe(false);
+  });
+});
+
 describe("Prisma schema — X1: payment provider is free text, not an enum", () => {
   it("Payment.provider is a String (validated against an allowlist in application code)", () => {
     const provider = field("Payment", "provider");

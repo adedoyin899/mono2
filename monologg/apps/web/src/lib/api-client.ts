@@ -107,6 +107,21 @@ async function requestList<T>(path: string): Promise<T[]> {
   return page.data;
 }
 
+// features.md Phase 7: AI style-tagging job state. Independent of KYC/verification (X3) —
+// see CreatorProfile below.
+export type TaggingStatus = "QUEUED" | "TAGGING" | "DONE" | "FAILED";
+export interface MediaAssetStatus {
+  id: string;
+  taggingStatus: TaggingStatus;
+}
+
+export type VerificationState = "UNVERIFIED" | "PROCESSING" | "VERIFIED" | "FAILED";
+export interface CreatorProfile {
+  id: string;
+  styleTags: string[];
+  verification: VerificationState;
+}
+
 export interface RegisterInput {
   email: string;
   password: string;
@@ -223,6 +238,64 @@ export const apiClient = {
   async listTalentOrders(): Promise<Order[]> {
     if (API_MODE === "live") return requestList("/bookings?role=talent");
     return mocks.TALENT_ORDERS;
+  },
+
+  // ── Creator media + AI style-tagging (features.md Phase 7) ────────────────
+  // X3: this system only ever produces styleTags. It never sets `verification` —
+  // see startKycVerification/getVerificationStatus below for the fully separate
+  // identity flow. Mock mode makes no network calls (CreatorOnboarding.tsx runs
+  // its own local simulation, matching every other mock-mode screen); only live
+  // mode drives real job state.
+  async uploadCreatorMedia(file: File, kind: "VIDEO" | "AUDIO"): Promise<{ mediaAssetId: string }> {
+    if (API_MODE !== "live") return { mediaAssetId: "mock-media-1" };
+
+    const presigned = await request<{ uploadUrl: string; mediaAssetId: string }>("/creators/me/media/presign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind, sizeBytes: file.size }),
+    });
+    // `uploadUrl` is already a full API path (e.g. "/api/v1/uploads/local/:token")
+    // — fetched directly, not through request(), which would double-prefix it.
+    await fetch(presigned.uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/octet-stream" },
+      body: file,
+    });
+    await request(`/creators/me/media/${presigned.mediaAssetId}/confirm`, { method: "POST" });
+    return { mediaAssetId: presigned.mediaAssetId };
+  },
+  /** Polled by the UI to drive the real queued -> tagging -> done/failed state —
+   * never a fixed timer. */
+  async getMediaTaggingStatus(mediaAssetId: string): Promise<MediaAssetStatus> {
+    if (API_MODE !== "live") return { id: mediaAssetId, taggingStatus: "DONE" };
+    return request(`/creators/me/media/${mediaAssetId}`);
+  },
+  async getCreatorProfile(): Promise<CreatorProfile> {
+    if (API_MODE !== "live") return { id: "mock-creator", styleTags: [], verification: "UNVERIFIED" };
+    return request("/creators/me");
+  },
+
+  // ── Identity KYC (features.md Phase 7) ─────────────────────────────────────
+  // X3: the ONLY system allowed to move `verification` / set the Verified badge.
+  async startKycVerification(data: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    country: string;
+    idType: string;
+    idNumber: string;
+  }): Promise<{ verification: VerificationState }> {
+    if (API_MODE !== "live") return { verification: "PROCESSING" };
+    return request("/creators/me/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  },
+  /** Polled by the UI to reflect a real PROCESSING -> VERIFIED|FAILED transition. */
+  async getVerificationStatus(): Promise<{ verification: VerificationState }> {
+    if (API_MODE !== "live") return { verification: "UNVERIFIED" };
+    return request("/creators/me/verify");
   },
 
   // ── Order Room ────────────────────────────────────────────────────

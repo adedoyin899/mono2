@@ -4,8 +4,10 @@ import { generateAccessToken } from "../services/auth.js";
 
 vi.mock("../db/client.js", () => ({
   prisma: {
-    creator: { findUnique: vi.fn(), update: vi.fn() },
-    mediaAsset: { create: vi.fn() },
+    creator: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), update: vi.fn() },
+    mediaAsset: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn(), findUniqueOrThrow: vi.fn() },
+    kycCheck: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -109,6 +111,231 @@ describe("Creator profile + media upload", () => {
 
       expect(response.statusCode).toBe(400);
       expect(prismaMock.mediaAsset.create).not.toHaveBeenCalled();
+    });
+  });
+
+  // features.md Phase 7: AI style-tagging job — real state (queued -> tagging ->
+  // done), never coupled to identity verification (X3).
+  describe("GET /creators/me/media/:id", () => {
+    it("returns the asset's real taggingStatus for polling", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+      prismaMock.mediaAsset.findUnique.mockResolvedValue({
+        id: "media-1",
+        creatorId: "creator-1",
+        taggingStatus: "TAGGING",
+      });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/creators/me/media/media-1",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({ taggingStatus: "TAGGING" });
+    });
+
+    it("404s a media asset owned by another creator", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+      prismaMock.mediaAsset.findUnique.mockResolvedValue({ id: "media-1", creatorId: "creator-OTHER" });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/creators/me/media/media-1",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe("POST /creators/me/media/:id/confirm", () => {
+    it("claims QUEUED -> TAGGING and enqueues the job, without ever touching verification", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+      prismaMock.mediaAsset.findUnique.mockResolvedValue({
+        id: "media-1",
+        creatorId: "creator-1",
+        url: "https://cdn.test/media-1",
+        kind: "VIDEO",
+        taggingStatus: "QUEUED",
+      });
+      prismaMock.mediaAsset.update.mockResolvedValue({
+        id: "media-1",
+        creatorId: "creator-1",
+        url: "https://cdn.test/media-1",
+        kind: "VIDEO",
+        taggingStatus: "TAGGING",
+      });
+      // Background job dependencies — let it settle quietly so no unhandled rejection.
+      prismaMock.mediaAsset.findUniqueOrThrow.mockResolvedValue({
+        id: "media-1",
+        creatorId: "creator-1",
+        url: "https://cdn.test/media-1",
+        kind: "VIDEO",
+      });
+      prismaMock.creator.findUniqueOrThrow.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", styleTags: [] });
+      prismaMock.$transaction.mockResolvedValue([{}, {}]);
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/media/media-1/confirm",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(202);
+      expect(response.json()).toMatchObject({ taggingStatus: "TAGGING" });
+      expect(prismaMock.mediaAsset.update).toHaveBeenCalledWith({
+        where: { id: "media-1" },
+        data: { taggingStatus: "TAGGING" },
+      });
+
+      // Let the fire-and-forget background job settle, then assert separation:
+      // whatever it wrote to the creator, it was never `verification`.
+      await new Promise((resolve) => setImmediate(resolve));
+      for (const call of prismaMock.creator.update.mock.calls) {
+        expect(call[0].data).not.toHaveProperty("verification");
+      }
+    });
+
+    it("rejects confirming an asset that's already past QUEUED", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+      prismaMock.mediaAsset.findUnique.mockResolvedValue({
+        id: "media-1",
+        creatorId: "creator-1",
+        taggingStatus: "DONE",
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/media/media-1/confirm",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(409);
+      expect(prismaMock.mediaAsset.update).not.toHaveBeenCalled();
+    });
+  });
+
+  // features.md Phase 7: identity KYC — the Verified badge reflects ONLY this
+  // flow (X3). Uses the real mock KycProvider (auto-selected under NODE_ENV=test).
+  describe("POST /creators/me/verify", () => {
+    const KYC_PAYLOAD = {
+      firstName: "Ada",
+      lastName: "Lovelace",
+      dateOfBirth: "1992-04-15",
+      country: "NG",
+      idType: "NIN",
+      idNumber: "12345678901",
+    };
+
+    it("starts a check and sets verification=PROCESSING", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "UNVERIFIED" });
+      prismaMock.$transaction.mockResolvedValue([
+        { id: "creator-1", verification: "PROCESSING" },
+        { id: "check-1", status: "PROCESSING", providerRef: "mock_kyc_creator-1_1" },
+      ]);
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+        payload: KYC_PAYLOAD,
+      });
+
+      expect(response.statusCode).toBe(202);
+      expect(response.json()).toMatchObject({ verification: "PROCESSING" });
+      // Never touches styleTags (X3).
+      const [creatorUpdateCall] = prismaMock.$transaction.mock.calls[0][0];
+      expect(creatorUpdateCall).toBeDefined();
+    });
+
+    it("400s an incomplete KYC payload", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "UNVERIFIED" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+        payload: { firstName: "Ada" },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("409s a second check while one is already PROCESSING", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "PROCESSING" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+        payload: KYC_PAYLOAD,
+      });
+
+      expect(response.statusCode).toBe(409);
+    });
+
+    it("allows retrying after a FAILED check", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "FAILED" });
+      prismaMock.$transaction.mockResolvedValue([
+        { id: "creator-1", verification: "PROCESSING" },
+        { id: "check-2", status: "PROCESSING" },
+      ]);
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+        payload: KYC_PAYLOAD,
+      });
+
+      expect(response.statusCode).toBe(202);
+    });
+  });
+
+  describe("GET /creators/me/verify", () => {
+    it("VERIFIED: a completed mock check sets the badge", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "PROCESSING" });
+      prismaMock.kycCheck.findFirst.mockResolvedValue({
+        id: "check-1",
+        status: "PROCESSING",
+        providerRef: "mock_kyc_creator-1_1",
+      });
+      prismaMock.$transaction.mockResolvedValue([
+        { id: "creator-1", userId: "user-talent-1", verification: "VERIFIED" },
+        { id: "check-1", status: "VERIFIED" },
+      ]);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({ verification: "VERIFIED" });
+    });
+
+    it("FAILED: offers a retry path (verification is FAILED, not VERIFIED)", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1", verification: "PROCESSING" });
+      prismaMock.kycCheck.findFirst.mockResolvedValue({
+        id: "check-1",
+        status: "PROCESSING",
+        providerRef: "mock_kyc_fail_creator-1_1",
+      });
+      prismaMock.$transaction.mockResolvedValue([
+        { id: "creator-1", userId: "user-talent-1", verification: "FAILED" },
+        { id: "check-1", status: "FAILED" },
+      ]);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/creators/me/verify",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({ verification: "FAILED" });
     });
   });
 });

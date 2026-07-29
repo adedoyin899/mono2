@@ -1,31 +1,82 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
-import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles } from "lucide-react";
+import { apiClient } from "../../lib/api-client";
+import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles, AlertTriangle } from "lucide-react";
+
+const DEFAULT_STYLE_TAGS = ["Warm Texture", "Conversational", "Expressive", "High Energy"];
+const TAGGING_POLL_INTERVAL_MS = 1000;
 
 export function CreatorOnboarding() {
   const [step, setStep] = useState(1);
   const [selectedNiche, setSelectedNiche] = useState<string | null>("actor");
   const [file, setFile] = useState<File | null>(null);
-  const [tags] = useState(["Warm Texture", "Conversational", "Expressive", "High Energy"]);
+  const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
+  const [taggingFailed, setTaggingFailed] = useState(false);
+  const mediaAssetIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
 
   const handleNext = () => setStep(s => s + 1);
   const handleBack = () => setStep(s => s - 1);
 
-  // PWA-04 AI Processing Simulation
+  // features.md Phase 7: on upload, kick off the real AI style-tagging job (X3 —
+  // style tags only, never identity verification) and move to the processing view.
+  async function handleUploadAndAnalyse() {
+    if (!file) return;
+    setTaggingFailed(false);
+    setStep(3);
+
+    if (apiClient.mode !== "live") return; // mock mode: the effect below runs the local simulation.
+
+    try {
+      const kind = file.type.startsWith("audio") ? "AUDIO" : "VIDEO";
+      const { mediaAssetId } = await apiClient.uploadCreatorMedia(file, kind);
+      mediaAssetIdRef.current = mediaAssetId;
+    } catch {
+      setTaggingFailed(true);
+    }
+  }
+
+  // Drives the processing view from the job's REAL state (queued -> tagging ->
+  // done/failed) — never a fixed timer — replacing the old scripted "Thespian AI"
+  // animation. Mock mode preserves the original timed simulation exactly, since
+  // it makes no network calls (features.md Phase 1 seam contract).
   useEffect(() => {
-    if (step === 3) {
-      const timer = setTimeout(() => {
-        setStep(4);
-      }, 3000); // simulate 3s for demo
+    if (step !== 3 || taggingFailed) return;
+
+    if (apiClient.mode !== "live") {
+      const timer = setTimeout(() => setStep(4), 3000);
       return () => clearTimeout(timer);
     }
-  }, [step]);
+
+    let cancelled = false;
+    const poll = async () => {
+      const mediaAssetId = mediaAssetIdRef.current;
+      if (!mediaAssetId) return;
+      const { taggingStatus } = await apiClient.getMediaTaggingStatus(mediaAssetId);
+      if (cancelled) return;
+
+      if (taggingStatus === "DONE") {
+        const profile = await apiClient.getCreatorProfile();
+        if (cancelled) return;
+        setTags(profile.styleTags.length > 0 ? profile.styleTags : DEFAULT_STYLE_TAGS);
+        setStep(4);
+      } else if (taggingStatus === "FAILED") {
+        setTaggingFailed(true);
+      }
+    };
+
+    const interval = setInterval(poll, TAGGING_POLL_INTERVAL_MS);
+    void poll();
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [step, taggingFailed]);
 
   const rise = {
     initial: { opacity: 0, y: 10 },
@@ -184,7 +235,7 @@ export function CreatorOnboarding() {
 
             <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
               <Button
-                onClick={handleNext}
+                onClick={handleUploadAndAnalyse}
                 disabled={!file}
                 className="w-full"
               >
@@ -204,29 +255,48 @@ export function CreatorOnboarding() {
           >
             <Logo className="h-5 w-auto absolute top-10" style={{ color: "var(--color-text-primary)" }} />
 
-            <div className="relative w-[120px] h-[120px] rounded-[var(--radius-full)] flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] mb-10">
-              <motion.div
-                className="absolute inset-0 rounded-[var(--radius-full)] border-2 border-[var(--color-accent)]"
-                animate={{ scale: [1, 1.14, 1], opacity: [0.5, 0, 0.5] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <Shield className="w-10 h-10 text-[var(--color-accent)]" />
-            </div>
+            {!taggingFailed ? (
+              <>
+                <div className="relative w-[120px] h-[120px] rounded-[var(--radius-full)] flex items-center justify-center bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] mb-10">
+                  <motion.div
+                    className="absolute inset-0 rounded-[var(--radius-full)] border-2 border-[var(--color-accent)]"
+                    animate={{ scale: [1, 1.14, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <Sparkles className="w-10 h-10 text-[var(--color-accent)]" />
+                </div>
 
-            <div className="w-[220px] h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] mb-6 overflow-hidden relative">
-              <motion.div
-                className="absolute top-0 bottom-0 left-0 w-1/3 rounded-[var(--radius-full)] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent"
-                animate={{ x: [-90, 300] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
+                <div className="w-[220px] h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] mb-6 overflow-hidden relative">
+                  <motion.div
+                    className="absolute top-0 bottom-0 left-0 w-1/3 rounded-[var(--radius-full)] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent"
+                    animate={{ x: [-90, 300] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
 
-            <p className="font-display text-[19px] text-[var(--color-text-primary)] mb-3 leading-snug max-w-[300px]">
-              Thespian AI is reviewing your performance parameters…
-            </p>
-            <p className="font-body text-[14px] text-[var(--color-text-secondary)]">
-              This usually takes 15–45 seconds. Stay with us.
-            </p>
+                <p className="font-display text-[19px] text-[var(--color-text-primary)] mb-3 leading-snug max-w-[300px]">
+                  Thespian AI is analysing your reel to generate style tags…
+                </p>
+                <p className="font-body text-[14px] text-[var(--color-text-secondary)]">
+                  This usually takes 15–45 seconds. Stay with us.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="w-[120px] h-[120px] rounded-[var(--radius-full)] flex items-center justify-center bg-[var(--color-error-bg)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] mb-10">
+                  <AlertTriangle className="w-10 h-10 text-[var(--color-error)]" />
+                </div>
+                <p className="font-display text-[19px] text-[var(--color-text-primary)] mb-3 leading-snug max-w-[300px]">
+                  Style tagging didn't complete.
+                </p>
+                <p className="font-body text-[14px] text-[var(--color-text-secondary)] mb-6 max-w-[300px]">
+                  Your reel is saved — we just couldn't generate tags this time. You can try again.
+                </p>
+                <Button onClick={() => setStep(2)} className="w-full max-w-[220px]">
+                  Try again
+                </Button>
+              </>
+            )}
           </motion.div>
         )}
 
@@ -256,12 +326,12 @@ export function CreatorOnboarding() {
               </motion.div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--color-success-bg)] mb-6">
-                <Shield className="w-3.5 h-3.5 text-[var(--color-success)]" />
-                <span className="font-body text-[12px] font-semibold text-[var(--color-success)] uppercase tracking-wider">Thespian AI Verified</span>
+                <Sparkles className="w-3.5 h-3.5 text-[var(--color-success)]" />
+                <span className="font-body text-[12px] font-semibold text-[var(--color-success)] uppercase tracking-wider">Style Tags Generated</span>
               </div>
 
-              <h2 className="font-display text-[26px] leading-[1.15] text-[var(--color-text-primary)] mb-2">Your verification is confirmed.</h2>
-              <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">Based on your upload, we've generated your profile tags.</p>
+              <h2 className="font-display text-[26px] leading-[1.15] text-[var(--color-text-primary)] mb-2">Your style tags are ready.</h2>
+              <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">Based on your upload, Thespian AI has generated your profile tags. This is separate from identity verification.</p>
             </div>
 
             <div className="mb-8 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5">

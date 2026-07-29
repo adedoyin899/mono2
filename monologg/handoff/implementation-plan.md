@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
 **Last updated:** 2026-07-29
-**Status:** pnpm workspace, migrated Supabase/Prisma schema, running Fastify server, real authentication, real domain endpoints, and a real Paystack-first escrow/payment backend (`features.md` Phases 0–6 done). `Checkout.tsx` itself is not yet wired to the Phase 6 backend — a known, deliberately-left-open gap, not an oversight (see `log.md` Session 16). Phase 7 (KYC + AI style-tagging) is next.
+**Status:** pnpm workspace, migrated Supabase/Prisma schema, running Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend, and real KYC + AI style-tagging as two independent systems (`features.md` Phases 0–7 done). `Checkout.tsx` itself is not yet wired to the Phase 6 backend — a known, deliberately-left-open gap, not an oversight (see `log.md` Session 16). There is likewise no "start identity verification" form anywhere in the UI yet — Phase 7's KYC endpoints are real and fully tested, but no PWA screen in the original design collects the legal name/DOB/ID fields `KycProvider.startCheck` needs, so building one would be new UI scope, not a wiring pass (see `log.md` Session 17). Phase 8 (Google Calendar sync) is next.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -167,7 +167,7 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 
 This supersedes the old flat gap list (previously here and in `design.md` §6) — `features.md` is now the authoritative, dependency-ordered backlog. **Phases are ordered by dependency, not priority; build one at a time, with tests as a gate, and stop for review between phases** — don't batch several in one unreviewed pass.
 
-**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1) — **backend resolved as of Phase 6**, but `Checkout.tsx`'s own copy still says FINCRA (a known, separate, deliberately-left-open frontend gap — see Phase 6's Done entry above); fees are 11% talent / 15% client, not 9%/12% (X2, backend resolved since Phase 3); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — unresolved until Phase 7. **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects some old X1–X3 values in the frontend prototype — do not carry them into any new backend work.
+**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1) — **backend resolved as of Phase 6**, but `Checkout.tsx`'s own copy still says FINCRA (a known, separate, deliberately-left-open frontend gap — see Phase 6's Done entry above); fees are 11% talent / 15% client, not 9%/12% (X2, backend resolved since Phase 3); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — **resolved as of Phase 7**, both backend and UI copy (see `log.md` Session 17). **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects some old X1–X3 values in the frontend prototype — do not carry them into any new backend work.
 
 ### Infrastructure spine (Phases 0–12)
 - [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
@@ -177,7 +177,7 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 - [x] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware — done, see the Done section above
 - [x] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam — done, see the Done section above
 - [x] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent — done, see the Done section above (backend only — `Checkout.tsx` frontend wiring is a known, separate open gap)
-- [ ] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems
+- [x] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems — done, see `log.md` Session 17 (no "start verification" UI form exists yet — a known, deliberately-left-open gap, same shape as the Phase 6 `Checkout.tsx` gap above)
 - [ ] **Phase 8** — Google Calendar sync + real Meet links
 - [ ] **Phase 9** — Notifications backend (email/SMS/in-app)
 - [ ] **Phase 10** — System screens: transaction history, help/support, terms/privacy (PRD SYS-01–04)

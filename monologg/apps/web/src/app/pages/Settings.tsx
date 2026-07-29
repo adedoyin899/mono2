@@ -121,7 +121,7 @@ export function Settings() {
                   <div className="font-body font-semibold truncate" style={s.text}>{name}</div>
                   <div className="text-sm font-body truncate" style={s.secondary}>{email}</div>
                   <div className="text-xs font-body mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}>
-                    <Shield className="w-3 h-3" /> Thespian Verified
+                    <Shield className="w-3 h-3" /> Verified
                   </div>
                 </div>
                 <Button variant="secondary" className="h-9 px-4 text-xs shrink-0" onClick={() => setSection("profile")}>
