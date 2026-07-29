@@ -3,6 +3,7 @@ import { buildApp } from "../app.js";
 import { hashPassword, generateRefreshToken, hashToken } from "../services/auth.js";
 import { mockCacheProvider } from "../providers/cache.mock.js";
 import { mockNotifyProvider } from "../providers/notify.mock.js";
+import { CURRENT_TERMS_VERSION } from "@monologg/types";
 import { requireAuth } from "../middlewares/auth.js";
 
 // Mock the Prisma client so routes do not connect to a real database during tests
@@ -24,6 +25,9 @@ vi.mock("../db/client.js", () => ({
       findFirst: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
+    },
+    termsAcceptance: {
+      create: vi.fn().mockResolvedValue({}),
     },
     // Supports both Prisma $transaction overloads: a callback (register) and an
     // array of already-invoked query promises (reset-password).
@@ -73,6 +77,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
           name: "John Doe",
           location: "Lagos",
           niche: "VO_ARTIST",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
         },
       });
 
@@ -83,9 +88,60 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
       expect(body.userType).toBe("TALENT");
     });
 
+    it("features.md Phase 10: records terms acceptance with version + timestamp", async () => {
+      prismaMock.user.findUnique.mockResolvedValue(null);
+      prismaMock.user.create = vi.fn().mockResolvedValue({
+        id: "new-user-id",
+        email: "artist@monologg.dev",
+        userType: "TALENT",
+        emailVerified: false,
+      });
+      prismaMock.creator.create = vi.fn().mockResolvedValue({ id: "new-creator-id" });
+
+      await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/register",
+        payload: {
+          email: "artist@monologg.dev",
+          password: "password123",
+          userType: "TALENT",
+          name: "John Doe",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
+        },
+      });
+
+      expect(prismaMock.termsAcceptance.create).toHaveBeenCalledWith({
+        data: { userId: "new-user-id", version: CURRENT_TERMS_VERSION },
+      });
+      // acceptedAt itself is a DB default (DateTime @default(now())), not passed
+      // explicitly — asserting the call omits it confirms we rely on that default
+      // rather than a client-suppliable timestamp.
+      const call = prismaMock.termsAcceptance.create.mock.calls[0][0];
+      expect(call.data).not.toHaveProperty("acceptedAt");
+    });
+
+    it("400s registration with no terms acceptance at all", async () => {
+      prismaMock.user.create = vi.fn();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/register",
+        payload: {
+          email: "no-terms@monologg.dev",
+          password: "password123",
+          userType: "TALENT",
+          name: "No Terms",
+        },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(prismaMock.user.create).not.toHaveBeenCalled();
+    });
+
     it("succeeds with only the fields AuthFlow.tsx's sign-up form actually collects (no location/niche/org)", async () => {
-      // Regression test: the real registration form only has name/email/password/role —
-      // location, niche, and org fields are collected later in onboarding, not at sign-up.
+      // Regression test: the real registration form only has name/email/password/role
+      // plus the Terms/Privacy acceptance checkbox — location, niche, and org fields
+      // are collected later in onboarding, not at sign-up.
       prismaMock.user.findUnique.mockResolvedValue(null);
       prismaMock.user.create = vi.fn().mockResolvedValue({
         id: "minimal-user-id",
@@ -103,6 +159,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
           password: "password123",
           userType: "CLIENT",
           name: "Jane Client",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
         },
       });
 
@@ -126,6 +183,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
           userType: "TALENT",
           name: "Already Registred",
           location: "Accra",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
         },
       });
 
@@ -472,6 +530,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
           userType: "TALENT",
           name: "Log Test",
           location: "Lagos",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
         },
       });
 
@@ -533,6 +592,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
           userType: "TALENT",
           name: "E2E Tester",
           location: "Lagos",
+          acceptedTermsVersion: CURRENT_TERMS_VERSION,
         },
       });
       expect(registerResponse.statusCode).toBe(201);

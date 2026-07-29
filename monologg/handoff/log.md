@@ -624,3 +624,43 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/app/pages/TalentDashboard.notifications.test.tsx` | **New** — 3 tests |
 | `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 9, including the `Settings.tsx` preferences-UI gap |
 
+---
+
+## Session 20 — `features.md` Phase 10: system screens (transaction history, help & support, terms/privacy)
+
+**Goal:** the four PRD SYS-01–04 screens — build the three that were genuinely unbuilt (notifications already landed in Phase 9): transaction history, help & support, terms/privacy — plus record real terms acceptance at registration.
+
+- **Transaction history (`GET /transactions`, `services/transactions.ts`)** — deliberately *not* a new ledger table: derived read-only from the existing `Payment`/`Booking` rows. Owner-scoping works by looking up the caller's own `Creator`/`Client` profile(s) (a user could theoretically have both, though registration never creates both) and only querying bookings where they're a participant on one side or the other. The interesting bit is `direction`: the *same* `Payment.amount` means something different depending which side of the booking you're on — a client was charged `base + clientFee`; a creator's payout nets `base − talentFee` — so each row's `direction` field (`"payment"` | `"payout"`) picks the right math, computed per-row rather than assumed from the query filter (a user with both profiles filtering by `direction` still gets correctly-scoped results). Amounts ship both as raw minor-unit integers and pre-formatted strings (`formatMoney`), matching the display-mapped-response convention every other resource already uses.
+- **Help & support (`POST`/`GET /support/tickets`, new `SupportTicket` model, `services/support.ts`)** — owner-scoped. "Routes to email/inbox" per the spec: a confirmation email to the submitter through the same queued `enqueueEmailNotification` path every other notification uses, plus an optional relay to a new `SUPPORT_INBOX_EMAIL` env var if configured (best-effort — a relay failure is logged, never fails ticket creation). FAQ content is static, which the spec explicitly permits ("static or CMS-backed") — no CMS exists anywhere in this codebase, so static is the honest choice, not a placeholder for one.
+- **Terms acceptance (new `TermsAcceptance` model)** — one row per acceptance event, never updated in place, so the full consent history stays auditable (the Phase 10 guardrail, literally). `POST /auth/register`'s `acceptedTermsVersion` field is now *required*, not optional: `AuthFlow.tsx` already had a hard "I agree" checkbox gating submission, but the checked state was never actually sent to the backend before this — a real, if narrow, gap. `CURRENT_TERMS_VERSION` lives once, in `packages/types` (new `legal.ts`), so the version the frontend displays/sends and whatever the backend might someday validate against can't drift into two hardcoded copies of the same string.
+- **A real cross-package typecheck gap surfaced and fixed, unrelated to the feature itself:** `apps/api` had never imported anything from `@monologg/types` before now (only `apps/web` had). Doing so for `CURRENT_TERMS_VERSION` surfaced that `packages/types/src/index.ts`'s relative exports (`export * from "./talent"`, etc.) lacked the explicit `.js` extensions `apps/api`'s `moduleResolution: "NodeNext"` requires — invisible until now because `apps/web`'s `moduleResolution: "bundler"` never enforced it. Fixed by adding `.js` to all nine export lines (harmless under `bundler` resolution too, so `apps/web` is unaffected).
+- **`apps/web`: three genuinely new screens**, not rewires (`design.md`'s own gap table already noted "no dedicated transaction-history or help/support screens" existed at all) — `TransactionHistory.tsx` (status filter, fee breakdown per row), `HelpSupport.tsx` (accordion FAQ + ticket form + ticket list, mock mode appends submissions to local state matching `OrderRoom.tsx`'s `sendOrderMessage` precedent), `LegalPage.tsx` (shared component for both `/legal/terms` and `/legal/privacy`, versioned, with a **visible in-page notice** — not just a code comment — that the content is an unreviewed draft, since shipping fabricated "binding" legal text under an AI's byline would be actively wrong). `Settings.tsx`'s three previously-dead "Support & Legal" `ListItem`s (`onClick={() => {}}`) now navigate for real; a new "Transaction History" item was added to the Account section. `AuthFlow.tsx`'s Terms/Privacy links (`href="#"`) now point to the real pages (opened in a new tab, so an in-progress registration form isn't lost), and its register call sends `acceptedTermsVersion`.
+- **Tests, the gate's own list, all covered**: `services/transactions.test.ts` (7 — including explicit owner-scoping: a client's query only ever includes `{clientId}`, a creator's only `{creatorId}`, and direction-filtering stays correctly scoped even for a hypothetical dual-profile user) + `routes/transactions.test.ts` (4), `services/support.test.ts` (5) + `routes/support.test.ts` (5, owner-scoped listing), new `routes/auth.test.ts` assertions (terms acceptance recorded with the exact version sent and a DB-default timestamp, not a client-suppliable one; 400 when acceptance is missing entirely) — plus all five pre-existing register-payload tests updated to include the now-required field. Frontend: `TransactionHistory.test.tsx` (3), `HelpSupport.test.tsx` (3), `LegalPage.test.tsx` (2), and two new `AuthFlow.test.tsx` cases (real Terms/Privacy hrefs; live-mode register payload includes `acceptedTermsVersion`).
+- **Re-verified the full baseline:** all three workspaces (`packages/types`, `apps/api`, `apps/web`) typecheck clean. `apps/api` 327/327 tests green (up from 304, +23). `apps/web` 46/46 tests green (up from 36, +10). `pnpm run lint` clean (0 errors; same 5 pre-existing warnings, untouched files). Root `pnpm run test` confirmed green end-to-end across both apps.
+
+### File inventory additions (Phase 10)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/schema.prisma` | New `TermsAcceptance`, `SupportTicket` models + `SupportTicketStatus` enum; `User` gained both relations. Migration `20260729145156_phase10_system_screens` |
+| `apps/api/src/config/env.ts`, `.env.example` | Added `SUPPORT_INBOX_EMAIL` (optional) |
+| `apps/api/src/lib/notificationTemplates.ts` | Added `support_ticket_received`, `support_ticket_new` templates |
+| `apps/api/src/services/transactions.ts`, `transactions.test.ts` | **New** — transaction history service + 7 tests |
+| `apps/api/src/routes/transactions.ts`, `routes/transactions.test.ts` | **New** — `GET /transactions` + 4 tests |
+| `apps/api/src/services/support.ts`, `support.test.ts` | **New** — ticket service + 5 tests |
+| `apps/api/src/routes/support.ts`, `routes/support.test.ts` | **New** — ticket routes + 5 tests |
+| `apps/api/src/routes/index.ts` | Registered `transactionRoutes`, `supportRoutes` |
+| `apps/api/src/routes/auth.ts`, `routes/auth.test.ts` | `acceptedTermsVersion` required at registration, persisted to `TermsAcceptance`; 5 existing register payloads updated + 2 new tests |
+| `packages/types/src/legal.ts` | **New** — `CURRENT_TERMS_VERSION`, the single shared source of truth |
+| `packages/types/src/transaction.ts`, `support.ts` | **New** — `Transaction`, `SupportTicket` shared types |
+| `packages/types/src/index.ts` | Added the two new exports; fixed all nine relative exports to use explicit `.js` extensions (the cross-package typecheck fix above) |
+| `apps/web/src/lib/api-client.ts` | Added `listTransactions`, `listSupportTickets`, `submitSupportTicket`; `RegisterInput` gained required `acceptedTermsVersion` |
+| `apps/web/src/mocks/transactions.ts`, `supportTickets.ts` | **New** — mock-mode fixtures for the two new screens |
+| `apps/web/src/app/pages/TransactionHistory.tsx`, `.test.tsx` | **New** — 3 tests |
+| `apps/web/src/app/pages/HelpSupport.tsx`, `.test.tsx` | **New** — 3 tests |
+| `apps/web/src/app/pages/LegalPage.tsx`, `.test.tsx` | **New** — 2 tests |
+| `apps/web/src/app/routes.tsx` | Registered `/transactions`, `/support`, `/legal/terms`, `/legal/privacy` |
+| `apps/web/src/app/pages/Settings.tsx` | Wired the three dead "Support & Legal" items + added "Transaction History" |
+| `apps/web/src/app/pages/AuthFlow.tsx`, `.test.tsx` | Real Terms/Privacy links, `acceptedTermsVersion` sent on register; 2 new tests |
+| `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 10 |
+

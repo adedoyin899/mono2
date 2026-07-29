@@ -9,7 +9,7 @@ import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText
 } from "lucide-react";
 
 type Section = "main" | "profile" | "payment" | "notifications" | "security";
@@ -134,6 +134,7 @@ export function Settings() {
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Profile & Storefront" icon={User} onClick={() => setSection("profile")} />
                 <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
+                <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
                 <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
                 <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
               </div>
@@ -155,9 +156,9 @@ export function Settings() {
               {/* Support */}
               <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Support & Legal</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
-                <ListItem label="Help Center" icon={Bell} onClick={() => {}} />
-                <ListItem label="Terms of Service" icon={User} onClick={() => {}} />
-                <ListItem label="Privacy Policy" icon={Shield} onClick={() => {}} />
+                <ListItem label="Help Center" icon={LifeBuoy} onClick={() => navigate("/support")} />
+                <ListItem label="Terms of Service" icon={FileText} onClick={() => navigate("/legal/terms")} />
+                <ListItem label="Privacy Policy" icon={Shield} onClick={() => navigate("/legal/privacy")} />
               </div>
 
               <div className="rounded-[var(--radius-xl)] overflow-hidden" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>

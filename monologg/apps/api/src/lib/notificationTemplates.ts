@@ -57,6 +57,14 @@ const EN_TEMPLATES: Record<string, TemplateRenderer> = {
     subject: "New message",
     body: `You have a new message in booking ${data.bookingId}.`,
   }),
+  support_ticket_received: (data) => ({
+    subject: "We received your support request",
+    body: `Thanks for reaching out about "${data.subject}". Our team will follow up by email. Ticket reference: ${data.ticketId}.`,
+  }),
+  support_ticket_new: (data) => ({
+    subject: `New support ticket: ${data.subject}`,
+    body: `Ticket ${data.ticketId} from user ${data.userId}:\n\n${data.message}`,
+  }),
 };
 
 const LOCALES: Record<string, Record<string, TemplateRenderer>> = {

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { CURRENT_TERMS_VERSION } from "@monologg/types";
 
 // features.md Phase 4: AuthFlow.tsx is wired to real endpoints via api-client, but must
 // stay visually/behaviorally identical to the original mock-only prototype in the default
@@ -53,6 +54,44 @@ describe("AuthFlow", () => {
     await waitFor(() => {
       expect(screen.getByText("Talent onboarding")).toBeInTheDocument();
     });
+  });
+
+  it("Terms of Service / Privacy Policy links point to the real, versioned legal pages", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderAuthFlow();
+
+    fireEvent.click(screen.getByText("Create Free Account"));
+    await screen.findByPlaceholderText("Full Name");
+
+    expect(screen.getByText("Terms of Service").closest("a")).toHaveAttribute("href", "/legal/terms");
+    expect(screen.getByText("Privacy Policy").closest("a")).toHaveAttribute("href", "/legal/privacy");
+  });
+
+  it("live mode: registering sends the required, versioned terms acceptance to the backend", async () => {
+    vi.stubEnv("VITE_API_MODE", "live");
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      new Response(
+        JSON.stringify({ userId: "new-user", email: "ada@example.com", userType: "TALENT", emailVerified: false }),
+        { status: 201, headers: { "content-type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await renderAuthFlow();
+
+    fireEvent.click(screen.getByText("Create Free Account"));
+    fireEvent.change(await screen.findByPlaceholderText("Full Name"), { target: { value: "Ada Lovelace" } });
+    fireEvent.change(screen.getByPlaceholderText("Email Address"), { target: { value: "ada@example.com" } });
+    fireEvent.change(screen.getByPlaceholderText("Create Password (min. 8 chars)"), { target: { value: "password123" } });
+    fireEvent.click(screen.getByText(/I agree to the/).closest("label")!.querySelector("div")!);
+    fireEvent.click(screen.getByText("Create My Talent Profile"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Talent onboarding")).toBeInTheDocument();
+    });
+
+    const [, init] = fetchMock.mock.calls[0];
+    const body = JSON.parse(init!.body as string);
+    expect(body.acceptedTermsVersion).toBe(CURRENT_TERMS_VERSION);
   });
 
   it("mock mode: signing in with a 'client' email navigates to the client dashboard", async () => {

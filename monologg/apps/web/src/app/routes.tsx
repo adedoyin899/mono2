@@ -11,6 +11,9 @@ import { OrderRoom } from "./pages/OrderRoom";
 import { ProjectBrief } from "./pages/ProjectBrief";
 import { Checkout } from "./pages/Checkout";
 import { Settings } from "./pages/Settings";
+import { TransactionHistory } from "./pages/TransactionHistory";
+import { HelpSupport } from "./pages/HelpSupport";
+import { LegalPage } from "./pages/LegalPage";
 import { DesignSystem } from "./pages/DesignSystem";
 
 // Wraps a page component with the auth guard (features.md Phase 4) — a no-op in the
@@ -44,6 +47,10 @@ export const routeTree = [
       { path: "brief", Component: protect(ProjectBrief) },
       { path: "checkout", Component: protect(Checkout) },
       { path: "settings", Component: protect(Settings) },
+      { path: "transactions", Component: protect(TransactionHistory) },
+      { path: "support", Component: protect(HelpSupport) },
+      { path: "legal/terms", Component: () => <LegalPage type="terms" /> },
+      { path: "legal/privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },
     ],
   },

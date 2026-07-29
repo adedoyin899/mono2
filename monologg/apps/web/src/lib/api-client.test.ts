@@ -71,6 +71,7 @@ describe("api-client", () => {
         password: "password123",
         name: "Test Talent",
         userType: "TALENT",
+        acceptedTermsVersion: "2026-07-29",
       });
       expect(registered.email).toBe("talent@example.com");
 

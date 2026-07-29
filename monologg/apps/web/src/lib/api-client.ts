@@ -6,7 +6,9 @@ import type {
   OrderMessage,
   ServiceRateCard,
   StatMetric,
+  SupportTicket,
   Talent,
+  Transaction,
 } from "@monologg/types";
 import * as mocks from "../mocks";
 
@@ -136,6 +138,8 @@ export interface RegisterInput {
   password: string;
   userType: "TALENT" | "CLIENT";
   name: string;
+  // features.md Phase 10: required — mirrors AuthFlow.tsx's "I agree" checkbox gate.
+  acceptedTermsVersion: string;
 }
 
 export const apiClient = {
@@ -339,6 +343,32 @@ export const apiClient = {
   async markNotificationRead(id: string): Promise<void> {
     if (API_MODE !== "live") return;
     await request(`/notifications/${id}/read`, { method: "POST" });
+  },
+
+  // ── Transaction history (features.md Phase 10) ─────────────────────────────
+  async listTransactions(filters: { state?: string; direction?: "payment" | "payout" } = {}): Promise<Transaction[]> {
+    if (API_MODE !== "live") return mocks.TRANSACTIONS;
+    const qs = new URLSearchParams();
+    if (filters.state) qs.set("state", filters.state);
+    if (filters.direction) qs.set("direction", filters.direction);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return requestList(`/transactions${suffix}`);
+  },
+
+  // ── Help & Support (features.md Phase 10) ───────────────────────────────────
+  async listSupportTickets(): Promise<SupportTicket[]> {
+    if (API_MODE !== "live") return mocks.SUPPORT_TICKETS;
+    return requestList("/support/tickets");
+  },
+  /** Mock mode returns null — HelpSupport.tsx appends the submission to local
+   * state itself, matching OrderRoom.tsx's sendOrderMessage precedent. */
+  async submitSupportTicket(input: { subject: string; message: string }): Promise<SupportTicket | null> {
+    if (API_MODE !== "live") return null;
+    return request("/support/tickets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
   },
 
   // ── Order Room ────────────────────────────────────────────────────

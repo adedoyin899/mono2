@@ -64,6 +64,11 @@ const envSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_FROM_NUMBER: z.string().optional(),
+
+  // ── Support (Phase 10) ──────────────────────────────────────────────────────
+  // Optional — when unset, new tickets simply aren't relayed to an internal
+  // inbox (the ticket + confirmation email to the submitter still work).
+  SUPPORT_INBOX_EMAIL: z.string().email().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

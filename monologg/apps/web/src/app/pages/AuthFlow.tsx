@@ -6,6 +6,7 @@ import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import { apiClient } from "../../lib/api-client";
+import { CURRENT_TERMS_VERSION } from "@monologg/types";
 import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check } from "lucide-react";
 
 type View = "splash" | "register" | "login" | "forgot";
@@ -35,6 +36,7 @@ export function AuthFlow() {
         password,
         name,
         userType: role === "talent" ? "TALENT" : "CLIENT",
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       });
       navigate(role === "talent" ? "/onboarding" : "/onboarding/client");
     } catch (err) {
@@ -271,9 +273,9 @@ export function AuthFlow() {
                       </div>
                       <span className="text-xs font-body leading-relaxed" style={s.secondary}>
                         I agree to the{" "}
-                        <a href="#" className="hover:underline" style={s.gold}>Terms of Service</a>{" "}
+                        <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="hover:underline" style={s.gold}>Terms of Service</a>{" "}
                         and{" "}
-                        <a href="#" className="hover:underline" style={s.gold}>Privacy Policy</a>
+                        <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline" style={s.gold}>Privacy Policy</a>
                       </span>
                     </label>
 

@@ -1,0 +1,51 @@
+import type { Transaction } from "@monologg/types";
+
+// features.md Phase 10: mock-mode fixtures for the new Transaction History
+// screen — no prior mock existed for this (it's a new screen, not a rewire).
+export const TRANSACTIONS: Transaction[] = [
+  {
+    id: "txn-1",
+    bookingId: "ORD-001",
+    direction: "payout",
+    state: "RELEASED",
+    currency: "NGN",
+    baseAmount: 12_000_000,
+    baseAmountFormatted: "₦120,000",
+    feeAmount: 1_320_000,
+    feeAmountFormatted: "₦13,200",
+    totalAmount: 10_680_000,
+    totalAmountFormatted: "₦106,800",
+    providerRef: "ref_paystack_001",
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "txn-2",
+    bookingId: "ORD-002",
+    direction: "payout",
+    state: "ESCROW_HELD",
+    currency: "NGN",
+    baseAmount: 8_000_000,
+    baseAmountFormatted: "₦80,000",
+    feeAmount: 880_000,
+    feeAmountFormatted: "₦8,800",
+    totalAmount: 7_120_000,
+    totalAmountFormatted: "₦71,200",
+    providerRef: "ref_paystack_002",
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "txn-3",
+    bookingId: "ORD-003",
+    direction: "payment",
+    state: "REFUNDED",
+    currency: "NGN",
+    baseAmount: 4_500_000,
+    baseAmountFormatted: "₦45,000",
+    feeAmount: 675_000,
+    feeAmountFormatted: "₦6,750",
+    totalAmount: 5_175_000,
+    totalAmountFormatted: "₦51,750",
+    providerRef: "ref_paystack_003",
+    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];

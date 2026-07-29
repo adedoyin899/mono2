@@ -27,6 +27,10 @@ const registerSchema = z.object({
   // Defaults keep the row creatable now; onboarding fills these in for real once wired.
   location: z.string().optional(),
   niche: z.enum(["ACTOR", "VO_ARTIST", "COMEDIAN", "COMPERE", "SPEAKER_PASTOR", "MUSICIAN", "CONTENT_CREATOR"]).optional(),
+  // features.md Phase 10: "Terms acceptance is recorded per user with version +
+  // timestamp." Required, not optional — mirrors AuthFlow.tsx's own hard gate
+  // (the "I agree" checkbox disables submission until checked).
+  acceptedTermsVersion: z.string().min(1, "You must accept the Terms of Service and Privacy Policy"),
   orgName: z.string().optional(),
   orgType: z.enum(["STUDIO", "EVENT", "BRAND", "CHURCH"]).optional(),
 });
@@ -55,7 +59,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      const { email, password, userType, name, location, niche, orgName, orgType } = parsed.data;
+      const { email, password, userType, name, location, niche, orgName, orgType, acceptedTermsVersion } = parsed.data;
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -102,6 +106,12 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
             },
           });
         }
+
+        // features.md Phase 10 guardrail: consent auditable — a new row per
+        // acceptance event, never updated in place.
+        await tx.termsAcceptance.create({
+          data: { userId: user.id, version: acceptedTermsVersion },
+        });
 
         return user;
       });
