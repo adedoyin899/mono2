@@ -61,6 +61,10 @@ model Creator {
   availability   AvailabilityBlock[]
   bookings       Booking[]           @relation("CreatorBookings")
   kycChecks      KycCheck[]
+  // features.md Phase 12A — additive only, nothing above renamed/dropped.
+  mediaKit               MediaKit?
+  verificationRecordings VerificationRecording[]
+  physicalAttributes     PhysicalAttributes?
 }
 
 enum Niche {
@@ -373,4 +377,188 @@ enum SupportTicketStatus {
   IN_PROGRESS
   RESOLVED
   CLOSED
+}
+
+// =============================================================================
+// features.md Phase 12A — THREE additive extensions. Nothing above this line is
+// renamed, dropped, or altered; every model below is new, every FK is a new
+// optional/nullable relation off Creator. Migration backfills a MediaKit row
+// for every pre-existing Creator (see migration.sql) — the app layer also
+// creates one inline at registration (routes/auth.ts) so no creator is ever
+// without one going forward.
+// =============================================================================
+
+// --- 12A.1 Media Kit ---------------------------------------------------------
+
+// One row per creator (@unique), always present (backfilled + created at
+// registration). AUTO renders a PDF server-side from PUBLIC profile data only
+// (src/services/mediaKit.ts); UPLOAD serves a talent-provided PDF at the same
+// public URL instead. Switching modes never changes the public URL — only
+// which bytes it serves.
+model MediaKit {
+  id                 String       @id @default(cuid())
+  creatorId          String       @unique
+  creator            Creator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  mode               MediaKitMode @default(AUTO)
+  uploadUrl          String? // set only when mode = UPLOAD; preserved across a revert-to-auto
+  // so re-uploading isn't required if the talent toggles back to UPLOAD later.
+  uploadSizeBytes    Int?
+  // Bumped on every regenerate — the public URL includes it as a cache-busting
+  // query param (?v=<autoVersion>) so a stale CDN/browser cache never serves an
+  // out-of-date auto-rendered PDF after a profile change.
+  autoVersion        Int          @default(1)
+  autoLastRenderedAt DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+enum MediaKitMode {
+  AUTO
+  UPLOAD
+}
+
+// --- 12A.2 Verification video -------------------------------------------------
+
+// Deliberately its own model, with no relation to KycCheck or Creator.verification
+// — the same X3 invariant (features.md Phase 7) applied to a new axis: this is a
+// PERFORMANCE/presentation review, never identity verification. creatorId is NOT
+// unique: a NEEDS_RERECORD decision doesn't delete the old row, it's superseded by
+// a new upload — services/verificationRecording.ts always reads the latest by
+// createdAt as "the current one," the same pattern services/kyc.ts already uses
+// for KycCheck.
+model VerificationRecording {
+  id           String                       @id @default(cuid())
+  creatorId    String
+  creator      Creator                      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  url          String
+  durationSec  Int
+  guidelineAck Boolean
+  status       VerificationRecordingStatus  @default(IN_REVIEW)
+  reviewerNote String?
+  createdAt    DateTime                     @default(now())
+  updatedAt    DateTime                     @updatedAt
+}
+
+// UPLOADED is defined per the PRD's own enum but not currently produced by any
+// code path: duration validation is synchronous at upload time (services/
+// verificationRecording.ts), so a row is only ever created already past that
+// check, straight into IN_REVIEW — the same "defined for a state no current
+// flow produces yet" shape as PaymentStatus.AUTHORIZED since Phase 6.
+enum VerificationRecordingStatus {
+  UPLOADED
+  IN_REVIEW
+  APPROVED
+  NEEDS_RERECORD
+}
+
+// --- 12A.3 Physical attributes (GDPR/NDPR-compliant casting search) ---------
+
+// TODO(conflict:X6): the PRD names enums "per PRD 12A.3" without enumerating
+// their values in the phase brief this was built from. The value sets below
+// are a reasonable, casting-industry-shaped interpretation, not lifted from a
+// seen spec — flagged the same way X1–X5 are for human confirmation/edit
+// before this is load-bearing for real users. Changing a value set later is a
+// one-line, additive Prisma enum edit; nothing here is architecturally load-bearing.
+model PhysicalAttributes {
+  id                  String              @id @default(cuid())
+  creatorId           String              @unique
+  creator             Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  heightRange         HeightRange?
+  weightRange         WeightRange?
+  ageRange            AgeRange?
+  build               BuildType?
+  complexion          Complexion?
+  hairColor           HairColor?
+  eyeColor            EyeColor?
+  genderPresentation  GenderPresentation?
+  shoeSize            String?
+  shoeSizeUnit        ShoeSizeUnit?
+  distinctiveFeatures String? // app-layer max 120 chars (zod) — free text, so never a filter field
+  // { [fieldName]: "PUBLIC" | "SEARCHABLE" | "PRIVATE" }. Validated + defaulted at
+  // the app layer (src/services/attributes.ts) — Postgres just stores the map.
+  // A field absent from this map is SEARCHABLE (Non-Negotiable #3's default).
+  visibility          Json                @default("{}")
+  // Non-Negotiable #4: captured (version + timestamp) on first save and on any
+  // consentVersion change — never silently backdated, never client-suppliable
+  // for the timestamp half.
+  consentVersion      String
+  consentedAt         DateTime
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+enum HeightRange {
+  UNDER_150CM
+  CM_150_160
+  CM_160_170
+  CM_170_180
+  CM_180_190
+  OVER_190CM
+}
+
+enum WeightRange {
+  UNDER_50KG
+  KG_50_65
+  KG_65_80
+  KG_80_95
+  OVER_95KG
+}
+
+enum AgeRange {
+  RANGE_18_25
+  RANGE_26_35
+  RANGE_36_45
+  RANGE_46_55
+  RANGE_56_65
+  OVER_65
+}
+
+enum BuildType {
+  SLIM
+  ATHLETIC
+  AVERAGE
+  CURVY
+  PLUS_SIZE
+  MUSCULAR
+}
+
+enum Complexion {
+  FAIR
+  LIGHT
+  MEDIUM
+  TAN
+  DARK
+  DEEP
+}
+
+enum HairColor {
+  BLACK
+  BROWN
+  BLONDE
+  RED
+  GREY
+  WHITE
+  DYED_OTHER
+}
+
+enum EyeColor {
+  BROWN
+  BLACK
+  HAZEL
+  GREEN
+  BLUE
+  GREY
+}
+
+enum GenderPresentation {
+  MASCULINE
+  FEMININE
+  ANDROGYNOUS
+  NON_BINARY
+}
+
+enum ShoeSizeUnit {
+  EU
+  US
+  UK
 }

@@ -15,6 +15,8 @@ import { TransactionHistory } from "./pages/TransactionHistory";
 import { HelpSupport } from "./pages/HelpSupport";
 import { LegalPage } from "./pages/LegalPage";
 import { DesignSystem } from "./pages/DesignSystem";
+import { MediaKitManagement } from "./pages/MediaKitManagement";
+import { VerificationVideo } from "./pages/VerificationVideo";
 
 // Wraps a page component with the auth guard (features.md Phase 4) — a no-op in the
 // default `mock` API mode, real gating once `live` mode + Phase 5 endpoints land.
@@ -49,6 +51,8 @@ export const routeTree = [
       { path: "settings", Component: protect(Settings) },
       { path: "transactions", Component: protect(TransactionHistory) },
       { path: "support", Component: protect(HelpSupport) },
+      { path: "media-kit", Component: protect(MediaKitManagement) },
+      { path: "verification", Component: protect(VerificationVideo) },
       { path: "legal/terms", Component: () => <LegalPage type="terms" /> },
       { path: "legal/privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },

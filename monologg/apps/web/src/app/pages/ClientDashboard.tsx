@@ -9,7 +9,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
-import { apiClient } from "../../lib/api-client";
+import { apiClient, type TalentFilters } from "../../lib/api-client";
 import type { ClientProject, Order, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
@@ -22,6 +22,21 @@ type Tab = "home" | "discover" | "projects" | "orders" | "shortlist";
 // Filter option list — UI configuration, not domain data; stays local
 // (see apps/web/src/lib/api-client.ts doc comment for the mock-data boundary).
 const NICHES = ["All", "Actor", "Voice-Over", "Comedian", "Compere", "Speaker", "Content Creator"];
+
+// features.md Phase 12A.3 — PWA-10 attribute filters. Chip multi-selects
+// (spec's own words) collapse to single-select here: the search rule is an
+// AND across active filters (routes/talent.ts), and true multi-value-per-field
+// OR-within-a-field filtering isn't something the backend's current query
+// shape supports — a real "multi-select" would need an `in: [...]` clause per
+// field, which is a bigger backend change than this UI pass. Flagged, not
+// silently narrowed.
+const ATTRIBUTE_FILTER_FIELDS: Array<{ key: keyof TalentFilters; label: string; options: string[] }> = [
+  { key: "heightRange", label: "Height", options: ["UNDER_150CM", "CM_150_160", "CM_160_170", "CM_170_180", "CM_180_190", "OVER_190CM"] },
+  { key: "build", label: "Build", options: ["SLIM", "ATHLETIC", "AVERAGE", "CURVY", "PLUS_SIZE", "MUSCULAR"] },
+  { key: "complexion", label: "Complexion", options: ["FAIR", "LIGHT", "MEDIUM", "TAN", "DARK", "DEEP"] },
+  { key: "hairColor", label: "Hair", options: ["BLACK", "BROWN", "BLONDE", "RED", "GREY", "WHITE", "DYED_OTHER"] },
+  { key: "genderPresentation", label: "Presentation", options: ["MASCULINE", "FEMININE", "ANDROGYNOUS", "NON_BINARY"] },
+];
 
 const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
@@ -49,15 +64,28 @@ export function ClientDashboard() {
   const [talents, setTalents] = useState<Talent[]>([]);
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [showAttributeFilters, setShowAttributeFilters] = useState(false);
+  const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
   const navigate = useNavigate();
 
   useEffect(() => {
     apiClient.getClientStats().then(setStats);
-    apiClient.listTalents().then(setTalents);
     apiClient.listClientProjects().then(setProjects);
     apiClient.listClientOrders().then(setOrders);
     apiClient.getShortlistedTalentIds().then(setShortlist);
   }, []);
+
+  // features.md Phase 12A.3: attribute filters are server-authoritative
+  // (visibility rules can't be evaluated client-side without leaking
+  // SEARCHABLE/PRIVATE values), so changing them re-fetches rather than
+  // filtering the already-loaded `talents` list in memory.
+  useEffect(() => {
+    apiClient.listTalents(attributeFilters).then(setTalents);
+  }, [attributeFilters]);
+
+  const toggleAttributeFilter = (key: keyof TalentFilters, value: string) => {
+    setAttributeFilters((prev) => (prev[key] === value ? { ...prev, [key]: undefined } : { ...prev, [key]: value }));
+  };
 
   const toggleShortlist = (id: string) => {
     setShortlist(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -250,12 +278,60 @@ export function ClientDashboard() {
                   </div>
                   <button
                     aria-label="Filter talent"
-                    className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center border hover:border-[var(--color-accent)] transition-colors"
-                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
+                    aria-pressed={showAttributeFilters}
+                    onClick={() => setShowAttributeFilters((v) => !v)}
+                    className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center border hover:border-[var(--color-accent)] transition-colors relative"
+                    style={{
+                      background: showAttributeFilters ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                      borderColor: showAttributeFilters ? "var(--color-accent)" : "var(--color-border-default)",
+                    }}
                   >
-                    <Filter className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
+                    <Filter className="w-4 h-4" style={{ color: showAttributeFilters ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                    {Object.values(attributeFilters).some(Boolean) && (
+                      <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
+                    )}
                   </button>
                 </div>
+
+                {/* Attribute filters — features.md Phase 12A.3, PWA-10. */}
+                {showAttributeFilters && (
+                  <div className="rounded-[var(--radius-lg)] p-4 mb-6 space-y-3" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                    {ATTRIBUTE_FILTER_FIELDS.map((field) => (
+                      <div key={field.key as string}>
+                        <div className="text-xs font-medium uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>{field.label}</div>
+                        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                          {field.options.map((opt) => {
+                            const active = attributeFilters[field.key] === opt;
+                            return (
+                              <button
+                                key={opt}
+                                onClick={() => toggleAttributeFilter(field.key, opt)}
+                                aria-pressed={active}
+                                className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium font-body transition-all"
+                                style={{
+                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                }}
+                              >
+                                {opt.replace(/_/g, " ")}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                    {Object.values(attributeFilters).some(Boolean) && (
+                      <button
+                        onClick={() => setAttributeFilters({})}
+                        className="text-xs font-body underline underline-offset-2"
+                        style={{ color: "var(--color-text-secondary)" }}
+                      >
+                        Clear attribute filters
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Niche pills */}
                 <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">

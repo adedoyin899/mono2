@@ -96,3 +96,42 @@ describe("Prisma schema — Phase 12: KYC PII has no column to leak from (minima
     }
   });
 });
+
+describe("Prisma schema — Phase 12A: additive-only extensions", () => {
+  it("MediaKit and PhysicalAttributes are one-per-creator (@unique creatorId)", () => {
+    expect(field("MediaKit", "creatorId").isUnique).toBe(true);
+    expect(field("PhysicalAttributes", "creatorId").isUnique).toBe(true);
+  });
+
+  it("VerificationRecording is NOT one-per-creator — creatorId is a plain FK, since a re-record supersedes rather than replaces (same shape as KycCheck)", () => {
+    expect(field("VerificationRecording", "creatorId").isUnique).toBe(false);
+  });
+
+  it("VerificationRecording (performance) has no relation to KycCheck (identity) — the X3 invariant applied to a new axis", () => {
+    const verificationFields = model("VerificationRecording").fields.map((f) => f.name);
+    const kycCheckFields = model("KycCheck").fields.map((f) => f.name);
+    expect(verificationFields).not.toContain("kycCheckId");
+    expect(kycCheckFields).not.toContain("verificationRecordingId");
+  });
+
+  it("PhysicalAttributes has no monetary field, and its ranges are enums (not raw Int height/weight/age)", () => {
+    const attrFields = model("PhysicalAttributes").fields;
+    const scalarNumeric = attrFields.filter((f) => f.kind === "scalar" && (f.type === "Int" || f.type === "Float"));
+    expect(scalarNumeric).toEqual([]);
+  });
+
+  it("none of the three new models altered an existing field on Creator, Booking, or Payment", () => {
+    // Additive-only migration guardrail: the three load-bearing money/state
+    // models from earlier phases keep exactly the field set they had before
+    // 12A — new relations on Creator are fine (checked positively below),
+    // but nothing on Booking/Payment should exist that this phase never touched.
+    const bookingFields = model("Booking").fields.map((f) => f.name);
+    const paymentFields = model("Payment").fields.map((f) => f.name);
+    expect(bookingFields).not.toContain("mediaKit");
+    expect(paymentFields).not.toContain("mediaKit");
+    const creatorRelations = model("Creator").fields.map((f) => f.name);
+    expect(creatorRelations).toEqual(
+      expect.arrayContaining(["mediaKit", "verificationRecordings", "physicalAttributes"]),
+    );
+  });
+});

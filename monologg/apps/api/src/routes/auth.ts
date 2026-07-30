@@ -93,6 +93,11 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
               location: location ?? "",
               niche: niche ?? "CONTENT_CREATOR",
               referralCode,
+              // features.md Phase 12A: every creator has a MediaKit from the
+              // moment they exist — AUTO mode, nothing to render yet until
+              // there's a profile worth rendering (services/mediaKit.ts's
+              // renderer handles an all-defaults creator gracefully).
+              mediaKit: { create: {} },
             },
           });
         } else {

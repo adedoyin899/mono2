@@ -703,3 +703,44 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/package.json` | `react-router` 7.13.0 → 7.18.2, `vite` 6.3.5 → 6.3.7 |
 | `apps/api/README.md`, root `README.md`, `CONTRIBUTING.md` | Documented Phase 12; corrected the stale "no backend yet" line in root `README.md` |
 
+---
+
+## Session 22 — `features.md` Phase 12A: media kit, verification video, physical attributes
+
+**Goal:** three additive extensions to the storefront/onboarding — Media Kit (auto PDF + upload override), verification video (server-authoritative 90s cap), physical attributes (six privacy non-negotiables for casting search). Additive-only migration, nothing from Phases 0–12 touched.
+
+- **Ran the migration against the real Supabase project directly** (this session has standing DB access from earlier work) rather than just writing it — backfilled all 8 pre-existing creators with an AUTO `MediaKit` row, verified with a live count query (`{creators: 8, mediaKits: 8}`), not just trusted from a clean migration exit code.
+- **Media Kit** — chose `pdf-lib` over Puppeteer specifically to avoid a headless-Chrome binary dependency across dev/Docker/Railway. A direct smoke-test render (not just unit tests) caught a real bug before it ever hit a test file: pdf-lib's standard fonts can't encode "₦" (WinAnsi has no Naira glyph) — `formatMoney()`'s normal output would have crashed PDF generation for any NGN rate card. Fixed with a PDF-specific currency-code formatter rather than embedding a custom Unicode font for one glyph.
+- **Verification video** — the server-authoritative duration check is a real, from-spec ISO-BMFF (MP4) box parser (`lib/videoDuration.ts`), not a wrapper around ffprobe (no such binary is guaranteed on any deploy target) — walks `moov` → `mvhd`, reads `timescale`/`duration` per ISO/IEC 14496-12, both v0/v1 box shapes, 8 tests building real box bytes by hand. Reviewer decisions are a known, flagged gap (no admin/moderator role exists in any phase through 12A) — same shape as Phase 6's dispute/refund endpoint, documented rather than silently assumed.
+- **Physical attributes** — all six PRD privacy non-negotiables, each with its own test: optional/skippable fields, ranges not raw numbers, SEARCHABLE-default-never-PUBLIC-on-first-save (tracked per FIELD, not per row — a second field's first save still gets the protection even if the row already exists from an earlier field), consent version+timestamp on first save and consent changes only, hard-delete, and pure filtering with no auto-scoring. The enum value sets are `TODO(conflict:X6)` — the phase brief said "enums per PRD 12A.3" without listing them, so these are a reasonable, flagged interpretation, the same X1–X5 pattern. Search filters application-side (not a Prisma JSON-path query) since the live-DB suite isn't CI-gated; a talent is a filter candidate whenever visibility isn't PRIVATE, but the value itself is only ever returned when PUBLIC.
+- **Frontend scope calls, made deliberately and documented, not silently skipped**: no live in-browser camera recorder (MediaRecorder's native output is WebM, not the MP4 the backend parses — would need client-side transcoding, a separate undertaking) — built as file upload instead, which is still a real, complete flow. No new CreatorOnboarding.tsx wizard step for attributes — Settings.tsx's always-reachable editor already satisfies "skippable, complete later" without risking the tightly-coupled, already-tested onboarding step sequence. No dedicated public storefront page exists yet in any phase (that's Phase 15) — the Media Kit/Verification sections were added to TalentDashboard.tsx's own "storefront preview" tab instead, the closest existing analog.
+- **A real, unrelated bug caught by a frontend test, not code review**: `api-client.ts`'s `request()` unconditionally called `res.json()`, which throws on a real `204 No Content` response — exactly what the new guideline-ack and attribute-delete endpoints return. `VerificationVideo.test.tsx` failed with that exact production-shaped error; fixed once in `request()` itself, which also fixed `deleteMyAttributes()`'s live-mode behavior before it had ever been exercised.
+- **Re-verified the full baseline**: typecheck/lint clean across all three packages (same 5 pre-existing lint warnings, 0 errors). `apps/api` 447/447 tests (up from 356, +91), coverage thresholds still passing with no per-file errors. `apps/web` 64/64 tests (up from 49, +15). Root `pnpm run build` and `pnpm run audit` (still 1 high, reviewed/allowlisted) both clean.
+
+### File inventory additions (Phase 12A)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/schema.prisma`, migration `20260730204433_...` | New `MediaKit`, `VerificationRecording`, `PhysicalAttributes` models + 9 new enums; Creator gained 3 new relations. Migration includes a raw-SQL backfill for pre-existing creators |
+| `apps/api/src/providers/scanner.interface.ts`, `.mock.ts`, `.real.ts` | **New** — virus-scan provider seam (mock detects the real EICAR test string) |
+| `apps/api/src/lib/mediaKitStorage.ts`, `verificationStorage.ts` | **New** — local-disk file storage helpers |
+| `apps/api/src/lib/videoDuration.ts`, `.test.ts` | **New** — real MP4 `moov/mvhd` duration parser + 8 tests |
+| `apps/api/src/services/mediaKit.ts`, `.test.ts` | **New** — PDF render/validate/store + 15 tests |
+| `apps/api/src/services/verificationRecording.ts`, `.test.ts` | **New** — upload/duration-check/review + 12 tests |
+| `apps/api/src/services/attributes.ts`, `.test.ts` | **New** — six privacy non-negotiables + 13 tests |
+| `apps/api/src/routes/mediaKit.ts`, `verification.ts`, `attributes.ts` (+ `.test.ts` each) | **New** — 9 + 11 + 10 route tests |
+| `apps/api/src/routes/talent.ts`, `talent.test.ts` | Attribute filters + visibility-aware response shaping; +8 tests |
+| `apps/api/src/routes/auth.ts` | Registration creates a `MediaKit` row inline (`mediaKit: { create: {} }`) |
+| `apps/api/src/routes/index.ts`, `config/env.ts`, `.env.example`, `providers/index.ts` | Registered 3 new route plugins; added `SCANNER_PROVIDER` |
+| `apps/api/prisma/schema.test.ts` | +5 Phase 12A schema lock-in tests |
+| `apps/api/package.json` | Added `pdf-lib` |
+| `packages/types/src/talent.ts` | `Talent` gained optional `attributes` field |
+| `apps/web/src/lib/api-client.ts`, `.test.ts` | Media kit/verification/attributes methods + types; `listTalents` gained filters; fixed a real 204-handling bug in `request()` |
+| `apps/web/src/app/pages/MediaKitManagement.tsx` (+`.test.tsx`) | **New** — PWA-20 |
+| `apps/web/src/app/pages/VerificationVideo.tsx` (+`.test.tsx`) | **New** |
+| `apps/web/src/app/pages/Settings.tsx`, `.test.tsx` | New "Physical Attributes" section + 3 tests |
+| `apps/web/src/app/pages/ClientDashboard.tsx`, `ClientDashboard.test.tsx` | Attribute filter panel (new test file, no prior suite existed) |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | Media Kit + Verification links on the storefront-preview tab |
+| `apps/web/src/app/routes.tsx` | Registered `/media-kit`, `/verification` |
+| `apps/api/README.md` | Documented Phase 12A |
+

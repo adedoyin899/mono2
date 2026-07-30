@@ -28,6 +28,8 @@ import { mockNotifyProvider } from "./notify.mock.js";
 import { realNotifyProvider } from "./notify.real.js";
 import { mockStorageProvider } from "./storage.mock.js";
 import { realStorageProvider } from "./storage.real.js";
+import { mockScannerProvider } from "./scanner.mock.js";
+import { realScannerProvider } from "./scanner.real.js";
 
 import type { PaymentProvider } from "./payment.interface.js";
 import type { KycProvider } from "./kyc.interface.js";
@@ -35,6 +37,7 @@ import type { AiTaggingProvider } from "./aiTagging.interface.js";
 import type { CalendarProvider } from "./calendar.interface.js";
 import type { NotifyProvider } from "./notify.interface.js";
 import type { StorageProvider } from "./storage.interface.js";
+import type { ScannerProvider } from "./scanner.interface.js";
 
 const isTest = env.NODE_ENV === "test";
 
@@ -71,6 +74,10 @@ export const storageProvider: StorageProvider = isTest || env.STORAGE_PROVIDER =
   ? mockStorageProvider
   : realStorageProvider;
 
+export const scannerProvider: ScannerProvider = isTest || env.SCANNER_PROVIDER === "mock"
+  ? mockScannerProvider
+  : realScannerProvider;
+
 // Re-export interfaces so callers only need to import from "providers/index.ts".
 export type { PaymentProvider } from "./payment.interface.js";
 export type { KycProvider } from "./kyc.interface.js";
@@ -78,3 +85,4 @@ export type { AiTaggingProvider } from "./aiTagging.interface.js";
 export type { CalendarProvider } from "./calendar.interface.js";
 export type { NotifyProvider } from "./notify.interface.js";
 export type { StorageProvider, MediaKind } from "./storage.interface.js";
+export type { ScannerProvider, ScanResult } from "./scanner.interface.js";

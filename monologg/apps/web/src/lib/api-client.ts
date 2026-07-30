@@ -92,6 +92,10 @@ async function request<T>(path: string, init: RequestInit = {}, allowRetry = tru
   if (!res.ok) {
     throw new Error(`API error ${res.status} ${res.statusText}: ${path}`);
   }
+  // 204 No Content (e.g. DELETE /creators/me/attributes, POST .../guideline-ack —
+  // features.md Phase 12A) has no body; calling res.json() on it throws
+  // "Unexpected end of JSON input" in a real browser too, not just under test.
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -139,6 +143,77 @@ export interface ClientProfile {
   orgName: string | null;
   orgType: "STUDIO" | "EVENT" | "BRAND" | "CHURCH" | null;
   location: string;
+}
+
+// features.md Phase 12A.1 — Media Kit.
+export interface MediaKitStatus {
+  creatorId: string;
+  mode: "AUTO" | "UPLOAD";
+  uploadUrl: string | null;
+  uploadSizeBytes: number | null;
+  autoVersion: number;
+  autoLastRenderedAt: string | null;
+}
+
+// features.md Phase 12A.2 — Verification video. Deliberately not named
+// "VerificationStatus" (that's the identity-KYC type above, VerificationState) —
+// X3: these are two fully independent systems and must never share a name
+// that could suggest otherwise.
+export interface VerificationRecordingStatus {
+  id: string;
+  url: string;
+  durationSec: number;
+  guidelineAck: boolean;
+  status: "UPLOADED" | "IN_REVIEW" | "APPROVED" | "NEEDS_RERECORD";
+  reviewerNote: string | null;
+}
+
+// features.md Phase 12A.3 — Physical attributes. Value sets mirror
+// apps/api/src/routes/attributes.ts's own zod enums exactly; kept as plain
+// strings here (not a shared @monologg/types export) for the same reason
+// apps/api/src/routes/talent.ts duplicates them rather than importing across
+// a route-to-route boundary — small, stable, casting-industry enums.
+export type AttributeVisibility = "PUBLIC" | "SEARCHABLE" | "PRIVATE";
+export interface PhysicalAttributes {
+  id: string;
+  heightRange?: string | null;
+  weightRange?: string | null;
+  ageRange?: string | null;
+  build?: string | null;
+  complexion?: string | null;
+  hairColor?: string | null;
+  eyeColor?: string | null;
+  genderPresentation?: string | null;
+  shoeSize?: string | null;
+  shoeSizeUnit?: string | null;
+  distinctiveFeatures?: string | null;
+  visibility: Partial<Record<string, AttributeVisibility>>;
+  consentVersion: string;
+  consentedAt: string;
+}
+export type UpdateAttributesInput = Partial<
+  Pick<
+    PhysicalAttributes,
+    "heightRange" | "weightRange" | "ageRange" | "build" | "complexion" | "hairColor" | "eyeColor" | "genderPresentation" | "shoeSize" | "shoeSizeUnit" | "distinctiveFeatures" | "visibility"
+  >
+> & { consentVersion: string };
+
+/** Discovery filters GET /talent accepts server-side (features.md Phase 12A.3
+ * adds the attribute fields; niche/tag/location/price predate this phase). */
+export interface TalentFilters {
+  niche?: string;
+  tag?: string;
+  location?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  heightRange?: string;
+  weightRange?: string;
+  ageRange?: string;
+  build?: string;
+  complexion?: string;
+  hairColor?: string;
+  eyeColor?: string;
+  genderPresentation?: string;
 }
 
 // features.md Phase 9: notifications backend.
@@ -211,9 +286,19 @@ export const apiClient = {
   async getClientStats(): Promise<StatMetric[]> {
     return mocks.CLIENT_STATS;
   },
-  async listTalents(): Promise<Talent[]> {
-    if (API_MODE === "live") return requestList("/talent");
-    return mocks.TALENTS;
+  /** `filters` (features.md Phase 12A.3 adds the attribute fields) only apply
+   * in live mode — mock mode keeps returning the full fixture list unfiltered,
+   * same as every other mock-mode screen (no client-side re-filter is layered
+   * on top here; ClientDashboard.tsx's own search/niche filtering already
+   * happens client-side against whatever this returns, independent of mode). */
+  async listTalents(filters: TalentFilters = {}): Promise<Talent[]> {
+    if (API_MODE !== "live") return mocks.TALENTS;
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined) params.set(key, String(value));
+    }
+    const query = params.toString();
+    return requestList(`/talent${query ? `?${query}` : ""}`);
   },
   async listClientProjects(): Promise<ClientProject[]> {
     if (API_MODE === "live") return requestList("/briefs");
@@ -349,6 +434,88 @@ export const apiClient = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+  },
+
+  // ── Media Kit (features.md Phase 12A.1) ─────────────────────────────────────
+  async getMediaKitStatus(): Promise<MediaKitStatus> {
+    if (API_MODE !== "live") return { creatorId: "mock-creator", mode: "AUTO", uploadUrl: null, uploadSizeBytes: null, autoVersion: 1, autoLastRenderedAt: null };
+    return request("/creators/me/media-kit");
+  },
+  async regenerateMediaKit(): Promise<MediaKitStatus> {
+    if (API_MODE !== "live") return { creatorId: "mock-creator", mode: "AUTO", uploadUrl: null, uploadSizeBytes: null, autoVersion: 2, autoLastRenderedAt: new Date().toISOString() };
+    return request("/creators/me/media-kit/regenerate", { method: "POST" });
+  },
+  /** Uploads a PDF override — real magic-byte/size/virus-scan validation happens
+   * server-side (services/mediaKit.ts); this just ships the raw bytes, the same
+   * "never JSON-wrap a file body" convention uploadCreatorMedia already uses. */
+  async uploadMediaKit(file: File): Promise<MediaKitStatus> {
+    if (API_MODE !== "live") return { creatorId: "mock-creator", mode: "UPLOAD", uploadUrl: "mock://media-kit-upload.pdf", uploadSizeBytes: file.size, autoVersion: 1, autoLastRenderedAt: null };
+    return request("/creators/me/media-kit/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/pdf" },
+      body: file,
+    });
+  },
+  async revertMediaKitToAuto(): Promise<MediaKitStatus> {
+    if (API_MODE !== "live") return { creatorId: "mock-creator", mode: "AUTO", uploadUrl: "mock://media-kit-upload.pdf", uploadSizeBytes: 1024, autoVersion: 1, autoLastRenderedAt: null };
+    return request("/creators/me/media-kit/revert", { method: "POST" });
+  },
+  /** The public download/preview URL — same path whether AUTO or UPLOAD is
+   * live, per the spec's "revert brings it back with no URL change." Not
+   * fetched through request() (it's a direct browser download/embed target,
+   * not a JSON call). */
+  getMediaKitPublicUrl(creatorId: string): string {
+    return `/api/v1/creators/${creatorId}/media-kit.pdf`;
+  },
+
+  // ── Verification video (features.md Phase 12A.2) ────────────────────────────
+  // X3-shaped: entirely separate from startKycVerification/getVerificationStatus
+  // above (identity KYC) — this is performance/presentation review only.
+  async acknowledgeVerificationGuidelines(): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request("/creators/me/verification/guideline-ack", { method: "POST" });
+  },
+  /** Server-authoritative duration check happens on the API side
+   * (services/verificationRecording.ts) — a > 90s clip comes back as a 422
+   * with `reRecord: true`, which the caller surfaces as a re-record prompt,
+   * never trusting whatever the client-side recorder's own timer claimed. */
+  async uploadVerificationRecording(file: File): Promise<VerificationRecordingStatus> {
+    if (API_MODE !== "live") return { id: "mock-recording", url: "mock://verification.mp4", durationSec: 45, guidelineAck: true, status: "IN_REVIEW", reviewerNote: null };
+    return request("/creators/me/verification/upload", {
+      method: "POST",
+      headers: { "Content-Type": "video/mp4" },
+      body: file,
+    });
+  },
+  async getVerificationRecordingStatus(): Promise<VerificationRecordingStatus | null> {
+    if (API_MODE !== "live") return null;
+    return request("/creators/me/verification");
+  },
+
+  // ── Physical attributes (features.md Phase 12A.3) ───────────────────────────
+  async getMyAttributes(): Promise<PhysicalAttributes | null> {
+    if (API_MODE !== "live") return null;
+    return request("/creators/me/attributes");
+  },
+  /** Partial-merge PUT — omitted fields are left as they were server-side
+   * (services/attributes.ts). `consentVersion` is required even for a save
+   * that only touches one field, since it's the record of having gone
+   * through consent at all, not an attribute itself. */
+  async updateMyAttributes(input: UpdateAttributesInput): Promise<PhysicalAttributes> {
+    if (API_MODE !== "live") {
+      const now = new Date().toISOString();
+      return { id: "mock-attrs", visibility: input.visibility ?? {}, consentedAt: now, ...input };
+    }
+    return request("/creators/me/attributes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  /** Non-Negotiable #5 — revocable at any time, hard-deletes the row. */
+  async deleteMyAttributes(): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request("/creators/me/attributes", { method: "DELETE" });
   },
 
   // ── Identity KYC (features.md Phase 7) ─────────────────────────────────────

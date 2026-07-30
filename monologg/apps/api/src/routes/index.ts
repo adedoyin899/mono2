@@ -16,6 +16,9 @@ import { calendarRoutes } from "./calendar.js";
 import { notificationRoutes } from "./notifications.js";
 import { transactionRoutes } from "./transactions.js";
 import { supportRoutes } from "./support.js";
+import { mediaKitRoutes } from "./mediaKit.js";
+import { verificationRoutes } from "./verification.js";
+import { attributesRoutes } from "./attributes.js";
 
 /**
  * Route aggregator — registers all route plugins onto the Fastify instance.
@@ -39,4 +42,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(notificationRoutes);
   await app.register(transactionRoutes);
   await app.register(supportRoutes);
+  await app.register(mediaKitRoutes);
+  await app.register(verificationRoutes);
+  await app.register(attributesRoutes);
 }

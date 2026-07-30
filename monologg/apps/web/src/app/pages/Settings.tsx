@@ -7,13 +7,30 @@ import { FormField } from "../components/ui/FormField";
 import { Badge } from "../components/ui/Badge";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
-import { apiClient } from "../../lib/api-client";
+import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler
 } from "lucide-react";
 
-type Section = "main" | "profile" | "payment" | "notifications" | "security";
+type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes";
+
+// features.md Phase 12A.3 — value sets mirror apps/api's zod enums exactly
+// (routes/attributes.ts); kept local for the same reason api-client.ts's own
+// TalentFilters/PhysicalAttributes types don't import them from anywhere —
+// small, stable, casting-industry enums, not worth a shared-package round trip.
+const ATTRIBUTE_FIELDS: Array<{ key: keyof UpdateAttributesInput; label: string; options: string[] }> = [
+  { key: "heightRange", label: "Height", options: ["UNDER_150CM", "CM_150_160", "CM_160_170", "CM_170_180", "CM_180_190", "OVER_190CM"] },
+  { key: "weightRange", label: "Weight", options: ["UNDER_50KG", "KG_50_65", "KG_65_80", "KG_80_95", "OVER_95KG"] },
+  { key: "ageRange", label: "Age range", options: ["RANGE_18_25", "RANGE_26_35", "RANGE_36_45", "RANGE_46_55", "RANGE_56_65", "OVER_65"] },
+  { key: "build", label: "Build", options: ["SLIM", "ATHLETIC", "AVERAGE", "CURVY", "PLUS_SIZE", "MUSCULAR"] },
+  { key: "complexion", label: "Complexion", options: ["FAIR", "LIGHT", "MEDIUM", "TAN", "DARK", "DEEP"] },
+  { key: "hairColor", label: "Hair color", options: ["BLACK", "BROWN", "BLONDE", "RED", "GREY", "WHITE", "DYED_OTHER"] },
+  { key: "eyeColor", label: "Eye color", options: ["BROWN", "BLACK", "HAZEL", "GREEN", "BLUE", "GREY"] },
+  { key: "genderPresentation", label: "Gender presentation", options: ["MASCULINE", "FEMININE", "ANDROGYNOUS", "NON_BINARY"] },
+];
+const ATTRIBUTES_CONSENT_VERSION = "attrs-v1";
+const VISIBILITY_LEVELS: AttributeVisibility[] = ["PRIVATE", "SEARCHABLE", "PUBLIC"];
 
 const TOGGLE = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
   <button
@@ -42,6 +59,64 @@ export function Settings() {
   const [savingProfile, setSavingProfile] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
+
+  // features.md Phase 12A.3 — physical attributes. `attrValues`/`attrVisibility`
+  // are local draft state, seeded from the fetched record (or empty on first
+  // visit — Non-Negotiable #1, every field is skippable) and only sent on
+  // Save, not on every keystroke.
+  const [attributes, setAttributes] = useState<PhysicalAttributes | null>(null);
+  const [attrValues, setAttrValues] = useState<Record<string, string>>({});
+  const [attrVisibility, setAttrVisibility] = useState<Record<string, AttributeVisibility>>({});
+  const [distinctiveFeatures, setDistinctiveFeatures] = useState("");
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [savingAttributes, setSavingAttributes] = useState(false);
+
+  useEffect(() => {
+    if (section !== "attributes") return;
+    apiClient.getMyAttributes().then((record) => {
+      if (!record) return;
+      setAttributes(record);
+      const values: Record<string, string> = {};
+      for (const field of ATTRIBUTE_FIELDS) {
+        const v = record[field.key as keyof PhysicalAttributes];
+        if (typeof v === "string") values[field.key] = v;
+      }
+      setAttrValues(values);
+      setAttrVisibility((record.visibility as Record<string, AttributeVisibility>) ?? {});
+      setDistinctiveFeatures(record.distinctiveFeatures ?? "");
+      setConsentChecked(true); // a fetched record already has consent on file
+    });
+  }, [section]);
+
+  const handleSaveAttributes = async () => {
+    setSavingAttributes(true);
+    try {
+      const input: UpdateAttributesInput = {
+        consentVersion: ATTRIBUTES_CONSENT_VERSION,
+        visibility: attrVisibility,
+        distinctiveFeatures: distinctiveFeatures || undefined,
+      };
+      for (const field of ATTRIBUTE_FIELDS) {
+        const value = attrValues[field.key as string];
+        if (value) (input as Record<string, unknown>)[field.key as string] = value;
+      }
+      const updated = await apiClient.updateMyAttributes(input);
+      setAttributes(updated);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSavingAttributes(false);
+    }
+  };
+
+  const handleDeleteAttributes = async () => {
+    await apiClient.deleteMyAttributes();
+    setAttributes(null);
+    setAttrValues({});
+    setAttrVisibility({});
+    setDistinctiveFeatures("");
+    setConsentChecked(false);
+  };
 
   // features.md Phase 12: this screen previously never read or wrote real data
   // in either mock or live mode (handleSave below was purely a "Saved" toast).
@@ -131,6 +206,7 @@ export function Settings() {
             {section === "payment" && "Payment Methods"}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
+            {section === "attributes" && "Physical Attributes"}
           </div>
         </div>
         {section !== "main" && (
@@ -173,6 +249,7 @@ export function Settings() {
               <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Account</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Profile & Storefront" icon={User} onClick={() => setSection("profile")} />
+                <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
                 <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
                 <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
                 <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
@@ -269,6 +346,94 @@ export function Settings() {
               <Button className="w-full h-12" onClick={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? "Saving…" : "Save Changes"}
               </Button>
+            </motion.div>
+          )}
+
+          {/* ── Physical Attributes (features.md Phase 12A.3) ── */}
+          {section === "attributes" && (
+            <motion.div key="attributes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-5">
+              <p className="text-xs font-body leading-relaxed" style={s.secondary}>
+                Every field below is optional — fill in only what you're comfortable
+                sharing, any time. Each has its own visibility: <strong>Private</strong> (never
+                shown), <strong>Searchable</strong> (matches a client's filter, value never shown),
+                or <strong>Public</strong> (shown on your storefront).
+              </p>
+
+              {ATTRIBUTE_FIELDS.map((field) => (
+                <FormField key={field.key as string} label={field.label}>
+                  <div className="flex items-center gap-2">
+                    <select
+                      aria-label={field.label}
+                      value={attrValues[field.key as string] ?? ""}
+                      onChange={(e) => setAttrValues((prev) => ({ ...prev, [field.key as string]: e.target.value }))}
+                      className="flex-1 h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                      style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                    >
+                      <option value="">Not set</option>
+                      {field.options.map((opt) => (
+                        <option key={opt} value={opt}>{opt.replace(/_/g, " ")}</option>
+                      ))}
+                    </select>
+                    <div className="flex rounded-[var(--radius-lg)] overflow-hidden border shrink-0" style={{ borderColor: "var(--color-hairline)" }}>
+                      {VISIBILITY_LEVELS.map((level) => {
+                        const active = (attrVisibility[field.key as string] ?? "SEARCHABLE") === level;
+                        return (
+                          <button
+                            key={level}
+                            type="button"
+                            aria-label={`${field.label} visibility: ${level}`}
+                            aria-pressed={active}
+                            disabled={!attrValues[field.key as string]}
+                            onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
+                            className="px-2 h-11 text-[10px] font-semibold font-body uppercase tracking-wide disabled:opacity-30"
+                            style={{
+                              background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                              color: active ? "var(--color-accent-on)" : "var(--color-text-tertiary)",
+                            }}
+                          >
+                            {level[0]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </FormField>
+              ))}
+
+              <FormField label="Distinctive features (up to 120 characters)">
+                <textarea
+                  maxLength={120}
+                  rows={2}
+                  value={distinctiveFeatures}
+                  onChange={(e) => setDistinctiveFeatures(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
+                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                />
+              </FormField>
+
+              <label className="flex items-start gap-2.5 text-xs font-body cursor-pointer" style={s.secondary}>
+                <input
+                  type="checkbox"
+                  checked={consentChecked}
+                  onChange={(e) => setConsentChecked(e.target.checked)}
+                  className="mt-0.5"
+                />
+                I consent to storing this information under the visibility settings I've chosen above, and understand it's used for casting search filters only — never automated shortlisting or scoring.
+              </label>
+
+              <Button className="w-full h-12" onClick={handleSaveAttributes} disabled={savingAttributes || !consentChecked}>
+                {savingAttributes ? "Saving…" : "Save Attributes"}
+              </Button>
+
+              {attributes && (
+                <button
+                  onClick={handleDeleteAttributes}
+                  className="w-full h-11 text-sm font-body font-medium flex items-center justify-center gap-2"
+                  style={{ color: "var(--color-error)" }}
+                >
+                  <Trash2 className="w-4 h-4" /> Delete all attribute data
+                </button>
+              )}
             </motion.div>
           )}
 

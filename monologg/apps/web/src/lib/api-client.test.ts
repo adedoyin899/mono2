@@ -266,4 +266,26 @@ describe("api-client", () => {
       expect(result).toEqual({ id: "msg-1", from: "client", text: "hello", time: "9:00 AM" });
     });
   });
+
+  // features.md Phase 12A: a real bug caught while testing VerificationVideo.tsx —
+  // request()'s unconditional res.json() throws "Unexpected end of JSON input"
+  // against a real 204 No Content response (e.g. POST .../guideline-ack,
+  // DELETE /creators/me/attributes), not just under a test's fetch mock.
+  describe("request() handles 204 No Content without throwing", () => {
+    it("deleteMyAttributes doesn't throw against a real 204 response", async () => {
+      vi.stubEnv("VITE_API_MODE", "live");
+      vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 204 })));
+
+      const { apiClient } = await import("./api-client");
+      await expect(apiClient.deleteMyAttributes()).resolves.toBeUndefined();
+    });
+
+    it("acknowledgeVerificationGuidelines doesn't throw against a real 204 response", async () => {
+      vi.stubEnv("VITE_API_MODE", "live");
+      vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 204 })));
+
+      const { apiClient } = await import("./api-client");
+      await expect(apiClient.acknowledgeVerificationGuidelines()).resolves.toBeUndefined();
+    });
+  });
 });

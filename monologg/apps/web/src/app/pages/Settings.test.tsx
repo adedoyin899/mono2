@@ -99,3 +99,93 @@ describe("Settings — profile section", () => {
     });
   });
 });
+
+// features.md Phase 12A.3 — the settings editor half of the six privacy
+// non-negotiables (services/attributes.ts owns the rest).
+describe("Settings — physical attributes section", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function renderOnAttributesSection() {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByText("Physical Attributes"));
+    await screen.findByText("Save Attributes");
+  }
+
+  it("Save Attributes is disabled until the consent checkbox is checked (Non-Negotiable #4)", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    vi.stubGlobal("fetch", vi.fn());
+
+    await renderOnAttributesSection();
+
+    expect(screen.getByText("Save Attributes").closest("button")).toBeDisabled();
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByText("Save Attributes").closest("button")).not.toBeDisabled();
+  });
+
+  it("live mode: saving PUTs the consent version and any set field to the real endpoint", async () => {
+    vi.stubEnv("VITE_API_MODE", "live");
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        expect(String(input)).toBe("/api/v1/creators/me/attributes");
+        const body = JSON.parse(init.body as string);
+        expect(body.heightRange).toBe("CM_170_180");
+        expect(body.consentVersion).toBeTruthy();
+        return new Response(JSON.stringify({ id: "attrs-1", ...body, consentedAt: "2026-01-01T00:00:00.000Z" }), {
+          status: 200, headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify(null), { status: 200, headers: { "content-type": "application/json" } });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await renderOnAttributesSection();
+
+    fireEvent.change(screen.getByLabelText("Height"), { target: { value: "CM_170_180" } });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByText("Save Attributes"));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/v1/creators/me/attributes", expect.objectContaining({ method: "PUT" }));
+    });
+  });
+
+  it("live mode: Delete calls the real DELETE endpoint (Non-Negotiable #5 — revocable at any time)", async () => {
+    vi.stubEnv("VITE_API_MODE", "live");
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (init?.method === "DELETE") {
+        expect(url).toBe("/api/v1/creators/me/attributes");
+        return new Response(null, { status: 204 });
+      }
+      if (url === "/api/v1/creators/me/attributes") {
+        return new Response(JSON.stringify({ id: "attrs-1", heightRange: "CM_170_180", visibility: { heightRange: "SEARCHABLE" }, consentVersion: "v1", consentedAt: "2026-01-01T00:00:00.000Z" }), {
+          status: 200, headers: { "content-type": "application/json" },
+        });
+      }
+      // Settings.tsx also fetches the creator profile on mount, independent
+      // of which section is being viewed.
+      return new Response(JSON.stringify({ id: "creator-1", name: "Elias Thorne", bio: "bio", location: "Lagos, Nigeria", styleTags: [], verification: "UNVERIFIED" }), {
+        status: 200, headers: { "content-type": "application/json" },
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await renderOnAttributesSection();
+    await screen.findByText("Delete all attribute data");
+
+    fireEvent.click(screen.getByText("Delete all attribute data"));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/v1/creators/me/attributes", expect.objectContaining({ method: "DELETE" }));
+    });
+  });
+});

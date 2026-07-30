@@ -37,6 +37,8 @@ const envSchema = z.object({
   NOTIFY_PROVIDER: z.enum(["mock", "sendgrid_twilio"]).default("mock"),
   CACHE_PROVIDER: z.enum(["mock", "redis"]).default("mock"),
   STORAGE_PROVIDER: z.enum(["mock", "s3"]).default("mock"),
+  // features.md Phase 12A: virus/malware scanning for Media Kit PDF uploads.
+  SCANNER_PROVIDER: z.enum(["mock", "clamav"]).default("mock"),
   // Phase 9: the async job queue email/SMS delivery runs through (src/jobs/).
   // Not one of the *Provider interfaces above — features.md's own architecture
   // section lists "jobs" as a separate concern from "providers" — but the same

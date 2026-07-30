@@ -20,5 +20,10 @@ export const TalentSchema = z.object({
   reviews: z.number().int(),
   available: z.boolean(),
   avatar: z.string(),
+  // features.md Phase 12A.3 — PUBLIC-visibility physical attributes only
+  // (routes/talent.ts's publicAttributesOf). Optional: absent in every
+  // pre-12A mock fixture, and a talent with no PhysicalAttributes row at all
+  // simply has none to show, not an empty-but-present object either way.
+  attributes: z.record(z.string(), z.string()).optional(),
 });
 export type Talent = z.infer<typeof TalentSchema>;

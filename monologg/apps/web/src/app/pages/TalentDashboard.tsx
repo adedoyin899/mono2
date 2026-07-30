@@ -420,6 +420,44 @@ export function TalentDashboard() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Media Kit — features.md Phase 12A.1: PWA-07 storefront section
+                        (download + share), management lives at /media-kit (PWA-20). */}
+                    <h3 className="text-sm font-semibold font-body mb-3 mt-6" style={{ color: "var(--color-text-primary)" }}>Media Kit</h3>
+                    <div
+                      className="p-4 rounded-[var(--radius-md)] flex items-center justify-between gap-3"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                    >
+                      <div className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        A one-page PDF profile — auto-generated, or upload your own.
+                      </div>
+                      <Button
+                        variant="secondary"
+                        className="h-9 px-3 text-sm gap-2 shrink-0"
+                        onClick={() => navigate("/media-kit")}
+                      >
+                        <Share2 className="w-4 h-4" /> Manage
+                      </Button>
+                    </div>
+
+                    {/* Verification video — features.md Phase 12A.2. X3: entirely
+                        separate from the Verified badge above (identity KYC). */}
+                    <h3 className="text-sm font-semibold font-body mb-3 mt-6" style={{ color: "var(--color-text-primary)" }}>Verification Video</h3>
+                    <div
+                      className="p-4 rounded-[var(--radius-md)] flex items-center justify-between gap-3"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                    >
+                      <div className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        A short waist-up clip clients see on your profile.
+                      </div>
+                      <Button
+                        variant="secondary"
+                        className="h-9 px-3 text-sm gap-2 shrink-0"
+                        onClick={() => navigate("/verification")}
+                      >
+                        <Play className="w-4 h-4" /> Manage
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
