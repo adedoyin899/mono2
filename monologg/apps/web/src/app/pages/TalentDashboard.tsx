@@ -10,15 +10,15 @@ import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
-import type { ActivityItem, CalendarEvent, DayDetail, Order, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
+import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight,
   MessageSquare, DollarSign, CheckCircle2, X,
-  BarChart2, Award, Repeat
+  BarChart2, Award, Repeat, Briefcase, Search, Send
 } from "lucide-react";
 
-type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings";
+type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects";
 
 // UI configuration, not domain data — stays local (see api-client.ts).
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
@@ -72,19 +72,35 @@ const NOTIFICATION_META: Record<string, { title: string; tone: "accent" | "succe
   new_message: { title: "New Message", tone: "accent" },
   tagging_done: { title: "Style Tags Generated", tone: "success" },
   calendar_disconnected: { title: "Calendar Disconnected", tone: "accent" },
+  // features.md Phase 14 (FA-2) — the talent-facing half of both-ways application notifications.
+  application_shortlisted: { title: "You've Been Shortlisted", tone: "accent" },
+  application_selected: { title: "You've Been Selected!", tone: "success" },
+  application_not_selected: { title: "Application Update", tone: "accent" },
+  application_rejected: { title: "Application Update", tone: "accent" },
 };
 
 function describeNotification(n: { kind: string; payload: Record<string, unknown> }): string {
   if (typeof n.payload.message === "string") return n.payload.message;
+  if (typeof n.payload.projectName === "string") return `"${n.payload.projectName}"`;
   if (typeof n.payload.bookingId === "string") return `Booking ${n.payload.bookingId}`;
   return "Tap to view details.";
 }
+
+// features.md Phase 14 — shared status label + tone across Browse/My Applications.
+const APPLICATION_STATUS_LABEL: Record<string, string> = {
+  APPLIED: "Applied",
+  SHORTLISTED: "Shortlisted",
+  SELECTED: "Selected",
+  REJECTED: "Not selected",
+  WITHDRAWN: "Withdrawn",
+};
 
 const TALENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
   { id: "storefront", label: "My Storefront", icon: User },
   { id: "rates", label: "Rate Cards", icon: DollarSign },
   { id: "calendar", label: "Availability", icon: Calendar },
+  { id: "projects", label: "Projects", icon: Briefcase },
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "earnings", label: "Earnings", icon: BarChart2 },
 ];
@@ -93,6 +109,7 @@ const TALENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "rates", label: "Rates", icon: DollarSign },
+  { id: "projects", label: "Projects", icon: Briefcase },
   { id: "calendar", label: "Calendar", icon: Calendar },
   { id: "storefront", label: "Profile", icon: User },
 ];
@@ -136,6 +153,16 @@ export function TalentDashboard() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // features.md Phase 14 (PWA-14/15/16) — project discovery & applications.
+  const [projectsSubTab, setProjectsSubTab] = useState<"browse" | "applications">("browse");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
+  const [projectSearch, setProjectSearch] = useState("");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [pitchText, setPitchText] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
+
   useEffect(() => {
     apiClient.getTalentStats().then(setStats);
     apiClient.listTalentActivity().then(setActivity);
@@ -146,6 +173,47 @@ export function TalentDashboard() {
       setUnreadCount(unreadCount);
     });
   }, []);
+
+  const loadProjects = () => {
+    apiClient.listProjects().then(setProjects);
+  };
+  const loadMyApplications = () => {
+    apiClient.listMyApplications().then(setMyApplications);
+  };
+
+  useEffect(() => {
+    if (activeTab !== "projects") return;
+    if (projectsSubTab === "browse") loadProjects();
+    else loadMyApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, projectsSubTab]);
+
+  const handleApply = async () => {
+    if (!selectedProject) return;
+    setApplying(true);
+    setApplyError(null);
+    try {
+      await apiClient.applyToProject(selectedProject.id, pitchText.trim() || undefined);
+      setSelectedProject(null);
+      setPitchText("");
+      loadProjects();
+    } catch {
+      setApplyError("That project just closed to new applications — please try another.");
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const handleWithdrawApplication = async (applicationId: string) => {
+    await apiClient.withdrawMyApplication(applicationId);
+    setMyApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: "WITHDRAWN" } : a)));
+  };
+
+  const filteredProjects = projects.filter((p) => {
+    const q = projectSearch.trim().toLowerCase();
+    if (!q) return true;
+    return p.projectName.toLowerCase().includes(q) || p.projectType.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q);
+  });
 
   const loadDay = (date: string) => {
     setLoadingDay(true);
@@ -249,6 +317,7 @@ export function TalentDashboard() {
     : activeTab === "storefront" ? "My Storefront"
     : activeTab === "rates" ? "Rate Cards"
     : activeTab === "calendar" ? "Availability"
+    : activeTab === "projects" ? "Projects"
     : activeTab === "orders" ? "Active Orders"
     : "Earnings";
 
@@ -310,6 +379,7 @@ export function TalentDashboard() {
                 {activeTab === "storefront" && "My Storefront"}
                 {activeTab === "rates" && "Rate Cards"}
                 {activeTab === "calendar" && "Availability"}
+                {activeTab === "projects" && "Projects"}
                 {activeTab === "orders" && "Active Orders"}
                 {activeTab === "earnings" && "Earnings & Analytics"}
               </h1>
@@ -318,6 +388,7 @@ export function TalentDashboard() {
                 {activeTab === "storefront" && "Your public booking page — share this with clients."}
                 {activeTab === "rates" && "Define your services and pricing."}
                 {activeTab === "calendar" && "Set your availability for bookings."}
+                {activeTab === "projects" && "Find and apply to client projects."}
                 {activeTab === "orders" && "Manage your active collaborations."}
                 {activeTab === "earnings" && "Track your income and performance."}
               </p>
@@ -909,6 +980,112 @@ export function TalentDashboard() {
               </motion.div>
             )}
 
+            {/* ── Projects Tab (features.md Phase 14, PWA-14/15/16) ── */}
+            {activeTab === "projects" && (
+              <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Projects</h2>
+
+                <div className="flex p-1 rounded-xl mb-5 w-full max-w-xs" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                  {(["browse", "applications"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setProjectsSubTab(tab)}
+                      className="flex-1 py-2 rounded-lg text-xs font-semibold font-body transition-all"
+                      style={{
+                        background: projectsSubTab === tab ? "var(--color-accent)" : "transparent",
+                        color: projectsSubTab === tab ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                      }}
+                    >
+                      {tab === "browse" ? "Browse" : "My Applications"}
+                    </button>
+                  ))}
+                </div>
+
+                {projectsSubTab === "browse" ? (
+                  <>
+                    <div className="relative mb-4">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                      <Input placeholder="Search projects…" value={projectSearch} onChange={(e) => setProjectSearch(e.target.value)} className="pl-11" />
+                    </div>
+
+                    {filteredProjects.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Briefcase className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
+                        <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No open projects right now</h3>
+                        <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Check back soon — new briefs post regularly.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {filteredProjects.map((project) => (
+                          <button
+                            key={project.id}
+                            onClick={() => { setSelectedProject(project); setPitchText(project.myApplication?.pitch ?? ""); setApplyError(null); }}
+                            className="w-full text-left p-4 rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
+                            style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <div>
+                                <div className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{project.projectName}</div>
+                                <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{project.clientName} · {project.projectType}</div>
+                              </div>
+                              <div className="font-display text-lg tnum shrink-0" style={{ color: "var(--color-accent)" }}>{project.budget}</div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {project.myApplication ? (
+                                <Badge tone={project.myApplication.status === "SELECTED" ? "success" : project.myApplication.status === "REJECTED" ? "error" : "accent"} size="sm">
+                                  {APPLICATION_STATUS_LABEL[project.myApplication.status]}
+                                </Badge>
+                              ) : !project.applicationsOpen ? (
+                                <Badge tone="neutral" size="sm">Applications closed</Badge>
+                              ) : (
+                                <Badge tone="success" size="sm">Open</Badge>
+                              )}
+                              <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                {project.applicantCount}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    {myApplications.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Send className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
+                        <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No applications yet</h3>
+                        <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>Browse open projects and apply to get started.</p>
+                        <Button onClick={() => setProjectsSubTab("browse")}>Browse Projects</Button>
+                      </div>
+                    ) : (
+                      myApplications.map((application) => (
+                        <div key={application.id} className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div>
+                              <div className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{application.brief.projectName}</div>
+                              <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{application.brief.clientName} · {application.brief.budget}</div>
+                            </div>
+                            <Badge tone={application.status === "SELECTED" ? "success" : application.status === "REJECTED" || application.status === "WITHDRAWN" ? "error" : "accent"} size="sm">
+                              {APPLICATION_STATUS_LABEL[application.status]}
+                            </Badge>
+                          </div>
+                          {application.pitch && (
+                            <p className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>"{application.pitch}"</p>
+                          )}
+                          {(application.status === "APPLIED" || application.status === "SHORTLISTED") && (
+                            <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => handleWithdrawApplication(application.id)}>
+                              Withdraw
+                            </Button>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* ── Orders Tab ── */}
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -1399,6 +1576,79 @@ export function TalentDashboard() {
                   <Button className="w-full h-11" onClick={handleAddRecurring} disabled={recurSlotStart >= recurSlotEnd}>
                     Save Recurring Template
                   </Button>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Project Detail + Apply Modal (features.md Phase 14, PWA-15) */}
+          <AnimatePresence>
+            {selectedProject && (
+              <Modal onClose={() => setSelectedProject(null)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-md rounded-[var(--radius-lg)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>{selectedProject.projectName}</h3>
+                      <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{selectedProject.clientName} · {selectedProject.projectType}</p>
+                    </div>
+                    <button onClick={() => setSelectedProject(null)} className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap mb-4">
+                    {selectedProject.nicheReq.map((n) => <Badge key={n} tone="neutral" size="sm">{n.replace(/_/g, " ")}</Badge>)}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-5">
+                    <div className="p-3 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)" }}>
+                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Budget</div>
+                      <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{selectedProject.budget}</div>
+                    </div>
+                    <div className="p-3 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)" }}>
+                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Applicants</div>
+                      <div className="font-display text-lg tnum" style={{ color: "var(--color-text-primary)" }}>
+                        {selectedProject.applicantCount}{selectedProject.applicantCap ? `/${selectedProject.applicantCap}` : ""}
+                      </div>
+                    </div>
+                  </div>
+
+                  {applyError && (
+                    <div className="p-3 rounded-xl mb-4 text-sm font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>{applyError}</div>
+                  )}
+
+                  {selectedProject.myApplication ? (
+                    <div className="p-4 rounded-[var(--radius-md)] text-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <Badge tone={selectedProject.myApplication.status === "SELECTED" ? "success" : "accent"} size="md">
+                        {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
+                      </Badge>
+                      <p className="text-xs font-body mt-2" style={{ color: "var(--color-text-tertiary)" }}>You've already applied to this project.</p>
+                    </div>
+                  ) : !selectedProject.applicationsOpen ? (
+                    <div className="p-4 rounded-[var(--radius-md)] text-center text-sm font-body" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+                      Applications closed — this project reached its applicant cap.
+                    </div>
+                  ) : (
+                    <>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Pitch (optional)</label>
+                      <textarea
+                        className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none mb-4"
+                        rows={3}
+                        placeholder="Tell the client why you're a great fit…"
+                        value={pitchText}
+                        onChange={(e) => setPitchText(e.target.value)}
+                        style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                      />
+                      <Button className="w-full h-11" disabled={applying} onClick={handleApply}>
+                        {applying ? "Applying…" : "Apply"} <Send className="w-4 h-4 ml-2" />
+                      </Button>
+                    </>
+                  )}
                 </motion.div>
               </Modal>
             )}

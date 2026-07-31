@@ -1,11 +1,14 @@
 import type {
   ActivityItem,
+  Applicant,
   CalendarEvent,
   CalendarEventKind,
   ClientProject,
   DayDetail,
+  MyApplication,
   Order,
   OrderMessage,
+  Project,
   PublicRateCard,
   ServiceRateCard,
   Slot,
@@ -339,18 +342,81 @@ export const apiClient = {
   async getShortlistedTalentIds(): Promise<string[]> {
     return mocks.SHORTLIST_IDS;
   },
-  /** Creates a real Brief (features.md Phase 5). Mock mode is a no-op — ProjectBrief.tsx's
-   * "Publish" already simulates success locally without this. */
+  /** Creates a real Brief (features.md Phase 5; `applicantCap` added Phase 14).
+   * Mock mode is a no-op — ProjectBrief.tsx's "Publish" already simulates
+   * success locally without this. `status` defaults server-side to DRAFT
+   * (Prisma schema) — callers meaning to actually publish (the only path that
+   * exists today) must pass "ACTIVE" explicitly, or the brief is created but
+   * never shows up in GET /projects' talent-facing browse list. */
   async createBrief(input: {
     projectName: string;
     projectType: string;
     nicheReq: string[];
     budgetAmount: number;
     budgetCurrency: string;
+    applicantCap?: number | null;
+    status?: "DRAFT" | "ACTIVE" | "IN_REVIEW" | "CLOSED";
   }): Promise<void> {
     if (API_MODE !== "live") return;
     await request("/briefs", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+
+  // ── Project applications (features.md Phase 14, FA-2) ──────────────────────
+  /** GET /projects — talent browse/search (PWA-14); only ACTIVE briefs are
+   * returned, each annotated with the caller's own application (if any). */
+  async listProjects(filters: { niche?: string; q?: string; minBudget?: number; maxBudget?: number } = {}): Promise<Project[]> {
+    if (API_MODE !== "live") return mocks.PROJECTS;
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined) params.set(key, String(value));
+    }
+    const query = params.toString();
+    return requestList(`/projects${query ? `?${query}` : ""}`);
+  },
+  /** Server re-verifies the cap itself (never trusts the client) — a 409
+   * means the brief closed or this talent already applied. */
+  async applyToProject(briefId: string, pitch?: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/projects/${briefId}/apply`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pitch }),
+    });
+  },
+  /** GET /creators/me/applications — PWA-16 status list. */
+  async listMyApplications(): Promise<MyApplication[]> {
+    if (API_MODE !== "live") return mocks.MY_APPLICATIONS;
+    return requestList("/creators/me/applications");
+  },
+  async withdrawMyApplication(applicationId: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/applications/${applicationId}/withdraw`, { method: "PATCH" });
+  },
+  /** GET /briefs/:id/applicants — PWA-17, client-side applicant management. */
+  async listApplicants(briefId: string): Promise<Applicant[]> {
+    if (API_MODE !== "live") return mocks.APPLICANTS;
+    return request(`/briefs/${briefId}/applicants`);
+  },
+  async shortlistApplicant(applicationId: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/applications/${applicationId}/shortlist`, { method: "PATCH" });
+  },
+  async rejectApplicant(applicationId: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/applications/${applicationId}/reject`, { method: "PATCH" });
+  },
+  /** Selecting converts the application into a real booking (PENDING_PAYMENT) —
+   * the client picks which of the talent's rate cards and which real open
+   * slot (fed by the same getOpenSlots endpoint Checkout uses) this
+   * engagement is for. */
+  async selectApplicant(applicationId: string, input: { rateCardId: string; slotDate: string; slotStart: string; slotEnd: string }): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/applications/${applicationId}/select`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     });

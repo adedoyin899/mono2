@@ -9,3 +9,4 @@ export * from "./orderMessages";
 export * from "./shortlist";
 export * from "./transactions";
 export * from "./supportTickets";
+export * from "./projects";

@@ -61,6 +61,7 @@ model Creator {
   availability   AvailabilityBlock[]
   calendarEvents CalendarEvent[]
   bookings       Booking[]           @relation("CreatorBookings")
+  applications   Application[]
   kycChecks      KycCheck[]
   // features.md Phase 12A — additive only, nothing above renamed/dropped.
   mediaKit               MediaKit?
@@ -196,9 +197,15 @@ model Brief {
   budgetCurrency String
   // Not in the original features.md Phase 2 listing — added in Phase 5 since the
   // "briefs (client CRUD)" resource needs a real lifecycle field (a client can save a
-  // draft before publishing). applicantCap/applicationsOpen land in Phase 14.
-  status         BriefStatus @default(DRAFT)
-  createdAt      DateTime    @default(now())
+  // draft before publishing).
+  status         BriefStatus  @default(DRAFT)
+  createdAt      DateTime     @default(now())
+  // features.md Phase 14 (FA-2/X4): null cap = uncapped. applicationsOpen starts
+  // true and is flipped false server-side, transactionally, the instant the cap
+  // is hit (services/applications.ts) — never client-settable directly.
+  applicantCap     Int?
+  applicationsOpen Boolean      @default(true)
+  applications     Application[]
 }
 
 enum BriefStatus {
@@ -206,6 +213,35 @@ enum BriefStatus {
   ACTIVE
   IN_REVIEW
   CLOSED
+}
+
+// features.md Phase 14 (FA-2): a talent's application to a client's Brief.
+// One row per (briefId, creatorId) — the unique constraint is what makes
+// "duplicate application" a database-level guarantee, not just an app-layer
+// check. Cap enforcement (Brief.applicantCap/applicationsOpen) lives in
+// services/applications.ts, not here — this model just stores the result.
+model Application {
+  id        String            @id @default(cuid())
+  briefId   String
+  brief     Brief             @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  creatorId String
+  creator   Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  pitch     String?
+  status    ApplicationStatus @default(APPLIED)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([briefId, creatorId])
+  @@index([briefId])
+  @@index([creatorId])
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SHORTLISTED
+  SELECTED
+  REJECTED
+  WITHDRAWN
 }
 
 model Booking {

@@ -6,7 +6,21 @@ vi.mock("../db/client.js", () => ({
   prisma: {
     client: { findUnique: vi.fn() },
     brief: { findMany: vi.fn(), count: vi.fn(), create: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+    // features.md Phase 14 — applicant management (GET /briefs/:id/applicants,
+    // shortlist/reject/select).
+    application: { findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+    rateCard: { findUnique: vi.fn() },
+    creator: { findUnique: vi.fn() },
+    $transaction: vi.fn((arg: any) => (Array.isArray(arg) ? Promise.all(arg) : arg(prismaMock))),
   },
+}));
+
+vi.mock("../providers/index.js", () => ({
+  notifyProvider: { inApp: vi.fn().mockResolvedValue(undefined) },
+}));
+
+vi.mock("../services/booking.js", () => ({
+  createBooking: vi.fn().mockResolvedValue({ id: "booking-new", state: "PENDING_PAYMENT" }),
 }));
 
 import { prisma } from "../db/client.js";
@@ -40,6 +54,9 @@ describe("Briefs (client-owned CRUD)", () => {
         budgetCurrency: "NGN",
         status: "ACTIVE",
         createdAt: new Date("2026-01-14"),
+        applicantCap: 3,
+        applicationsOpen: true,
+        _count: { applications: 2 },
       },
     ]);
     prismaMock.brief.count.mockResolvedValue(1);
@@ -58,7 +75,9 @@ describe("Briefs (client-owned CRUD)", () => {
       niche: "Voice-Over",
       budget: "₦200,000",
       status: "active",
-      applicants: 0,
+      applicants: 2,
+      applicantCap: 3,
+      applicationsOpen: true,
     });
     expect(prismaMock.brief.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { clientId: "client-1" } }),
@@ -130,5 +149,146 @@ describe("Briefs (client-owned CRUD)", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+
+  describe("GET /briefs/:id/applicants (features.md Phase 14, PWA-17)", () => {
+    it("returns every applicant's profile summary + pitch/status, brief-owner only", async () => {
+      prismaMock.client.findUnique.mockResolvedValue({ id: "client-1", userId: "user-client-1" });
+      prismaMock.brief.findUnique.mockResolvedValue({ id: "brief-1", clientId: "client-1" });
+      prismaMock.application.findMany.mockResolvedValue([
+        {
+          id: "app-1",
+          status: "APPLIED",
+          pitch: "I'd love to work on this.",
+          createdAt: new Date("2026-02-01"),
+          creator: {
+            id: "creator-1",
+            name: "Adaeze Obi",
+            niche: "VO_ARTIST",
+            location: "Lagos",
+            verification: "VERIFIED",
+            styleTags: ["Warm"],
+            rateCards: [{ basePriceAmount: 2_800_000, basePriceCurrency: "NGN" }],
+          },
+        },
+      ]);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/briefs/brief-1/applicants",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual([
+        {
+          applicationId: "app-1",
+          status: "APPLIED",
+          pitch: "I'd love to work on this.",
+          appliedAt: "2026-02-01T00:00:00.000Z",
+          creator: {
+            id: "creator-1",
+            name: "Adaeze Obi",
+            role: "Voice-Over Artist",
+            location: "Lagos",
+            avatar: "AO",
+            verified: true,
+            tags: ["Warm"],
+            price: "₦28,000",
+          },
+        },
+      ]);
+    });
+
+    it("403s for a brief the caller doesn't own", async () => {
+      prismaMock.client.findUnique.mockResolvedValue({ id: "client-1", userId: "user-client-1" });
+      prismaMock.brief.findUnique.mockResolvedValue({ id: "brief-1", clientId: "client-OTHER" });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/briefs/brief-1/applicants",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+    });
+  });
+
+  describe("PATCH /applications/:id/shortlist|reject|select — authz (features.md Phase 14)", () => {
+    function mockApplication(clientUserId: string) {
+      prismaMock.application.findUnique.mockResolvedValue({
+        id: "app-1",
+        briefId: "brief-1",
+        creatorId: "creator-1",
+        status: "APPLIED",
+        brief: { id: "brief-1", clientId: "client-1", projectName: "Nike Q1 Campaign", client: { userId: clientUserId } },
+        creator: { id: "creator-1", userId: "user-talent-1" },
+      });
+    }
+
+    it("shortlist: 403s a client who doesn't own the brief", async () => {
+      mockApplication("user-client-OTHER");
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/applications/app-1/shortlist",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+      expect(response.statusCode).toBe(403);
+      expect(prismaMock.application.update).not.toHaveBeenCalled();
+    });
+
+    it("shortlist: succeeds for the real owner", async () => {
+      mockApplication("user-client-1");
+      prismaMock.application.update.mockResolvedValue({ id: "app-1", status: "SHORTLISTED" });
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/applications/app-1/shortlist",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().status).toBe("SHORTLISTED");
+    });
+
+    it("reject: 403s a non-owner", async () => {
+      mockApplication("user-client-OTHER");
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/applications/app-1/reject",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+      expect(response.statusCode).toBe(403);
+    });
+
+    it("select: rejects a rateCardId that doesn't belong to the applicant", async () => {
+      mockApplication("user-client-1");
+      prismaMock.rateCard.findUnique.mockResolvedValue({ id: "rc-1", creatorId: "creator-DIFFERENT", basePriceAmount: 1, basePriceCurrency: "NGN" });
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/applications/app-1/select",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+        payload: { rateCardId: "rc-1", slotDate: "2026-09-01", slotStart: "10:00", slotEnd: "11:00" },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("select: creates a booking and returns it when everything checks out", async () => {
+      mockApplication("user-client-1");
+      prismaMock.rateCard.findUnique.mockResolvedValue({ id: "rc-1", creatorId: "creator-1", basePriceAmount: 100_000, basePriceCurrency: "NGN" });
+      prismaMock.application.update.mockResolvedValue({ id: "app-1", status: "SELECTED" });
+      prismaMock.brief.update.mockResolvedValue({});
+      prismaMock.application.findMany.mockResolvedValue([]);
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: "/api/v1/applications/app-1/select",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+        payload: { rateCardId: "rc-1", slotDate: "2026-09-01", slotStart: "10:00", slotEnd: "11:00" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().booking).toEqual({ id: "booking-new", state: "PENDING_PAYMENT" });
+    });
   });
 });

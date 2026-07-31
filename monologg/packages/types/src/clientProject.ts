@@ -10,7 +10,10 @@ export const ClientProjectSchema = z.object({
   /** Pre-formatted display string — see the same note on Talent.price. */
   budget: z.string(),
   status: z.string(),
+  /** features.md Phase 14: a real Application count, not a placeholder. */
   applicants: z.number().int(),
+  applicantCap: z.number().int().nullable(),
+  applicationsOpen: z.boolean(),
   posted: z.string(),
 });
 export type ClientProject = z.infer<typeof ClientProjectSchema>;

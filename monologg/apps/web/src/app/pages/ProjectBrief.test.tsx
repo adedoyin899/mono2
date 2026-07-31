@@ -69,6 +69,10 @@ describe("ProjectBrief", () => {
         nicheReq: ["VO_ARTIST"],
         budgetAmount: 5_000_000,
         budgetCurrency: "NGN",
+        // features.md Phase 14 regression: "Publish Project" must actually
+        // publish (status ACTIVE) — the schema otherwise defaults new briefs
+        // to DRAFT, which never appears in talent's GET /projects browse list.
+        status: "ACTIVE",
       });
       return new Response(JSON.stringify({ id: "brief-new" }), {
         status: 201,

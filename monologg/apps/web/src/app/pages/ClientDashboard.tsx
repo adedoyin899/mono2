@@ -10,12 +10,39 @@ import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { apiClient, type TalentFilters } from "../../lib/api-client";
-import type { ClientProject, Order, StatMetric, Talent } from "@monologg/types";
+import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
   Plus, Star, Shield, Filter, Users,
-  ChevronRight, Play, X
+  ChevronRight, Play, X, Check, AlertCircle
 } from "lucide-react";
+
+// features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
+// Checkout.tsx uses for booking a real, server-verified open slot; small
+// enough (and stable enough) that duplicating it here beats importing across
+// a page-to-page boundary, the same tradeoff routes/talent.ts documents for
+// its own small enum duplication.
+const APPLICANT_STATUS_LABEL: Record<string, string> = {
+  APPLIED: "Applied",
+  SHORTLISTED: "Shortlisted",
+  SELECTED: "Selected",
+  REJECTED: "Rejected",
+  WITHDRAWN: "Withdrawn",
+};
+const CANDIDATE_SLOT_HOURS = Array.from({ length: 12 }, (_, i) => i + 8);
+const SLOT_DURATION_MIN = 60;
+function toTimeStr(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60).toString().padStart(2, "0");
+  const m = (totalMinutes % 60).toString().padStart(2, "0");
+  return `${h}:${m}`;
+}
+function minutesOf(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+function addMinutes(time: string, minutes: number): string {
+  return toTimeStr(minutesOf(time) + minutes);
+}
 
 type Tab = "home" | "discover" | "projects" | "orders" | "shortlist";
 
@@ -68,12 +95,98 @@ export function ClientDashboard() {
   const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
   const navigate = useNavigate();
 
+  // features.md Phase 14 (PWA-17) — applicant management.
+  const [applicantsProject, setApplicantsProject] = useState<ClientProject | null>(null);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [loadingApplicants, setLoadingApplicants] = useState(false);
+  const [applicantActionError, setApplicantActionError] = useState<string | null>(null);
+  const [selectingApplicationId, setSelectingApplicationId] = useState<string | null>(null);
+  const [selectRateCards, setSelectRateCards] = useState<PublicRateCard[]>([]);
+  const [selectRateCardId, setSelectRateCardId] = useState("");
+  const [selectDate, setSelectDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selectOpenSlots, setSelectOpenSlots] = useState<{ start: string; end: string }[]>([]);
+  const [selectSlotStart, setSelectSlotStart] = useState<string | null>(null);
+  const [selecting, setSelecting] = useState(false);
+
   useEffect(() => {
     apiClient.getClientStats().then(setStats);
     apiClient.listClientProjects().then(setProjects);
     apiClient.listClientOrders().then(setOrders);
     apiClient.getShortlistedTalentIds().then(setShortlist);
   }, []);
+
+  const openApplicants = (project: ClientProject) => {
+    setApplicantsProject(project);
+    setApplicantActionError(null);
+    setLoadingApplicants(true);
+    apiClient.listApplicants(project.id).then((list) => {
+      setApplicants(list);
+      setLoadingApplicants(false);
+    });
+  };
+
+  const refreshApplicants = () => {
+    if (!applicantsProject) return;
+    apiClient.listApplicants(applicantsProject.id).then(setApplicants);
+    apiClient.listClientProjects().then(setProjects);
+  };
+
+  const handleShortlist = async (applicationId: string) => {
+    setApplicantActionError(null);
+    await apiClient.shortlistApplicant(applicationId);
+    refreshApplicants();
+  };
+
+  const handleRejectApplicant = async (applicationId: string) => {
+    setApplicantActionError(null);
+    await apiClient.rejectApplicant(applicationId);
+    refreshApplicants();
+  };
+
+  const openSelectFlow = (applicant: Applicant) => {
+    setSelectingApplicationId(applicant.applicationId);
+    setSelectRateCardId("");
+    setSelectSlotStart(null);
+    setApplicantActionError(null);
+    apiClient.getCreatorRateCardsPublic(applicant.creator.id).then((cards) => {
+      setSelectRateCards(cards);
+      if (cards.length === 1) setSelectRateCardId(cards[0].id);
+    });
+  };
+
+  useEffect(() => {
+    if (!selectingApplicationId) return;
+    const applicant = applicants.find((a) => a.applicationId === selectingApplicationId);
+    if (!applicant) return;
+    setSelectSlotStart(null);
+    apiClient.getOpenSlots(applicant.creator.id, selectDate).then(setSelectOpenSlots);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectingApplicationId, selectDate]);
+
+  const selectSlotFits = (start: string): boolean => {
+    const end = addMinutes(start, SLOT_DURATION_MIN);
+    return selectOpenSlots.some((o) => o.start <= start && o.end >= end);
+  };
+
+  const handleConfirmSelect = async () => {
+    if (!selectingApplicationId || !selectRateCardId || !selectSlotStart) return;
+    setSelecting(true);
+    setApplicantActionError(null);
+    try {
+      await apiClient.selectApplicant(selectingApplicationId, {
+        rateCardId: selectRateCardId,
+        slotDate: selectDate,
+        slotStart: selectSlotStart,
+        slotEnd: addMinutes(selectSlotStart, SLOT_DURATION_MIN),
+      });
+      setSelectingApplicationId(null);
+      refreshApplicants();
+    } catch {
+      setApplicantActionError("That slot was just taken, or this application can no longer be selected — please try again.");
+    } finally {
+      setSelecting(false);
+    }
+  };
 
   // features.md Phase 12A.3: attribute filters are server-authoritative
   // (visibility rules can't be evaluated client-side without leaking
@@ -522,12 +635,15 @@ export function ClientDashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                          <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{project.applicants} applicants</span>
+                          <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            {project.applicants}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
+                            {!project.applicationsOpen && project.status === "active" && " · closed"}
+                          </span>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="secondary" className="h-8 px-3 text-xs">Edit</Button>
                           {project.applicants > 0 && (
-                            <Button className="h-8 px-3 text-xs gap-1.5" onClick={() => setActiveTab("discover")}>
+                            <Button className="h-8 px-3 text-xs gap-1.5" onClick={() => openApplicants(project)}>
                               <Users className="w-3.5 h-3.5" /> View Applicants
                             </Button>
                           )}
@@ -643,6 +759,146 @@ export function ClientDashboard() {
               </motion.div>
             )}
 
+          </AnimatePresence>
+
+          {/* Applicant Management Modal (features.md Phase 14, PWA-17) */}
+          <AnimatePresence>
+            {applicantsProject && (
+              <Modal onClose={() => { setApplicantsProject(null); setSelectingApplicationId(null); }} align="end">
+                <motion.div
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 40, opacity: 0 }}
+                  className="w-full max-w-lg rounded-[var(--radius-lg)] overflow-hidden max-h-[90vh] overflow-y-auto"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-5 flex items-start justify-between sticky top-0 z-10" style={{ background: "var(--color-bg-surface)", borderBottom: "1px solid var(--color-hairline)" }}>
+                    <div>
+                      <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>{applicantsProject.name}</h3>
+                      <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        {applicantsProject.applicants}{applicantsProject.applicantCap ? `/${applicantsProject.applicantCap}` : ""} applicants
+                      </p>
+                    </div>
+                    <button onClick={() => { setApplicantsProject(null); setSelectingApplicationId(null); }} className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="p-5 space-y-3">
+                    {applicantActionError && (
+                      <div className="flex items-center gap-2 p-3 rounded-xl text-sm font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
+                        <AlertCircle className="w-4 h-4 shrink-0" /> {applicantActionError}
+                      </div>
+                    )}
+
+                    {loadingApplicants ? (
+                      <p className="text-sm font-body text-center py-10" style={{ color: "var(--color-text-tertiary)" }}>Loading applicants…</p>
+                    ) : applicants.length === 0 ? (
+                      <p className="text-sm font-body text-center py-10" style={{ color: "var(--color-text-tertiary)" }}>No applicants yet.</p>
+                    ) : (
+                      applicants.map((applicant) => (
+                        <div key={applicant.applicationId} className="p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                          <div className="flex items-start gap-3 mb-3">
+                            <Avatar className="w-11 h-11 text-sm shrink-0" background="var(--color-accent-glow)" color="var(--color-accent)">
+                              {applicant.creator.avatar}
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{applicant.creator.name}</span>
+                                {applicant.creator.verified && <Shield className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-success)" }} />}
+                              </div>
+                              <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{applicant.creator.role} · {applicant.creator.location}</div>
+                            </div>
+                            <Badge tone={applicant.status === "SELECTED" ? "success" : applicant.status === "REJECTED" ? "error" : "accent"} size="sm">
+                              {APPLICANT_STATUS_LABEL[applicant.status]}
+                            </Badge>
+                          </div>
+                          {applicant.pitch && (
+                            <p className="text-xs font-body mb-3 italic" style={{ color: "var(--color-text-secondary)" }}>"{applicant.pitch}"</p>
+                          )}
+
+                          {(applicant.status === "APPLIED" || applicant.status === "SHORTLISTED") && (
+                            <div className="flex gap-2 mb-2">
+                              {applicant.status === "APPLIED" && (
+                                <Button variant="secondary" className="flex-1 h-9 text-xs" onClick={() => handleShortlist(applicant.applicationId)}>Shortlist</Button>
+                              )}
+                              <Button variant="secondary" className="flex-1 h-9 text-xs" onClick={() => handleRejectApplicant(applicant.applicationId)}>Reject</Button>
+                              <Button className="flex-1 h-9 text-xs" onClick={() => openSelectFlow(applicant)}>Select</Button>
+                            </div>
+                          )}
+
+                          {selectingApplicationId === applicant.applicationId && (
+                            <div className="mt-3 p-3 rounded-[var(--radius-md)] space-y-3" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
+                              <div>
+                                <label className="block text-[10px] uppercase tracking-wider font-body mb-1.5" style={{ color: "var(--color-text-tertiary)" }}>Service</label>
+                                <select
+                                  value={selectRateCardId}
+                                  onChange={(e) => setSelectRateCardId(e.target.value)}
+                                  className="w-full h-10 px-3 rounded-[var(--radius-md)] text-xs font-body"
+                                  style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                                >
+                                  <option value="">Choose a service…</option>
+                                  {selectRateCards.map((card) => (
+                                    <option key={card.id} value={card.id}>{card.title} · {card.price}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] uppercase tracking-wider font-body mb-1.5" style={{ color: "var(--color-text-tertiary)" }}>Date</label>
+                                <input
+                                  type="date"
+                                  value={selectDate}
+                                  min={new Date().toISOString().slice(0, 10)}
+                                  onChange={(e) => e.target.value && setSelectDate(e.target.value)}
+                                  className="w-full h-10 px-3 rounded-[var(--radius-md)] text-xs font-body"
+                                  style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] uppercase tracking-wider font-body mb-1.5" style={{ color: "var(--color-text-tertiary)" }}>Time</label>
+                                <div className="grid grid-cols-4 gap-1.5">
+                                  {CANDIDATE_SLOT_HOURS.map((h) => {
+                                    const start = toTimeStr(h * 60);
+                                    const fits = selectSlotFits(start);
+                                    const isSelected = selectSlotStart === start;
+                                    return (
+                                      <button
+                                        key={start}
+                                        disabled={!fits}
+                                        onClick={() => setSelectSlotStart(start)}
+                                        className="py-1.5 rounded-lg text-[11px] font-mono tnum disabled:opacity-30 disabled:cursor-not-allowed"
+                                        style={{
+                                          background: isSelected ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                          color: isSelected ? "var(--color-accent-on)" : "var(--color-text-primary)",
+                                          border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                        }}
+                                      >
+                                        {start}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button variant="secondary" className="flex-1 h-9 text-xs" onClick={() => setSelectingApplicationId(null)}>Cancel</Button>
+                                <Button
+                                  className="flex-1 h-9 text-xs gap-1.5"
+                                  disabled={!selectRateCardId || !selectSlotStart || selecting}
+                                  onClick={handleConfirmSelect}
+                                >
+                                  <Check className="w-3.5 h-3.5" /> {selecting ? "Booking…" : "Confirm Selection"}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
           </AnimatePresence>
         </div>
       </main>

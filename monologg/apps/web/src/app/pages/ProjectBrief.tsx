@@ -72,6 +72,9 @@ export function ProjectBrief() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
+  // features.md Phase 14 (X4): empty = uncapped, matching the server's own
+  // "null = uncapped" convention (routes/briefs.ts).
+  const [applicantCap, setApplicantCap] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const navigate = useNavigate();
@@ -106,6 +109,11 @@ export function ProjectBrief() {
         nicheReq: selectedNiches.map(id => NICHE_TO_ENUM[id]).filter(Boolean),
         budgetAmount: Math.round(lowerBoundNaira * 100),
         budgetCurrency: "NGN",
+        applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
+        // "Publish Project" is this screen's only action — a published brief
+        // must actually be ACTIVE (the schema otherwise defaults to DRAFT),
+        // or it silently never appears in talent's project browse (GET /projects).
+        status: "ACTIVE",
       });
       setSubmitSuccess(true);
     } finally {
@@ -134,7 +142,7 @@ export function ProjectBrief() {
           </p>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12" onClick={() => navigate("/client")}>View My Projects</Button>
-            <Button variant="secondary" className="w-full h-12" onClick={() => { setStep(1); setSubmitSuccess(false); setProjectName(""); setProjectType(""); setSelectedNiches([]); setSelectedBudget(""); }}>
+            <Button variant="secondary" className="w-full h-12" onClick={() => { setStep(1); setSubmitSuccess(false); setProjectName(""); setProjectType(""); setSelectedNiches([]); setSelectedBudget(""); setApplicantCap(""); }}>
               Post Another Project
             </Button>
           </div>
@@ -434,6 +442,19 @@ export function ProjectBrief() {
                 </div>
               </FormField>
 
+              <FormField label="Applicant cap (optional)">
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="e.g. 10 — leave blank for unlimited"
+                  value={applicantCap}
+                  onChange={e => setApplicantCap(e.target.value.replace(/\D/g, ""))}
+                />
+                <p className="text-xs font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                  Applications close automatically once this many talents have applied — you still choose who to hire from the pool.
+                </p>
+              </FormField>
+
               {/* Summary card */}
               <div className="p-4 rounded-2xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
                 <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
@@ -446,6 +467,7 @@ export function ProjectBrief() {
                     { label: "Niches", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
                     { label: "Timeline", value: timeline || "Flexible" },
                     { label: "Budget", value: BUDGET_RANGES.find(r => r.value === selectedBudget)?.label || "—" },
+                    { label: "Applicant cap", value: applicantCap || "Unlimited" },
                   ].map((item, i) => (
                     <div key={i} className="flex justify-between gap-4">
                       <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>

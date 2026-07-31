@@ -355,6 +355,9 @@ async function seedBriefs() {
       nicheReq: ["VO_ARTIST"] as Niche[],
       budgetAmount: nairaToKobo("₦200,000"),
       status: "ACTIVE" as const,
+      // features.md Phase 14 (X4): a capped, still-open brief with two real
+      // applicants (below) demonstrates the cap UI without being AT the cap.
+      applicantCap: 3,
     },
     {
       id: "seed-brief-p002",
@@ -363,6 +366,7 @@ async function seedBriefs() {
       nicheReq: ["COMPERE"] as Niche[],
       budgetAmount: nairaToKobo("₦120,000"),
       status: "IN_REVIEW" as const,
+      applicantCap: null,
     },
     {
       id: "seed-brief-p003",
@@ -371,6 +375,7 @@ async function seedBriefs() {
       nicheReq: ["VO_ARTIST"] as Niche[],
       budgetAmount: nairaToKobo("₦80,000"),
       status: "DRAFT" as const,
+      applicantCap: null,
     },
     {
       id: "seed-brief-p004",
@@ -379,6 +384,7 @@ async function seedBriefs() {
       nicheReq: ["ACTOR"] as Niche[],
       budgetAmount: nairaToKobo("₦500,000"),
       status: "ACTIVE" as const,
+      applicantCap: null, // uncapped, per features.md Phase 14's "null = uncapped"
     },
   ];
 
@@ -392,6 +398,7 @@ async function seedBriefs() {
         budgetAmount: b.budgetAmount,
         budgetCurrency: "NGN",
         status: b.status,
+        applicantCap: b.applicantCap,
       },
       create: {
         id: b.id,
@@ -402,7 +409,28 @@ async function seedBriefs() {
         budgetAmount: b.budgetAmount,
         budgetCurrency: "NGN",
         status: b.status,
+        applicantCap: b.applicantCap,
       },
+    });
+  }
+}
+
+// features.md Phase 14 (FA-2): two real applications on the capped
+// "seed-brief-p001" (Adaeze Obi applied, Amara Diallo shortlisted) — both
+// VO_ARTIST, matching p001's nicheReq — so PWA-14/16/17 all have real,
+// non-empty demo data. Deliberately NOT at the cap (2 of 3) so the "still
+// open, applying works" path is what a fresh demo session sees by default.
+async function seedApplications() {
+  const applications = [
+    { id: "seed-application-adaeze-p001", briefId: "seed-brief-p001", creatorId: "seed-creator-adaeze", status: "APPLIED" as const, pitch: "I've voiced three prior Nike regional spots — happy to share reels." },
+    { id: "seed-application-amara-p001", briefId: "seed-brief-p001", creatorId: "seed-creator-amara", status: "SHORTLISTED" as const, pitch: "Bilingual EN/FR delivery available if the campaign runs across West Africa." },
+  ];
+
+  for (const a of applications) {
+    await prisma.application.upsert({
+      where: { id: a.id },
+      update: { status: a.status, pitch: a.pitch },
+      create: { id: a.id, briefId: a.briefId, creatorId: a.creatorId, status: a.status, pitch: a.pitch },
     });
   }
 }
@@ -617,8 +645,9 @@ export async function seed() {
   await seedBriefs();
   await seedBookings();
   await seedAvailability();
+  await seedApplications();
   console.log(
-    `Seeded ${CREATORS.length} creators, ${CLIENTS.length} clients, ${BOOKINGS.length} bookings (one per BookingState), availability (recurring weekday template + morning-free/evening-unavailable override + one intentionally unconfigured day).`,
+    `Seeded ${CREATORS.length} creators, ${CLIENTS.length} clients, ${BOOKINGS.length} bookings (one per BookingState), availability (recurring weekday template + morning-free/evening-unavailable override + one intentionally unconfigured day), 2 applications on a capped brief.`,
   );
 }
 
