@@ -31,7 +31,7 @@ All five are exactly what CI's `ci` job runs on every push/PR (`.github/workflow
 
 ## The data seam
 
-Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (real `/api/v1/...` endpoints for talent discovery/briefs/rate-cards/bookings/order-room messages as of Phase 5). Four methods (stats ×2, activity, shortlist) and the availability-calendar UI stay mock-only regardless of the flag — see `handoff/design.md` §6 for why. List endpoints paginate server-side (`apps/api/src/lib/pagination.ts`, `{data, page, pageSize, total, totalPages}`); live-mode list calls fetch one `pageSize=100` page and unwrap it rather than building pagination UI.
+Every screen reads/writes through `apps/web/src/lib/api-client.ts` — never import `apps/web/src/mocks/*` directly from a page or component (a test enforces this). `VITE_API_MODE` (`apps/web/.env.example`) switches between `mock` (default — local fixtures) and `live` (real `/api/v1/...` endpoints — every domain resource through Phase 16 is wired, including availability/booking/checkout as of Phase 13). Four methods (stats ×2, activity, shortlist) stay mock-only regardless of the flag — no backing resource exists anywhere in `features.md` for them, see `handoff/design.md` §6. List endpoints paginate server-side (`apps/api/src/lib/pagination.ts`, `{data, page, pageSize, total, totalPages}`); live-mode list calls fetch one `pageSize=100` page and unwrap it rather than building pagination UI.
 
 ## Database (Supabase + Prisma)
 
@@ -58,7 +58,7 @@ Real: `POST /api/v1/auth/{register,login,refresh,logout,verify-email,forgot-pass
 
 Real: `POST /api/v1/bookings/:id/pay` (Paystack-first checkout via `PaymentProvider.real`) → `POST /api/v1/webhooks/paystack` (HMAC-SHA512-verified, idempotent — the **only** thing that sets `ESCROW_LOCKED`) → `PATCH /api/v1/bookings/:id/deliver` → `PATCH /api/v1/bookings/:id/approve` (releases escrow) → `PATCH /api/v1/bookings/:id/dispute` / `POST /api/v1/bookings/:id/refund`. A client-side "payment succeeded" redirect is advisory only; nothing in the API lets it advance state on its own. Requires `PAYSTACK_SECRET_KEY` in `apps/api/.env` only when `PAYMENT_PROVIDER != mock` — the default `mock` provider needs no real keys.
 
-**`apps/web/src/app/pages/Checkout.tsx` is not wired to any of this yet.** It's still the original prototype's scripted 2.5-second delay and still says "FINCRA" three times — Phase 6's scope was API-only, and this was left as a known, explicitly-flagged gap rather than silently fixed or silently ignored. Rewiring it is its own future, reviewed piece of work.
+**`apps/web/src/app/pages/Checkout.tsx` is now wired to this, as of Phase 13** — a real, slot-aware, server-computed-fee flow when `apiClient.mode === "live"` and a real `creatorId` is present in nav state. The old scripted delay/"FINCRA" copy only remains as the mock-mode fallback demo.
 
 ## Working on the backend build-out (`features.md`)
 

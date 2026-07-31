@@ -1,6 +1,6 @@
 # Monologg — Handoff Folder Index
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-31
 
 Looking for how to just open or run the product? See the root-level `README.md` (one level up) — it covers the double-clickable HTML files, the `app/` folder, and the `brand/` assets.
 

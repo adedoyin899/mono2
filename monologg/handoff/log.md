@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-31 (Session 28: Phase 17 — QA, security & UAT)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -666,9 +666,34 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 
 ---
 
-## Session 21 — `features.md` Phase 12: hardening (security, testing, observability, deployment)
+## Session 21 — `features.md` Phase 11: design-token adoption + font self-hosting
 
-**Goal:** make Phases 0–11 production-ready — nothing new feature-wise, a consolidation pass. (Note: Phase 11, design-token adoption + font self-hosting, landed between Session 20 and this one per `git log` but has no log entry of its own — a documentation gap from that session, not something this entry backfills; see the Phase 11 commit directly if the detail is needed.)
+**Goal:** close two small but real debts from Phase 10's UI work before the app gets much bigger — hard-coded pixel type sizes with no token backing, and a hard CDN dependency (Fontshare + Google Fonts) for the three brand fonts. Backfilled into this log after the fact (see `README.md`'s living-document policy) — this session originally shipped with no `log.md` entry of its own.
+
+- **Token adoption was partial by design, not exhaustive**: `tokens.css` already had `--font-size-xs/sm/base/2xl/4xl` etc. (12/14/16/28/44px); this phase swapped every `text-[Npx]` literal that had an *exact* match to one of those tokens across `Input.tsx`, `ClientOnboarding.tsx`, `CreatorOnboarding.tsx`, and `LandingPage.tsx`. Sizes with no exact token (15px, 19px, 26px, etc.) were deliberately left as literals — no new tokens were minted to cover them, so the adoption is intentionally incomplete. Also added `--font-weight-regular/medium/semibold/bold` and `--line-height-tight/snug/normal/relaxed` tokens, though this commit only *defines* them — no call site was rewired to consume the new weight/line-height tokens yet.
+- **Font self-hosting**: `styles/fonts.css` dropped two `@import url(...)` lines (Fontshare's General Sans CDN, Google's Plus Jakarta Sans + JetBrains Mono CDN) for 11 `@font-face` declarations pointing at self-hosted files under `public/fonts/`, each with `font-display: swap`. `index.html`, `design-system.html`, and `standalone.html` each gained 3 matching `<link rel="preload" as="font">` tags for the heaviest/most-used weights.
+- Committed the full brand font family packages (101 font asset files across every weight/italic variant, under `apps/web/public/fonts/**` and a separate `monologg/brand/mono fonts/` directory with OFL/Fontshare licenses) explicitly "for future use" — only a handful of specific weight files are actually wired into `fonts.css`'s `@font-face` rules; the rest sit unused pending a later phase.
+- CSS/HTML/asset-only — no schema, API, or test changes anywhere in this commit, and no new/changed test count to report.
+- Not evidenced: any measurement of actual font-load performance (Lighthouse/CLS before-after), or any code consuming the new `--font-weight-*`/`--line-height-*` tokens yet.
+
+### File inventory additions (Phase 11)
+
+| File | Change |
+|---|---|
+| `apps/web/src/styles/fonts.css` | Replaced 2 CDN `@import`s with 11 self-hosted `@font-face` rules, all `font-display: swap` |
+| `apps/web/src/styles/tokens.css` | Added `--font-weight-regular/medium/semibold/bold` and `--line-height-tight/snug/normal/relaxed` |
+| `apps/web/index.html`, `design-system.html`, `standalone.html` | Added 3 font `<link rel="preload">` tags each |
+| `apps/web/src/app/components/ui/Input.tsx` | `text-[16px]` → `text-[length:var(--font-size-base)]` |
+| `apps/web/src/app/pages/ClientOnboarding.tsx`, `CreatorOnboarding.tsx`, `LandingPage.tsx` | Literal px sizes with an exact token match swapped to tokens |
+| `apps/web/public/fonts/general-sans/*`, `plus-jakarta-sans/*`, `jetbrains-mono/*` | **New** — self-hosted font files + licenses (subset actually wired) |
+| `apps/web/public/fonts/**/Fonts/OTF/*.otf` | **New** — full General Sans weight/italic set, committed for future use, not yet wired |
+| `monologg/brand/mono fonts/` | **New** — full brand font family archives + OFL/README |
+
+---
+
+## Session 22 — `features.md` Phase 12: hardening (security, testing, observability, deployment)
+
+**Goal:** make Phases 0–11 production-ready — nothing new feature-wise, a consolidation pass.
 
 - **Security**: most of the OWASP checklist was already real as of Phase 3/4 (Helmet, CORS locked, global + auth-specific rate limiting) — this phase closed the remaining gaps rather than starting from zero. Helmet's CSP went from `false` to `default-src 'none'` (apps/api never serves HTML, so the Phase 3 "tighten later" comment's condition was already met). Added pino log redaction (defense-in-depth — `routes/auth.test.ts`'s Phase 4 "Sanitized Logs" test already proved nothing logs a raw secret today). Added a production-only `config/env.ts` check (`checkProductionDbUrls`) that fails boot if `DATABASE_URL`/`DIRECT_URL` aren't the correct Supabase pooled/session pair — the two are easy to swap since both point at the same host. Audited and *proved*, not just assumed, two things: CSRF doesn't apply (no cookie-based session anywhere — grepped for `@fastify/cookie`, found none) and KYC PII is never persisted at all (`KycCheck` has no name/DOB/ID-number column — locked in with a new schema test and a service test, stronger than "encrypt it once stored" for data this sensitive). `pnpm audit --audit-level=high` is now CI-blocking; fixed by bumping `react-router` and `vite`. Two advisories are allowlisted with documented reasons, not silently ignored: `GHSA-qwww-vcr4-c8h2` (react-router's RSC-mode CSRF bypass, needs 8.3.0+ — this app has zero RSC usage, confirmed by grep, and a major-version bump two months post-release wasn't judged worth the regression risk in a phase with no budget for a routing-layer rewrite) and `GHSA-mh99-v99m-4gvg` (a transitive `brace-expansion` DoS, dev-tooling-only via eslint/vitest — a `pnpm.overrides` pin was tried first and reverted after it silently broke ESLint at runtime, caught by re-running `pnpm run lint` before it ever shipped; no glob pattern in this codebase is attacker-controlled input, so the DoS has no real trigger here).
 - **Testing**: coverage thresholds (`vitest.config.ts`) gate money/auth/state modules specifically (`services/fees.ts` 95%, `services/payment.ts` 85%, `services/auth.ts`/`middlewares/auth.ts` 90%, `services/booking.ts` 90%) — closing the one real gap this surfaced (`middlewares/auth.ts` at 79%) meant writing tests for previously-untested defensive branches, not lowering the threshold. New cross-cutting test file (`src/app.hardening.test.ts`) covers what Phase 4's auth tests didn't: headers/CSP on a non-auth route, the new request-ID header, the new `/ready`/`/metrics` routes. New e2e test (`src/e2e.happyPath.test.ts`) is the first test in the codebase to run a booking through *continuous* state — create → pay → webhook → deliver → approve — against one stateful mocked-Prisma fake, rather than each route test resetting mocks fresh; also proves the negative (no webhook ⇒ stuck at `PENDING_PAYMENT`, approve 409s).
@@ -705,7 +730,7 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 
 ---
 
-## Session 22 — `features.md` Phase 12A: media kit, verification video, physical attributes
+## Session 23 — `features.md` Phase 12A: media kit, verification video, physical attributes
 
 **Goal:** three additive extensions to the storefront/onboarding — Media Kit (auto PDF + upload override), verification video (server-authoritative 90s cap), physical attributes (six privacy non-negotiables for casting search). Additive-only migration, nothing from Phases 0–12 touched.
 
@@ -743,4 +768,167 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/app/pages/TalentDashboard.tsx` | Media Kit + Verification links on the storefront-preview tab |
 | `apps/web/src/app/routes.tsx` | Registered `/media-kit`, `/verification` |
 | `apps/api/README.md` | Documented Phase 12A |
+
+---
+
+## Session 24 — `features.md` Phase 13: rich availability calendar & time-slot booking (FA-1)
+
+**Goal:** replace the Phase 5 placeholder availability model (a boolean `booked` flag, no real slot-resolution logic, `getAvailability()` a mock-only stub) with a server-authoritative open-slots engine and real, race-safe slot booking — the foundation FA-1 requires before Checkout or the talent's calendar can be real.
+
+- **New `services/availability.ts`**: `getOpenSlots(creatorId, date)` is the single source of truth — whole-day-free (00:00–23:59) minus explicit `unavailable`/`booked` `AvailabilityBlock` slots minus Google busy times (best-effort; a `CalendarNotConnectedError`/`CalendarReconnectRequiredError` degrades to "no busy times" rather than erroring). `bookSlot(tx, params)` claims a slot inside a caller-owned transaction using `SELECT pg_advisory_xact_lock(hashtext(creatorId || day))` taken *before* re-checking open slots — this is what makes two concurrent booking requests for the same creator+day serialize instead of racing; `services/booking.ts`'s `createBooking()` was rewritten to wrap the booking insert and `bookSlot()` in one `prisma.$transaction`, and `routes/bookings.ts` now catches `SlotUnavailableError` and returns 409.
+- **Schema**: `AvailabilityBlock.slots`'s JSON shape changed from `{start,end,booked:boolean}` to `{start,end,state:"free"|"unavailable"|"booked",bookingId?}`, plus new `isRecurring`/`recurRule` columns (`"WEEKDAYS"` or `"WEEKLY:MON"` etc.) so a block can be either an exact-date override or a recurring template. New `CalendarEvent` model (talent's own non-booking calendar entries — deliberately *not* subtracted by `getOpenSlots`, per its own schema comment). Migration `20260730230727_phase13_availability_calendar_events` is column/table-level DDL only — no data-backfill script accompanies the `booked`→`state` reshape.
+- **New endpoints**: `GET /availability/day` (day-detail: resolved block/recurring templates + that day's `CalendarEvent`s + `openSlots`, one call), full `calendarEvents.ts` CRUD, and two *public, no-auth* endpoints on `routes/creators.ts` — `GET /creators/:id/open-slots` and `GET /creators/:id/rate-cards` — the first real "logged-out-safe" reads in the API, groundwork Phase 15 later reuses directly.
+- **Frontend**: `TalentDashboard.tsx` gained a real day-detail panel + slot editor (add/remove explicit slots, add/remove calendar events, create recurring templates) driven entirely by `dayDetail.openSlots` from the server (PWA-08). `Checkout.tsx` gained a `service → slot → summary → payment → processing → confirmed` flow that only activates when real `creatorId` nav-state is present (from `ClientDashboard.tsx`'s "Book Now" buttons) and `apiClient.mode === "live"`; the original static demo path is untouched for mock mode. Checkout's live "confirm payment" step POSTs directly to the real, signature-checked `/webhooks/paystack` endpoint (`simulateEscrowWebhook`) rather than a fake shortcut, since there's no real Paystack redirect/SDK in this prototype to receive a webhook from.
+- **A real, live-testing-caught bug fixed this session: the concurrent-refresh-token race.** `apps/web/src/lib/api-client.ts`'s `tryRefreshSession()` had no de-duping — if several protected calls 401'd around the same time (e.g. a dashboard's mount-time `useEffect` firing multiple requests with no warm access token yet), each one independently called `/auth/refresh` with the same stored, single-use, server-rotated refresh token. Only the first succeeded; every other replay of the already-rotated token tripped the server's reuse-detection, revoking the whole session right after a real login. Fix: a module-level `refreshInFlight: Promise<boolean> | null` — concurrent callers await the same in-flight promise instead of each spending the token. Regression test: `api-client.test.ts` → "live mode: concurrent 401s share one refresh instead of each spending the single-use refresh token" (fires 3 concurrent protected calls, asserts `refreshCallCount === 1`). The old mock-only `getAvailability()` stub was removed entirely along with its now-obsolete test.
+- **Scope gap**: no new frontend test file for `TalentDashboard.tsx`'s slot editor or `Checkout.tsx`'s live booking flow — the only web test file touched this session is `api-client.test.ts`. Seed data deliberately leaves one day (2026-08-06) unconfigured to demonstrate the default-free rule, plus a recurring weekday template and one morning-free/evening-unavailable override for `seed-creator-chidi`.
+- **Tests added this session**: 29 new API test cases (`services/availability.test.ts` +15, new file — `getOpenSlots`'s subtraction logic, recurring-template matching, `bookSlot`'s advisory lock; `routes/calendarEvents.test.ts` +6; `routes/creators.test.ts` +5 for the two public endpoints; `routes/availability.test.ts` +2; `services/booking.test.ts` +1 for the transactional slot claim) and 1 new web test (the concurrent-refresh regression above). Not evidenced: an exact global before/after suite total for this specific commit.
+
+### File inventory additions (Phase 13)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/schema.prisma` | `AvailabilityBlock` gains `isRecurring`/`recurRule`; new `CalendarEvent` model + relation on `Creator` |
+| `apps/api/prisma/migrations/20260730230727_phase13_availability_calendar_events/` | **New** — column adds + `CalendarEvent` table + indexes |
+| `apps/api/prisma/seed.ts` | New `seedAvailability()` — recurring template, one override block, one intentionally unconfigured day |
+| `apps/api/src/services/availability.ts`, `.test.ts` | **New** — `getOpenSlots`, `bookSlot`, `SlotUnavailableError`, `startOfDayUTC`; 15 tests |
+| `apps/api/src/services/booking.ts`, `.test.ts` | `createBooking` now transactional + calls `bookSlot`; 1 new test |
+| `apps/api/src/routes/availability.ts`, `.test.ts` | `slots` schema `booked`→`state`; new `GET /availability/day`; 2 new tests |
+| `apps/api/src/routes/bookings.ts` | Catches `SlotUnavailableError` → 409 |
+| `apps/api/src/routes/calendarEvents.ts`, `.test.ts` | **New** — full CRUD; 6 tests |
+| `apps/api/src/routes/creators.ts`, `.test.ts` | New public `GET /creators/:id/open-slots`, `GET /creators/:id/rate-cards`; 5 tests |
+| `apps/api/src/routes/index.ts` | Registered `calendarEventRoutes` |
+| `apps/web/src/lib/api-client.ts`, `.test.ts` | `refreshInFlight` de-dupe fix; new `getAvailabilityDay/createAvailabilityBlock/updateAvailabilityBlock/deleteAvailabilityBlock/createCalendarEvent/deleteCalendarEvent/getOpenSlots/getCreatorRateCardsPublic/createBooking/payBooking/simulateEscrowWebhook`; removed `getAvailability()`; 1 new test |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | Day-detail + slot/event/recurring-template editor (PWA-08) |
+| `apps/web/src/app/pages/Checkout.tsx` | Live slot-aware booking flow (PWA-11), gated on nav-state + live mode; mock demo unchanged |
+| `apps/web/src/app/pages/ClientDashboard.tsx` | "Book Now" buttons now pass real `creatorId`/`creatorName` via nav state |
+| `apps/web/src/mocks/availability.ts`, `mocks/services.ts` | Updated fixtures for the new slot/rate-card shapes |
+| `packages/types/src/availability.ts`, `service.ts` | New `Slot`, `SlotState`, `DayDetail`, `CalendarEvent`, `CalendarEventKind`, `PublicRateCard` types |
+
+---
+
+## Session 25 — `features.md` Phase 14: project applications, two-sided + applicant cap (FA-2, FA-4)
+
+**Goal:** turn a client's posted `Brief` into something talent can discover and apply to, with a hard, server-enforced applicant cap (FA-4) and a full two-sided review/selection flow (FA-2) — the piece that makes "Post Project → get applicants → hire" a real loop.
+
+- **Schema**: new `Application` model — one row per `(briefId, creatorId)`, DB-unique-constrained (duplicate application is a database guarantee, not just an app-layer check), status `APPLIED→SHORTLISTED/SELECTED/REJECTED/WITHDRAWN`. `Brief` gains `applicantCap: Int?` (null = uncapped) and `applicationsOpen: Boolean @default(true)`, never client-settable directly — only `services/applications.ts` flips it. Migration additive-only.
+- **New `services/applications.ts`**: `applyToBrief()` mirrors Phase 13's `bookSlot` pattern exactly — `SELECT pg_advisory_xact_lock(hashtext(briefId))` taken before checking `applicationsOpen`/count-vs-cap, all inside one transaction, so the (cap+1)th concurrent applicant always sees the brief already closed rather than a stale "still open" read. `selectApplication()` converts the winning application into a real booking via the *same* `createBooking()` path Checkout/Phase 13 use — not a parallel money code path — then auto-rejects every other still-open application on that brief. One non-atomicity worth flagging (not called out anywhere in code): `createBooking()` runs in its own transaction, and the `application`+`brief` status update runs in a second, separate transaction right after — if the booking succeeds but that second transaction fails, a booking could exist with the application never marked `SELECTED`. Not a known/documented gap in the code; worth tracking as an open question.
+- **New endpoints**: `GET /projects` (talent browse — ACTIVE briefs only, annotated with the caller's own application), `POST /projects/:id/apply`, `GET /creators/me/applications`, `PATCH /applications/:id/{shortlist,reject,select,withdraw}`, `GET /briefs/:id/applicants` (brief-owner only).
+- **Bug 1, found + fixed this session**: `apps/web/src/app/pages/ProjectBrief.tsx`'s `createBrief()` call never passed a `status`, so every "published" brief silently defaulted to the Prisma schema's `DRAFT` and never appeared in talent's `GET /projects` browse list (filtered to `status: "ACTIVE"`). Fix: `status: "ACTIVE"` added explicitly, since "Publish Project" is this screen's only action. Regression test: `ProjectBrief.test.tsx`'s existing publish test now asserts the request body includes `status: "ACTIVE"`.
+- **Bug 2, found + fixed this session**: `apps/api/src/routes/projects.ts`'s `mapBriefToProject()` computed `applicantCount` by reusing the same Prisma query's caller-filtered `applications: { where: { creatorId: creator.id } }` array's `.length` — meant for a separate `myApplication` field — so any talent who hadn't applied yet saw "0 applicants" regardless of the real total. Fix: a separate `_count: { select: { applications: true } }` on the same query. Regression test: `routes/projects.test.ts` → "lists only ACTIVE briefs, annotated with the caller's own application status" (mocks a 1-row filtered array alongside `_count: {applications: 5}`, asserts `applicantCount: 5`). `routes/briefs.ts`'s client-side applicant count also went from a hardcoded `0` (honestly documented pre-Phase-14 as "no application system exists yet") to a real `_count`.
+- **Frontend**: `TalentDashboard.tsx` gained a "Projects" tab (browse/search, apply-with-pitch, my-applications/withdraw). `ClientDashboard.tsx` gained full applicant management (list, shortlist/reject, select — reusing Phase 13's slot-picker pattern). `ProjectBrief.tsx` gained the applicant-cap input (empty = unlimited). All six application notification events route through the existing Phase 9 notification path, best-effort.
+- **Tests added this session**: 38 new API test cases (`services/applications.test.ts` +21, new file — advisory-locked cap enforcement, all status transitions, select→booking; `routes/projects.test.ts` +10, new file, including a concurrency test applying 3 talents against a cap of 2 asserting exactly 2 succeed; `routes/briefs.test.ts` +7 for the cap field and `/briefs/:id/applicants`) and 0 new web test cases (the existing `ProjectBrief.test.tsx` publish test was extended in place rather than a new test added).
+
+### File inventory additions (Phase 14)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/schema.prisma` | New `Application` model + `ApplicationStatus` enum; `Brief` gains `applicantCap`/`applicationsOpen` |
+| `apps/api/prisma/migrations/.../` | **New** — `Application` table + `Brief` columns (additive only) |
+| `apps/api/prisma/seed.ts` | Seed briefs gain `applicantCap` (one capped-but-open, one uncapped) |
+| `apps/api/src/services/applications.ts`, `.test.ts` | **New** — advisory-locked cap enforcement, status machine, select→booking; 21 tests |
+| `apps/api/src/routes/projects.ts`, `.test.ts` | **New** — talent-side discovery/apply/withdraw; 10 tests, incl. the applicant-count bug's regression test |
+| `apps/api/src/routes/briefs.ts`, `.test.ts` | `applicants: 0` → real `_count`; new `GET /briefs/:id/applicants`, applicant-cap field; 7 new tests |
+| `apps/api/src/routes/index.ts` | Registered `projectRoutes` |
+| `apps/web/src/lib/api-client.ts` | `createBrief()` gains `applicantCap`/`status` params; new `listProjects/applyToProject/listMyApplications/withdrawMyApplication/listApplicants/shortlistApplicant/rejectApplicant/selectApplicant` |
+| `apps/web/src/app/pages/ProjectBrief.tsx`, `.test.tsx` | Bug 1 fix (`status: "ACTIVE"`); applicant-cap input field; regression assertion added to existing test |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | New "Projects" tab: browse/search, apply-with-pitch, my-applications/withdraw |
+| `apps/web/src/app/pages/ClientDashboard.tsx` | Applicant management: shortlist/reject/select with rate-card + slot picker |
+| `apps/web/src/mocks/clientProjects.ts`, `mocks/projects.ts`, `mocks/index.ts` | Mock fixtures for projects/applications |
+| `packages/types/src/application.ts`, `clientProject.ts`, `index.ts` | New `Project`, `MyApplication`, `Applicant` types; `ClientProject` gains cap/open fields |
+
+---
+
+## Session 26 — `features.md` Phase 15: public marketplace profile / shareable link (FA-3)
+
+**Goal:** make `monologg.co/[handle]` work for a completely logged-out visitor — no account, no session — so a talent's profile is actually shareable outside the app, and give Phase 16's guest-checkout flow a real link to land on.
+
+- **New `services/publicProfile.ts`**: `getPublicStorefront(creatorId)` returns only fields a logged-out visitor could already see — name, niche (+ label), location, bio, style tags, media, rate cards with prices, `celebrityBadge`, and `verified` derived to a plain boolean (`creator.verification === "VERIFIED"`) rather than ever exposing the internal `PROCESSING`/`FAILED` KYC states — consistent with the X3 invariant. `renderOgImageSvg(name)` generates a real, deterministic initials-mark SVG (brand colors, name-derived) as an Open Graph image stand-in, since no phase's schema has ever stored a creator headshot.
+- **New endpoints on `routes/creators.ts`**: `GET /creators/:id/public` and `GET /creators/:id/og-image.svg`, both public/no-auth. `:id` is explicitly the creator's cuid, not a real handle/username — no phase has added a slug field, a forward-reference the code comments call out directly (same one `routes/mediaKit.ts` made in 12A.1).
+- **Frontend**: `PublicStorefront.tsx` renders at route `:handle` (registered last in `routes.tsx`, after every more specific static path) and is deliberately not wrapped in `RequireAuth` — the one screen designed to render for a stranger with zero session state. New `lib/documentMeta.ts` sets `document.title` plus real `og:*`/`twitter:*` meta tags client-side, with cleanup that restores the previous title and removes only the tags it created. Each rate card's "Book Now" navigates to `/book/:creatorId`, `ExternalBookingEntry.tsx` — also unauthenticated, explicitly labeled in its own doc comment as "Phase 16's placeholder entry point, not its implementation."
+- **Deliberate, explicitly-flagged tradeoff**: meta tags are client-side-only, not server-pre-rendered — this is a plain Vite SPA with no SSR framework, so a real crawler (Slack/Twitter/iMessage unfurl bots, none of which execute JS) hits the raw HTML shell and won't see the injected tags. A true crawler-facing preview needs either an SSR migration or a bot-detection pre-render at the hosting layer, both out of scope here.
+- **Minor, unflagged gap observed**: `apiClient.getOgImageUrl(handle)` returns a hardcoded `/api/v1/creators/${handle}/og-image.svg` regardless of `API_MODE` — in mock mode there's no backend to serve that path, so the `og:image`/`twitter:image` tags on a mock-mode demo point at a URL that 404s. Not exercised by any test (`PublicStorefront.test.tsx` only checks meta tags are *set*, not that the image URL resolves) — a real, low-stakes, currently-unverified rough edge.
+- **Test/scope gap**: `ExternalBookingEntry.tsx` has no test file at all this session — entirely unexercised, consistent with it being an intentional stub, but worth naming rather than assuming coverage exists.
+- **Tests added this session**: 6 new API tests (`routes/creators.test.ts` — public storefront field-scoping + 404, og-image endpoint) and 5 new web tests (new file `PublicStorefront.test.tsx` — mock-mode fixture render with no network call, live-mode full render with price/no-leak assertions, meta-tag verification, Book Now routing with creator+service carried through, not-found state).
+
+### File inventory additions (Phase 15)
+
+| File | Change |
+|---|---|
+| `apps/api/src/services/publicProfile.ts` | **New** — `getPublicStorefront`, `renderOgImageSvg`, `PublicProfileNotFoundError` |
+| `apps/api/src/routes/creators.ts`, `.test.ts` | New `GET /creators/:id/public`, `GET /creators/:id/og-image.svg`; 6 new tests |
+| `apps/web/src/app/pages/PublicStorefront.tsx`, `.test.tsx` | **New** — public, unauthenticated storefront page; 5 tests |
+| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | **New** — Phase 16 placeholder stub at `/book/:creatorId`; no test file |
+| `apps/web/src/app/routes.tsx` | Registered `:handle` (last) and `book/:creatorId` routes, both outside `RequireAuth` |
+| `apps/web/src/lib/documentMeta.ts` | **New** — client-side OG/Twitter meta injection |
+| `apps/web/src/lib/api-client.ts` | New `getPublicStorefront(handle)`, `getOgImageUrl(handle)` |
+| `apps/web/src/mocks/publicStorefront.ts`, `mocks/index.ts` | Mock fixture for storefront |
+| `packages/types/src/publicStorefront.ts`, `index.ts` | New `PublicStorefront`, `PublicMediaAsset` zod types |
+
+---
+
+## Session 27 — `features.md` Phase 16: external-visitor booking + deferred account + escrow-first (FA-5)
+
+**Goal:** the flagship, most-dependent phase — a stranger from a shared `/[handle]` link books a talent, funds escrow, and gets a client account auto-created from their checkout info, never seeing a separate "sign up." Escrow-first is preserved throughout: chat opens only after `ESCROW_LOCKED`.
+
+- **Schema, additive only**: `Booking` gains `origin: BookingOrigin` (`INTERNAL`|`PUBLIC_LINK`), `contextNote: String?`, `slotHoldExpiresAt: DateTime?`. `User` gains `accountOrigin: AccountOrigin` (`SIGNUP`|`AUTO_CHECKOUT`), `passwordSet: Boolean @default(true)`. Migration `20260731063733_phase16_external_booking`.
+- **`TODO(conflict:X7)` — the one real architectural reconciliation this phase required**: `Booking.clientId` is a required FK, and the phase's own prescribed schema diff doesn't loosen that, so the guest's `User`+`Client` row must exist by the time the `Booking` row is created (to hold the slot in `PENDING_PAYMENT`) — *before* the payment webhook fires. The spec's "account materializes on payment" is honored at the UX/surfacing level, not the DB-write level: `services/externalBooking.ts`'s `createExternalBooking()` creates the row quietly at booking-creation time, but it's never surfaced, emailed, or made accessible (`passwordSet:false` blocks login) until `services/payment.ts`'s webhook handler confirms escrow and issues a set-password token. This is the only schema-faithful design available, and it mirrors real guest-checkout systems (e.g. Shopify creates the customer row before capture but never logs them in until the order completes).
+- **New `routes/publicBookings.ts`**: `POST /public/bookings` (guest identity find-or-create + booking creation, reusing `computeFees`/`bookSlot`) and `POST /public/bookings/:id/pay` (scoped to `origin=PUBLIC_LINK` bookings only — refuses to guest-pay-init an internal booking). Both unauthenticated by design; the booking id itself (an unguessable cuid, handed only to whoever just created it) is the authorization boundary, the same trust model a Stripe/Shopify checkout-session URL uses.
+- **PWA-19 (set-password/magic-link) reuses `POST /auth/reset-password` verbatim** rather than a parallel mechanism — the webhook issues a token under the *same* `auth:reset:` cache prefix the existing forgot-password flow already uses, and the endpoint was extended to also flip `passwordSet:true` and return a session (so completing it both sets a password and logs the buyer straight in — the "magic link" behavior, without inventing passwordless auth).
+- **Escrow-chat gate — a real, pre-existing gap closed, applied globally, not just to this flow**: `routes/orderRooms.ts` previously never checked `Booking.state` at all, for *any* booking. Added `booking.state === "PENDING_PAYMENT"` → 403 in the shared `loadParticipantBooking()` helper — internal bookings get an `OrderRoom` at creation time exactly the same way external ones do, so the fix has to be shared, not origin-specific.
+- **Slot-hold expiry (X5, confirmed 30 min with the user) is lazy, not a cron job** — there's no job-scheduler in this codebase for "expire this row later." `services/availability.ts`'s `getOpenSlots` now runs a `releaseExpiredHolds()` check inline: any "booked" slot whose owning booking is `PENDING_PAYMENT` past its `slotHoldExpiresAt` is treated as free and the booking flipped to `CANCELLED` — the exact place that already re-verifies availability server-side, reused rather than duplicated.
+- **Frontend**: `ExternalBookingEntry.tsx` (the Phase 15 stub) rebuilt into the full PWA-18 flow — slot → summary/escrow-explainer → context note → name+email → payment → confirmed, reusing `Checkout.tsx`'s visual patterns (ported in, not import-shared, to avoid risk to the working screen). New `SetPassword.tsx` (PWA-19) at `/set-password`, unauthenticated by design — it IS how a fresh guest gets a session.
+- **Tests**: 545→ backend suite grew by the full new surface — `services/externalBooking.test.ts` (6), `routes/publicBookings.test.ts` (8), extended `orderRooms.test.ts` (+3 escrow-gate cases), extended `availability.test.ts` (+4 slot-expiry cases), extended `auth.test.ts` (+2 passwordSet cases), new `e2e.externalBooking.test.ts` (2, the full logged-out flagship flow) — api ended this session at 545/545. Web: new `ExternalBookingEntry.test.tsx` (1, full step-by-step flow assertion, verifies only unauthenticated endpoints are ever called), `PublicStorefront.test.tsx`'s "Book Now" test updated to assert the real flow instead of the Phase 15 stub's placeholder copy — web ended at 71/71.
+
+### File inventory additions (Phase 16)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/schema.prisma`, migration `20260731063733_phase16_external_booking/` | `Booking.origin/contextNote/slotHoldExpiresAt`, `User.accountOrigin/passwordSet`, 2 new enums |
+| `apps/api/src/config/slotHold.ts` | **New** — `SLOT_HOLD_MINUTES = 30` |
+| `apps/api/src/services/externalBooking.ts`, `.test.ts` | **New** — guest find-or-create + booking creation; 6 tests |
+| `apps/api/src/routes/publicBookings.ts`, `.test.ts` | **New** — unauthenticated guest checkout endpoints; 8 tests |
+| `apps/api/src/services/payment.ts` | Webhook handler issues set-password token on `PUBLIC_LINK` escrow-lock |
+| `apps/api/src/lib/notificationTemplates.ts` | Added `set_password` template |
+| `apps/api/src/routes/auth.ts` | Login refuses `passwordSet:false`; `reset-password` also sets `passwordSet:true` + returns a session |
+| `apps/api/src/routes/orderRooms.ts`, `.test.ts` | Global `PENDING_PAYMENT` → 403 escrow gate; +3 tests |
+| `apps/api/src/services/availability.ts`, `.test.ts` | Lazy `releaseExpiredHolds()`; +4 tests |
+| `apps/api/src/e2e.externalBooking.test.ts` | **New** — 2 tests, full logged-out flow against a stateful mocked Prisma |
+| `apps/api/vitest.config.ts` | Added coverage threshold for `services/externalBooking.ts` |
+| `apps/web/src/lib/api-client.ts` | New `createGuestBooking`, `payGuestBooking`, `setPassword` |
+| `apps/web/src/app/pages/ExternalBookingEntry.tsx`, `.test.tsx` | Rebuilt from Phase 15 stub into the full PWA-18 flow; **new** test file |
+| `apps/web/src/app/pages/SetPassword.tsx` | **New** — PWA-19 |
+| `apps/web/src/app/routes.tsx` | Registered `/set-password`, unauthenticated |
+| `apps/web/src/app/pages/PublicStorefront.test.tsx` | "Book Now" assertion updated for the real flow |
+
+---
+
+## Session 28 — `features.md` Phase 17: QA, security & UAT (production gate)
+
+**Goal:** the independent verification pass before production cutover — not feature work. Checks the assembled system, not just each phase's own unit tests; any gap found becomes a tracked ticket, not scope creep here.
+
+- **Scope confirmed with the user up front** on four pieces an agent can't do literally: UAT (script prepared, sign-off left explicitly PENDING — no real users/legal reviewer available), physical cross-device testing (substituted with a real Playwright browser-engine matrix — Chromium/WebKit/Firefox, WebKit genuinely macOS WebKit, a materially closer Safari proxy than headless Chrome), load testing (substituted with genuine `Promise.all` concurrency against the real dev Supabase DB via the existing, already-established integration-test harness), and staging with test-mode providers (doesn't exist — noted as an infra gap, not attempted).
+- **New Playwright suite** (`apps/web/e2e/`) against the mock-mode build: 19 golden-path routes × 3 browser engines, a 360/768/1024/1600px responsive sweep, a keyboard-reachability check, and an axe accessibility scan per page. 143 passed, 1 correctly skipped (keyboard-nav on the touch-primary webkit-iphone project — no hardware-keyboard tab order to test there).
+- **A real, systemic accessibility bug found and fixed**: `--color-text-tertiary` (`tokens.css`) measured 2.68:1 against `--color-bg-canvas` (needs 4.5:1) — this single token backed ~48 of the original axe hits across nearly every screen. Fixed in both light (`#6D6D75`) and dark (`#898993`) mode, same hue, deep enough to clear every surface it's actually painted on. Also added missing `aria-label`s to 5 icon-only controls (back buttons, order-room send button, settings dark-mode/notification toggles, checkout/booking date inputs).
+- **NOT fixed, tracked as a P0 pre-cutover blocker**: ~100+ serious/critical `color-contrast` violations remain across dozens of *distinct* color pairs (accent-on-soft-background badges in every brand ramp, opacity utilities, component-local inline colors) — a full design-system remediation project needing sign-off on new brand colors, explicitly out of this phase's "does not add features" scope. The axe check now runs and reports (via test annotations) rather than hard-failing the suite on pre-existing, tracked debt.
+- **Structural finding, not a QA failure**: there is no `manifest.json`, no service worker, and no PWA plugin anywhere in `apps/web` — verified directly (0 manifest links, 0 service-worker registrations). Despite every screen being named `PWA-XX` since Phase 0, actual installability/offline-caching was never built in Phases 0–16. Not built here either — recorded as a P0 gate-blocking gap.
+- **Security — a confirmed, demonstrated P0/P1 finding**: `PATCH /verification-recordings/:id/review` (already flagged in its own code comment since Phase 12A as a "KNOWN GAP... future work") has no ownership or role check at all. New `security.authzFuzz.test.ts` proves the sharpest version — a talent can self-approve their own identity verification, granting themselves a "Verified" badge with zero independent review. Needs a real moderator role before real users are onboarded; not built here (feature work, out of scope). The same file also confirms (by reading every previously-zero-coverage route file) that every OTHER untested route is either safe-by-design (`mediaKit.ts`, `attributes.ts`, `transactions.ts`, `calendar.ts`, `support.ts` — all scoped to the caller's own token, no cross-tenant `:id` param exists) or correctly ownership-checked but just untested (`calendarEvents.ts`, `notifications.ts`, `creators.ts`'s media routes — confirmatory tests added).
+- **New amount-tampering regression test** (`services/payment.test.ts`) turns a code-inspection fact into a locked-in assertion: `processPaystackWebhookEvent` never reads `payload.data.amount` at all — a forged webhook amount is provably inert.
+- **New real-DB concurrency integration test** (`apps/api/prisma/phase17.concurrency.integration.test.ts`, run manually, not CI-wired — same convention every other `*.integration.test.ts` file already uses): fired genuine concurrent requests at the real dev database and proved no double-booking, no double-charge, no cap overrun under actual Postgres advisory-lock contention, not a mocked approximation. Surfaced one attributable perf finding, not a money-safety bug: at 5+ simultaneous requests for the identical slot, some queued-behind-the-lock requests hit Prisma's default 5s interactive-transaction timeout in this environment's cross-region network conditions (never more than 1 winner in any trial, at any N tried) — Phase 16's `releaseExpiredHolds` lazy-expiry check adds one extra query inside that lock's critical section, a plausible contributor, flagged rather than optimized here.
+- **NDPA data-handling inventory written** (`qa/2026-07-31-phase17/ndpa-data-inventory.md`) — a structured personal-data inventory to inform legal review, explicitly not a legal sign-off. Flags the KYC-PII-at-rest question as not yet applicable (no PII is persisted yet — Smile Identity integration is still a Phase 7 stub) but must be re-verified the moment that integration actually lands.
+- **All findings archived**: `monologg/qa/2026-07-31-phase17/` (README gate summary, regression/cross-device-a11y/security/load-concurrency/ndpa-data-inventory/uat-plan) — the hard gate stated there plainly: no production cutover until the verification self-approval gap is closed and UAT/NDPA are signed off.
+- **Re-verified the full baseline**: `apps/api` 556/556 tests (up from 545, +11: 1 amount-tampering + 10 authz-fuzz), `apps/web` 71/71 (unchanged count, one assertion updated). Typecheck/lint/build clean across all packages. `pnpm run audit`: 3 vulnerabilities found, 3 high (2 reviewed/ignored), exit 0 — no new unreviewed high/critical.
+
+### File inventory additions (Phase 17)
+
+| File | Change |
+|---|---|
+| `apps/web/e2e/playwright.config.ts`, `regression.spec.ts` | **New** — cross-browser/responsive/a11y/PWA-gap Playwright suite |
+| `apps/web/package.json` | Added `@playwright/test`, `@axe-core/playwright` devDependencies |
+| `apps/web/src/styles/tokens.css` | `--color-text-tertiary` contrast fix, light + dark |
+| `apps/web/src/app/pages/CreatorOnboarding.tsx`, `ClientOnboarding.tsx`, `OrderRoom.tsx`, `Settings.tsx`, `Checkout.tsx`, `ExternalBookingEntry.tsx` | Added missing `aria-label`s |
+| `apps/api/src/security.authzFuzz.test.ts` | **New** — 10 tests; confirms + demonstrates the verification-review gap, confirmatory calendarEvents ownership tests, consolidated stranger-token booking/order-room sweep |
+| `apps/api/src/services/payment.test.ts` | +1 amount-tampering test |
+| `apps/api/prisma/phase17.concurrency.integration.test.ts` | **New** — 4 tests, real-DB concurrency (slot race, webhook replay, double-approve, applicant cap) |
+| `monologg/qa/2026-07-31-phase17/` | **New** — README, regression, cross-device-a11y, security, load-concurrency, ndpa-data-inventory, uat-plan |
+| `.gitignore` (repo root) | Added Playwright artifact directories |
 

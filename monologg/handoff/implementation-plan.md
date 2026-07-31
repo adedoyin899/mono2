@@ -1,7 +1,16 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-07-29
-**Status:** pnpm workspace, migrated Supabase/Prisma schema, running Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend, real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, and a real notifications backend — in-app + queued email/SMS with retry/backoff — wired into the existing panel (`features.md` Phases 0–9 done). `Checkout.tsx` itself is not yet wired to the Phase 6 backend — a known, deliberately-left-open gap, not an oversight (see `log.md` Session 16). There is likewise no "start identity verification" form anywhere in the UI yet — Phase 7's KYC endpoints are real and fully tested, but no PWA screen in the original design collects the legal name/DOB/ID fields `KycProvider.startCheck` needs, so building one would be new UI scope, not a wiring pass (see `log.md` Session 17). Phase 8's Google Calendar connect flow is likewise backend-only by design (the kickoff scope explicitly framed it as "the provider layer," deferring the availability UI to Phase 13) — no `apps/web` screen calls any of it yet (see `log.md` Session 18). Phase 9's notification preferences (email/SMS opt-out) are real and tested on the backend, but `Settings.tsx`'s existing "Notifications" toggle UI is still local-only, unwired — that screen has no backend wiring of any kind yet, a pre-existing gap this phase didn't need to close to satisfy its own kickoff scope (see `log.md` Session 19). Phase 10 shipped the four PRD SYS-01–04 system screens for real: transaction history (owner-scoped, fee breakdown), help & support (FAQ + ticket submit/list), versioned Terms/Privacy pages, and terms acceptance recorded with version + timestamp at registration — all three are genuinely new screens (not rewires), reachable from `Settings.tsx` and `AuthFlow.tsx`. The Terms/Privacy page content is explicitly flagged in-page as a legal-review-pending draft, not reviewed copy (see `log.md` Session 20). Phase 11 (design-token adoption + font self-hosting) is next.
+**Last updated:** 2026-07-31 (Phase 17 — QA, security & UAT)
+**Status:** All 18 phases of `features.md` (0–17) are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
+
+**Open, gate-blocking items as of Phase 17** (full detail in `monologg/qa/2026-07-31-phase17/`, not repeated here — see that folder's own README for the complete PENDING list):
+- **P0/P1 security**: `PATCH /verification-recordings/:id/review` has no reviewer/ownership check — any authenticated user (including the recording's own creator) can approve it. Needs a real moderator role before real users are onboarded.
+- **UAT and NDPA legal sign-off**: both explicitly PENDING — an agent can't recruit real users or grant legal sign-off. Scripts/inventories are prepared, not completed reviews.
+- **No PWA infrastructure exists**: no `manifest.json`, no service worker, anywhere in `apps/web`, despite the `PWA-XX` screen naming used throughout `features.md` since Phase 0.
+- **Accessibility contrast debt**: one systemic token fixed; ~45 of 57 route×browser combinations still have serious/critical color-contrast violations, needing a dedicated design-system remediation pass.
+- **Staging with test-mode real providers**: doesn't exist yet — Phase 17's automated passes ran against mock-mode web + the real dev Supabase DB instead.
+
+**No production cutover until the items above are closed**, per Phase 17's own stated gate.
 
 This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
 
@@ -155,6 +164,46 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 - [x] **Known, deliberately-left-open gap:** `Checkout.tsx` is not wired to any of this — still the scripted 2.5s delay, still says "FINCRA" three times. Phase 6's kickoff was API-only scope; asked explicitly whether to fold the frontend rewiring in now, and the answer was to leave it and log the gap instead (this entry, plus `log.md` Session 16) rather than silently carry a known acceptance-criteria gap forward.
 - [x] Re-verified the full baseline: `apps/api` typecheck/tests green (186 unit + 16 live-DB integration tests); `apps/web` untouched this phase.
 
+### `features.md` Phase 7 — KYC (Smile Identity) + AI style-tagging as two independent systems
+- [x] `KycProvider`/`AiTaggingProvider` real+mock implementations; `Creator.verification` (KYC) and `Creator.styleTags` (AI) kept fully independent columns/code paths (X3) — locked in with a schema test proving `KycCheck` has no name/DOB/ID-number column, i.e. PII is never persisted at all.
+- [x] Known, deliberately-left-open gap: no "start identity verification" UI form exists — the endpoints are real and tested, but no screen in the original design collects the legal name/DOB/ID fields `KycProvider.startCheck` needs; building one is new UI scope, not a wiring pass. See `log.md` Session 17.
+
+### `features.md` Phase 8 — Google Calendar sync (provider layer) + Phase 9 — Notifications backend
+- [x] `CalendarProvider` real OAuth (encrypted refresh token), `getBusyTimes`/`createMeet`; provider-layer only by kickoff design — no `apps/web` screen calls any of it yet, rich availability UX deferred to Phase 13. See `log.md` Session 18.
+- [x] Real notifications backend — in-app + queued email/SMS with retry/backoff, per-user preferences (`NotificationPreference`). `Settings.tsx`'s preferences toggle UI stayed unwired at the time (closed in Phase 17's a11y pass with a proper `aria-label`, still not backend-wired). See `log.md` Session 19.
+
+### `features.md` Phase 10 — System screens (transaction history, help & support, terms/privacy)
+- [x] Four PRD SYS-01–04 screens shipped for real: transaction history (owner-scoped, fee breakdown), help & support (FAQ + ticket submit/list), versioned Terms/Privacy pages, terms acceptance recorded with version+timestamp at registration. Terms/Privacy content explicitly flagged in-page as a legal-review-pending draft. See `log.md` Session 20.
+
+### `features.md` Phase 11 — Design-token adoption + font self-hosting
+- [x] Swapped every exact-match literal px type size to its token across 4 files; added (not yet consumed) font-weight/line-height tokens. Self-hosted all 3 brand fonts (11 `@font-face` rules, `font-display: swap`), dropped both CDN dependencies, added preload links. Backfilled into `log.md` as Session 21 (see `README.md`'s living-document policy — this phase originally shipped with no entry).
+
+### `features.md` Phase 12 — Hardening (security, testing, observability, deployment)
+- [x] Security: CSP tightened to `default-src 'none'`, pino log redaction, production DB-URL cross-check, proved (not assumed) no CSRF surface and no KYC PII persistence, `pnpm audit` now CI-blocking with 2 reviewed/allowlisted exceptions.
+- [x] Testing: per-file coverage thresholds on money/auth/state modules; new cross-cutting hardening test file; first continuous-state e2e test (book→pay→webhook→deliver→approve against one stateful mock).
+- [x] Observability: `x-request-id`, `/ready`, `/metrics`, optional Sentry (no-op without `SENTRY_DSN`). Deployment: both Dockerfiles + `docker-compose.yml` (reviewed line-by-line; no Docker daemon available to build locally that session — CI's `docker` job is the real acceptance check). See `log.md` Session 22.
+
+### `features.md` Phase 12A — Media Kit, Verification Video, Physical Attributes
+- [x] Three additive extensions: auto-rendered Media Kit PDF (`pdf-lib`, with an upload-override mode), server-authoritative verification-video duration check (a real hand-written ISO-BMFF/MP4 box parser, not an ffprobe wrapper), and Physical Attributes with all six PRD privacy non-negotiables (optional fields, ranges not raw numbers, SEARCHABLE-default, versioned consent, hard-delete, no auto-scoring). Reviewer decisions on verification videos flagged as a known gap (no moderator role exists) — **this is the same gap Phase 17 later confirmed and demonstrated as a real security finding (self-approval), still open.** See `log.md` Session 23.
+
+### `features.md` Phase 13 — Rich availability calendar & time-slot booking (FA-1)
+- [x] Server-authoritative `getOpenSlots`/`bookSlot` (Postgres advisory-lock-serialized, race-safe), default-free rule, recurring + exact-date `AvailabilityBlock`s, new `CalendarEvent` model. `Checkout.tsx` and `TalentDashboard.tsx` wired to real slots for the first time — the Phase 6 "Checkout not wired" gap noted above is closed as of this phase.
+- [x] Real bug found + fixed via live testing: a concurrent-refresh-token race in `api-client.ts` (concurrent 401s each independently spending the same single-use refresh token, triggering reuse-detection and revoking the session) — fixed with a shared in-flight refresh promise. See `log.md` Session 24.
+
+### `features.md` Phase 14 — Project applications, two-sided + applicant cap (FA-2, FA-4)
+- [x] `Application` model (DB-unique per briefId+creatorId), advisory-lock-enforced applicant cap (same pattern as Phase 13's slot booking), full apply/shortlist/reject/select/withdraw lifecycle, selection converts straight into a real booking via the existing `createBooking` path.
+- [x] Two real bugs found + fixed via live testing: `createBrief()` never set `status`, so published briefs silently stayed `DRAFT` and never appeared in browse; `GET /projects`'s applicant count reused a caller-filtered array's length instead of a true count, showing "0 applicants" to anyone who hadn't applied yet. See `log.md` Session 25.
+
+### `features.md` Phase 15 — Public marketplace profile / shareable link (FA-3)
+- [x] `monologg.co/[handle]` (currently the creator's cuid, not a real slug — flagged) renders fully logged-out with real prices/media/badges; client-side Open Graph/Twitter meta injection (no SSR, so real crawler bots won't see it — an explicitly flagged, out-of-scope tradeoff). `ExternalBookingEntry.tsx` shipped as an intentional Phase-16 placeholder stub. See `log.md` Session 26.
+
+### `features.md` Phase 16 — External-visitor booking + deferred account + escrow-first (FA-5)
+- [x] The flagship flow: logged-out guest picks a service/slot, funds escrow, gets a `User`+`Client` auto-created from checkout info (surfaced only once escrow is confirmed, never before — `TODO(conflict:X7)`), and lands in their new dashboard via an emailed set-password/magic-link (reusing `POST /auth/reset-password`, not a parallel mechanism).
+- [x] Closed a real, pre-existing gap while at it: the order room previously never checked `Booking.state` at all — chat is now gated on `ESCROW_LOCKED` globally (internal bookings too, not just this flow). Slot-hold expiry (X5, confirmed 30 min) is lazy (checked inside `getOpenSlots`), no cron job. See `log.md` Session 27.
+
+### `features.md` Phase 17 — QA, security & UAT (production gate)
+- [x] Independent verification pass — Playwright cross-browser/a11y suite, security authorization-fuzz test, amount-tampering regression test, real-DB concurrency test, NDPA data inventory, UAT script. Fixed one systemic a11y bug (contrast token + missing labels); found and documented (not fixed — out of scope) a P0/P1 security gap and the missing PWA infrastructure. **This phase's own gate is open, not closed — see the Status note at the top of this file and `monologg/qa/2026-07-31-phase17/README.md` for the full PENDING list.** See `log.md` Session 28.
+
 ---
 
 ## 🔄 In Progress
@@ -163,11 +212,11 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 
 ---
 
-## ⏳ Not started — full-stack build-out (see `features.md` for complete specs)
+## ✅ Full-stack build-out — all phases done (see `features.md` for complete specs)
 
-This supersedes the old flat gap list (previously here and in `design.md` §6) — `features.md` is now the authoritative, dependency-ordered backlog. **Phases are ordered by dependency, not priority; build one at a time, with tests as a gate, and stop for review between phases** — don't batch several in one unreviewed pass.
+`features.md` was the authoritative, dependency-ordered backlog for this whole build-out; every phase in it is now built. **Phases were built in dependency order, one at a time, with tests as a gate and a stop-for-review between phases** — the discipline that got this list to all-done, not a rule that stops mattering now. The Phase 17 gate above is what actually decides production-readiness — treat every checkbox below as "built," not as "shippable."
 
-**⚠️ Known conflicts** (see `features.md` §1): payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1) — **backend resolved as of Phase 6**, but `Checkout.tsx`'s own copy still says FINCRA (a known, separate, deliberately-left-open frontend gap — see Phase 6's Done entry above); fees are 11% talent / 15% client, not 9%/12% (X2, backend resolved since Phase 3); "Thespian AI" must become style-tagging only, with identity KYC as a fully separate system (X3) — **resolved as of Phase 7**, both backend and UI copy (see `log.md` Session 17). **X4 and X5 are already confirmed** (not open questions): applicant cap hard-closes first-come with manual client selection from the closed pool (X4); external-checkout slot hold expires after 30 min, as config (X5) — both apply when Phases 14/16 are built. Current copy (landing page, `Checkout.tsx`, `design.md`) still reflects some old X1–X3 values in the frontend prototype — do not carry them into any new backend work.
+**⚠️ Known conflicts** (see `features.md` §1) — **all resolved**: payment provider is Paystack/Stripe/Airwallex, not FINCRA (X1, resolved Phase 6 backend; `Checkout.tsx`'s copy resolved Phase 13). Fees are 11% talent / 15% client, not 9%/12% (X2, resolved Phase 3). "Thespian AI" is style-tagging only, identity KYC fully separate (X3, resolved Phase 7, backend + UI copy). Applicant cap hard-closes first-come with manual client selection (X4, resolved Phase 14). External-checkout slot hold expires after 30 min, as config (X5, resolved Phase 16). `TODO(conflict:X7)` — a new one from Phase 16, not in the original PRD list: the guest account-materialization timing reconciliation (see that phase's Done entry above) — resolved, documented in code, not open.
 
 ### Infrastructure spine (Phases 0–12)
 - [x] **Phase 0** — Repo tooling: CI, lint/prettier/strict TypeScript, `CONTRIBUTING.md` — done, see the Done section above; git itself was already done in Phase 9
@@ -176,22 +225,23 @@ This supersedes the old flat gap list (previously here and in `design.md` §6) �
 - [x] **Phase 3** — Fastify backend scaffold, validated env config, provider-interface pattern (every external dependency mocked by default)
 - [x] **Phase 4** — Real authentication: JWT access + rotating refresh, argon2id, protected routes, auth middleware — done, see the Done section above
 - [x] **Phase 5** — Core domain endpoints (profiles, rate cards, availability, briefs, bookings, order rooms) behind the api-client seam — done, see the Done section above
-- [x] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent — done, see the Done section above (backend only — `Checkout.tsx` frontend wiring is a known, separate open gap)
-- [x] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems — done, see `log.md` Session 17 (no "start verification" UI form exists yet — a known, deliberately-left-open gap, same shape as the Phase 6 `Checkout.tsx` gap above)
-- [x] **Phase 8** — Google Calendar sync + real Meet links — done, see `log.md` Session 18 (provider layer only, by kickoff design — no UI wiring; rich availability UX is Phase 13)
-- [x] **Phase 9** — Notifications backend (email/SMS/in-app) — done, see `log.md` Session 19 (real per-user panel + preferences; `Settings.tsx`'s preferences toggle UI stays unwired, a pre-existing gap)
-- [x] **Phase 10** — System screens: transaction history, help/support, terms/privacy (PRD SYS-01–04) — done, see `log.md` Session 20 (Terms/Privacy content is an explicitly-flagged draft, not legal-reviewed copy)
-- [ ] **Phase 11** — Design-token adoption everywhere + font self-hosting (closes the two known design-consistency gaps)
-- [ ] **Phase 12** — Hardening: security (OWASP pass, NDPA), test coverage, observability, deployment
+- [x] **Phase 6** — Payment/escrow integration, Paystack-first, webhook-authoritative, idempotent — done, see the Done section above (`Checkout.tsx` frontend wiring closed in Phase 13)
+- [x] **Phase 7** — KYC (Smile Identity) + AI style-tagging as two independent systems — done, see the Done section above and `log.md` Session 17
+- [x] **Phase 8** — Google Calendar sync + real Meet links — done, provider layer only by kickoff design; see the Done section above and `log.md` Session 18
+- [x] **Phase 9** — Notifications backend (email/SMS/in-app) — done, see the Done section above and `log.md` Session 19
+- [x] **Phase 10** — System screens: transaction history, help/support, terms/privacy (PRD SYS-01–04) — done, see the Done section above and `log.md` Session 20
+- [x] **Phase 11** — Design-token adoption everywhere + font self-hosting — done, see the Done section above; backfilled `log.md` Session 21
+- [x] **Phase 12** — Hardening: security (OWASP pass, NDPA), test coverage, observability, deployment — done, see the Done section above and `log.md` Session 22
+- [x] **Phase 12A** — Media Kit, Verification Video, Physical Attributes — done, see the Done section above and `log.md` Session 23
 
 ### New feature areas (Phases 13–16, built on the spine above)
-- [ ] **Phase 13** — Rich availability calendar & time-slot booking (default-free rule, server-authoritative `getOpenSlots`)
-- [ ] **Phase 14** — Two-sided project applications with a server-enforced applicant cap; new talent "Projects" nav item
-- [ ] **Phase 15** — Public, logged-out marketplace profile at `/[handle]` with Open Graph previews
-- [ ] **Phase 16** — Flagship: external-visitor booking, escrow-first, deferred account creation from checkout info
+- [x] **Phase 13** — Rich availability calendar & time-slot booking (default-free rule, server-authoritative `getOpenSlots`) — done, see the Done section above and `log.md` Session 24
+- [x] **Phase 14** — Two-sided project applications with a server-enforced applicant cap; new talent "Projects" nav item — done, see the Done section above and `log.md` Session 25
+- [x] **Phase 15** — Public, logged-out marketplace profile at `/[handle]` with Open Graph previews — done, see the Done section above and `log.md` Session 26
+- [x] **Phase 16** — Flagship: external-visitor booking, escrow-first, deferred account creation from checkout info — done, see the Done section above and `log.md` Session 27
 
 ### Production gate
-- [ ] **Phase 17** — Independent QA, security/pen-test, load testing, and UAT — a human sign-off gate, not automated
+- [x] **Phase 17** — Independent QA, security/pen-test, load testing, and UAT — done as an automated/documentary pass; **the human sign-off itself is still PENDING** (see the Status note at the top of this file, and `monologg/qa/2026-07-31-phase17/`). See the Done section above and `log.md` Session 28.
 
 ---
 

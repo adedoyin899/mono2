@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-31 (`features.md` Phase 17)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -118,6 +118,60 @@ This tracks every defect found during this engagement — both classic "the buil
 - **How it was fixed:** Added an optional `style?: React.CSSProperties` prop to `Card` and merged it into the div's inline style (spread after the hardcoded values, so callers can override).
 - **Lesson for next time:** A component that hardcodes its own `style` object and doesn't accept/merge a caller override will silently swallow any `style` prop passed to it — worth deciding explicitly whether a component should accept style overrides, rather than leaving it ambiguous.
 
+### 10. `api-client.ts`'s `request()` crashed on a real `204 No Content` response (`features.md` Phase 12A)
+
+- **Severity:** Medium (broke two real, newly-shipped live-mode endpoints — verification guideline-ack and attribute delete — not visible in mock mode)
+- **What happened:** `request()` unconditionally called `res.json()` on every response, which throws on an actual `204 No Content` (no body to parse) — exactly what the new guideline-ack and attribute-delete endpoints correctly return.
+- **What it meant:** `deleteMyAttributes()`'s live-mode behavior would have thrown before ever being exercised, and any future 204-returning endpoint would hit the same wall.
+- **How it was found:** `VerificationVideo.test.tsx` failed with the exact production-shaped error — a frontend test, not code review, caught it.
+- **How it was fixed:** `request()` now checks for a 204 status and returns `undefined` instead of calling `res.json()`.
+- **Lesson for next time:** A shared HTTP helper needs to handle every real status shape its endpoints can return, not just the common ones — 204 is easy to forget until a real caller hits it.
+
+### 11. pdf-lib's standard fonts can't encode "₦" (`features.md` Phase 12A)
+
+- **Severity:** High (would have crashed Media Kit PDF generation for any NGN rate card — the majority currency in this app)
+- **What happened:** The Media Kit auto-render uses `pdf-lib`'s standard WinAnsi-encoded fonts, which have no glyph for the Naira sign. `formatMoney()`'s normal output (`"₦120,000"`) would have been handed straight to the PDF text-drawing call.
+- **What it meant:** Rendering a Media Kit PDF for any creator with an NGN rate card would throw at render time, not fail gracefully.
+- **How it was found:** A direct smoke-test render (not just unit tests, which mock the PDF library) — caught before it ever hit a test file.
+- **How it was fixed:** A PDF-specific currency-code formatter (`"NGN 120,000"` instead of the glyph) used only in the PDF path, rather than embedding a custom Unicode font for one glyph.
+- **Lesson for next time:** A font/rendering library's supported character set is a real constraint — smoke-test the actual output for any non-ASCII content (currency symbols, accented names) rather than trusting a mocked unit test to catch an encoding gap.
+
+### 12. Concurrent 401s each spent the same single-use refresh token, revoking real sessions (`features.md` Phase 13)
+
+- **Severity:** High — a real, user-facing bug: a normal user could get logged out right after a real login or page reload, with no error message explaining why.
+- **What happened:** `apps/web/src/lib/api-client.ts`'s `tryRefreshSession()` had no de-duplication. Dashboard pages fire several `apiClient.*` calls concurrently on mount; on first load after a real login (or a reload with only a refresh token in storage, no in-memory access token yet), all of those calls 401 simultaneously and each independently POSTed `/auth/refresh` with the same stored, single-use, server-rotated refresh token.
+- **What it meant:** Only the first concurrent refresh actually succeeded — every other call replayed an already-rotated token, which the server's reuse-detection (correctly) treated as theft and revoked the *entire* session family, sometimes stranding the user right after they'd just logged in.
+- **How it was found:** Live-testing Phase 13 against the real API, not the mocked unit-test suite (mocked Prisma/fetch can't reproduce a real race between concurrent in-flight requests).
+- **How it was fixed:** A module-level `refreshInFlight: Promise<boolean> | null` — concurrent callers await the same in-flight refresh instead of each independently spending the token.
+- **Lesson for next time:** Any client-side retry/refresh logic that can be triggered by multiple concurrent requests needs its own de-duplication — this class of bug is invisible to mocked tests and only shows up under real concurrent network conditions.
+
+### 13. Publishing a project brief silently left it stuck in `DRAFT` (`features.md` Phase 14)
+
+- **Severity:** High — the core "Post Project" action silently didn't do what its own button said.
+- **What happened:** `apiClient.createBrief()` never passed a `status` field, so every brief created via `ProjectBrief.tsx`'s "Publish Project" button defaulted to the Prisma schema's `DRAFT` state — and `GET /projects` (talent browse) only ever lists `ACTIVE` briefs.
+- **What it meant:** A client could go through the entire "publish a project" flow, see a success screen, and the project would never actually appear to any talent.
+- **How it was found:** Live end-to-end testing against the real API/DB, not the mocked route tests (which only prove the endpoint accepts a payload — they don't catch a caller never sending the right field).
+- **How it was fixed:** `ProjectBrief.tsx` now passes `status: "ACTIVE"` explicitly, since publishing is this screen's only action. Regression test added.
+- **Lesson for next time:** A schema default that differs from what the UI actually intends (here, `DRAFT` vs. the button's implied `ACTIVE`) is a silent trap — worth explicitly setting the field rather than relying on a default matching intent by coincidence.
+
+### 14. `GET /projects` showed "0 applicants" to any talent who hadn't applied yet (`features.md` Phase 14)
+
+- **Severity:** Medium — wrong data shown, not a broken flow, but actively misleading (a project with 5 real applicants looked uncontested to everyone except the 5 who'd already applied).
+- **What happened:** `routes/projects.ts`'s query filtered `applications` down to just the caller's own application (to derive a separate `myApplication` field), then reused that same filtered array's `.length` as the brief's total `applicantCount`.
+- **What it meant:** Every talent who hadn't applied saw an empty/filtered array's length (0) as the "true" applicant count, regardless of the real total.
+- **How it was found:** Live end-to-end testing against real seeded data with real existing applicants — again, invisible to mocked route tests that control exactly what each mock returns.
+- **How it was fixed:** Added a separate `_count: { select: { applications: true } }` on the same query, used for the total instead of the filtered array's length.
+- **Lesson for next time:** Reusing one query result for two different purposes (a personalized field and an aggregate count) is a common way to accidentally couple their scoping — worth a second, purpose-built field/query for each distinct thing being counted.
+
+### 15. `--color-text-tertiary` failed WCAG AA contrast almost everywhere it was used (`features.md` Phase 17)
+
+- **Severity:** Medium (accessibility defect, not a functional break — but a real, widespread one: this single token backed ~48 axe violations across nearly every screen)
+- **What happened:** `tokens.css`'s `--color-text-tertiary` (`#97979F` light mode) measured 2.68:1 contrast against `--color-bg-canvas` — well under the 4.5:1 WCAG AA minimum for normal text — and this token is used for captions, footer text, and secondary labels across almost the entire app.
+- **What it meant:** Low-vision users would have had real difficulty reading a large fraction of the app's secondary text.
+- **How it was found:** An automated axe-core accessibility scan (new this phase, `apps/web/e2e/regression.spec.ts`), run against a real browser-rendered page — not something the existing unit/component test suite could ever have caught (jsdom-based tests don't compute real contrast ratios).
+- **How it was fixed:** Darkened the token (light mode → `#6D6D75`, dark mode `#898993` for the equivalent issue), keeping the same hue, deep enough to clear every surface it's actually painted on (4.5:1+ against the darkest/lightest surface each mode uses respectively).
+- **Lesson for next time:** Contrast ratios need an automated, real-rendering check (axe-core or equivalent) as part of the regular test suite — a color token can look fine to a sighted developer on a bright monitor and still fail the actual accessibility bar. See `monologg/qa/2026-07-31-phase17/cross-device-a11y.md` for the much larger, NOT-yet-fixed contrast debt this same scan surfaced (dozens of other, unrelated color pairs — tracked separately, needs design sign-off, not a quick token fix).
+
 ---
 
 ## Design-system consistency issues (found via audit, not crashes — but real bugs in the "will silently drift" sense)
@@ -140,7 +194,13 @@ These didn't break anything today, but they meant a future change to a design to
 | Issue | Severity | Why it wasn't fixed |
 |---|---|---|
 | ~~Several unused icon imports in `TalentDashboard.tsx`~~ | — | **Fixed** in `features.md` Phase 0 — strict TypeScript's `noUnusedLocals` surfaced 38 unused imports/variables across 12 files (this one included); all removed, see `log.md` |
-| Fonts (General Sans, Plus Jakarta Sans, JetBrains Mono) load from external CDNs (Fontshare, Google Fonts) | Low–Medium | Not a bug introduced here, but worth flagging: in any environment without internet access (e.g. a strict sandboxed preview), fonts silently fall back to system fonts. Not fixed because it requires a product decision (self-host the fonts, or accept the CDN dependency) — planned for `features.md` Phase 11 |
+| ~~Fonts load from external CDNs~~ | — | **Fixed** in `features.md` Phase 11 — all three brand fonts self-hosted, see `log.md` Session 21 |
 | Type-scale tokens (`--font-size-*`) exist but aren't applied to most page headings yet | Low | Explicitly scoped out during this engagement as a larger, riskier change (would touch heading markup across every page); tokens were added so the option exists, adoption was left for a follow-up pass |
+| **`PATCH /verification-recordings/:id/review` has no reviewer/ownership check at all** — any authenticated user, including a recording's own creator, can approve or reject it | **High** | No moderator/admin role exists in any phase of `features.md` through Phase 17 — flagged as a known gap since Phase 12A, **confirmed and demonstrated** (self-approval proven) in Phase 17's security pass (`security.authzFuzz.test.ts`). Not fixed: building a real moderator role is feature work, out of a QA phase's scope. **Must be closed before real users are onboarded** — see `monologg/qa/2026-07-31-phase17/security.md`. |
+| `apiClient.getOgImageUrl(handle)` returns a hardcoded live-API path regardless of `API_MODE` | Low | In mock mode there's no backend to serve it, so a mock-mode demo's `og:image`/`twitter:image` meta tags point at a URL that 404s. Found during Phase 17's documentation backfill (git-history review of Phase 15), not exercised by any existing test; low-stakes enough not to warrant a dedicated fix pass on its own. |
+| No PWA infrastructure exists — no `manifest.json`, no service worker, anywhere in `apps/web` | **High** | Every screen has been named `PWA-XX` throughout `features.md` since Phase 0, but actual installability/offline-caching was never built in any phase. Confirmed directly (not assumed) in Phase 17's Playwright pass. Building it is feature work, out of a QA phase's scope — tracked as a P0 pre-cutover gap, see `monologg/qa/2026-07-31-phase17/cross-device-a11y.md`. |
+| ~45 of 57 route×browser combinations still have serious/critical `color-contrast` axe violations (dozens of distinct color pairs, not the one token fixed as bug #15 above) | Medium | A full design-system remediation project needing sign-off on new brand colors across every accent ramp — explicitly out of a QA-only phase's scope. See `monologg/qa/2026-07-31-phase17/cross-device-a11y.md` for the full breakdown. |
 
 **Not a bug — a scope gap, documented separately:** the entire absence of a real backend, database, authentication, and payment integration is **not** logged here as a "bug" — it's the current, intentional state of a frontend-only prototype. See `design.md` §6 for the full list of what still needs to be built.
+
+**Also see `monologg/qa/2026-07-31-phase17/` for the complete Phase 17 findings**, including two items that are process gaps rather than code bugs: UAT and NDPA legal sign-off are both explicitly PENDING — neither can be completed by an agent.

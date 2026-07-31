@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-07-28
+**Last updated:** 2026-07-31 (Phase 17 — the independent quality/security check before real launch)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -109,7 +109,36 @@ The project was moved into a `monologg/` subfolder and pushed to a real GitHub r
 
 ### Step 16: Scope the next phase — turning the prototype into a real product
 
-The user provided a large, detailed technical plan (`features.md`) for building the actual backend: a database, real accounts and login, real payments held safely in escrow, identity verification, and several brand-new features (a proper booking calendar, talent applying to job posts, a public profile page anyone can book from without an account first). Before touching any code, the plan was read in full, checked against what's already built, and a couple of open questions (mainly: how the new backend code should be organized inside the shared GitHub repo) were confirmed with the user. Only once that was settled were the handoff documents updated to describe the new phase — no backend code has been written yet; that starts next, one carefully-reviewed step at a time rather than all at once.
+The user provided a large, detailed technical plan (`features.md`) for building the actual backend: a database, real accounts and login, real payments held safely in escrow, identity verification, and several brand-new features (a proper booking calendar, talent applying to job posts, a public profile page anyone can book from without an account first). Before touching any code, the plan was read in full, checked against what's already built, and a couple of open questions (mainly: how the new backend code should be organized inside the shared GitHub repo) were confirmed with the user. Only once that was settled were the handoff documents updated to describe the new phase.
+
+---
+
+## Part C — Building the actual product, one reviewed phase at a time
+
+`features.md` laid out 18 phases (numbered 0 through 17). The rule the whole way through: **build one phase, test it for real, stop and let the human look at it, then move to the next one** — never several phases bundled into one unreviewed pass. What follows is the plain-language summary of that whole arc; the detailed, technical version of each phase lives in `log.md`.
+
+### Steps 17–29: the infrastructure spine (Phases 0–12A)
+
+In order: repo tooling and automated checks (Phase 0), reorganizing the project so a real backend could live alongside the existing frontend (Phase 1), a real database (Phase 2), a real server (Phase 3), real accounts/login (Phase 4), the core "things you can do" — profiles, rate cards, bookings, messaging (Phase 5), real money held safely in escrow until a client approves the work (Phase 6), identity verification kept strictly separate from the AI-based "vibe tagging" feature so the two are never confused (Phase 7), connecting talent's calendars to Google Calendar (Phase 8), real notifications by email/text/in-app (Phase 9), account/legal/support screens (Phase 10), making the visual design fully consistent and no longer dependent on an internet connection to load fonts (Phase 11), a full security/reliability/deployment pass (Phase 12), and three add-on profile features — a downloadable media kit, a short verification video, and optional physical-attribute filters for casting (Phase 12A).
+
+Along the way, a small number of real bugs were caught and fixed — a PDF generator that couldn't print the Naira currency symbol, a page that crashed on a type of empty server response, and others. Every one is written up in `bug.md` with exactly what went wrong and how it was caught.
+
+### Steps 30–33: the new features nobody had scoped yet (Phases 13–16)
+
+Four brand-new pieces were added on top of that foundation: a real, minute-by-minute booking calendar that respects a talent's actual availability (Phase 13); talent being able to apply to a client's job posting, with a hard cap on how many applicants a client has to review (Phase 14); a public profile page anyone can visit and share, even without an account (Phase 15); and the flagship feature — a complete stranger clicking a shared link can book a talent, pay into escrow, and get a account created for them automatically from the same information they already typed in for the booking, never being asked to "sign up" separately (Phase 16). Two real, user-facing bugs were caught by testing these live (not just running the automated test suite) — a "publish" button that silently didn't publish, and a wrong applicant count shown to talent — both found and fixed the same day.
+
+### Step 34: the independent check before anything real launches (Phase 17)
+
+Every phase up to this point was tested by whoever built it. Phase 17 is different on purpose: it's an outside check, on the assumption that the person who built something is the worst-positioned person to find what's wrong with it. This pass:
+- Tried the whole app in three different real web-browser engines, at four different screen widths, and ran an automated accessibility scanner across every screen.
+- Found and fixed one real accessibility bug that made a lot of secondary text too hard to read for low-vision users — but also found a much bigger backlog of similar issues that needs its own dedicated design pass, not something to rush through here.
+- Found — and confirmed with a real test, not just a hunch — that anyone with an account can currently approve their own identity-verification video. That's a real problem to fix before onboarding real users, not something this pass could fix itself (fixing it means building a proper reviewer role, which is new feature work, not quality-checking).
+- Confirmed that despite every screen being labeled "PWA" (progressive web app) in the plans since the very beginning, the actual "installable app" / "works offline" pieces were never built at all.
+- Fired real simultaneous requests at the actual database to prove that two people can't accidentally double-book the same time slot or get double-charged — they can't, confirmed under real conditions, not just assumed.
+- Wrote up exactly what personal information the app collects and where, so a real lawyer can review it — this pass can describe the data, but can't itself sign off that it's legally compliant.
+- Wrote a structured script for a real test round with actual talent and clients — but couldn't run that round itself, since it takes real people and a real "practice" version of the payment/verification systems, neither of which exist yet.
+
+**The bottom line, in plain terms: this product is fully built, but it is not yet ready for real users and real money** until the account-approval problem above is fixed and a human being — not an AI — signs off on the user-testing round and the legal data review. That's the actual gate, not a formality.
 
 ---
 
@@ -117,10 +146,11 @@ The user provided a large, detailed technical plan (`features.md`) for building 
 
 1. **`README.md`** — the index, and the rule for keeping all of this current.
 2. **`implementation-plan.md`** — current status at a glance: done, in progress, not started.
-3. **`design.md`** — what the product is, what's actually built vs. only designed, and the full technical stack (including the important fact that there's currently no backend/database/login).
-4. **`features.md`** — if you're picking up backend work next, read this in full before starting; it's the detailed, phase-by-phase build plan.
-5. **`log.md`** — the detailed, technical, file-by-file record of every change made.
-6. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
-7. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
+3. **`design.md`** — what the product is, what's actually built (everything, as of Phase 17), and the full technical stack.
+4. **`features.md`** — the detailed, phase-by-phase build plan this whole engagement followed, phases 0–17.
+5. **`monologg/qa/2026-07-31-phase17/`** — the current, real gate status: what's still open before a production launch. Read this before assuming anything is "done and shippable."
+6. **`log.md`** — the detailed, technical, file-by-file record of every change made.
+7. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
+8. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
 
 And practically: this project is a real git repository now, pushed to GitHub. Anyone continuing the work should pull the latest, make changes on top of it, and keep committing — the days of "not tracked anywhere" described earlier in this document are over.
