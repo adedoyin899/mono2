@@ -17,6 +17,8 @@ import { LegalPage } from "./pages/LegalPage";
 import { DesignSystem } from "./pages/DesignSystem";
 import { MediaKitManagement } from "./pages/MediaKitManagement";
 import { VerificationVideo } from "./pages/VerificationVideo";
+import { PublicStorefront } from "./pages/PublicStorefront";
+import { ExternalBookingEntry } from "./pages/ExternalBookingEntry";
 
 // Wraps a page component with the auth guard (features.md Phase 4) — a no-op in the
 // default `mock` API mode, real gating once `live` mode + Phase 5 endpoints land.
@@ -56,6 +58,16 @@ export const routeTree = [
       { path: "legal/terms", Component: () => <LegalPage type="terms" /> },
       { path: "legal/privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },
+      // features.md Phase 16 (FA-5) stub entry point — public, no auth; see
+      // ExternalBookingEntry.tsx's own doc comment. Declared before ":handle"
+      // so "book" is never swallowed as someone's handle (React Router ranks
+      // static segments over dynamic ones regardless of order, but the
+      // explicit ordering here documents the intent either way).
+      { path: "book/:creatorId", Component: ExternalBookingEntry },
+      // features.md Phase 15 (FA-3) — the public marketplace profile. Public,
+      // no auth, deliberately LAST: a single dynamic segment at the root
+      // level, so every more-specific route above must be tried first.
+      { path: ":handle", Component: PublicStorefront },
     ],
   },
 ];

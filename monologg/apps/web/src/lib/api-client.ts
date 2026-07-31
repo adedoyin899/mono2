@@ -10,6 +10,7 @@ import type {
   OrderMessage,
   Project,
   PublicRateCard,
+  PublicStorefront,
   ServiceRateCard,
   Slot,
   StatMetric,
@@ -509,6 +510,23 @@ export const apiClient = {
   async getCreatorRateCardsPublic(creatorId: string): Promise<PublicRateCard[]> {
     if (API_MODE !== "live") return mocks.PUBLIC_RATE_CARDS;
     return request(`/creators/${creatorId}/rate-cards`);
+  },
+
+  // ── Public marketplace profile (features.md Phase 15, FA-3) ────────────────
+  // monologg.co/[handle] — reachable logged out, no account. `handle` is the
+  // creator's id (no phase's schema adds a real username/slug field yet, the
+  // same forward-reference apps/api's routes/mediaKit.ts already documents
+  // for its own public creator sub-resource).
+  async getPublicStorefront(handle: string): Promise<PublicStorefront> {
+    if (API_MODE !== "live") return mocks.PUBLIC_STOREFRONT;
+    return request(`/creators/${handle}/public`);
+  },
+  /** A real, name-derived image (not a data: URI, not a fabricated stock
+   * photo) — see apps/api's services/publicProfile.ts for why. Absolute path
+   * (not routed through request()) since it's an <img src>/og:image target,
+   * never JSON. */
+  getOgImageUrl(handle: string): string {
+    return `/api/v1/creators/${handle}/og-image.svg`;
   },
 
   // ── Creator media + AI style-tagging (features.md Phase 7) ────────────────

@@ -1,0 +1,180 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { motion } from "motion/react";
+import { Avatar } from "../components/ui/Avatar";
+import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
+import { apiClient } from "../../lib/api-client";
+import { useDocumentMeta } from "../../lib/documentMeta";
+import type { PublicStorefront as PublicStorefrontData } from "@monologg/types";
+import { Shield, Award, Play, Music, ArrowRight } from "lucide-react";
+
+/**
+ * The public marketplace profile (features.md Phase 15, FA-3):
+ * monologg.co/[handle] — reachable by anyone, logged out, no account.
+ * `handle` is the creator's id (see apps/api's routes/mediaKit.ts and
+ * services/publicProfile.ts for the same forward-reference to a real
+ * username/slug field no phase's schema has added yet).
+ *
+ * Deliberately NOT wrapped in RequireAuth (routes.tsx) — this is the one
+ * screen in the whole app that must render for a stranger with zero session
+ * state. It only ever renders what GET /creators/:id/public returns, which
+ * is itself scoped to public-safe fields server-side — there is no private
+ * data available to leak here even by mistake.
+ */
+export function PublicStorefront() {
+  const { handle } = useParams<{ handle: string }>();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<PublicStorefrontData | null>(null);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (!handle) return;
+    setProfile(null);
+    setNotFound(false);
+    apiClient
+      .getPublicStorefront(handle)
+      .then(setProfile)
+      .catch(() => setNotFound(true));
+  }, [handle]);
+
+  useDocumentMeta(
+    profile
+      ? {
+          title: `${profile.name} — ${profile.nicheLabel} | Monologg`,
+          description: profile.bio ?? `Book ${profile.name}, ${profile.nicheLabel.toLowerCase()} on Monologg.`,
+          image: handle ? apiClient.getOgImageUrl(handle) : undefined,
+          type: "profile",
+        }
+      : null,
+  );
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ background: "var(--color-bg-canvas)" }}>
+        <h1 className="font-display text-2xl mb-2" style={{ color: "var(--color-text-primary)" }}>Profile not found</h1>
+        <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>This talent link doesn't exist or is no longer available.</p>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-bg-canvas)" }}>
+        <p className="text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>Loading…</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-[var(--radius-lg)] overflow-hidden"
+          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+        >
+          <div className="h-24 w-full" style={{ background: "linear-gradient(135deg, var(--color-accent-glow), var(--color-bg-elevated))" }} />
+
+          <div className="px-6 pb-6">
+            <div className="flex items-end gap-4 -mt-10 mb-4">
+              <Avatar size="xl" background="var(--color-accent)" color="var(--color-accent-on)">
+                {profile.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+              </Avatar>
+              <div className="pb-1 flex gap-2 flex-wrap">
+                {profile.verified && (
+                  <Badge tone="success" className="border border-[var(--color-success)]">
+                    <Shield className="w-3 h-3" /> Verified
+                  </Badge>
+                )}
+                {profile.celebrityBadge && (
+                  <Badge tone="warning" className="border border-[var(--color-gold-primary)]">
+                    <Award className="w-3 h-3" /> Celebrity
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <h1 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>{profile.name}</h1>
+            <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>{profile.nicheLabel} · {profile.location}</p>
+
+            {profile.styleTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {profile.styleTags.map((tag) => (
+                  <Badge key={tag} tone="neutral" size="lg">{tag}</Badge>
+                ))}
+              </div>
+            )}
+
+            {profile.bio && (
+              <p className="text-sm font-body leading-relaxed mb-6" style={{ color: "var(--color-text-secondary)" }}>{profile.bio}</p>
+            )}
+
+            {profile.media.length > 0 && (
+              <>
+                <h2 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Showcase</h2>
+                <div className="space-y-3 mb-6">
+                  {profile.media.map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="relative rounded-[var(--radius-md)] overflow-hidden flex items-center gap-3 p-4"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                    >
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent)" }}>
+                        {asset.kind === "VIDEO" ? (
+                          <Play className="w-4 h-4 pl-0.5" style={{ color: "var(--color-accent-on)" }} />
+                        ) : (
+                          <Music className="w-4 h-4" style={{ color: "var(--color-accent-on)" }} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        {asset.kind === "VIDEO" ? "Reel" : "Audio sample"}
+                        {asset.durationSec ? ` · ${Math.round(asset.durationSec)}s` : ""}
+                      </div>
+                      <a href={asset.url} target="_blank" rel="noreferrer" className="text-xs font-semibold font-body shrink-0" style={{ color: "var(--color-accent)" }}>
+                        Play
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <h2 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Booking Services</h2>
+            {profile.rateCards.length === 0 ? (
+              <p className="text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>No services listed yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {profile.rateCards.map((service) => (
+                  <div
+                    key={service.id}
+                    className="p-4 rounded-[var(--radius-md)]"
+                    style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", borderLeft: "3px solid var(--color-accent)" }}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</span>
+                      <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
+                    </div>
+                    <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
+                    <Button
+                      className="w-full h-10 text-sm gap-2"
+                      onClick={() => navigate(`/book/${profile.id}?rateCard=${service.id}`)}
+                    >
+                      Book Now <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        <p className="text-center text-xs font-body mt-6" style={{ color: "var(--color-text-tertiary)" }}>
+          Powered by Monologg
+        </p>
+      </div>
+    </div>
+  );
+}

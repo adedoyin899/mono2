@@ -397,4 +397,100 @@ describe("Creator profile + media upload", () => {
       expect(response.statusCode).toBe(404);
     });
   });
+
+  describe("GET /creators/:id/public — public storefront (features.md Phase 15)", () => {
+    const FULL_CREATOR_ROW = {
+      id: "creator-1",
+      userId: "user-talent-1",
+      email: "talent@monologg.dev",
+      passwordHash: "argon2id$fake-hash",
+      name: "Adaeze Obi",
+      niche: "VO_ARTIST",
+      bio: "Warm, multilingual voice artist.",
+      location: "Lagos",
+      styleTags: ["Warm", "Multilingual"],
+      verification: "VERIFIED",
+      celebrityBadge: true,
+      referralCode: "REF-ADAEZE",
+      media: [{ id: "media-1", kind: "VIDEO", url: "https://cdn.example/reel.mp4", durationSec: 30, sizeBytes: 123456, taggingStatus: "DONE" }],
+      rateCards: [{ id: "rc-1", serviceTitle: "Voice-Over Session", basePriceAmount: 2_800_000, basePriceCurrency: "NGN", deliveryTimeline: "Same Day" }],
+    };
+
+    it("requires no authentication and returns the full public storefront", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(FULL_CREATOR_ROW);
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/public" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({
+        id: "creator-1",
+        name: "Adaeze Obi",
+        niche: "VO_ARTIST",
+        nicheLabel: "Voice-Over Artist",
+        location: "Lagos",
+        bio: "Warm, multilingual voice artist.",
+        styleTags: ["Warm", "Multilingual"],
+        verified: true,
+        celebrityBadge: true,
+        media: [{ id: "media-1", kind: "VIDEO", url: "https://cdn.example/reel.mp4", durationSec: 30 }],
+        rateCards: [
+          {
+            id: "rc-1",
+            title: "Voice-Over Session",
+            price: "₦28,000",
+            basePriceAmount: 2_800_000,
+            basePriceCurrency: "NGN",
+            delivery: "Same Day",
+          },
+        ],
+      });
+    });
+
+    it("never leaks private data: no email, password hash, userId, referralCode, or media-asset internals", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(FULL_CREATOR_ROW);
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/public" });
+
+      const raw = JSON.stringify(response.json());
+      expect(raw).not.toContain("email");
+      expect(raw).not.toContain("passwordHash");
+      expect(raw).not.toContain("userId");
+      expect(raw).not.toContain("referralCode");
+      expect(raw).not.toContain("sizeBytes");
+      expect(raw).not.toContain("taggingStatus");
+    });
+
+    it("exposes verified as a plain boolean, never the internal PROCESSING/FAILED states (X3)", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ ...FULL_CREATOR_ROW, verification: "PROCESSING" });
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/public" });
+      expect(response.json().verified).toBe(false);
+      expect(JSON.stringify(response.json())).not.toContain("PROCESSING");
+    });
+
+    it("404s for a creator that doesn't exist", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(null);
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/nope/public" });
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe("GET /creators/:id/og-image.svg — public (features.md Phase 15)", () => {
+    it("requires no authentication and returns a real, name-derived SVG image", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ name: "Adaeze Obi" });
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/og-image.svg" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-type"]).toContain("image/svg+xml");
+      expect(response.body).toContain("<svg");
+      expect(response.body).toContain("AO"); // initials(name)
+      expect(response.body).toContain("Adaeze Obi");
+    });
+
+    it("404s for a creator that doesn't exist", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(null);
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/nope/og-image.svg" });
+      expect(response.statusCode).toBe(404);
+    });
+  });
 });

@@ -13,6 +13,7 @@ import {
 import { confirmMediaUpload, TaggingAlreadyStartedError } from "../services/aiTagging.js";
 import { getOpenSlots } from "../services/availability.js";
 import { formatMoney } from "../lib/display.js";
+import { getPublicStorefront, renderOgImageSvg, PublicProfileNotFoundError } from "../services/publicProfile.js";
 
 const NICHE_VALUES = ["ACTOR", "VO_ARTIST", "COMEDIAN", "COMPERE", "SPEAKER_PASTOR", "MUSICIAN", "CONTENT_CREATOR"] as const;
 
@@ -283,6 +284,47 @@ export async function creatorRoutes(app: FastifyInstance): Promise<void> {
           delivery: rc.deliveryTimeline,
         })),
       );
+    },
+  );
+
+  // GET /creators/:id/public — the full public storefront (features.md Phase 15,
+  // FA-3): monologg.co/[handle], reachable logged out, no account required.
+  // Only ever returns public profile data — see services/publicProfile.ts's
+  // own doc comment for the exact guardrail.
+  app.get(
+    "/api/v1/creators/:id/public",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      try {
+        const profile = await getPublicStorefront(id);
+        return reply.send(profile);
+      } catch (err) {
+        if (err instanceof PublicProfileNotFoundError) {
+          return reply.status(404).send({ error: "Not Found", message: err.message, statusCode: 404 });
+        }
+        throw err;
+      }
+    },
+  );
+
+  // GET /creators/:id/og-image.svg — public, no auth. A real, data-derived
+  // (initials-mark) image for the `og:image`/`twitter:image` tags the public
+  // storefront sets client-side — see services/publicProfile.ts's doc comment
+  // on why this stands in for a real headshot no phase's schema stores.
+  app.get(
+    "/api/v1/creators/:id/og-image.svg",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const creator = await prisma.creator.findUnique({ where: { id }, select: { name: true } });
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: `Creator "${id}" not found`, statusCode: 404 });
+      }
+
+      const svg = renderOgImageSvg(creator.name);
+      return reply
+        .header("Content-Type", "image/svg+xml")
+        .header("Cache-Control", "public, max-age=3600")
+        .send(svg);
     },
   );
 }
