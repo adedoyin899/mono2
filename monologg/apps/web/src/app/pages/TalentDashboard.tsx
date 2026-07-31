@@ -10,20 +10,54 @@ import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
-import type { ActivityItem, AvailabilityWeek, Order, ServiceRateCard, StatMetric } from "@monologg/types";
+import type { ActivityItem, CalendarEvent, DayDetail, Order, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight,
   MessageSquare, DollarSign, CheckCircle2, X,
-  BarChart2, Award
+  BarChart2, Award, Repeat
 } from "lucide-react";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings";
 
 // UI configuration, not domain data — stays local (see api-client.ts).
-const CALENDAR_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const TIME_SLOTS = ["9am–12pm", "12pm–3pm", "3pm–6pm", "6pm–9pm"];
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
+
+// features.md Phase 13 — day-detail + slot-editor helpers (PWA-08).
+const RECUR_RULE_OPTIONS = [
+  { value: "WEEKDAYS", label: "Every weekday (Mon–Fri)" },
+  { value: "WEEKLY:MON", label: "Every Monday" },
+  { value: "WEEKLY:TUE", label: "Every Tuesday" },
+  { value: "WEEKLY:WED", label: "Every Wednesday" },
+  { value: "WEEKLY:THU", label: "Every Thursday" },
+  { value: "WEEKLY:FRI", label: "Every Friday" },
+  { value: "WEEKLY:SAT", label: "Every Saturday" },
+  { value: "WEEKLY:SUN", label: "Every Sunday" },
+];
+
+function recurRuleLabel(rule: string): string {
+  return RECUR_RULE_OPTIONS.find((r) => r.value === rule)?.label ?? rule;
+}
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDaysISO(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDayLabel(date: string): string {
+  return new Date(`${date}T00:00:00.000Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+const SLOT_STATE_META: Record<SlotState, { label: string; color: string }> = {
+  free: { label: "Free", color: "var(--color-success)" },
+  unavailable: { label: "Unavailable", color: "var(--color-text-tertiary)" },
+  booked: { label: "Booked", color: "var(--color-accent)" },
+};
 
 // features.md Phase 9: display metadata per notification `kind` — the backend
 // sends kind + a small payload (e.g. {bookingId}), not pre-formatted copy.
@@ -68,11 +102,30 @@ export function TalentDashboard() {
   const [editServiceId, setEditServiceId] = useState<string | null>(null);
   const [showAddService, setShowAddService] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [calendarEditing, setCalendarEditing] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<{day: string, slot: number} | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
-  const [calendarData, setCalendarData] = useState<AvailabilityWeek>({});
+
+  // features.md Phase 13 — day-detail + slot editor (PWA-08). getOpenSlots on
+  // dayDetail is server-authoritative; everything the UI renders as "open" or
+  // "blocked" comes from there, never a client-side recomputation.
+  const [selectedDate, setSelectedDate] = useState<string>(todayISO());
+  const [dayDetail, setDayDetail] = useState<DayDetail | null>(null);
+  const [loadingDay, setLoadingDay] = useState(false);
+  const [showAddSlot, setShowAddSlot] = useState(false);
+  const [newSlotStart, setNewSlotStart] = useState("09:00");
+  const [newSlotEnd, setNewSlotEnd] = useState("17:00");
+  const [newSlotState, setNewSlotState] = useState<Exclude<SlotState, "booked">>("unavailable");
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [newEventTitle, setNewEventTitle] = useState("");
+  const [newEventStart, setNewEventStart] = useState("09:00");
+  const [newEventEnd, setNewEventEnd] = useState("10:00");
+  const [newEventKind, setNewEventKind] = useState<"personal" | "hold">("personal");
+  const [showRecurringForm, setShowRecurringForm] = useState(false);
+  const [recurRule, setRecurRule] = useState("WEEKDAYS");
+  const [recurSlotStart, setRecurSlotStart] = useState("09:00");
+  const [recurSlotEnd, setRecurSlotEnd] = useState("17:00");
+  const [recurSlotState, setRecurSlotState] = useState<Exclude<SlotState, "booked">>("free");
+
   const navigate = useNavigate();
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -88,12 +141,92 @@ export function TalentDashboard() {
     apiClient.listTalentActivity().then(setActivity);
     apiClient.listServices().then(setServices);
     apiClient.listTalentOrders().then(setOrders);
-    apiClient.getAvailability().then(setCalendarData);
     apiClient.listNotifications().then(({ notifications, unreadCount }) => {
       setNotifications(notifications);
       setUnreadCount(unreadCount);
     });
   }, []);
+
+  const loadDay = (date: string) => {
+    setLoadingDay(true);
+    apiClient.getAvailabilityDay(date).then((detail) => {
+      setDayDetail(detail);
+      setLoadingDay(false);
+    });
+  };
+
+  useEffect(() => {
+    if (activeTab === "calendar") loadDay(selectedDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, selectedDate]);
+
+  // Mock mode's api-client writes are no-ops (see api-client.ts's own doc
+  // comments) — these handlers update dayDetail optimistically themselves
+  // rather than re-fetching afterward, the same "mock mode simulates locally"
+  // pattern Settings.tsx/ProjectBrief.tsx already use, so a demo session's
+  // edits stay visible instead of reverting to the static fixture.
+  const handleAddSlot = async () => {
+    const slot: Slot = { start: newSlotStart, end: newSlotEnd, state: newSlotState };
+    if (dayDetail?.block) {
+      const slots = [...dayDetail.block.slots, slot];
+      await apiClient.updateAvailabilityBlock(dayDetail.block.id, { slots });
+      setDayDetail({ ...dayDetail, block: { ...dayDetail.block, slots } });
+    } else {
+      const created = await apiClient.createAvailabilityBlock({ date: selectedDate, slots: [slot] });
+      setDayDetail((prev) =>
+        prev ? { ...prev, block: { id: created?.id ?? "local-block", slots: [slot], isRecurring: false, recurRule: null } } : prev,
+      );
+    }
+    setShowAddSlot(false);
+    setNewSlotStart("09:00");
+    setNewSlotEnd("17:00");
+  };
+
+  const handleRemoveSlot = async (index: number) => {
+    if (!dayDetail?.block) return;
+    const slots = dayDetail.block.slots.filter((_, i) => i !== index);
+    await apiClient.updateAvailabilityBlock(dayDetail.block.id, { slots });
+    setDayDetail({ ...dayDetail, block: { ...dayDetail.block, slots } });
+  };
+
+  const handleAddEvent = async () => {
+    if (!newEventTitle.trim()) return;
+    const created = await apiClient.createCalendarEvent({
+      date: selectedDate,
+      start: newEventStart,
+      end: newEventEnd,
+      title: newEventTitle,
+      kind: newEventKind,
+    });
+    const event: CalendarEvent = created ?? {
+      id: `local-event-${Date.now()}`,
+      date: selectedDate,
+      start: newEventStart,
+      end: newEventEnd,
+      title: newEventTitle,
+      kind: newEventKind,
+      bookingId: null,
+    };
+    setDayDetail((prev) => (prev ? { ...prev, events: [...prev.events, event].sort((a, b) => a.start.localeCompare(b.start)) } : prev));
+    setShowAddEvent(false);
+    setNewEventTitle("");
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    await apiClient.deleteCalendarEvent(id);
+    setDayDetail((prev) => (prev ? { ...prev, events: prev.events.filter((e) => e.id !== id) } : prev));
+  };
+
+  const handleAddRecurring = async () => {
+    const slot: Slot = { start: recurSlotStart, end: recurSlotEnd, state: recurSlotState };
+    const created = await apiClient.createAvailabilityBlock({ date: selectedDate, slots: [slot], isRecurring: true, recurRule });
+    setDayDetail((prev) =>
+      prev
+        ? { ...prev, recurringTemplates: [...prev.recurringTemplates, { id: created?.id ?? "local-recurring", slots: [slot], recurRule }] }
+        : prev,
+    );
+    setShowRecurringForm(false);
+  };
 
   // Refetch on open so the badge/count reflect anything that arrived since
   // the initial load — real per-user data, not a static fixture.
@@ -606,100 +739,162 @@ export function TalentDashboard() {
               </motion.div>
             )}
 
-            {/* ── Availability Calendar Tab ── */}
+            {/* ── Availability Calendar Tab (features.md Phase 13, PWA-08) ── */}
             {activeTab === "calendar" && (
               <motion.div key="calendar" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="flex items-center justify-between mb-4 lg:hidden">
-                  <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
-                  <Button
-                    variant={calendarEditing ? "primary" : "secondary"}
-                    className="h-9 px-3 text-sm"
-                    onClick={() => setCalendarEditing(!calendarEditing)}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-2xl lg:hidden" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
+                  <p className="hidden lg:block text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
+                  </p>
+                </div>
+
+                {/* Day strip — a two-week horizontal picker plus a direct date jump. */}
+                <div className="flex items-center gap-2 mb-4">
+                  <button
+                    aria-label="Jump to today"
+                    onClick={() => setSelectedDate(todayISO())}
+                    className="w-9 h-9 shrink-0 rounded-[var(--radius-full)] flex items-center justify-center"
+                    style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
                   >
-                    {calendarEditing ? <><CheckCircle2 className="w-4 h-4 mr-1.5" />Save</> : <><Edit2 className="w-4 h-4 mr-1.5" />Edit</>}
-                  </Button>
-                </div>
-
-                <div className="hidden lg:flex justify-end mb-4">
-                  <Button
-                    variant={calendarEditing ? "primary" : "secondary"}
-                    className="h-10 px-4 text-sm"
-                    onClick={() => setCalendarEditing(!calendarEditing)}
-                  >
-                    {calendarEditing ? <><CheckCircle2 className="w-4 h-4 mr-2" />Save Schedule</> : <><Edit2 className="w-4 h-4 mr-2" />Edit Schedule</>}
-                  </Button>
-                </div>
-
-                {/* Legend */}
-                <div className="flex items-center gap-4 mb-4 flex-wrap">
-                  {[
-                    { label: "Available", color: "var(--color-success)" },
-                    { label: "Booked", color: "var(--color-accent)" },
-                    { label: "Off", color: "var(--color-border-default)" },
-                  ].map(item => (
-                    <div key={item.label} className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-sm" style={{ background: item.color }} />
-                      <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  className="rounded-[var(--radius-lg)] overflow-hidden"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
-                >
-                  {/* Days header */}
-                  <div className="grid grid-cols-8 divide-x" style={{ borderBottom: "1px solid var(--color-border-default)", borderColor: "var(--color-border-default)" }}>
-                    <div className="p-3" />
-                    {CALENDAR_DAYS.map(day => (
-                      <div key={day} className="p-3 text-center text-xs font-semibold font-body" style={{ color: "var(--color-text-secondary)" }}>
-                        {day}
-                      </div>
+                    <Calendar className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
+                  </button>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 flex-1">
+                    {Array.from({ length: 14 }, (_, i) => addDaysISO(todayISO(), i)).map((date) => (
+                      <button
+                        key={date}
+                        onClick={() => setSelectedDate(date)}
+                        className="shrink-0 px-3 py-2 rounded-[var(--radius-md)] text-xs font-body whitespace-nowrap"
+                        style={{
+                          background: date === selectedDate ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                          color: date === selectedDate ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                          border: `1px solid ${date === selectedDate ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                        }}
+                      >
+                        {formatDayLabel(date)}
+                      </button>
                     ))}
                   </div>
-
-                  {/* Time slots */}
-                  {TIME_SLOTS.map((slot, si) => (
-                    <div key={slot} className="grid grid-cols-8 divide-x" style={{ borderBottom: si < TIME_SLOTS.length - 1 ? "1px solid var(--color-border-default)" : undefined, borderColor: "var(--color-border-default)" }}>
-                      <div className="p-3 text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{slot}</div>
-                      {CALENDAR_DAYS.map(day => {
-                        const status = calendarData[day]?.[si] || "off";
-                        const toggleStatus = () => {
-                          if(!calendarEditing) return;
-                          const next = status === "available" ? "booked" : status === "booked" ? "off" : "available";
-                          setCalendarData(prev => ({...prev, [day]: prev[day].map((s, idx) => idx === si ? next : s)}));
-                        };
-                        return (
-                          <div
-                            key={day}
-                            className={`p-2 flex items-center justify-center cursor-pointer hover:opacity-80`}
-                            onClick={() => {
-                              if(calendarEditing) {
-                                toggleStatus();
-                              } else {
-                                setSelectedDay({day, slot: si});
-                              }
-                            }}
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              if(calendarEditing) return;
-                              setCalendarEditing(true);
-                              toggleStatus();
-                            }}
-                          >
-                            <div
-                              className="w-full h-8 rounded-[var(--radius-sm)]"
-                              style={{
-                                background: status === "available" ? "var(--color-success-bg)" : status === "booked" ? "var(--color-accent-glow)" : "var(--color-bg-elevated)",
-                                border: `1px solid ${status === "available" ? "var(--color-success)" : status === "booked" ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+                    className="h-9 px-2 rounded-[var(--radius-md)] text-xs font-body shrink-0"
+                    style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                  />
                 </div>
+
+                {loadingDay || !dayDetail ? (
+                  <div className="py-16 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>Loading…</div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Open slots — server-authoritative (getOpenSlots), what a client would actually see. */}
+                    <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
+                        Open for booking on {formatDayLabel(selectedDate)}
+                      </div>
+                      {dayDetail.openSlots.length === 0 ? (
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>No open time — fully unavailable or booked.</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-1.5">
+                          {dayDetail.openSlots.map((s, i) => (
+                            <Badge key={i} tone="success" size="md">{s.start}–{s.end}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      {!dayDetail.block && (
+                        <p className="text-xs font-body mt-2" style={{ color: "var(--color-text-tertiary)" }}>
+                          No overrides set — this day follows the default-free rule{dayDetail.recurringTemplates.length > 0 ? " and your recurring templates" : ""}.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Explicit slots for this exact day. */}
+                    <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Slots for this day</div>
+                        <Button variant="secondary" className="h-8 px-3 text-xs gap-1" onClick={() => setShowAddSlot(true)}>
+                          <Plus className="w-3.5 h-3.5" /> Add slot
+                        </Button>
+                      </div>
+                      {!dayDetail.block || dayDetail.block.slots.length === 0 ? (
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>No explicit slots — add one to mark part of this day free or unavailable.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {dayDetail.block.slots.map((slot, i) => (
+                            <div key={i} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full" style={{ background: SLOT_STATE_META[slot.state].color }} />
+                                <span className="text-xs font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{slot.start}–{slot.end}</span>
+                                <Badge tone="neutral" size="sm">{SLOT_STATE_META[slot.state].label}</Badge>
+                              </div>
+                              {slot.state !== "booked" && (
+                                <button onClick={() => handleRemoveSlot(i)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: "var(--color-text-tertiary)" }}>
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Events for this day — informational, never subtracted from openSlots. */}
+                    <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Events</div>
+                        <Button variant="secondary" className="h-8 px-3 text-xs gap-1" onClick={() => setShowAddEvent(true)}>
+                          <Plus className="w-3.5 h-3.5" /> Add event
+                        </Button>
+                      </div>
+                      {dayDetail.events.length === 0 ? (
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Nothing added for this day.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {dayDetail.events.map((event) => (
+                            <div key={event.id} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                              <div>
+                                <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{event.title}</div>
+                                <div className="text-xs font-mono tnum" style={{ color: "var(--color-text-tertiary)" }}>{event.start}–{event.end} · {event.kind}</div>
+                              </div>
+                              <button onClick={() => handleDeleteEvent(event.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: "var(--color-text-tertiary)" }}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Recurring templates. */}
+                    <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm font-semibold font-body flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
+                          <Repeat className="w-4 h-4" /> Recurring availability
+                        </div>
+                        <Button variant="secondary" className="h-8 px-3 text-xs gap-1" onClick={() => setShowRecurringForm(true)}>
+                          <Plus className="w-3.5 h-3.5" /> Add
+                        </Button>
+                      </div>
+                      {dayDetail.recurringTemplates.length === 0 ? (
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>No recurring pattern set (e.g. "every weekday 9–5").</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {dayDetail.recurringTemplates.map((t) => (
+                            <div key={t.id} className="p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                              <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{recurRuleLabel(t.recurRule ?? "")}</div>
+                              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                {t.slots.map((s, i) => (
+                                  <Badge key={i} tone="neutral" size="sm">{s.start}–{s.end} · {SLOT_STATE_META[s.state].label}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div
                   className="mt-4 p-4 rounded-[var(--radius-md)] flex items-center gap-3"
@@ -1044,36 +1239,166 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Day Detail Modal */}
+          {/* Add Slot Modal (features.md Phase 13) */}
           <AnimatePresence>
-            {selectedDay && (
-              <Modal onClose={() => setSelectedDay(null)}>
+            {showAddSlot && (
+              <Modal onClose={() => setShowAddSlot(false)}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
                   className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
                   onClick={e => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-display text-xl">{selectedDay.day} - {TIME_SLOTS[selectedDay.slot]}</h3>
-                    <button onClick={() => setSelectedDay(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-display text-xl">Add slot — {formatDayLabel(selectedDate)}</h3>
+                    <button onClick={() => setShowAddSlot(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  {calendarData[selectedDay.day]?.[selectedDay.slot] === "booked" ? (
-                    <div className="p-4 rounded-[var(--radius-md)] border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                      <div className="text-sm font-semibold mb-1">Commercial Voice-Over</div>
-                      <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>Brand Agency NG</div>
-                      <Button className="w-full mt-4 h-9 text-xs" onClick={() => {
-                        setSelectedDay(null);
-                        setActiveTab("orders");
-                      }}>View Order</Button>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>Start</label>
+                      <Input type="time" value={newSlotStart} onChange={e => setNewSlotStart(e.target.value)} />
                     </div>
-                  ) : (
-                    <div className="text-center py-6 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                      {calendarData[selectedDay.day]?.[selectedDay.slot] === "available" ? "You are available during this time." : "You have marked this time as off."}
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>End</label>
+                      <Input type="time" value={newSlotEnd} onChange={e => setNewSlotEnd(e.target.value)} />
                     </div>
-                  )}
+                  </div>
+                  <div className="flex gap-2 mb-5">
+                    {(["free", "unavailable"] as const).map(state => (
+                      <button
+                        key={state}
+                        onClick={() => setNewSlotState(state)}
+                        className="flex-1 py-2 rounded-[var(--radius-md)] text-xs font-semibold"
+                        style={{
+                          background: newSlotState === state ? SLOT_STATE_META[state].color : "var(--color-bg-elevated)",
+                          color: newSlotState === state ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                          border: `1px solid ${newSlotState === state ? SLOT_STATE_META[state].color : "var(--color-border-default)"}`,
+                        }}
+                      >
+                        {SLOT_STATE_META[state].label}
+                      </button>
+                    ))}
+                  </div>
+                  <Button className="w-full h-11" onClick={handleAddSlot} disabled={!newSlotStart || !newSlotEnd || newSlotStart >= newSlotEnd}>
+                    Save Slot
+                  </Button>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Add Event Modal (features.md Phase 13) */}
+          <AnimatePresence>
+            {showAddEvent && (
+              <Modal onClose={() => setShowAddEvent(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-display text-xl">Add event — {formatDayLabel(selectedDate)}</h3>
+                    <button onClick={() => setShowAddEvent(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>Title</label>
+                    <Input placeholder="e.g. Table read" value={newEventTitle} onChange={e => setNewEventTitle(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>Start</label>
+                      <Input type="time" value={newEventStart} onChange={e => setNewEventStart(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>End</label>
+                      <Input type="time" value={newEventEnd} onChange={e => setNewEventEnd(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-5">
+                    {(["personal", "hold"] as const).map(kind => (
+                      <button
+                        key={kind}
+                        onClick={() => setNewEventKind(kind)}
+                        className="flex-1 py-2 rounded-[var(--radius-md)] text-xs font-semibold capitalize"
+                        style={{
+                          background: newEventKind === kind ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                          color: newEventKind === kind ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                          border: `1px solid ${newEventKind === kind ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                        }}
+                      >
+                        {kind}
+                      </button>
+                    ))}
+                  </div>
+                  <Button className="w-full h-11" onClick={handleAddEvent} disabled={!newEventTitle.trim() || newEventStart >= newEventEnd}>
+                    Save Event
+                  </Button>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Add Recurring Template Modal (features.md Phase 13) */}
+          <AnimatePresence>
+            {showRecurringForm && (
+              <Modal onClose={() => setShowRecurringForm(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-display text-xl">Recurring availability</h3>
+                    <button onClick={() => setShowRecurringForm(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>Repeats</label>
+                    <select
+                      value={recurRule}
+                      onChange={e => setRecurRule(e.target.value)}
+                      className="w-full h-11 px-3 rounded-[var(--radius-md)] text-sm font-body"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                    >
+                      {RECUR_RULE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>Start</label>
+                      <Input type="time" value={recurSlotStart} onChange={e => setRecurSlotStart(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>End</label>
+                      <Input type="time" value={recurSlotEnd} onChange={e => setRecurSlotEnd(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-5">
+                    {(["free", "unavailable"] as const).map(state => (
+                      <button
+                        key={state}
+                        onClick={() => setRecurSlotState(state)}
+                        className="flex-1 py-2 rounded-[var(--radius-md)] text-xs font-semibold"
+                        style={{
+                          background: recurSlotState === state ? SLOT_STATE_META[state].color : "var(--color-bg-elevated)",
+                          color: recurSlotState === state ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                          border: `1px solid ${recurSlotState === state ? SLOT_STATE_META[state].color : "var(--color-border-default)"}`,
+                        }}
+                      >
+                        {SLOT_STATE_META[state].label}
+                      </button>
+                    ))}
+                  </div>
+                  <Button className="w-full h-11" onClick={handleAddRecurring} disabled={recurSlotStart >= recurSlotEnd}>
+                    Save Recurring Template
+                  </Button>
                 </motion.div>
               </Modal>
             )}

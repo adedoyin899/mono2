@@ -471,7 +471,17 @@ export function ClientDashboard() {
                             <Button variant="secondary" className="flex-1 h-11 text-sm gap-1.5" onClick={() => { toggleShortlist(selectedTalent.id); }}>
                               <Star className={`w-4 h-4 ${shortlist.includes(selectedTalent.id) ? "fill-current" : ""}`} /> {shortlist.includes(selectedTalent.id) ? "Saved" : "Save"}
                             </Button>
-                            <Button className="flex-1 h-11 text-sm" onClick={() => { setSelectedTalent(null); navigate("/checkout"); }}>
+                            <Button
+                              className="flex-1 h-11 text-sm"
+                              onClick={() => {
+                                const talentId = selectedTalent.id;
+                                setSelectedTalent(null);
+                                // features.md Phase 13: real creatorId in state routes Checkout into
+                                // the live slot-aware booking flow; mock mode's demo entry (no id
+                                // wired anywhere yet) falls back to the prototype's static flow.
+                                navigate("/checkout", { state: { creatorId: talentId, creatorName: selectedTalent.name } });
+                              }}
+                            >
                               Book Now →
                             </Button>
                           </div>
@@ -624,7 +634,7 @@ export function ClientDashboard() {
                         </div>
                         <div className="flex gap-2">
                           <Button variant="secondary" className="flex-1 h-9 text-sm" onClick={() => setSelectedTalent(talent)}>View Profile</Button>
-                          <Button className="flex-1 h-9 text-sm" onClick={() => navigate("/checkout")}>Book Now</Button>
+                          <Button className="flex-1 h-9 text-sm" onClick={() => navigate("/checkout", { state: { creatorId: talent.id, creatorName: talent.name } })}>Book Now</Button>
                         </div>
                       </div>
                     ))}

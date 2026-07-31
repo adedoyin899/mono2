@@ -10,7 +10,14 @@ vi.mock("../db/client.js", () => ({
     rateCard: { findUnique: vi.fn(), findMany: vi.fn() },
     booking: { create: vi.fn(), findMany: vi.fn(), count: vi.fn(), findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), update: vi.fn() },
     payment: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), create: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
-    $transaction: vi.fn(),
+    // features.md Phase 13: createBooking claims the slot atomically via
+    // services/availability.ts's bookSlot inside the same transaction — by
+    // default there's no existing block for the requested day, so the slot
+    // is open (the same "any requested slot is bookable" assumption this
+    // file's booking-creation tests already made before this phase).
+    availabilityBlock: { findFirst: vi.fn().mockResolvedValue(null), findMany: vi.fn().mockResolvedValue([]), create: vi.fn().mockResolvedValue({}), update: vi.fn().mockResolvedValue({}) },
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
+    $transaction: vi.fn((cb: any) => cb(prismaMock)),
   },
 }));
 

@@ -59,6 +59,7 @@ model Creator {
   media          MediaAsset[]
   rateCards      RateCard[]
   availability   AvailabilityBlock[]
+  calendarEvents CalendarEvent[]
   bookings       Booking[]           @relation("CreatorBookings")
   kycChecks      KycCheck[]
   // features.md Phase 12A — additive only, nothing above renamed/dropped.
@@ -141,13 +142,45 @@ model RateCard {
   deliveryTimeline  String
 }
 
+// features.md Phase 13 (FA-1): a row is either a specific-date override
+// (isRecurring=false, `date` is the exact day) or a recurring template
+// (isRecurring=true, `recurRule` e.g. "WEEKDAYS" | "WEEKLY:MON" — `date` is
+// unused/irrelevant for templates, kept non-null for schema simplicity).
+// slots: [{start:"09:00", end:"13:00", state:"free"|"unavailable"|"booked", bookingId?}].
+// The default-free rule lives in services/availability.ts, not here: a day
+// with NO matching row at all is fully open — "free" slots are informational
+// only (explicit confirmation), never required for a day to be bookable.
 model AvailabilityBlock {
   id              String   @id @default(cuid())
   creatorId       String
   creator         Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   date            DateTime
-  slots           Json // [{start,end,booked}]
+  slots           Json // [{start,end,state,bookingId?}]
+  isRecurring     Boolean  @default(false)
+  recurRule       String? // "WEEKDAYS" | "WEEKLY:MON" — only meaningful when isRecurring
   calendarEventId String? // Google Calendar linkage
+
+  @@index([creatorId, date])
+}
+
+// features.md Phase 13 (FA-1): talent-added, non-booking calendar entries —
+// purely informational on the day-detail view (clicking a day shows these
+// alongside AvailabilityBlock slots). Deliberately NOT subtracted by
+// getOpenSlots (services/availability.ts) — only explicit unavailable/booked
+// AvailabilityBlock slots and Google busy times gate bookability; the spec's
+// own getOpenSlots formula never mentions events.
+model CalendarEvent {
+  id        String  @id @default(cuid())
+  creatorId String
+  creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  date      DateTime
+  start     String
+  end       String
+  title     String
+  kind      String // "personal" | "hold" | "booking"
+  bookingId String?
+
+  @@index([creatorId, date])
 }
 
 // --- Briefs & bookings ----------------------------------------------------

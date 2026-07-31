@@ -7,6 +7,7 @@ import { findOwnCreator, findOwnClient, bookingParticipantRole } from "../lib/ow
 import { paginationQuerySchema, paginate, toSkipTake } from "../lib/pagination.js";
 import { formatMoney } from "../lib/display.js";
 import { createBooking, transitionBooking, IllegalBookingTransitionError } from "../services/booking.js";
+import { SlotUnavailableError } from "../services/availability.js";
 import {
   initEscrowForBooking,
   releaseEscrowForBooking,
@@ -101,16 +102,24 @@ export async function bookingRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      const booking = await createBooking({
-        creatorId,
-        clientId: client.id,
-        rateCardId,
-        baseAmount: rateCard.basePriceAmount,
-        currency: rateCard.basePriceCurrency,
-        slotDate,
-        slotStart,
-        slotEnd,
-      });
+      let booking;
+      try {
+        booking = await createBooking({
+          creatorId,
+          clientId: client.id,
+          rateCardId,
+          baseAmount: rateCard.basePriceAmount,
+          currency: rateCard.basePriceCurrency,
+          slotDate,
+          slotStart,
+          slotEnd,
+        });
+      } catch (err) {
+        if (err instanceof SlotUnavailableError) {
+          return reply.status(409).send({ error: "Conflict", message: err.message, statusCode: 409 });
+        }
+        throw err;
+      }
 
       // features.md Phase 9: domain event — a new booking request notifies the
       // talent. Best-effort: a notification failure must never fail booking creation.

@@ -1,10 +1,14 @@
 import type {
   ActivityItem,
-  AvailabilityWeek,
+  CalendarEvent,
+  CalendarEventKind,
   ClientProject,
+  DayDetail,
   Order,
   OrderMessage,
+  PublicRateCard,
   ServiceRateCard,
+  Slot,
   StatMetric,
   SupportTicket,
   Talent,
@@ -64,19 +68,43 @@ async function authRequest<T>(path: string, body: unknown): Promise<T> {
   return data as T;
 }
 
-/** Attempts one silent refresh using the stored refresh token. Never throws. */
+// De-dupes concurrent refresh attempts. Refresh tokens are single-use/rotated
+// server-side (features.md Phase 4) — a page that fires several protected
+// requests at once (e.g. a dashboard's mount-time useEffect) previously had
+// EACH one independently 401 and call tryRefreshSession(), all racing to
+// spend the same stored refresh token. Only the first actually succeeded;
+// every other concurrent attempt replayed an already-rotated token, which the
+// server's reuse-detection correctly treats as theft and revokes the whole
+// session family — stranding the user right after a real login. Sharing one
+// in-flight promise means concurrent 401s await a single refresh instead of
+// each spending it.
+let refreshInFlight: Promise<boolean> | null = null;
+
+/** Attempts one silent refresh using the stored refresh token. Never throws.
+ * Safe to call concurrently — overlapping calls share the same in-flight
+ * refresh rather than each consuming the single-use refresh token. */
 async function tryRefreshSession(): Promise<boolean> {
-  const refreshToken = getStoredRefreshToken();
-  if (!refreshToken) return false;
+  if (refreshInFlight) return refreshInFlight;
+
+  refreshInFlight = (async () => {
+    const refreshToken = getStoredRefreshToken();
+    if (!refreshToken) return false;
+    try {
+      const data = await authRequest<{ accessToken: string; refreshToken: string }>("/refresh", {
+        refreshToken,
+      });
+      setSession(data);
+      return true;
+    } catch {
+      setSession(null);
+      return false;
+    }
+  })();
+
   try {
-    const data = await authRequest<{ accessToken: string; refreshToken: string }>("/refresh", {
-      refreshToken,
-    });
-    setSession(data);
-    return true;
-  } catch {
-    setSession(null);
-    return false;
+    return await refreshInFlight;
+  } finally {
+    refreshInFlight = null;
   }
 }
 
@@ -347,12 +375,74 @@ export const apiClient = {
     if (API_MODE === "live") return requestList("/rate-cards");
     return mocks.SERVICES;
   },
-  async getAvailability(): Promise<AvailabilityWeek> {
-    return mocks.AVAILABILITY;
-  },
   async listTalentOrders(): Promise<Order[]> {
     if (API_MODE === "live") return requestList("/bookings?role=talent");
     return mocks.TALENT_ORDERS;
+  },
+
+  // ── Availability & calendar events (features.md Phase 13, FA-1) ────────────
+  // Server-authoritative: openSlots on every response is exactly what
+  // services/availability.ts's getOpenSlots computed — the UI only ever
+  // renders it, never recomputes availability itself.
+  async getAvailabilityDay(date: string): Promise<DayDetail> {
+    if (API_MODE !== "live") return mocks.mockDayDetail(date);
+    return request(`/availability/day?date=${date}`);
+  },
+  /** Creates a new exact-date override block for a day that has none yet.
+   * Returns the created row (real `id`, needed for follow-up edits in the
+   * same session) in live mode; null in mock mode, where the caller updates
+   * its own local state optimistically instead (same pattern Settings.tsx /
+   * ProjectBrief.tsx already use for mock-mode writes). */
+  async createAvailabilityBlock(input: { date: string; slots: Slot[]; isRecurring?: boolean; recurRule?: string }): Promise<{ id: string } | null> {
+    if (API_MODE !== "live") return null;
+    return request("/availability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  /** Updates an existing block's slots (or its recurring template) in place. */
+  async updateAvailabilityBlock(id: string, input: { slots?: Slot[]; isRecurring?: boolean; recurRule?: string }): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/availability/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  async deleteAvailabilityBlock(id: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/availability/${id}`, { method: "DELETE" });
+  },
+  async createCalendarEvent(input: { date: string; start: string; end: string; title: string; kind: CalendarEventKind }): Promise<CalendarEvent | null> {
+    if (API_MODE !== "live") return null;
+    return request("/calendar-events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  async deleteCalendarEvent(id: string): Promise<void> {
+    if (API_MODE !== "live") return;
+    await request(`/calendar-events/${id}`, { method: "DELETE" });
+  },
+  /** Public, no-auth — the booking sheet's ONLY source for what's bookable
+   * (features.md Phase 13's own guardrail: the client never computes
+   * availability itself). Mock mode reuses the same day-detail fixture so a
+   * demo checkout sees consistent open slots. */
+  async getOpenSlots(creatorId: string, date: string): Promise<{ start: string; end: string }[]> {
+    if (API_MODE !== "live") return mocks.mockDayDetail(date).openSlots;
+    const { openSlots } = await request<{ date: string; openSlots: { start: string; end: string }[] }>(
+      `/creators/${creatorId}/open-slots?date=${date}`,
+    );
+    return openSlots;
+  },
+  /** Public, no-auth — the read-only counterpart to listServices() (which is
+   * owner-scoped to the logged-in talent), used by a CLIENT picking a service
+   * to book on someone else's storefront. */
+  async getCreatorRateCardsPublic(creatorId: string): Promise<PublicRateCard[]> {
+    if (API_MODE !== "live") return mocks.PUBLIC_RATE_CARDS;
+    return request(`/creators/${creatorId}/rate-cards`);
   },
 
   // ── Creator media + AI style-tagging (features.md Phase 7) ────────────────
@@ -616,6 +706,64 @@ export const apiClient = {
       body: JSON.stringify({ text }),
     });
   },
+
+  // ── Booking + checkout (features.md Phase 13's slot-aware booking flow) ────
+  /** POST /bookings — the server re-verifies the slot itself (never trusts
+   * this call's claim); a 409 means someone else took it first. */
+  async createBooking(input: {
+    creatorId: string;
+    rateCardId: string;
+    slotDate: string;
+    slotStart: string;
+    slotEnd: string;
+  }): Promise<CreatedBooking> {
+    return request("/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  async payBooking(bookingId: string): Promise<{ checkoutUrl: string; providerRef: string; status: string }> {
+    return request(`/bookings/${bookingId}/pay`, { method: "POST" });
+  },
+  /** Dev/demo-only: this prototype's Checkout UI has no real Paystack
+   * redirect/SDK to receive a real server-to-server webhook from, so it POSTs
+   * directly to the real, signature-checked webhook endpoint to reach
+   * ESCROW_LOCKED (features.md Phase 6's e2e test does the exact same thing).
+   * The webhook remains the sole authority over BookingState — this doesn't
+   * bypass that, it exercises it. Against a real (non-mock) PAYMENT_PROVIDER
+   * this signature check fails server-side and the call harmlessly no-ops:
+   * a browser can never forge a real Paystack HMAC. */
+  async simulateEscrowWebhook(providerRef: string): Promise<boolean> {
+    try {
+      await request("/webhooks/paystack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-paystack-signature": "dev-mock-signature" },
+        body: JSON.stringify({ event: "charge.success", data: { id: Date.now(), reference: providerRef, status: "success" } }),
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
+
+/** The raw Booking row POST /bookings returns — not the display-mapped Order
+ * shape (packages/types' Order), since Checkout needs the real computed fee
+ * amounts before any display formatting happens. */
+export interface CreatedBooking {
+  id: string;
+  creatorId: string;
+  clientId: string;
+  rateCardId: string;
+  baseAmount: number;
+  currency: string;
+  talentFeeAmount: number;
+  clientFeeAmount: number;
+  slotDate: string;
+  slotStart: string;
+  slotEnd: string;
+  state: string;
+}
 
 export type ApiClient = typeof apiClient;

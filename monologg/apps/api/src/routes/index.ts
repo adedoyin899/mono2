@@ -6,6 +6,7 @@ import { creatorRoutes } from "./creators.js";
 import { clientRoutes } from "./clients.js";
 import { rateCardRoutes } from "./rateCards.js";
 import { availabilityRoutes } from "./availability.js";
+import { calendarEventRoutes } from "./calendarEvents.js";
 import { briefRoutes } from "./briefs.js";
 import { talentRoutes } from "./talent.js";
 import { bookingRoutes } from "./bookings.js";
@@ -32,6 +33,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(clientRoutes);
   await app.register(rateCardRoutes);
   await app.register(availabilityRoutes);
+  await app.register(calendarEventRoutes);
   await app.register(briefRoutes);
   await app.register(talentRoutes);
   await app.register(bookingRoutes);

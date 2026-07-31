@@ -6,6 +6,7 @@ vi.mock("../db/client.js", () => ({
   prisma: {
     creator: { findUnique: vi.fn() },
     availabilityBlock: {
+      findFirst: vi.fn(),
       findMany: vi.fn(),
       count: vi.fn(),
       create: vi.fn(),
@@ -15,6 +16,7 @@ vi.mock("../db/client.js", () => ({
       delete: vi.fn(),
     },
     calendarConnection: { findUnique: vi.fn(), updateMany: vi.fn() },
+    calendarEvent: { findMany: vi.fn() },
   },
 }));
 
@@ -63,10 +65,47 @@ describe("Availability blocks (owner-scoped CRUD)", () => {
       method: "POST",
       url: "/api/v1/availability",
       headers: { authorization: `Bearer ${TALENT_TOKEN}` },
-      payload: { date: "2026-08-01", slots: [{ start: "09:00", end: "10:00", booked: false }] },
+      payload: { date: "2026-08-01", slots: [{ start: "09:00", end: "10:00", state: "free" }] },
     });
 
     expect(response.statusCode).toBe(201);
+  });
+
+  describe("GET /availability/day (features.md Phase 13)", () => {
+    it("returns the resolved slots, recurring templates, events, and openSlots for one day", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+      prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+        id: "block-1",
+        slots: [{ start: "09:00", end: "13:00", state: "free" }],
+      });
+      prismaMock.availabilityBlock.findMany.mockResolvedValue([]);
+      prismaMock.calendarEvent.findMany.mockResolvedValue([{ id: "evt-1", title: "Table read" }]);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/availability/day?date=2026-08-05",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.date).toBe("2026-08-05");
+      expect(body.block).toEqual({ id: "block-1", slots: [{ start: "09:00", end: "13:00", state: "free" }], isRecurring: false, recurRule: null });
+      expect(body.events).toEqual([{ id: "evt-1", title: "Table read" }]);
+      expect(body.openSlots).toEqual([{ start: "00:00", end: "23:59" }]);
+    });
+
+    it("400s when the date query param is missing", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1", userId: "user-talent-1" });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/availability/day",
+        headers: { authorization: `Bearer ${TALENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
   });
 
   it("rejects a malformed slots array", async () => {

@@ -562,14 +562,63 @@ async function seedBookings() {
   }
 }
 
+// features.md Phase 13 (FA-1) — demonstrates the default-free rule on
+// "seed-creator-chidi" (the demo self talent-dashboard user, per seedRateCards'
+// own comment): a recurring weekday template, one exact-date override with a
+// free morning + unavailable evening (both render on that day's detail), and
+// one day that is DELIBERATELY left unconfigured — no AvailabilityBlock row
+// at all — to prove an unconfigured day is still fully bookable across normal
+// hours (the acceptance criterion this phase exists to satisfy).
+async function seedAvailability() {
+  await prisma.availabilityBlock.upsert({
+    where: { id: "seed-availability-chidi-weekday-template" },
+    update: {
+      slots: [{ start: "09:00", end: "17:00", state: "free" }],
+      isRecurring: true,
+      recurRule: "WEEKDAYS",
+    },
+    create: {
+      id: "seed-availability-chidi-weekday-template",
+      creatorId: "seed-creator-chidi",
+      date: new Date("2026-08-01"), // unused for a recurring template, kept non-null
+      slots: [{ start: "09:00", end: "17:00", state: "free" }],
+      isRecurring: true,
+      recurRule: "WEEKDAYS",
+    },
+  });
+
+  await prisma.availabilityBlock.upsert({
+    where: { id: "seed-availability-chidi-morning-free-evening-unavailable" },
+    update: {
+      slots: [
+        { start: "09:00", end: "13:00", state: "free" },
+        { start: "18:00", end: "22:00", state: "unavailable" },
+      ],
+    },
+    create: {
+      id: "seed-availability-chidi-morning-free-evening-unavailable",
+      creatorId: "seed-creator-chidi",
+      date: new Date("2026-08-05"),
+      slots: [
+        { start: "09:00", end: "13:00", state: "free" },
+        { start: "18:00", end: "22:00", state: "unavailable" },
+      ],
+      isRecurring: false,
+    },
+  });
+
+  // 2026-08-06 is intentionally NOT seeded — an unconfigured day, fully open.
+}
+
 export async function seed() {
   await seedCreators();
   await seedClients();
   await seedRateCards();
   await seedBriefs();
   await seedBookings();
+  await seedAvailability();
   console.log(
-    `Seeded ${CREATORS.length} creators, ${CLIENTS.length} clients, ${BOOKINGS.length} bookings (one per BookingState).`,
+    `Seeded ${CREATORS.length} creators, ${CLIENTS.length} clients, ${BOOKINGS.length} bookings (one per BookingState), availability (recurring weekday template + morning-free/evening-unavailable override + one intentionally unconfigured day).`,
   );
 }
 

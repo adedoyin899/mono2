@@ -7,12 +7,27 @@ vi.mock("../db/client.js", () => ({
       update: vi.fn(),
       findUniqueOrThrow: vi.fn(),
     },
+    // features.md Phase 13: createBooking now claims the slot atomically via
+    // services/availability.ts's bookSlot inside the same transaction — these
+    // mocks let that inner call run against an always-open day by default
+    // (no existing block, no calendar connection), same as booking.test.ts's
+    // existing happy-path assumption that any requested slot is bookable.
+    availabilityBlock: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+      create: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    creator: { findUnique: vi.fn().mockResolvedValue(null) },
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
+    $transaction: vi.fn((cb: any) => cb(prismaMock)),
   },
 }));
 
 import { prisma } from "../db/client.js";
 import { createBooking, transitionBooking, assertLegalTransition, IllegalBookingTransitionError } from "./booking.js";
 import { computeFees } from "./fees.js";
+import { SlotUnavailableError } from "./availability.js";
 
 const prismaMock = prisma as any;
 
@@ -66,6 +81,29 @@ describe("Booking state machine (features.md Phase 5)", () => {
           orderRoom: { create: {} },
         }),
       });
+    });
+
+    it("rejects with SlotUnavailableError (and never leaves a booking behind) when the slot isn't actually open server-side", async () => {
+      prismaMock.booking.create.mockResolvedValue({ id: "booking-1", baseAmount: 100_000, state: "PENDING_PAYMENT" });
+      // An existing block marks this exact range unavailable — the server
+      // re-verifies the slot itself rather than trusting the caller's claim.
+      prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+        id: "block-1",
+        slots: [{ start: "10:00", end: "12:00", state: "unavailable" }],
+      });
+
+      await expect(
+        createBooking({
+          creatorId: "creator-1",
+          clientId: "client-1",
+          rateCardId: "rc-1",
+          baseAmount: 100_000,
+          currency: "NGN",
+          slotDate: new Date("2026-08-01"),
+          slotStart: "10:00",
+          slotEnd: "12:00",
+        }),
+      ).rejects.toThrow(SlotUnavailableError);
     });
   });
 

@@ -1,6 +1,7 @@
 import type { BookingState } from "@prisma/client";
 import { prisma } from "../db/client.js";
 import { computeFees } from "./fees.js";
+import { bookSlot } from "./availability.js";
 
 // The booking state machine (features.md Phase 5): the single place that decides
 // which BookingState transitions are legal. Nothing outside this file should
@@ -51,25 +52,45 @@ export interface CreateBookingInput {
 /** Creates a booking in PENDING_PAYMENT with fees derived from PLATFORM_FEES — never
  * from a client-supplied value (fees are always server-computed, features.md guardrail).
  * Also creates the booking's OrderRoom (1:1) so participants can message immediately,
- * even before payment — matches the seed data's shape (every booking has one). */
+ * even before payment — matches the seed data's shape (every booking has one).
+ *
+ * features.md Phase 13: the requested slot is claimed atomically in the same
+ * transaction via services/availability.ts's bookSlot — if the slot isn't
+ * actually open server-side (SlotUnavailableError), the whole transaction
+ * rolls back and no booking is created. This is what makes double-booking
+ * impossible under concurrency: two simultaneous requests for the same
+ * creator+day serialize on bookSlot's advisory lock, and only the first to
+ * commit sees the slot as open. */
 export async function createBooking(input: CreateBookingInput) {
   const { talentFee, clientFee } = computeFees(input.baseAmount);
 
-  return prisma.booking.create({
-    data: {
+  return prisma.$transaction(async (tx) => {
+    const booking = await tx.booking.create({
+      data: {
+        creatorId: input.creatorId,
+        clientId: input.clientId,
+        rateCardId: input.rateCardId,
+        baseAmount: input.baseAmount,
+        currency: input.currency,
+        talentFeeAmount: talentFee,
+        clientFeeAmount: clientFee,
+        slotDate: input.slotDate,
+        slotStart: input.slotStart,
+        slotEnd: input.slotEnd,
+        state: "PENDING_PAYMENT",
+        orderRoom: { create: {} },
+      },
+    });
+
+    await bookSlot(tx, {
       creatorId: input.creatorId,
-      clientId: input.clientId,
-      rateCardId: input.rateCardId,
-      baseAmount: input.baseAmount,
-      currency: input.currency,
-      talentFeeAmount: talentFee,
-      clientFeeAmount: clientFee,
-      slotDate: input.slotDate,
+      date: input.slotDate,
       slotStart: input.slotStart,
       slotEnd: input.slotEnd,
-      state: "PENDING_PAYMENT",
-      orderRoom: { create: {} },
-    },
+      bookingId: booking.id,
+    });
+
+    return booking;
   });
 }
 

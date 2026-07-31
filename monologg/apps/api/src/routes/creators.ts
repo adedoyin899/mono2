@@ -11,6 +11,8 @@ import {
   KycAlreadyVerifiedError,
 } from "../services/kyc.js";
 import { confirmMediaUpload, TaggingAlreadyStartedError } from "../services/aiTagging.js";
+import { getOpenSlots } from "../services/availability.js";
+import { formatMoney } from "../lib/display.js";
 
 const NICHE_VALUES = ["ACTOR", "VO_ARTIST", "COMEDIAN", "COMPERE", "SPEAKER_PASTOR", "MUSICIAN", "CONTENT_CREATOR"] as const;
 
@@ -228,6 +230,59 @@ export async function creatorRoutes(app: FastifyInstance): Promise<void> {
 
       const result = await pollKycStatus(creator);
       return reply.send(result);
+    },
+  );
+
+  // GET /creators/:id/open-slots?date=YYYY-MM-DD — public, no auth (features.md
+  // Phase 13). The booking sheet's ONLY source for what's bookable — the client
+  // never computes availability itself, it just renders this response.
+  app.get(
+    "/api/v1/creators/:id/open-slots",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const query = z.object({ date: z.coerce.date() }).safeParse(request.query);
+      if (!query.success) {
+        return reply.status(400).send({
+          error: "Bad Request",
+          message: query.error.issues.map((i) => i.message).join(", "),
+          statusCode: 400,
+        });
+      }
+
+      const creator = await prisma.creator.findUnique({ where: { id }, select: { id: true } });
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: `Creator "${id}" not found`, statusCode: 404 });
+      }
+
+      const openSlots = await getOpenSlots(id, query.data.date);
+      return reply.send({ date: query.data.date.toISOString().slice(0, 10), openSlots });
+    },
+  );
+
+  // GET /creators/:id/rate-cards — public, no auth. The read-only counterpart
+  // to the owner-scoped /rate-cards (routes/rateCards.ts) — lets a client
+  // (or the external-visitor flow, Phase 16) see what a specific talent
+  // sells and its price, without exposing anything owner-only.
+  app.get(
+    "/api/v1/creators/:id/rate-cards",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { id } = request.params as { id: string };
+      const creator = await prisma.creator.findUnique({ where: { id }, select: { id: true } });
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: `Creator "${id}" not found`, statusCode: 404 });
+      }
+
+      const rateCards = await prisma.rateCard.findMany({ where: { creatorId: id }, orderBy: { basePriceAmount: "asc" } });
+      return reply.send(
+        rateCards.map((rc) => ({
+          id: rc.id,
+          title: rc.serviceTitle,
+          price: formatMoney(rc.basePriceAmount, rc.basePriceCurrency),
+          basePriceAmount: rc.basePriceAmount,
+          basePriceCurrency: rc.basePriceCurrency,
+          delivery: rc.deliveryTimeline,
+        })),
+      );
     },
   );
 }

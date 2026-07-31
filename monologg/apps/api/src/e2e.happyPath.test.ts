@@ -45,6 +45,19 @@ vi.mock("./db/client.js", () => ({
     client: {
       findUnique: vi.fn().mockResolvedValue({ id: "client-1", userId: "user-client-1" }),
     },
+    // features.md Phase 13: createBooking claims the slot atomically via
+    // services/availability.ts's bookSlot inside the same transaction — no
+    // existing block for this day, no calendar connection, so the requested
+    // slot is open (this flow isn't exercising Phase 13's own logic, just
+    // needs it to not crash the transaction it now runs inside).
+    creator: { findUnique: vi.fn().mockResolvedValue(null) },
+    availabilityBlock: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+      create: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
     rateCard: {
       findUnique: vi.fn().mockResolvedValue({
         id: "rc-1",

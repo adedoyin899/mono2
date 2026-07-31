@@ -9,16 +9,26 @@ import {
   CalendarNotConnectedError,
   CalendarReconnectRequiredError,
 } from "../services/calendar.js";
+import { getOpenSlots, startOfDayUTC } from "../services/availability.js";
 
+// features.md Phase 13: slots carry a state, not just a boolean — "free" is
+// informational (the default-free rule already treats an unconfigured day as
+// open); only "unavailable"/"booked" actually subtract from getOpenSlots.
+// bookingId is set only by the server (services/availability.ts's bookSlot) —
+// never client-writable, so it's accepted here but has no independent effect
+// on a plain PATCH/POST from the talent.
 const slotSchema = z.object({
   start: z.string(),
   end: z.string(),
-  booked: z.boolean(),
+  state: z.enum(["free", "unavailable", "booked"]),
+  bookingId: z.string().optional(),
 });
 
 const availabilityBlockSchema = z.object({
   date: z.coerce.date(),
   slots: z.array(slotSchema),
+  isRecurring: z.boolean().optional(),
+  recurRule: z.string().optional(),
   calendarEventId: z.string().optional(),
 });
 
@@ -43,6 +53,49 @@ export async function availabilityRoutes(app: FastifyInstance): Promise<void> {
       ]);
 
       return reply.send(paginate(blocks, total, query));
+    },
+  );
+
+  // GET /availability/day?date=YYYY-MM-DD — features.md Phase 13's "clicking a
+  // day shows everything scheduled that day": the resolved slots (exact-date
+  // override, or the matching recurring template, or none — the default-free
+  // rule) plus that day's CalendarEvents, in one call for the day-detail UI.
+  app.get(
+    "/api/v1/availability/day",
+    { preHandler: [requireAuth, requireRole("TALENT")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const creator = await findOwnCreator(request.user!.userId);
+      if (!creator) {
+        return reply.status(404).send({ error: "Not Found", message: "No creator profile for this user", statusCode: 404 });
+      }
+
+      const query = z.object({ date: z.coerce.date() }).safeParse(request.query);
+      if (!query.success) {
+        return reply.status(400).send({
+          error: "Bad Request",
+          message: query.error.issues.map((i) => i.message).join(", "),
+          statusCode: 400,
+        });
+      }
+      const day = startOfDayUTC(query.data.date);
+
+      const [override, recurringBlocks, events] = await Promise.all([
+        prisma.availabilityBlock.findFirst({ where: { creatorId: creator.id, date: day, isRecurring: false } }),
+        prisma.availabilityBlock.findMany({ where: { creatorId: creator.id, isRecurring: true } }),
+        prisma.calendarEvent.findMany({ where: { creatorId: creator.id, date: day }, orderBy: { start: "asc" } }),
+      ]);
+
+      const openSlots = await getOpenSlots(creator.id, day);
+
+      return reply.send({
+        date: day.toISOString().slice(0, 10),
+        block: override
+          ? { id: override.id, slots: override.slots, isRecurring: false, recurRule: null }
+          : null,
+        recurringTemplates: recurringBlocks.map((b) => ({ id: b.id, slots: b.slots, recurRule: b.recurRule })),
+        events,
+        openSlots,
+      });
     },
   );
 

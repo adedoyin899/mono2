@@ -154,6 +154,50 @@ describe("api-client", () => {
       expect(window.localStorage.getItem("monologg_refresh_token")).toBe("new-refresh-token");
     });
 
+    it("live mode: concurrent 401s share one refresh instead of each spending the single-use refresh token", async () => {
+      // Regression test: a dashboard mount firing several protected requests at
+      // once used to have EACH one independently call /auth/refresh with the
+      // same stored (single-use, rotated) refresh token — only the first
+      // succeeded, and replaying an already-rotated token trips the server's
+      // reuse-detection, revoking the whole session. tryRefreshSession() must
+      // de-dupe concurrent callers onto one shared refresh.
+      vi.stubEnv("VITE_API_MODE", "live");
+      window.localStorage.setItem("monologg_refresh_token", "old-refresh-token");
+
+      let refreshCallCount = 0;
+      const callCounts: Record<string, number> = { "/api/v1/talent?pageSize=100": 0, "/api/v1/briefs?pageSize=100": 0, "/api/v1/support/tickets?pageSize=100": 0 };
+      const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url === "/api/v1/auth/refresh") {
+          refreshCallCount += 1;
+          return new Response(
+            JSON.stringify({ accessToken: "new-access-token", refreshToken: "new-refresh-token" }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
+        }
+        if (url in callCounts) {
+          callCounts[url] += 1;
+          if (callCounts[url] === 1) {
+            return new Response("unauthorized", { status: 401 });
+          }
+          return new Response(
+            JSON.stringify({ data: [], page: 1, pageSize: 100, total: 0, totalPages: 0 }),
+            { status: 200, headers: { "content-type": "application/json" } },
+          );
+        }
+        throw new Error(`Unexpected fetch: ${url}`);
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { apiClient } = await import("./api-client");
+      // Three protected calls fired concurrently, exactly like a dashboard's
+      // mount-time useEffect — none has a warm in-memory access token yet.
+      await Promise.all([apiClient.listTalents(), apiClient.listClientProjects(), apiClient.listSupportTickets()]);
+
+      expect(refreshCallCount).toBe(1);
+      expect(window.localStorage.getItem("monologg_refresh_token")).toBe("new-refresh-token");
+    });
+
     it("live mode: logout calls the endpoint and clears the stored refresh token", async () => {
       vi.stubEnv("VITE_API_MODE", "live");
       window.localStorage.setItem("monologg_refresh_token", "some-refresh-token");
@@ -177,7 +221,7 @@ describe("api-client", () => {
   });
 
   describe("Phase 5 — resources with no backing endpoint yet stay mock-only", () => {
-    it("getClientStats/getTalentStats/listTalentActivity/getShortlistedTalentIds/getAvailability never call fetch, even in live mode", async () => {
+    it("getClientStats/getTalentStats/listTalentActivity/getShortlistedTalentIds never call fetch, even in live mode", async () => {
       vi.stubEnv("VITE_API_MODE", "live");
       const fetchMock = vi.fn();
       vi.stubGlobal("fetch", fetchMock);
@@ -187,7 +231,6 @@ describe("api-client", () => {
       await apiClient.getTalentStats();
       await apiClient.listTalentActivity();
       await apiClient.getShortlistedTalentIds();
-      await apiClient.getAvailability();
 
       expect(fetchMock).not.toHaveBeenCalled();
     });

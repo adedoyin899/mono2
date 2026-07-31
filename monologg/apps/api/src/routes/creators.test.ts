@@ -7,6 +7,10 @@ vi.mock("../db/client.js", () => ({
     creator: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), update: vi.fn() },
     mediaAsset: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn(), findUniqueOrThrow: vi.fn() },
     kycCheck: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
+    // features.md Phase 13: public GET /creators/:id/open-slots + /rate-cards.
+    rateCard: { findMany: vi.fn() },
+    availabilityBlock: { findFirst: vi.fn().mockResolvedValue(null), findMany: vi.fn().mockResolvedValue([]) },
+    calendarConnection: { findUnique: vi.fn().mockResolvedValue(null) },
     $transaction: vi.fn(),
   },
 }));
@@ -336,6 +340,61 @@ describe("Creator profile + media upload", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json()).toMatchObject({ verification: "FAILED" });
+    });
+  });
+
+  describe("GET /creators/:id/open-slots — public (features.md Phase 13)", () => {
+    it("requires no authentication and returns the server-computed open intervals", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1" });
+      prismaMock.availabilityBlock.findFirst.mockResolvedValue(null);
+      prismaMock.availabilityBlock.findMany.mockResolvedValue([]);
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/open-slots?date=2026-08-05" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ date: "2026-08-05", openSlots: [{ start: "00:00", end: "23:59" }] });
+    });
+
+    it("404s for a creator that doesn't exist", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(null);
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/nope/open-slots?date=2026-08-05" });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    it("400s when the date query param is missing/invalid", async () => {
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/open-slots" });
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
+  describe("GET /creators/:id/rate-cards — public (features.md Phase 13)", () => {
+    it("requires no authentication and returns the creator's rate cards, cheapest first", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue({ id: "creator-1" });
+      prismaMock.rateCard.findMany.mockResolvedValue([
+        { id: "rc-1", serviceTitle: "Voice-Over Session", basePriceAmount: 2_800_000, basePriceCurrency: "NGN", deliveryTimeline: "Same Day" },
+      ]);
+
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/creator-1/rate-cards" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual([
+        {
+          id: "rc-1",
+          title: "Voice-Over Session",
+          price: "₦28,000",
+          basePriceAmount: 2_800_000,
+          basePriceCurrency: "NGN",
+          delivery: "Same Day",
+        },
+      ]);
+    });
+
+    it("404s for a creator that doesn't exist", async () => {
+      prismaMock.creator.findUnique.mockResolvedValue(null);
+      const response = await app.inject({ method: "GET", url: "/api/v1/creators/nope/rate-cards" });
+      expect(response.statusCode).toBe(404);
     });
   });
 });
