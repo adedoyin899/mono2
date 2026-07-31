@@ -231,6 +231,7 @@ export function Checkout() {
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
           <input
             type="date"
+            aria-label="Booking date"
             value={slotDate}
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => e.target.value && setSlotDate(e.target.value)}

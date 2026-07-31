@@ -171,6 +171,49 @@ describe("Payment / escrow service (features.md Phase 6)", () => {
       expect(createMeetForBookingMock).toHaveBeenCalledWith("b1");
     });
 
+    // features.md Phase 17 (security pen-style test): amount tampering. A forged webhook
+    // payload can't change what gets charged/held — processPaystackWebhookEvent never reads
+    // payload.data.amount at all; the only amount that ever mattered was server-computed and
+    // persisted at initEscrowForBooking time (services/payment.ts, computeFees). Proven here by
+    // asserting the escrow-lock update touches only status/escrowHeld, never amount, even when
+    // the payload carries a wildly different forged amount.
+    it("amount tampering: a forged payload.data.amount is never read or written anywhere", async () => {
+      const tamperedPayload = {
+        event: "charge.success",
+        data: { id: 999, reference: "ref-1", status: "success", amount: 1 }, // forged: real total was e.g. 1,000,000
+      };
+      prismaMock.payment.findUnique.mockResolvedValue({ id: "p1", bookingId: "b1", status: "INITIATED" });
+      let capturedUpdateManyArgs: unknown;
+      prismaMock.$transaction.mockImplementation(async (fn: any) => {
+        const tx = {
+          paymentEvent: { create: vi.fn().mockResolvedValue({}) },
+          payment: {
+            updateMany: vi.fn((args: unknown) => {
+              capturedUpdateManyArgs = args;
+              return Promise.resolve({ count: 1 });
+            }),
+          },
+          booking: { update: vi.fn().mockResolvedValue({}) },
+        };
+        await fn(tx);
+        return tx;
+      });
+      prismaMock.booking.findUnique.mockResolvedValue({
+        id: "b1",
+        creator: { userId: "user-creator" },
+        client: { userId: "user-client" },
+      });
+      paymentProviderMock.holdFunds.mockResolvedValue(undefined);
+
+      const result = await processPaystackWebhookEvent(tamperedPayload);
+
+      expect(result.processed).toBe(true);
+      expect(capturedUpdateManyArgs).toMatchObject({
+        data: { status: "ESCROW_HELD", escrowHeld: true },
+      });
+      expect((capturedUpdateManyArgs as { data: object }).data).not.toHaveProperty("amount");
+    });
+
     it("a createMeetForBooking failure never fails the webhook (best-effort)", async () => {
       prismaMock.payment.findUnique.mockResolvedValue({ id: "p1", bookingId: "b1", status: "INITIATED" });
       prismaMock.$transaction.mockImplementation(async (fn: any) => {

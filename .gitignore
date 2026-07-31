@@ -8,6 +8,11 @@ monologg/**/coverage/
 monologg/apps/api/uploads/
 monologg/**/.vercel/
 
+# Playwright (features.md Phase 17) — test-run artifacts, never source
+monologg/apps/web/test-results/
+monologg/apps/web/playwright-report/
+monologg/apps/web/e2e/.cache/
+
 # Secrets — never commit real env values; .env.example is the exception
 monologg/**/.env
 monologg/**/.env.*

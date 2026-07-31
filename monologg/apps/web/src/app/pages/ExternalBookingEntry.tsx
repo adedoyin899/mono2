@@ -192,6 +192,7 @@ export function ExternalBookingEntry() {
 
           <input
             type="date"
+            aria-label="Booking date"
             value={slotDate}
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => e.target.value && setSlotDate(e.target.value)}

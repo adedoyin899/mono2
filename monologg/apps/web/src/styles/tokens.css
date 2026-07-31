@@ -59,7 +59,14 @@
   /* Text — true hierarchy */
   --color-text-primary: #16161A;
   --color-text-secondary: #5D5D66;
-  --color-text-tertiary: #97979F;
+  /* features.md Phase 17 QA: axe flagged the original #97979F at 2.68:1 against
+     --color-bg-canvas (needs 4.5:1, WCAG AA normal text) — a real, widespread
+     finding (this token backs most caption/footer/label text app-wide). Darkened
+     to clear every light-mode surface it's actually painted on, including the
+     worst case (--color-bg-elevated, the darkest light bg): 4.74:1 vs canvas,
+     4.53:1 vs elevated. Same hue (kept the original +8 blue bias), just deeper.
+     See qa/2026-07-31-phase17/cross-device-a11y.md. */
+  --color-text-tertiary: #6D6D75;
   --color-text-inverse: #FFFFFF;
 
   /* Semantic */
@@ -169,7 +176,11 @@
 
   --color-text-primary: #F5F5F0;
   --color-text-secondary: #A6A6B0;
-  --color-text-tertiary: #6E6E78;
+  /* features.md Phase 17 QA: same fix as light mode above — the original #6E6E78
+     only cleared 3.85:1 against canvas. Lightened to clear the worst case
+     (--color-bg-elevated, the lightest dark bg): 5.61:1 vs canvas, 4.51:1 vs
+     elevated, same hue. */
+  --color-text-tertiary: #898993;
   --color-text-inverse: #0D0D0F;
 
   --color-success: #3EE089;

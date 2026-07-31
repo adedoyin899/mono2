@@ -398,7 +398,7 @@ export function OrderRoom() {
                   }}
                 />
               </div>
-              <Button className="w-11 h-11 p-0 shrink-0" onClick={sendMessage} disabled={!inputText.trim()}>
+              <Button aria-label="Send message" className="w-11 h-11 p-0 shrink-0" onClick={sendMessage} disabled={!inputText.trim()}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>

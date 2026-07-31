@@ -32,10 +32,11 @@ const ATTRIBUTE_FIELDS: Array<{ key: keyof UpdateAttributesInput; label: string;
 const ATTRIBUTES_CONSENT_VERSION = "attrs-v1";
 const VISIBILITY_LEVELS: AttributeVisibility[] = ["PRIVATE", "SEARCHABLE", "PUBLIC"];
 
-const TOGGLE = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
+const TOGGLE = ({ on, onToggle, label }: { on: boolean; onToggle: () => void; label: string }) => (
   <button
     role="switch"
     aria-checked={on}
+    aria-label={label}
     onClick={onToggle}
     className="w-11 h-6 rounded-full transition-all relative focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
     style={{ background: on ? "var(--color-accent)" : "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}
@@ -266,7 +267,7 @@ export function Settings() {
                     </span>
                     <span className="text-sm font-medium font-body" style={s.text}>{isDark ? "Dark Mode" : "Light Mode"}</span>
                   </div>
-                  <TOGGLE on={isDark} onToggle={toggle} />
+                  <TOGGLE on={isDark} onToggle={toggle} label={isDark ? "Switch to light mode" : "Switch to dark mode"} />
                 </div>
               </div>
 
@@ -507,7 +508,7 @@ export function Settings() {
                       <div className="text-sm font-semibold font-body" style={s.text}>{item.label}</div>
                       <div className="text-xs font-body mt-0.5" style={s.tertiary}>{item.desc}</div>
                     </div>
-                    <TOGGLE on={notif[item.key]} onToggle={() => setNotif(prev => ({ ...prev, [item.key]: !prev[item.key] }))} />
+                    <TOGGLE on={notif[item.key]} onToggle={() => setNotif(prev => ({ ...prev, [item.key]: !prev[item.key] }))} label={item.label} />
                   </div>
                 ))}
               </div>

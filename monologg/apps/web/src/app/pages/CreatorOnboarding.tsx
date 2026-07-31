@@ -92,6 +92,7 @@ export function CreatorOnboarding() {
       {step !== 3 && (
         <div className="px-5 pt-6 pb-3 flex items-center gap-3">
           <button
+            aria-label="Go back"
             onClick={step === 1 ? () => navigate("/auth") : handleBack}
             className="w-10 h-10 -ml-1 flex items-center justify-center rounded-[var(--radius-full)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.94] transition-all"
           >
