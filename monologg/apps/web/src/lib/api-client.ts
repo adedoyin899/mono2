@@ -306,6 +306,22 @@ export const apiClient = {
     if (API_MODE === "mock") return;
     await authRequest("/forgot-password", { email });
   },
+  /** features.md Phase 16 (FA-5), PWA-19: consumes the set-password/magic-link token
+   * emailed after an external-booking guest's escrow funds (services/payment.ts's
+   * webhook). Reuses POST /auth/reset-password (routes/auth.ts) — same mechanism as
+   * a normal password reset, just also returns a session so this doubles as the
+   * "magic link" the buyer uses to land in their new dashboard. */
+  async setPassword(token: string, password: string): Promise<AuthUser> {
+    if (API_MODE === "mock") {
+      return { userId: "mock-user", email: "guest@monologg.dev", userType: "CLIENT" };
+    }
+    const data = await authRequest<{ accessToken: string; refreshToken: string; user: AuthUser }>(
+      "/reset-password",
+      { token, password },
+    );
+    setSession(data);
+    return data.user;
+  },
   /** Mock mode preserves today's ungated demo browsing exactly — no login required. */
   isAuthenticated(): boolean {
     if (API_MODE === "mock") return true;
@@ -809,6 +825,30 @@ export const apiClient = {
   },
   async payBooking(bookingId: string): Promise<{ checkoutUrl: string; providerRef: string; status: string }> {
     return request(`/bookings/${bookingId}/pay`, { method: "POST" });
+  },
+
+  // ── External-visitor guest checkout (features.md Phase 16, FA-5) ───────────
+  // No auth token required or sent — request() only attaches one if a session
+  // exists, which a first-time guest never has. The server re-verifies the slot
+  // and computes fees itself, same as the authenticated path above.
+  async createGuestBooking(input: {
+    creatorId: string;
+    rateCardId: string;
+    slotDate: string;
+    slotStart: string;
+    slotEnd: string;
+    contextNote?: string;
+    name: string;
+    email: string;
+  }): Promise<CreatedBooking> {
+    return request("/public/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  },
+  async payGuestBooking(bookingId: string): Promise<{ checkoutUrl: string; providerRef: string; status: string }> {
+    return request(`/public/bookings/${bookingId}/pay`, { method: "POST" });
   },
   /** Dev/demo-only: this prototype's Checkout UI has no real Paystack
    * redirect/SDK to receive a real server-to-server webhook from, so it POSTs

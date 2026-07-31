@@ -27,6 +27,14 @@ model User {
   passwordHash  String
   userType      UserType
   emailVerified Boolean        @default(false)
+  // features.md Phase 16 (FA-5): AUTO_CHECKOUT accounts materialize from a guest
+  // booking's name+email (services/externalBooking.ts), not a signup form.
+  // passwordSet starts false for them — routes/auth.ts's login refuses a
+  // passwordSet=false account until the emailed set-password link (reusing
+  // reset-password, see routes/auth.ts) flips it true. Every pre-Phase-16 and
+  // normal-signup row defaults to SIGNUP/true, unaffected.
+  accountOrigin AccountOrigin  @default(SIGNUP)
+  passwordSet   Boolean        @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   creator       Creator?
@@ -42,6 +50,12 @@ model User {
 enum UserType {
   TALENT
   CLIENT
+}
+
+// features.md Phase 16 (FA-5).
+enum AccountOrigin {
+  SIGNUP
+  AUTO_CHECKOUT
 }
 
 model Creator {
@@ -265,6 +279,16 @@ model Booking {
   payment         Payment?
   orderRoom       OrderRoom?
   createdAt       DateTime       @default(now())
+  // features.md Phase 16 (FA-5): the external, logged-out booking flow.
+  // origin=PUBLIC_LINK bookings are created via services/externalBooking.ts —
+  // clientId still points at a real (possibly just-materialized) Client row;
+  // see that file's TODO(conflict:X7) note on why the row exists slightly
+  // before the account is "surfaced" to the buyer. slotHoldExpiresAt is only
+  // ever set for PUBLIC_LINK bookings (services/availability.ts lazily
+  // releases the hold and flips this booking to CANCELLED once it passes).
+  origin            BookingOrigin @default(INTERNAL)
+  contextNote       String?
+  slotHoldExpiresAt DateTime?
 }
 
 enum EngagementType {
@@ -279,6 +303,12 @@ enum BookingState {
   PAYMENT_RELEASED
   CANCELLED
   DISPUTED
+}
+
+// features.md Phase 16 (FA-5).
+enum BookingOrigin {
+  INTERNAL
+  PUBLIC_LINK
 }
 
 // --- Payments --------------------------------------------------------------

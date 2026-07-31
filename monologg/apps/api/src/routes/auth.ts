@@ -168,7 +168,12 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         ? await verifyPassword(user.passwordHash, password)
         : await verifyPassword(DUMMY_HASH, password);
 
-      if (!user || !isValid) {
+      // features.md Phase 16 (FA-5): an AUTO_CHECKOUT account has no real password
+      // yet (passwordHash is an unguessable random value — see
+      // services/externalBooking.ts) — passwordSet is the explicit gate, checked
+      // after the same-shape/same-timing verifyPassword call above so a
+      // not-yet-set-up account is indistinguishable from a wrong password.
+      if (!user || !isValid || !user.passwordSet) {
         // Generic error response to prevent user enumeration
         return reply.status(401).send({
           error: "Unauthorized",
@@ -427,11 +432,15 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
       const newHash = await hashPassword(password);
 
-      // Update password hash and revoke all active refresh tokens (security hygiene)
-      await prisma.$transaction([
+      // Update password hash and revoke all active refresh tokens (security hygiene).
+      // passwordSet:true is a no-op for a normal reset (already true) but is the real
+      // login-unlock for an AUTO_CHECKOUT account (features.md Phase 16, FA-5) — this
+      // endpoint doubles as "set password" for the emailed post-checkout link
+      // (services/payment.ts's webhook issues a token under this same cache prefix).
+      const [user] = await prisma.$transaction([
         prisma.user.update({
           where: { id: userId },
-          data: { passwordHash: newHash },
+          data: { passwordHash: newHash, passwordSet: true },
         }),
         prisma.refreshToken.updateMany({
           where: { userId },
@@ -442,7 +451,30 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       // Remove password reset token from cache
       await cacheProvider.del(`auth:reset:${token}`);
 
-      return reply.status(200).send({ success: true });
+      // features.md Phase 16 (FA-5): issue a fresh session so the emailed link also
+      // works as a magic link — completing this step logs the buyer straight into
+      // their new (or existing) account, not just changes their password.
+      const accessToken = generateAccessToken({
+        userId: user.id,
+        userType: user.userType,
+        email: user.email,
+      });
+      const tokenJti = randomUUID();
+      const refreshToken = generateRefreshToken(user.id, tokenJti);
+      await prisma.refreshToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: hashToken(refreshToken),
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      return reply.status(200).send({
+        success: true,
+        accessToken,
+        refreshToken,
+        user: { userId: user.id, email: user.email, userType: user.userType },
+      });
     }
   );
 }

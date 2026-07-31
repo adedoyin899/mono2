@@ -114,6 +114,9 @@ describe("PublicStorefront", () => {
         if (url.endsWith("/rate-cards")) {
           return new Response(JSON.stringify(LIVE_PROFILE.rateCards), { status: 200, headers: { "content-type": "application/json" } });
         }
+        if (url.includes("/open-slots")) {
+          return new Response(JSON.stringify({ date: "2026-08-10", openSlots: [] }), { status: 200, headers: { "content-type": "application/json" } });
+        }
         throw new Error(`Unexpected fetch: ${url}`);
       }),
     );
@@ -132,7 +135,9 @@ describe("PublicStorefront", () => {
     await screen.findByText("Adaeze Obi");
     fireEvent.click(screen.getByRole("button", { name: /Book Now/i }));
 
-    await screen.findByText(/Guest checkout is on its way/i);
+    // features.md Phase 16 (FA-5): PWA-18's real flow now lives here — the
+    // slot-picker step, logged out, is what the "Book Now" CTA opens into.
+    await screen.findByText("Book Adaeze Obi");
   });
 
   it("shows a not-found state for a handle that doesn't resolve to a creator", async () => {

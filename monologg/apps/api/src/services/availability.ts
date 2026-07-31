@@ -84,6 +84,40 @@ function recurRuleAppliesToDay(recurRule: string | null, day: Date): boolean {
   return false;
 }
 
+/** features.md Phase 16 (FA-5, X5): abandoned external checkouts (PENDING_PAYMENT,
+ * slotHoldExpiresAt in the past — only ever set for PUBLIC_LINK bookings) no longer
+ * block their slot. There's no cron/job-scheduler in this codebase for "expire this
+ * row later" (BullMQ is only wired for notification delivery), so this is lazy: run
+ * right here, the one place that already re-verifies availability server-side,
+ * rather than adding new scheduling infrastructure. Best-effort — same "never block
+ * the read" idiom as getGoogleBusyTimes below: a plain GET open-slots call passes
+ * tx=prisma (no lock), while bookSlot's advisory-locked transaction gets a fully
+ * race-safe re-verification for free. */
+async function releaseExpiredHolds(tx: PrismaOrTx, slots: Slot[]): Promise<Slot[]> {
+  const bookingIds = slots
+    .filter((s): s is Slot & { bookingId: string } => s.state === "booked" && !!s.bookingId)
+    .map((s) => s.bookingId);
+  if (bookingIds.length === 0) return slots;
+
+  const bookings = await tx.booking.findMany({
+    where: { id: { in: bookingIds } },
+    select: { id: true, state: true, slotHoldExpiresAt: true },
+  });
+  const now = new Date();
+  const expiredIds = bookings
+    .filter((b) => b.state === "PENDING_PAYMENT" && b.slotHoldExpiresAt && b.slotHoldExpiresAt < now)
+    .map((b) => b.id);
+  if (expiredIds.length === 0) return slots;
+
+  await tx.booking.updateMany({
+    where: { id: { in: expiredIds }, state: "PENDING_PAYMENT" },
+    data: { state: "CANCELLED" },
+  });
+
+  const expired = new Set(expiredIds);
+  return slots.filter((s) => !(s.state === "booked" && s.bookingId && expired.has(s.bookingId)));
+}
+
 /** Resolves which slots (if any) apply to `day`: an exact-date override block
  * always wins; otherwise the first matching recurring template; otherwise
  * none (an unconfigured day — the default-free rule handles the rest). */
@@ -91,13 +125,13 @@ async function resolveDaySlots(tx: PrismaOrTx, creatorId: string, day: Date): Pr
   const override = await tx.availabilityBlock.findFirst({
     where: { creatorId, date: day, isRecurring: false },
   });
-  if (override) return (override.slots as unknown as Slot[]) ?? [];
+  if (override) return releaseExpiredHolds(tx, (override.slots as unknown as Slot[]) ?? []);
 
   const recurring = await tx.availabilityBlock.findMany({
     where: { creatorId, isRecurring: true },
   });
   const applicable = recurring.find((block) => recurRuleAppliesToDay(block.recurRule, day));
-  return applicable ? ((applicable.slots as unknown as Slot[]) ?? []) : [];
+  return releaseExpiredHolds(tx, applicable ? ((applicable.slots as unknown as Slot[]) ?? []) : []);
 }
 
 /**

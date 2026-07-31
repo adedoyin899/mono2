@@ -31,6 +31,10 @@ export default defineConfig({
         "src/middlewares/auth.ts": { lines: 90, functions: 90, branches: 80, statements: 90 },
         // State: the booking legal-transition graph.
         "src/services/booking.ts": { lines: 90, functions: 90, branches: 85, statements: 90 },
+        // features.md Phase 16 (FA-5): the deferred-account, escrow-first guest
+        // checkout — money + auth-adjacent (auto-creates a User/Client), same bar
+        // as services/booking.ts.
+        "src/services/externalBooking.ts": { lines: 90, functions: 90, branches: 85, statements: 90 },
       },
     },
   },

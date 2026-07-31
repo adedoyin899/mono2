@@ -43,6 +43,12 @@ async function loadParticipantBooking(bookingId: string, userId: string) {
 
   if (!booking.orderRoom) return { error: "not_found" as const };
 
+  // features.md Phase 16 (FA-5) guardrail, but not external-only: escrow-first is a
+  // general invariant — the order room is created at booking time (before payment)
+  // for every booking, internal or PUBLIC_LINK alike, so this is the one shared gate
+  // that actually enforces "chat gates on ESCROW_LOCKED, never a client callback."
+  if (booking.state === "PENDING_PAYMENT") return { error: "escrow_pending" as const };
+
   return { booking, role };
 }
 
@@ -60,6 +66,13 @@ export async function orderRoomRoutes(app: FastifyInstance): Promise<void> {
       if ("error" in result) {
         if (result.error === "forbidden") {
           return reply.status(403).send({ error: "Forbidden", message: "You are not a participant in this booking", statusCode: 403 });
+        }
+        if (result.error === "escrow_pending") {
+          return reply.status(403).send({
+            error: "Forbidden",
+            message: "Escrow not yet funded — the order room opens once payment is confirmed",
+            statusCode: 403,
+          });
         }
         return reply.status(404).send({ error: "Not Found", message: `Booking "${bookingId}" not found`, statusCode: 404 });
       }
@@ -88,6 +101,13 @@ export async function orderRoomRoutes(app: FastifyInstance): Promise<void> {
       if ("error" in result) {
         if (result.error === "forbidden") {
           return reply.status(403).send({ error: "Forbidden", message: "You are not a participant in this booking", statusCode: 403 });
+        }
+        if (result.error === "escrow_pending") {
+          return reply.status(403).send({
+            error: "Forbidden",
+            message: "Escrow not yet funded — the order room opens once payment is confirmed",
+            statusCode: 403,
+          });
         }
         return reply.status(404).send({ error: "Not Found", message: `Booking "${bookingId}" not found`, statusCode: 404 });
       }

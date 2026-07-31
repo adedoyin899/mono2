@@ -35,6 +35,7 @@ const BOOKING = {
   creator: { userId: "user-talent-1" },
   client: { userId: "user-client-1" },
   orderRoom: { id: "room-1" },
+  state: "ESCROW_LOCKED",
 };
 
 describe("Order-room messages (participants only)", () => {
@@ -173,6 +174,52 @@ describe("Order-room messages (participants only)", () => {
       });
 
       expect(response.statusCode).toBe(400);
+    });
+  });
+
+  // features.md Phase 16 (FA-5) guardrail: "chat gates on ESCROW_LOCKED, never a
+  // client callback" — applies to every booking, internal or external alike, since
+  // the OrderRoom is created at booking time (before payment) either way.
+  describe("escrow gate — the order room is unreachable before ESCROW_LOCKED", () => {
+    it("403s a GET on a PENDING_PAYMENT booking", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({ ...BOOKING, state: "PENDING_PAYMENT" });
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/order-rooms/b1/messages",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(prismaMock.message.findMany).not.toHaveBeenCalled();
+    });
+
+    it("403s a POST on a PENDING_PAYMENT booking", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({ ...BOOKING, state: "PENDING_PAYMENT" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/order-rooms/b1/messages",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+        payload: { text: "Hello?" },
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(prismaMock.message.create).not.toHaveBeenCalled();
+    });
+
+    it("allows a GET once the booking is ESCROW_LOCKED", async () => {
+      prismaMock.booking.findUnique.mockResolvedValue({ ...BOOKING, state: "ESCROW_LOCKED" });
+      prismaMock.message.findMany.mockResolvedValue([]);
+      prismaMock.message.count.mockResolvedValue(0);
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/order-rooms/b1/messages",
+        headers: { authorization: `Bearer ${CLIENT_TOKEN}` },
+      });
+
+      expect(response.statusCode).toBe(200);
     });
   });
 });

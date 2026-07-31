@@ -25,6 +25,10 @@ const EN_TEMPLATES: Record<string, TemplateRenderer> = {
     subject: "Reset your Monologg password",
     body: `Use this token to reset your password: ${data.token}. If you didn't request this, you can ignore this email.`,
   }),
+  set_password: (data) => ({
+    subject: "Your booking is confirmed — set up your account",
+    body: `Your payment secured booking ${data.bookingId} in escrow, and we've created an account for you. Use this token to set a password and manage your booking: ${data.token}.`,
+  }),
   booking_created: (data) => ({
     subject: "New booking request",
     body: `You have a new booking request (booking ${data.bookingId}). Log in to review and respond.`,

@@ -9,6 +9,12 @@ vi.mock("../db/client.js", () => ({
       create: vi.fn(),
       update: vi.fn(),
     },
+    // features.md Phase 16 (FA-5): releaseExpiredHolds looks up the bookings behind
+    // any "booked" slot to lazily expire abandoned PENDING_PAYMENT holds.
+    booking: {
+      findMany: vi.fn(),
+      updateMany: vi.fn(),
+    },
     $executeRaw: vi.fn(),
   },
 }));
@@ -35,6 +41,9 @@ describe("Availability service — getOpenSlots (features.md Phase 13, FA-1)", (
     vi.clearAllMocks();
     prismaMock.creator.findUnique.mockResolvedValue(null); // no calendar connection by default
     getGoogleBusyTimesMock.mockRejectedValue(new CalendarNotConnectedError("not connected"));
+    // No expired holds by default — individual tests override this to exercise
+    // releaseExpiredHolds (features.md Phase 16, FA-5, X5).
+    prismaMock.booking.findMany.mockResolvedValue([]);
   });
 
   it("default-free rule: an unconfigured day (no block at all) is free across normal hours", async () => {
@@ -73,6 +82,77 @@ describe("Availability service — getOpenSlots (features.md Phase 13, FA-1)", (
       { start: "00:00", end: "10:00" },
       { start: "11:00", end: "23:59" },
     ]);
+  });
+
+  // features.md Phase 16 (FA-5, X5): abandoned external checkouts release their
+  // slot hold — lazily, right here in getOpenSlots (no cron/job-scheduler exists
+  // for "expire this row later" in this codebase).
+  it("an expired PENDING_PAYMENT hold (slotHoldExpiresAt in the past) is treated as free again", async () => {
+    prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+      slots: [{ start: "10:00", end: "11:00", state: "booked", bookingId: "booking-expired" }],
+    });
+    prismaMock.booking.findMany.mockResolvedValue([
+      { id: "booking-expired", state: "PENDING_PAYMENT", slotHoldExpiresAt: new Date(Date.now() - 60_000) },
+    ]);
+
+    const open = await getOpenSlots("creator-1", DAY);
+
+    expect(open).toEqual([{ start: "00:00", end: "23:59" }]);
+    expect(prismaMock.booking.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ["booking-expired"] }, state: "PENDING_PAYMENT" },
+      data: { state: "CANCELLED" },
+    });
+  });
+
+  it("a not-yet-expired PENDING_PAYMENT hold still blocks the slot", async () => {
+    prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+      slots: [{ start: "10:00", end: "11:00", state: "booked", bookingId: "booking-fresh" }],
+    });
+    prismaMock.booking.findMany.mockResolvedValue([
+      { id: "booking-fresh", state: "PENDING_PAYMENT", slotHoldExpiresAt: new Date(Date.now() + 30 * 60_000) },
+    ]);
+
+    const open = await getOpenSlots("creator-1", DAY);
+
+    expect(open).toEqual([
+      { start: "00:00", end: "10:00" },
+      { start: "11:00", end: "23:59" },
+    ]);
+    expect(prismaMock.booking.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("an internal booking (slotHoldExpiresAt: null) is never auto-expired, however old", async () => {
+    prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+      slots: [{ start: "10:00", end: "11:00", state: "booked", bookingId: "booking-internal" }],
+    });
+    prismaMock.booking.findMany.mockResolvedValue([
+      { id: "booking-internal", state: "PENDING_PAYMENT", slotHoldExpiresAt: null },
+    ]);
+
+    const open = await getOpenSlots("creator-1", DAY);
+
+    expect(open).toEqual([
+      { start: "00:00", end: "10:00" },
+      { start: "11:00", end: "23:59" },
+    ]);
+    expect(prismaMock.booking.updateMany).not.toHaveBeenCalled();
+  });
+
+  it("a booking already past PENDING_PAYMENT (e.g. ESCROW_LOCKED) is never touched even if slotHoldExpiresAt is in the past", async () => {
+    prismaMock.availabilityBlock.findFirst.mockResolvedValue({
+      slots: [{ start: "10:00", end: "11:00", state: "booked", bookingId: "booking-locked" }],
+    });
+    prismaMock.booking.findMany.mockResolvedValue([
+      { id: "booking-locked", state: "ESCROW_LOCKED", slotHoldExpiresAt: new Date(Date.now() - 60_000) },
+    ]);
+
+    const open = await getOpenSlots("creator-1", DAY);
+
+    expect(open).toEqual([
+      { start: "00:00", end: "10:00" },
+      { start: "11:00", end: "23:59" },
+    ]);
+    expect(prismaMock.booking.updateMany).not.toHaveBeenCalled();
   });
 
   it("recurring rule applies per matching weekday when no exact-date override exists", async () => {
@@ -212,6 +292,13 @@ function makeStatefulTx() {
         Object.assign(row, data);
         return row;
       }),
+    },
+    // features.md Phase 16 (FA-5): no bookings registered in this in-memory tx, so
+    // releaseExpiredHolds always finds nothing to expire — matches prior behavior
+    // for every test that doesn't opt into a PENDING_PAYMENT hold.
+    booking: {
+      findMany: vi.fn().mockResolvedValue([]),
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
   };
 }

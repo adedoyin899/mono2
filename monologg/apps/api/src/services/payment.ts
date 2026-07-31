@@ -1,11 +1,18 @@
+import { randomUUID } from "node:crypto";
 import { prisma } from "../db/client.js";
 import { paymentProvider, notifyProvider } from "../providers/index.js";
+import { cacheProvider } from "../providers/cache.js";
 import { env } from "../config/env.js";
 import { assertAllowedPaymentProvider, type PaymentProvider as PaymentProviderName } from "../config/paymentProviders.js";
 import { assertLegalTransition, IllegalBookingTransitionError } from "./booking.js";
 import { createMeetForBooking } from "./calendar.js";
 import { enqueueEmailNotification } from "./notifications.js";
 import { recordPaymentOutcome } from "../lib/metrics.js";
+
+// features.md Phase 16 (FA-5): same 1-hour TTL and cache-key prefix as the
+// forgot-password flow (routes/auth.ts) — the set-password link this issues is
+// consumed by that SAME reset-password endpoint, reused rather than duplicated.
+const SET_PASSWORD_TOKEN_TTL_SECONDS = 60 * 60;
 
 // Escrow / payment service (features.md Phase 6). The single place that moves
 // Payment.status and the money-side of BookingState — nothing outside this file
@@ -155,7 +162,7 @@ export async function processPaystackWebhookEvent(
 
     const booking = await prisma.booking.findUnique({
       where: { id: payment.bookingId },
-      include: { creator: true, client: true },
+      include: { creator: true, client: { include: { user: true } } },
     });
     if (booking) {
       await notifyProvider
@@ -166,6 +173,24 @@ export async function processPaystackWebhookEvent(
         .catch(() => {});
       await enqueueEmailNotification(booking.creator.userId, "payment_escrow_locked", { bookingId: booking.id });
       await enqueueEmailNotification(booking.client.userId, "payment_escrow_locked", { bookingId: booking.id });
+
+      // features.md Phase 16 (FA-5): the auto-created account is "surfaced" right
+      // here — the first moment it's safe to, now that escrow is genuinely funded.
+      // Reuses the exact forgot-password mechanism (routes/auth.ts): a cache-backed
+      // token under the SAME "auth:reset:" prefix, consumed by the same
+      // reset-password endpoint (which also flips passwordSet:true and, for this
+      // token, returns a session so the emailed link doubles as the "magic link").
+      if (
+        booking.origin === "PUBLIC_LINK" &&
+        booking.client.user.accountOrigin === "AUTO_CHECKOUT" &&
+        !booking.client.user.passwordSet
+      ) {
+        const setPasswordToken = randomUUID();
+        await cacheProvider.set(`auth:reset:${setPasswordToken}`, booking.client.user.id, SET_PASSWORD_TOKEN_TTL_SECONDS);
+        await notifyProvider
+          .email(booking.client.user.email, "set_password", { token: setPasswordToken, bookingId: booking.id })
+          .catch(() => {});
+      }
 
       // Best-effort (features.md Phase 8): a missing/revoked calendar connection
       // is never a reason to fail this webhook — the booking just has no

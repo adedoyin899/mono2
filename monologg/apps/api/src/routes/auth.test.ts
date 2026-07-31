@@ -202,6 +202,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
         email: "talent@monologg.dev",
         passwordHash: hash,
         userType: "TALENT",
+        passwordSet: true,
       });
       prismaMock.refreshToken.create.mockResolvedValue({ id: "token-record-id" });
 
@@ -235,6 +236,32 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
       });
 
       // Output must be 401 Unauthorized with generic message
+      expect(response.statusCode).toBe(401);
+      expect(response.json().message).toBe("Invalid email or password");
+    });
+
+    // features.md Phase 16 (FA-5): an AUTO_CHECKOUT account (services/externalBooking.ts)
+    // has no real password until the emailed set-password link is used — login must
+    // refuse it even with the correct-looking flow, same generic error as a wrong
+    // password (enumeration-safe: doesn't reveal the account exists but isn't set up).
+    it("refuses login for an account with passwordSet:false, even if a password happens to verify", async () => {
+      const password = "mysecretpassword";
+      const hash = await hashPassword(password);
+
+      prismaMock.user.findUnique.mockResolvedValue({
+        id: "auto-checkout-user",
+        email: "guest@monologg.dev",
+        passwordHash: hash,
+        userType: "CLIENT",
+        passwordSet: false,
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/login",
+        payload: { email: "guest@monologg.dev", password },
+      });
+
       expect(response.statusCode).toBe(401);
       expect(response.json().message).toBe("Invalid email or password");
     });
@@ -382,13 +409,43 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
 
       expect(response.statusCode).toBe(200);
       expect(prismaMock.user.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: "user-resetting" } }),
+        expect.objectContaining({
+          where: { id: "user-resetting" },
+          data: expect.objectContaining({ passwordSet: true }),
+        }),
       );
       expect(prismaMock.refreshToken.updateMany).toHaveBeenCalledWith({
         where: { userId: "user-resetting" },
         data: expect.objectContaining({ revokedAt: expect.any(Date) }),
       });
       expect(await mockCacheProvider.get("auth:reset:good-reset-token")).toBeNull();
+    });
+
+    // features.md Phase 16 (FA-5), PWA-19: this endpoint doubles as "set password"
+    // for a guest-checkout account's emailed link — completing it must also log the
+    // buyer in (the "magic link" behavior), not just change the password hash.
+    it("also returns a fresh session — doubles as the PWA-19 set-password/magic-link flow", async () => {
+      await mockCacheProvider.set("auth:reset:magic-token", "auto-checkout-user", 3600);
+      prismaMock.user.update.mockResolvedValue({
+        id: "auto-checkout-user",
+        email: "guest@monologg.dev",
+        userType: "CLIENT",
+      });
+      prismaMock.refreshToken.updateMany.mockResolvedValue({ count: 0 });
+      prismaMock.refreshToken.create.mockResolvedValue({ id: "new-refresh-token-record" });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/reset-password",
+        payload: { token: "magic-token", password: "brand-new-password" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.accessToken).toBeDefined();
+      expect(body.refreshToken).toBeDefined();
+      expect(body.user.userId).toBe("auto-checkout-user");
+      expect(prismaMock.refreshToken.create).toHaveBeenCalled();
     });
 
     it("rejects an invalid or expired reset token", async () => {
@@ -618,6 +675,7 @@ describe("Authentication Endpoint Integration & Security Hardening", () => {
         email: "e2e@monologg.dev",
         passwordHash,
         userType: "TALENT",
+        passwordSet: true,
       });
       prismaMock.refreshToken.create.mockResolvedValueOnce({ id: "rt-1" });
 
