@@ -1,6 +1,6 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-01 (Session 35: Live Developer Experience Audit & DX Fix Loop via /devex-review)
+**Last updated:** 2026-08-01 (Session 36: Code & Structural Review via /review)
 **Status:** All 18 phases of `features.md` (0–17) are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
 
 **Open, gate-blocking items as of Phase 17** (full detail in `monologg/qa/2026-07-31-phase17/`, not repeated here — see that folder's own README for the complete PENDING list):
@@ -204,8 +204,8 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 ### `features.md` Phase 17 — QA, security & UAT (production gate)
 - [x] Independent verification pass — Playwright cross-browser/a11y suite, security authorization-fuzz test, amount-tampering regression test, real-DB concurrency test, NDPA data inventory, UAT script. Fixed one systemic a11y bug (contrast token + missing labels); found and documented (not fixed — out of scope) a P0/P1 security gap and the missing PWA infrastructure. **This phase's own gate is open, not closed — see the Status note at the top of this file and `monologg/qa/2026-07-31-phase17/README.md` for the full PENDING list.** See `log.md` Session 28.
 
-### `features.md` Phase 21 — Live Developer Experience Audit & DX Fix Loop via `/devex-review` (Session 35)
-- [x] Executed `/devex-review` workflow: audited onboarding TTHW (< 1 minute), build speed (2.02s), TypeScript ergonomics, and documentation. Identified and resolved 2 TypeScript compilation errors in `LandingPage.tsx` and `state-sync.ts`, populated root `CLAUDE.md` developer guide and skill routing rules (`af380ff`), verified Vitest test suite (19/19 files, 72/72 tests green), and generated DX scorecard and review readiness dashboard. See `log.md` Session 35.
+### `features.md` Phase 22 — Code & Structural Review via `/review` (Session 36)
+- [x] Executed `/review` workflow: audited recent code diffs, caught and fixed open-slots range check interval flaw in `ExternalBookingEntry.tsx` (`202d621`), verified 100% Vitest test suite pass (19/19 files, 72/72 tests green), logged Eng Review audit, and cleared Review Readiness Dashboard. See `log.md` Session 36.
 
 ---
 

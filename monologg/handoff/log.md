@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 35: Live Developer Experience Audit & DX Fix Loop via /devex-review)
+**Last updated:** 2026-08-01 (Session 36: Code & Structural Review via /review)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1181,6 +1181,30 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `CLAUDE.md` | Populated developer commands and skill routing rules |
 | `apps/web/src/app/pages/LandingPage.tsx` | Imported missing `X` icon for type safety |
 | `apps/web/src/lib/state-sync.ts` | Aligned Transaction construction properties with TransactionSchema |
+
+---
+
+## Session 36 — Code & Structural Review via `/review`
+
+**Goal:** Execute gstack `/review` skill workflow, perform structural code analysis across diffs and recent session changes, catch range check flaw in time slot selection, verify 100% test pass, and update Eng Review log.
+
+1. **Executed Pre-Landing Code & Diff Audit**:
+   - Analyzed recent commits (`21780fa..202d621`) across `LandingPage.tsx`, `ExternalBookingEntry.tsx`, `OrderRoom.tsx`, `state-sync.ts`, and `CLAUDE.md`.
+   - Identified open slots range-check flaw in `ExternalBookingEntry.tsx` where exact string equality was used instead of slot interval inclusion (`startStr >= s.start && startStr < s.end`).
+
+2. **Fixed Time Slot Range Logic**:
+   - Fixed `isOpen` computation in `ExternalBookingEntry.tsx` (`202d621`).
+   - Re-verified test suite pass: **19/19 test files passed (72/72 tests green)**.
+
+3. **Testing & Verification**:
+   - Verified `npm run typecheck --prefix apps/web` passes with 0 errors.
+   - Pushed atomic commits to `origin/main`.
+
+### File inventory additions (Session 36)
+
+| File | Change |
+|---|---|
+| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed openSlots interval range check calculation for time slot buttons |
 
 
 
