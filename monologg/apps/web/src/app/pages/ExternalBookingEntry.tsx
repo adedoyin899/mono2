@@ -210,10 +210,10 @@ export function ExternalBookingEntry() {
                     key={startStr}
                     disabled={!isOpen}
                     onClick={() => setSelectedSlotStart(startStr)}
-                    className="h-11 rounded-xl font-mono text-sm font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="h-11 rounded-xl font-mono text-sm font-medium transition-all disabled:opacity-45 disabled:cursor-not-allowed flex items-center justify-center"
                     style={{
                       background: selected ? "var(--color-accent)" : isOpen ? "var(--color-bg-surface)" : "var(--color-bg-elevated)",
-                      color: selected ? "var(--color-accent-on)" : isOpen ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+                      color: selected ? "var(--color-accent-on)" : "var(--color-text-primary)",
                       border: "1px solid var(--color-hairline)",
                     }}
                   >
