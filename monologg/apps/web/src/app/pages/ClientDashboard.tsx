@@ -15,7 +15,7 @@ import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talen
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
   Plus, Star, Shield, Filter, Users,
-  ChevronRight, Play, X, Check, AlertCircle
+  ChevronRight, Play, X, Check, AlertCircle, TrendingUp
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -45,7 +45,7 @@ function addMinutes(time: string, minutes: number): string {
   return toTimeStr(minutesOf(time) + minutes);
 }
 
-type Tab = "home" | "discover" | "projects" | "orders" | "shortlist" | "activity";
+type Tab = "home" | "discover" | "projects" | "orders" | "shortlist" | "activity" | "analytics";
 
 // Filter option list — UI configuration, not domain data; stays local
 // (see apps/web/src/lib/api-client.ts doc comment for the mock-data boundary).
@@ -73,6 +73,7 @@ const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "shortlist", label: "Shortlist", icon: Star },
   { id: "activity", label: "Activity", icon: AlertCircle },
+  { id: "analytics", label: "Analytics", icon: TrendingUp },
 ];
 
 const CLIENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
@@ -259,6 +260,7 @@ export function ClientDashboard() {
     : activeTab === "projects" ? "My Projects"
     : activeTab === "orders" ? "Active Orders"
     : activeTab === "activity" ? "Activity History"
+    : activeTab === "analytics" ? "Hiring Analytics"
     : "Shortlist";
 
   const orgName = clientProfile.orgName || clientProfile.name || "FilmCraft Studios";
@@ -1054,6 +1056,116 @@ export function ClientDashboard() {
                     ))}
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {/* ── Analytics Tab ── */}
+            {activeTab === "analytics" && (
+              <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Hiring &amp; Budget Analytics</h2>
+                    <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                      Overview of campaign spending, talent acquisition funnel, and escrow release metrics for {clientProfile.orgName || clientProfile.name}.
+                    </p>
+                  </div>
+                  <Badge tone="success" size="md">Live Sync Active</Badge>
+                </div>
+
+                {/* Metric Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Escrow Allocated</div>
+                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>₦850,000</div>
+                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>Across 4 active briefs</div>
+                  </div>
+                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Avg Cost Per Hire</div>
+                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦70,833</div>
+                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>Optimal ROI benchmark</div>
+                  </div>
+                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Applicants Received</div>
+                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>32</div>
+                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>12 shortlisted · 4 hired</div>
+                  </div>
+                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat Talent Rate</div>
+                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>25%</div>
+                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>High talent satisfaction</div>
+                  </div>
+                </div>
+
+                {/* Detailed Charts & Funnel */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Applicant Conversion Funnel */}
+                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Talent Acquisition Funnel</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Applications Received</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>32 (100%)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "100%", background: "var(--color-accent)" }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Shortlisted Candidates</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>12 (37.5%)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "37.5%", background: "var(--color-accent)" }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Hired &amp; Escrow Locked</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-success)" }}>4 (12.5%)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "12.5%", background: "var(--color-success)" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category Spend Distribution */}
+                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Category Budget Allocation</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Actor / Screen Lead</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>40% (₦340,000)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "40%", background: "var(--color-accent)" }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Voice-Over &amp; Commercials</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>35% (₦297,500)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "35%", background: "var(--color-accent)" }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-body mb-1">
+                          <span style={{ color: "var(--color-text-primary)" }}>Event Compere &amp; Speaker</span>
+                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>25% (₦212,500)</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                          <div className="h-full rounded-full" style={{ width: "25%", background: "var(--color-accent)" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             )}
 

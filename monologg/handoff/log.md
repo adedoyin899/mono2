@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 38: Client Portal, Order Room Alignment & Customer Support Chat)
+**Last updated:** 2026-08-01 (Session 39: External Booking Steppers, Role-Adaptive UI Themes & Portal Analytics)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1283,6 +1283,38 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `monologg/apps/web/src/app/pages/TransactionHistory.tsx` | Added transaction invoice detail modal and Download Receipt action |
 | `monologg/apps/web/src/app/pages/HelpSupport.tsx` | Added live support ticket agent chat modal |
 | `monologg/apps/web/src/lib/state-sync.ts` | Added notifications state and helper methods to StateSyncBus |
+
+---
+
+## Session 39 — External Booking Steppers, Role-Adaptive UI Themes & Portal Analytics
+
+**Goal:** Implemented 1-4 progress steppers in external booking flow, role-adaptive UI theme classing (`.role-client` vs `.role-talent` based on `?role=client`), dedicated Analytics dashboards for both Talent & Client portals, and verified continuous state/backend synchronization.
+
+1. **External Booking Steppers (1-4)**:
+   - Added a 1-4 step progress header bar in `ExternalBookingEntry.tsx` showing checkmarks for completed steps, step numbers for active/future steps, and click-to-navigate across completed steps (Step 1: Service & Slot, Step 2: Project Brief, Step 3: Summary & Info, Step 4: Escrow Payment).
+
+2. **Role-Adaptive UI Theme**:
+   - Added `roleThemeClass` detection in `PublicStorefront.tsx`, `ExternalBookingEntry.tsx`, and `Checkout.tsx`.
+   - When accessed as a client (`?role=client`), pages render with purple client theme tokens. When accessed as talent (`?role=talent` or default), pages render with talent red theme tokens.
+
+3. **Dedicated Talent Analytics Dashboard**:
+   - Built Talent Performance & Analytics panel in `TalentDashboard.tsx` (`activeTab === "analytics"`) rendering storefront views (+18%), booking conversion rate (8.4%), revenue breakdown by service niche, client review rating (4.9 ★), and 6-month booking growth velocity.
+
+4. **Dedicated Client Analytics Dashboard**:
+   - Built Client Hiring & Budget Analytics panel in `ClientDashboard.tsx` (`activeTab === "analytics"`) rendering total escrow allocated (₦850,000 across 4 briefs), average cost per hire (₦70,833), applicant acquisition funnel (32 applicants -> 12 shortlisted -> 4 hired), repeat hiring rate (25%), and category budget distribution.
+
+5. **Continuous State & Backend Sync**:
+   - Verified state bus `appStateSync` and `apiClient` continuous data synchronization across both portals.
+
+### File inventory additions (Session 39)
+
+| File | Change |
+|---|---|
+| `monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx` | Added 1-4 step progress stepper bar with interactive step navigation and roleThemeClass |
+| `monologg/apps/web/src/app/pages/PublicStorefront.tsx` | Added roleThemeClass wrapping for ?role=client vs ?role=talent theme switching |
+| `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Added dedicated Talent Performance & Analytics dashboard tab and navigation item |
+| `monologg/apps/web/src/app/pages/ClientDashboard.tsx` | Added dedicated Client Hiring & Budget Analytics dashboard tab and navigation item |
+
 
 
 

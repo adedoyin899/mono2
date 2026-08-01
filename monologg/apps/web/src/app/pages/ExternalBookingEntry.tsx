@@ -140,24 +140,93 @@ export function ExternalBookingEntry() {
     }
   };
 
-  const header = (title: string, onBack: () => void) => (
-    <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-      <button
-        aria-label="Go back"
-        onClick={onBack}
-        className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center"
-        style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <div className="text-sm font-semibold font-display" style={{ color: "var(--color-text-primary)" }}>{title}</div>
-    </div>
-  );
+  const roleThemeClass = searchParams.get("role") === "client" ? "role-client" : "role-talent";
+
+  const getStepNumber = (s: Step): number => {
+    if (s === "slot") return 1;
+    if (s === "context") return 2;
+    if (s === "summary" || s === "details") return 3;
+    if (s === "payment" || s === "processing" || s === "confirmed") return 4;
+    return 1;
+  };
+
+  const STEP_ITEMS = [
+    { id: 1, label: "Service & Slot", key: "slot" as Step },
+    { id: 2, label: "Project Brief", key: "context" as Step },
+    { id: 3, label: "Summary & Info", key: "summary" as Step },
+    { id: 4, label: "Escrow Payment", key: "payment" as Step },
+  ];
+
+  const header = (title: string, onBack: () => void) => {
+    const currentStepNum = getStepNumber(step);
+    return (
+      <div className="sticky top-0 z-40 glass-panel border-b" style={{ borderColor: "var(--color-hairline)" }}>
+        <div className="h-16 flex items-center gap-3 px-4 max-w-lg mx-auto w-full">
+          <button
+            aria-label="Go back"
+            onClick={onBack}
+            className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0"
+            style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-sm font-semibold font-display truncate" style={{ color: "var(--color-text-primary)" }}>{title}</div>
+        </div>
+
+        {/* Stepper Progress Bar (1-4) */}
+        <div className="max-w-lg mx-auto px-4 pb-3">
+          <div className="flex items-center justify-between relative">
+            <div className="absolute top-1/2 left-0 right-0 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
+            <div
+              className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
+              style={{ width: `${((currentStepNum - 1) / (STEP_ITEMS.length - 1)) * 100}%` }}
+            />
+            {STEP_ITEMS.map((item) => {
+              const isDone = item.id < currentStepNum;
+              const isActive = item.id === currentStepNum;
+              return (
+                <button
+                  key={item.id}
+                  disabled={item.id > currentStepNum}
+                  onClick={() => {
+                    if (item.id === 1) setStep("slot");
+                    else if (item.id === 2) setStep("context");
+                    else if (item.id === 3) setStep("summary");
+                    else if (item.id === 4 && name && email) setStep("payment");
+                  }}
+                  className={`relative z-10 flex flex-col items-center gap-1 group ${item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed"}`}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-body transition-all ${
+                      isDone
+                        ? "bg-[var(--color-accent)] text-[var(--color-accent-on)]"
+                        : isActive
+                        ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] ring-4 ring-[var(--color-accent-glow)]"
+                        : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]"
+                    }`}
+                  >
+                    {isDone ? <Check className="w-4 h-4" /> : item.id}
+                  </div>
+                  <span
+                    className={`text-[10px] font-body font-medium hidden sm:block ${
+                      isActive ? "text-[var(--color-accent)] font-semibold" : "text-[var(--color-text-tertiary)]"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // ── Step: pick a real, server-verified open slot ────────────────────────────
   if (step === "slot") {
     return (
-      <div className="role-client min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header(`Book ${creator?.name ?? "…"}`, () => navigate(-1))}
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
           {rateCards.length > 1 && (
@@ -235,7 +304,7 @@ export function ExternalBookingEntry() {
   // ── Step: summary ─────────────────────────────────────────────────────────────
   if (step === "summary") {
     return (
-      <div className="role-client min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header("Booking Summary", () => setStep("slot"))}
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-4">
           <div className="p-5 rounded-2xl space-y-3" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
@@ -287,7 +356,7 @@ export function ExternalBookingEntry() {
   // ── Step: context note ────────────────────────────────────────────────────────
   if (step === "context") {
     return (
-      <div className="role-client min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header("A bit of context", () => setStep("summary"))}
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-4">
           <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
@@ -312,7 +381,7 @@ export function ExternalBookingEntry() {
   // ── Step: name + email ────────────────────────────────────────────────────────
   if (step === "details") {
     return (
-      <div className="role-client min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header("Your details", () => setStep("context"))}
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-4">
           <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
@@ -397,7 +466,7 @@ export function ExternalBookingEntry() {
 
   // ── Step: payment ─────────────────────────────────────────────────────────────
   return (
-    <div className="role-client min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
       <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
         <button
           aria-label="Go back"

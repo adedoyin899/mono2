@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router";
+import { useNavigate, useParams, Link, useSearchParams } from "react-router";
 import { motion } from "motion/react";
 import { Avatar } from "../components/ui/Avatar";
 import { Badge } from "../components/ui/Badge";
@@ -61,9 +61,12 @@ function StorefrontSkeleton() {
 
 export function PublicStorefront() {
   const { handle } = useParams<{ handle: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<PublicStorefrontData | null>(null);
   const [notFound, setNotFound] = useState(false);
+
+  const roleThemeClass = searchParams.get("role") === "client" ? "role-client" : "role-talent";
 
   useEffect(() => {
     if (!handle) return;
@@ -117,7 +120,7 @@ export function PublicStorefront() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+    <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
       {/* ── Branded header — trust starts here ── */}
       <header
         className="h-14 sticky top-0 z-50 px-5 flex items-center justify-between backdrop-blur-xl"
