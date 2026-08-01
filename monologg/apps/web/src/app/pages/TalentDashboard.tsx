@@ -367,9 +367,9 @@ export function TalentDashboard() {
     : activeTab === "orders" ? "Active Orders"
     : "Earnings";
 
-  const talentName = talentProfile.name || "Elias Thorne";
-  const talentInitials = talentName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "ET";
-  const firstName = talentName.split(/\s+/)[0] || "Elias";
+  const talentName = talentProfile.name || "Emeka Johnson";
+  const talentInitials = talentName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "EJ";
+  const firstName = talentName.split(/\s+/)[0] || "Emeka";
 
   return (
     <div className="role-talent min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
@@ -412,7 +412,7 @@ export function TalentDashboard() {
             style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
             onClick={() => navigate("/settings")}
           >
-            ET
+            {talentInitials}
           </button>
         </div>
       </div>
@@ -425,7 +425,7 @@ export function TalentDashboard() {
           <div className="hidden lg:flex items-center justify-between mb-8">
             <div>
               <h1 className="font-display text-3xl" style={{ color: "var(--color-text-primary)" }}>
-                {activeTab === "home" && "Good morning, Elias 👋"}
+                {activeTab === "home" && `Good morning, ${firstName} 👋`}
                 {activeTab === "storefront" && "My Storefront"}
                 {activeTab === "rates" && "Rate Cards"}
                 {activeTab === "calendar" && "Availability"}
@@ -614,7 +614,7 @@ export function TalentDashboard() {
                       </div>
                     </div>
 
-                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Elias Thorne</h2>
+                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>{talentName}</h2>
                     <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>Actor & Voice Artist · Lagos, Nigeria</p>
 
                     <div className="flex items-center gap-2 mb-4">
