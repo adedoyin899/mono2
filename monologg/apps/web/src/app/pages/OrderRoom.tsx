@@ -168,7 +168,7 @@ export function OrderRoom() {
             </div>
             <div className="font-mono tnum text-3xl font-semibold" style={{ color: "var(--color-text-primary)" }}>₦120,000</div>
             <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
-              {paymentReleased ? "Transferred to Elias Thorne" : "Held securely until project complete"}
+              {paymentReleased ? `Transferred to ${appStateSync.getTalentProfile().name}` : "Held securely until project complete"}
             </div>
           </motion.div>
 
@@ -288,7 +288,7 @@ export function OrderRoom() {
                   className={`flex gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                 >
                   <Avatar size="sm" className="w-8 h-8 text-xs" background="var(--color-accent-soft)" color="var(--color-accent)">
-                    {msg.from === "talent" ? "ET" : "BN"}
+                    {msg.from === "talent" ? appStateSync.getTalentProfile().name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("") : "BN"}
                   </Avatar>
                   <div className={`max-w-[75%] ${isMe ? "items-end" : "items-start"} flex flex-col gap-1`}>
                     <div
@@ -463,7 +463,7 @@ export function OrderRoom() {
                   setPhase("complete");
                   setMessages(prev => [...prev, {
                     id: `local-${prev.length + 1}`, from: "system",
-                    text: "Payment of ₦108,000 has been released to Elias Thorne. Order complete!",
+                    text: `Payment of ₦108,000 has been released to ${appStateSync.getTalentProfile().name}. Order complete!`,
                     time: "Just now",
                   }]);
                 }}>
