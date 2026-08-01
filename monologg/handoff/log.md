@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 39: External Booking Steppers, Role-Adaptive UI Themes & Portal Analytics)
+**Last updated:** 2026-08-01 (Session 40: Landing Page Facelift & Apple/Pirsch Design Metaphor Synthesis)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1314,6 +1314,31 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `monologg/apps/web/src/app/pages/PublicStorefront.tsx` | Added roleThemeClass wrapping for ?role=client vs ?role=talent theme switching |
 | `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Added dedicated Talent Performance & Analytics dashboard tab and navigation item |
 | `monologg/apps/web/src/app/pages/ClientDashboard.tsx` | Added dedicated Client Hiring & Budget Analytics dashboard tab and navigation item |
+
+---
+
+## Session 40 — Landing Page Facelift & Apple/Pirsch Design Metaphor Synthesis
+
+**Goal:** Reworked `LandingPage.tsx` using a premium hybrid design system merging the edge-to-edge alternating visual layout of Apple (SF Pro Display typography, negative letter-spacing, Action Blue accent) and the sunlit cream-paper metaphor of Pirsch (sunlit cream background, ink-black hairline borders, sunshine yellow highlight accents, and tactile cards).
+
+1. **Top Global Nav & Frosted Sub-Nav Bar**:
+   - Added a thin 44px global nav menu and a 52px frosted sub-nav bar with backdrop blur that remains sticky on scroll.
+
+2. **Hero Segment**:
+   - Set a clean typography layout using negative letter-spacing for the display headlines and Apple-style punchy marketing text: "Your craft. On your terms. Instantly booked."
+
+3. **Alternating Product Tiles**:
+   - Added alternating light and dark layout sections highlighting "Thespian AI Style Tagging", "FINCRA Integrated Escrow", and "Collaborative Order Workspace".
+
+4. **Curated Art Categories**:
+   - Added clean photography cards representing Actors, Voice Artists, Dancers & Choreographers, and Comperes & Hosts.
+
+### File inventory additions (Session 40)
+
+| File | Change |
+|---|---|
+| `monologg/apps/web/src/app/pages/LandingPage.tsx` | Complete facelift integrating premium hybrid layout and Apple copywriting style |
+
 
 
 

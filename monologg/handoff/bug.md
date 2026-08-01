@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-01 (Session 39: External Booking Steppers, Role-Adaptive UI Themes & Portal Analytics)
+**Last updated:** 2026-08-01 (Session 40: Landing Page Facelift & Apple/Pirsch Design Metaphor Synthesis)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
