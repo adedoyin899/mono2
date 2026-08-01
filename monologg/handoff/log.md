@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 30: Comprehensive Real-Time Session Persistence & Nigerian Talent Persona)
+**Last updated:** 2026-08-01 (Session 31: Guest Booking Payment Fix & Payment Methods Enhancement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1010,6 +1010,35 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/mocks/orderMessages.ts` | Updated default persona to Emeka Johnson |
 | `apps/web/src/app/pages/Settings.test.tsx` | Updated test assertions to Emeka Johnson (EJ) |
 | `apps/web/src/app/pages/PublicStorefront.test.tsx` | Updated test assertions to Emeka Johnson |
+
+---
+
+## Session 31 — Guest Booking Payment Fix & Payment Methods Enhancement
+
+**Goal:** Resolve payment confirmation error in external guest booking flow (`/book/:handle`), fix title typography overlap, and add trusted payment option cards (Card, Bank Transfer, USSD via Paystack Escrow).
+
+1. **Fixed Mock Booking & Payment Handlers (`api-client.ts`)**:
+   - Added mock return objects for `createGuestBooking`, `payGuestBooking`, `simulateEscrowWebhook`, `createBooking`, and `payBooking` when `API_MODE !== "live"`. Prevents network fetch failures during mock payment deposit.
+
+2. **Overhauled Payment Step UI & Typography (`ExternalBookingEntry.tsx`)**:
+   - **Typography Spacing**: Fixed visual overlap on title string (`Pay ₦138,000`), using clean flex alignment.
+   - **Payment Option Cards**: Added interactive payment channel selector (Card Payment via Paystack, Instant Virtual Bank Account Transfer, USSD Mobile Money).
+   - **User Trust & Security Badges**: Added 100% Escrow Money-Back Guarantee banner and 256-Bit SSL Encrypted / PCI-DSS Compliant Paystack badges.
+
+3. **Fixed Route Param Extraction**:
+   - Updated `ExternalBookingEntry.tsx` to read `useParams().handle || useParams().creatorId`, ensuring storefront CTA navigation resolves creator details seamlessly.
+
+4. **Testing & Verification**:
+   - Ran full Vitest test suite: **19/19 test files passed (72/72 tests green)**. `ExternalBookingEntry.test.tsx` passed.
+
+### File inventory additions (Session 31)
+
+| File | Change |
+|---|---|
+| `apps/web/src/lib/api-client.ts` | Added mock returns for `createGuestBooking`, `payGuestBooking`, `createBooking`, `payBooking`, `simulateEscrowWebhook` |
+| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed title overlap, added payment channel selector cards, escrow trust badges, and param fallbacks |
+| `apps/web/src/app/pages/Checkout.tsx` | Fixed mock payment transition handler |
+
 
 
 

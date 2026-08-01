@@ -1,6 +1,6 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-01 (Session 30: Comprehensive Real-Time Session Persistence & Nigerian Talent Persona)
+**Last updated:** 2026-08-01 (Session 31: Guest Booking Payment Fix & Payment Methods Enhancement)
 **Status:** All 18 phases of `features.md` (0–17) are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
 
 **Open, gate-blocking items as of Phase 17** (full detail in `monologg/qa/2026-07-31-phase17/`, not repeated here — see that folder's own README for the complete PENDING list):

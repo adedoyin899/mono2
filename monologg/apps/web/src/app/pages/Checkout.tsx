@@ -5,6 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type CreatedBooking } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import type { PublicRateCard } from "@monologg/types";
 import {
   ChevronLeft, Lock, Shield, CreditCard, CheckCircle2,
@@ -151,22 +152,19 @@ export function Checkout() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep("processing");
+    setPayError(null);
 
-    if (isLive && booking) {
-      setPayError(null);
-      try {
+    try {
+      if (booking) {
         const { providerRef } = await apiClient.payBooking(booking.id);
         const ok = await apiClient.simulateEscrowWebhook(providerRef);
         if (!ok) throw new Error("escrow confirmation failed");
-        setStep("confirmed");
-      } catch {
-        setPayError("We couldn't confirm your payment. Please try again.");
-        setStep("payment");
       }
-      return;
+      setTimeout(() => setStep("confirmed"), 1200);
+    } catch {
+      setPayError("We couldn't confirm your payment. Please try again.");
+      setStep("payment");
     }
-
-    setTimeout(() => setStep("confirmed"), 2500);
   };
 
   const formatCard = (val: string) => {
@@ -416,7 +414,7 @@ export function Checkout() {
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-14 h-14 rounded-full flex items-center justify-center font-semibold text-lg font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                    {talentName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}
+                    {talentName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()}
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">

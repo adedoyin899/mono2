@@ -467,10 +467,10 @@ export const apiClient = {
     if (API_MODE !== "live") {
       const bal = appStateSync.getBalance();
       return [
-        { label: "Available Balance", value: `₦${bal.available.toLocaleString()}`, change: bal.withdrawnTotal > 0 ? `₦${bal.withdrawnTotal.toLocaleString()} withdrawn` : "+12% this month", trend: "up" },
-        { label: "Pending Escrow", value: `₦${bal.pending.toLocaleString()}`, change: "2 orders in progress", trend: "neutral" },
-        { label: "Completed Orders", value: "18", change: "+3 this week", trend: "up" },
-        { label: "Profile Views", value: "1,240", change: "+18% this month", trend: "up" },
+        { kind: "balance", label: "Available Balance", value: `₦${bal.available.toLocaleString()}`, delta: bal.withdrawnTotal > 0 ? `₦${bal.withdrawnTotal.toLocaleString()} withdrawn` : "+12% this month" },
+        { kind: "escrow", label: "Pending Escrow", value: `₦${bal.pending.toLocaleString()}`, delta: "2 orders in progress" },
+        { kind: "orders", label: "Completed Orders", value: "18", delta: "+3 this week" },
+        { kind: "views", label: "Profile Views", value: "1,240", delta: "+18% this month" },
       ];
     }
     return mocks.TALENT_STATS;
@@ -878,6 +878,22 @@ export const apiClient = {
     slotStart: string;
     slotEnd: string;
   }): Promise<CreatedBooking> {
+    if (API_MODE !== "live") {
+      return {
+        id: `booking-${Date.now()}`,
+        creatorId: input.creatorId,
+        clientId: "mock-client",
+        rateCardId: input.rateCardId,
+        baseAmount: 12000000,
+        currency: "NGN",
+        talentFeeAmount: 1200000,
+        clientFeeAmount: 1800000,
+        slotDate: input.slotDate,
+        slotStart: input.slotStart,
+        slotEnd: input.slotEnd,
+        state: "PENDING_PAYMENT",
+      };
+    }
     return request("/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -885,13 +901,17 @@ export const apiClient = {
     });
   },
   async payBooking(bookingId: string): Promise<{ checkoutUrl: string; providerRef: string; status: string }> {
+    if (API_MODE !== "live") {
+      return {
+        checkoutUrl: "mock://paystack-checkout",
+        providerRef: `ref-${Date.now()}`,
+        status: "success",
+      };
+    }
     return request(`/bookings/${bookingId}/pay`, { method: "POST" });
   },
 
   // ── External-visitor guest checkout (features.md Phase 16, FA-5) ───────────
-  // No auth token required or sent — request() only attaches one if a session
-  // exists, which a first-time guest never has. The server re-verifies the slot
-  // and computes fees itself, same as the authenticated path above.
   async createGuestBooking(input: {
     creatorId: string;
     rateCardId: string;
@@ -902,6 +922,22 @@ export const apiClient = {
     name: string;
     email: string;
   }): Promise<CreatedBooking> {
+    if (API_MODE !== "live") {
+      return {
+        id: `guest-booking-${Date.now()}`,
+        creatorId: input.creatorId,
+        clientId: "mock-guest-client",
+        rateCardId: input.rateCardId,
+        baseAmount: 12000000,
+        currency: "NGN",
+        talentFeeAmount: 1200000,
+        clientFeeAmount: 1800000,
+        slotDate: input.slotDate,
+        slotStart: input.slotStart,
+        slotEnd: input.slotEnd,
+        state: "PENDING_PAYMENT",
+      };
+    }
     return request("/public/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -909,17 +945,19 @@ export const apiClient = {
     });
   },
   async payGuestBooking(bookingId: string): Promise<{ checkoutUrl: string; providerRef: string; status: string }> {
+    if (API_MODE !== "live") {
+      return {
+        checkoutUrl: "mock://paystack-checkout",
+        providerRef: `ref-${Date.now()}`,
+        status: "success",
+      };
+    }
     return request(`/public/bookings/${bookingId}/pay`, { method: "POST" });
   },
-  /** Dev/demo-only: this prototype's Checkout UI has no real Paystack
-   * redirect/SDK to receive a real server-to-server webhook from, so it POSTs
-   * directly to the real, signature-checked webhook endpoint to reach
-   * ESCROW_LOCKED (features.md Phase 6's e2e test does the exact same thing).
-   * The webhook remains the sole authority over BookingState — this doesn't
-   * bypass that, it exercises it. Against a real (non-mock) PAYMENT_PROVIDER
-   * this signature check fails server-side and the call harmlessly no-ops:
-   * a browser can never forge a real Paystack HMAC. */
   async simulateEscrowWebhook(providerRef: string): Promise<boolean> {
+    if (API_MODE !== "live") {
+      return true;
+    }
     try {
       await request("/webhooks/paystack", {
         method: "POST",
