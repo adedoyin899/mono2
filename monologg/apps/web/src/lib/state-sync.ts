@@ -79,7 +79,22 @@ const DEFAULT_BALANCE: BalanceState = {
 
 const DEFAULT_APPLICANTS: Record<string, Applicant[]> = {
   "proj-1": [
-    { id: "app-1", talentId: "mock-creator", name: "Emeka Johnson", headshotUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop", appliedAt: "2 hours ago", status: "APPLIED", pitch: "I'd love to bring my stage background to this lead role!" },
+    {
+      applicationId: "app-1",
+      status: "APPLIED",
+      pitch: "I'd love to bring my stage background to this lead role!",
+      appliedAt: "2 hours ago",
+      creator: {
+        id: "mock-creator",
+        name: "Emeka Johnson",
+        role: "Actor",
+        location: "Lagos, Nigeria",
+        avatar: "EJ",
+        verified: true,
+        tags: ["Dramatic", "Voice-Over"],
+        price: "₦120,000",
+      },
+    },
   ],
 };
 
@@ -204,7 +219,7 @@ class StateSyncBus {
       amountFormatted: `₦${amountNaira.toLocaleString()}`,
       amountKobo: amountNaira * 100,
       currency: "NGN",
-      state: "PAYOUT_COMPLETED",
+      state: "RELEASED",
       description: `Payout to ${this.bankDetails.bankName} (${this.bankDetails.accountNumber.slice(-4)})`,
       createdAt: new Date().toISOString(),
     };
@@ -291,7 +306,7 @@ class StateSyncBus {
 
   updateApplicantStatus(projectId: string, applicationId: string, status: Applicant["status"]): boolean {
     const projectApplicants = this.applicants[projectId] ?? [];
-    const idx = projectApplicants.findIndex((a) => a.id === applicationId);
+    const idx = projectApplicants.findIndex((a) => a.applicationId === applicationId);
     if (idx === -1) return false;
     projectApplicants[idx]!.status = status;
     this.applicants[projectId] = projectApplicants;
@@ -309,13 +324,20 @@ class StateSyncBus {
 
     const projectApplicants = this.applicants[projectId] ?? [];
     projectApplicants.push({
-      id: `app-${Date.now()}`,
-      talentId: "mock-creator",
-      name: this.talentProfile.name,
-      headshotUrl: this.talentProfile.avatarUrl || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop",
-      appliedAt: "Just now",
+      applicationId: `app-${Date.now()}`,
       status: "APPLIED",
       pitch: pitch || null,
+      appliedAt: "Just now",
+      creator: {
+        id: "mock-creator",
+        name: this.talentProfile.name,
+        role: "Actor",
+        location: this.talentProfile.location,
+        avatar: this.talentProfile.name.split(/\s+/).map((w) => w[0]).join(""),
+        verified: true,
+        tags: ["Dramatic"],
+        price: "₦120,000",
+      },
     });
     this.applicants[projectId] = projectApplicants;
 
@@ -339,10 +361,9 @@ class StateSyncBus {
     const ticket: SupportTicket = {
       id: `st-${Date.now()}`,
       subject,
+      message,
       status: "OPEN",
-      lastUpdated: "Just now",
       createdAt: new Date().toISOString(),
-      messages: [{ id: `stm-${Date.now()}`, sender: "client", text: message, timestamp: "Just now" }],
     };
     this.supportTickets = [ticket, ...this.supportTickets];
     this.save(STORAGE_KEYS.SUPPORT_TICKETS, this.supportTickets);

@@ -205,7 +205,12 @@ export function Settings() {
         });
         setClientName(updated.name);
         if (updated.orgName) setClientOrgName(updated.orgName);
-        appStateSync.updateClientProfile({ name: updated.name, orgName: updated.orgName, orgType: updated.orgType, location: updated.location });
+        appStateSync.updateClientProfile({
+          name: updated.name,
+          orgName: updated.orgName ?? undefined,
+          orgType: updated.orgType ?? undefined,
+          location: updated.location ?? undefined,
+        });
       } else {
         const updated = await apiClient.updateCreatorProfile({ name, bio, location });
         setName(updated.name);
