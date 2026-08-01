@@ -7,6 +7,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
@@ -218,8 +219,8 @@ export function OrderRoom() {
             </div>
             <div className="space-y-2">
               {[
-                { name: "Elias Thorne", role: "Talent", avatar: "ET", verified: true },
-                { name: "Brand Agency NG", role: "Client", avatar: "BN", verified: false },
+                { name: appStateSync.getTalentProfile().name, role: "Talent", avatar: appStateSync.getTalentProfile().name.split(/\s+/).map(w => w[0]).join(""), verified: true },
+                { name: appStateSync.getClientProfile().orgName || "FilmCraft Studios", role: "Client", avatar: "FS", verified: true },
               ].map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Avatar size="sm" className="text-xs" background="var(--color-accent-soft)" color="var(--color-accent)">
@@ -368,7 +369,7 @@ export function OrderRoom() {
             <div className="mx-4 mb-2 p-3 rounded-xl flex items-center gap-3" style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}>
               <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: "var(--color-success)" }} />
               <div className="text-sm font-body" style={{ color: "var(--color-success)" }}>
-                <strong>Payment Released!</strong> ₦120,000 has been transferred to Elias Thorne. Thank you for using Monologg.
+                <strong>Payment Released!</strong> ₦120,000 has been transferred to {appStateSync.getTalentProfile().name}. Thank you for using Monologg.
               </div>
             </div>
           )}
@@ -386,7 +387,7 @@ export function OrderRoom() {
                 <textarea
                   className="w-full px-4 py-3 rounded-[var(--radius-md)] text-sm font-body resize-none border"
                   rows={1}
-                  placeholder={`Message ${role === "talent" ? "Brand Agency NG" : "Elias Thorne"}...`}
+                  placeholder={`Message ${role === "talent" ? appStateSync.getClientProfile().orgName : appStateSync.getTalentProfile().name}...`}
                   value={inputText}
                   onChange={e => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -437,7 +438,7 @@ export function OrderRoom() {
               </div>
               <h3 className="font-display text-xl text-center mb-2" style={{ color: "var(--color-text-primary)" }}>Release Payment?</h3>
               <p className="text-sm font-body text-center mb-5" style={{ color: "var(--color-text-secondary)" }}>
-                This will release <strong>₦120,000</strong> from escrow to Elias Thorne. This action cannot be undone.
+                This will release <strong>₦120,000</strong> from escrow to {appStateSync.getTalentProfile().name}. This action cannot be undone.
               </p>
               <div className="p-4 rounded-[var(--radius-lg)] mb-5" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
                 <div className="flex justify-between text-sm font-body">

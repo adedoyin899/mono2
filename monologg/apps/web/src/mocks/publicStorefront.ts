@@ -4,7 +4,7 @@ import type { PublicStorefront } from "@monologg/types";
 // logged-out-reachable storefront at /[handle].
 export const PUBLIC_STOREFRONT: PublicStorefront = {
   id: "mock-creator",
-  name: "Elias Thorne",
+  name: "Emeka Johnson",
   niche: "ACTOR",
   nicheLabel: "Actor",
   location: "Lagos, Nigeria",

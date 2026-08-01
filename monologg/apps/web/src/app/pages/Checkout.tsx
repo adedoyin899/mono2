@@ -143,7 +143,7 @@ export function Checkout() {
   const ESCROW_FEE = isLive && booking ? booking.clientFeeAmount : Math.round(BASE_RATE * 0.12);
   const PROMO_DISCOUNT = promoApplied ? Math.round(BASE_RATE * 0.05) : 0;
   const TOTAL = BASE_RATE + ESCROW_FEE - PROMO_DISCOUNT;
-  const talentName = isLive ? (bookingParams?.creatorName ?? "your selected talent") : "Elias Thorne";
+  const talentName = isLive ? (bookingParams?.creatorName ?? "your selected talent") : appStateSync.getTalentProfile().name;
   const serviceTitle = isLive ? (selectedRateCard?.title ?? "Booking") : "Commercial Voice-Over";
   const serviceDelivery = isLive ? (selectedRateCard?.delivery ?? "") : "Same Day";
   const money = (minorUnits: number) => (isLive ? formatMinorUnits(minorUnits, currency) : `₦${minorUnits.toLocaleString()}`);

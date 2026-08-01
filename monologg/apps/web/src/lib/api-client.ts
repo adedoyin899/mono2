@@ -464,14 +464,50 @@ export const apiClient = {
   // against. The real /availability CRUD endpoint exists and is tested; this UI
   // just doesn't consume it yet.
   async getTalentStats(): Promise<StatMetric[]> {
+    if (API_MODE !== "live") {
+      const bal = appStateSync.getBalance();
+      return [
+        { label: "Available Balance", value: `₦${bal.available.toLocaleString()}`, change: bal.withdrawnTotal > 0 ? `₦${bal.withdrawnTotal.toLocaleString()} withdrawn` : "+12% this month", trend: "up" },
+        { label: "Pending Escrow", value: `₦${bal.pending.toLocaleString()}`, change: "2 orders in progress", trend: "neutral" },
+        { label: "Completed Orders", value: "18", change: "+3 this week", trend: "up" },
+        { label: "Profile Views", value: "1,240", change: "+18% this month", trend: "up" },
+      ];
+    }
     return mocks.TALENT_STATS;
+  },
+  async withdrawFunds(amountNaira: number): Promise<boolean> {
+    if (API_MODE !== "live") return appStateSync.withdrawFunds(amountNaira);
+    return true;
   },
   async listTalentActivity(): Promise<ActivityItem[]> {
     return mocks.TALENT_ACTIVITY;
   },
   async listServices(): Promise<ServiceRateCard[]> {
-    if (API_MODE === "live") return requestList("/rate-cards");
-    return mocks.SERVICES;
+    if (API_MODE !== "live") return appStateSync.getServices();
+    return requestList("/rate-cards");
+  },
+  async createService(service: Omit<ServiceRateCard, "id">): Promise<ServiceRateCard> {
+    if (API_MODE !== "live") return appStateSync.addService(service);
+    return request("/rate-cards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(service),
+    });
+  },
+  async updateService(id: string, updates: Partial<ServiceRateCard>): Promise<ServiceRateCard | null> {
+    if (API_MODE !== "live") return appStateSync.updateService(id, updates);
+    return request(`/rate-cards/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+  },
+  async deleteService(id: string): Promise<void> {
+    if (API_MODE !== "live") {
+      appStateSync.deleteService(id);
+      return;
+    }
+    await request(`/rate-cards/${id}`, { method: "DELETE" });
   },
   async listTalentOrders(): Promise<Order[]> {
     if (API_MODE === "live") return requestList("/bookings?role=talent");
@@ -794,7 +830,7 @@ export const apiClient = {
 
   // ── Transaction history (features.md Phase 10) ─────────────────────────────
   async listTransactions(filters: { state?: string; direction?: "payment" | "payout" } = {}): Promise<Transaction[]> {
-    if (API_MODE !== "live") return mocks.TRANSACTIONS;
+    if (API_MODE !== "live") return appStateSync.getTransactions();
     const qs = new URLSearchParams();
     if (filters.state) qs.set("state", filters.state);
     if (filters.direction) qs.set("direction", filters.direction);
@@ -804,13 +840,11 @@ export const apiClient = {
 
   // ── Help & Support (features.md Phase 10) ───────────────────────────────────
   async listSupportTickets(): Promise<SupportTicket[]> {
-    if (API_MODE !== "live") return mocks.SUPPORT_TICKETS;
+    if (API_MODE !== "live") return appStateSync.getSupportTickets();
     return requestList("/support/tickets");
   },
-  /** Mock mode returns null — HelpSupport.tsx appends the submission to local
-   * state itself, matching OrderRoom.tsx's sendOrderMessage precedent. */
   async submitSupportTicket(input: { subject: string; message: string }): Promise<SupportTicket | null> {
-    if (API_MODE !== "live") return null;
+    if (API_MODE !== "live") return appStateSync.submitSupportTicket(input.subject, input.message);
     return request("/support/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

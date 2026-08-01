@@ -35,11 +35,11 @@ describe("Settings — profile section", () => {
     await renderSettingsOnProfileSection();
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue("Elias Thorne")).toBeInTheDocument();
+      expect(screen.getByDisplayValue("Emeka Johnson")).toBeInTheDocument();
     });
     expect(screen.getByDisplayValue("Lagos, Nigeria")).toBeInTheDocument();
-    // Initials derived from the name, not a hardcoded "ET" string.
-    expect(screen.getByText("ET")).toBeInTheDocument();
+    // Initials derived from the name, not a hardcoded string.
+    expect(screen.getByText("EJ")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -78,16 +78,16 @@ describe("Settings — profile section", () => {
         );
       }
       return new Response(
-        JSON.stringify({ id: "creator-1", name: "Elias Thorne", bio: "bio", location: "Lagos, Nigeria", styleTags: [], verification: "UNVERIFIED" }),
+        JSON.stringify({ id: "creator-1", name: "Emeka Johnson", bio: "bio", location: "Lagos, Nigeria", styleTags: [], verification: "UNVERIFIED" }),
         { status: 200, headers: { "content-type": "application/json" } },
       );
     });
     vi.stubGlobal("fetch", fetchMock);
 
     await renderSettingsOnProfileSection();
-    await screen.findByDisplayValue("Elias Thorne");
+    await screen.findByDisplayValue("Emeka Johnson");
 
-    fireEvent.change(screen.getByDisplayValue("Elias Thorne"), { target: { value: "Renamed Talent" } });
+    fireEvent.change(screen.getByDisplayValue("Emeka Johnson"), { target: { value: "Renamed Talent" } });
     fireEvent.click(screen.getByText("Save Changes"));
 
     await waitFor(() => {
@@ -173,7 +173,7 @@ describe("Settings — physical attributes section", () => {
       }
       // Settings.tsx also fetches the creator profile on mount, independent
       // of which section is being viewed.
-      return new Response(JSON.stringify({ id: "creator-1", name: "Elias Thorne", bio: "bio", location: "Lagos, Nigeria", styleTags: [], verification: "UNVERIFIED" }), {
+      return new Response(JSON.stringify({ id: "creator-1", name: "Emeka Johnson", bio: "bio", location: "Lagos, Nigeria", styleTags: [], verification: "UNVERIFIED" }), {
         status: 200, headers: { "content-type": "application/json" },
       });
     });

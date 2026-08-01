@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 29: Client Settings Theme Adaption & Real-Time Cross-App State Sync)
+**Last updated:** 2026-08-01 (Session 30: Comprehensive Real-Time Session Persistence & Nigerian Talent Persona)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -971,5 +971,45 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/app/pages/ClientDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
 | `apps/web/src/app/pages/TalentDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
 | `apps/web/src/app/pages/Settings.test.tsx` | Added test asserting Client Settings rendering & section filtering |
+
+---
+
+## Session 30 — Comprehensive Real-Time Session Persistence & Nigerian Talent Persona
+
+**Goal:** Update default talent persona to a Nigerian name ("Emeka Johnson") and bind all interactive forms/inputs across the web application (avatar photos, earnings withdrawals, bank details, rate cards, support tickets, order messages) to `AppStateSync` for real-time session persistence.
+
+1. **Updated Default Talent Persona**:
+   - Replaced default talent persona name "Elias Thorne" with **"Emeka Johnson"** across state sync defaults, public storefront mock, order messages mock, OrderRoom participant lists, Checkout talent names, and test fixtures.
+
+2. **Expanded `AppStateSync` & `api-client.ts`**:
+   - Expanded `StateSyncBus` to store avatar photos (`avatarUrl`), bank payout details (`bankDetails`), available/pending balances & withdrawal transactions (`balance`, `withdrawFunds()`), dynamic rate cards (`services`), project applications, and support tickets.
+   - Connected `apiClient` methods (`withdrawFunds`, `listServices`, `createService`, `updateService`, `deleteService`, `listTransactions`, `listSupportTickets`, `submitSupportTicket`) to `appStateSync` in mock mode.
+
+3. **Built Interactive Photo Upload & Bank Account Editor in `Settings.tsx`**:
+   - Added hidden file input & photo upload handler in Settings profile section. Custom avatar images save to `appStateSync` and render in headers, sidebars, and order rooms.
+   - Added interactive Payout Bank Account editor (Bank Name, 10-digit Account Number, Account Name) saving directly to `appStateSync.updateBankDetails()`.
+
+4. **Connected Earnings Withdrawal & Service Rate Cards in `TalentDashboard.tsx`**:
+   - **Withdrawal Modal**: Connects to `appStateSync.getBalance().available` and `getBankDetails()`. Withdrawing funds deducts balance, adds payout transaction log, and updates stats across dashboards in real time.
+   - **Rate Cards**: Connected rate card add, edit, and delete actions to `apiClient` / `appStateSync`.
+
+5. **Testing & Verification**:
+   - Ran full Vitest test suite: **19/19 test files passed (72/72 tests green)**. All tests verified and clean.
+
+### File inventory additions (Session 30)
+
+| File | Change |
+|---|---|
+| `apps/web/src/lib/state-sync.ts` | Expanded reactive bus with `avatarUrl`, `bankDetails`, `balance`, `services`, `applications`, `supportTickets` |
+| `apps/web/src/lib/api-client.ts` | Connected mock withdrawal, rate cards, transactions, and support tickets to `appStateSync` |
+| `apps/web/src/app/pages/Settings.tsx` | Added avatar photo upload & Bank Account editor; synced profile saves with `appStateSync` |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | Connected real-time withdrawal modal & rate cards to `appStateSync` |
+| `apps/web/src/app/pages/OrderRoom.tsx` | Updated default participant names to `appStateSync` talent/client profiles |
+| `apps/web/src/app/pages/Checkout.tsx` | Updated default talent name to `appStateSync.getTalentProfile().name` |
+| `apps/web/src/mocks/publicStorefront.ts` | Updated default persona to Emeka Johnson |
+| `apps/web/src/mocks/orderMessages.ts` | Updated default persona to Emeka Johnson |
+| `apps/web/src/app/pages/Settings.test.tsx` | Updated test assertions to Emeka Johnson (EJ) |
+| `apps/web/src/app/pages/PublicStorefront.test.tsx` | Updated test assertions to Emeka Johnson |
+
 
 

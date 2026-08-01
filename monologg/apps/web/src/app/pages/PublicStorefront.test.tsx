@@ -51,7 +51,7 @@ describe("PublicStorefront", () => {
 
     await renderAt("/mock-creator");
 
-    await screen.findByText("Elias Thorne");
+    await screen.findByText("Emeka Johnson");
     expect(screen.getByText("Verified")).toBeInTheDocument();
     expect(screen.getByText("Celebrity")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();

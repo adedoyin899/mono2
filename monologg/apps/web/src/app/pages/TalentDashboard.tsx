@@ -124,6 +124,50 @@ export function TalentDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSyncModal, setShowSyncModal] = useState(false);
 
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawInput, setWithdrawInput] = useState("50000");
+  const [withdrawMsg, setWithdrawMsg] = useState<string | null>(null);
+
+  const [newServiceTitle, setNewServiceTitle] = useState("");
+  const [newServicePrice, setNewServicePrice] = useState("45000");
+  const [newServiceDelivery, setNewServiceDelivery] = useState("24 Hours");
+
+  const handleWithdraw = async () => {
+    const amount = Number(withdrawInput.replace(/[^0-9]/g, ""));
+    if (!amount || amount <= 0) return;
+    const ok = await apiClient.withdrawFunds(amount);
+    if (ok) {
+      setWithdrawMsg(`Successfully transferred ₦${amount.toLocaleString()} to your bank account!`);
+      apiClient.getTalentStats().then(setStats);
+      setTimeout(() => {
+        setWithdrawMsg(null);
+        setShowWithdrawModal(false);
+      }, 1500);
+    } else {
+      setWithdrawMsg("Withdrawal failed: amount exceeds available balance.");
+    }
+  };
+
+  const handleCreateService = async () => {
+    if (!newServiceTitle.trim()) return;
+    const priceAmount = Number(newServicePrice.replace(/[^0-9]/g, ""));
+    await apiClient.createService({
+      serviceTitle: newServiceTitle,
+      basePriceAmount: priceAmount * 100,
+      basePriceCurrency: "NGN",
+      deliveryTimeline: newServiceDelivery,
+      features: ["HD Quality", "1 Revision Included"],
+    });
+    apiClient.listServices().then(setServices);
+    setNewServiceTitle("");
+    setShowAddService(false);
+  };
+
+  const handleDeleteService = async (id: string) => {
+    await apiClient.deleteService(id);
+    apiClient.listServices().then(setServices);
+  };
+
   // features.md Phase 13 — day-detail + slot editor (PWA-08). getOpenSlots on
   // dayDetail is server-authoritative; everything the UI renders as "open" or
   // "blocked" comes from there, never a client-side recomputation.
@@ -1294,22 +1338,32 @@ export function TalentDashboard() {
                         <div className="mb-4">
                           <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
                           <Input type="number" placeholder="Enter amount..." value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
-                          <div className="text-xs mt-2" style={{ color: "var(--color-text-secondary)" }}>Available: ₦148,000</div>
+                          <div className="text-xs mt-2" style={{ color: "var(--color-text-secondary)" }}>
+                            Available: ₦{appStateSync.getBalance().available.toLocaleString()}
+                          </div>
                         </div>
                         <div className="mb-6">
-                          <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Destination Account</label>
+                          <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
                           <div className="p-3 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
                             <div>
-                              <div className="text-sm font-semibold">GTBank ···· 4512</div>
-                              <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>Elias Thorne</div>
+                              <div className="text-sm font-semibold">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
+                              <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
                             </div>
                             <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-success)" }} />
                           </div>
                         </div>
-                        <Button className="w-full h-11" onClick={() => {
-                          alert("Withdrawal initiated!");
-                          setShowWithdraw(false);
-                          setWithdrawAmount("");
+                        <Button className="w-full h-11" onClick={async () => {
+                          const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
+                          if (!amt || amt <= 0) return;
+                          const ok = await apiClient.withdrawFunds(amt);
+                          if (ok) {
+                            alert(`Successfully transferred ₦${amt.toLocaleString()} to ${appStateSync.getBankDetails().bankName}!`);
+                            setShowWithdraw(false);
+                            setWithdrawAmount("");
+                            apiClient.getTalentStats().then(setStats);
+                          } else {
+                            alert("Withdrawal amount exceeds available balance.");
+                          }
                         }}>
                           Confirm Withdrawal
                         </Button>

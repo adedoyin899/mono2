@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -11,7 +11,7 @@ import { apiClient, type PhysicalAttributes, type AttributeVisibility, type Upda
 import { appStateSync } from "../../lib/state-sync";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2
 } from "lucide-react";
 
 type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes";
@@ -49,6 +49,7 @@ export function Settings() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Role detection: query param ?role=client or fallback to client detection
   const roleParam = searchParams.get("role");
@@ -57,10 +58,11 @@ export function Settings() {
   const [section, setSection] = useState<Section>("main");
   
   // Talent fields
-  const [name, setName] = useState("Elias Thorne");
-  const [email, setEmail] = useState("elias@example.com");
-  const [bio, setBio] = useState("Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years stage experience.");
+  const [name, setName] = useState("Emeka Johnson");
+  const [email, setEmail] = useState("emeka@example.com");
+  const [bio, setBio] = useState("Specializing in intense dramatic monologues, voice-overs, and Nollywood screen roles.");
   const [location, setLocation] = useState("Lagos, Nigeria");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Client fields
   const [clientName, setClientName] = useState("Sarah Jenkins");
@@ -68,6 +70,13 @@ export function Settings() {
   const [clientOrgType, setClientOrgType] = useState("STUDIO");
   const [clientEmail, setClientEmail] = useState("sarah@filmcraft.com");
   const [clientLocation, setClientLocation] = useState("Lagos, Nigeria");
+
+  // Bank details
+  const [bankDetails, setBankDetails] = useState(() => appStateSync.getBankDetails());
+  const [editingBank, setEditingBank] = useState(false);
+  const [bankName, setBankName] = useState(bankDetails.bankName);
+  const [accountNumber, setAccountNumber] = useState(bankDetails.accountNumber);
+  const [accountName, setAccountName] = useState(bankDetails.accountName);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
   const [saved, setSaved] = useState(false);
@@ -128,7 +137,7 @@ export function Settings() {
     setConsentChecked(false);
   };
 
-  // Sync profile data on mount & from appStateSync
+  // Sync profile & bank data on mount & from appStateSync
   useEffect(() => {
     const syncData = () => {
       if (isClient) {
@@ -138,13 +147,20 @@ export function Settings() {
         setClientOrgType(cState.orgType);
         setClientEmail(cState.email);
         setClientLocation(cState.location);
+        if (cState.avatarUrl !== undefined) setAvatarUrl(cState.avatarUrl);
       } else {
         const tState = appStateSync.getTalentProfile();
         setName(tState.name);
         setEmail(tState.email);
         setBio(tState.bio);
         setLocation(tState.location);
+        if (tState.avatarUrl !== undefined) setAvatarUrl(tState.avatarUrl);
       }
+      const bState = appStateSync.getBankDetails();
+      setBankDetails(bState);
+      setBankName(bState.bankName);
+      setAccountNumber(bState.accountNumber);
+      setAccountName(bState.accountName);
     };
 
     syncData();
@@ -170,7 +186,7 @@ export function Settings() {
 
   const initials = isClient
     ? clientOrgName.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "FS"
-    : name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "ET";
+    : name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "EJ";
 
   const handleSave = () => {
     setSaved(true);
@@ -189,17 +205,44 @@ export function Settings() {
         });
         setClientName(updated.name);
         if (updated.orgName) setClientOrgName(updated.orgName);
+        appStateSync.updateClientProfile({ name: updated.name, orgName: updated.orgName, orgType: updated.orgType, location: updated.location });
       } else {
         const updated = await apiClient.updateCreatorProfile({ name, bio, location });
         setName(updated.name);
         setBio(updated.bio ?? "");
-        setLocation(updated.location);
+        setLocation(updated.location ?? "");
+        appStateSync.updateTalentProfile({ name: updated.name, bio: updated.bio ?? "", location: updated.location ?? "" });
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {
       setSavingProfile(false);
     }
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const url = evt.target?.result as string;
+      setAvatarUrl(url);
+      if (isClient) {
+        appStateSync.updateClientProfile({ avatarUrl: url });
+      } else {
+        appStateSync.updateTalentProfile({ avatarUrl: url });
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveBank = () => {
+    appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
+    setEditingBank(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   const sectionBack = () => setSection("main");
@@ -231,6 +274,9 @@ export function Settings() {
 
   return (
     <div className={isClient ? "role-client min-h-screen flex flex-col" : "role-talent min-h-screen flex flex-col"} style={{ background: "var(--color-bg-canvas)" }}>
+      {/* Hidden file input for avatar photo upload */}
+      <input type="file" ref={fileInputRef} onChange={handlePhotoSelect} accept="image/*" className="hidden" />
+
       {/* Header */}
       <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
         <button
@@ -272,8 +318,12 @@ export function Settings() {
             <motion.div key="main" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: DURATION_MED, ease: EASE_OUT }} exit={{ opacity: 0 }}>
               {/* Profile summary */}
               <div className="p-4 rounded-[var(--radius-xl)] flex items-center gap-4 mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
-                <div className="w-14 h-14 rounded-full flex items-center justify-center font-semibold text-xl font-body shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                  {initials}
+                <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center font-semibold text-xl font-body shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    initials
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-body font-semibold truncate" style={s.text}>
@@ -359,18 +409,27 @@ export function Settings() {
           {section === "profile" && (
             <motion.div key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-5">
               <div className="flex flex-col items-center py-2">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center font-semibold text-2xl font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                    {initials}
+                <div className="relative cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center font-semibold text-2xl font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
+                    {avatarUrl ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : initials}
                   </div>
                   <button
                     aria-label="Change profile photo"
+                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                     className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                     style={{ background: "var(--color-accent)" }}
                   >
                     <Camera className="w-4 h-4" style={{ color: "var(--color-accent-on)" }} />
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs font-body mt-3 underline underline-offset-2 hover:opacity-80 transition-opacity"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  Change Profile Photo
+                </button>
               </div>
 
               {isClient ? (
@@ -556,17 +615,52 @@ export function Settings() {
               {!isClient && (
                 <div className="rounded-2xl overflow-hidden" style={s.surface}>
                   <div className="px-4 py-3.5">
-                    <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={s.tertiary}>Payout Bank Account</div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
-                        <Smartphone className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold font-body" style={s.text}>GTBank ···· 6789</div>
-                        <div className="text-xs font-body" style={s.tertiary}>{name.toUpperCase()}</div>
-                      </div>
-                      <Button variant="secondary" className="h-8 px-3 text-xs">Change</Button>
+                    <div className="flex items-center justify-between mb-3 font-body">
+                      <div className="text-xs font-medium uppercase tracking-wider" style={s.tertiary}>Payout Bank Account</div>
+                      <Button variant="secondary" className="h-7 px-2.5 text-xs gap-1" onClick={() => setEditingBank(!editingBank)}>
+                        <Edit2 className="w-3 h-3" /> {editingBank ? "Cancel" : "Edit"}
+                      </Button>
                     </div>
+
+                    {editingBank ? (
+                      <div className="space-y-3 pt-1">
+                        <FormField label="Bank Name">
+                          <select
+                            value={bankName}
+                            onChange={(e) => setBankName(e.target.value)}
+                            className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                            style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                          >
+                            <option value="GTBank">Guaranty Trust Bank (GTBank)</option>
+                            <option value="Zenith Bank">Zenith Bank</option>
+                            <option value="Access Bank">Access Bank</option>
+                            <option value="First Bank">First Bank Nigeria</option>
+                            <option value="Kuda Bank">Kuda Microfinance Bank</option>
+                            <option value="OPay">OPay Digital Bank</option>
+                            <option value="Palmpay">Palmpay</option>
+                          </select>
+                        </FormField>
+                        <FormField label="Account Number (10 digits)">
+                          <Input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} maxLength={10} />
+                        </FormField>
+                        <FormField label="Account Name">
+                          <Input value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+                        </FormField>
+                        <Button className="w-full h-10 text-xs mt-2" onClick={handleSaveBank}>
+                          Save Bank Account
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
+                          <Smartphone className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold font-body" style={s.text}>{bankDetails.bankName} ···· {bankDetails.accountNumber.slice(-4)}</div>
+                          <div className="text-xs font-body" style={s.tertiary}>{bankDetails.accountName}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
