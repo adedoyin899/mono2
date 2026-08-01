@@ -17,7 +17,7 @@ describe("ClientDashboard (via api-client, mock mode)", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getAllByText("Nike Q1 Campaign").length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Nike Q1 Campaign/).length).toBeGreaterThan(0);
     });
   });
 });

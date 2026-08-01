@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 37: Talent Portal & Order Room Responsiveness Enhancements)
+**Last updated:** 2026-08-01 (Session 38: Client Portal, Order Room Alignment & Customer Support Chat)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1241,6 +1241,49 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Implemented withdraw comma formatting, payout receipts, project filters, client project modal, Availability 3-view toggle, and activity history page |
 | `monologg/apps/web/src/app/pages/OrderRoom.tsx` | Added Order Info toggle button in header and rendered Order Info in a responsive modal/drawer |
 | `monologg/apps/web/src/app/components/ui/BottomNav.tsx` | Refined bottom nav padding, icon alignment, and capsule indicator insets |
+
+---
+
+## Session 38 — Client Portal, Order Room Alignment & Customer Support Chat
+
+**Goal:** Wired Client Portal header notification drawer, replaced Recent Projects widget with Recent Activity and dedicated Activity History page, added single "View Project" CTA with dedicated Project Management & Applicant Storefront inspection view, auto-synced newly created briefs to recent activity, fixed Order Room header text wrapping and bottom bar input row alignment, added Find Talent physical features "More Filters" modal, built Transaction History detail modal with Download Receipt action, and implemented interactive Customer Support Ticket Chat.
+
+1. **Client Notifications & Recent Activity**:
+   - Connected bell button in `ClientDashboard.tsx` to slide-over Notifications drawer.
+   - Replaced Home tab "Recent Projects" widget with "Recent Activity" widget.
+   - Added dedicated Activity History tab (`activeTab === "activity"`) with search bar and filter pills.
+
+2. **Client Project Management & Applicants Storefront Inspection**:
+   - Replaced Edit / View Applicants buttons on project cards with single primary CTA **"View Project"**.
+   - Created **Dedicated Project Management View** with inline brief editing, applicant roster, **"View Storefront / Profile"** link, and Shortlist / Select / Reject actions.
+
+3. **Project Creation Auto-Sync**:
+   - Updated `ProjectBrief.tsx` to publish notification and auto-sync newly posted briefs to Recent Activity.
+
+4. **Order Room Layout & Alignment**:
+   - Fixed bottom input bar in `OrderRoom.tsx` to align paperclip attachment, input textarea, and send button on the exact same row (`items-center`).
+   - Cleaned top header bar (removed light/dark toggle & role switcher to eliminate text wrapping) and relocated demo role switch to banner.
+
+5. **Find Talent "More Filters" Modal**:
+   - Added "More Filters" button on Find Talent page opening physical attributes filter modal (Height, Build, Complexion, Hair Color, Gender Presentation).
+
+6. **Transaction History Receipt & Download**:
+   - Added `selectedTxn` detail modal in `TransactionHistory.tsx` with full invoice breakdown and **Download Receipt** button.
+
+7. **Help & Support Live Customer Care Ticket Chat**:
+   - Connected support ticket rows in `HelpSupport.tsx` to open an interactive **Support Ticket Live Chat** modal with real-time agent message exchange.
+
+### File inventory additions (Session 38)
+
+| File | Change |
+|---|---|
+| `monologg/apps/web/src/app/pages/ClientDashboard.tsx` | Implemented notifications drawer, recent activity, activity history tab, single View Project CTA, dedicated project management view, and physical features More Filters modal |
+| `monologg/apps/web/src/app/pages/OrderRoom.tsx` | Cleaned header bar to prevent text wrapping and fixed bottom input bar flex alignment |
+| `monologg/apps/web/src/app/pages/ProjectBrief.tsx` | Auto-synced newly created briefs with appStateSync notification bus |
+| `monologg/apps/web/src/app/pages/TransactionHistory.tsx` | Added transaction invoice detail modal and Download Receipt action |
+| `monologg/apps/web/src/app/pages/HelpSupport.tsx` | Added live support ticket agent chat modal |
+| `monologg/apps/web/src/lib/state-sync.ts` | Added notifications state and helper methods to StateSyncBus |
+
 
 
 

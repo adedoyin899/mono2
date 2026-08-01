@@ -45,7 +45,7 @@ function addMinutes(time: string, minutes: number): string {
   return toTimeStr(minutesOf(time) + minutes);
 }
 
-type Tab = "home" | "discover" | "projects" | "orders" | "shortlist";
+type Tab = "home" | "discover" | "projects" | "orders" | "shortlist" | "activity";
 
 // Filter option list — UI configuration, not domain data; stays local
 // (see apps/web/src/lib/api-client.ts doc comment for the mock-data boundary).
@@ -72,6 +72,7 @@ const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "projects", label: "My Projects", icon: Briefcase },
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "shortlist", label: "Shortlist", icon: Star },
+  { id: "activity", label: "Activity", icon: AlertCircle },
 ];
 
 const CLIENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
@@ -81,6 +82,14 @@ const CLIENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "shortlist", label: "Saved", icon: Star },
 ];
+
+interface ClientNotificationItem {
+  id: string;
+  kind: string;
+  createdAt: string;
+  readAt?: string;
+  payload: Record<string, any>;
+}
 
 export function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
@@ -94,13 +103,29 @@ export function ClientDashboard() {
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [showAttributeFilters, setShowAttributeFilters] = useState(false);
+  const [showMoreFiltersModal, setShowMoreFiltersModal] = useState(false);
   const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<ClientNotificationItem[]>(() => appStateSync.getNotifications());
+  const [selectedProjectDetail, setSelectedProjectDetail] = useState<ClientProject | null>(null);
+  const [isEditingProjectInfo, setIsEditingProjectInfo] = useState(false);
+  const [editedProjectName, setEditedProjectName] = useState("");
+  const [editedProjectBudget, setEditedProjectBudget] = useState("");
+  const [activitySearch, setActivitySearch] = useState("");
+  const [activityFilter, setActivityFilter] = useState<"all" | "project" | "application" | "payment" | "message">("all");
+  const [activity] = useState([
+    { id: "act-1", type: "project", title: "Project Posted", desc: "Nike Q1 Campaign brief created", time: "10m ago", refId: "P-001" },
+    { id: "act-2", type: "application", title: "New Application", desc: "Adaeze Obi applied to Tech Summit Compere", time: "1h ago", refId: "P-002" },
+    { id: "act-3", type: "payment", title: "Escrow Locked", desc: "₦120,000 locked securely for Nike Campaign VO", time: "2d ago", refId: "ORD-001" },
+    { id: "act-4", type: "message", title: "New Message", desc: "Emeka Johnson uploaded script audio file", time: "3d ago", refId: "ORD-001" },
+  ]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const sync = () => {
       setClientProfile(appStateSync.getClientProfile());
       apiClient.listClientProjects().then(setProjects);
+      setNotifications(appStateSync.getNotifications());
     };
     const unsub = appStateSync.subscribe(sync);
     apiClient.getClientStats().then(setStats);
@@ -123,14 +148,11 @@ export function ClientDashboard() {
   const [selectSlotStart, setSelectSlotStart] = useState<string | null>(null);
   const [selecting, setSelecting] = useState(false);
 
-  useEffect(() => {
-    apiClient.getClientStats().then(setStats);
-    apiClient.listClientProjects().then(setProjects);
-    apiClient.listClientOrders().then(setOrders);
-    apiClient.getShortlistedTalentIds().then(setShortlist);
-  }, []);
-
-  const openApplicants = (project: ClientProject) => {
+  const openProjectDetail = (project: ClientProject) => {
+    setSelectedProjectDetail(project);
+    setEditedProjectName(project.name);
+    setEditedProjectBudget(project.budget);
+    setIsEditingProjectInfo(false);
     setApplicantsProject(project);
     setApplicantActionError(null);
     setLoadingApplicants(true);
@@ -225,11 +247,18 @@ export function ClientDashboard() {
     return matchesSearch && matchesNiche;
   });
 
+  const filteredActivity = activity.filter(item => {
+    const matchesQuery = item.title.toLowerCase().includes(activitySearch.toLowerCase()) || item.desc.toLowerCase().includes(activitySearch.toLowerCase());
+    const matchesKind = activityFilter === "all" || item.type === activityFilter;
+    return matchesQuery && matchesKind;
+  });
+
   const screenTitle =
     activeTab === "home" ? "Dashboard"
     : activeTab === "discover" ? "Find Talent"
     : activeTab === "projects" ? "My Projects"
     : activeTab === "orders" ? "Active Orders"
+    : activeTab === "activity" ? "Activity History"
     : "Shortlist";
 
   const orgName = clientProfile.orgName || clientProfile.name || "FilmCraft Studios";
@@ -253,8 +282,16 @@ export function ClientDashboard() {
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button aria-label="View notifications" className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ background: "var(--color-bg-elevated)" }}>
+          <button
+            aria-label="View notifications"
+            onClick={() => setShowNotifications(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center relative"
+            style={{ background: "var(--color-bg-elevated)" }}
+          >
             <Bell className="w-[18px] h-[18px]" style={{ color: "var(--color-text-secondary)" }} />
+            {notifications.some(n => !n.readAt) && (
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
+            )}
           </button>
           <button
             aria-label="Account"
@@ -279,6 +316,7 @@ export function ClientDashboard() {
                 {activeTab === "projects" && "My Projects"}
                 {activeTab === "orders" && "Active Orders"}
                 {activeTab === "shortlist" && "Shortlisted Talent"}
+                {activeTab === "activity" && "Activity History"}
               </h1>
               <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
                 {activeTab === "home" && "Your next project is just a few clicks away."}
@@ -286,14 +324,23 @@ export function ClientDashboard() {
                 {activeTab === "projects" && "Manage your project briefs and applications."}
                 {activeTab === "orders" && "Track your active collaborations."}
                 {activeTab === "shortlist" && "Talent you've saved for future bookings."}
+                {activeTab === "activity" && "Complete log of your project creations, applications, payments, and messages."}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Button className="h-10 px-4 text-sm gap-2" onClick={() => navigate("/brief")}>
                 <Plus className="w-4 h-4" /> Post Project
               </Button>
-              <button aria-label="View notifications" className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+              <button
+                aria-label="View notifications"
+                onClick={() => setShowNotifications(true)}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity relative"
+                style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+              >
                 <Bell className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
+                {notifications.some(n => !n.readAt) && (
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
+                )}
               </button>
             </div>
           </div>
@@ -362,36 +409,118 @@ export function ClientDashboard() {
                   ))}
                 </div>
 
-                {/* Recent projects */}
+                {/* Recent activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Projects</span>
-                  <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("projects")}>View all →</button>
+                  <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
+                  <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>View all →</button>
                 </div>
                 <div className="space-y-2.5">
-                  {projects.slice(0, 3).map((project, i) => (
+                  {activity.slice(0, 4).map((item, i) => (
                     <motion.div
-                      key={project.id}
+                      key={item.id}
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
                       className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer transition-transform active:scale-[0.98]"
-                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
-                      onClick={() => setActiveTab("projects")}
+                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 64 }}
+                      onClick={() => {
+                        if (item.type === "project" || item.type === "application") {
+                          setActiveTab("projects");
+                        } else if (item.type === "payment") {
+                          navigate("/transactions");
+                        } else {
+                          navigate("/order/ORD-001");
+                        }
+                      }}
                     >
-                      <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
-                        <Briefcase className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
+                        {item.type === "project" && <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                        {item.type === "application" && <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                        {item.type === "payment" && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
+                        {item.type === "message" && <MessageSquare className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{project.name}</div>
-                        <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{project.niche} · {project.applicants} applicants</div>
+                        <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.title}</div>
+                        <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.desc}</div>
                       </div>
-                      <Badge
-                        tone={project.status === "active" ? "success" : project.status === "draft" ? "neutral" : "accent"}
-                        size="sm"
-                        className="text-[11px] shrink-0"
-                      >
-                        {project.status}
-                      </Badge>
+                      <div className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
+                        {item.time}
+                      </div>
                     </motion.div>
                   ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Activity History Tab ── */}
+            {activeTab === "activity" && (
+              <motion.div key="activity" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <div className="flex gap-2 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                    <Input
+                      className="pl-9"
+                      placeholder="Search activity records..."
+                      value={activitySearch}
+                      onChange={e => setActivitySearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+                  {(["all", "project", "application", "payment", "message"] as const).map(kind => (
+                    <button
+                      key={kind}
+                      onClick={() => setActivityFilter(kind)}
+                      className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-body capitalize transition-all"
+                      style={{
+                        background: activityFilter === kind ? "var(--color-accent)" : "var(--color-bg-surface)",
+                        color: activityFilter === kind ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                        border: `1px solid ${activityFilter === kind ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                      }}
+                    >
+                      {kind === "all" ? "All Activity" : kind}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-3">
+                  {filteredActivity.length === 0 ? (
+                    <div className="text-center py-12 rounded-[var(--radius-lg)] p-6" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <p className="text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>No activity records found.</p>
+                    </div>
+                  ) : (
+                    filteredActivity.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (item.type === "project" || item.type === "application") {
+                            setActiveTab("projects");
+                          } else if (item.type === "payment") {
+                            navigate("/transactions");
+                          } else {
+                            navigate("/order/ORD-001");
+                          }
+                        }}
+                        className="p-4 rounded-[var(--radius-lg)] flex items-center justify-between cursor-pointer hover:border-[var(--color-accent)] transition-all"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
+                            {item.type === "project" && <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                            {item.type === "application" && <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                            {item.type === "payment" && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
+                            {item.type === "message" && <MessageSquare className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{item.title}</div>
+                            <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{item.desc}</div>
+                          </div>
+                        </div>
+                        <div className="text-xs font-body text-right" style={{ color: "var(--color-text-tertiary)" }}>
+                          {item.time}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </motion.div>
             )}
@@ -472,8 +601,11 @@ export function ClientDashboard() {
                   </div>
                 )}
 
-                {/* Niche pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+                {/* Niche pills + More Filters Modal Button */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+                  <Button variant="secondary" className="h-9 px-3 text-xs gap-1.5 shrink-0" onClick={() => setShowMoreFiltersModal(true)}>
+                    <Filter className="w-3.5 h-3.5" /> More Filters
+                  </Button>
                   {NICHES.map(niche => (
                     <button
                       key={niche}
@@ -635,57 +767,197 @@ export function ClientDashboard() {
             {/* ── Projects Tab ── */}
             {activeTab === "projects" && (
               <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="flex items-center justify-between mb-4 lg:hidden">
-                  <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>My Projects</h2>
-                  <Button className="h-9 px-3 text-sm gap-2" onClick={() => navigate("/brief")}>
-                    <Plus className="w-4 h-4" /> Post
-                  </Button>
-                </div>
+                {selectedProjectDetail ? (
+                  /* Dedicated Project Management Page */
+                  <div>
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <button
+                        onClick={() => setSelectedProjectDetail(null)}
+                        className="flex items-center gap-2 text-xs font-semibold font-body"
+                        style={{ color: "var(--color-accent)" }}
+                      >
+                        ← Back to My Projects
+                      </button>
+                      <Badge tone={selectedProjectDetail.status === "active" ? "success" : "neutral"} size="md">
+                        {selectedProjectDetail.status}
+                      </Badge>
+                    </div>
 
-                <div className="space-y-4">
-                  {projects.map(project => (
-                    <div key={project.id} className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div>
-                          <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{project.id}</div>
-                          <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{project.name}</h3>
-                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{project.niche} · Posted {project.posted}</p>
+                    {/* Project Header Info */}
+                    <div className="p-6 rounded-[var(--radius-xl)] mb-6" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <div className="flex-1">
+                          <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{selectedProjectDetail.id}</div>
+                          {isEditingProjectInfo ? (
+                            <div className="space-y-3 mb-3">
+                              <Input value={editedProjectName} onChange={e => setEditedProjectName(e.target.value)} placeholder="Project Name" />
+                              <Input value={editedProjectBudget} onChange={e => setEditedProjectBudget(e.target.value)} placeholder="Budget" />
+                              <div className="flex gap-2">
+                                <Button className="h-8 text-xs" onClick={() => {
+                                  setSelectedProjectDetail(prev => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget } : null);
+                                  setProjects(prev => prev.map(p => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget } : p));
+                                  setIsEditingProjectInfo(false);
+                                }}>Save Project Info</Button>
+                                <Button variant="secondary" className="h-8 text-xs" onClick={() => setIsEditingProjectInfo(false)}>Cancel</Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>{selectedProjectDetail.name}</h2>
+                              <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
+                                {selectedProjectDetail.niche} · Posted {selectedProjectDetail.posted}
+                              </p>
+                            </>
+                          )}
                         </div>
                         <div className="text-right">
-                          <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{project.budget}</div>
-                          <Badge tone={project.status === "active" ? "success" : project.status === "draft" ? "neutral" : "accent"} size="md">
-                            {project.status}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                          <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                            {project.applicants}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
-                            {!project.applicationsOpen && project.status === "active" && " · closed"}
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="secondary" className="h-8 px-3 text-xs">Edit</Button>
-                          {project.applicants > 0 && (
-                            <Button className="h-8 px-3 text-xs gap-1.5" onClick={() => openApplicants(project)}>
-                              <Users className="w-3.5 h-3.5" /> View Applicants
-                            </Button>
+                          <div className="font-display text-2xl tnum" style={{ color: "var(--color-accent)" }}>{selectedProjectDetail.budget}</div>
+                          {!isEditingProjectInfo && (
+                            <button
+                              onClick={() => setIsEditingProjectInfo(true)}
+                              className="text-xs font-body hover:underline mt-1 block text-right"
+                              style={{ color: "var(--color-text-tertiary)" }}
+                            >
+                              Edit Brief Info
+                            </button>
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
 
-                  <button
-                    onClick={() => navigate("/brief")}
-                    className="w-full p-5 rounded-[var(--radius-lg)] border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body"
-                    style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-tertiary)" }}
-                  >
-                    <Plus className="w-4 h-4" /> Post a new project
-                  </button>
-                </div>
+                      <div className="p-4 rounded-[var(--radius-md)] mb-4" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
+                        <div className="text-xs font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Project Overview</div>
+                        <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          Looking for professional performing arts talent for production recording and campaign rollout. Requires high quality deliverables and prompt communication.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Applicants List */}
+                    <div className="p-6 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+                      <div className="flex items-center justify-between mb-4 pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                        <h3 className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>
+                          Applicants ({applicants.length})
+                        </h3>
+                        <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Select a candidate to book or inspect their storefront
+                        </span>
+                      </div>
+
+                      {loadingApplicants ? (
+                        <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>Loading applicants…</div>
+                      ) : applicants.length === 0 ? (
+                        <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>No applicants yet for this project.</div>
+                      ) : (
+                        <div className="space-y-4">
+                          {applicants.map((app) => (
+                            <div key={app.applicationId} className="p-4 rounded-[var(--radius-lg)] border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                              <div className="flex items-start justify-between gap-3 mb-2">
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="w-10 h-10 text-sm" background="var(--color-accent-glow)" color="var(--color-accent)">
+                                    {app.creator.avatar}
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{app.creator.name}</span>
+                                      {app.creator.verified && <Shield className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />}
+                                    </div>
+                                    <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{app.creator.role} · {app.creator.location}</div>
+                                  </div>
+                                </div>
+                                <Badge tone={app.status === "SELECTED" ? "success" : app.status === "SHORTLISTED" ? "accent" : "neutral"} size="sm">
+                                  {APPLICANT_STATUS_LABEL[app.status] ?? app.status}
+                                </Badge>
+                              </div>
+
+                              {app.pitch && (
+                                <p className="text-xs font-body italic my-2 p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}>
+                                  "{app.pitch}"
+                                </p>
+                              )}
+
+                              <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                <button
+                                  onClick={() => window.open("/elias-thorne", "_blank")}
+                                  className="text-xs font-semibold font-body hover:underline flex items-center gap-1"
+                                  style={{ color: "var(--color-accent)" }}
+                                >
+                                  View Storefront / Profile →
+                                </button>
+                                <div className="flex gap-2">
+                                  {app.status === "APPLIED" && (
+                                    <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => handleShortlist(app.applicationId)}>
+                                      Shortlist
+                                    </Button>
+                                  )}
+                                  {app.status !== "REJECTED" && app.status !== "SELECTED" && (
+                                    <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => handleRejectApplicant(app.applicationId)}>
+                                      Reject
+                                    </Button>
+                                  )}
+                                  {app.status !== "SELECTED" && (
+                                    <Button className="h-8 px-3 text-xs" onClick={() => openSelectFlow(app)}>
+                                      Select / Hire
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Standard Projects List */
+                  <div>
+                    <div className="flex items-center justify-between mb-4 lg:hidden">
+                      <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>My Projects</h2>
+                      <Button className="h-9 px-3 text-sm gap-2" onClick={() => navigate("/brief")}>
+                        <Plus className="w-4 h-4" /> Post
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {projects.map(project => (
+                        <div key={project.id} className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="flex items-start justify-between gap-4 mb-3">
+                            <div>
+                              <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{project.id}</div>
+                              <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{project.name}</h3>
+                              <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{project.niche} · Posted {project.posted}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{project.budget}</div>
+                              <Badge tone={project.status === "active" ? "success" : project.status === "draft" ? "neutral" : "accent"} size="md">
+                                {project.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                              <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                {project.applicants}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
+                                {!project.applicationsOpen && project.status === "active" && " · closed"}
+                              </span>
+                            </div>
+                            <Button className="h-9 px-4 text-xs font-semibold" onClick={() => openProjectDetail(project)}>
+                              View Project →
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() => navigate("/brief")}
+                        className="w-full p-5 rounded-[var(--radius-lg)] border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body"
+                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-tertiary)" }}
+                      >
+                        <Plus className="w-4 h-4" /> Post a new project
+                      </button>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -921,6 +1193,110 @@ export function ClientDashboard() {
                         </div>
                       ))
                     )}
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+          {/* Notifications Modal */}
+          <AnimatePresence>
+            {showNotifications && (
+              <Modal onClose={() => setShowNotifications(false)} align="right">
+                <motion.div
+                  initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+                  className="w-full max-w-sm h-full p-6 flex flex-col"
+                  style={{ background: "var(--color-bg-surface)", borderLeft: "1px solid var(--color-border-default)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-display text-xl">Notifications</h3>
+                    <button onClick={() => setShowNotifications(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    {notifications.length === 0 && (
+                      <p className="text-sm text-center py-8" style={{ color: "var(--color-text-tertiary)" }}>
+                        No notifications yet.
+                      </p>
+                    )}
+                    {notifications.map((n) => (
+                      <button
+                        key={n.id}
+                        onClick={() => {
+                          appStateSync.markNotificationRead(n.id);
+                          setNotifications(appStateSync.getNotifications());
+                          setShowNotifications(false);
+                          setActiveTab("activity");
+                        }}
+                        className="w-full text-left p-4 rounded-[var(--radius-md)] border relative"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          borderColor: !n.readAt ? "var(--color-accent)" : "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-accent)" }}>
+                          {n.kind.replace(/_/g, " ")}
+                        </div>
+                        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>{n.payload.clientName ?? n.payload.creatorName ?? "Update available"}</p>
+                        <div className="text-xs mt-2" style={{ color: "var(--color-text-tertiary)" }}>
+                          {new Date(n.createdAt).toLocaleDateString()}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* More Filters Modal (Physical Features & Attributes) */}
+          <AnimatePresence>
+            {showMoreFiltersModal && (
+              <Modal onClose={() => setShowMoreFiltersModal(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-5 border-b pb-3" style={{ borderColor: "var(--color-hairline)" }}>
+                    <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Filter Talent by Physical Features</h3>
+                    <button onClick={() => setShowMoreFiltersModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 mb-6">
+                    {ATTRIBUTE_FILTER_FIELDS.map((field) => (
+                      <div key={field.key as string}>
+                        <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>{field.label}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {field.options.map((opt) => {
+                            const active = attributeFilters[field.key] === opt;
+                            return (
+                              <button
+                                key={opt}
+                                onClick={() => toggleAttributeFilter(field.key, opt)}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
+                                style={{
+                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                }}
+                              >
+                                {opt.replace(/_/g, " ")}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                    <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => setAttributeFilters({})}>Reset Filters</Button>
+                    <Button className="flex-1 h-11 text-xs" onClick={() => setShowMoreFiltersModal(false)}>Apply Filters</Button>
                   </div>
                 </motion.div>
               </Modal>

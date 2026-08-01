@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, Receipt } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { ChevronLeft, Receipt, X, Download, CheckCircle2 } from "lucide-react";
 import { apiClient } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
 import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
+import { Modal } from "../components/ui/Modal";
 import type { Transaction } from "@monologg/types";
 
 const STATE_META: Record<Transaction["state"], { label: string; tone: "success" | "accent" | "error" | "warning" | "neutral" }> = {
@@ -30,6 +33,7 @@ export function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stateFilter, setStateFilter] = useState<Transaction["state"] | "">("");
   const [loading, setLoading] = useState(true);
+  const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -84,7 +88,12 @@ export function TransactionHistory() {
           {transactions.map((txn) => {
             const meta = STATE_META[txn.state];
             return (
-              <div key={txn.id} className="rounded-[var(--radius-xl)] p-4" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
+              <div
+                key={txn.id}
+                onClick={() => setSelectedTxn(txn)}
+                className="rounded-[var(--radius-xl)] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-all"
+                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold font-body" style={s.text}>
                     {txn.direction === "payout" ? "Payout" : "Payment"}
@@ -107,6 +116,82 @@ export function TransactionHistory() {
           })}
         </div>
       </div>
+
+      {/* Transaction Details Modal */}
+      <AnimatePresence>
+        {selectedTxn && (
+          <Modal onClose={() => setSelectedTxn(null)}>
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-elevated)" }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4 border-b pb-3" style={{ borderColor: "var(--color-hairline)" }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent-glow)" }}>
+                    <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Transaction Invoice</h3>
+                    <div className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{selectedTxn.id}</div>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTxn(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="text-center py-4 mb-4 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
+                <div className="text-xs font-body uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Amount</div>
+                <div className="font-display text-3xl tnum font-semibold" style={{ color: "var(--color-accent)" }}>{selectedTxn.totalAmountFormatted}</div>
+                <Badge tone={STATE_META[selectedTxn.state].tone} size="sm" className="mt-2">
+                  {STATE_META[selectedTxn.state].label}
+                </Badge>
+              </div>
+
+              <div className="space-y-3 mb-6 text-xs font-body">
+                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>Transaction Type</span>
+                  <span className="font-semibold capitalize" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.direction}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>Booking Reference</span>
+                  <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.bookingId}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>Base Amount</span>
+                  <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.baseAmountFormatted}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  <span style={{ color: "var(--color-text-tertiary)" }}>Platform Fee</span>
+                  <span className="font-mono" style={{ color: "var(--color-text-secondary)" }}>{selectedTxn.feeAmountFormatted}</span>
+                </div>
+                {selectedTxn.providerRef && (
+                  <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                    <span style={{ color: "var(--color-text-tertiary)" }}>Provider Ref</span>
+                    <span className="font-mono truncate max-w-[200px]" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.providerRef}</span>
+                  </div>
+                )}
+                <div className="flex justify-between py-1">
+                  <span style={{ color: "var(--color-text-tertiary)" }}>Date & Time</span>
+                  <span style={{ color: "var(--color-text-secondary)" }}>{formatRelativeTime(selectedTxn.createdAt)}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button variant="secondary" className="flex-1 h-10 text-xs gap-1.5" onClick={() => window.print()}>
+                  <Download className="w-4 h-4" /> Download Receipt
+                </Button>
+                <Button className="flex-1 h-10 text-xs" onClick={() => setSelectedTxn(null)}>
+                  Close
+                </Button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

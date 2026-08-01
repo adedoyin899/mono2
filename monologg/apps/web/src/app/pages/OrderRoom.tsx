@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import { Avatar } from "../components/ui/Avatar";
-import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
@@ -12,14 +11,12 @@ import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle,
-  UploadCloud, X, Sun, Moon, DollarSign
+  UploadCloud, X, DollarSign
 } from "lucide-react";
 
 type Phase = "briefing" | "deliverables" | "review" | "complete";
 type UserRole = "talent" | "client";
 
-// Same shape as @monologg/types' OrderMessage — aliased locally so the rest
-// of this file's `Message` references didn't need touching.
 type Message = OrderMessage;
 
 const PHASES: { id: Phase; label: string; desc: string }[] = [
@@ -41,7 +38,6 @@ export function OrderRoom() {
   const [showOrderInfoModal, setShowOrderInfoModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { isDark, toggle } = useTheme();
   const { id: orderId } = useParams();
 
   useEffect(() => {
@@ -218,57 +214,58 @@ export function OrderRoom() {
     <div className="role-talent min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
       {/* Header */}
       <div
-        className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel"
+        className="h-16 flex items-center justify-between gap-3 px-4 sticky top-0 z-40 glass-panel"
         style={{ borderBottom: "1px solid var(--color-hairline)" }}
       >
-        <button aria-label="Go back" onClick={() => navigate(-1)} className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold truncate font-display" style={{ color: "var(--color-text-primary)" }}>
-            Nike Campaign VO
-          </div>
-          <div className="text-xs font-body flex items-center gap-1.5" style={{ color: "var(--color-text-tertiary)" }}>
-            <Lock className="w-3 h-3" style={{ color: "var(--color-accent)" }} />
-            <span className="font-mono tnum">₦120,000</span> in escrow
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold truncate font-display" style={{ color: "var(--color-text-primary)" }}>
+              Nike Campaign VO
+            </div>
+            <div className="text-xs font-body flex items-center gap-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+              <Lock className="w-3 h-3" style={{ color: "var(--color-accent)" }} />
+              <span className="font-mono tnum">₦120,000</span> in escrow
+            </div>
           </div>
         </div>
 
         {/* Order Details Button */}
         <button
           onClick={() => setShowOrderInfoModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-semibold font-body transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-semibold font-body transition-all active:scale-95 shrink-0"
           style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)", border: "1px solid var(--color-hairline)" }}
         >
           <FileText className="w-3.5 h-3.5" />
           <span>Order Info</span>
-        </button>
-
-        {/* Role toggle for demo */}
-        <div className="flex p-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
-          {(["talent", "client"] as UserRole[]).map(r => (
-            <button
-              key={r}
-              onClick={() => setRole(r)}
-              className="px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium font-body capitalize transition-all active:scale-95"
-              style={{
-                background: role === r ? "var(--color-accent)" : "transparent",
-                color: role === r ? "var(--color-accent-on)" : "var(--color-text-secondary)",
-              }}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-
-        <button aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} onClick={toggle} className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
-          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
 
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
         {/* Main — Chat */}
         <div className="flex-1 flex flex-col min-h-0">
+
+          {/* Role toggle demo banner */}
+          <div className="px-4 py-2 flex items-center justify-center gap-2" style={{ background: "var(--color-bg-elevated)", borderBottom: "1px solid var(--color-hairline)" }}>
+            <span className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>Simulate Role:</span>
+            <div className="flex p-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
+              {(["talent", "client"] as UserRole[]).map(r => (
+                <button
+                  key={r}
+                  onClick={() => setRole(r)}
+                  className="px-3 py-1 rounded-[var(--radius-full)] text-[11px] font-medium font-body capitalize transition-all active:scale-95"
+                  style={{
+                    background: role === r ? "var(--color-accent)" : "transparent",
+                    color: role === r ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                  }}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -298,37 +295,37 @@ export function OrderRoom() {
                   <Avatar size="sm" className="w-8 h-8 text-xs" background="var(--color-accent-soft)" color="var(--color-accent)">
                     {msg.from === "talent" ? appStateSync.getTalentProfile().name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("") : "BN"}
                   </Avatar>
-                  <div className={`max-w-[75%] ${isMe ? "items-end" : "items-start"} flex flex-col gap-1`}>
+                  <div className={`max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
                     <div
-                      className="px-4 py-3 text-sm font-body leading-relaxed"
+                      className="p-3.5 rounded-2xl text-sm font-body"
                       style={{
                         background: isMe ? "var(--color-accent)" : "var(--color-bg-surface)",
                         color: isMe ? "var(--color-accent-on)" : "var(--color-text-primary)",
-                        borderRadius: isMe ? "18px 6px 18px 18px" : "6px 18px 18px 18px",
                         border: isMe ? undefined : "1px solid var(--color-hairline)",
                         boxShadow: "var(--shadow-card)",
                       }}
                     >
-                      {msg.text}
-                    </div>
-                    {msg.attachment && (
-                      <div
-                        className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] cursor-pointer hover:opacity-80 transition-opacity"
-                        style={{ background: isMe ? "var(--color-accent)" : "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
-                      >
-                        <FileText className="w-4 h-4" style={{ color: isMe ? "var(--color-accent-on)" : "var(--color-accent)" }} />
-                        <div>
-                          <div className="text-xs font-semibold font-body" style={{ color: isMe ? "var(--color-text-inverse)" : "var(--color-text-primary)" }}>
-                            {msg.attachment.name}
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                      {msg.attachment && (
+                        <div
+                          className="mt-2.5 p-2.5 rounded-xl flex items-center gap-2"
+                          style={{
+                            background: isMe ? "rgba(0,0,0,0.15)" : "var(--color-bg-elevated)",
+                            border: "1px solid var(--color-hairline)",
+                          }}
+                        >
+                          <FileText className="w-4 h-4 shrink-0" />
+                          <div className="flex-1 min-w-0 text-xs">
+                            <div className="font-medium truncate">{msg.attachment.name}</div>
+                            <div style={{ opacity: 0.8 }}>{msg.attachment.size}</div>
                           </div>
-                          <div className="text-xs font-body" style={{ color: isMe ? "rgba(255,255,255,0.7)" : "var(--color-text-tertiary)" }}>
-                            {msg.attachment.size}
-                          </div>
+                          <Download className="w-4 h-4 shrink-0 cursor-pointer" />
                         </div>
-                        <Download className="w-3.5 h-3.5 ml-2" style={{ color: isMe ? "var(--color-text-inverse)" : "var(--color-text-tertiary)" }} />
-                      </div>
-                    )}
-                    <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{msg.time}</div>
+                      )}
+                    </div>
+                    <div className={`text-[10px] font-body mt-1 px-1 ${isMe ? "text-right" : "text-left"}`} style={{ color: "var(--color-text-tertiary)" }}>
+                      {msg.time}
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -336,46 +333,45 @@ export function OrderRoom() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Phase action banner */}
-          {phase !== "complete" && !paymentReleased && (
-            <div
-              className="mx-4 mb-2 p-3.5 rounded-[var(--radius-lg)] flex items-center gap-3"
-              style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-accent)" }}
-            >
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold font-body" style={{ color: "var(--color-accent)" }}>
-                  {phase === "briefing" && (role === "talent" ? "Confirm you've reviewed the brief to advance" : "Awaiting talent confirmation")}
-                  {phase === "deliverables" && (role === "talent" ? "Submit your deliverable to enter review" : "Awaiting talent submission")}
-                  {phase === "review" && (role === "client" ? "Approve work to release escrow payment" : "Awaiting client review")}
+          {/* Interactive phase action banner */}
+          {phase === "briefing" && role === "client" && (
+            <div className="p-4 m-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-accent)" }}>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Confirm Project Brief</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Confirm the scope so talent can begin work</div>
                 </div>
-                <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                  Current Phase: {PHASES[phaseIndex]?.label}
-                </div>
+                <Button className="h-9 px-4 text-xs shrink-0" onClick={advancePhase}>Confirm Brief</Button>
               </div>
-              {((phase === "briefing" && role === "talent") || (phase === "deliverables" && role === "talent") || (phase === "review" && role === "client")) && (
-                <Button
-                  className="h-8 px-3 text-xs shrink-0"
-                  onClick={() => {
-                    if (phase === "deliverables") {
-                      setShowSubmitModal(true);
-                    } else if (phase === "review") {
-                      setShowReleaseModal(true);
-                    } else {
-                      advancePhase();
-                    }
-                  }}
-                >
-                  {phase === "briefing" && "Confirm Brief"}
-                  {phase === "deliverables" && "Submit Deliverable"}
-                  {phase === "review" && "Release Payment"}
-                </Button>
-              )}
+            </div>
+          )}
+
+          {phase === "deliverables" && role === "talent" && (
+            <div className="p-4 m-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-accent)" }}>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Submit your deliverable to enter review</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Current Phase: Deliverables</div>
+                </div>
+                <Button className="h-9 px-4 text-xs shrink-0" onClick={() => setShowSubmitModal(true)}>Submit Deliverable</Button>
+              </div>
+            </div>
+          )}
+
+          {phase === "review" && role === "client" && !paymentReleased && (
+            <div className="p-4 m-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Review & Release Payment</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Talent has submitted final work for your approval</div>
+                </div>
+                <Button className="h-9 px-4 text-xs shrink-0" onClick={() => setShowReleaseModal(true)}>Release ₦120,000</Button>
+              </div>
             </div>
           )}
 
           {paymentReleased && (
-            <div className="mx-4 mb-2 p-3 rounded-xl flex items-center gap-3" style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}>
-              <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: "var(--color-success)" }} />
+            <div className="p-4 m-4 rounded-[var(--radius-xl)] text-center" style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}>
               <div className="text-sm font-body" style={{ color: "var(--color-success)" }}>
                 <strong>Payment Released!</strong> ₦120,000 has been transferred to {appStateSync.getTalentProfile().name}. Thank you for using Monologg.
               </div>
@@ -387,13 +383,13 @@ export function OrderRoom() {
             className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
             style={{ borderTop: "1px solid var(--color-hairline)", background: "var(--color-bg-surface)" }}
           >
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
               <button aria-label="Attach file" className="w-11 h-11 rounded-[var(--radius-md)] flex items-center justify-center shrink-0 hover:opacity-80 active:scale-95 transition-all" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)", color: "var(--color-text-secondary)" }}>
                 <Paperclip className="w-4 h-4" />
               </button>
               <div className="flex-1 relative">
                 <textarea
-                  className="w-full px-4 py-3 rounded-[var(--radius-md)] text-sm font-body resize-none border"
+                  className="w-full px-4 py-2.5 rounded-[var(--radius-md)] text-sm font-body resize-none border"
                   rows={1}
                   placeholder={`Message ${role === "talent" ? appStateSync.getClientProfile().orgName : appStateSync.getTalentProfile().name}...`}
                   value={inputText}
@@ -407,7 +403,7 @@ export function OrderRoom() {
                   }}
                 />
               </div>
-              <Button aria-label="Send message" className="w-11 h-11 p-0 shrink-0" onClick={sendMessage} disabled={!inputText.trim()}>
+              <Button aria-label="Send message" className="w-11 h-11 p-0 shrink-0 flex items-center justify-center" onClick={sendMessage} disabled={!inputText.trim()}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>

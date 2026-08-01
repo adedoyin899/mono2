@@ -6,6 +6,7 @@ import { Input } from "../components/ui/Input";
 import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
   Check, Mic, User, Star, Video, Music
@@ -110,10 +111,13 @@ export function ProjectBrief() {
         budgetAmount: Math.round(lowerBoundNaira * 100),
         budgetCurrency: "NGN",
         applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
-        // "Publish Project" is this screen's only action — a published brief
-        // must actually be ACTIVE (the schema otherwise defaults to DRAFT),
-        // or it silently never appears in talent's project browse (GET /projects).
         status: "ACTIVE",
+      });
+      appStateSync.addNotification({
+        id: `notif-${Date.now()}`,
+        kind: "PROJECT_APPLICATION",
+        createdAt: new Date().toISOString(),
+        payload: { clientName: `New Brief Posted: ${projectName}` },
       });
       setSubmitSuccess(true);
     } finally {

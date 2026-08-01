@@ -352,6 +352,29 @@ class StateSyncBus {
     return true;
   }
 
+  // Notifications
+  notifications: Array<{ id: string; kind: string; createdAt: string; readAt?: string; payload: Record<string, any> }> = [
+    { id: "n1", kind: "PROJECT_APPLICATION", createdAt: new Date().toISOString(), payload: { clientName: "Nike Q1 Campaign" } },
+    { id: "n2", kind: "BOOKING_CONFIRMED", createdAt: new Date().toISOString(), payload: { creatorName: "Adaeze Obi" } },
+  ];
+
+  getNotifications() {
+    return [...this.notifications];
+  }
+
+  markNotificationRead(id: string) {
+    const idx = this.notifications.findIndex((n) => n.id === id);
+    if (idx !== -1) {
+      this.notifications[idx]!.readAt = new Date().toISOString();
+      this.notify();
+    }
+  }
+
+  addNotification(notif: { id: string; kind: string; createdAt: string; payload: Record<string, any> }) {
+    this.notifications = [notif, ...this.notifications];
+    this.notify();
+  }
+
   // Transactions
   getTransactions(): Transaction[] {
     return [...this.transactions];

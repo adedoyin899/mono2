@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, ChevronDown, LifeBuoy } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { ChevronLeft, ChevronDown, LifeBuoy, X, Send, Headset } from "lucide-react";
 import { apiClient } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { Modal } from "../components/ui/Modal";
 import type { SupportTicket } from "@monologg/types";
 
-// Static FAQ content (features.md Phase 10 explicitly allows "static or
-// CMS-backed" — no CMS exists in any phase, so this is the honest choice,
-// not a placeholder for one).
 const FAQS: Array<{ q: string; a: string }> = [
   {
     q: "When does a talent get paid?",
@@ -45,10 +44,37 @@ export function HelpSupport() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; sender: "user" | "agent"; text: string; time: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
 
   useEffect(() => {
     apiClient.listSupportTickets().then(setTickets);
   }, []);
+
+  const openTicketChat = (ticket: SupportTicket) => {
+    setSelectedTicket(ticket);
+    setChatMessages([
+      { id: "1", sender: "user", text: ticket.message || "I need assistance with my account/booking.", time: "Earlier" },
+      { id: "2", sender: "agent", text: "Hello! Thank you for reaching out to Monologg Customer Care. Agent Sarah here — I am reviewing your request and will assist you right away.", time: "Just now" },
+    ]);
+  };
+
+  const handleSendChatMessage = () => {
+    if (!chatInput.trim()) return;
+    const text = chatInput.trim();
+    setChatInput("");
+    setChatMessages(prev => [
+      ...prev,
+      { id: `c-${Date.now()}`, sender: "user", text, time: "Just now" }
+    ]);
+    setTimeout(() => {
+      setChatMessages(prev => [
+        ...prev,
+        { id: `c-${Date.now() + 1}`, sender: "agent", text: "Got it! I am looking into this and updating your ticket notes.", time: "Just now" }
+      ]);
+    }, 1200);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,19 +173,98 @@ export function HelpSupport() {
             {tickets.map((ticket, i) => (
               <div
                 key={ticket.id}
-                className="px-4 py-3.5"
+                onClick={() => openTicketChat(ticket)}
+                className="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-bg-elevated)] transition-colors"
                 style={{ borderBottom: i < tickets.length - 1 ? "1px solid var(--color-hairline)" : undefined }}
               >
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="text-sm font-semibold font-body truncate" style={s.text}>{ticket.subject}</span>
                   <Badge tone={TICKET_STATUS_TONE[ticket.status]}>{ticket.status.replace("_", " ")}</Badge>
                 </div>
-                <div className="text-xs font-body" style={s.tertiary}>{formatRelativeTime(ticket.createdAt)}</div>
+                <div className="text-xs font-body flex items-center justify-between" style={s.tertiary}>
+                  <span>{formatRelativeTime(ticket.createdAt)}</span>
+                  <span className="text-xs font-semibold hover:underline" style={{ color: "var(--color-accent)" }}>Chat with Agent →</span>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Support Agent Live Chat Modal */}
+      <AnimatePresence>
+        {selectedTicket && (
+          <Modal onClose={() => setSelectedTicket(null)}>
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[var(--radius-xl)] p-5 h-[80vh] flex flex-col"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-elevated)" }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent-glow)" }}>
+                    <Headset className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>Customer Care Agent</h3>
+                    <div className="text-xs font-body flex items-center gap-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                      <span className="w-2 h-2 rounded-full" style={{ background: "var(--color-success)" }} /> Agent Sarah · Online
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTicket(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Ticket details banner */}
+              <div className="p-3 my-3 rounded-[var(--radius-md)] flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-elevated)" }}>
+                <span className="font-medium truncate max-w-[200px]" style={{ color: "var(--color-text-secondary)" }}>{selectedTicket.subject}</span>
+                <Badge tone={TICKET_STATUS_TONE[selectedTicket.status]} size="sm">{selectedTicket.status}</Badge>
+              </div>
+
+              {/* Chat messages */}
+              <div className="flex-1 overflow-y-auto space-y-3 p-2">
+                {chatMessages.map(msg => {
+                  const isUser = msg.sender === "user";
+                  return (
+                    <div key={msg.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className="max-w-[80%] p-3 rounded-xl text-xs font-body"
+                        style={{
+                          background: isUser ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                          color: isUser ? "var(--color-accent-on)" : "var(--color-text-primary)",
+                          border: isUser ? undefined : "1px solid var(--color-hairline)",
+                        }}
+                      >
+                        <p>{msg.text}</p>
+                        <div className="text-[10px] mt-1 opacity-70 text-right">{msg.time}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chat input */}
+              <div className="flex items-center gap-2 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                <Input
+                  placeholder="Type a message to support agent…"
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSendChatMessage()}
+                  className="flex-1 h-10 text-xs"
+                />
+                <Button className="h-10 w-10 p-0 flex items-center justify-center shrink-0" onClick={handleSendChatMessage} disabled={!chatInput.trim()}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
