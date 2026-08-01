@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 31: Guest Booking Payment Fix & Payment Methods Enhancement)
+**Last updated:** 2026-08-01 (Session 32: Platform-Wide Design & Polish Pass)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1038,6 +1038,47 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/lib/api-client.ts` | Added mock returns for `createGuestBooking`, `payGuestBooking`, `createBooking`, `payBooking`, `simulateEscrowWebhook` |
 | `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed title overlap, added payment channel selector cards, escrow trust badges, and param fallbacks |
 | `apps/web/src/app/pages/Checkout.tsx` | Fixed mock payment transition handler |
+
+---
+
+## Session 32 — Platform-Wide Design & Polish Pass
+
+**Goal:** Execute high-priority design review tasks (T1, T2, T3, T4) covering Public Storefront branding, loading skeleton, accessibility skip-to-content targets, and resolving the type mismatch/unused declarations in `TalentDashboard.tsx`.
+
+1. **Enhanced Public Storefront Branding & Trust Signals**:
+   - Added branded sticky header with Monologg logo, sign-in, and register buttons to the public storefront page.
+   - Fixed AI slop pattern #8: removed left colored border on booking rate cards.
+   - Added trust footer with secure escrow, verified profiles, and money-back guarantee badges to build buyer confidence.
+   - Upgraded loading and error views with logo headers and proper navigation CTAs.
+
+2. **Built Reusable Skeleton Shimmer Components**:
+   - Created `Skeleton` React component with custom count, circle, gap support.
+   - Included pre-configured `CardSkeleton`, `StatCardSkeleton`, and `ListItemSkeleton` layout blocks for loading states.
+   - Integrated skeleton loaders into the storefront page loading state.
+
+3. **Added Accessibility Skip-to-Content Targets**:
+   - Implemented visually hidden `Skip to main content` anchor in `Root.tsx` layout.
+   - Wired `id="main-content"` targets to landing page, client dashboard, and settings container main views.
+
+4. **Resolved Type Safety & Unused Declarations in `TalentDashboard.tsx`**:
+   - Corrected `apiClient.createService()` parameter interface mapping to use type-safe fields (`title`, `price`, `delivery`, `bookings`).
+   - Cleaned up warning-producing unused state variables (`showWithdrawModal`, `withdrawInput`, `withdrawMsg`, `handleWithdraw`).
+   - Bound modal forms and buttons to control state variables, enabling real-time service creation, editing, and deletion synced with API client state.
+
+5. **Testing & Verification**:
+   - Verified that all 19 test files and 72 tests pass cleanly with 100% success.
+
+### File inventory additions (Session 32)
+
+| File | Change |
+|---|---|
+| `apps/web/src/app/pages/PublicStorefront.tsx` | Overhauled with brand headers, trust signals, loading skeleton integration, and removed colored card borders |
+| `apps/web/src/app/components/ui/Skeleton.tsx` | **New** — reusable skeleton loading layouts with shimmer pulse animation |
+| `apps/web/src/app/Root.tsx` | Added skip-to-content hidden links |
+| `apps/web/src/app/pages/LandingPage.tsx` | Added main element skip target id |
+| `apps/web/src/app/pages/ClientDashboard.tsx` | Added main element skip target id |
+| `apps/web/src/app/pages/Settings.tsx` | Converted wrapper element to main tag with skip target id |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | Bound Rate Card tab modals to state inputs, wired create/edit/delete actions to handlers, removed unused variables |
 
 
 

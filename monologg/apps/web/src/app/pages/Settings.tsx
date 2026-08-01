@@ -315,7 +315,7 @@ export function Settings() {
         )}
       </div>
 
-      <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
+      <main id="main-content" className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
         <AnimatePresence mode="wait">
 
           {/* ── Main Settings Menu ── */}
@@ -748,7 +748,7 @@ export function Settings() {
           )}
 
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 }

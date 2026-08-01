@@ -124,43 +124,35 @@ export function TalentDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSyncModal, setShowSyncModal] = useState(false);
 
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [withdrawInput, setWithdrawInput] = useState("50000");
-  const [withdrawMsg, setWithdrawMsg] = useState<string | null>(null);
-
   const [newServiceTitle, setNewServiceTitle] = useState("");
   const [newServicePrice, setNewServicePrice] = useState("45000");
   const [newServiceDelivery, setNewServiceDelivery] = useState("24 Hours");
 
-  const handleWithdraw = async () => {
-    const amount = Number(withdrawInput.replace(/[^0-9]/g, ""));
-    if (!amount || amount <= 0) return;
-    const ok = await apiClient.withdrawFunds(amount);
-    if (ok) {
-      setWithdrawMsg(`Successfully transferred ₦${amount.toLocaleString()} to your bank account!`);
-      apiClient.getTalentStats().then(setStats);
-      setTimeout(() => {
-        setWithdrawMsg(null);
-        setShowWithdrawModal(false);
-      }, 1500);
-    } else {
-      setWithdrawMsg("Withdrawal failed: amount exceeds available balance.");
-    }
-  };
-
-  const handleCreateService = async () => {
+  const handleSaveService = async () => {
     if (!newServiceTitle.trim()) return;
     const priceAmount = Number(newServicePrice.replace(/[^0-9]/g, ""));
-    await apiClient.createService({
-      serviceTitle: newServiceTitle,
-      basePriceAmount: priceAmount * 100,
-      basePriceCurrency: "NGN",
-      deliveryTimeline: newServiceDelivery,
-      features: ["HD Quality", "1 Revision Included"],
-    });
+    const formattedPrice = `₦${priceAmount.toLocaleString()}`;
+
+    if (editServiceId) {
+      await apiClient.updateService(editServiceId, {
+        title: newServiceTitle,
+        price: formattedPrice,
+        delivery: newServiceDelivery,
+      });
+      setEditServiceId(null);
+    } else {
+      await apiClient.createService({
+        title: newServiceTitle,
+        price: formattedPrice,
+        delivery: newServiceDelivery,
+        bookings: 0,
+      });
+      setShowAddService(false);
+    }
     apiClient.listServices().then(setServices);
     setNewServiceTitle("");
-    setShowAddService(false);
+    setNewServicePrice("45000");
+    setNewServiceDelivery("24 Hours");
   };
 
   const handleDeleteService = async (id: string) => {
@@ -426,7 +418,7 @@ export function TalentDashboard() {
       </div>
 
       {/* Main content */}
-      <main className="lg:pl-60 pb-28 lg:pb-0">
+      <main id="main-content" className="lg:pl-60 pb-28 lg:pb-0">
         <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
 
           {/* Desktop page header */}
@@ -730,7 +722,16 @@ export function TalentDashboard() {
               <motion.div key="rates" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <div className="flex items-center justify-between mb-4 lg:hidden">
                   <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Rate Cards</h2>
-                  <Button className="h-9 px-3 text-sm gap-2" onClick={() => setShowAddService(true)}>
+                  <Button
+                    className="h-9 px-3 text-sm gap-2"
+                    onClick={() => {
+                      setEditServiceId(null);
+                      setNewServiceTitle("");
+                      setNewServicePrice("45000");
+                      setNewServiceDelivery("24 Hours");
+                      setShowAddService(true);
+                    }}
+                  >
                     <Plus className="w-4 h-4" /> Add
                   </Button>
                 </div>
@@ -761,11 +762,20 @@ export function TalentDashboard() {
                             <Button
                               variant="secondary"
                               className="h-8 px-3 text-xs gap-1.5"
-                              onClick={() => setEditServiceId(service.id)}
+                              onClick={() => {
+                                setEditServiceId(service.id);
+                                setNewServiceTitle(service.title);
+                                setNewServicePrice(service.price.replace("₦", "").replace(/,/g, ""));
+                                setNewServiceDelivery(service.delivery);
+                              }}
                             >
                               <Edit2 className="w-3.5 h-3.5" /> Edit
                             </Button>
-                            <Button variant="destructive" className="h-8 px-3 text-xs gap-1.5">
+                            <Button
+                              variant="destructive"
+                              className="h-8 px-3 text-xs gap-1.5"
+                              onClick={() => handleDeleteService(service.id)}
+                            >
                               <Trash2 className="w-3.5 h-3.5" /> Remove
                             </Button>
                           </div>
@@ -775,7 +785,13 @@ export function TalentDashboard() {
                   ))}
 
                   <button
-                    onClick={() => setShowAddService(true)}
+                    onClick={() => {
+                      setEditServiceId(null);
+                      setNewServiceTitle("");
+                      setNewServicePrice("45000");
+                      setNewServiceDelivery("24 Hours");
+                      setShowAddService(true);
+                    }}
                     className="w-full p-5 rounded-[var(--radius-lg)] border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body transition-all hover:border-[var(--color-gold-primary)]"
                     style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
                   >
@@ -814,7 +830,8 @@ export function TalentDashboard() {
                             </label>
                             <Input
                               placeholder="e.g., Voice-Over Recording"
-                              defaultValue={editServiceId ? services.find(s => s.id === editServiceId)?.title : ""}
+                              value={newServiceTitle}
+                              onChange={e => setNewServiceTitle(e.target.value)}
                             />
                           </div>
                           <div>
@@ -823,7 +840,12 @@ export function TalentDashboard() {
                             </label>
                             <div className="relative">
                               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-body text-sm" style={{ color: "var(--color-text-secondary)" }}>₦</span>
-                              <Input className="pl-8" placeholder="45,000" defaultValue={editServiceId ? services.find(s => s.id === editServiceId)?.price.replace("₦", "").replace(",", "") : ""} />
+                              <Input
+                                className="pl-8"
+                                placeholder="45,000"
+                                value={newServicePrice}
+                                onChange={e => setNewServicePrice(e.target.value)}
+                              />
                             </div>
                           </div>
                           <div>
@@ -833,12 +855,14 @@ export function TalentDashboard() {
                             <select
                               className="w-full h-12 rounded-[var(--radius-md)] px-4 text-sm font-body appearance-none border"
                               style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                              value={newServiceDelivery}
+                              onChange={e => setNewServiceDelivery(e.target.value)}
                             >
-                              <option>Same Day</option>
-                              <option>24 Hours</option>
-                              <option>2–3 Days</option>
-                              <option>1 Week</option>
-                              <option>Custom</option>
+                              <option value="Same Day">Same Day</option>
+                              <option value="24 Hours">24 Hours</option>
+                              <option value="2–3 Days">2–3 Days</option>
+                              <option value="1 Week">1 Week</option>
+                              <option value="Custom">Custom</option>
                             </select>
                           </div>
                           <div>
@@ -856,7 +880,7 @@ export function TalentDashboard() {
                             <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => { setShowAddService(false); setEditServiceId(null); }}>
                               Cancel
                             </Button>
-                            <Button className="flex-1 h-11 text-sm" onClick={() => { setShowAddService(false); setEditServiceId(null); }}>
+                            <Button className="flex-1 h-11 text-sm" onClick={handleSaveService}>
                               {editServiceId ? "Save Changes" : "Add Service"}
                             </Button>
                           </div>

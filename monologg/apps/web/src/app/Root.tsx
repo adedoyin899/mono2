@@ -36,6 +36,14 @@ export function Root() {
         className={isDark ? "dark" : ""}
         style={{ minHeight: "100vh", background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }}
       >
+        {/* T3: Skip-to-content link — visible only on keyboard focus */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:rounded-[var(--radius-md)]"
+          style={{ background: "var(--color-accent)", color: "var(--color-accent-on)" }}
+        >
+          Skip to main content
+        </a>
         <Outlet />
       </div>
     </ThemeContext.Provider>

@@ -267,7 +267,7 @@ export function ClientDashboard() {
         </div>
       </div>
 
-      <main className="lg:pl-60 pb-28 lg:pb-0">
+      <main id="main-content" className="lg:pl-60 pb-28 lg:pb-0">
         <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
 
           {/* Desktop header */}

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-01 (Session 30: Persona update & reactive state sync verified)
+**Last updated:** 2026-08-01 (Session 32: Platform-Wide Design & Polish Pass)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -17,6 +17,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 18. TalentDashboard.tsx type safety mismatch & dead modal rate card actions
+
+- **Severity:** High
+- **What happened:** In `TalentDashboard.tsx`, the `apiClient.createService()` call was invoked with keys matching the REST API schema (`serviceTitle`, `basePriceAmount`, `basePriceCurrency`, `deliveryTimeline`, `features`) instead of the client-side `ServiceRateCard` schema type signature (`title`, `price` as string, `delivery`, `bookings`). This resulted in a TypeScript compiler error. Furthermore, several unused state variables were declared (`showWithdrawModal`, `withdrawInput`, `withdrawMsg`, `handleWithdraw`) which triggered unused-locals warnings, and the modal forms/remove buttons were not wired up to the react states or API handlers, resulting in dummy actions that did not save changes.
+- **What it meant:** The web app could not compile with strict typecheck rules, and the rate card manager UI was broken (clicking "Add" or "Remove" did not persist data).
+- **How it was found:** SURFACED by IDE static typecheck analysis (`@[current_problems]`).
+- **How it was fixed:** Removed the dead state variables, corrected the `createService` call parameters to match `ServiceRateCard`'s properties (`title`, `price`, `delivery`, `bookings`), bound the select/input modal controls to React states, and wired up `handleSaveService` (covering both create & edit) and `handleDeleteService` directly to their respective click actions.
+- **Lesson for next time:** Ensure UI inputs are fully reactive and controlled, and keep state models aligned with client-side typescript definitions.
+
+---
 
 ### 1. `rsync --exclude 'dist'` silently deleted `node_modules/vite` itself
 

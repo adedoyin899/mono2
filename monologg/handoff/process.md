@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-01 (Session 31: Guest Booking Payment Fix & Payment Methods Enhancement)
+**Last updated:** 2026-08-01 (Session 32: Platform-Wide Design & Polish Pass)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -139,6 +139,14 @@ Every phase up to this point was tested by whoever built it. Phase 17 is differe
 - Wrote a structured script for a real test round with actual talent and clients — but couldn't run that round itself, since it takes real people and a real "practice" version of the payment/verification systems, neither of which exist yet.
 
 **The bottom line, in plain terms: this product is fully built, but it is not yet ready for real users and real money** until the account-approval problem above is fixed and a human being — not an AI — signs off on the user-testing round and the legal data review. That's the actual gate, not a formality.
+
+### Step 35: platform-wide design review and polish pass (Session 32)
+
+Conducted a thorough 7-pass design review across the entire platform (Website, Talent App, Client App, Public Storefront):
+- Added Monologg headers, logo navigation, and trust badges (escrow, verified profiles, money-back guarantee) to the public storefront page so strangers booking talent feel immediate platform trust.
+- Created reusable `Skeleton` loading components with shimmer pulse animations for card, stat, and list layouts to eliminate plain text loading states.
+- Implemented visually hidden `Skip to main content` accessibility targets across the main app shell and dashboard containers.
+- Fixed rate card card borders (AI slop removal) and resolved type safety mismatches in `TalentDashboard.tsx` to enable real-time, interactive service rate card creation, editing, and deletion synced across sessions.
 
 ---
 

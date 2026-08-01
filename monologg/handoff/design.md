@@ -1,6 +1,6 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-08-01 (Session 31: Guest Booking Payment Fix & Payment Methods Enhancement)
+**Last updated:** 2026-08-01 (Session 32: Platform-Wide Design & Polish Pass)
 **Status:** Full-stack product. All 18 phases of `features.md` (0–17) are built: real Postgres/Prisma backend, real auth, real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens fully self-hosted, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, two-sided project applications, a public logged-out marketplace profile, and the flagship external-visitor deferred-account booking flow. **"Built" is not the same as "production-ready"** — Phase 17's independent QA/security/UAT pass found real, still-open gate-blocking items (a security gap in identity-verification review, no PWA install/offline infrastructure despite the `PWA-XX` naming throughout this doc, a large remaining accessibility contrast debt, and UAT/NDPA sign-off both explicitly pending). See `monologg/qa/2026-07-31-phase17/README.md` for the complete, current gate status before assuming anything below is cutover-ready.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 

@@ -251,7 +251,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* ── Hero ── */}
         <section className="relative pt-16 pb-24 md:pt-20 md:pb-28 px-5 md:px-16 overflow-hidden">
           {/* Dual-tone atmosphere: Monologg's own red↔purple duality, not a
