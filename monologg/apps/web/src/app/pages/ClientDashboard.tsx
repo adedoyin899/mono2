@@ -458,13 +458,16 @@ export function ClientDashboard() {
                       </div>
                     ))}
                     {Object.values(attributeFilters).some(Boolean) && (
-                      <button
-                        onClick={() => setAttributeFilters({})}
-                        className="text-xs font-body underline underline-offset-2"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
-                        Clear attribute filters
-                      </button>
+                      <div className="pt-2 border-t flex justify-end" style={{ borderColor: "var(--color-border-default)" }}>
+                        <button
+                          onClick={() => setAttributeFilters({})}
+                          className="px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-body font-medium flex items-center gap-1.5 hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
+                          style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-default)" }}
+                        >
+                          <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-secondary)" }} />
+                          Clear attribute filters
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -566,7 +569,7 @@ export function ClientDashboard() {
                             >
                               {selectedTalent.avatar}
                             </Avatar>
-                            <button className="ml-auto w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }} onClick={() => setSelectedTalent(null)}>
+                            <button className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }} onClick={() => setSelectedTalent(null)}>
                               <X className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
                             </button>
                           </div>
