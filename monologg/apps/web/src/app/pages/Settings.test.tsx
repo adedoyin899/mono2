@@ -188,4 +188,21 @@ describe("Settings — physical attributes section", () => {
       expect(fetchMock).toHaveBeenCalledWith("/api/v1/creators/me/attributes", expect.objectContaining({ method: "DELETE" }));
     });
   });
+
+  it("client mode: renders Client Settings with .role-client and client-specific sections", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings?role=client"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Client Settings")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Verified Studio")).toBeInTheDocument();
+    expect(screen.getByText("Organization Profile")).toBeInTheDocument();
+    // Physical attributes (talent-only) is omitted for client
+    expect(screen.queryByText("Physical Attributes")).not.toBeInTheDocument();
+  });
 });

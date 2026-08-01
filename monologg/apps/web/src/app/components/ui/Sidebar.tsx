@@ -65,7 +65,7 @@ export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, on
 
       <div className="px-3 py-4 space-y-0.5" style={{ borderTop: "1px solid var(--color-border-default)" }}>
         <button
-          onClick={() => onNavigate("/settings")}
+          onClick={() => onNavigate(portalLabel.toLowerCase().includes("client") ? "/settings?role=client" : "/settings?role=talent")}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body transition-all text-left"
           style={{ color: "var(--color-text-secondary)" }}
         >

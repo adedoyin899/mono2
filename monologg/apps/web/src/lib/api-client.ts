@@ -19,6 +19,7 @@ import type {
   Transaction,
 } from "@monologg/types";
 import * as mocks from "../mocks";
+import { appStateSync } from "./state-sync";
 
 /**
  * The one seam every screen's data flows through (features.md Phase 1).
@@ -374,7 +375,21 @@ export const apiClient = {
     applicantCap?: number | null;
     status?: "DRAFT" | "ACTIVE" | "IN_REVIEW" | "CLOSED";
   }): Promise<void> {
-    if (API_MODE !== "live") return;
+    if (API_MODE !== "live") {
+      const budgetFormatted = input.budgetAmount >= 100
+        ? `₦${(input.budgetAmount / 100).toLocaleString()}`
+        : `₦${input.budgetAmount.toLocaleString()}`;
+      appStateSync.addProject({
+        projectName: input.projectName,
+        projectType: input.projectType,
+        nicheReq: input.nicheReq,
+        budget: budgetFormatted,
+        budgetAmount: input.budgetAmount,
+        budgetCurrency: input.budgetCurrency || "NGN",
+        applicantCap: input.applicantCap ?? 10,
+      });
+      return;
+    }
     await request("/briefs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -386,7 +401,7 @@ export const apiClient = {
   /** GET /projects — talent browse/search (PWA-14); only ACTIVE briefs are
    * returned, each annotated with the caller's own application (if any). */
   async listProjects(filters: { niche?: string; q?: string; minBudget?: number; maxBudget?: number } = {}): Promise<Project[]> {
-    if (API_MODE !== "live") return mocks.PROJECTS;
+    if (API_MODE !== "live") return appStateSync.getProjects();
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(filters)) {
       if (value !== undefined) params.set(key, String(value));
@@ -577,28 +592,28 @@ export const apiClient = {
   },
   async getCreatorProfile(): Promise<CreatorProfile> {
     if (API_MODE !== "live") {
-      // "Elias Thorne" is the mock talent persona used everywhere else in this
-      // prototype (TalentDashboard.tsx, OrderRoom.tsx, Checkout.tsx) — matched
-      // here rather than inventing a different placeholder for this one screen.
+      const state = appStateSync.getTalentProfile();
       return {
         id: "mock-creator",
-        name: "Elias Thorne",
-        bio: "Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years stage experience.",
-        location: "Lagos, Nigeria",
+        name: state.name,
+        bio: state.bio,
+        location: state.location,
         styleTags: [],
-        verification: "UNVERIFIED",
+        verification: state.verified ? "VERIFIED" : "UNVERIFIED",
       };
     }
     return request("/creators/me");
   },
-  /** Settings.tsx "Save Changes" — features.md Phase 12. No-op network-wise in
-   * mock mode (echoes the input back, matching every other mock-mode write). */
   async updateCreatorProfile(
     data: Partial<Pick<CreatorProfile, "name" | "bio" | "location">>,
   ): Promise<CreatorProfile> {
     if (API_MODE !== "live") {
-      const current = await apiClient.getCreatorProfile();
-      return { ...current, ...data };
+      appStateSync.updateTalentProfile({
+        name: data.name ?? undefined,
+        bio: data.bio ?? undefined,
+        location: data.location ?? undefined,
+      });
+      return apiClient.getCreatorProfile();
     }
     return request("/creators/me", {
       method: "PATCH",
@@ -608,7 +623,14 @@ export const apiClient = {
   },
   async getClientProfile(): Promise<ClientProfile> {
     if (API_MODE !== "live") {
-      return { id: "mock-client", name: "Brand Agency NG", orgName: "Brand Agency NG", orgType: "BRAND", location: "Lagos, Nigeria" };
+      const state = appStateSync.getClientProfile();
+      return {
+        id: "mock-client",
+        name: state.name,
+        orgName: state.orgName,
+        orgType: (state.orgType as ClientProfile["orgType"]) || "STUDIO",
+        location: state.location,
+      };
     }
     return request("/clients/me");
   },
@@ -616,8 +638,13 @@ export const apiClient = {
     data: Partial<Pick<ClientProfile, "name" | "orgName" | "orgType" | "location">>,
   ): Promise<ClientProfile> {
     if (API_MODE !== "live") {
-      const current = await apiClient.getClientProfile();
-      return { ...current, ...data };
+      appStateSync.updateClientProfile({
+        name: data.name ?? undefined,
+        orgName: data.orgName ?? undefined,
+        orgType: data.orgType ?? undefined,
+        location: data.location ?? undefined,
+      });
+      return apiClient.getClientProfile();
     }
     return request("/clients/me", {
       method: "PATCH",

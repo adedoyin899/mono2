@@ -9,6 +9,7 @@ import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import { formatRelativeTime } from "../../lib/utils";
 import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
@@ -116,6 +117,7 @@ const TALENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
 
 export function TalentDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
+  const [talentProfile, setTalentProfile] = useState(() => appStateSync.getTalentProfile());
   const [editServiceId, setEditServiceId] = useState<string | null>(null);
   const [showAddService, setShowAddService] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -134,9 +136,9 @@ export function TalentDashboard() {
   const [newSlotState, setNewSlotState] = useState<Exclude<SlotState, "booked">>("unavailable");
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
+  const [newEventKind, setNewEventKind] = useState<"personal" | "hold">("personal");
   const [newEventStart, setNewEventStart] = useState("09:00");
   const [newEventEnd, setNewEventEnd] = useState("10:00");
-  const [newEventKind, setNewEventKind] = useState<"personal" | "hold">("personal");
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [recurRule, setRecurRule] = useState("WEEKDAYS");
   const [recurSlotStart, setRecurSlotStart] = useState("09:00");
@@ -164,6 +166,12 @@ export function TalentDashboard() {
   const [applyError, setApplyError] = useState<string | null>(null);
 
   useEffect(() => {
+    const sync = () => {
+      setTalentProfile(appStateSync.getTalentProfile());
+      apiClient.listProjects().then(setProjects);
+    };
+    const unsub = appStateSync.subscribe(sync);
+
     apiClient.getTalentStats().then(setStats);
     apiClient.listTalentActivity().then(setActivity);
     apiClient.listServices().then(setServices);
@@ -172,6 +180,8 @@ export function TalentDashboard() {
       setNotifications(notifications);
       setUnreadCount(unreadCount);
     });
+
+    return unsub;
   }, []);
 
   const loadProjects = () => {
@@ -321,6 +331,10 @@ export function TalentDashboard() {
     : activeTab === "orders" ? "Active Orders"
     : "Earnings";
 
+  const talentName = talentProfile.name || "Elias Thorne";
+  const talentInitials = talentName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "ET";
+  const firstName = talentName.split(/\s+/)[0] || "Elias";
+
   return (
     <div className="role-talent min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
       <Sidebar
@@ -330,8 +344,8 @@ export function TalentDashboard() {
         onTab={setActiveTab}
         onNavigate={navigate}
         identity={{
-          initials: "ET",
-          name: "Elias Thorne",
+          initials: talentInitials,
+          name: talentName,
           subtitle: (
             <span className="flex items-center gap-1" style={{ color: "var(--color-success)" }}>
               <Shield className="w-3 h-3" /> Verified
@@ -346,7 +360,7 @@ export function TalentDashboard() {
         style={{ borderLeft: "none", borderRight: "none", borderTop: "none" }}
       >
         <div className="min-w-0">
-          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Good morning, Elias</div>
+          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Good morning, {firstName}</div>
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">

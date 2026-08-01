@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -8,17 +8,14 @@ import { Badge } from "../components/ui/Badge";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building
 } from "lucide-react";
 
 type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes";
 
-// features.md Phase 12A.3 — value sets mirror apps/api's zod enums exactly
-// (routes/attributes.ts); kept local for the same reason api-client.ts's own
-// TalentFilters/PhysicalAttributes types don't import them from anywhere —
-// small, stable, casting-industry enums, not worth a shared-package round trip.
 const ATTRIBUTE_FIELDS: Array<{ key: keyof UpdateAttributesInput; label: string; options: string[] }> = [
   { key: "heightRange", label: "Height", options: ["UNDER_150CM", "CM_150_160", "CM_160_170", "CM_170_180", "CM_180_190", "OVER_190CM"] },
   { key: "weightRange", label: "Weight", options: ["UNDER_50KG", "KG_50_65", "KG_65_80", "KG_80_95", "OVER_95KG"] },
@@ -41,7 +38,6 @@ const TOGGLE = ({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
     className="w-11 h-6 rounded-full transition-all relative focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
     style={{ background: on ? "var(--color-accent)" : "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}
   >
-    {/* thumb: dark on gold (passes ~10:1), light on grey track */}
     <div
       className="w-4 h-4 rounded-full absolute top-0.5 transition-all"
       style={{ background: on ? "var(--color-accent-on)" : "var(--color-text-primary)", opacity: on ? 1 : 0.6, left: on ? "calc(100% - 18px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
@@ -50,21 +46,34 @@ const TOGGLE = ({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
 );
 
 export function Settings() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { isDark, toggle } = useTheme();
+
+  // Role detection: query param ?role=client or fallback to client detection
+  const roleParam = searchParams.get("role");
+  const isClient = roleParam === "client";
+
   const [section, setSection] = useState<Section>("main");
+  
+  // Talent fields
   const [name, setName] = useState("Elias Thorne");
   const [email, setEmail] = useState("elias@example.com");
   const [bio, setBio] = useState("Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years stage experience.");
   const [location, setLocation] = useState("Lagos, Nigeria");
+
+  // Client fields
+  const [clientName, setClientName] = useState("Sarah Jenkins");
+  const [clientOrgName, setClientOrgName] = useState("FilmCraft Studios");
+  const [clientOrgType, setClientOrgType] = useState("STUDIO");
+  const [clientEmail, setClientEmail] = useState("sarah@filmcraft.com");
+  const [clientLocation, setClientLocation] = useState("Lagos, Nigeria");
+
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
   const [saved, setSaved] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
-  const navigate = useNavigate();
-  const { isDark, toggle } = useTheme();
 
-  // features.md Phase 12A.3 — physical attributes. `attrValues`/`attrVisibility`
-  // are local draft state, seeded from the fetched record (or empty on first
-  // visit — Non-Negotiable #1, every field is skippable) and only sent on
-  // Save, not on every keystroke.
+  // Physical attributes
   const [attributes, setAttributes] = useState<PhysicalAttributes | null>(null);
   const [attrValues, setAttrValues] = useState<Record<string, string>>({});
   const [attrVisibility, setAttrVisibility] = useState<Record<string, AttributeVisibility>>({});
@@ -85,7 +94,7 @@ export function Settings() {
       setAttrValues(values);
       setAttrVisibility((record.visibility as Record<string, AttributeVisibility>) ?? {});
       setDistinctiveFeatures(record.distinctiveFeatures ?? "");
-      setConsentChecked(true); // a fetched record already has consent on file
+      setConsentChecked(true);
     });
   }, [section]);
 
@@ -119,28 +128,49 @@ export function Settings() {
     setConsentChecked(false);
   };
 
-  // features.md Phase 12: this screen previously never read or wrote real data
-  // in either mock or live mode (handleSave below was purely a "Saved" toast).
-  // Fetches the real profile once on mount so a live-mode name/bio/location
-  // edit actually starts from — and persists back to — the signed-in talent's
-  // Creator row. Mock mode's fetch is a same-shape, no-network echo (see
-  // api-client.ts's getCreatorProfile), so this doesn't change mock behavior.
+  // Sync profile data on mount & from appStateSync
   useEffect(() => {
-    let cancelled = false;
-    apiClient.getCreatorProfile().then((profile) => {
-      if (cancelled) return;
-      setName(profile.name);
-      setBio(profile.bio ?? "");
-      setLocation(profile.location);
-    }).catch(() => {
-      // No creator profile for this session (e.g. viewing as a client, or
-      // logged out in live mode) — keep the mock-shaped defaults above rather
-      // than surfacing an error on a settings screen.
-    });
-    return () => { cancelled = true; };
-  }, []);
+    const syncData = () => {
+      if (isClient) {
+        const cState = appStateSync.getClientProfile();
+        setClientName(cState.name);
+        setClientOrgName(cState.orgName);
+        setClientOrgType(cState.orgType);
+        setClientEmail(cState.email);
+        setClientLocation(cState.location);
+      } else {
+        const tState = appStateSync.getTalentProfile();
+        setName(tState.name);
+        setEmail(tState.email);
+        setBio(tState.bio);
+        setLocation(tState.location);
+      }
+    };
 
-  const initials = name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
+    syncData();
+    const unsubscribe = appStateSync.subscribe(syncData);
+
+    if (isClient) {
+      apiClient.getClientProfile().then((cp) => {
+        setClientName(cp.name);
+        if (cp.orgName) setClientOrgName(cp.orgName);
+        if (cp.orgType) setClientOrgType(cp.orgType);
+        if (cp.location) setClientLocation(cp.location);
+      }).catch(() => {});
+    } else {
+      apiClient.getCreatorProfile().then((profile) => {
+        setName(profile.name);
+        setBio(profile.bio ?? "");
+        setLocation(profile.location ?? "");
+      }).catch(() => {});
+    }
+
+    return unsubscribe;
+  }, [isClient]);
+
+  const initials = isClient
+    ? clientOrgName.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "FS"
+    : name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "ET";
 
   const handleSave = () => {
     setSaved(true);
@@ -150,10 +180,21 @@ export function Settings() {
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
-      const updated = await apiClient.updateCreatorProfile({ name, bio, location });
-      setName(updated.name);
-      setBio(updated.bio ?? "");
-      setLocation(updated.location);
+      if (isClient) {
+        const updated = await apiClient.updateClientProfile({
+          name: clientName,
+          orgName: clientOrgName,
+          orgType: clientOrgType as any,
+          location: clientLocation,
+        });
+        setClientName(updated.name);
+        if (updated.orgName) setClientOrgName(updated.orgName);
+      } else {
+        const updated = await apiClient.updateCreatorProfile({ name, bio, location });
+        setName(updated.name);
+        setBio(updated.bio ?? "");
+        setLocation(updated.location);
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {
@@ -189,7 +230,7 @@ export function Settings() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+    <div className={isClient ? "role-client min-h-screen flex flex-col" : "role-talent min-h-screen flex flex-col"} style={{ background: "var(--color-bg-canvas)" }}>
       {/* Header */}
       <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
         <button
@@ -202,9 +243,9 @@ export function Settings() {
         </button>
         <div className="flex-1">
           <div className="text-sm font-semibold font-display" style={s.text}>
-            {section === "main" && "Settings"}
-            {section === "profile" && "Edit Profile"}
-            {section === "payment" && "Payment Methods"}
+            {section === "main" && (isClient ? "Client Settings" : "Settings")}
+            {section === "profile" && (isClient ? "Organization Profile" : "Edit Profile")}
+            {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment Methods")}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
             {section === "attributes" && "Physical Attributes"}
@@ -232,13 +273,17 @@ export function Settings() {
               {/* Profile summary */}
               <div className="p-4 rounded-[var(--radius-xl)] flex items-center gap-4 mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <div className="w-14 h-14 rounded-full flex items-center justify-center font-semibold text-xl font-body shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                  ET
+                  {initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-body font-semibold truncate" style={s.text}>{name}</div>
-                  <div className="text-sm font-body truncate" style={s.secondary}>{email}</div>
+                  <div className="font-body font-semibold truncate" style={s.text}>
+                    {isClient ? clientOrgName : name}
+                  </div>
+                  <div className="text-sm font-body truncate" style={s.secondary}>
+                    {isClient ? clientEmail : email}
+                  </div>
                   <div className="text-xs font-body mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}>
-                    <Shield className="w-3 h-3" /> Verified
+                    <Shield className="w-3 h-3" /> {isClient ? "Verified Studio" : "Verified"}
                   </div>
                 </div>
                 <Button variant="secondary" className="h-9 px-4 text-xs shrink-0" onClick={() => setSection("profile")}>
@@ -249,12 +294,25 @@ export function Settings() {
               {/* Settings sections */}
               <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Account</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
-                <ListItem label="Profile & Storefront" icon={User} onClick={() => setSection("profile")} />
-                <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
-                <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
-                <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
-                <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
-                <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
+                {isClient ? (
+                  <>
+                    <ListItem label="Organization Profile" icon={Building} onClick={() => setSection("profile")} />
+                    <ListItem label="Billing & Invoicing" icon={CreditCard} onClick={() => setSection("payment")} />
+                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
+                    <ListItem label="Project Briefs History" icon={Briefcase} onClick={() => navigate("/client")} />
+                    <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
+                    <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
+                  </>
+                ) : (
+                  <>
+                    <ListItem label="Profile & Storefront" icon={User} onClick={() => setSection("profile")} />
+                    <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
+                    <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
+                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
+                    <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
+                    <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
+                  </>
+                )}
               </div>
 
               {/* Appearance */}
@@ -300,7 +358,6 @@ export function Settings() {
           {/* ── Profile ── */}
           {section === "profile" && (
             <motion.div key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-5">
-              {/* Avatar */}
               <div className="flex flex-col items-center py-2">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full flex items-center justify-center font-semibold text-2xl font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
@@ -311,47 +368,73 @@ export function Settings() {
                     className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                     style={{ background: "var(--color-accent)" }}
                   >
-                    {/* dark icon on gold = ~10:1 contrast */}
                     <Camera className="w-4 h-4" style={{ color: "var(--color-accent-on)" }} />
                   </button>
                 </div>
-                <button
-                  className="text-xs font-body mt-3 underline underline-offset-2 hover:opacity-80 transition-opacity"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  Change Photo
-                </button>
               </div>
 
-              <FormField label="Full Name">
-                <Input value={name} onChange={e => setName(e.target.value)} />
-              </FormField>
-              <FormField label="Email Address">
-                <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-              </FormField>
-              <FormField label="Niche / Role">
-                <Input defaultValue="Actor & Voice Artist" />
-              </FormField>
-              <FormField label="Location">
-                <Input value={location} onChange={e => setLocation(e.target.value)} />
-              </FormField>
-              <FormField label="Bio">
-                <textarea
-                  className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
-                  rows={4}
-                  value={bio}
-                  onChange={e => setBio(e.target.value)}
-                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                />
-              </FormField>
+              {isClient ? (
+                <>
+                  <FormField label="Organization / Studio Name">
+                    <Input value={clientOrgName} onChange={e => setClientOrgName(e.target.value)} />
+                  </FormField>
+                  <FormField label="Primary Contact Person">
+                    <Input value={clientName} onChange={e => setClientName(e.target.value)} />
+                  </FormField>
+                  <FormField label="Organization Type">
+                    <select
+                      value={clientOrgType}
+                      onChange={e => setClientOrgType(e.target.value)}
+                      className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                      style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                    >
+                      <option value="STUDIO">Studio</option>
+                      <option value="BRAND">Brand Agency</option>
+                      <option value="EVENT">Event Production</option>
+                      <option value="CHURCH">Church / Non-Profit</option>
+                    </select>
+                  </FormField>
+                  <FormField label="Email Address">
+                    <Input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} />
+                  </FormField>
+                  <FormField label="Location">
+                    <Input value={clientLocation} onChange={e => setClientLocation(e.target.value)} />
+                  </FormField>
+                </>
+              ) : (
+                <>
+                  <FormField label="Full Name">
+                    <Input value={name} onChange={e => setName(e.target.value)} />
+                  </FormField>
+                  <FormField label="Email Address">
+                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+                  </FormField>
+                  <FormField label="Niche / Role">
+                    <Input defaultValue="Actor & Voice Artist" />
+                  </FormField>
+                  <FormField label="Location">
+                    <Input value={location} onChange={e => setLocation(e.target.value)} />
+                  </FormField>
+                  <FormField label="Bio">
+                    <textarea
+                      className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
+                      rows={4}
+                      value={bio}
+                      onChange={e => setBio(e.target.value)}
+                      style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                    />
+                  </FormField>
+                </>
+              )}
+
               <Button className="w-full h-12" onClick={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? "Saving…" : "Save Changes"}
               </Button>
             </motion.div>
           )}
 
-          {/* ── Physical Attributes (features.md Phase 12A.3) ── */}
-          {section === "attributes" && (
+          {/* ── Physical Attributes (features.md Phase 12A.3, Talent Only) ── */}
+          {section === "attributes" && !isClient && (
             <motion.div key="attributes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-5">
               <p className="text-xs font-body leading-relaxed" style={s.secondary}>
                 Every field below is optional — fill in only what you're comfortable
@@ -438,7 +521,7 @@ export function Settings() {
             </motion.div>
           )}
 
-          {/* ── Payment Methods ── */}
+          {/* ── Payment / Billing Methods ── */}
           {section === "payment" && (
             <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-4">
               <div className="space-y-3">
@@ -466,25 +549,27 @@ export function Settings() {
                 className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body hover:border-[var(--color-accent)] hover:opacity-100 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                 style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
               >
-                <Plus className="w-4 h-4" /> Add Payment Method
+                <Plus className="w-4 h-4" /> {isClient ? "Add Corporate Billing Card" : "Add Payment Method"}
               </button>
 
-              {/* Bank account */}
-              <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                <div className="px-4 py-3.5">
-                  <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={s.tertiary}>Payout Bank Account</div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
-                      <Smartphone className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+              {/* Bank / Payout account */}
+              {!isClient && (
+                <div className="rounded-2xl overflow-hidden" style={s.surface}>
+                  <div className="px-4 py-3.5">
+                    <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={s.tertiary}>Payout Bank Account</div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
+                        <Smartphone className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold font-body" style={s.text}>GTBank ···· 6789</div>
+                        <div className="text-xs font-body" style={s.tertiary}>{name.toUpperCase()}</div>
+                      </div>
+                      <Button variant="secondary" className="h-8 px-3 text-xs">Change</Button>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold font-body" style={s.text}>GTBank ···· 6789</div>
-                      <div className="text-xs font-body" style={s.tertiary}>ELIAS THORNE</div>
-                    </div>
-                    <Button variant="secondary" className="h-8 px-3 text-xs">Change</Button>
                   </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           )}
 
@@ -492,13 +577,19 @@ export function Settings() {
           {section === "notifications" && (
             <motion.div key="notifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
               <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                {[
+                {(isClient ? [
+                  { key: "bookings" as const, label: "New Project Applications", desc: "When talent applies to your posted briefs" },
+                  { key: "messages" as const, label: "Order Room Messages", desc: "New messages from booked talent" },
+                  { key: "payments" as const, label: "Escrow Receipts & Charges", desc: "Escrow lock and release confirmations" },
+                  { key: "reminders" as const, label: "Project Milestones", desc: "Applicant caps and deliverable updates" },
+                  { key: "marketing" as const, label: "Casting Tips & Product Updates", desc: "Platform features and talent highlights" },
+                ] : [
                   { key: "bookings" as const, label: "New Booking Requests", desc: "When a client books one of your services" },
                   { key: "messages" as const, label: "Messages", desc: "New messages in your Order Rooms" },
                   { key: "payments" as const, label: "Payment Updates", desc: "Escrow releases, payouts, and payment confirmations" },
                   { key: "reminders" as const, label: "Deadline Reminders", desc: "Upcoming order deadlines and schedule alerts" },
                   { key: "marketing" as const, label: "Tips & Product Updates", desc: "Platform tips, new features, and newsletters" },
-                ].map((item, i, arr) => (
+                ]).map((item, i, arr) => (
                   <div
                     key={item.key}
                     className="flex items-center justify-between px-4 py-4"

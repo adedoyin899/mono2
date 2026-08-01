@@ -10,6 +10,7 @@ import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { apiClient, type TalentFilters } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
@@ -83,6 +84,7 @@ const CLIENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
 
 export function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
+  const [clientProfile, setClientProfile] = useState(() => appStateSync.getClientProfile());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
   const [shortlist, setShortlist] = useState<string[]>([]);
@@ -94,6 +96,19 @@ export function ClientDashboard() {
   const [showAttributeFilters, setShowAttributeFilters] = useState(false);
   const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const sync = () => {
+      setClientProfile(appStateSync.getClientProfile());
+      apiClient.listClientProjects().then(setProjects);
+    };
+    const unsub = appStateSync.subscribe(sync);
+    apiClient.getClientStats().then(setStats);
+    apiClient.listClientProjects().then(setProjects);
+    apiClient.listClientOrders().then(setOrders);
+    apiClient.getShortlistedTalentIds().then(setShortlist);
+    return unsub;
+  }, []);
 
   // features.md Phase 14 (PWA-17) — applicant management.
   const [applicantsProject, setApplicantsProject] = useState<ClientProject | null>(null);
@@ -217,6 +232,9 @@ export function ClientDashboard() {
     : activeTab === "orders" ? "Active Orders"
     : "Shortlist";
 
+  const orgName = clientProfile.orgName || clientProfile.name || "FilmCraft Studios";
+  const clientInitials = orgName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "FS";
+
   return (
     <div className="role-client min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
       <Sidebar
@@ -225,21 +243,26 @@ export function ClientDashboard() {
         activeTab={activeTab}
         onTab={setActiveTab}
         onNavigate={navigate}
-        identity={{ initials: "BN", name: "Brand Agency NG", subtitle: "Client Account" }}
+        identity={{ initials: clientInitials, name: orgName, subtitle: "Client Account" }}
       />
 
       {/* Mobile top bar */}
       <div className="lg:hidden flex items-center justify-between px-5 py-2.5 sticky top-0 z-40 glass-panel" style={{ borderLeft: "none", borderRight: "none", borderTop: "none" }}>
         <div className="min-w-0">
-          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Brand Agency NG</div>
+          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>{orgName}</div>
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button aria-label="View notifications" className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ background: "var(--color-bg-elevated)" }}>
             <Bell className="w-[18px] h-[18px]" style={{ color: "var(--color-text-secondary)" }} />
           </button>
-          <button aria-label="Account" className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm font-body" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
-            BN
+          <button
+            aria-label="Account"
+            onClick={() => navigate("/settings?role=client")}
+            className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm font-body"
+            style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
+          >
+            {clientInitials}
           </button>
         </div>
       </div>
@@ -251,7 +274,7 @@ export function ClientDashboard() {
           <div className="hidden lg:flex items-center justify-between mb-8">
             <div>
               <h1 className="font-display text-3xl" style={{ color: "var(--color-text-primary)" }}>
-                {activeTab === "home" && "Good morning, Brand Agency 🎬"}
+                {activeTab === "home" && `Good morning, ${orgName} 🎬`}
                 {activeTab === "discover" && "Find Talent"}
                 {activeTab === "projects" && "My Projects"}
                 {activeTab === "orders" && "Active Orders"}

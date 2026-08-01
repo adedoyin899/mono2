@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-07-31 (Session 28: Phase 17 — QA, security & UAT)
+**Last updated:** 2026-08-01 (Session 29: Client Settings Theme Adaption & Real-Time Cross-App State Sync)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -931,4 +931,45 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/api/prisma/phase17.concurrency.integration.test.ts` | **New** — 4 tests, real-DB concurrency (slot race, webhook replay, double-approve, applicant cap) |
 | `monologg/qa/2026-07-31-phase17/` | **New** — README, regression, cross-device-a11y, security, load-concurrency, ndpa-data-inventory, uat-plan |
 | `.gitignore` (repo root) | Added Playwright artifact directories |
+
+---
+
+## Session 29 — Client Settings Theme Adaptation & Real-Time Cross-App State Sync
+
+**Goal:** Provide a role-adaptive, dedicated Settings view for Clients using Client Purple theme tokens (`.role-client`), and establish a real-time reactive state synchronization engine across both Talent and Client web applications.
+
+1. **Created `apps/web/src/lib/state-sync.ts`**:
+   - Developed `AppStateSync`, a zero-dependency reactive event bus with `localStorage` cross-tab change listeners.
+   - Manages shared reactive state for Talent Profiles, Client Profiles, and Client Project Briefs across navigation and tab switches.
+
+2. **Overhauled `apps/web/src/app/pages/Settings.tsx`**:
+   - Role-adaptive route detection (`?role=client` vs `?role=talent`).
+   - Wraps Client Settings view in `.role-client`, dynamically changing all buttons, badges, toggles, and avatars to Client Purple theme tokens (`--color-accent`).
+   - Replaced talent-only sections ("Physical Attributes", "Storefront") with Client-specific sections ("Organization Profile", "Billing & Invoicing", "Project Briefs History", "Transaction History").
+   - Built full Organization Profile editor (Org Name, Contact Person, Org Type, Email, Location).
+
+3. **Integrated `AppStateSync` into `api-client.ts`**:
+   - `getCreatorProfile()`, `updateCreatorProfile()`, `getClientProfile()`, `updateClientProfile()`, `createBrief()`, and `listProjects()` read from and write to `AppStateSync` in mock mode and dispatch reactive updates.
+
+4. **Updated `ClientDashboard.tsx`, `TalentDashboard.tsx`, `Sidebar.tsx`, and `ProjectBrief.tsx`**:
+   - Bound desktop and mobile headers to `AppStateSync` reactive profile state.
+   - Updated `Sidebar.tsx` settings click to pass `?role=client` for client portal and `?role=talent` for talent portal.
+   - `ProjectBrief.tsx` publishes projects directly into `AppStateSync` so new briefs instantly populate Talent & Client project dashboards.
+
+5. **Testing & Verification**:
+   - Added unit test in `Settings.test.tsx` verifying Client Settings mode rendering (`.role-client`, "Verified Studio", "Organization Profile", absence of talent attributes).
+   - Ran `npx pnpm --filter @monologg/web typecheck` (0 errors) and `npx pnpm --filter @monologg/web test` (19/19 files, 72/72 tests green).
+
+### File inventory additions (Session 29)
+
+| File | Change |
+|---|---|
+| `apps/web/src/lib/state-sync.ts` | **New** — reactive cross-app event bus for profile and project sync |
+| `apps/web/src/lib/api-client.ts` | Integrated `appStateSync` into mock profile/brief/project methods |
+| `apps/web/src/app/pages/Settings.tsx` | Overhauled with `.role-client` theme adaptation & Client Organization settings |
+| `apps/web/src/app/components/ui/Sidebar.tsx` | Updated Settings button click to pass `?role=client` or `?role=talent` |
+| `apps/web/src/app/pages/ClientDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
+| `apps/web/src/app/pages/TalentDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
+| `apps/web/src/app/pages/Settings.test.tsx` | Added test asserting Client Settings rendering & section filtering |
+
 
