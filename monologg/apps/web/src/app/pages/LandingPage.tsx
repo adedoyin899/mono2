@@ -11,7 +11,7 @@ import { cn } from "../../lib/utils";
 import {
   Copy, Star, Shield, Zap, ArrowRight, Mic, Video, User,
   Sun, Moon, Check, ChevronDown, Play, TrendingUp, Clock,
-  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote, Sparkles
+  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote, Sparkles, Menu
 } from "lucide-react";
 
 const NICHES = [
@@ -182,6 +182,7 @@ export function LandingPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
@@ -235,6 +236,14 @@ export function LandingPage() {
           >
             {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
           </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="w-11 h-11 rounded-[var(--radius-full)] md:hidden flex items-center justify-center border transition-colors active:scale-[0.97]"
+            style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-primary)" }}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileMenuOpen ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
+          </button>
           <Button
             variant="ghost"
             className="h-11 px-4 text-sm hidden md:inline-flex"
@@ -250,6 +259,38 @@ export function LandingPage() {
           </Button>
         </div>
       </header>
+
+      {/* ── Mobile Nav Sheet ── */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden sticky top-20 z-40 px-5 py-6 border-b glass-panel space-y-4"
+            style={{ borderColor: "var(--color-hairline)" }}
+          >
+            {["Features", "How It Works", "Talent", "Pricing"].map(item => (
+              <button
+                key={item}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-left font-display text-lg py-2"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                {item}
+              </button>
+            ))}
+            <div className="pt-4 border-t flex flex-col gap-2.5" style={{ borderColor: "var(--color-hairline)" }}>
+              <Button variant="secondary" className="w-full h-11" onClick={() => navigate("/auth")}>
+                Sign In
+              </Button>
+              <Button className="w-full h-11" onClick={() => navigate("/auth")}>
+                Get Started
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main id="main-content" className="flex-1">
         {/* ── Hero ── */}
@@ -406,7 +447,7 @@ export function LandingPage() {
 
             {/* Floating product mockup — the "3-clicks" booking in miniature */}
             <motion.div
-              className="hidden lg:block relative"
+              className="block mt-8 lg:mt-0 relative"
               initial={{ opacity: 0, y: 20, rotate: -2 }}
               animate={{ opacity: 1, y: 0, rotate: -2 }}
               transition={{ duration: 0.7, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
