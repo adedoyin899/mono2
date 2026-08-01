@@ -64,3 +64,15 @@ apps/web/
 ```
 
 If a file isn't listed above or in `handoff/log.md`'s file inventory, treat it as generated (inside `dist*/` folders) or as a standard tool file (`node_modules/`, lockfiles) — not something to edit by hand.
+
+## Conflict Ledger & Open Confirmations
+
+### Conflict Ledger (Resolved in Code)
+- **X1 — Payment Provider**: Paystack (Africa/NGN primary) + Stripe & Airwallex (rest of world), **never Fincra**.
+- **X2 — Platform Fees**: 11% talent / 15% client stored in `PLATFORM_FEES` config (`apps/api/src/services/fees.ts`).
+- **X3 — AI Tagging vs KYC**: "Thespian AI" is **style/vibe tagging only** (`styleTags`); identity KYC is **separate** via Smile Identity (`verification`).
+
+### Open Confirmations (Configured Defaults)
+- **X4 — Applicant Cap Behavior**: Hard-closes applications first-come when `applicantCap` is reached; client manually selects from the capped pool.
+- **X5 — Slot-Hold Timeout**: Abandoned external checkouts release held slots after a 30-minute configurable window (`slotHoldExpiresAt`).
+
