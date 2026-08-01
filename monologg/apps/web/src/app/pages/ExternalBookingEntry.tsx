@@ -203,7 +203,7 @@ export function ExternalBookingEntry() {
             <div className="grid grid-cols-3 gap-2">
               {CANDIDATE_SLOT_HOURS.map((h) => {
                 const startStr = `${String(h).padStart(2, "0")}:00`;
-                const isOpen = openSlots.some((s) => s.start === startStr);
+                const isOpen = openSlots.some((s) => startStr >= s.start && startStr < s.end);
                 const selected = selectedSlotStart === startStr;
                 return (
                   <button
