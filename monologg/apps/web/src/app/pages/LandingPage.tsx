@@ -11,7 +11,7 @@ import { cn } from "../../lib/utils";
 import {
   Copy, Star, Shield, Zap, ArrowRight, Mic, Video, User,
   Sun, Moon, Check, ChevronDown, Play, TrendingUp, Clock,
-  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote, Sparkles, Menu
+  Lock, MessageSquare, FileText, Users, Award, Briefcase, Quote, Sparkles, Menu, X
 } from "lucide-react";
 
 const NICHES = [

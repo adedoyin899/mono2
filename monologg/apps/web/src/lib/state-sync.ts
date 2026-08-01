@@ -215,12 +215,17 @@ class StateSyncBus {
 
     const newTx: Transaction = {
       id: `tx-${Date.now()}`,
+      bookingId: `bk-payout-${Date.now()}`,
       direction: "payout",
-      amountFormatted: `₦${amountNaira.toLocaleString()}`,
-      amountKobo: amountNaira * 100,
-      currency: "NGN",
       state: "RELEASED",
-      description: `Payout to ${this.bankDetails.bankName} (${this.bankDetails.accountNumber.slice(-4)})`,
+      currency: "NGN",
+      baseAmount: amountNaira * 100,
+      baseAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      feeAmount: 0,
+      feeAmountFormatted: "₦0",
+      totalAmount: amountNaira * 100,
+      totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      providerRef: `bank-${this.bankDetails.bankName}`,
       createdAt: new Date().toISOString(),
     };
 
