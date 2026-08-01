@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { Badge } from "../components/ui/Badge";
 import { Avatar } from "../components/ui/Avatar";
 import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
-  Menu, X
+  Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare
 } from "lucide-react";
 
 // Curated artistic talent categories with beautiful pictures representing the variety of crafts
@@ -88,6 +87,218 @@ const FAQS = [
     a: "Our support team mediates all disputes. Escrow funds are never released without either mutual agreement or a support decision. Your money is always safe.",
   },
 ];
+
+// ── Interactive Self-Running Sub-Components for FAANG-level UX Motion Storytelling ──
+
+function AITaggingDemo() {
+  const [phase, setPhase] = useState(0); // 0: drop/idle, 1: analysis scan, 2: tags loaded
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPhase((prev) => {
+        const next = (prev + 1) % 3;
+        if (next === 0) setProgress(0);
+        return next;
+      });
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (phase === 1) {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 5;
+        });
+      }, 80);
+      return () => clearInterval(interval);
+    }
+  }, [phase]);
+
+  return (
+    <div className="p-6 rounded-[var(--radius-xl)] relative min-h-[300px] flex flex-col justify-center transition-all duration-500" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
+      <AnimatePresence mode="wait">
+        {phase === 0 && (
+          <motion.div
+            key="phase-upload"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 border-current/20 text-center"
+          >
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            >
+              <UploadCloud className="w-10 h-10 mb-3" style={{ color: "var(--color-accent)" }} />
+            </motion.div>
+            <div className="text-xs font-semibold uppercase tracking-wider mb-1">Drag &amp; Drop Reel</div>
+            <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Supports MP3, WAV or MP4 up to 150MB</div>
+          </motion.div>
+        )}
+
+        {phase === 1 && (
+          <motion.div
+            key="phase-scan"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex justify-between items-center text-xs font-semibold">
+              <span className="flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Thespian AI Scanning...</span>
+              <span className="font-mono text-[var(--color-accent)]">{progress}%</span>
+            </div>
+            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-surface)" }}>
+              <div className="h-full rounded-full transition-all duration-75" style={{ width: `${progress}%`, background: "var(--color-accent)" }} />
+            </div>
+            <div className="text-[10px] text-center italic" style={{ color: "var(--color-text-tertiary)" }}>Analyzing voice pitch modulation, articulation, and pacing attributes...</div>
+          </motion.div>
+        )}
+
+        {phase === 2 && (
+          <motion.div
+            key="phase-result"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3">
+              <Avatar className="w-12 h-12" background="var(--color-accent-glow)" color="var(--color-accent)">EJ</Avatar>
+              <div>
+                <div className="text-sm font-bold flex items-center gap-1.5">
+                  Emeka Johnson
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, delay: 0.2 }}>
+                    <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />
+                  </motion.span>
+                </div>
+                <div className="text-xs" style={{ color: "var(--color-text-tertiary)" }}>Dramatic Actor · Lagos</div>
+              </div>
+            </div>
+            <div className="p-3.5 rounded-lg" style={{ background: "var(--color-bg-surface)" }}>
+              <div className="text-[10px] uppercase tracking-wider mb-2 font-mono" style={{ color: "var(--color-text-tertiary)" }}>AI Generated Vibe tags</div>
+              <div className="flex flex-wrap gap-1.5">
+                {["Deep Tone", "Intense", "Nollywood Drama", "Accented", "High-Energy"].map((tag, idx) => (
+                  <motion.span
+                    key={tag}
+                    initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: idx * 0.15, type: "spring", stiffness: 100 }}
+                    className="text-[11px] px-2.5 py-1 rounded-full font-body font-semibold"
+                    style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
+                  >
+                    {tag}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function EscrowDemo() {
+  const [phase, setPhase] = useState(0); // 0: client locks, 1: files uploaded, 2: release checkout
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPhase((prev) => (prev + 1) % 3);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="p-6 rounded-[var(--radius-xl)] transition-all duration-500 min-h-[300px] flex flex-col justify-center" style={{ background: "#1c1c1f", border: "1px solid #333335" }}>
+      <AnimatePresence mode="wait">
+        {phase === 0 && (
+          <motion.div
+            key="escrow-lock"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="space-y-4 text-center"
+          >
+            <motion.div
+              animate={{ rotate: [0, -10, 10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
+              className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto"
+            >
+              <Lock className="w-5 h-5 text-emerald-400" />
+            </motion.div>
+            <div className="space-y-1">
+              <div className="text-xs uppercase tracking-widest text-white/50 font-mono">FINCRA Escrow Lock</div>
+              <h4 className="text-lg font-bold text-white">₦120,000 Contract Active</h4>
+            </div>
+            <p className="text-[11px] text-white/60 leading-relaxed max-w-xs mx-auto">
+              Client locks the contract fee securely. Payment is verified and held safely before any voice recording or staging begins.
+            </p>
+          </motion.div>
+        )}
+
+        {phase === 1 && (
+          <motion.div
+            key="escrow-chat"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-3"
+          >
+            <div className="text-xs uppercase tracking-widest text-white/50 font-mono mb-2">Order Room Milestones</div>
+            <motion.div
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="p-3 rounded-lg text-xs space-y-1.5"
+              style={{ background: "#27272a" }}
+            >
+              <div className="flex justify-between items-center text-white/40 text-[10px]">
+                <span>Emeka Johnson</span>
+                <span>Uploaded Deliverable</span>
+              </div>
+              <div className="text-white font-semibold">commercial_spot_v2.wav</div>
+            </motion.div>
+            <motion.div
+              initial={{ x: 10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="p-3 rounded-lg text-xs space-y-1.5 self-end"
+              style={{ background: "var(--color-purple-press)" }}
+            >
+              <div className="text-white/80 font-medium">Draft looks fantastic, launching final review!</div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {phase === 2 && (
+          <motion.div
+            key="escrow-release"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4 text-center"
+          >
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto text-emerald-400">
+              <Check className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white">Funds Released</h4>
+              <p className="text-[11px] text-emerald-400">₦109,200 transferred safely to Talent bank</p>
+            </div>
+            <div className="text-[10px] text-white/40">Escrow cycle complete · 9% platform commission applied</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function LandingPage() {
   const [email, setEmail] = useState("");
@@ -200,13 +411,13 @@ export function LandingPage() {
       </AnimatePresence>
 
       <main id="main-content" className="flex-1">
-        {/* ── Hero Section (Light sunlit cream METAPHOR) ── */}
+        {/* ── Hero Section (Join Waitlist / Queue focus) ── */}
         <section className="relative pt-20 pb-28 px-5 md:px-16 overflow-hidden" style={{ background: "var(--color-bg-canvas)" }}>
           <div className="absolute -top-48 -left-24 w-[640px] h-[640px] rounded-full pointer-events-none opacity-80" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-red-glow) 0%, transparent 70%)", filter: "blur(90px)" }} />
           <div className="absolute -top-32 -right-24 w-[560px] h-[560px] rounded-full pointer-events-none opacity-80" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-purple-glow) 0%, transparent 70%)", filter: "blur(90px)" }} />
 
           <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border" style={{ background: "var(--color-accent-glow)", borderColor: "var(--color-accent)", color: "var(--color-text-primary)" }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border animate-pulse" style={{ background: "var(--color-accent-glow)", borderColor: "var(--color-accent)", color: "var(--color-text-primary)" }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-success)" }} />
               Series-C Built · 3,200+ Verified Talents
             </div>
@@ -234,7 +445,7 @@ export function LandingPage() {
                     <div className="flex gap-2">
                       <Input
                         type="email"
-                        placeholder="Enter your email to launch storefront"
+                        placeholder="Enter your email to join the queue"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required
@@ -265,100 +476,77 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── Product Alternating Tiles (Apple Style) ── */}
+        {/* ── Product Alternating Tiles (Apple Style with Interactive Demos & CTAs) ── */}
         <section id="features" className="space-y-12">
-          {/* Tile 1: AI Style Tagging (Light Canvas) */}
+          {/* Tile 1: AI Style Tagging (Light Canvas + Dynamic Demo + CTA) */}
           <div className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-hairline)", borderBottom: "1px solid var(--color-hairline)" }}>
             <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-5">
-                <span className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-accent)" }}>Thespian AI Engine</span>
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                  <span className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-accent)" }}>Thespian AI Engine</span>
+                </div>
                 <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight" style={s.text}>
                   Atmospheric AI Style Tagging.
                 </h2>
                 <p className="text-sm font-body leading-relaxed" style={s.secondary}>
                   No middleman. No gatekeeping. Our proprietary model analyzes your vocal and dramatic attributes to generate rich profile style tags so clients find your unique vibe instantly.
                 </p>
-                <div className="flex gap-2">
-                  <Badge tone="accent">Voice Tone Analysis</Badge>
-                  <Badge tone="accent">Dramatic Range</Badge>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
+                    Analyze My Performance Reel
+                  </Button>
                 </div>
               </div>
-              <div className="p-6 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="w-12 h-12" background="var(--color-accent-glow)" color="var(--color-accent)">EJ</Avatar>
-                  <div>
-                    <div className="text-sm font-bold flex items-center gap-1.5">Emeka Johnson <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} /></div>
-                    <div className="text-xs" style={s.tertiary}>Dramatic Actor · Lagos</div>
-                  </div>
-                </div>
-                <div className="p-3.5 rounded-lg mb-3" style={{ background: "var(--color-bg-surface)" }}>
-                  <div className="text-xs uppercase tracking-wider mb-2 font-mono" style={s.tertiary}>AI Generated Vibe tags</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {["Deep Tone", "Intense", "Nollywood Drama", "Accented", "High-Energy"].map((tag) => (
-                      <span key={tag} className="text-xs px-2.5 py-1 rounded-full font-body font-semibold" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+              <div>
+                <AITaggingDemo />
               </div>
             </div>
           </div>
 
-          {/* Tile 2: Escrow Protection & Order Room (Dark Canvas) */}
+          {/* Tile 2: Escrow Protection & Order Room (Dark Canvas + Dynamic Demo + CTA) */}
           <div className="py-20 px-5 md:px-16" style={{ background: "#0f0f11", color: "#ffffff" }}>
             <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-              <div className="order-2 md:order-1 p-6 rounded-[var(--radius-xl)]" style={{ background: "#1c1c1f", border: "1px solid #333335" }}>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Order Workspace</span>
-                  <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-body font-semibold">₦120,000 Escrow Locked</span>
-                </div>
-                <div className="space-y-3">
-                  <div className="p-3 rounded-lg flex items-center justify-between" style={{ background: "#27272a" }}>
-                    <div className="text-xs">1. Script Confirmation</div>
-                    <Check className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div className="p-3 rounded-lg flex items-center justify-between" style={{ background: "#27272a" }}>
-                    <div className="text-xs">2. Deliverables Uploaded</div>
-                    <Check className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div className="p-3 rounded-lg flex items-center justify-between" style={{ background: "#27272a" }}>
-                    <div className="text-xs">3. Client Approval &amp; Release</div>
-                    <span className="text-[10px] bg-[var(--color-accent)] text-white px-2 py-0.5 rounded">Pending Approval</span>
-                  </div>
-                </div>
+              <div className="order-2 md:order-1">
+                <EscrowDemo />
               </div>
-              <div className="order-1 md:order-2 space-y-5">
-                <span className="text-xs font-semibold uppercase tracking-wider font-body text-emerald-400">FINCRA Integrated Escrow</span>
+              <div className="order-1 md:order-2 space-y-6">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  <span className="text-xs font-semibold uppercase tracking-wider font-body text-emerald-400">FINCRA Integrated Escrow</span>
+                </div>
                 <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-white">
                   Payment Security.<br />Automated.
                 </h2>
                 <p className="text-sm leading-relaxed text-white/70">
                   Payments are locked safely in escrow before you begin recording. The moment deliverables are uploaded and approved by the client, funds release automatically to your bank.
                 </p>
-                <div className="flex gap-2">
-                  <span className="text-xs px-2.5 py-1 rounded bg-[#27272a] text-white font-mono">9% platform fee</span>
-                  <span className="text-xs px-2.5 py-1 rounded bg-[#27272a] text-white font-mono">Instant Payouts</span>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button className="h-10 px-6 text-xs font-semibold bg-emerald-500 text-black hover:bg-emerald-600 border-none" onClick={() => navigate("/auth")}>
+                    Book Talent Safely
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Curated Art Categories (Nice Photography Cards) ── */}
+        {/* ── Curated Art Categories (Nice Photography Cards + CTA) ── */}
         <section className="py-24 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
           <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <h2 className="font-display text-3xl md:text-5xl font-bold" style={s.text}>Built for every creative discipline</h2>
-              <p className="text-xs uppercase tracking-wider mt-2" style={s.tertiary}>Connecting top artists with premium brand campaigns</p>
+              <p className="text-xs uppercase tracking-wider" style={s.tertiary}>Connecting top artists with premium brand campaigns</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {NICHES.map((niche, i) => (
-                <div
+                <motion.div
                   key={i}
-                  className="group relative aspect-[3/4] rounded-[var(--radius-xl)] overflow-hidden border"
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  className="group relative aspect-[3/4] rounded-[var(--radius-xl)] overflow-hidden border cursor-pointer transition-shadow hover:shadow-lg"
                   style={s.inkBorder}
+                  onClick={() => navigate("/auth")}
                 >
                   <img
                     src={niche.img}
@@ -371,13 +559,19 @@ export function LandingPage() {
                     <div className="text-sm font-semibold font-body">{niche.label}</div>
                     <div className="text-[10px] text-white/70 font-mono mt-0.5">{niche.stat} active profiles</div>
                   </div>
-                </div>
+                </motion.div>
               ))}
+            </div>
+
+            <div className="text-center pt-4">
+              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
+                Browse All 8 Niche Categories
+              </Button>
             </div>
           </div>
         </section>
 
-        {/* ── Go Live in 3 Steps (How it works) ── */}
+        {/* ── Go Live in 3 Steps (How it works + CTA) ── */}
         <section id="how-it-works" className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-hairline)" }}>
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="text-center space-y-3">
@@ -387,26 +581,37 @@ export function LandingPage() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {STEPS.map((step, i) => (
-                <div key={i} className="p-5 rounded-[var(--radius-xl)] border space-y-3" style={{ background: "var(--color-bg-canvas)", borderColor: "var(--color-hairline)" }}>
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -4 }}
+                  className="p-5 rounded-[var(--radius-xl)] border space-y-3 transition-shadow hover:shadow-md"
+                  style={{ background: "var(--color-bg-canvas)", borderColor: "var(--color-hairline)" }}
+                >
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
                     {step.num}
                   </div>
                   <h3 className="font-display text-base font-semibold" style={s.text}>{step.title}</h3>
                   <p className="text-xs leading-relaxed" style={s.secondary}>{step.body}</p>
-                </div>
+                </motion.div>
               ))}
+            </div>
+
+            <div className="text-center pt-4">
+              <Button className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
+                Get Started Now
+              </Button>
             </div>
           </div>
         </section>
 
-        {/* ── Testimonials ── */}
+        {/* ── Testimonials + CTA ── */}
         <section className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
           <div className="max-w-5xl mx-auto space-y-12">
             <h2 className="font-display text-3xl md:text-5xl font-bold text-center" style={s.text}>Endorsed by working artists</h2>
 
             <div className="grid md:grid-cols-3 gap-6">
               {TESTIMONIALS.map((t, i) => (
-                <div key={i} className="p-6 rounded-[var(--radius-xl)] border flex flex-col justify-between" style={s.surface}>
+                <div key={i} className="p-6 rounded-[var(--radius-xl)] border flex flex-col justify-between transition-shadow hover:shadow-md" style={s.surface}>
                   <p className="text-xs italic font-body leading-relaxed mb-6" style={s.secondary}>
                     "{t.quote}"
                   </p>
@@ -421,6 +626,12 @@ export function LandingPage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="text-center pt-4">
+              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
+                Join the Elite Roster
+              </Button>
             </div>
           </div>
         </section>
@@ -451,14 +662,14 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FAQ ── */}
+        {/* ── FAQ + CTA ── */}
         <section className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
           <div className="max-w-2xl mx-auto space-y-12">
             <h2 className="font-display text-3xl md:text-5xl font-bold text-center" style={s.text}>Frequently Asked Questions</h2>
 
             <div className="space-y-3">
               {FAQS.map((faq, i) => (
-                <div key={i} className="rounded-[var(--radius-md)] border" style={s.inkBorder}>
+                <div key={i} className="rounded-[var(--radius-md)] border animate-fade-in" style={s.inkBorder}>
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full p-4 flex items-center justify-between text-left text-xs font-semibold"
@@ -474,6 +685,12 @@ export function LandingPage() {
                   )}
                 </div>
               ))}
+            </div>
+
+            <div className="text-center pt-4">
+              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
+                Still Have Questions? Join Monologg
+              </Button>
             </div>
           </div>
         </section>

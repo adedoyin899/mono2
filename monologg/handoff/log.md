@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 40: Landing Page Facelift & Apple/Pirsch Design Metaphor Synthesis)
+**Last updated:** 2026-08-01 (Session 41: Interactive Storytelling Loops & Landing Page CTA Enhancements)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1338,6 +1338,28 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | File | Change |
 |---|---|
 | `monologg/apps/web/src/app/pages/LandingPage.tsx` | Complete facelift integrating premium hybrid layout and Apple copywriting style |
+
+---
+
+## Session 41 — Interactive Storytelling Loops & Landing Page CTA Enhancements
+
+**Goal:** Enhanced `LandingPage.tsx` with self-running interactive mockup flows (Thespian AI Upload scan ➔ tag output; and FINCRA Escrow Lock ➔ file deliver ➔ payout release), added clear CTAs on every section, and polished motion lifting.
+
+1. **AITaggingDemo Component**:
+   - Built a custom looping animation sequence tracking drag & drop, file uploading/scanning (0% to 100%), and final talent tag presentation with staggered spring animations.
+
+2. **EscrowDemo Component**:
+   - Built a custom looping workspace tracker representing the Fincra Escrow contract lifecycle (Escrow locking ➔ upload confirmation message ➔ client release payout).
+
+3. **Section CTAs**:
+   - Integrated CTA conversion items on all landing page sections (Creative Niches, Steps, Testimonials, Pricing, FAQ).
+
+### File inventory additions (Session 41)
+
+| File | Change |
+|---|---|
+| `monologg/apps/web/src/app/pages/LandingPage.tsx` | Added AITaggingDemo and EscrowDemo interactive loops and updated all CTA buttons |
+
 
 
 
