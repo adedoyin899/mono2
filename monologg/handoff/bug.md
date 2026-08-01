@@ -183,6 +183,24 @@ This tracks every defect found during this engagement — both classic "the buil
 - **How it was fixed:** Darkened the token (light mode → `#6D6D75`, dark mode `#898993` for the equivalent issue), keeping the same hue, deep enough to clear every surface it's actually painted on (4.5:1+ against the darkest/lightest surface each mode uses respectively).
 - **Lesson for next time:** Contrast ratios need an automated, real-rendering check (axe-core or equivalent) as part of the regular test suite — a color token can look fine to a sighted developer on a bright monitor and still fail the actual accessibility bar. See `monologg/qa/2026-07-31-phase17/cross-device-a11y.md` for the much larger, NOT-yet-fixed contrast debt this same scan surfaced (dozens of other, unrelated color pairs — tracked separately, needs design sign-off, not a quick token fix).
 
+### Bug #19: Hardcoded "Elias Thorne" / "Elias" talent fallback name in Talent Dashboard (Session 34)
+- **What happened:** `TalentDashboard.tsx` hardcoded `"Elias Thorne"` and `"Elias"` as default profile fallbacks, storefront heading, and desktop greeting (`"Good morning, Elias 👋"`), overriding the user's default talent persona preference ("Emeka Johnson").
+- **What it meant:** Talent Dashboard displayed contradictory profile names and greetings (`Good morning, Elias` vs `Emeka Johnson` in settings/sidebar).
+- **How it was found:** Multi-page browser QA pass (`/qa` skill workflow).
+- **How it was fixed:** Updated name fallback, Storefront preview heading, and greeting to derive dynamically from `talentName` ("Emeka Johnson") (`98a0d36`).
+
+### Bug #20: Hardcoded "Elias Thorne" initials (`ET`) in Order Room message thread & release text (Session 34)
+- **What happened:** `OrderRoom.tsx` hardcoded `"ET"` avatar initials for talent message bubbles and hardcoded `"Elias Thorne"` in the payment release confirmation system message.
+- **What it meant:** Order Room messages rendered `ET` badge next to system messages that cited `Emeka Johnson`.
+- **How it was found:** Multi-page browser QA pass (`/qa` skill workflow).
+- **How it was fixed:** Dynamically derived avatar initials (`EJ`) and payment release system text from `appStateSync.getTalentProfile().name` (`fd95a46`).
+
+### Bug #21: Low-contrast disabled time slot text in External Booking Entry (Session 34)
+- **What happened:** `ExternalBookingEntry.tsx` applied `color: var(--color-text-tertiary)` combined with `disabled:opacity-30`, yielding extremely faint 0.05 opacity text for unselected/disabled time slots.
+- **What it meant:** Time slot options were illegible under standard lighting conditions.
+- **How it was found:** Multi-page browser QA pass (`/qa` skill workflow).
+- **How it was fixed:** Updated disabled slot text to `color: var(--color-text-primary)` with `disabled:opacity-45` for WCAG AA 4.5:1 contrast compliance (`fa1d26c`).
+
 ---
 
 ## Design-system consistency issues (found via audit, not crashes — but real bugs in the "will silently drift" sense)
