@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 34: Application QA Audit & Bug Fix Loop via /qa)
+**Last updated:** 2026-08-01 (Session 35: Live Developer Experience Audit & DX Fix Loop via /devex-review)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1149,6 +1149,38 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `apps/web/src/app/pages/TalentDashboard.tsx` | Aligned talent name fallbacks, Storefront preview heading, and greeting to Emeka Johnson |
 | `apps/web/src/app/pages/OrderRoom.tsx` | Dynamically derived talent avatar initials and payment release system text |
 | `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Improved disabled time slot label contrast ratio for WCAG AA compliance |
+
+---
+
+## Session 35 — Live Developer Experience Audit & DX Fix Loop via `/devex-review`
+
+**Goal:** Execute gstack `/devex-review` skill workflow, perform live DX audit across 8 developer dimensions, fix TypeScript typecheck errors, populate `CLAUDE.md` developer guide, and evaluate Time-to-Hello-World (TTHW) and scorecard metrics.
+
+1. **Executed DX Onboarding & Build Inspection**:
+   - Tested getting started flow from `monologg/README.md` (`pnpm install` -> `pnpm dev`).
+   - Measured production build speed: **2.02 seconds** (`dist/assets/index-BZm4Asly.js`).
+   - TTHW (Time to Hello World): **< 1 minute** (zero API keys required, `VITE_API_MODE=mock` default fixture state).
+
+2. **Fixed TypeScript Typecheck Friction**:
+   - Identified and resolved 2 `tsc --noEmit` errors:
+     1. Imported missing `X` icon in `LandingPage.tsx`.
+     2. Corrected `Transaction` object construction schema mapping in `src/lib/state-sync.ts`.
+   - Verified `npm run typecheck --prefix apps/web` passes with **0 type errors**.
+
+3. **Populated `CLAUDE.md` Developer Guide**:
+   - Populated empty root `CLAUDE.md` file with common developer commands (`npm run dev`, `npm test`, `npm run build`, `npm run typecheck`) and gstack skill routing rules (`/af380ff`).
+
+4. **Testing & Verification**:
+   - Executed Vitest unit test suite: **19/19 test files passed (72/72 tests green)**.
+   - Pushed atomic commits to `origin/main`.
+
+### File inventory additions (Session 35)
+
+| File | Change |
+|---|---|
+| `CLAUDE.md` | Populated developer commands and skill routing rules |
+| `apps/web/src/app/pages/LandingPage.tsx` | Imported missing `X` icon for type safety |
+| `apps/web/src/lib/state-sync.ts` | Aligned Transaction construction properties with TransactionSchema |
 
 
 
