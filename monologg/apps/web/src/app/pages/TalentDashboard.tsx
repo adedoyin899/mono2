@@ -19,7 +19,7 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send
 } from "lucide-react";
 
-type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects";
+type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects" | "activity";
 
 // UI configuration, not domain data — stays local (see api-client.ts).
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
@@ -164,6 +164,7 @@ export function TalentDashboard() {
   // dayDetail is server-authoritative; everything the UI renders as "open" or
   // "blocked" comes from there, never a client-side recomputation.
   const [selectedDate, setSelectedDate] = useState<string>(todayISO());
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
   const [dayDetail, setDayDetail] = useState<DayDetail | null>(null);
   const [loadingDay, setLoadingDay] = useState(false);
   const [showAddSlot, setShowAddSlot] = useState(false);
@@ -184,8 +185,17 @@ export function TalentDashboard() {
   const navigate = useNavigate();
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [payouts, setPayouts] = useState<Array<{ id: string; from: string; service: string; amount: string; numericAmount: number; date: string; time: string; status: "Paid" | "Pending" | "Processing"; ref: string; bankAccount: string }>>([
+    { id: "p1", from: "FilmCraft Lagos", service: "Commercial Voice-Over", amount: "₦120,000", numericAmount: 120000, date: "Dec 14, 2024", time: "14:30", status: "Paid", ref: "PAY-2024-88412", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
+    { id: "p2", from: "EventPro Abuja", service: "Feature Film Audition", amount: "₦80,000", numericAmount: 80000, date: "Dec 10, 2024", time: "09:15", status: "Paid", ref: "PAY-2024-77301", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
+    { id: "p3", from: "Brand Agency NG", service: "Compere Booking", amount: "₦45,000", numericAmount: 45000, date: "Dec 6, 2024", time: "16:45", status: "Pending", ref: "PAY-2024-65129", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
+  ]);
+  const [selectedPayout, setSelectedPayout] = useState<typeof payouts[0] | null>(null);
+
   const [stats, setStats] = useState<StatMetric[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [activitySearch, setActivitySearch] = useState("");
+  const [activityFilter, setActivityFilter] = useState<"all" | "booking" | "payment" | "message">("all");
   const [services, setServices] = useState<ServiceRateCard[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -196,6 +206,9 @@ export function TalentDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
   const [projectSearch, setProjectSearch] = useState("");
+  const [projectRoleFilter, setProjectRoleFilter] = useState("all");
+  const [projectBudgetFilter, setProjectBudgetFilter] = useState("all");
+  const [projectStatusFilter, setProjectStatusFilter] = useState("all");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
@@ -257,8 +270,18 @@ export function TalentDashboard() {
 
   const filteredProjects = projects.filter((p) => {
     const q = projectSearch.trim().toLowerCase();
-    if (!q) return true;
-    return p.projectName.toLowerCase().includes(q) || p.projectType.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q);
+    const matchesSearch = !q || p.projectName.toLowerCase().includes(q) || p.projectType.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q);
+    const matchesRole = projectRoleFilter === "all" || p.projectType.toLowerCase().includes(projectRoleFilter.toLowerCase());
+    const budgetNum = Number(p.budget.replace(/[^0-9]/g, "")) || 0;
+    const matchesBudget = projectBudgetFilter === "all"
+      || (projectBudgetFilter === "under100" && budgetNum < 100000)
+      || (projectBudgetFilter === "100to300" && budgetNum >= 100000 && budgetNum <= 300000)
+      || (projectBudgetFilter === "over300" && budgetNum > 300000);
+    const matchesStatus = projectStatusFilter === "all"
+      || (projectStatusFilter === "open" && p.applicationsOpen && !p.myApplication)
+      || (projectStatusFilter === "applied" && Boolean(p.myApplication));
+
+    return matchesSearch && matchesRole && matchesBudget && matchesStatus;
   });
 
   const loadDay = (date: string) => {
@@ -530,7 +553,7 @@ export function TalentDashboard() {
                 {/* Recent activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
                   <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
-                  <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("orders")}>
+                  <button className="text-xs font-body font-semibold" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>
                     View all →
                   </button>
                 </div>
@@ -539,7 +562,12 @@ export function TalentDashboard() {
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-                      className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)]"
+                      onClick={() => {
+                        if (item.type === "booking") navigate("/order/ORD-001");
+                        else if (item.type === "payment") setActiveTab("earnings");
+                        else if (item.type === "message") setActiveTab("orders");
+                      }}
+                      className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
                       style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
                     >
                       <div
@@ -895,14 +923,32 @@ export function TalentDashboard() {
             {/* ── Availability Calendar Tab (features.md Phase 13, PWA-08) ── */}
             {activeTab === "calendar" && (
               <motion.div key="calendar" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-display text-2xl lg:hidden" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
-                  <p className="hidden lg:block text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                    Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
-                  </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h2 className="font-display text-2xl lg:hidden" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
+                    <p className="hidden lg:block text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
+                    </p>
+                  </div>
+                  {/* 3-View Switcher: Month | Week | Day */}
+                  <div className="flex p-1 rounded-xl self-start sm:self-auto" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                    {(["month", "week", "day"] as const).map((view) => (
+                      <button
+                        key={view}
+                        onClick={() => setCalendarView(view)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold font-body capitalize transition-all"
+                        style={{
+                          background: calendarView === view ? "var(--color-accent)" : "transparent",
+                          color: calendarView === view ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                        }}
+                      >
+                        {view} View
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Day strip — a two-week horizontal picker plus a direct date jump. */}
+                {/* Date Selection Bar */}
                 <div className="flex items-center gap-2 mb-4">
                   <button
                     aria-label="Jump to today"
@@ -936,6 +982,63 @@ export function TalentDashboard() {
                     style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
                   />
                 </div>
+
+                {/* Month View Grid */}
+                {calendarView === "month" && (() => {
+                  const selectedObj = new Date(`${selectedDate}T00:00:00.000Z`);
+                  const year = selectedObj.getUTCFullYear();
+                  const month = selectedObj.getUTCMonth();
+                  const firstDayIndex = new Date(Date.UTC(year, month, 1)).getUTCDay();
+                  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+                  const monthName = selectedObj.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+
+                  const daysArray = [];
+                  for (let i = 0; i < firstDayIndex; i++) daysArray.push(null);
+                  for (let d = 1; d <= daysInMonth; d++) {
+                    const padD = String(d).padStart(2, "0");
+                    const padM = String(month + 1).padStart(2, "0");
+                    daysArray.push(`${year}-${padM}-${padD}`);
+                  }
+
+                  return (
+                    <div className="p-4 rounded-[var(--radius-lg)] mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
+                        <span className="text-xs font-body text-tertiary" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots</span>
+                      </div>
+                      <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+                          <div key={day} className="py-1">{day}</div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1.5">
+                        {daysArray.map((dateStr, idx) => {
+                          if (!dateStr) return <div key={`empty-${idx}`} className="h-10" />;
+                          const isSelected = dateStr === selectedDate;
+                          const isToday = dateStr === todayISO();
+                          const dayNum = parseInt(dateStr.slice(8), 10);
+                          return (
+                            <button
+                              key={dateStr}
+                              onClick={() => setSelectedDate(dateStr)}
+                              className="h-10 rounded-[var(--radius-md)] flex flex-col items-center justify-center relative transition-all active:scale-95 text-xs font-body font-medium"
+                              style={{
+                                background: isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                                color: isSelected ? "var(--color-accent-on)" : isToday ? "var(--color-accent)" : "var(--color-text-primary)",
+                                border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                              }}
+                            >
+                              <span>{dayNum}</span>
+                              {isToday && !isSelected && (
+                                <span className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ background: "var(--color-accent)" }} />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {loadingDay || !dayDetail ? (
                   <div className="py-16 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>Loading…</div>
@@ -1085,9 +1188,56 @@ export function TalentDashboard() {
 
                 {projectsSubTab === "browse" ? (
                   <>
-                    <div className="relative mb-4">
+                    <div className="relative mb-3">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                      <Input placeholder="Search projects…" value={projectSearch} onChange={(e) => setProjectSearch(e.target.value)} className="pl-11" />
+                      <Input placeholder="Search projects by title, client, or role…" value={projectSearch} onChange={(e) => setProjectSearch(e.target.value)} className="pl-11" />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
+                      <div>
+                        <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Role / Category</label>
+                        <select
+                          value={projectRoleFilter}
+                          onChange={(e) => setProjectRoleFilter(e.target.value)}
+                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                        >
+                          <option value="all">All Roles & Categories</option>
+                          <option value="voice-over">Voice-Over</option>
+                          <option value="actor">Actor</option>
+                          <option value="model">Model</option>
+                          <option value="presenter">Presenter</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Budget Range</label>
+                        <select
+                          value={projectBudgetFilter}
+                          onChange={(e) => setProjectBudgetFilter(e.target.value)}
+                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                        >
+                          <option value="all">All Budgets</option>
+                          <option value="under100">Under ₦100,000</option>
+                          <option value="100to300">₦100,000 – ₦300,000</option>
+                          <option value="over300">Over ₦300,000</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Status</label>
+                        <select
+                          value={projectStatusFilter}
+                          onChange={(e) => setProjectStatusFilter(e.target.value)}
+                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                        >
+                          <option value="all">All Project Statuses</option>
+                          <option value="open">Open for Application</option>
+                          <option value="applied">Already Applied</option>
+                        </select>
+                      </div>
                     </div>
 
                     {filteredProjects.length === 0 ? (
@@ -1239,6 +1389,92 @@ export function TalentDashboard() {
               </motion.div>
             )}
 
+            {/* ── Activity History Tab ── */}
+            {activeTab === "activity" && (
+              <motion.div key="activity" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Activity History</h2>
+                    <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      View all recent transactions, bookings, and messaging updates.
+                    </p>
+                  </div>
+                  <Button variant="secondary" className="h-9 px-3 text-xs" onClick={() => setActiveTab("home")}>
+                    ← Back to Home
+                  </Button>
+                </div>
+
+                {/* Search & Filter */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 mb-5">
+                  <div className="relative flex-1 w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                    <Input
+                      placeholder="Search activity..."
+                      value={activitySearch}
+                      onChange={(e) => setActivitySearch(e.target.value)}
+                      className="pl-11"
+                    />
+                  </div>
+                  <div className="flex p-1 rounded-xl w-full sm:w-auto" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                    {(["all", "booking", "payment", "message"] as const).map((filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => setActivityFilter(filter)}
+                        className="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold font-body capitalize transition-all"
+                        style={{
+                          background: activityFilter === filter ? "var(--color-accent)" : "transparent",
+                          color: activityFilter === filter ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                        }}
+                      >
+                        {filter}s
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Activity List */}
+                <div className="space-y-3">
+                  {activity
+                    .filter(item => {
+                      const matchesSearch = !activitySearch || item.client.toLowerCase().includes(activitySearch.toLowerCase()) || item.service.toLowerCase().includes(activitySearch.toLowerCase());
+                      const matchesFilter = activityFilter === "all" || item.type === activityFilter;
+                      return matchesSearch && matchesFilter;
+                    })
+                    .map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                        onClick={() => {
+                          if (item.type === "booking") navigate("/order/ORD-001");
+                          else if (item.type === "payment") setActiveTab("earnings");
+                          else if (item.type === "message") setActiveTab("orders");
+                        }}
+                        className="flex items-center gap-4 p-4 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                          style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+                        >
+                          {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
+                          {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
+                          <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{item.service}</div>
+                          <div className="text-[11px] font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Click to view details →</div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
+                          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              </motion.div>
+            )}
+
             {/* ── Earnings Tab ── */}
             {activeTab === "earnings" && (
               <motion.div key="earnings" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -1248,7 +1484,7 @@ export function TalentDashboard() {
                 <div className="mb-6 p-6 rounded-[var(--radius-lg)] flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
                   <div>
                     <div className="text-xs font-body uppercase tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>Available for Withdrawal</div>
-                    <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦148,000</div>
+                    <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦{appStateSync.getBalance().available.toLocaleString()}</div>
                   </div>
                   <Button className="h-11 px-6 whitespace-nowrap" onClick={() => setShowWithdraw(true)}>Withdraw Funds</Button>
                 </div>
@@ -1256,9 +1492,9 @@ export function TalentDashboard() {
                 {/* Summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: "This Month", value: "₦148,000", sub: "Dec 2024" },
+                    { label: "This Month", value: `₦${appStateSync.getBalance().available.toLocaleString()}`, sub: "Dec 2024" },
                     { label: "Last Month", value: "₦125,000", sub: "Nov 2024" },
-                    { label: "All Time", value: "₦1,240,000", sub: "Since joining" },
+                    { label: "All Time", value: `₦${(1240000 + appStateSync.getBalance().withdrawnTotal).toLocaleString()}`, sub: "Since joining" },
                   ].map((stat, i) => (
                     <div
                       key={i}
@@ -1288,7 +1524,7 @@ export function TalentDashboard() {
                       { month: "Sep", val: 0.45 },
                       { month: "Oct", val: 0.8 },
                       { month: "Nov", val: 0.65 },
-                      { month: "Dec", val: 1 },
+                      { month: "Dec", val: Math.min(1, Math.max(0.6, payouts.length / 5)) },
                     ].map((bar, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <div
@@ -1310,27 +1546,25 @@ export function TalentDashboard() {
                   className="rounded-[var(--radius-lg)] overflow-hidden"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
+                  <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
                     <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Recent Payouts</span>
+                    <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Click any row for receipt</span>
                   </div>
-                  {[
-                    { from: "FilmCraft Lagos", amount: "₦120,000", date: "Dec 14", status: "Paid" },
-                    { from: "EventPro Abuja", amount: "₦80,000", date: "Dec 10", status: "Paid" },
-                    { from: "Brand Agency NG", amount: "₦45,000", date: "Dec 6", status: "Pending" },
-                  ].map((payout, i, arr) => (
+                  {payouts.map((payout, i, arr) => (
                     <div
-                      key={i}
-                      className="flex items-center justify-between px-5 py-4"
+                      key={payout.id}
+                      onClick={() => setSelectedPayout(payout)}
+                      className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[var(--color-bg-elevated)] transition-colors"
                       style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--color-border-default)" : undefined }}
                     >
                       <div>
                         <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{payout.from}</div>
-                        <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date}</div>
+                        <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date} · {payout.ref}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{payout.amount}</div>
                         <div
-                          className="text-xs font-body"
+                          className="text-xs font-body font-medium"
                           style={{ color: payout.status === "Paid" ? "var(--color-success)" : "var(--color-gold)" }}
                         >
                           {payout.status}
@@ -1344,57 +1578,169 @@ export function TalentDashboard() {
 
             </AnimatePresence>
           {/* Withdraw Modal */}
-                <AnimatePresence>
-                  {showWithdraw && (
-                    <Modal onClose={() => setShowWithdraw(false)}>
-                      <motion.div
-                        initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                        className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <div className="flex items-center justify-between mb-6">
-                          <h3 className="font-display text-xl">Withdraw Funds</h3>
-                          <button onClick={() => setShowWithdraw(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="mb-4">
-                          <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
-                          <Input type="number" placeholder="Enter amount..." value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
-                          <div className="text-xs mt-2" style={{ color: "var(--color-text-secondary)" }}>
-                            Available: ₦{appStateSync.getBalance().available.toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="mb-6">
-                          <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
-                          <div className="p-3 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                            <div>
-                              <div className="text-sm font-semibold">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
-                              <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
-                            </div>
-                            <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-success)" }} />
-                          </div>
-                        </div>
-                        <Button className="w-full h-11" onClick={async () => {
-                          const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
-                          if (!amt || amt <= 0) return;
-                          const ok = await apiClient.withdrawFunds(amt);
-                          if (ok) {
-                            alert(`Successfully transferred ₦${amt.toLocaleString()} to ${appStateSync.getBankDetails().bankName}!`);
-                            setShowWithdraw(false);
-                            setWithdrawAmount("");
-                            apiClient.getTalentStats().then(setStats);
-                          } else {
-                            alert("Withdrawal amount exceeds available balance.");
-                          }
-                        }}>
-                          Confirm Withdrawal
-                        </Button>
-                      </motion.div>
-                    </Modal>
-                  )}
-                </AnimatePresence>
+          <AnimatePresence>
+            {showWithdraw && (
+              <Modal onClose={() => setShowWithdraw(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-display text-xl">Withdraw Funds</h3>
+                    <button onClick={() => setShowWithdraw(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. 100,000"
+                      value={withdrawAmount}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/[^0-9]/g, "");
+                        if (!raw) {
+                          setWithdrawAmount("");
+                          return;
+                        }
+                        setWithdrawAmount(Number(raw).toLocaleString());
+                      }}
+                    />
+                    <div className="text-xs mt-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Available for withdrawal: <strong>₦{appStateSync.getBalance().available.toLocaleString()}</strong>
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
+                    <div className="p-3 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                      <div>
+                        <div className="text-sm font-semibold">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
+                        <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
+                      </div>
+                      <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-success)" }} />
+                    </div>
+                  </div>
+                  <Button className="w-full h-11" onClick={async () => {
+                    const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
+                    const available = appStateSync.getBalance().available;
+                    if (!amt || amt <= 0) return;
+                    if (amt > available) {
+                      alert("Withdrawal amount exceeds available balance.");
+                      return;
+                    }
+                    const ok = await apiClient.withdrawFunds(amt);
+                    if (ok) {
+                      const bank = appStateSync.getBankDetails();
+                      const newPayoutItem = {
+                        id: `pay-${Date.now()}`,
+                        from: "Direct Withdrawal",
+                        service: `Payout to ${bank.bankName}`,
+                        amount: `₦${amt.toLocaleString()}`,
+                        numericAmount: amt,
+                        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                        time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                        status: "Paid" as const,
+                        ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                        bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
+                      };
+                      setPayouts(prev => [newPayoutItem, ...prev]);
+                      setActivity(prev => [
+                        {
+                          type: "payment",
+                          status: "Completed",
+                          client: "Monologg Payout",
+                          service: `Withdrawal to ${bank.bankName}`,
+                          amount: `₦${amt.toLocaleString()}`,
+                          time: "Just now",
+                        },
+                        ...prev,
+                      ]);
+                      alert(`Successfully transferred ₦${amt.toLocaleString()} to ${bank.bankName}!`);
+                      setShowWithdraw(false);
+                      setWithdrawAmount("");
+                      apiClient.getTalentStats().then(setStats);
+                    } else {
+                      alert("Withdrawal amount exceeds available balance.");
+                    }
+                  }}>
+                    Confirm Withdrawal
+                  </Button>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Payout Receipt Modal */}
+          <AnimatePresence>
+            {selectedPayout && (
+              <Modal onClose={() => setSelectedPayout(null)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-4 border-b pb-3" style={{ borderColor: "var(--color-border-default)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-success-bg)" }}>
+                        <CheckCircle2 className="w-5 h-5" style={{ color: "var(--color-success)" }} />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Payout Receipt</h3>
+                        <div className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{selectedPayout.ref}</div>
+                      </div>
+                    </div>
+                    <button onClick={() => setSelectedPayout(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="text-center py-4 mb-4 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
+                    <div className="text-xs font-body uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Transferred Amount</div>
+                    <div className="font-display text-3xl tnum font-semibold" style={{ color: "var(--color-accent)" }}>{selectedPayout.amount}</div>
+                    <Badge tone={selectedPayout.status === "Paid" ? "success" : "accent"} size="sm" className="mt-2">
+                      {selectedPayout.status}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3 mb-6 text-xs font-body">
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Source / Client</span>
+                      <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.from}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Service Description</span>
+                      <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.service}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Destination Account</span>
+                      <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.bankAccount}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Date & Time</span>
+                      <span style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.date} {selectedPayout.time}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Platform Transfer Fee</span>
+                      <span className="font-mono" style={{ color: "var(--color-success)" }}>₦0 (Free)</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => window.print()}>
+                      Save / Print Receipt
+                    </Button>
+                    <Button className="flex-1 h-10 text-xs" onClick={() => setSelectedPayout(null)}>
+                      Close
+                    </Button>
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
           {/* Share Modal */}
           <AnimatePresence>
             {showShare && (
@@ -1691,31 +2037,52 @@ export function TalentDashboard() {
               <Modal onClose={() => setSelectedProject(null)}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-md rounded-[var(--radius-lg)] p-6"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  className="w-full max-w-lg rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-xs font-semibold font-body" style={{ color: "var(--color-accent)" }}>{selectedProject.clientName}</span>
+                        <Shield className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
+                      </div>
                       <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>{selectedProject.projectName}</h3>
-                      <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{selectedProject.clientName} · {selectedProject.projectType}</p>
+                      <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Category: {selectedProject.projectType} · Location: Lagos, NG (Remote)</p>
                     </div>
                     <button onClick={() => setSelectedProject(null)} className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-elevated)" }}>
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap mb-4">
-                    {selectedProject.nicheReq.map((n) => <Badge key={n} tone="neutral" size="sm">{n.replace(/_/g, " ")}</Badge>)}
+                  {/* Overview & Description */}
+                  <div className="mb-4 p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
+                    <div className="text-xs font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Project Overview</div>
+                    <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                      Client is seeking professional talent for a high-profile production campaign. Selected talent will work directly with the creative direction team for studio recording and revisions.
+                    </p>
+                  </div>
+
+                  {/* Requirements & Deliverables */}
+                  <div className="mb-4">
+                    <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>Deliverables & Niche Requirements</div>
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      {selectedProject.nicheReq.map((n) => <Badge key={n} tone="neutral" size="sm">{n.replace(/_/g, " ")}</Badge>)}
+                    </div>
+                    <ul className="text-xs font-body space-y-1 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                      <li>Studio quality audio/video recording files</li>
+                      <li>2 round of revisions included within project timeframe</li>
+                      <li>Commercial distribution rights for social & digital media</li>
+                    </ul>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-5">
                     <div className="p-3 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)" }}>
-                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Budget</div>
+                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Budget Rate</div>
                       <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{selectedProject.budget}</div>
                     </div>
                     <div className="p-3 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)" }}>
-                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Applicants</div>
+                      <div className="text-[10px] uppercase tracking-wider font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>Applicant Cap</div>
                       <div className="font-display text-lg tnum" style={{ color: "var(--color-text-primary)" }}>
                         {selectedProject.applicantCount}{selectedProject.applicantCap ? `/${selectedProject.applicantCap}` : ""}
                       </div>

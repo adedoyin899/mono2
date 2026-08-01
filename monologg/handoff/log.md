@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 36: Code & Structural Review via /review)
+**Last updated:** 2026-08-01 (Session 37: Talent Portal & Order Room Responsiveness Enhancements)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -1205,6 +1205,43 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | File | Change |
 |---|---|
 | `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed openSlots interval range check calculation for time slot buttons |
+
+---
+
+## Session 37 — Talent Portal & Order Room Responsiveness Enhancements
+
+**Goal:** Implement formatted withdrawal input with commas, dynamic payout list and graph recalculations, clickable payout receipt modal, Browse project multi-parameter filters (role, budget, status), rich client project information modal, Availability calendar 3-view switcher (Month/Week/Day), toggleable Order Room info modal for responsive chat layout, fixed bottom nav icon padding, and clickable recent activity with dedicated activity history page.
+
+1. **Talent Earnings & Withdrawals**:
+   - Added comma-formatting logic to withdrawal input (`148,000`).
+   - Connected withdrawal confirmation to dynamic balance, stat metrics, and monthly earnings chart updates.
+   - Built interactive `PayoutReceiptModal` triggered on clicking any payout row.
+
+2. **Projects Page Filters & Client Brief Modal**:
+   - Added filter controls for Role/Category, Budget Tier, and Application Status on Browse tab.
+   - Expanded `selectedProject` modal to render rich client brief details (client verification, overview, deliverables, location, deadline, budget, and pitch input).
+
+3. **Availability Calendar 3-View Switcher**:
+   - Added `[ Month | Week | Day ]` switcher control.
+   - Implemented interactive 7x5 Month calendar grid with date selection highlighting and day event inspector.
+
+4. **Responsive Order Room Modal**:
+   - Converted fixed Order Info sidebar into a toggleable modal/drawer (`showOrderInfoModal`) triggered via "Order Info" header button.
+   - Kept chat room full-width and responsive across all device breakpoints.
+
+5. **Bottom Nav & Recent Activity Navigation**:
+   - Adjusted `BottomNav.tsx` icon padding, label font sizes, and active capsule indicator insets.
+   - Made Recent Activity items on Home tab directly clickable to navigate to their target destination.
+   - Created dedicated "Activity History" page (`activeTab === "activity"`) with search bar and filter pills.
+
+### File inventory additions (Session 37)
+
+| File | Change |
+|---|---|
+| `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Implemented withdraw comma formatting, payout receipts, project filters, client project modal, Availability 3-view toggle, and activity history page |
+| `monologg/apps/web/src/app/pages/OrderRoom.tsx` | Added Order Info toggle button in header and rendered Order Info in a responsive modal/drawer |
+| `monologg/apps/web/src/app/components/ui/BottomNav.tsx` | Refined bottom nav padding, icon alignment, and capsule indicator insets |
+
 
 
 

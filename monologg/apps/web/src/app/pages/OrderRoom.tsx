@@ -38,6 +38,7 @@ export function OrderRoom() {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [paymentReleased, setPaymentReleased] = useState(false);
+  const [showOrderInfoModal, setShowOrderInfoModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
@@ -94,6 +95,125 @@ export function OrderRoom() {
     }
   };
 
+  const renderOrderInfoContent = () => (
+    <>
+      {/* Escrow status hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: DURATION_MED, ease: EASE_OUT }}
+        className="p-5 rounded-[var(--radius-xl)] mb-5"
+        style={{
+          background: paymentReleased ? "var(--color-success-bg)" : "var(--color-accent-soft)",
+          border: `1px solid ${paymentReleased ? "var(--color-success)" : "var(--color-accent)"}`,
+          boxShadow: "var(--shadow-card)",
+        }}
+      >
+        <div
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-full)] mb-3"
+          style={{ background: "var(--color-bg-surface)", color: paymentReleased ? "var(--color-success)" : "var(--color-accent)" }}
+        >
+          {paymentReleased
+            ? <CheckCircle2 className="w-3.5 h-3.5" />
+            : <Lock className="w-3.5 h-3.5" />}
+          <span className="text-xs font-semibold font-body">
+            {paymentReleased ? "Payment Released" : "Escrow Locked"}
+          </span>
+        </div>
+        <div className="font-mono tnum text-3xl font-semibold" style={{ color: "var(--color-text-primary)" }}>₦120,000</div>
+        <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
+          {paymentReleased ? `Transferred to ${appStateSync.getTalentProfile().name}` : "Held securely until project complete"}
+        </div>
+      </motion.div>
+
+      {/* Phase progress */}
+      <div className="mb-4">
+        <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+          Project Phases
+        </div>
+        <div className="space-y-2">
+          {PHASES.map((p, i) => {
+            const isDone = i < phaseIndex;
+            const isActive = p.id === phase;
+            return (
+              <div
+                key={p.id}
+                className="flex items-start gap-3 p-3 rounded-[var(--radius-md)]"
+                style={{
+                  background: isActive ? "var(--color-accent-soft)" : isDone ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
+                  border: `1px solid ${isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-hairline)"}`,
+                }}
+              >
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono tnum shrink-0 mt-0.5"
+                  style={{
+                    background: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-surface)",
+                    color: isDone ? "#FFFFFF" : isActive ? "var(--color-accent-on)" : "var(--color-text-tertiary)",
+                    fontWeight: isActive ? 700 : undefined,
+                  }}
+                >
+                  {isDone ? "✓" : i + 1}
+                </div>
+                <div>
+                  <div className="text-xs font-semibold font-body" style={{ color: isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-text-secondary)" }}>
+                    {p.label}
+                  </div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{p.desc}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Participants */}
+      <div className="mb-4">
+        <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+          Participants
+        </div>
+        <div className="space-y-2">
+          {[
+            { name: appStateSync.getTalentProfile().name, role: "Talent", avatar: appStateSync.getTalentProfile().name.split(/\s+/).map(w => w[0]).join(""), verified: true },
+            { name: appStateSync.getClientProfile().orgName || "FilmCraft Studios", role: "Client", avatar: "FS", verified: true },
+          ].map((p, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Avatar size="sm" className="text-xs" background="var(--color-accent-soft)" color="var(--color-accent)">
+                {p.avatar}
+              </Avatar>
+              <div>
+                <div className="text-xs font-semibold font-body flex items-center gap-1" style={{ color: "var(--color-text-primary)" }}>
+                  {p.name} {p.verified && <Shield className="w-3 h-3" style={{ color: "var(--color-success)" }} />}
+                </div>
+                <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{p.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Order details */}
+      <div>
+        <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+          Order Details
+        </div>
+        <div className="space-y-1.5 text-xs font-body">
+          {[
+            { label: "Order ID", value: "ORD-001" },
+            { label: "Service", value: "Commercial Voice-Over" },
+            { label: "Base Rate", value: "₦108,000" },
+            { label: "Platform Fee (9%)", value: "₦12,000" },
+            { label: "Deadline", value: "Dec 18, 2024" },
+          ].map((item, i) => (
+            <div key={i} className="flex justify-between">
+              <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>
+              <span className="font-medium font-mono tnum" style={{ color: "var(--color-text-secondary)" }}>{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="role-talent min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
       {/* Header */}
@@ -113,6 +233,16 @@ export function OrderRoom() {
             <span className="font-mono tnum">₦120,000</span> in escrow
           </div>
         </div>
+
+        {/* Order Details Button */}
+        <button
+          onClick={() => setShowOrderInfoModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-semibold font-body transition-all active:scale-95"
+          style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)", border: "1px solid var(--color-hairline)" }}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span>Order Info</span>
+        </button>
 
         {/* Role toggle for demo */}
         <div className="flex p-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
@@ -136,129 +266,7 @@ export function OrderRoom() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row max-w-6xl mx-auto w-full">
-
-        {/* Sidebar — Order Info */}
-        <div
-          className="lg:w-80 shrink-0 p-4 lg:p-5 lg:border-r overflow-y-auto"
-          style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)" }}
-        >
-          {/* Escrow status hero */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: DURATION_MED, ease: EASE_OUT }}
-            className="p-5 rounded-[var(--radius-xl)] mb-5"
-            style={{
-              background: paymentReleased ? "var(--color-success-bg)" : "var(--color-accent-soft)",
-              border: `1px solid ${paymentReleased ? "var(--color-success)" : "var(--color-accent)"}`,
-              boxShadow: "var(--shadow-card)",
-            }}
-          >
-            <div
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-full)] mb-3"
-              style={{ background: "var(--color-bg-surface)", color: paymentReleased ? "var(--color-success)" : "var(--color-accent)" }}
-            >
-              {paymentReleased
-                ? <CheckCircle2 className="w-3.5 h-3.5" />
-                : <Lock className="w-3.5 h-3.5" />}
-              <span className="text-xs font-semibold font-body">
-                {paymentReleased ? "Payment Released" : "Escrow Locked"}
-              </span>
-            </div>
-            <div className="font-mono tnum text-3xl font-semibold" style={{ color: "var(--color-text-primary)" }}>₦120,000</div>
-            <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
-              {paymentReleased ? `Transferred to ${appStateSync.getTalentProfile().name}` : "Held securely until project complete"}
-            </div>
-          </motion.div>
-
-          {/* Phase progress */}
-          <div className="mb-4">
-            <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-              Project Phases
-            </div>
-            <div className="space-y-2">
-              {PHASES.map((p, i) => {
-                const isDone = i < phaseIndex;
-                const isActive = p.id === phase;
-                return (
-                  <div
-                    key={p.id}
-                    className="flex items-start gap-3 p-3 rounded-[var(--radius-md)]"
-                    style={{
-                      background: isActive ? "var(--color-accent-soft)" : isDone ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
-                      border: `1px solid ${isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-hairline)"}`,
-                    }}
-                  >
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono tnum shrink-0 mt-0.5"
-                      style={{
-                        background: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-surface)",
-                        color: isDone ? "#FFFFFF" : isActive ? "var(--color-accent-on)" : "var(--color-text-tertiary)",
-                        fontWeight: isActive ? 700 : undefined,
-                      }}
-                    >
-                      {isDone ? "✓" : i + 1}
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold font-body" style={{ color: isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-text-secondary)" }}>
-                        {p.label}
-                      </div>
-                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{p.desc}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Participants */}
-          <div className="mb-4">
-            <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-              Participants
-            </div>
-            <div className="space-y-2">
-              {[
-                { name: appStateSync.getTalentProfile().name, role: "Talent", avatar: appStateSync.getTalentProfile().name.split(/\s+/).map(w => w[0]).join(""), verified: true },
-                { name: appStateSync.getClientProfile().orgName || "FilmCraft Studios", role: "Client", avatar: "FS", verified: true },
-              ].map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Avatar size="sm" className="text-xs" background="var(--color-accent-soft)" color="var(--color-accent)">
-                    {p.avatar}
-                  </Avatar>
-                  <div>
-                    <div className="text-xs font-semibold font-body flex items-center gap-1" style={{ color: "var(--color-text-primary)" }}>
-                      {p.name} {p.verified && <Shield className="w-3 h-3" style={{ color: "var(--color-success)" }} />}
-                    </div>
-                    <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{p.role}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Order details */}
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-              Order Details
-            </div>
-            <div className="space-y-1.5 text-xs font-body">
-              {[
-                { label: "Order ID", value: "ORD-001" },
-                { label: "Service", value: "Commercial Voice-Over" },
-                { label: "Base Rate", value: "₦108,000" },
-                { label: "Platform Fee (9%)", value: "₦12,000" },
-                { label: "Deadline", value: "Dec 18, 2024" },
-              ].map((item, i) => (
-                <div key={i} className="flex justify-between">
-                  <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>
-                  <span className="font-medium font-mono tnum" style={{ color: "var(--color-text-secondary)" }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
         {/* Main — Chat */}
         <div className="flex-1 flex flex-col min-h-0">
 
@@ -565,6 +573,35 @@ export function OrderRoom() {
                   Submit Dispute
                 </Button>
               </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* Order Info Modal / Drawer */}
+      <AnimatePresence>
+        {showOrderInfoModal && (
+          <Modal onClose={() => setShowOrderInfoModal(false)}>
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-elevated)" }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Order Information</h3>
+                <button
+                  onClick={() => setShowOrderInfoModal(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {renderOrderInfoContent()}
             </motion.div>
           </Modal>
         )}
