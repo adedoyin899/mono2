@@ -14,7 +14,7 @@ import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Proj
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight,
-  MessageSquare, DollarSign, CheckCircle2, X,
+  MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
   BarChart2, Award, Repeat, Briefcase, Search, Send
 } from "lucide-react";
 
@@ -1320,16 +1320,28 @@ export function TalentDashboard() {
                     </button>
                   </div>
                   <div className="flex items-center gap-2 p-2 rounded-[var(--radius-md)] mb-4 border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                    <div className="text-sm font-mono truncate flex-1 pl-2">monologg.app/elias-thorne</div>
+                    <div className="text-sm font-mono truncate flex-1 pl-2">{window.location.host}/elias-thorne</div>
                     <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => {
-                      console.log("https://monologg.app/elias-thorne");
-                      alert("Copied to clipboard!");
+                      const url = `${window.location.origin}/elias-thorne`;
+                      navigator.clipboard?.writeText(url);
+                      alert(`Copied link to clipboard: ${url}`);
                     }}>Copy</Button>
                   </div>
+                  <div className="mb-4">
+                    <a
+                      href="/elias-thorne"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-[var(--radius-md)] text-xs font-semibold"
+                      style={{ background: "var(--color-accent)", color: "var(--color-accent-on)" }}
+                    >
+                      Open Public Storefront <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                   <div className="grid grid-cols-3 gap-2">
-                    <Button variant="secondary" className="h-10 text-xs">WhatsApp</Button>
-                    <Button variant="secondary" className="h-10 text-xs">Twitter</Button>
-                    <Button variant="secondary" className="h-10 text-xs">LinkedIn</Button>
+                    <Button variant="secondary" className="h-10 text-xs" onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.origin + "/elias-thorne")}`)}>WhatsApp</Button>
+                    <Button variant="secondary" className="h-10 text-xs" onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + "/elias-thorne")}`)}>Twitter</Button>
+                    <Button variant="secondary" className="h-10 text-xs" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + "/elias-thorne")}`)}>LinkedIn</Button>
                   </div>
                 </motion.div>
               </Modal>
