@@ -275,24 +275,85 @@ export const apiClient = {
   // behavioral change) — only `live` mode talks to the real endpoints and stores tokens.
   async register(
     input: RegisterInput,
-  ): Promise<{ userId: string; email: string; userType: "TALENT" | "CLIENT"; emailVerified: boolean }> {
+  ): Promise<{ userId: string; email: string; userType: "TALENT" | "CLIENT"; emailVerified: boolean; isNewUser?: boolean }> {
     if (API_MODE === "mock") {
-      return { userId: "mock-user", email: input.email, userType: input.userType, emailVerified: false };
+      const user = {
+        userId: `usr-${Date.now()}`,
+        email: input.email,
+        userType: input.userType,
+        emailVerified: false,
+        isNewUser: true,
+      };
+      appStateSync.setLoggedInUser({ id: user.userId, email: user.email, name: input.name, userType: input.userType, authProvider: "EMAIL", isNewUser: true });
+      return user;
     }
-    return authRequest("/register", input);
+    const res = await authRequest<{ userId: string; email: string; userType: "TALENT" | "CLIENT"; emailVerified: boolean; isNewUser?: boolean }>("/register", input);
+    appStateSync.setLoggedInUser({ id: res.userId, email: res.email, name: input.name, userType: input.userType, authProvider: "EMAIL", isNewUser: true });
+    return res;
   },
-  async login(email: string, password: string): Promise<AuthUser> {
+  async login(email: string, password: string): Promise<AuthUser & { isNewUser?: boolean }> {
     if (API_MODE === "mock") {
       const userType: "TALENT" | "CLIENT" =
-        email.includes("client") || email.includes("brand") ? "CLIENT" : "TALENT";
-      return { userId: "mock-user", email, userType };
+        email.toLowerCase().includes("client") || email.toLowerCase().includes("brand") ? "CLIENT" : "TALENT";
+      const user = { userId: "mock-user", email, userType, isNewUser: false };
+      appStateSync.setLoggedInUser({ id: user.userId, email: user.email, name: userType === "CLIENT" ? "FilmCraft Studios" : "Elias Thorne", userType, authProvider: "EMAIL", isNewUser: false });
+      return user;
     }
-    const data = await authRequest<{ accessToken: string; refreshToken: string; user: AuthUser }>(
+    const data = await authRequest<{ accessToken: string; refreshToken: string; user: AuthUser & { isNewUser?: boolean } }>(
       "/login",
       { email, password },
     );
     setSession(data);
+    appStateSync.setLoggedInUser({ id: data.user.userId, email: data.user.email, name: data.user.userType === "CLIENT" ? "FilmCraft Studios" : "Elias Thorne", userType: data.user.userType, authProvider: "EMAIL", isNewUser: data.user.isNewUser ?? false });
     return data.user;
+  },
+  async googleLogin(input: { email: string; name: string; userType: "TALENT" | "CLIENT"; googleId?: string }): Promise<{
+    user: { id: string; email: string; name: string; userType: "TALENT" | "CLIENT"; authProvider: string; isNewUser: boolean };
+    welcomeLink?: string;
+  }> {
+    if (API_MODE !== "live") {
+      const user = {
+        id: `usr-g-${Date.now()}`,
+        email: input.email,
+        name: input.name,
+        userType: input.userType,
+        authProvider: "GOOGLE",
+        isNewUser: true,
+      };
+      appStateSync.setLoggedInUser(user);
+      return { user, welcomeLink: "/onboarding?welcome=true" };
+    }
+    const res = await authRequest<{
+      accessToken: string;
+      refreshToken: string;
+      user: { id: string; email: string; name: string; userType: "TALENT" | "CLIENT"; authProvider: string; isNewUser: boolean };
+      welcomeLink?: string;
+    }>("/google", input);
+    setSession(res);
+    appStateSync.setLoggedInUser(res.user);
+    return res;
+  },
+  async getAdminUsers(): Promise<{ users: Array<{ id: string; email: string; userType: string; authProvider: string; isNewUser: boolean; name: string; createdAt: string }>; totalCount: number }> {
+    if (API_MODE !== "live") {
+      const currentUser = appStateSync.getLoggedInUser();
+      const mockUsers = [
+        { id: "usr-001", email: "elias@monologg.test", userType: "TALENT", authProvider: "EMAIL", isNewUser: false, name: "Elias Thorne", createdAt: new Date().toISOString() },
+        { id: "usr-002", email: "filmcraft@studio.test", userType: "CLIENT", authProvider: "EMAIL", isNewUser: false, name: "FilmCraft Studios", createdAt: new Date().toISOString() },
+      ];
+      if (currentUser) {
+        mockUsers.unshift({
+          id: currentUser.id,
+          email: currentUser.email,
+          userType: currentUser.userType,
+          authProvider: currentUser.authProvider || "GOOGLE",
+          isNewUser: currentUser.isNewUser ?? true,
+          name: currentUser.name,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      return { users: mockUsers, totalCount: mockUsers.length };
+    }
+    return request("/admin/users");
   },
   async logout(): Promise<void> {
     if (API_MODE === "live") {
@@ -926,10 +987,6 @@ export const apiClient = {
       return {
         id: `guest-booking-${Date.now()}`,
         creatorId: input.creatorId,
-        clientId: "mock-guest-client",
-        rateCardId: input.rateCardId,
-        baseAmount: 12000000,
-        currency: "NGN",
         talentFeeAmount: 1200000,
         clientFeeAmount: 1800000,
         slotDate: input.slotDate,

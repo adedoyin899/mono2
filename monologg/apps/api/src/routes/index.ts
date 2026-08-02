@@ -22,6 +22,8 @@ import { supportRoutes } from "./support.js";
 import { mediaKitRoutes } from "./mediaKit.js";
 import { verificationRoutes } from "./verification.js";
 import { attributesRoutes } from "./attributes.js";
+import { googleAuthRoutes } from "./authGoogle.js";
+import { adminUsersRoutes } from "./adminUsers.js";
 
 /**
  * Route aggregator — registers all route plugins onto the Fastify instance.
@@ -31,6 +33,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(healthRoutes);
   await app.register(metricsRoutes);
   await app.register(authRoutes);
+  await app.register(googleAuthRoutes);
+  await app.register(adminUsersRoutes);
   await app.register(creatorRoutes);
   await app.register(clientRoutes);
   await app.register(rateCardRoutes);

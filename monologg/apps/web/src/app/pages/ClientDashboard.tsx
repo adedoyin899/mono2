@@ -120,7 +120,8 @@ export function ClientDashboard() {
     { id: "act-3", type: "payment", title: "Escrow Locked", desc: "₦120,000 locked securely for Nike Campaign VO", time: "2d ago", refId: "ORD-001" },
     { id: "act-4", type: "message", title: "New Message", desc: "Emeka Johnson uploaded script audio file", time: "3d ago", refId: "ORD-001" },
   ]);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const currentUser = appStateSync.getLoggedInUser();
+  const [isNewUser, setIsNewUser] = useState(() => currentUser?.isNewUser ?? false);
 
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;

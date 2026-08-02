@@ -27,6 +27,9 @@ model User {
   passwordHash  String
   userType      UserType
   emailVerified Boolean        @default(false)
+  googleId      String?        @unique
+  authProvider  AuthProvider   @default(EMAIL)
+  isNewUser     Boolean        @default(true)
   // features.md Phase 16 (FA-5): AUTO_CHECKOUT accounts materialize from a guest
   // booking's name+email (services/externalBooking.ts), not a signup form.
   // passwordSet starts false for them — routes/auth.ts's login refuses a
@@ -45,11 +48,26 @@ model User {
   notificationPreference NotificationPreference?
   termsAcceptances TermsAcceptance[]
   supportTickets   SupportTicket[]
+  activities       UserActivity[]
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
 }
 
 enum UserType {
   TALENT
   CLIENT
+}
+
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
 }
 
 // features.md Phase 16 (FA-5).

@@ -33,6 +33,15 @@ export interface BalanceState {
   withdrawnTotal: number;
 }
 
+export interface LoggedInUserSession {
+  id: string;
+  email: string;
+  name: string;
+  userType: "TALENT" | "CLIENT";
+  authProvider?: string;
+  isNewUser?: boolean;
+}
+
 const STORAGE_KEYS = {
   TALENT_PROFILE: "monologg_talent_profile",
   CLIENT_PROFILE: "monologg_client_profile",
@@ -43,6 +52,7 @@ const STORAGE_KEYS = {
   TRANSACTIONS: "monologg_transactions",
   SUPPORT_TICKETS: "monologg_support_tickets",
   APPLICANTS: "monologg_applicants",
+  USER_SESSION: "monologg_user_session",
 };
 
 const DEFAULT_TALENT_PROFILE: TalentProfileState = {
@@ -397,6 +407,31 @@ class StateSyncBus {
     this.save(STORAGE_KEYS.SUPPORT_TICKETS, this.supportTickets);
     this.notify();
     return ticket;
+  }
+
+  // Logged-in User Session
+  getLoggedInUser(): LoggedInUserSession | null {
+    if (typeof window === "undefined") return null;
+    const raw = localStorage.getItem(STORAGE_KEYS.USER_SESSION);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  setLoggedInUser(user: LoggedInUserSession | null): void {
+    if (typeof window === "undefined") return;
+    if (user) {
+      localStorage.setItem(STORAGE_KEYS.USER_SESSION, JSON.stringify(user));
+      if (user.isNewUser) {
+        this.addNotification({
+          id: `notif-welcome-${Date.now()}`,
+          kind: "WELCOME",
+          createdAt: new Date().toISOString(),
+          payload: { title: "Welcome to Monologg! 🎉", desc: `Account active for ${user.email}. Complete your onboarding steps!` },
+        });
+      }
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.USER_SESSION);
+    }
+    this.notify();
   }
 }
 

@@ -1,11 +1,42 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 42: Comprehensive Default States & Onboarding Nudges for Talent and Client Portals)
+**Last updated:** 2026-08-02 (Session 43: Google OAuth Auth, Backend User Audit Log & Dynamic Zero-Data Default States)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 43 (2026-08-02) — Google OAuth Auth, Backend User Audit Log & Dynamic Zero-Data Default States
+
+**Goal:** Build Google Sign-In authentication, persist user accounts & audit activity logs in backend DB, dispatch welcome notifications, and automatically default newly registered accounts to zero-data empty states.
+
+**Changes Made:**
+1. **Prisma Database Schema (`prisma/schema.prisma`)**:
+   - Extended `User` model with `googleId`, `authProvider` (`EMAIL` | `GOOGLE`), and `isNewUser` (`Boolean`).
+   - Added `UserActivity` model (`id`, `userId`, `action`, `details`, `createdAt`) for chronological backend action auditing.
+   - Regenerated Prisma Client (`npx prisma generate`).
+2. **Backend Routes (`apps/api/src/routes/`)**:
+   - Created `authGoogle.ts` (`POST /api/v1/auth/google`) for Google OAuth token verification, account creation, `UserActivity` logging, and welcome email notification dispatch.
+   - Created `adminUsers.ts` (`GET /api/v1/admin/users`, `GET /api/v1/admin/user-activities`) for backend inspection of registered users and audit trails.
+   - Registered new routes in `routes/index.ts`.
+3. **Frontend Integration (`AuthFlow.tsx`, `api-client.ts`, `state-sync.ts`)**:
+   - Added **"Continue with Google"** / **"Sign in with Google"** brand buttons on both Register and Login forms in `AuthFlow.tsx`.
+   - Wired `apiClient.googleLogin()` and updated `apiClient.register()` and `apiClient.login()` to sync logged-in user state via `appStateSync.setLoggedInUser()`.
+   - Connected `TalentDashboard.tsx` and `ClientDashboard.tsx` to initialize `isNewUser` based on actual logged-in user session state, automatically presenting zero-data empty states for new signups.
+
+**Files touched:**
+- `monologg/apps/api/prisma/schema.prisma`
+- `monologg/apps/api/src/routes/authGoogle.ts`
+- `monologg/apps/api/src/routes/adminUsers.ts`
+- `monologg/apps/api/src/routes/index.ts`
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/lib/api-client.ts`
+- `monologg/apps/web/src/lib/state-sync.ts`
 
 ---
 

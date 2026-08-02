@@ -208,7 +208,8 @@ export function TalentDashboard() {
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const currentUser = appStateSync.getLoggedInUser();
+  const [isNewUser, setIsNewUser] = useState(() => currentUser?.isNewUser ?? false);
 
   const effectiveServices = isNewUser ? [] : services;
   const effectiveOrders = isNewUser ? [] : orders;
