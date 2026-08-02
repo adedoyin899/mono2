@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 44: Interactive Google OAuth Sign-In Modal & Stress Test Suite)
+**Last updated:** 2026-08-02 (Session 45: Comprehensive Default States for Storefront, Projects, Availability Calendar & Find Talent)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 45 (2026-08-02) — Comprehensive Default States for Storefront, Projects, Availability Calendar & Find Talent
+
+**Goal:** Implement zero-data default empty states across Talent Storefront, Talent Projects/Applications, Talent Availability Calendar, and Client Find Talent views.
+
+**Changes Made:**
+1. **Talent Storefront Default States (`TalentDashboard.tsx`)**:
+   - Added draft profile indicators, default onboarding bio prompts, empty state cards for monologue video reels, rate cards, and media kits when `isNewUser` is true.
+2. **Talent Calendar Default States (`TalentDashboard.tsx`)**:
+   - Added an default working hours availability banner (9:00 AM – 5:00 PM) nudging talent to add custom time slots or manage day blocks.
+3. **Client Find Talent Default States (`ClientDashboard.tsx`)**:
+   - Added zero-result / empty state prompt view when search queries or filters yield no creators, offering quick action buttons to clear search/filters or post a project brief.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
 
 ---
 

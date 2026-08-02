@@ -774,14 +774,24 @@ export function TalentDashboard() {
                         <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop" alt="Profile" className="w-full h-full object-cover" />
                       </div>
                       <div className="pb-1">
-                        <Badge tone="success" className="border border-[var(--color-success)]">
-                          <Shield className="w-3 h-3" /> Verified
-                        </Badge>
+                        {isNewUser ? (
+                          <Badge tone="accent" className="border border-[var(--color-accent)]">
+                            <Shield className="w-3 h-3" /> Draft Profile (Unverified)
+                          </Badge>
+                        ) : (
+                          <Badge tone="success" className="border border-[var(--color-success)]">
+                            <Shield className="w-3 h-3" /> Verified
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
-                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>{talentName}</h2>
-                    <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>Actor & Voice Artist · Lagos, Nigeria</p>
+                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>
+                      {isNewUser ? (currentUser?.name || "New Creative Talent") : talentName}
+                    </h2>
+                    <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                      {isNewUser ? "Voice-Over & Screen Talent · Lagos, Nigeria" : "Actor & Voice Artist · Lagos, Nigeria"}
+                    </p>
 
                     <div className="flex items-center gap-2 mb-4">
                       <span className="w-2 h-2 rounded-full" style={{ background: "var(--color-success)" }} />
@@ -794,52 +804,90 @@ export function TalentDashboard() {
                       ))}
                     </div>
 
-                    <p className="text-sm font-body leading-relaxed mb-6" style={{ color: "var(--color-text-secondary)" }}>
-                      Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years of stage experience across Nollywood productions, corporate events, and studio sessions.
-                    </p>
+                    {isNewUser ? (
+                      <div className="p-4 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
+                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Write a compelling summary of your performance background and specialized talent niches.</p>
+                        </div>
+                        <Button variant="secondary" className="h-8 text-xs shrink-0" onClick={() => navigate("/settings")}>
+                          Add Bio
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm font-body leading-relaxed mb-6" style={{ color: "var(--color-text-secondary)" }}>
+                        Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years of stage experience across Nollywood productions, corporate events, and studio sessions.
+                      </p>
+                    )}
 
                     {/* Featured Reel */}
                     <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Featured Reel</h3>
-                    <div
-                      className="relative aspect-video rounded-[var(--radius-md)] overflow-hidden mb-6 group cursor-pointer"
-                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                    >
-                      <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop" alt="Reel" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div
-                          className="w-14 h-14 rounded-full flex items-center justify-center pl-1 shadow-lg"
-                          style={{ background: "var(--color-accent)", boxShadow: "var(--shadow-modal)" }}
-                        >
-                          <Play className="w-6 h-6" style={{ color: "var(--color-text-inverse)" }} />
+                    {isNewUser ? (
+                      <div className="p-6 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
+                          <Play className="w-6 h-6 ml-0.5" />
+                        </div>
+                        <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">No Featured Monologue Video Uploaded</p>
+                        <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">Upload a high-quality video or audio clip showcasing your dramatic monologues or voice reels.</p>
+                        <Button variant="secondary" className="h-9 px-4 text-xs gap-2" onClick={() => navigate("/verification")}>
+                          <Play className="w-3.5 h-3.5" /> Upload Performance Reel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        className="relative aspect-video rounded-[var(--radius-md)] overflow-hidden mb-6 group cursor-pointer"
+                        style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                      >
+                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop" alt="Reel" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div
+                            className="w-14 h-14 rounded-full flex items-center justify-center pl-1 shadow-lg"
+                            style={{ background: "var(--color-accent)", boxShadow: "var(--shadow-modal)" }}
+                          >
+                            <Play className="w-6 h-6" style={{ color: "var(--color-text-inverse)" }} />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-3 right-3 px-2 py-1 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
+                          02:45
                         </div>
                       </div>
-                      <div className="absolute bottom-3 right-3 px-2 py-1 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
-                        02:45
-                      </div>
-                    </div>
+                    )}
 
                     {/* Rate Cards */}
                     <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Booking Services</h3>
-                    <div className="space-y-3">
-                      {services.map(service => (
-                        <div
-                          key={service.id}
-                          className="p-4 rounded-[var(--radius-md)]"
-                          style={{
-                            background: "var(--color-bg-elevated)",
-                            border: "1px solid var(--color-border-default)",
-                            borderLeft: "3px solid var(--color-accent)",
-                          }}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</span>
-                            <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
-                          </div>
-                          <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
-                          <Button className="w-full h-10 text-sm">Book Now</Button>
+                    {effectiveServices.length === 0 ? (
+                      <div className="p-6 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
+                          <DollarSign className="w-6 h-6" />
                         </div>
-                      ))}
-                    </div>
+                        <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">No Rate Cards Published</p>
+                        <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">Create fixed-price service rate cards so clients can instantly book your services.</p>
+                        <Button className="h-9 px-4 text-xs gap-2" onClick={() => setActiveTab("rates")}>
+                          <Plus className="w-3.5 h-3.5" /> Create Rate Card
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {effectiveServices.map(service => (
+                          <div
+                            key={service.id}
+                            className="p-4 rounded-[var(--radius-md)]"
+                            style={{
+                              background: "var(--color-bg-elevated)",
+                              border: "1px solid var(--color-border-default)",
+                              borderLeft: "3px solid var(--color-accent)",
+                            }}
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</span>
+                              <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
+                            </div>
+                            <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
+                            <Button className="w-full h-10 text-sm">Book Now</Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Media Kit — features.md Phase 12A.1: PWA-07 storefront section
                         (download + share), management lives at /media-kit (PWA-20). */}
@@ -1076,6 +1124,15 @@ export function TalentDashboard() {
             {/* ── Availability Calendar Tab (features.md Phase 13, PWA-08) ── */}
             {activeTab === "calendar" && (
               <motion.div key="calendar" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                {isNewUser && (
+                  <div className="mb-4 p-4 rounded-[var(--radius-lg)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-start gap-3">
+                    <Calendar className="w-5 h-5 text-[var(--color-accent)] shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-[var(--color-text-primary)] font-body">Default Working Hours Active (9:00 AM – 5:00 PM)</p>
+                      <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 font-body">Your availability automatically defaults to standard bookable slots. Select any date below to add custom time slots or mark specific days unavailable.</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <div>
                     <h2 className="font-display text-2xl lg:hidden" style={{ color: "var(--color-text-primary)" }}>Availability</h2>

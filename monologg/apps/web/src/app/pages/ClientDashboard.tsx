@@ -762,60 +762,87 @@ export function ClientDashboard() {
                 </div>
 
                 {/* Talent grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredTalents.map(talent => (
-                    <div
-                      key={talent.id}
-                      className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
-                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                      onClick={() => setSelectedTalent(talent)}
-                    >
-                      <div className="flex items-start gap-3 mb-3">
-                        <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">
-                          {talent.avatar}
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{talent.name}</span>
-                            {talent.verified && <Shield className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />}
-                          </div>
-                          <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{talent.role} · {talent.location}</div>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Star className="w-3 h-3 fill-current" style={{ color: "var(--color-gold)" }} />
-                            <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{talent.rating} ({talent.reviews})</span>
-                          </div>
-                        </div>
-                        <button
-                          aria-label={shortlist.includes(talent.id) ? `Remove ${talent.name} from shortlist` : `Shortlist ${talent.name}`}
-                          className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
-                          style={{ background: shortlist.includes(talent.id) ? "var(--color-accent-glow)" : "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                          onClick={e => { e.stopPropagation(); toggleShortlist(talent.id); }}
-                        >
-                          <Star className={`w-4 h-4 ${shortlist.includes(talent.id) ? "fill-current" : ""}`} style={{ color: shortlist.includes(talent.id) ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                        </button>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {talent.tags.map(tag => (
-                          <Badge key={tag} tone="neutral" size="sm">{tag}</Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="font-display text-base tnum" style={{ color: "var(--color-accent)" }}>{talent.price}</span>
-                          <span className="text-xs font-body ml-1" style={{ color: "var(--color-text-tertiary)" }}>/ booking</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full" style={{ background: talent.available ? "var(--color-success)" : "var(--color-text-tertiary)" }} />
-                          <span className="text-xs font-body" style={{ color: talent.available ? "var(--color-success)" : "var(--color-text-tertiary)" }}>
-                            {talent.available ? "Available" : "Booked"}
-                          </span>
-                        </div>
-                      </div>
+                {filteredTalents.length === 0 ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <Users className="w-8 h-8" />
                     </div>
-                  ))}
-                </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Creators Found</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      We couldn't find any talent matching your current search or filter criteria. Try clearing your filters or posting a project brief to receive direct pitches.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSelectedNiche("All");
+                          setAttributeFilters({});
+                        }}
+                      >
+                        Clear Search & Filters
+                      </Button>
+                      <Button onClick={() => navigate("/brief")} className="gap-2">
+                        <Plus className="w-4 h-4" /> Post a Project Brief
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredTalents.map(talent => (
+                      <div
+                        key={talent.id}
+                        className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        onClick={() => setSelectedTalent(talent)}
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">
+                            {talent.avatar}
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{talent.name}</span>
+                              {talent.verified && <Shield className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />}
+                            </div>
+                            <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{talent.role} · {talent.location}</div>
+                            <div className="flex items-center gap-1 mt-1">
+                              <Star className="w-3 h-3 fill-current" style={{ color: "var(--color-gold)" }} />
+                              <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{talent.rating} ({talent.reviews})</span>
+                            </div>
+                          </div>
+                          <button
+                            aria-label={shortlist.includes(talent.id) ? `Remove ${talent.name} from shortlist` : `Shortlist ${talent.name}`}
+                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                            style={{ background: shortlist.includes(talent.id) ? "var(--color-accent-glow)" : "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                            onClick={e => { e.stopPropagation(); toggleShortlist(talent.id); }}
+                          >
+                            <Star className={`w-4 h-4 ${shortlist.includes(talent.id) ? "fill-current" : ""}`} style={{ color: shortlist.includes(talent.id) ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {talent.tags.map(tag => (
+                            <Badge key={tag} tone="neutral" size="sm">{tag}</Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-display text-base tnum" style={{ color: "var(--color-accent)" }}>{talent.price}</span>
+                            <span className="text-xs font-body ml-1" style={{ color: "var(--color-text-tertiary)" }}>/ booking</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full" style={{ background: talent.available ? "var(--color-success)" : "var(--color-text-tertiary)" }} />
+                            <span className="text-xs font-body" style={{ color: talent.available ? "var(--color-success)" : "var(--color-text-tertiary)" }}>
+                              {talent.available ? "Available" : "Booked"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Talent profile modal */}
                 <AnimatePresence>
