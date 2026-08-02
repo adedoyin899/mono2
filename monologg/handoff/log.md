@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 46: Zero-Data Analytics Sync & Role-Peculiar Performance Metrics)
+**Last updated:** 2026-08-02 (Session 47: Tag Editor, Passcode Withdrawal, Project Detail View, Media Kit & Storefront Fixes)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -8,6 +8,34 @@ Chronological record of what was done, in what order, and why. Each entry names 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
 
 ---
+
+## Session 47 (2026-08-02) — Tag Editor, Passcode Withdrawal, Project Detail View, Media Kit & Storefront Fixes
+
+**Goal:** Complete all outstanding UX items across Talent and Client dashboards, fix all test failures, and push to production.
+
+**Changes Made:**
+1. **`CreatorOnboarding.tsx`** — Added missing `tags` / `setTags` state (was referenced in handlers but never declared, causing `ReferenceError` in tests). Tag editor allows add/remove up to max 7 tags. Currency selector (`₦`, `$`, `£`, `€`) + comma-formatted price input added.
+2. **`TalentDashboard.tsx`**:
+   - Project Browse cards + My Applications cards now open a dedicated project detail view on click (pitch, status, withdraw button with `stopPropagation`).
+   - Withdrawal modal: 4-digit security passcode challenge gates every withdrawal; failed attempts show error.
+   - Successful withdrawals deduct balance via `appStateSync.withdraw()` and prepend to `payouts` state for instant history update.
+   - Rate Card creation: currency selector + comma-formatted price input.
+3. **`Settings.tsx`** — Security Withdrawal Passcode section (4-digit PIN, stored in `localStorage` as `monologg_withdrawal_passcode`, default `1234`). Payment methods: "Set as Default" button + delete confirmation modal.
+4. **`MediaKitManagement.tsx`** — `handleDownload` triggers browser PDF download; `handleShare` copies URL to clipboard and shows toast.
+5. **`PublicStorefront.tsx`** — Fixed **Rules of Hooks violation**: `useState`/handler were inside `if (notFound)` conditional, causing "Rendered more hooks than during the previous render" error. Moved both above the conditional. Added Share button to both the found-profile and not-found page headers.
+
+**Test Results:** 19/19 test files ✅, 73/73 tests ✅ (all previously failing tests now passing).
+**Git commit:** `cb106bb` — pushed to `origin/main` → Vercel deployment triggered.
+
+**Files touched:**
+- `apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/Settings.tsx`
+- `apps/web/src/app/pages/MediaKitManagement.tsx`
+- `apps/web/src/app/pages/PublicStorefront.tsx`
+
+---
+
 
 ## Session 46 (2026-08-02) — Zero-Data Analytics Sync & Role-Peculiar Performance Metrics
 
