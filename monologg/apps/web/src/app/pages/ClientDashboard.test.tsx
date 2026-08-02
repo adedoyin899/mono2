@@ -13,7 +13,7 @@ async function renderDiscoverTab() {
       <ClientDashboard />
     </MemoryRouter>,
   );
-  fireEvent.click(screen.getByText("Find Talent"));
+  fireEvent.click(screen.getAllByText("Find Talent")[0]!);
   // AnimatePresence (mode="wait") delays mounting the next tab until the
   // previous one's exit transition finishes — same gotcha AuthFlow.test.tsx/
   // ProjectBrief.test.tsx already document; await the switch via something

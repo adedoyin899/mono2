@@ -1,11 +1,37 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-01 (Session 41: Interactive Storytelling Loops & Landing Page CTA Enhancements)
+**Last updated:** 2026-08-02 (Session 42: Comprehensive Default States & Onboarding Nudges for Talent and Client Portals)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 42 (2026-08-02) — Comprehensive Default States & Onboarding Nudges for Talent and Client Portals
+
+**Goal:** Provide full default/new-user experience with zero data state for newly signed-up users across all Talent and Client navigation tabs, including onboarding action nudges and friendly empty states.
+
+**Changes Made:**
+1. **Talent Dashboard (`TalentDashboard.tsx`)**:
+   - Added interactive `isNewUser` mode toggle button in both Desktop & Mobile headers to toggle zero-data state vs active demo state.
+   - Built **Talent Onboarding Action Nudges Checklist Card** on Home tab with progress progress bar (Storefront, Rate Cards, Availability, Project Briefs).
+   - Implemented ₦0 balance state and empty recent activity view.
+   - Built comprehensive empty states with descriptive copy and action CTAs across all navigation tabs: Rate Cards, Availability / Calendar, Projects / Applications, Active Orders, Activity History, Earnings & Escrow Payouts, and Analytics.
+2. **Client Dashboard (`ClientDashboard.tsx`)**:
+   - Added interactive `isNewUser` mode toggle button in both Desktop & Mobile headers.
+   - Built **Client Onboarding Action Nudges Checklist Card** on Home tab with progress indicator (Company Profile, Post Brief, Find Talent, Shortlist).
+   - Implemented ₦0 total spent hero state and zero-activity state.
+   - Built empty state components with action CTAs across all navigation tabs: Discover (empty search & attribute filters reset CTA), My Projects, Active Orders, Shortlisted Talent, Activity History, and Hiring & Budget Analytics.
+3. **Tests (`ClientDashboard.test.tsx`)**:
+   - Updated DOM text queries to handle multiple "Find Talent" action targets gracefully.
+   - Verified 100% clean test suite execution (19 files, 72 tests passed).
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
 
 ---
 

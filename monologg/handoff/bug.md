@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-01 (Session 41: Interactive Storytelling Loops & Landing Page CTA Enhancements)
+**Last updated:** 2026-08-02 (Session 42: Comprehensive Default States & Onboarding Nudges for Talent and Client Portals)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -13,10 +13,19 @@ This tracks every defect found during this engagement — both classic "the buil
 | **High** | Blocks a build, a dev-server start, or a core feature entirely until fixed |
 | **Medium** | Everything still runs, but the underlying issue creates real risk — either it silently produces wrong output, or it will cause a future change to not take effect everywhere it should |
 | **Low** | Cosmetic, or a pre-existing minor issue with no functional impact |
+| **Resolution** | Resolved and validated via clean test suite pass |
 
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 19. Missing Zero-Data Default States & Onboarding Nudges for New Talent & Client Accounts
+
+- **Severity:** Medium
+- **What happened:** When a user newly signed up as either Talent or Client, opening their respective portal showed pre-populated fixture data (e.g. ₦850k earnings/spend, existing projects, past orders) with no dedicated empty views or guidance on what actions to take first.
+- **What it meant:** New users were confused seeing pre-populated fake history instead of zero-data empty states and actionable onboarding nudges guiding them through setting up rate cards, creating briefs, or finding talent.
+- **Root cause:** Navigation dashboards lacked a top-level zero-state toggle and default conditional rendering logic across navigation tabs.
+- **Resolution:** Implemented `isNewUser` mode toggle, built Home tab Onboarding Action Nudge Checklist cards for both Talent and Client accounts, and added friendly empty state views with direct action CTAs across every single navigation menu/tab.
 
 ### 18. TalentDashboard.tsx type safety mismatch & dead modal rate card actions
 

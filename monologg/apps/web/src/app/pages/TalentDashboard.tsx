@@ -208,6 +208,21 @@ export function TalentDashboard() {
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [isNewUser, setIsNewUser] = useState(false);
+
+  const effectiveServices = isNewUser ? [] : services;
+  const effectiveOrders = isNewUser ? [] : orders;
+  const effectiveApplications = isNewUser ? [] : myApplications;
+  const effectivePayouts = isNewUser ? [] : payouts;
+  const effectiveActivity = isNewUser ? [] : activity;
+  const effectiveStats = isNewUser
+    ? [
+        { label: "Available Balance", value: "₦0" },
+        { label: "Completed Bookings", value: "0" },
+        { label: "Active Orders", value: "0" },
+        { label: "Profile Views", value: "0" },
+      ]
+    : stats;
 
   useEffect(() => {
     const sync = () => {
@@ -418,6 +433,14 @@ export function TalentDashboard() {
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setIsNewUser(!isNewUser)}
+            className="text-xs px-2.5 py-1 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
+            title="Toggle between New User empty state and Active Demo state"
+          >
+            <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
+            {isNewUser ? "New User" : "Demo"}
+          </button>
           <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center relative hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }}>
             <Bell className="w-[18px] h-[18px]" style={{ color: "var(--color-text-secondary)" }} />
             {unreadCount > 0 && (
@@ -462,6 +485,14 @@ export function TalentDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsNewUser(!isNewUser)}
+                className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
+                title="Toggle between New User empty state and Active Demo state"
+              >
+                <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
+                {isNewUser ? "Mode: New User" : "Mode: Active Demo"}
+              </button>
               {activeTab === "storefront" && (
                 <Button variant="secondary" className="h-10 px-4 text-sm gap-2" onClick={() => setShowShare(true)}>
                   <Share2 className="w-4 h-4" /> Share Profile
@@ -487,6 +518,97 @@ export function TalentDashboard() {
             {activeTab === "home" && (
               <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
 
+                {/* Onboarding Action Nudges Checklist Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-5 rounded-[var(--radius-xl)] border border-[var(--color-accent)]/30 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-bg-surface)] to-[var(--color-bg-surface)] relative overflow-hidden"
+                  style={{ boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent-on)] text-xs font-bold font-mono">
+                        {isNewUser ? "1/5" : "4/5"}
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                          {isNewUser ? "Welcome! Complete your Talent Setup" : "Career Checklist & Action Nudges"}
+                        </h3>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          {isNewUser ? "Follow these steps to unlock client bookings and start earning." : "Key steps to maximize your visibility and client booking conversion."}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Profile"}</Badge>
+                  </div>
+
+                  <div className="w-full h-1.5 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden mb-4">
+                    <div className="h-full bg-[var(--color-accent)] rounded-full transition-all duration-500" style={{ width: isNewUser ? "20%" : "80%" }} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button
+                      onClick={() => setActiveTab("storefront")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Storefront <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Bio & headshots</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("rates")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <DollarSign className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Rate Cards <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Add services & price</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("calendar")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Availability <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Set working slots</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Apply to Briefs <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Browse open roles</div>
+                      </div>
+                    </button>
+                  </div>
+                </motion.div>
+
                 {/* HERO — earnings moment */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
@@ -501,13 +623,19 @@ export function TalentDashboard() {
                   <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
                   <div className="relative">
                     <div className="text-xs font-body uppercase tracking-wider" style={{ opacity: 0.85 }}>Available balance</div>
-                    <div className="font-display tnum leading-none mt-2" style={{ fontSize: "clamp(2.5rem, 9vw, 3.5rem)" }}>₦148,000</div>
+                    <div className="font-display tnum leading-none mt-2" style={{ fontSize: "clamp(2.5rem, 9vw, 3.5rem)" }}>
+                      {isNewUser ? "₦0" : "₦148,000"}
+                    </div>
                     <div className="flex items-center gap-1.5 mt-3 text-sm font-body" style={{ opacity: 0.9 }}>
-                      <TrendingUp className="w-4 h-4" /> +18% vs last month
+                      <TrendingUp className="w-4 h-4" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
                     </div>
                     <div className="flex gap-2.5 mt-5">
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>Withdraw</button>
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "rgba(255,255,255,0.18)", color: "var(--color-accent-on)" }}>View earnings</button>
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>
+                        {isNewUser ? "Setup Payouts" : "Withdraw"}
+                      </button>
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "rgba(255,255,255,0.18)", color: "var(--color-accent-on)" }}>
+                        View earnings
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -537,7 +665,7 @@ export function TalentDashboard() {
                   className="grid grid-cols-3 mb-6 p-5 rounded-[var(--radius-lg)]"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
                 >
-                  {stats.slice(1).map((stat, i) => (
+                  {effectiveStats.slice(1).map((stat, i) => (
                     <div key={i} className="text-center px-2" style={{ borderLeft: i > 0 ? "1px solid var(--color-hairline)" : undefined }}>
                       <div className="font-display text-2xl tnum" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
                       <div className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
@@ -552,38 +680,52 @@ export function TalentDashboard() {
                     View all →
                   </button>
                 </div>
-                <div className="space-y-2.5">
-                  {activity.map((item, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-                      onClick={() => {
-                        if (item.type === "booking") navigate("/order/ORD-001");
-                        else if (item.type === "payment") setActiveTab("earnings");
-                        else if (item.type === "message") setActiveTab("orders");
-                      }}
-                      className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
-                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
-                    >
-                      <div
-                        className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
-                        style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+
+                {effectiveActivity.length === 0 ? (
+                  <div className="text-center py-10 px-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
+                    <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mx-auto mb-3 text-[var(--color-accent)]">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>No activity logged yet</p>
+                    <p className="text-xs font-body mt-1 mb-4 text-[var(--color-text-secondary)]">Complete your profile and apply to open projects to get client bookings.</p>
+                    <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="h-9 px-4 text-xs">
+                      Browse Open Projects
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {effectiveActivity.map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
+                        onClick={() => {
+                          if (item.type === "booking") navigate("/order/ORD-001");
+                          else if (item.type === "payment") setActiveTab("earnings");
+                          else if (item.type === "message") setActiveTab("orders");
+                        }}
+                        className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
                       >
-                        {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
-                        {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
-                        {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
-                        <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.service}</div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
-                        <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                        <div
+                          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+                          style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+                        >
+                          {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
+                          {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
+                          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.service}</div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
+                          <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Profile completion prompt */}
                 <div
@@ -759,8 +901,22 @@ export function TalentDashboard() {
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {services.map(service => (
+                {effectiveServices.length === 0 ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <DollarSign className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Rate Cards Created Yet</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Create fixed-price service rate cards so clients can instantly book your voice-over, acting, or compere services.
+                    </p>
+                    <Button onClick={() => setShowAddService(true)} className="gap-2">
+                      <Plus className="w-4 h-4" /> Create Your First Rate Card
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {effectiveServices.map(service => (
                     <div
                       key={service.id}
                       className="p-5 rounded-[var(--radius-lg)]"
@@ -821,6 +977,7 @@ export function TalentDashboard() {
                     <Plus className="w-4 h-4" /> Add another service
                   </button>
                 </div>
+                )}
 
                 {/* Add/Edit Service Modal */}
                 <AnimatePresence>
@@ -1278,15 +1435,21 @@ export function TalentDashboard() {
                   </>
                 ) : (
                   <div className="space-y-3">
-                    {myApplications.length === 0 ? (
-                      <div className="text-center py-16">
-                        <Send className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
-                        <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No applications yet</h3>
-                        <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>Browse open projects and apply to get started.</p>
-                        <Button onClick={() => setProjectsSubTab("browse")}>Browse Projects</Button>
+                    {effectiveApplications.length === 0 ? (
+                      <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                          <Briefcase className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Applications Submitted Yet</h3>
+                        <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6">
+                          You haven't submitted pitches to any active project briefs. Browse open roles in commercial, film, and voiceover to submit your profile.
+                        </p>
+                        <Button onClick={() => setProjectsSubTab("browse")} className="gap-2">
+                          <Search className="w-4 h-4" /> Browse Open Projects
+                        </Button>
                       </div>
                     ) : (
-                      myApplications.map((application) => (
+                      effectiveApplications.map((application) => (
                         <div key={application.id} className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <div>
@@ -1317,16 +1480,27 @@ export function TalentDashboard() {
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
-                {orders.length === 0 ? (
-                  <div className="text-center py-16">
-                    <MessageSquare className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
-                    <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No active orders</h3>
-                    <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>Complete your storefront to start receiving bookings.</p>
-                    <Button onClick={() => setActiveTab("storefront")}>Set Up Storefront</Button>
+                {effectiveOrders.length === 0 ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <MessageSquare className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Orders</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      You don't have any bookings in progress right now. Share your storefront link or pitch to open projects to land client orders.
+                    </p>
+                    <div className="flex gap-3">
+                      <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="gap-2">
+                        <Briefcase className="w-4 h-4" /> Apply to Projects
+                      </Button>
+                      <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
+                        <Share2 className="w-4 h-4" /> Share Storefront Link
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {orders.map(order => (
+                    {effectiveOrders.map(order => (
                       <div
                         key={order.id}
                         className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
@@ -1429,43 +1603,62 @@ export function TalentDashboard() {
 
                 {/* Activity List */}
                 <div className="space-y-3">
-                  {activity
-                    .filter(item => {
-                      const matchesSearch = !activitySearch || item.client.toLowerCase().includes(activitySearch.toLowerCase()) || item.service.toLowerCase().includes(activitySearch.toLowerCase());
-                      const matchesFilter = activityFilter === "all" || item.type === activityFilter;
-                      return matchesSearch && matchesFilter;
-                    })
-                    .map((item, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                        onClick={() => {
-                          if (item.type === "booking") navigate("/order/ORD-001");
-                          else if (item.type === "payment") setActiveTab("earnings");
-                          else if (item.type === "message") setActiveTab("orders");
-                        }}
-                        className="flex items-center gap-4 p-4 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                      >
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-                          style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+                  {effectiveActivity.filter(item => {
+                    const matchesSearch = !activitySearch || item.client.toLowerCase().includes(activitySearch.toLowerCase()) || item.service.toLowerCase().includes(activitySearch.toLowerCase());
+                    const matchesFilter = activityFilter === "all" || item.type === activityFilter;
+                    return matchesSearch && matchesFilter;
+                  }).length === 0 ? (
+                    <div className="text-center py-12 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
+                        <Bell className="w-7 h-7" />
+                      </div>
+                      <h3 className="font-display text-lg font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>No Activity Records Found</h3>
+                      <p className="text-xs font-body text-[var(--color-text-secondary)] max-w-md mb-4">
+                        Activity logs will populate as you send messages, submit project pitches, and complete client bookings.
+                      </p>
+                      <Button onClick={() => setActiveTab("projects")} className="text-xs gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5" /> Explore Projects
+                      </Button>
+                    </div>
+                  ) : (
+                    effectiveActivity
+                      .filter(item => {
+                        const matchesSearch = !activitySearch || item.client.toLowerCase().includes(activitySearch.toLowerCase()) || item.service.toLowerCase().includes(activitySearch.toLowerCase());
+                        const matchesFilter = activityFilter === "all" || item.type === activityFilter;
+                        return matchesSearch && matchesFilter;
+                      })
+                      .map((item, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                          onClick={() => {
+                            if (item.type === "booking") navigate("/order/ORD-001");
+                            else if (item.type === "payment") setActiveTab("earnings");
+                            else if (item.type === "message") setActiveTab("orders");
+                          }}
+                          className="flex items-center gap-4 p-4 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                         >
-                          {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
-                          {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
-                          {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
-                          <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{item.service}</div>
-                          <div className="text-[11px] font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Click to view details →</div>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
-                          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
-                        </div>
-                      </motion.div>
-                    ))}
+                          <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                            style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+                          >
+                            {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                            {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
+                            {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
+                            <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{item.service}</div>
+                            <div className="text-[11px] font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Click to view details →</div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
+                            <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
+                          </div>
+                        </motion.div>
+                      ))
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1545,28 +1738,39 @@ export function TalentDashboard() {
                     <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Recent Payouts</span>
                     <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Click any row for receipt</span>
                   </div>
-                  {payouts.map((payout, i, arr) => (
-                    <div
-                      key={payout.id}
-                      onClick={() => setSelectedPayout(payout)}
-                      className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[var(--color-bg-elevated)] transition-colors"
-                      style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--color-border-default)" : undefined }}
-                    >
-                      <div>
-                        <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{payout.from}</div>
-                        <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date} · {payout.ref}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{payout.amount}</div>
-                        <div
-                          className="text-xs font-body font-medium"
-                          style={{ color: payout.status === "Paid" ? "var(--color-success)" : "var(--color-gold)" }}
-                        >
-                          {payout.status}
+                  {effectivePayouts.length === 0 ? (
+                    <div className="py-10 px-4 text-center">
+                      <BarChart2 className="w-10 h-10 mx-auto mb-2 text-[var(--color-text-tertiary)] opacity-60" />
+                      <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>No payouts recorded yet</p>
+                      <p className="text-xs font-body text-[var(--color-text-secondary)] mt-1 mb-3">Completed order earnings will be transferred directly to your bank account.</p>
+                      <Button variant="secondary" onClick={() => navigate("/settings")} className="h-8 px-3 text-xs">
+                        Configure Bank Account
+                      </Button>
+                    </div>
+                  ) : (
+                    effectivePayouts.map((payout, i, arr) => (
+                      <div
+                        key={payout.id}
+                        onClick={() => setSelectedPayout(payout)}
+                        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[var(--color-bg-elevated)] transition-colors"
+                        style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--color-border-default)" : undefined }}
+                      >
+                        <div>
+                          <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{payout.from}</div>
+                          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date} · {payout.ref}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{payout.amount}</div>
+                          <div
+                            className="text-xs font-body font-medium"
+                            style={{ color: payout.status === "Paid" ? "var(--color-success)" : "var(--color-gold)" }}
+                          >
+                            {payout.status}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1581,11 +1785,26 @@ export function TalentDashboard() {
                       Track storefront impressions, booking conversion, and earnings velocity for {talentProfile.name}.
                     </p>
                   </div>
-                  <Badge tone="success" size="md">Live Sync Active</Badge>
+                  <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
                 </div>
 
-                {/* Metric Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {isNewUser ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <TrendingUp className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Analytics Will Unlock Soon</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Storefront views, conversion metrics, and monthly booking trends will automatically track as clients view your profile and send booking requests.
+                    </p>
+                    <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
+                      <Share2 className="w-4 h-4" /> Share Profile to Drive Views
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Metric Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                     <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Storefront Views</div>
                     <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
@@ -1665,6 +1884,8 @@ export function TalentDashboard() {
                     </div>
                   </div>
                 </div>
+                </>
+                )}
               </motion.div>
             )}
 

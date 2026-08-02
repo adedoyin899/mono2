@@ -1,7 +1,7 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-01 (Session 41: Interactive Storytelling Loops & Landing Page CTA Enhancements)
-**Status:** All 18 phases of `features.md` (0–17) are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
+**Last updated:** 2026-08-02 (Session 42: Comprehensive Default States & Onboarding Nudges for Talent and Client Portals)
+**Status:** All 18 phases of `features.md` (0–17) are built and committed, plus Session 42 Default States & New User Onboarding Nudges. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
 
 **Open, gate-blocking items as of Phase 17** (full detail in `monologg/qa/2026-07-31-phase17/`, not repeated here — see that folder's own README for the complete PENDING list):
 - **P0/P1 security**: `PATCH /verification-recordings/:id/review` has no reviewer/ownership check — any authenticated user (including the recording's own creator) can approve it. Needs a real moderator role before real users are onboarded.
@@ -17,6 +17,15 @@ This is the single place to see, at a glance: what's done, what's actively in pr
 ---
 
 ## ✅ Done
+
+### Session 42 — Default States & New User Onboarding Nudges across Talent and Client Portals
+- [x] Added `isNewUser` mode toggles on Talent and Client dashboards for testing zero-data states.
+- [x] Built interactive Onboarding Action Nudges Checklist card on Talent Home tab.
+- [x] Built interactive Onboarding Action Nudges Checklist card on Client Home tab.
+- [x] Built zero balance / zero spend hero states and zero activity states on Talent & Client Home tabs.
+- [x] Built dedicated empty state views with descriptive copy and action CTAs across all Talent navigation tabs (Rate Cards, Availability/Calendar, Projects, Orders, Activity, Earnings, Analytics).
+- [x] Built dedicated empty state views with descriptive copy and action CTAs across all Client navigation tabs (Discover, Projects, Orders, Shortlist, Activity, Analytics).
+- [x] Verified full unit test suite passing cleanly (19 test suites, 72 tests).
 
 ### Phase 1 — Get the product running
 - [x] Extract and identify real source code from the four Figma Make export zips

@@ -120,6 +120,20 @@ export function ClientDashboard() {
     { id: "act-3", type: "payment", title: "Escrow Locked", desc: "₦120,000 locked securely for Nike Campaign VO", time: "2d ago", refId: "ORD-001" },
     { id: "act-4", type: "message", title: "New Message", desc: "Emeka Johnson uploaded script audio file", time: "3d ago", refId: "ORD-001" },
   ]);
+  const [isNewUser, setIsNewUser] = useState(false);
+
+  const effectiveProjects = isNewUser ? [] : projects;
+  const effectiveOrders = isNewUser ? [] : orders;
+  const effectiveShortlist = isNewUser ? [] : shortlist;
+  const effectiveActivity = isNewUser ? [] : activity;
+  const effectiveStats = isNewUser
+    ? [
+        { label: "Total Spent", value: "₦0" },
+        { label: "Active Projects", value: "0" },
+        { label: "Talent Hired", value: "0" },
+        { label: "Applicants", value: "0" },
+      ]
+    : stats;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -248,7 +262,7 @@ export function ClientDashboard() {
     return matchesSearch && matchesNiche;
   });
 
-  const filteredActivity = activity.filter(item => {
+  const filteredActivity = effectiveActivity.filter(item => {
     const matchesQuery = item.title.toLowerCase().includes(activitySearch.toLowerCase()) || item.desc.toLowerCase().includes(activitySearch.toLowerCase());
     const matchesKind = activityFilter === "all" || item.type === activityFilter;
     return matchesQuery && matchesKind;
@@ -284,6 +298,14 @@ export function ClientDashboard() {
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setIsNewUser(!isNewUser)}
+            className="text-xs px-2.5 py-1 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
+            title="Toggle between New User empty state and Active Demo state"
+          >
+            <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
+            {isNewUser ? "New User" : "Demo"}
+          </button>
           <button
             aria-label="View notifications"
             onClick={() => setShowNotifications(true)}
@@ -330,6 +352,14 @@ export function ClientDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsNewUser(!isNewUser)}
+                className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
+                title="Toggle between New User empty state and Active Demo state"
+              >
+                <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
+                {isNewUser ? "Mode: New User" : "Mode: Active Demo"}
+              </button>
               <Button className="h-10 px-4 text-sm gap-2" onClick={() => navigate("/brief")}>
                 <Plus className="w-4 h-4" /> Post Project
               </Button>
@@ -353,6 +383,97 @@ export function ClientDashboard() {
             {activeTab === "home" && (
               <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
 
+                {/* Onboarding Action Nudges Checklist Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-5 rounded-[var(--radius-xl)] border border-[var(--color-accent)]/30 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-bg-surface)] to-[var(--color-bg-surface)] relative overflow-hidden"
+                  style={{ boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent-on)] text-xs font-bold font-mono">
+                        {isNewUser ? "1/4" : "3/4"}
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                          {isNewUser ? "Welcome! Get Started as a Client" : "Client Onboarding & Action Nudges"}
+                        </h3>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          {isNewUser ? "Follow these steps to discover, shortlist, and hire top talent for your productions." : "Actions to streamline talent acquisition for your current projects."}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Client"}</Badge>
+                  </div>
+
+                  <div className="w-full h-1.5 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden mb-4">
+                    <div className="h-full bg-[var(--color-accent)] rounded-full transition-all duration-500" style={{ width: isNewUser ? "25%" : "75%" }} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button
+                      onClick={() => navigate("/settings?role=client")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Company Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Brand details</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/brief")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Plus className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Post Project Brief <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Receive applications</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("discover")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Search className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Find Talent <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Filter by niche & style</div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("shortlist")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Star className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Shortlist Creators <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Bookmark favorites</div>
+                      </div>
+                    </button>
+                  </div>
+                </motion.div>
+
                 {/* HERO — spend / budget moment */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
@@ -367,9 +488,11 @@ export function ClientDashboard() {
                   <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
                   <div className="relative">
                     <div className="text-xs font-body uppercase tracking-wider" style={{ opacity: 0.85 }}>Total spent · 2024</div>
-                    <div className="font-display tnum leading-none mt-2" style={{ fontSize: "clamp(2.5rem, 9vw, 3.5rem)" }}>₦850,000</div>
+                    <div className="font-display tnum leading-none mt-2" style={{ fontSize: "clamp(2.5rem, 9vw, 3.5rem)" }}>
+                      {isNewUser ? "₦0" : "₦850,000"}
+                    </div>
                     <div className="flex items-center gap-1.5 mt-3 text-sm font-body" style={{ opacity: 0.9 }}>
-                      <Briefcase className="w-4 h-4" /> 4 active projects · 12 talents hired
+                      <Briefcase className="w-4 h-4" /> {isNewUser ? "0 active projects · 0 talents hired" : "4 active projects · 12 talents hired"}
                     </div>
                     <div className="flex gap-2.5 mt-5">
                       <button onClick={() => navigate("/brief")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>Post a project</button>
@@ -403,7 +526,7 @@ export function ClientDashboard() {
                   className="grid grid-cols-3 mb-6 p-5 rounded-[var(--radius-lg)]"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
                 >
-                  {stats.filter((_, i) => i !== 2).map((stat, i) => (
+                  {effectiveStats.filter((_, i) => i !== 2).map((stat, i) => (
                     <div key={i} className="text-center px-2" style={{ borderLeft: i > 0 ? "1px solid var(--color-hairline)" : undefined }}>
                       <div className="font-display text-2xl tnum" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
                       <div className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
@@ -416,39 +539,52 @@ export function ClientDashboard() {
                   <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
                   <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>View all →</button>
                 </div>
-                <div className="space-y-2.5">
-                  {activity.slice(0, 4).map((item, i) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-                      className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer transition-transform active:scale-[0.98]"
-                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 64 }}
-                      onClick={() => {
-                        if (item.type === "project" || item.type === "application") {
-                          setActiveTab("projects");
-                        } else if (item.type === "payment") {
-                          navigate("/transactions");
-                        } else {
-                          navigate("/order/ORD-001");
-                        }
-                      }}
-                    >
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
-                        {item.type === "project" && <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
-                        {item.type === "application" && <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
-                        {item.type === "payment" && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
-                        {item.type === "message" && <MessageSquare className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.title}</div>
-                        <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.desc}</div>
-                      </div>
-                      <div className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
-                        {item.time}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                {effectiveActivity.length === 0 ? (
+                  <div className="text-center py-10 px-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
+                    <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mx-auto mb-3 text-[var(--color-accent)]">
+                      <AlertCircle className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>No activity logged yet</p>
+                    <p className="text-xs font-body mt-1 mb-4 text-[var(--color-text-secondary)]">Post a project brief or discover talent to start building your activity log.</p>
+                    <Button onClick={() => navigate("/brief")} className="h-9 px-4 text-xs">
+                      Post a Project Brief
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {effectiveActivity.slice(0, 4).map((item, i) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
+                        className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer transition-transform active:scale-[0.98]"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 64 }}
+                        onClick={() => {
+                          if (item.type === "project" || item.type === "application") {
+                            setActiveTab("projects");
+                          } else if (item.type === "payment") {
+                            navigate("/transactions");
+                          } else {
+                            navigate("/order/ORD-001");
+                          }
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
+                          {item.type === "project" && <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "application" && <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "payment" && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
+                          {item.type === "message" && <MessageSquare className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.title}</div>
+                          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.desc}</div>
+                        </div>
+                        <div className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
+                          {item.time}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -919,8 +1055,22 @@ export function ClientDashboard() {
                       </Button>
                     </div>
 
-                    <div className="space-y-4">
-                      {projects.map(project => (
+                    {effectiveProjects.length === 0 ? (
+                      <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                          <Briefcase className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Projects Created Yet</h3>
+                        <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                          Post a project brief with your role requirements, budget, and timeline to start receiving pitches from verified talent.
+                        </p>
+                        <Button onClick={() => navigate("/brief")} className="gap-2">
+                          <Plus className="w-4 h-4" /> Post Your First Project Brief
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {effectiveProjects.map(project => (
                         <div key={project.id} className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                           <div className="flex items-start justify-between gap-4 mb-3">
                             <div>
@@ -958,6 +1108,7 @@ export function ClientDashboard() {
                         <Plus className="w-4 h-4" /> Post a new project
                       </button>
                     </div>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -967,8 +1118,27 @@ export function ClientDashboard() {
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
-                <div className="space-y-4">
-                  {orders.map(order => (
+                {effectiveOrders.length === 0 ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <MessageSquare className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Collaborations</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      You don't have any active bookings or talent hires right now. Search the talent marketplace or review project applications to start an order.
+                    </p>
+                    <div className="flex gap-3">
+                      <Button onClick={() => setActiveTab("discover")} className="gap-2">
+                        <Search className="w-4 h-4" /> Discover Talent
+                      </Button>
+                      <Button variant="secondary" onClick={() => navigate("/brief")} className="gap-2">
+                        <Plus className="w-4 h-4" /> Post Project Brief
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {effectiveOrders.map(order => (
                     <div
                       key={order.id}
                       className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
@@ -1015,6 +1185,7 @@ export function ClientDashboard() {
                     </div>
                   ))}
                 </div>
+                )}
               </motion.div>
             )}
 
@@ -1022,16 +1193,22 @@ export function ClientDashboard() {
             {activeTab === "shortlist" && (
               <motion.div key="shortlist" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Shortlisted Talent</h2>
-                {shortlist.length === 0 ? (
-                  <div className="text-center py-16">
-                    <Star className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-text-tertiary)" }} />
-                    <h3 className="font-body text-lg font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No saved talent yet</h3>
-                    <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>Browse talent and click the star icon to save them here.</p>
-                    <Button onClick={() => setActiveTab("discover")}>Browse Talent</Button>
+                {effectiveShortlist.length === 0 ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <Star className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Your Shortlist is Empty</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Bookmark creators while searching the talent directory so you can easily compare their rate cards and hire them for upcoming projects.
+                    </p>
+                    <Button onClick={() => setActiveTab("discover")} className="gap-2">
+                      <Search className="w-4 h-4" /> Explore Talent Directory
+                    </Button>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {talents.filter(t => shortlist.includes(t.id)).map(talent => (
+                    {talents.filter(t => effectiveShortlist.includes(t.id)).map(talent => (
                       <div key={talent.id} className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                         <div className="flex items-center gap-3 mb-3">
                           <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">
@@ -1069,11 +1246,26 @@ export function ClientDashboard() {
                       Overview of campaign spending, talent acquisition funnel, and escrow release metrics for {clientProfile.orgName || clientProfile.name}.
                     </p>
                   </div>
-                  <Badge tone="success" size="md">Live Sync Active</Badge>
+                  <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
                 </div>
 
-                {/* Metric Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {isNewUser ? (
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <TrendingUp className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Hiring Analytics Pending</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Metrics on talent engagement, application response rates, and total booking spend will be tracked here once you initiate hiring campaigns.
+                    </p>
+                    <Button onClick={() => setActiveTab("discover")} className="gap-2">
+                      <Search className="w-4 h-4" /> Discover Talent
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Metric Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                     <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Escrow Allocated</div>
                     <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>₦850,000</div>
@@ -1166,6 +1358,8 @@ export function ClientDashboard() {
                     </div>
                   </div>
                 </div>
+                </>
+                )}
               </motion.div>
             )}
 
