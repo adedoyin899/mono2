@@ -8,7 +8,7 @@ import { Logo } from "../components/ui/Logo";
 import { apiClient } from "../../lib/api-client";
 import { useDocumentMeta } from "../../lib/documentMeta";
 import type { PublicStorefront as PublicStorefrontData } from "@monologg/types";
-import { Shield, Award, Play, Music, ArrowRight, Lock, CheckCircle2, Users } from "lucide-react";
+import { Shield, Award, Play, Music, ArrowRight, Lock, CheckCircle2, Users, Share2 } from "lucide-react";
 
 /**
  * The public marketplace profile (features.md Phase 15, FA-3):
@@ -89,19 +89,36 @@ export function PublicStorefront() {
       : null,
   );
 
+  const [copiedStorefrontLink, setCopiedStorefrontLink] = useState(false);
+
+  const handleShareStorefront = async () => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(window.location.href);
+      }
+      setCopiedStorefrontLink(true);
+      setTimeout(() => setCopiedStorefrontLink(false), 3000);
+    } catch {
+      setCopiedStorefrontLink(true);
+      setTimeout(() => setCopiedStorefrontLink(false), 3000);
+    }
+  };
+
   if (notFound) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
-        {/* ── Branded header even on error ── */}
-        <header className="h-14 px-5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
+      <div className={`min-h-screen flex flex-col ${roleThemeClass}`} style={{ background: "var(--color-bg-canvas)" }}>
+        {/* ── Header with logo & actions ── */}
+        <header className="h-14 px-5 flex items-center justify-between sticky top-0 z-40 backdrop-blur-xl" style={{ background: "color-mix(in srgb, var(--color-bg-canvas) 72%, transparent)", borderBottom: "1px solid var(--color-hairline)" }}>
           <Link to="/" aria-label="Monologg home">
             <Logo className="h-5 w-auto" style={{ color: "var(--color-text-primary)" }} />
           </Link>
-          <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
-            Sign In
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" className="h-9 px-4 text-xs" onClick={() => navigate("/auth")}>
+              Sign In
+            </Button>
+          </div>
         </header>
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <div className="flex-1 max-w-2xl mx-auto px-4 py-8 w-full flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-bg-elevated)" }}>
             <Users className="w-7 h-7" style={{ color: "var(--color-text-tertiary)" }} />
           </div>
@@ -130,6 +147,9 @@ export function PublicStorefront() {
           <Logo className="h-5 w-auto" style={{ color: "var(--color-text-primary)" }} />
         </Link>
         <div className="flex items-center gap-2">
+          <Button variant="secondary" className="h-9 px-3 text-sm gap-1.5" onClick={handleShareStorefront}>
+            <Share2 className="w-3.5 h-3.5" /> {copiedStorefrontLink ? "Copied!" : "Share"}
+          </Button>
           <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
             Sign In
           </Button>

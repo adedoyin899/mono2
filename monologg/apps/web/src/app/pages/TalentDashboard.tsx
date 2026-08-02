@@ -125,8 +125,8 @@ export function TalentDashboard() {
 
   const handleSaveService = async () => {
     if (!newServiceTitle.trim()) return;
-    const priceAmount = Number(newServicePrice.replace(/[^0-9]/g, ""));
-    const formattedPrice = `₦${priceAmount.toLocaleString()}`;
+    const num = Number(newServicePrice.replace(/[^0-9]/g, "")) || 0;
+    const formattedPrice = `${rateCardCurrency}${num.toLocaleString("en-US")}`;
 
     if (editServiceId) {
       await apiClient.updateService(editServiceId, {
@@ -146,7 +146,7 @@ export function TalentDashboard() {
     }
     apiClient.listServices().then(setServices);
     setNewServiceTitle("");
-    setNewServicePrice("45000");
+    setNewServicePrice("45,000");
     setNewServiceDelivery("24 Hours");
   };
 
@@ -208,6 +208,9 @@ export function TalentDashboard() {
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [withdrawPasscode, setWithdrawPasscode] = useState("");
+  const [withdrawPasscodeError, setWithdrawPasscodeError] = useState<string | null>(null);
+  const [rateCardCurrency, setRateCardCurrency] = useState("₦");
   const currentUser = appStateSync.getLoggedInUser();
   const [isNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? true) : false);
 
@@ -1057,16 +1060,34 @@ export function TalentDashboard() {
                           </div>
                           <div>
                             <label className="block text-xs font-medium mb-1.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
-                              Base Price
+                              Base Price &amp; Currency
                             </label>
-                            <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 font-body text-sm" style={{ color: "var(--color-text-secondary)" }}>₦</span>
-                              <Input
-                                className="pl-8"
-                                placeholder="45,000"
-                                value={newServicePrice}
-                                onChange={e => setNewServicePrice(e.target.value)}
-                              />
+                            <div className="flex gap-2">
+                              <select
+                                value={rateCardCurrency}
+                                onChange={(e) => setRateCardCurrency(e.target.value)}
+                                className="w-24 h-12 rounded-[var(--radius-md)] px-3 text-sm font-mono font-semibold border"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                              >
+                                <option value="₦">₦ (NGN)</option>
+                                <option value="$">$ (USD)</option>
+                                <option value="£">£ (GBP)</option>
+                                <option value="€">€ (EUR)</option>
+                              </select>
+                              <div className="relative flex-1">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                                  {rateCardCurrency}
+                                </span>
+                                <Input
+                                  className="pl-8 font-mono tnum"
+                                  placeholder="45,000"
+                                  value={newServicePrice}
+                                  onChange={(e) => {
+                                    const digits = e.target.value.replace(/\D/g, "");
+                                    setNewServicePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
                           <div>
@@ -1500,7 +1521,28 @@ export function TalentDashboard() {
                       </div>
                     ) : (
                       effectiveApplications.map((application) => (
-                        <div key={application.id} className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div
+                          key={application.id}
+                          onClick={() => {
+                            const found = projects.find((p) => p.id === application.brief.id) || {
+                              id: application.brief.id,
+                              projectName: application.brief.projectName,
+                              clientName: application.brief.clientName,
+                              projectType: "Voice-Over",
+                              budget: application.brief.budget,
+                              applicantCount: 1,
+                              applicantCap: 10,
+                              applicationsOpen: true,
+                              nicheReq: ["VOICE_OVER"],
+                              myApplication: application,
+                            };
+                            setSelectedProject(found);
+                            setPitchText(application.pitch ?? "");
+                            setApplyError(null);
+                          }}
+                          className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:opacity-90 transition-opacity"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        >
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <div>
                               <div className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{application.brief.projectName}</div>
@@ -1511,13 +1553,23 @@ export function TalentDashboard() {
                             </Badge>
                           </div>
                           {application.pitch && (
-                            <p className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>"{application.pitch}"</p>
+                            <p className="text-xs font-body mb-3 italic" style={{ color: "var(--color-text-secondary)" }}>"{application.pitch}"</p>
                           )}
-                          {(application.status === "APPLIED" || application.status === "SHORTLISTED") && (
-                            <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => handleWithdrawApplication(application.id)}>
-                              Withdraw
-                            </Button>
-                          )}
+                          <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                            <span className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>Tap to view project details &amp; pitch</span>
+                            {(application.status === "APPLIED" || application.status === "SHORTLISTED") && (
+                              <Button
+                                variant="secondary"
+                                className="h-7 px-2.5 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWithdrawApplication(application.id);
+                                }}
+                              >
+                                Withdraw
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       ))
                     )}
@@ -1943,7 +1995,7 @@ export function TalentDashboard() {
           {/* Withdraw Modal */}
           <AnimatePresence>
             {showWithdraw && (
-              <Modal onClose={() => setShowWithdraw(false)}>
+              <Modal onClose={() => { setShowWithdraw(false); setWithdrawPasscodeError(null); setWithdrawPasscode(""); }}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
                   className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
@@ -1952,10 +2004,17 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="font-display text-xl">Withdraw Funds</h3>
-                    <button onClick={() => setShowWithdraw(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                    <button onClick={() => { setShowWithdraw(false); setWithdrawPasscodeError(null); setWithdrawPasscode(""); }} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
                       <X className="w-4 h-4" />
                     </button>
                   </div>
+
+                  {withdrawPasscodeError && (
+                    <div className="p-3 rounded-xl mb-4 text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
+                      {withdrawPasscodeError}
+                    </div>
+                  )}
+
                   <div className="mb-4">
                     <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
                     <Input
@@ -1975,7 +2034,8 @@ export function TalentDashboard() {
                       Available for withdrawal: <strong>₦{appStateSync.getBalance().available.toLocaleString()}</strong>
                     </div>
                   </div>
-                  <div className="mb-6">
+
+                  <div className="mb-4">
                     <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
                     <div className="p-3 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
                       <div>
@@ -1985,48 +2045,73 @@ export function TalentDashboard() {
                       <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-success)" }} />
                     </div>
                   </div>
+
+                  <div className="mb-6">
+                    <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>4-Digit Security Passcode</label>
+                    <Input
+                      type="password"
+                      maxLength={4}
+                      placeholder="Enter 4-digit PIN (default 1234)"
+                      className="font-mono text-center tracking-widest text-base"
+                      value={withdrawPasscode}
+                      onChange={(e) => { setWithdrawPasscodeError(null); setWithdrawPasscode(e.target.value.replace(/\D/g, "").slice(0, 4)); }}
+                    />
+                    <div className="text-[11px] font-body mt-1 text-[var(--color-text-tertiary)]">
+                      Separate from your password. Set or update passcode in Settings.
+                    </div>
+                  </div>
+
                   <Button className="w-full h-11" onClick={async () => {
                     const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
                     const available = appStateSync.getBalance().available;
-                    if (!amt || amt <= 0) return;
-                    if (amt > available) {
-                      alert("Withdrawal amount exceeds available balance.");
+                    const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
+
+                    if (!amt || amt <= 0) {
+                      setWithdrawPasscodeError("Please enter a valid withdrawal amount.");
                       return;
                     }
-                    const ok = await apiClient.withdrawFunds(amt);
-                    if (ok) {
-                      const bank = appStateSync.getBankDetails();
-                      const newPayoutItem = {
-                        id: `pay-${Date.now()}`,
-                        from: "Direct Withdrawal",
-                        service: `Payout to ${bank.bankName}`,
-                        amount: `₦${amt.toLocaleString()}`,
-                        numericAmount: amt,
-                        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-                        time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-                        status: "Paid" as const,
-                        ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-                        bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
-                      };
-                      setPayouts(prev => [newPayoutItem, ...prev]);
-                      setActivity(prev => [
-                        {
-                          type: "payment",
-                          status: "Completed",
-                          client: "Monologg Payout",
-                          service: `Withdrawal to ${bank.bankName}`,
-                          amount: `₦${amt.toLocaleString()}`,
-                          time: "Just now",
-                        },
-                        ...prev,
-                      ]);
-                      alert(`Successfully transferred ₦${amt.toLocaleString()} to ${bank.bankName}!`);
-                      setShowWithdraw(false);
-                      setWithdrawAmount("");
-                      apiClient.getTalentStats().then(setStats);
-                    } else {
-                      alert("Withdrawal amount exceeds available balance.");
+                    if (amt > available) {
+                      setWithdrawPasscodeError(`Withdrawal amount (₦${amt.toLocaleString()}) exceeds available balance (₦${available.toLocaleString()}).`);
+                      return;
                     }
+                    if (withdrawPasscode !== savedPasscode) {
+                      setWithdrawPasscodeError("Incorrect security passcode. Default passcode is 1234 or update in Settings.");
+                      return;
+                    }
+
+                    // Deduct balance in local state sync
+                    appStateSync.withdraw(amt);
+
+                    const bank = appStateSync.getBankDetails();
+                    const newPayoutItem = {
+                      id: `pay-${Date.now()}`,
+                      from: "Direct Withdrawal",
+                      service: `Payout to ${bank.bankName}`,
+                      amount: `₦${amt.toLocaleString()}`,
+                      numericAmount: amt,
+                      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                      time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                      status: "Paid" as const,
+                      ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                      bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
+                    };
+                    setPayouts(prev => [newPayoutItem, ...prev]);
+                    setActivity(prev => [
+                      {
+                        type: "payment",
+                        status: "Completed",
+                        client: "Monologg Payout",
+                        service: `Withdrawal to ${bank.bankName}`,
+                        amount: `₦${amt.toLocaleString()}`,
+                        time: "Just now",
+                      },
+                      ...prev,
+                    ]);
+                    alert(`Withdrawal Authorized! Transferred ₦${amt.toLocaleString()} to ${bank.bankName}.`);
+                    setShowWithdraw(false);
+                    setWithdrawAmount("");
+                    setWithdrawPasscode("");
+                    setWithdrawPasscodeError(null);
                   }}>
                     Confirm Withdrawal
                   </Button>

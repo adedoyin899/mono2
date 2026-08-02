@@ -16,6 +16,23 @@ export function CreatorOnboarding() {
   const [selectedNiche, setSelectedNiche] = useState<string | null>("actor");
   const [file, setFile] = useState<File | null>(null);
   const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
+  const [isEditingTags, setIsEditingTags] = useState(false);
+  const [newTagInput, setNewTagInput] = useState("");
+  const [currency, setCurrency] = useState("₦");
+  const [ratePrice, setRatePrice] = useState("45,000");
+  const [rateTitle, setRateTitle] = useState("Feature Film Audition");
+  const [rateDelivery, setRateDelivery] = useState("24 Hours");
+
+  const handleAddTag = () => {
+    const trimmed = newTagInput.trim();
+    if (!trimmed || tags.length >= 7 || tags.includes(trimmed)) return;
+    setTags([...tags, trimmed]);
+    setNewTagInput("");
+  };
+
+  const handleRemoveTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
   const [taggingFailed, setTaggingFailed] = useState(false);
   const mediaAssetIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
@@ -336,18 +353,48 @@ export function CreatorOnboarding() {
             </div>
 
             <div className="mb-8 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5">
-              <div className="flex items-center gap-1.5 mb-4">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                <h3 className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Your performance profile</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                  <h3 className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Your performance profile ({tags.length}/7 tags)</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingTags(!isEditingTags)}
+                  className="font-body text-[13px] font-semibold text-[var(--color-accent)] hover:underline"
+                >
+                  {isEditingTags ? "Done" : "Edit tags"}
+                </button>
               </div>
+
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => (
-                  <div key={i} className="px-3.5 py-2 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)]">
-                    {tag}
+                  <div key={i} className="flex items-center gap-1.5 px-3.5 py-2 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)]">
+                    <span>{tag}</span>
+                    {isEditingTags && (
+                      <button type="button" onClick={() => handleRemoveTag(i)} className="hover:opacity-70 text-[var(--color-accent)]">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
-              <button className="font-body text-[13px] font-semibold text-[var(--color-accent)] hover:underline">Edit tags</button>
+
+              {isEditingTags && (
+                <div className="pt-3 border-t border-[var(--color-hairline)] flex gap-2">
+                  <Input
+                    placeholder="Type new tag..."
+                    value={newTagInput}
+                    onChange={(e) => setNewTagInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddTag(); } }}
+                    className="h-10 text-xs"
+                    disabled={tags.length >= 7}
+                  />
+                  <Button type="button" variant="secondary" className="h-10 text-xs shrink-0 px-3" onClick={handleAddTag} disabled={tags.length >= 7 || !newTagInput.trim()}>
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Add
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="mt-auto pt-6 flex flex-col gap-3 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
@@ -375,22 +422,46 @@ export function CreatorOnboarding() {
               <div className="space-y-4">
                 <div>
                   <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Booking Service Title</label>
-                  <Input defaultValue="Feature Film Audition" />
+                  <Input value={rateTitle} onChange={(e) => setRateTitle(e.target.value)} />
                 </div>
                 <div>
-                  <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Base Price</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] font-mono text-[length:var(--font-size-base)]">$</span>
-                    <Input className="pl-8 font-mono tnum" defaultValue="250" />
+                  <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Base Price &amp; Currency</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="w-24 h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-3 font-mono font-semibold text-[length:var(--font-size-base)] text-[var(--color-text-primary)] outline-none"
+                    >
+                      <option value="₦">₦ (NGN)</option>
+                      <option value="$">$ (USD)</option>
+                      <option value="£">£ (GBP)</option>
+                      <option value="€">€ (EUR)</option>
+                    </select>
+                    <div className="relative flex-1">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] font-mono text-[length:var(--font-size-base)]">{currency}</span>
+                      <Input
+                        className="pl-8 font-mono tnum"
+                        value={ratePrice}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "");
+                          setRatePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
+                        }}
+                        placeholder="45,000"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div>
                   <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Delivery Timeline</label>
-                  <select className="w-full h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-4 font-body text-[length:var(--font-size-base)] text-[var(--color-text-primary)] focus:border-[var(--color-border-active)] focus:shadow-[0_0_0_4px_var(--color-accent-glow)] outline-none appearance-none">
-                    <option>Same Day</option>
-                    <option>24 Hours</option>
-                    <option>2–3 Days</option>
-                    <option>1 Week</option>
+                  <select
+                    value={rateDelivery}
+                    onChange={(e) => setRateDelivery(e.target.value)}
+                    className="w-full h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-4 font-body text-[length:var(--font-size-base)] text-[var(--color-text-primary)] focus:border-[var(--color-border-active)] focus:shadow-[0_0_0_4px_var(--color-accent-glow)] outline-none appearance-none"
+                  >
+                    <option value="Same Day">Same Day</option>
+                    <option value="24 Hours">24 Hours</option>
+                    <option value="2–3 Days">2–3 Days</option>
+                    <option value="1 Week">1 Week</option>
                   </select>
                 </div>
               </div>

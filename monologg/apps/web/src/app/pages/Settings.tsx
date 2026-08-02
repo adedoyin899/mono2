@@ -79,6 +79,8 @@ export function Settings() {
   const [accountName, setAccountName] = useState(bankDetails.accountName);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
+  const [securityPasscode, setSecurityPasscode] = useState(() => localStorage.getItem("monologg_withdrawal_passcode") || "1234");
+  const [passcodeSaved, setPasscodeSaved] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -589,11 +591,8 @@ export function Settings() {
           {section === "payment" && (
             <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-4">
               <div className="space-y-3">
-                {[
-                  { type: "Visa", last4: "4242", expiry: "12/26", isDefault: true },
-                  { type: "Mastercard", last4: "8104", expiry: "06/25", isDefault: false },
-                ].map((card, i) => (
-                  <div key={i} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
+                {paymentCards.map((card) => (
+                  <div key={card.id} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
                       <CreditCard className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
                     </div>
@@ -601,13 +600,61 @@ export function Settings() {
                       <div className="text-sm font-semibold font-body" style={s.text}>{card.type} ···· {card.last4}</div>
                       <div className="text-xs font-body" style={s.tertiary}>Expires {card.expiry}</div>
                     </div>
-                    {card.isDefault && <Badge tone="success" size="md">Default</Badge>}
-                    <button aria-label={`Remove ${card.type} ending ${card.last4}`} className="p-1 rounded hover:opacity-70 transition-opacity">
+                    {card.isDefault ? (
+                      <Badge tone="success" size="md">Default</Badge>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPaymentCards((prev) => prev.map((c) => ({ ...c, isDefault: c.id === card.id })));
+                        }}
+                        className="px-2.5 py-1 text-xs font-semibold rounded-[var(--radius-md)] border hover:border-[var(--color-accent)] transition-all font-body"
+                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                      >
+                        Set Default
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${card.type} ending ${card.last4}`}
+                      onClick={() => setDeleteCardModal({ id: card.id, type: card.type, last4: card.last4 })}
+                      className="p-1 rounded hover:opacity-70 transition-opacity"
+                    >
                       <Trash2 className="w-4 h-4" style={{ color: "var(--color-error)" }} />
                     </button>
                   </div>
                 ))}
               </div>
+
+              {/* Delete Payment Method Confirmation Modal */}
+              {deleteCardModal && (
+                <Modal onClose={() => setDeleteCardModal(null)}>
+                  <div className="w-full max-w-sm rounded-[var(--radius-xl)] p-6" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }} onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Delete Payment Method</h3>
+                      <button onClick={() => setDeleteCardModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>
+                      Are you sure you want to remove <strong>{deleteCardModal.type} ending in {deleteCardModal.last4}</strong>? You will need to re-add this card for future transactions.
+                    </p>
+                    <div className="flex gap-3">
+                      <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => setDeleteCardModal(null)}>Cancel</Button>
+                      <Button
+                        className="flex-1 h-10 text-xs"
+                        style={{ background: "var(--color-error)", color: "#fff" }}
+                        onClick={() => {
+                          setPaymentCards((prev) => prev.filter((c) => c.id !== deleteCardModal.id));
+                          setDeleteCardModal(null);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </Modal>
+              )}
 
               <button
                 className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body hover:border-[var(--color-accent)] hover:opacity-100 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
@@ -725,6 +772,44 @@ export function Settings() {
                     <div className="text-xs font-body" style={s.tertiary}>Add an extra layer of security</div>
                   </div>
                   <Button variant="secondary" className="h-8 px-3 text-xs">Enable</Button>
+                </div>
+              </div>
+
+              {/* Security Withdrawal Passcode */}
+              <div className="rounded-2xl overflow-hidden" style={s.surface}>
+                <div className="px-4 py-3.5">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="text-sm font-semibold font-body" style={s.text}>Security Withdrawal Passcode</div>
+                      <div className="text-xs font-body" style={s.tertiary}>4-digit PIN required to authorise earnings withdrawals (separate from password)</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Input
+                      type="password"
+                      maxLength={4}
+                      placeholder="e.g. 1234"
+                      className="w-36 font-mono text-center tracking-widest text-lg"
+                      value={securityPasscode}
+                      onChange={(e) => setSecurityPasscode(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="h-11 px-4 text-xs font-semibold"
+                      disabled={securityPasscode.length !== 4}
+                      onClick={() => {
+                        localStorage.setItem("monologg_withdrawal_passcode", securityPasscode);
+                        setPasscodeSaved(true);
+                        setTimeout(() => setPasscodeSaved(false), 3000);
+                      }}
+                    >
+                      {passcodeSaved ? "Passcode Saved ✓" : "Save Passcode"}
+                    </Button>
+                  </div>
+                  {passcodeSaved && (
+                    <div className="text-xs text-[var(--color-success)] font-body mt-2">Withdrawal security passcode updated successfully.</div>
+                  )}
                 </div>
               </div>
 

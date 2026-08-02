@@ -63,6 +63,33 @@ export function MediaKitManagement() {
     }
   };
 
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleDownload = () => {
+    const kitUrl = status ? apiClient.getMediaKitPublicUrl(status.creatorId) : "#";
+    const link = document.createElement("a");
+    link.href = kitUrl;
+    link.download = `MediaKit_${status?.creatorId || "Talent"}.pdf`;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.origin + (status ? apiClient.getMediaKitPublicUrl(status.creatorId) : "/media-kit");
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+      }
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 3000);
+    } catch {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 3000);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
       <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
@@ -97,6 +124,13 @@ export function MediaKitManagement() {
           <Badge tone={status?.mode === "UPLOAD" ? "accent" : "success"}>{status?.mode ?? "…"}</Badge>
         </div>
 
+        {copiedLink && (
+          <div className="rounded-[var(--radius-lg)] p-3 text-xs font-body flex items-center justify-between" style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}>
+            <span>Media kit link copied to clipboard!</span>
+            <span className="font-mono">✓</span>
+          </div>
+        )}
+
         {error && (
           <div className="rounded-[var(--radius-lg)] p-3 text-sm font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
             {error}
@@ -104,21 +138,21 @@ export function MediaKitManagement() {
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <a
-            href={status ? apiClient.getMediaKitPublicUrl(status.creatorId) : undefined}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border"
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border hover:border-[var(--color-accent)] transition-all"
             style={{ ...s.surface, color: "var(--color-text-primary)" }}
           >
             <Download className="w-4 h-4" /> Download
-          </a>
+          </button>
           <button
-            onClick={() => status && navigator.clipboard?.writeText(window.location.origin + apiClient.getMediaKitPublicUrl(status.creatorId))}
-            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border"
+            type="button"
+            onClick={handleShare}
+            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border hover:border-[var(--color-accent)] transition-all"
             style={{ ...s.surface, color: "var(--color-text-primary)" }}
           >
-            <Share2 className="w-4 h-4" /> Share link
+            <Share2 className="w-4 h-4 text-[var(--color-accent)]" /> {copiedLink ? "Link Copied!" : "Share link"}
           </button>
         </div>
 
