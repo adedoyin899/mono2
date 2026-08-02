@@ -426,29 +426,28 @@ export function CreatorOnboarding() {
                 </div>
                 <div>
                   <label className="font-body text-[length:var(--font-size-xs)] font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2 block">Base Price &amp; Currency</label>
-                  <div className="flex gap-2">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-[length:var(--font-size-base)] pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>{currency}</span>
+                    <Input
+                      className="pl-8 pr-28 font-mono tnum w-full"
+                      value={ratePrice}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "");
+                        setRatePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
+                      }}
+                      placeholder="45,000"
+                    />
                     <select
                       value={currency}
                       onChange={(e) => setCurrency(e.target.value)}
-                      className="w-24 h-[54px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] px-3 font-mono font-semibold text-[length:var(--font-size-base)] text-[var(--color-text-primary)] outline-none"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-9 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
+                      style={{ background: "var(--color-bg-surface-2)", color: "var(--color-accent)" }}
                     >
-                      <option value="₦">₦ (NGN)</option>
-                      <option value="$">$ (USD)</option>
-                      <option value="£">£ (GBP)</option>
-                      <option value="€">€ (EUR)</option>
+                      <option value="₦">₦ NGN</option>
+                      <option value="$">$ USD</option>
+                      <option value="£">£ GBP</option>
+                      <option value="€">€ EUR</option>
                     </select>
-                    <div className="relative flex-1">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] font-mono text-[length:var(--font-size-base)]">{currency}</span>
-                      <Input
-                        className="pl-8 font-mono tnum"
-                        value={ratePrice}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, "");
-                          setRatePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
-                        }}
-                        placeholder="45,000"
-                      />
-                    </div>
                   </div>
                 </div>
                 <div>

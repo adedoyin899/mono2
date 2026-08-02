@@ -878,7 +878,7 @@ export function TalentDashboard() {
                               <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
                             </div>
                             <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
-                            <Button className="w-full h-10 text-sm">Book Now</Button>
+                            <Button className="w-full h-10 text-sm" onClick={() => navigate(`/book/${talentProfile?.id || "me"}`)}>Book Now</Button>
                           </div>
                         ))}
                       </div>
@@ -1062,33 +1062,31 @@ export function TalentDashboard() {
                             <label className="block text-xs font-medium mb-1.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
                               Base Price &amp; Currency
                             </label>
-                            <div className="flex gap-2">
-                              <select
-                                value={rateCardCurrency}
-                                onChange={(e) => setRateCardCurrency(e.target.value)}
-                                className="w-24 h-12 rounded-[var(--radius-md)] px-3 text-sm font-mono font-semibold border"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                              >
-                                <option value="₦">₦ (NGN)</option>
-                                <option value="$">$ (USD)</option>
-                                <option value="£">£ (GBP)</option>
-                                <option value="€">€ (EUR)</option>
-                              </select>
-                              <div className="relative flex-1">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                                  {rateCardCurrency}
-                                </span>
-                                <Input
-                                  className="pl-8 font-mono tnum"
-                                  placeholder="45,000"
-                                  value={newServicePrice}
-                                  onChange={(e) => {
-                                    const digits = e.target.value.replace(/\D/g, "");
-                                    setNewServicePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
-                                  }}
-                                />
-                              </div>
-                            </div>
+                            <div className="relative flex items-center">
+                               <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
+                                 {rateCardCurrency}
+                               </span>
+                               <Input
+                                 className="pl-8 pr-28 font-mono tnum w-full"
+                                 placeholder="45,000"
+                                 value={newServicePrice}
+                                 onChange={(e) => {
+                                   const digits = e.target.value.replace(/\D/g, "");
+                                   setNewServicePrice(digits ? parseInt(digits, 10).toLocaleString("en-US") : "");
+                                 }}
+                               />
+                               <select
+                                 value={rateCardCurrency}
+                                 onChange={(e) => setRateCardCurrency(e.target.value)}
+                                 className="absolute right-2 top-1/2 -translate-y-1/2 h-8 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
+                                 style={{ background: "var(--color-bg-elevated)", color: "var(--color-accent)" }}
+                               >
+                                 <option value="₦">₦ NGN</option>
+                                 <option value="$">$ USD</option>
+                                 <option value="£">£ GBP</option>
+                                 <option value="€">€ EUR</option>
+                               </select>
+                             </div>
                           </div>
                           <div>
                             <label className="block text-xs font-medium mb-1.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
