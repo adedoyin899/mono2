@@ -1,11 +1,60 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
+**Last updated:** 2026-08-03 (Session 49: Phase 12C — Withdrawal Email OTP Gate)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 49 (2026-08-03) — Phase 12C: Withdrawal Email OTP Gate
+
+**Goal:** Integrate a mandatory email OTP verification step in front of withdrawal requests. Funds are strictly blocked from release until a cryptographically random 6-digit OTP is verified against an Argon2id hash on the server.
+
+**Changes Made:**
+
+### Data Model & Migration
+1. **`prisma/schema.prisma`** — Added `WithdrawalRequestStatus` enum (`PENDING_OTP`, `APPROVED`, `REJECTED`, `COMPLETED`, `FAILED`), `WithdrawalRequest` model, and `WithdrawalOtp` model (`codeHash`, `expiresAt`, `attempts`, `verifiedAt`). Added `User.withdrawalRequests` & `User.withdrawalOtps` relations.
+2. **Prisma migration**: `20260803010000_phase12c_withdrawal_otp` — additive only (new enum, two new tables,FKs, indexes).
+
+### Config & Seam
+3. **`apps/api/src/config/env.ts`** — Added `WITHDRAWAL_OTP_MODE` (`mock` | `live`, default `mock`). Test preset automatically defaults to `mock`.
+4. **`apps/api/.env.example`** — Documented `WITHDRAWAL_OTP_MODE=mock`.
+
+### Server Service & Routes
+5. **`apps/api/src/services/withdrawals.ts`** [NEW] — Business logic for withdrawal lifecycle:
+   - Cryptographically random 6-digit code generation using `crypto.randomInt()`.
+   - Code stored solely as Argon2id hash (`codeHash`).
+   - Rate limiting: max 3 OTP requests per withdrawal / 10m, max 5 per user / 1h, 60s cooldown per withdrawal.
+   - 10-minute expiry and max 5 failed attempts per OTP before row invalidation.
+   - Generic error messages ("Invalid or expired code") to prevent info leakage.
+   - Security gate: release endpoint rejects unverified requests (`status === PENDING_OTP`) with `409 Conflict`.
+   - Dev helper endpoint for demo testing (`GET /api/v1/dev/withdrawals/:id/otp` in non-production).
+6. **`apps/api/src/routes/withdrawals.ts`** [NEW] — Registered `POST /withdrawals`, `POST /withdrawals/:id/otp/request`, `POST /withdrawals/:id/otp/verify`, `POST /withdrawals/:id/release`, `GET /dev/withdrawals/:id/otp`.
+7. **`apps/api/src/routes/index.ts`** — Registered `withdrawalRoutes`.
+
+### Client Integration
+8. **`apps/web/src/lib/api-client.ts`** — Added `initiateWithdrawal`, `requestWithdrawalOtp`, `verifyWithdrawalOtp`, and `getDevWithdrawalOtp` methods.
+9. **`apps/web/src/app/pages/TalentDashboard.tsx`** — Updated the withdrawal modal into a 2-step flow: input confirmation -> OTP 6-digit entry with copy `"For your security, we sent a 6-digit code to <masked email>. It expires in 10 minutes."`, 60s resend cooldown timer, and error handling.
+
+### Tests
+10. **`apps/api/src/routes/withdrawals.test.ts`** [NEW] — 12 tests covering cryptography, Argon2id storage, happy path verify & release, 5-attempt lockout, 10-minute expiry, rate limits (3/10m, 5/1h, 60s cooldown), generic error leakage, and release security gating.
+
+**Test Results:** API: 56 files, 577 tests ✅. Web: 21 files, 78 tests ✅. All-mock mode: zero real keys required.
+
+**Files touched:**
+- `apps/api/prisma/schema.prisma`
+- `apps/api/prisma/migrations/20260803010000_phase12c_withdrawal_otp/migration.sql` [NEW]
+- `apps/api/src/config/env.ts`
+- `apps/api/.env.example`
+- `apps/api/src/services/withdrawals.ts` [NEW]
+- `apps/api/src/routes/withdrawals.ts` [NEW]
+- `apps/api/src/routes/withdrawals.test.ts` [NEW]
+- `apps/api/src/routes/index.ts`
+- `apps/web/src/lib/api-client.ts`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
 
 ---
 

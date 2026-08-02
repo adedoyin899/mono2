@@ -89,9 +89,11 @@ const envSchema = z.object({
   // SUPABASE_SERVICE_ROLE_KEY: SERVER-SIDE ONLY — never ship to the client.
   // Has full database bypass; only used server-side for Admin API calls if needed.
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-  // SUPABASE_JWT_SECRET: signs/verifies Supabase-issued JWTs (HS256).
-  // Found in: Supabase Dashboard → Project Settings → API → JWT Secret.
-  SUPABASE_JWT_SECRET: z.string().optional(),
+  // ── Withdrawal OTP (Phase 12C) ───────────────────────────────────────────
+  // WITHDRAWAL_OTP_MODE controls OTP delivery:
+  //   "mock" (default) → logs code to pino + writes Notification row of kind WITHDRAWAL_OTP
+  //   "live"           → fires NotifyProvider.email()
+  WITHDRAWAL_OTP_MODE: z.enum(["mock", "live"]).default("mock"),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -151,6 +153,8 @@ function parseEnv(): Env {
     // Phase 12B: always use mock Supabase in tests — zero real keys required.
     envData.SUPABASE_MODE = envData.SUPABASE_MODE || "mock";
     envData.SUPABASE_JWT_SECRET = envData.SUPABASE_JWT_SECRET || "mock_supabase_jwt_secret_for_tests_only_32";
+    // Phase 12C: always use mock withdrawal OTP mode in tests
+    envData.WITHDRAWAL_OTP_MODE = envData.WITHDRAWAL_OTP_MODE || "mock";
   }
 
   const result = envSchema.safeParse(envData);

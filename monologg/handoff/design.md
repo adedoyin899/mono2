@@ -1,6 +1,6 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
+**Last updated:** 2026-08-03 (Session 49: Phase 12C — Withdrawal Email OTP Gate)
 **Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge are built. Real Postgres/Prisma backend, real auth (custom JWT + Supabase Auth bridge), real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, project applications, public marketplace profile, external-visitor deferred booking flow, and Supabase Auth identity bridge (Google OAuth, magic link, email OTP).
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 

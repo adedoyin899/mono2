@@ -440,7 +440,7 @@ export const apiClient = {
   },
 
   /**
-   * Phase 12B: Server-side rate-limit gate before calling supabase.auth.signInWithOtp().
+   * Phase 12C: Server-side rate-limit gate before calling supabase.auth.signInWithOtp().
    * Returns true if allowed, throws with a 429-style message if within the 60s cooldown.
    * In mock mode: always succeeds (dev/test — no real OTP send).
    */
@@ -450,6 +450,67 @@ export const apiClient = {
       return;
     }
     await authRequest("/otp/request", { email });
+  },
+
+  // ── Withdrawal OTP Gate (Phase 12C) ──────────────────────────────────────
+  async initiateWithdrawal(input: {
+    amount: number;
+    currency?: string;
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+    idempotencyKey?: string;
+  }): Promise<{ withdrawalRequest: { id: string; amount: number; currency: string; status: string }; otpSent: boolean; expiresAt: string }> {
+    if (API_MODE !== "live") {
+      const mockId = `wdr-${Date.now()}`;
+      return {
+        withdrawalRequest: {
+          id: mockId,
+          amount: input.amount,
+          currency: input.currency || "NGN",
+          status: "PENDING_OTP",
+        },
+        otpSent: true,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      };
+    }
+    return request("/withdrawals", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async requestWithdrawalOtp(withdrawalRequestId: string): Promise<{ sent: boolean; expiresAt: string }> {
+    if (API_MODE !== "live") {
+      return { sent: true, expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString() };
+    }
+    return request(`/withdrawals/${withdrawalRequestId}/otp/request`, {
+      method: "POST",
+    });
+  },
+
+  async verifyWithdrawalOtp(
+    withdrawalRequestId: string,
+    code: string,
+  ): Promise<{ success: boolean; withdrawalRequest: { id: string; status: string } }> {
+    if (API_MODE !== "live") {
+      if (code.length !== 6) throw new Error("Invalid or expired code");
+      return {
+        success: true,
+        withdrawalRequest: { id: withdrawalRequestId, status: "APPROVED" },
+      };
+    }
+    return request(`/withdrawals/${withdrawalRequestId}/otp/verify`, {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async getDevWithdrawalOtp(withdrawalRequestId: string): Promise<{ code: string; expiresAt: string }> {
+    if (API_MODE !== "live") {
+      return { code: "123456", expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString() };
+    }
+    return request(`/dev/withdrawals/${withdrawalRequestId}/otp`);
   },
 
   // ── Client dashboard ──────────────────────────────────────────────

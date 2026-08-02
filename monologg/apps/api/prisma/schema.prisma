@@ -55,6 +55,8 @@ model User {
   supportTickets   SupportTicket[]
   activities       UserActivity[]
   authEvents     AuthEvent[]
+  withdrawalRequests WithdrawalRequest[]
+  withdrawalOtps     WithdrawalOtp[]
 }
 
 enum AuthProvider {
@@ -707,4 +709,50 @@ enum ShoeSizeUnit {
   EU
   US
   UK
+}
+
+// =============================================================================
+// features.md Phase 12C — Withdrawal Email OTP Gate
+// =============================================================================
+
+model WithdrawalRequest {
+  id             String                  @id @default(cuid())
+  userId         String
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount         Int                     // minor units (kobo/cents)
+  currency       String                  @default("NGN")
+  bankName       String
+  accountNumber  String
+  accountName    String
+  status         WithdrawalRequestStatus @default(PENDING_OTP)
+  idempotencyKey String?                 @unique
+  otps           WithdrawalOtp[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+enum WithdrawalRequestStatus {
+  PENDING_OTP
+  APPROVED
+  REJECTED
+  COMPLETED
+  FAILED
+}
+
+model WithdrawalOtp {
+  id                  String            @id @default(cuid())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  withdrawalRequestId String
+  withdrawalRequest   WithdrawalRequest @relation(fields: [withdrawalRequestId], references: [id], onDelete: Cascade)
+  codeHash            String            // Argon2id hash of 6-digit code
+  expiresAt           DateTime
+  attempts            Int               @default(0)
+  verifiedAt          DateTime?
+  createdAt           DateTime          @default(now())
+
+  @@index([withdrawalRequestId, createdAt])
+  @@index([userId, createdAt])
 }

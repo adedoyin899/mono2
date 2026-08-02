@@ -1,13 +1,21 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth bridge are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication (custom JWT + Supabase Auth identity bridge), real domain endpoints, a real Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, and Phase 12B Supabase identity bridge (Google OAuth, magic link, email OTP).
+**Last updated:** 2026-08-03 (Session 49: Phase 12C — Withdrawal Email OTP Gate)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, and Phase 12C Withdrawal Email OTP Gate.
 
 ---
 
 ## ✅ Done
 
-### Session 48 — Phase 12B: Supabase Auth Bridge (Google OAuth, Magic Link, Email OTP)
+### Session 49 — Phase 12C: Withdrawal Email OTP Gate
+- [x] Added `WithdrawalRequestStatus` enum, `WithdrawalRequest` model, `WithdrawalOtp` model (`codeHash`, `expiresAt`, `attempts`, `verifiedAt`), and relations on `User` model.
+- [x] Created additive SQL migration `20260803010000_phase12c_withdrawal_otp`.
+- [x] Added `WITHDRAWAL_OTP_MODE` (`mock` | `live`) config flag to `env.ts` and `.env.example`.
+- [x] Implemented core withdrawal service (`apps/api/src/services/withdrawals.ts`) with `crypto.randomInt` code generation, Argon2id hashing, rate limiting (3/10m per withdrawal, 5/1h per user, 60s cooldown), 10-minute expiry, 5-attempt lockout, and generic error leakage protection.
+- [x] Created server routes `POST /api/v1/withdrawals`, `POST /api/v1/withdrawals/:id/otp/request`, `POST /api/v1/withdrawals/:id/otp/verify`, `POST /api/v1/withdrawals/:id/release` (security gated with 409 Conflict if unverified), and `GET /api/v1/dev/withdrawals/:id/otp` (dev helper).
+- [x] Added withdrawal methods to `api-client.ts` (`initiateWithdrawal`, `requestWithdrawalOtp`, `verifyWithdrawalOtp`, `getDevWithdrawalOtp`).
+- [x] Integrated 2-step OTP flow into the Withdrawal modal in `TalentDashboard.tsx` (amount/passcode input -> 6-digit OTP verification UI with copy, countdown, and resend link).
+- [x] Written comprehensive test suite `apps/api/src/routes/withdrawals.test.ts` (12 tests covering crypto, Argon2id storage, happy path verify/release, 5-attempt lockout, 10m expiry, rate limits, generic errors, and release security gating). Verified 100% passing across API (577 tests) and Web (78 tests).
 - [x] Extended `User` model with `supabaseUserId` (nullable, unique), extended `AuthProvider` enum (`MAGIC_LINK`, `EMAIL_OTP`), and added `AuthEvent` audit table.
 - [x] Created additive SQL migration `20260803000000_phase12b_supabase_auth`.
 - [x] Configured Supabase environment variables schema (`SUPABASE_MODE`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) in `apps/api/src/config/env.ts` and `.env.example` files.
