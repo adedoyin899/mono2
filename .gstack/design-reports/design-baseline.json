@@ -1,0 +1,19 @@
+{
+  "date": "2026-08-02",
+  "url": "http://localhost:5173",
+  "designScore": "A-",
+  "aiSlopScore": "A",
+  "categoryGrades": {
+    "visualHierarchy": "A",
+    "typography": "A-",
+    "spacingLayout": "A",
+    "colorContrast": "A",
+    "interactionStates": "A",
+    "responsive": "A",
+    "contentQuality": "A",
+    "aiSlop": "A+",
+    "motion": "A",
+    "performanceFeel": "A"
+  },
+  "findings": []
+}
