@@ -30,6 +30,8 @@ import { mockStorageProvider } from "./storage.mock.js";
 import { realStorageProvider } from "./storage.real.js";
 import { mockScannerProvider } from "./scanner.mock.js";
 import { realScannerProvider } from "./scanner.real.js";
+import { mockSupabaseAuthProvider } from "./supabaseAuth.mock.js";
+import { realSupabaseAuthProvider } from "./supabaseAuth.real.js";
 
 import type { PaymentProvider } from "./payment.interface.js";
 import type { KycProvider } from "./kyc.interface.js";
@@ -38,6 +40,7 @@ import type { CalendarProvider } from "./calendar.interface.js";
 import type { NotifyProvider } from "./notify.interface.js";
 import type { StorageProvider } from "./storage.interface.js";
 import type { ScannerProvider } from "./scanner.interface.js";
+import type { SupabaseAuthProvider } from "./supabaseAuth.interface.js";
 
 const isTest = env.NODE_ENV === "test";
 
@@ -78,6 +81,13 @@ export const scannerProvider: ScannerProvider = isTest || env.SCANNER_PROVIDER =
   ? mockScannerProvider
   : realScannerProvider;
 
+// Phase 12B: Supabase Auth identity bridge.
+// Selected by SUPABASE_MODE (not NODE_ENV alone) so production can use "real"
+// while dev stays on "mock" without env var juggling.
+export const supabaseAuthProvider: SupabaseAuthProvider = isTest || env.SUPABASE_MODE === "mock"
+  ? mockSupabaseAuthProvider
+  : realSupabaseAuthProvider;
+
 // Re-export interfaces so callers only need to import from "providers/index.ts".
 export type { PaymentProvider } from "./payment.interface.js";
 export type { KycProvider } from "./kyc.interface.js";
@@ -86,3 +96,4 @@ export type { CalendarProvider } from "./calendar.interface.js";
 export type { NotifyProvider } from "./notify.interface.js";
 export type { StorageProvider, MediaKind } from "./storage.interface.js";
 export type { ScannerProvider, ScanResult } from "./scanner.interface.js";
+export type { SupabaseAuthProvider, SupabaseJwtClaims } from "./supabaseAuth.interface.js";

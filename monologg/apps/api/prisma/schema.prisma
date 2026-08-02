@@ -38,6 +38,11 @@ model User {
   // normal-signup row defaults to SIGNUP/true, unaffected.
   accountOrigin AccountOrigin  @default(SIGNUP)
   passwordSet   Boolean        @default(true)
+  // Phase 12B: Supabase Auth identity bridge. Nullable — all pre-Phase-12B users
+  // remain valid (they keep null here). Set to the Supabase Auth `sub` UUID on
+  // first sign-in via Google/magic-link/OTP. Used by /auth/session/sync to link
+  // or find the app User from a Supabase-issued JWT without creating a duplicate.
+  supabaseUserId String?        @unique
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   creator       Creator?
@@ -49,11 +54,15 @@ model User {
   termsAcceptances TermsAcceptance[]
   supportTickets   SupportTicket[]
   activities       UserActivity[]
+  authEvents     AuthEvent[]
 }
 
 enum AuthProvider {
   EMAIL
   GOOGLE
+  // Phase 12B: Supabase Auth sign-in methods
+  MAGIC_LINK
+  EMAIL_OTP
 }
 
 enum UserType {
@@ -68,6 +77,26 @@ model UserActivity {
   action    String
   details   String?
   createdAt DateTime @default(now())
+}
+
+// Phase 12B: security/UX audit trail for Supabase Auth sign-in events.
+// Written by /auth/session/sync on every Supabase Auth identity flow.
+// Read-only after creation — never updated in place.
+model AuthEvent {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // The sign-in method used: matches the AuthProvider enum value
+  provider    AuthProvider
+  // Event type: "signin_success" | "signup_success" | "linked_existing_account" | "signin_failed"
+  event       String
+  // SHA-256 of the raw IP address — personally identifiable but needed for security
+  // audit; hashed so the value is useless without the original IP.
+  ipHash      String?
+  userAgent   String?
+  createdAt   DateTime     @default(now())
+
+  @@index([userId, createdAt])
 }
 
 // features.md Phase 16 (FA-5).

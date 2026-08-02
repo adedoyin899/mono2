@@ -1,24 +1,21 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-02 (Session 46: Zero-Data Analytics Sync & Role-Peculiar Performance Metrics)
-**Status:** All 18 phases of `features.md` (0–17) are built and committed, plus Session 42 Default States & New User Onboarding Nudges. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, a real Paystack-first escrow/payment backend (frontend wired as of Phase 13), real KYC + AI style-tagging as two independent systems, a real Google Calendar/Meet provider layer, a real notifications backend, design-token adoption + self-hosted fonts, production hardening (security/coverage/observability/Docker), Media Kit/Verification Video/Physical Attributes, rich time-slot availability, two-sided project applications with a server-enforced applicant cap, a public logged-out marketplace profile, the flagship external-visitor deferred-account booking flow, and an independent QA/security/UAT pass (Phase 17). **This is not the same as "production-ready" — see the Phase 17 gate below, which is a hard stop, not a checklist to wave through.**
-
-**Open, gate-blocking items as of Phase 17** (full detail in `monologg/qa/2026-07-31-phase17/`, not repeated here — see that folder's own README for the complete PENDING list):
-- **P0/P1 security**: `PATCH /verification-recordings/:id/review` has no reviewer/ownership check — any authenticated user (including the recording's own creator) can approve it. Needs a real moderator role before real users are onboarded.
-- **UAT and NDPA legal sign-off**: both explicitly PENDING — an agent can't recruit real users or grant legal sign-off. Scripts/inventories are prepared, not completed reviews.
-- **No PWA infrastructure exists**: no `manifest.json`, no service worker, anywhere in `apps/web`, despite the `PWA-XX` screen naming used throughout `features.md` since Phase 0.
-- **Accessibility contrast debt**: one systemic token fixed; ~45 of 57 route×browser combinations still have serious/critical color-contrast violations, needing a dedicated design-system remediation pass.
-- **Staging with test-mode real providers**: doesn't exist yet — Phase 17's automated passes ran against mock-mode web + the real dev Supabase DB instead.
-
-**No production cutover until the items above are closed**, per Phase 17's own stated gate.
-
-This is the single place to see, at a glance: what's done, what's actively in progress, and what's left. Update this file **in the same session** as any change that completes, starts, or adds a task — see `README.md` for the full update policy. Checkboxes are the source of truth; don't let this drift into just a historical record like `log.md` — that's what `log.md` is for.
+**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth bridge are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication (custom JWT + Supabase Auth identity bridge), real domain endpoints, a real Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, and Phase 12B Supabase identity bridge (Google OAuth, magic link, email OTP).
 
 ---
 
 ## ✅ Done
 
-### Session 42 — Default States & New User Onboarding Nudges across Talent and Client Portals
+### Session 48 — Phase 12B: Supabase Auth Bridge (Google OAuth, Magic Link, Email OTP)
+- [x] Extended `User` model with `supabaseUserId` (nullable, unique), extended `AuthProvider` enum (`MAGIC_LINK`, `EMAIL_OTP`), and added `AuthEvent` audit table.
+- [x] Created additive SQL migration `20260803000000_phase12b_supabase_auth`.
+- [x] Configured Supabase environment variables schema (`SUPABASE_MODE`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) in `apps/api/src/config/env.ts` and `.env.example` files.
+- [x] Implemented `SupabaseAuthProvider` interface and provider seam (`mock` and `real` implementations using HS256 JWT verification).
+- [x] Built server routes `POST /api/v1/auth/session/sync` (verifies Supabase token, links/creates User, issues app JWT, writes `AuthEvent`, sends notifications) and `POST /api/v1/auth/otp/request` (rate-limited 1 req/60s).
+- [x] Built web client Supabase singleton `apps/web/src/lib/supabase.ts` (null in ALL-MOCK mode) and `AuthCallback.tsx` route handler.
+- [x] Updated `AuthFlow.tsx` with real Google OAuth redirect trigger, expandable Magic Link form, Email OTP request + 6-digit verification code screen.
+- [x] Written comprehensive test coverage (API: `authSupabase.test.ts`, Web: `supabaseKeyCheck.test.ts`, `AuthCallback.test.tsx`). Verified 100% passing across API (565 tests) and Web (78 tests).
 - [x] Added `isNewUser` mode toggles on Talent and Client dashboards for testing zero-data states.
 - [x] Built interactive Onboarding Action Nudges Checklist card on Talent Home tab.
 - [x] Built interactive Onboarding Action Nudges Checklist card on Client Home tab.

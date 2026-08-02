@@ -6,10 +6,11 @@ import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import { apiClient } from "../../lib/api-client";
+import { supabase, SUPABASE_MODE } from "../../lib/supabase";
 import { CURRENT_TERMS_VERSION } from "@monologg/types";
-import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check } from "lucide-react";
+import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check, Mail, KeyRound } from "lucide-react";
 
-type View = "splash" | "register" | "login" | "forgot";
+type View = "splash" | "register" | "login" | "forgot" | "otp_entry" | "magic_sent";
 type Role = "talent" | "client";
 
 export function AuthFlow() {
@@ -28,6 +29,13 @@ export function AuthFlow() {
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
   const [useCustomGoogleAccount, setUseCustomGoogleAccount] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Phase 12B: magic-link + OTP state
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
+  const [magicLinkEmail, setMagicLinkEmail] = useState("");
+  const [showMagicLinkInput, setShowMagicLinkInput] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
@@ -92,6 +100,125 @@ export function AuthFlow() {
       setForgotSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ── Phase 12B: Supabase Auth handlers ──────────────────────────────────────
+
+  /** Real Google OAuth via Supabase — fires the browser redirect. */
+  const handleSupabaseGoogle = async () => {
+    if (!supabase) {
+      // ALL-MOCK mode fallback: use the existing mock Google modal
+      setShowGoogleModal(true);
+      return;
+    }
+    setError(null);
+    const appUrl = window.location.origin;
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${appUrl}/auth/callback`,
+        // Echo userType back through the state param so /auth/callback knows which role
+        queryParams: { state: btoa(JSON.stringify({ userType: role === "talent" ? "TALENT" : "CLIENT" })) },
+      },
+    });
+    if (oauthError) setError(oauthError.message);
+  };
+
+  /** Magic link — sends an email with a sign-in link, then shows a confirmation. */
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase) {
+      // Mock mode: just show a toast-style confirmation
+      console.log(`[auth mock] Magic link sent to ${magicLinkEmail}`);
+      setView("magic_sent" as View);
+      return;
+    }
+    setError(null);
+    setSubmitting(true);
+    try {
+      const appUrl = window.location.origin;
+      const userTypeParam = role === "talent" ? "TALENT" : "CLIENT";
+      const { error: mlError } = await supabase.auth.signInWithOtp({
+        email: magicLinkEmail,
+        options: {
+          emailRedirectTo: `${appUrl}/auth/callback?userType=${userTypeParam}`,
+          shouldCreateUser: true,
+        },
+      });
+      if (mlError) throw new Error(mlError.message);
+      setView("magic_sent" as View);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send magic link.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /** OTP step 1: request OTP (server rate-limit check + supabase.auth.signInWithOtp). */
+  const handleOtpRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      // Server-side rate-limit gate (1/60s)
+      await apiClient.requestOtp(otpEmail);
+      if (supabase) {
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email: otpEmail,
+          options: { shouldCreateUser: true },
+        });
+        if (otpError) throw new Error(otpError.message);
+      } else {
+        console.log(`[auth mock] OTP requested for ${otpEmail}`);
+      }
+      setView("otp_entry" as View);
+      // Start 60s resend cooldown
+      setOtpResendCooldown(60);
+      const timer = setInterval(() => {
+        setOtpResendCooldown((c) => {
+          if (c <= 1) { clearInterval(timer); return 0; }
+          return c - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send OTP.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /** OTP step 2: verify the 6-digit code then sync with our backend. */
+  const handleOtpVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const userType = role === "talent" ? "TALENT" : "CLIENT";
+      if (supabase) {
+        const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+          email: otpEmail,
+          token: otpCode,
+          type: "email",
+        });
+        if (verifyError) throw new Error(verifyError.message);
+        if (!verifyData.session) throw new Error("No session returned after OTP verification.");
+        const user = await apiClient.sessionSync(
+          verifyData.session.access_token,
+          userType,
+          { provider: "EMAIL_OTP" },
+        );
+        navigate(user.userType === "CLIENT" ? "/client" : "/dashboard");
+      } else {
+        // Mock mode: any 6-digit code works
+        if (otpCode.length !== 6) throw new Error("Enter the 6-digit code.");
+        const user = await apiClient.sessionSync("", userType, { provider: "EMAIL_OTP" });
+        navigate(user.userType === "CLIENT" ? "/client" : "/dashboard");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "OTP verification failed.");
     } finally {
       setSubmitting(false);
     }
@@ -252,9 +379,9 @@ export function AuthFlow() {
 
                   <button
                     type="button"
-                    onClick={() => setShowGoogleModal(true)}
+                    onClick={handleSupabaseGoogle}
                     disabled={submitting}
-                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99]"
+                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-2 active:scale-[0.99]"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -265,9 +392,65 @@ export function AuthFlow() {
                     Continue with Google
                   </button>
 
+                  {/* Magic link + OTP — email-first alternatives (Phase 12B) */}
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => { setShowMagicLinkInput(!showMagicLinkInput); setShowOtpInput(false); }}
+                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      Magic Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowOtpInput(!showOtpInput); setShowMagicLinkInput(false); setOtpEmail(email); }}
+                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      Email OTP
+                    </button>
+                  </div>
+
+                  {/* Magic link email input (expandable) */}
+                  {showMagicLinkInput && (
+                    <form onSubmit={handleMagicLink} className="flex gap-2 mb-2">
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        value={magicLinkEmail}
+                        onChange={e => setMagicLinkEmail(e.target.value)}
+                        required
+                        className="flex-1"
+                      />
+                      <Button type="submit" className="h-11 px-4" disabled={submitting}>
+                        {submitting ? "…" : "Send"}
+                      </Button>
+                    </form>
+                  )}
+
+                  {/* OTP email input (expandable) */}
+                  {showOtpInput && (
+                    <form onSubmit={handleOtpRequest} className="flex gap-2 mb-2">
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        value={otpEmail}
+                        onChange={e => setOtpEmail(e.target.value)}
+                        required
+                        className="flex-1"
+                      />
+                      <Button type="submit" className="h-11 px-4" disabled={submitting}>
+                        {submitting ? "…" : "Send OTP"}
+                      </Button>
+                    </form>
+                  )}
+
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with email</span>
+                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with password</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
@@ -362,9 +545,9 @@ export function AuthFlow() {
 
                   <button
                     type="button"
-                    onClick={() => setShowGoogleModal(true)}
+                    onClick={handleSupabaseGoogle}
                     disabled={submitting}
-                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99]"
+                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-2 active:scale-[0.99]"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -375,9 +558,44 @@ export function AuthFlow() {
                     Sign in with Google
                   </button>
 
+                  {/* Magic link + OTP alternatives (Phase 12B) */}
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => { setShowMagicLinkInput(!showMagicLinkInput); setShowOtpInput(false); setMagicLinkEmail(email); }}
+                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      Magic Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowOtpInput(!showOtpInput); setShowMagicLinkInput(false); setOtpEmail(email); }}
+                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      Email OTP
+                    </button>
+                  </div>
+
+                  {showMagicLinkInput && (
+                    <form onSubmit={handleMagicLink} className="flex gap-2 mb-2">
+                      <Input type="email" placeholder="your@email.com" value={magicLinkEmail} onChange={e => setMagicLinkEmail(e.target.value)} required className="flex-1" />
+                      <Button type="submit" className="h-11 px-4" disabled={submitting}>{submitting ? "…" : "Send"}</Button>
+                    </form>
+                  )}
+                  {showOtpInput && (
+                    <form onSubmit={handleOtpRequest} className="flex gap-2 mb-2">
+                      <Input type="email" placeholder="your@email.com" value={otpEmail} onChange={e => setOtpEmail(e.target.value)} required className="flex-1" />
+                      <Button type="submit" className="h-11 px-4" disabled={submitting}>{submitting ? "…" : "Send OTP"}</Button>
+                    </form>
+                  )}
+
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with email</span>
+                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with password</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
@@ -448,6 +666,81 @@ export function AuthFlow() {
                       Create free account
                     </button>
                   </p>
+                </motion.div>
+              )}
+
+              {/* ── OTP entry (Phase 12B) ── */}
+              {view === "otp_entry" && (
+                <motion.div
+                  key="otp_entry"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="flex flex-col"
+                >
+                  <button onClick={() => setView("login")} className="mb-6 -ml-1 flex items-center gap-1 text-sm font-body" style={s.secondary}>
+                    <ChevronLeft className="w-4 h-4" /> Back to Sign In
+                  </button>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-bg-surface-2)" }}>
+                    <KeyRound className="w-6 h-6" style={{ color: "var(--color-gold-primary)" }} />
+                  </div>
+                  <h2 className="font-display text-[28px] leading-[1.1] tracking-[-0.02em] mb-2" style={s.primary}>Enter your code</h2>
+                  <p className="text-[14px] font-body mb-6" style={s.secondary}>
+                    We sent a 6-digit code to <strong>{otpEmail}</strong>.
+                  </p>
+                  <form onSubmit={handleOtpVerify} className="flex flex-col gap-3">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      placeholder="000000"
+                      value={otpCode}
+                      onChange={e => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      className="text-center tracking-[0.3em] text-xl font-mono"
+                      required
+                    />
+                    {error && <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>}
+                    <Button type="submit" className="w-full h-12" disabled={otpCode.length !== 6 || submitting}>
+                      {submitting ? "Verifying…" : "Verify Code"}
+                    </Button>
+                  </form>
+                  <div className="mt-4 text-center">
+                    {otpResendCooldown > 0 ? (
+                      <p className="text-xs font-body" style={s.secondary}>Resend in {otpResendCooldown}s</p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleOtpRequest as unknown as React.MouseEventHandler}
+                        className="text-xs font-body hover:underline"
+                        style={s.gold}
+                      >
+                        Resend code
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── Magic Link Sent (Phase 12B) ── */}
+              {view === "magic_sent" && (
+                <motion.div
+                  key="magic_sent"
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center text-center"
+                >
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-success-bg)" }}>
+                    <Mail className="w-7 h-7" style={{ color: "var(--color-success)" }} />
+                  </div>
+                  <h2 className="font-display text-[28px] mb-2" style={s.primary}>Check your inbox</h2>
+                  <p className="text-sm font-body mb-6" style={s.secondary}>
+                    We sent a magic sign-in link to <strong>{magicLinkEmail}</strong>. Click the link in the email to continue.
+                    {SUPABASE_MODE === "mock" && " (Dev mode: no real email sent — check console.)"}
+                  </p>
+                  <button className="text-sm font-body hover:underline" style={s.gold} onClick={() => setView("login")}>
+                    Back to Sign In
+                  </button>
                 </motion.div>
               )}
 

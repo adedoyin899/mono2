@@ -1,11 +1,74 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 47b: Currency Input Layout & Storefront Button Audit)
+**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 48 (2026-08-03) — Phase 12B: Supabase Auth (Google OAuth, Magic Link, Email OTP)
+
+**Goal:** Integrate Supabase Auth as the identity layer for three real sign-in flows without touching the existing custom-JWT paths, app-level authorization (requireAuth/requireRole/requireOwner), or the escrow flow.
+
+**Changes Made:**
+
+### Data model (additive only)
+1. **`prisma/schema.prisma`** — Extended `AuthProvider` enum (added `MAGIC_LINK`, `EMAIL_OTP`). Added `User.supabaseUserId String? @unique` (nullable — all pre-Phase-12B users unaffected). Added `AuthEvent` model (audit trail: userId, provider, event type, ipHash, userAgent, createdAt). Added `User.authEvents AuthEvent[]` relation.
+2. **Prisma migration**: `phase12b_supabase_auth` — additive only (new nullable column, two enum values, one new table). No drops, no renames.
+
+### Environment (both API and Web)
+3. **`apps/api/src/config/env.ts`** — Added `SUPABASE_MODE` (enum `mock|real`, default `mock`), `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`. Test preset sets `SUPABASE_MODE=mock` and `SUPABASE_JWT_SECRET` automatically — zero real keys needed in any test.
+4. **`apps/api/.env.example`** — Added Supabase Auth section with explicit `⚠ SERVER-SIDE ONLY` warning on service role key.
+5. **`apps/web/.env.example`** — Added `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (client-safe only; no service role key).
+
+### Provider seam (real + mock, same pattern as all other providers)
+6. **`apps/api/src/providers/supabaseAuth.interface.ts`** [NEW] — `SupabaseAuthProvider` interface with `verifyJwt(token)` method.
+7. **`apps/api/src/providers/supabaseAuth.mock.ts`** [NEW] — Mock provider using `JWT_ACCESS_SECRET`/`SUPABASE_JWT_SECRET` for test token sign/verify. Exports `signMockSupabaseToken()` for test use.
+8. **`apps/api/src/providers/supabaseAuth.real.ts`** [NEW] — Real provider using `SUPABASE_JWT_SECRET` (HS256) with `jsonwebtoken`. Documents the RS256/JWKS alternative path.
+9. **`apps/api/src/providers/index.ts`** — Registered `supabaseAuthProvider` (selected by `SUPABASE_MODE`, not `NODE_ENV`). Re-exports `SupabaseAuthProvider` + `SupabaseJwtClaims` types.
+
+### Server routes
+10. **`apps/api/src/routes/authSupabase.ts`** [NEW] — Two endpoints:
+    - `POST /api/v1/auth/session/sync`: verifies Supabase JWT → finds/creates/links app User + Creator/Client → issues app JWT pair → writes `AuthEvent` → fires `SIGNIN_NOTICE` + `welcome_supabase` email. Three paths: new-user (201), existing-email link (200), already-linked (200).
+    - `POST /api/v1/auth/otp/request`: server-side OTP rate-limit gate (1/60s per email via `cacheProvider`). Returns 429 within cooldown.
+11. **`apps/api/src/routes/index.ts`** — Registered `supabaseAuthRoutes`.
+
+### Client-side
+12. **`apps/web/src/lib/supabase.ts`** [NEW] — Supabase client singleton. Returns `null` when `VITE_SUPABASE_URL` is absent (ALL-MOCK mode). Exports `supabase` and `SUPABASE_MODE`.
+13. **`apps/web/src/app/pages/AuthFlow.tsx`** — Added imports (`supabase`, `SUPABASE_MODE`, `Mail`, `KeyRound`). Added 6 new state variables (`otpEmail`, `otpCode`, `otpResendCooldown`, `magicLinkEmail`, `showMagicLinkInput`, `showOtpInput`). Extended `View` type with `otp_entry` and `magic_sent`. Added 4 Supabase handlers (`handleSupabaseGoogle`, `handleMagicLink`, `handleOtpRequest`, `handleOtpVerify`). Google buttons (register + login) now call `handleSupabaseGoogle` (real OAuth in real mode, mock modal in mock mode). Added expandable Magic Link + Email OTP buttons in both views. Added `otp_entry` and `magic_sent` view sub-screens. No existing UI removed.
+14. **`apps/web/src/app/pages/AuthCallback.tsx`** [NEW] — OAuth/magic-link callback route. Retrieves Supabase session, calls `apiClient.sessionSync`, routes to correct dashboard. Animated loading state + error auto-redirect.
+15. **`apps/web/src/app/routes.tsx`** — Added `AuthCallback` import and `{ path: "auth/callback", Component: AuthCallback }` route (public, before `:handle` catch-all).
+16. **`apps/web/src/lib/api-client.ts`** — Added `sessionSync(supabaseAccessToken, userType, opts)` and `requestOtp(email)` methods with full mock-mode paths.
+
+### Tests
+17. **`apps/api/src/routes/authSupabase.test.ts`** [NEW] — 9 tests: signup_success (new user), linked_existing_account, signin_success (returning), 401 invalid token, 400 missing field, OTP allow, OTP 429 rate-limit, OTP 400 invalid email, `/auth/login` regression (endpoint not 404).
+18. **`apps/web/src/lib/supabaseKeyCheck.test.ts`** [NEW] — 2 security tests: (1) service role key not in any web source file (excluding test files themselves); (2) no raw `SUPABASE_*` refs in non-test web source.
+19. **`apps/web/src/app/pages/AuthCallback.test.tsx`** [NEW] — 3 smoke tests: renders, redirects to /auth in mock mode, loading state.
+
+**Test Results:** API: 55 files, 565 tests ✅. Web: 21 files, 78 tests ✅. All-mock mode: zero real Supabase calls in any test.
+
+**Files touched:**
+- `apps/api/prisma/schema.prisma`
+- `apps/api/src/config/env.ts`
+- `apps/api/.env.example`
+- `apps/api/src/providers/supabaseAuth.interface.ts` [NEW]
+- `apps/api/src/providers/supabaseAuth.mock.ts` [NEW]
+- `apps/api/src/providers/supabaseAuth.real.ts` [NEW]
+- `apps/api/src/providers/index.ts`
+- `apps/api/src/routes/authSupabase.ts` [NEW]
+- `apps/api/src/routes/index.ts`
+- `apps/api/src/routes/authSupabase.test.ts` [NEW]
+- `apps/web/.env.example`
+- `apps/web/src/lib/supabase.ts` [NEW]
+- `apps/web/src/app/pages/AuthFlow.tsx`
+- `apps/web/src/app/pages/AuthCallback.tsx` [NEW]
+- `apps/web/src/app/routes.tsx`
+- `apps/web/src/lib/api-client.ts`
+- `apps/web/src/lib/supabaseKeyCheck.test.ts` [NEW]
+- `apps/web/src/app/pages/AuthCallback.test.tsx` [NEW]
 
 ---
 

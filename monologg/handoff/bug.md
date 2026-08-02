@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-02 (Session 46: Zero-Data Analytics Sync & Role-Peculiar Performance Metrics)
+**Last updated:** 2026-08-03 (Session 48: Phase 12B — Supabase Auth: Google OAuth, Magic Link, Email OTP)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.

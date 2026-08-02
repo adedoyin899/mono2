@@ -77,6 +77,21 @@ const envSchema = z.object({
   // dev/test and even in prod (fails open: a missing DSN degrades observability,
   // never availability).
   SENTRY_DSN: z.string().optional(),
+
+  // ── Supabase Auth (Phase 12B) ─────────────────────────────────────────────
+  // SUPABASE_MODE controls the provider seam exactly like PAYMENT_PROVIDER etc:
+  //   "mock"  → all tests and ALL-MOCK dev work with zero real Supabase keys.
+  //   "real"  → production: requires the three vars below.
+  SUPABASE_MODE: z.enum(["mock", "real"]).default("mock"),
+  // SUPABASE_URL + SUPABASE_ANON_KEY: client-safe (also in apps/web/.env*).
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_ANON_KEY: z.string().optional(),
+  // SUPABASE_SERVICE_ROLE_KEY: SERVER-SIDE ONLY — never ship to the client.
+  // Has full database bypass; only used server-side for Admin API calls if needed.
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // SUPABASE_JWT_SECRET: signs/verifies Supabase-issued JWTs (HS256).
+  // Found in: Supabase Dashboard → Project Settings → API → JWT Secret.
+  SUPABASE_JWT_SECRET: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -133,6 +148,9 @@ function parseEnv(): Env {
     envData.JWT_REFRESH_SECRET = envData.JWT_REFRESH_SECRET || "mock_refresh_secret_length_minimum_32_chars";
     envData.CALENDAR_TOKEN_ENCRYPTION_KEY =
       envData.CALENDAR_TOKEN_ENCRYPTION_KEY || "0".repeat(63) + "1"; // 64 hex chars, test-only
+    // Phase 12B: always use mock Supabase in tests — zero real keys required.
+    envData.SUPABASE_MODE = envData.SUPABASE_MODE || "mock";
+    envData.SUPABASE_JWT_SECRET = envData.SUPABASE_JWT_SECRET || "mock_supabase_jwt_secret_for_tests_only_32";
   }
 
   const result = envSchema.safeParse(envData);

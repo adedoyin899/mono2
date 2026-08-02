@@ -20,6 +20,7 @@ import { VerificationVideo } from "./pages/VerificationVideo";
 import { PublicStorefront } from "./pages/PublicStorefront";
 import { ExternalBookingEntry } from "./pages/ExternalBookingEntry";
 import { SetPassword } from "./pages/SetPassword";
+import { AuthCallback } from "./pages/AuthCallback";
 
 // Wraps a page component with the auth guard (features.md Phase 4) — a no-op in the
 // default `mock` API mode, real gating once `live` mode + Phase 5 endpoints land.
@@ -69,6 +70,10 @@ export const routeTree = [
       // destination for a guest-checkout buyer's auto-created account. Public, no
       // auth — this route IS how they get a session.
       { path: "set-password", Component: SetPassword },
+      // Phase 12B: OAuth / magic-link / OTP callback from Supabase Auth.
+      // Public, no auth guard — this IS how a Supabase user gets their session.
+      // Placed before ":handle" so the static segment is matched first.
+      { path: "auth/callback", Component: AuthCallback },
       // features.md Phase 15 (FA-3) — the public marketplace profile. Public,
       // no auth, deliberately LAST: a single dynamic segment at the root
       // level, so every more-specific route above must be tried first.

@@ -390,6 +390,68 @@ export const apiClient = {
     return accessToken !== null || getStoredRefreshToken() !== null;
   },
 
+  /**
+   * Phase 12B: Bridge a Supabase Auth session to an app JWT.
+   * Called by AuthCallback after supabase.auth.getSession() returns a real session.
+   * In mock mode: returns a demo user immediately (no network call).
+   */
+  async sessionSync(
+    supabaseAccessToken: string,
+    userType: "TALENT" | "CLIENT",
+    opts: { name?: string; provider?: "GOOGLE" | "MAGIC_LINK" | "EMAIL_OTP" } = {},
+  ): Promise<AuthUser & { isNewUser?: boolean }> {
+    if (API_MODE !== "live") {
+      const user: AuthUser & { isNewUser?: boolean } = {
+        userId: `usr-supabase-${Date.now()}`,
+        email: "demo@monologg.dev",
+        userType,
+        isNewUser: true,
+      };
+      appStateSync.setLoggedInUser({
+        id: user.userId,
+        email: user.email,
+        name: opts.name ?? (userType === "TALENT" ? "Elias Thorne" : "FilmCraft Studios"),
+        userType,
+        authProvider: opts.provider ?? "GOOGLE",
+        isNewUser: true,
+      });
+      return user;
+    }
+    const data = await authRequest<{
+      accessToken: string;
+      refreshToken: string;
+      user: AuthUser & { isNewUser?: boolean };
+    }>("/session/sync", {
+      supabaseAccessToken,
+      userType,
+      name: opts.name,
+      provider: opts.provider ?? "GOOGLE",
+    });
+    setSession(data);
+    appStateSync.setLoggedInUser({
+      id: data.user.userId,
+      email: data.user.email,
+      name: opts.name ?? (userType === "TALENT" ? "Elias Thorne" : "FilmCraft Studios"),
+      userType: data.user.userType,
+      authProvider: opts.provider ?? "GOOGLE",
+      isNewUser: data.user.isNewUser ?? true,
+    });
+    return data.user;
+  },
+
+  /**
+   * Phase 12B: Server-side rate-limit gate before calling supabase.auth.signInWithOtp().
+   * Returns true if allowed, throws with a 429-style message if within the 60s cooldown.
+   * In mock mode: always succeeds (dev/test — no real OTP send).
+   */
+  async requestOtp(email: string): Promise<void> {
+    if (API_MODE !== "live") {
+      console.log(`[api-client mock] OTP request gate passed for ${email}`);
+      return;
+    }
+    await authRequest("/otp/request", { email });
+  },
+
   // ── Client dashboard ──────────────────────────────────────────────
   // getClientStats/getShortlistedTalentIds stay mock-only: features.md Phase 5 doesn't
   // define a stats or shortlist resource (no schema/endpoint exists for either yet).
