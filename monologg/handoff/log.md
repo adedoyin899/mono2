@@ -1,11 +1,35 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 45: Comprehensive Default States for Storefront, Projects, Availability Calendar & Find Talent)
+**Last updated:** 2026-08-02 (Session 46: Zero-Data Analytics Sync & Role-Peculiar Performance Metrics)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 46 (2026-08-02) — Zero-Data Analytics Sync & Role-Peculiar Performance Metrics
+
+**Goal:** Ensure all earnings & analytics pages default to zero (`₦0`, `0`) for new user signups, remove manual mode toggle buttons, route Google signups through onboarding, and tailor analytics to talent vs client roles.
+
+**Changes Made:**
+1. **Google Signup Onboarding Route (`AuthFlow.tsx`)**:
+   - Directs new Google signups through `/onboarding` (for Talent) or `/onboarding/client` (for Client) before reaching the dashboard.
+2. **Removed Manual Mode Pill Toggle (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+   - Removed header `Mode: New User` / `Mode: Active Demo` buttons. `isNewUser` is driven directly by `currentUser.isNewUser`.
+3. **Zero-Data Earnings & Analytics Default Sync (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+   - Set Available Balance, This Month, Last Month, and All Time values to `₦0` for new users.
+   - Set monthly earnings charts to 0 height with zero-data empty state copy until real transactions occur.
+4. **Role-Peculiar Analytics Pages**:
+   - **Talent Analytics**: Tracks monologue reel plays, storefront impressions, pitch conversion funnel, and payout statements.
+   - **Client Analytics**: Tracks campaign escrow expenditure, talent acquisition funnel, category budget allocation, and escrow ledger.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/AuthFlow.test.tsx`
 
 ---
 

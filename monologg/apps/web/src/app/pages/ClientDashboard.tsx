@@ -121,7 +121,7 @@ export function ClientDashboard() {
     { id: "act-4", type: "message", title: "New Message", desc: "Emeka Johnson uploaded script audio file", time: "3d ago", refId: "ORD-001" },
   ]);
   const currentUser = appStateSync.getLoggedInUser();
-  const [isNewUser, setIsNewUser] = useState(() => currentUser?.isNewUser ?? false);
+  const [isNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? true) : false);
 
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;
@@ -353,14 +353,6 @@ export function ClientDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsNewUser(!isNewUser)}
-                className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
-                title="Toggle between New User empty state and Active Demo state"
-              >
-                <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
-                {isNewUser ? "Mode: New User" : "Mode: Active Demo"}
-              </button>
               <Button className="h-10 px-4 text-sm gap-2" onClick={() => navigate("/brief")}>
                 <Plus className="w-4 h-4" /> Post Project
               </Button>

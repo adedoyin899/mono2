@@ -75,7 +75,7 @@ export function AuthFlow() {
         userType: role === "talent" ? "TALENT" : "CLIENT",
       });
       setShowGoogleModal(false);
-      navigate(role === "talent" ? "/dashboard" : "/client");
+      navigate(role === "talent" ? "/onboarding" : "/onboarding/client");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google authentication failed.");
     } finally {

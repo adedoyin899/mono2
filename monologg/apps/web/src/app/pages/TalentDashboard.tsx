@@ -209,7 +209,7 @@ export function TalentDashboard() {
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const currentUser = appStateSync.getLoggedInUser();
-  const [isNewUser, setIsNewUser] = useState(() => currentUser?.isNewUser ?? false);
+  const [isNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? true) : false);
 
   const effectiveServices = isNewUser ? [] : services;
   const effectiveOrders = isNewUser ? [] : orders;
@@ -486,14 +486,6 @@ export function TalentDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsNewUser(!isNewUser)}
-                className="text-xs px-3 py-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
-                title="Toggle between New User empty state and Active Demo state"
-              >
-                <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
-                {isNewUser ? "Mode: New User" : "Mode: Active Demo"}
-              </button>
               {activeTab === "storefront" && (
                 <Button variant="secondary" className="h-10 px-4 text-sm gap-2" onClick={() => setShowShare(true)}>
                   <Share2 className="w-4 h-4" /> Share Profile
@@ -1730,7 +1722,7 @@ export function TalentDashboard() {
                 <div className="mb-6 p-6 rounded-[var(--radius-lg)] flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
                   <div>
                     <div className="text-xs font-body uppercase tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>Available for Withdrawal</div>
-                    <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦{appStateSync.getBalance().available.toLocaleString()}</div>
+                    <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦{isNewUser ? "0" : appStateSync.getBalance().available.toLocaleString()}</div>
                   </div>
                   <Button className="h-11 px-6 whitespace-nowrap" onClick={() => setShowWithdraw(true)}>Withdraw Funds</Button>
                 </div>
@@ -1738,9 +1730,9 @@ export function TalentDashboard() {
                 {/* Summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: "This Month", value: `₦${appStateSync.getBalance().available.toLocaleString()}`, sub: "Dec 2024" },
-                    { label: "Last Month", value: "₦125,000", sub: "Nov 2024" },
-                    { label: "All Time", value: `₦${(1240000 + appStateSync.getBalance().withdrawnTotal).toLocaleString()}`, sub: "Since joining" },
+                    { label: "This Month", value: isNewUser ? "₦0" : `₦${appStateSync.getBalance().available.toLocaleString()}`, sub: "Current month" },
+                    { label: "Last Month", value: isNewUser ? "₦0" : "₦125,000", sub: "Previous month" },
+                    { label: "All Time", value: isNewUser ? "₦0" : `₦${(1240000 + appStateSync.getBalance().withdrawnTotal).toLocaleString()}`, sub: "Since joining" },
                   ].map((stat, i) => (
                     <div
                       key={i}
@@ -1765,12 +1757,12 @@ export function TalentDashboard() {
                   </div>
                   <div className="flex items-end gap-2 h-32">
                     {[
-                      { month: "Jul", val: 0.55 },
-                      { month: "Aug", val: 0.7 },
-                      { month: "Sep", val: 0.45 },
-                      { month: "Oct", val: 0.8 },
-                      { month: "Nov", val: 0.65 },
-                      { month: "Dec", val: Math.min(1, Math.max(0.6, payouts.length / 5)) },
+                      { month: "Jul", val: isNewUser ? 0 : 0.55 },
+                      { month: "Aug", val: isNewUser ? 0 : 0.7 },
+                      { month: "Sep", val: isNewUser ? 0 : 0.45 },
+                      { month: "Oct", val: isNewUser ? 0 : 0.8 },
+                      { month: "Nov", val: isNewUser ? 0 : 0.65 },
+                      { month: "Dec", val: isNewUser ? 0 : Math.min(1, Math.max(0.6, payouts.length / 5)) },
                     ].map((bar, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <div

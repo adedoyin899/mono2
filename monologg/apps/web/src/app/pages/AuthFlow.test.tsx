@@ -152,7 +152,7 @@ describe("AuthFlow", () => {
     fireEvent.click(screen.getByText("Google Creative User"));
 
     await waitFor(() => {
-      expect(screen.getByText("Talent dashboard")).toBeInTheDocument();
+      expect(screen.getByText("Talent onboarding")).toBeInTheDocument();
     });
   });
 });
