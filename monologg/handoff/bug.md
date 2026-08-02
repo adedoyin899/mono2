@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-03 (Session 49: Phase 12C — Withdrawal Email OTP Gate)
+**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 20. Creator Onboarding Style Tags Edit Toggle & Preset Tag Selection Missing
+- **Severity:** Medium
+- **What happened:** In Step 4 of Creator Onboarding (`Your style tags are ready.`), clicking `Edit tags` did not present preset tag choices or clear interaction cues for adding/removing style tags.
+- **Root Cause:** The component only rendered a plain text input when `isEditingTags` was true without rendering suggested style tag chips or quick toggle actions.
+- **Resolution:** Updated `CreatorOnboarding.tsx` to render interactive preset style tag chips (`Warm Texture`, `Conversational`, `Expressive`, `High Energy`, `Deep Voice`, `Commanding`, `Narrative`, `Character`), 1-click toggling, custom tag entry, and tag removal.
+
+### 21. Talent Settings Payment Methods Missing Payout Bank Account Details
+- **Severity:** Medium
+- **What happened:** Clicking "Payment Methods" in Talent Settings only displayed credit card management instead of payout bank account configuration (Bank Name, Account Number, Account Name).
+- **Root Cause:** Section `"payment"` in `Settings.tsx` was tailored exclusively for credit cards without rendering the Talent Payout Bank Account details form.
+- **Resolution:** Updated `Settings.tsx` to render the Payout Bank Account Details form alongside saved cards for Talent users with instant state persistence via `appStateSync.setBankDetails()`.
 
 ### 19. Missing Zero-Data Default States & Onboarding Nudges for New Talent & Client Accounts
 

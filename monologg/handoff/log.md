@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 38: Platform-Wide Design Audit & Quality Review Pass via /design-review)
+**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -8,6 +8,39 @@ Chronological record of what was done, in what order, and why. Each entry names 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
 
 ---
+
+## Session 39 (2026-08-03) — Platform Stress Testing, Bug Fixes & Withdrawal / Auth UX Overhauls
+
+**Goal:** Stress test platform pages and links, fix identified bugs in Onboarding Tag Editing and Settings Payment Methods, overhaul the Earnings Withdrawal flow into a 2-step account selector + 4-digit security passcode process (removing email OTP clutter), and streamline the Auth flow.
+
+**Changes Made:**
+
+1. **Creator Onboarding Style Tags Editing (`apps/web/src/app/pages/CreatorOnboarding.tsx`)**:
+   - Enhanced Step 4 ("Your style tags are ready.") tag editing:
+   - Added interactive preset style tags chips (`Warm Texture`, `Conversational`, `Expressive`, `High Energy`, `Deep Voice`, `Commanding`, `Narrative`, `Character`).
+   - Enabled 1-click toggling of preset tags, custom text entry (`Add Custom`), and individual tag removal (`X` button).
+
+2. **Talent Settings Payment Methods & Payout Details (`apps/web/src/app/pages/Settings.tsx`)**:
+   - Integrated Payout Bank Account Details editor (Bank Name, Account Number, Account Name) directly into section `"payment"` for Talent users.
+   - Added a "Save Payout Bank Account" button updating `appStateSync.setBankDetails()`.
+   - Added "+ Add Card" capability for saved billing cards.
+
+3. **Withdrawal Flow Overhaul (`apps/web/src/app/pages/TalentDashboard.tsx`)**:
+   - Completely removed email OTP step and email OTP state from withdrawal modal.
+   - **Step 1 (Amount & Destination Account Selector)**: Amount (₦) input + Bank Account selector dropdown (showing primary account e.g. `GTBank ···· 6789 (EMEKA JOHNSON)` and secondary options e.g. `Access Bank ···· 3210`, with selected checkmark card). Advances via "Continue to Security Passcode".
+   - **Step 2 (Security Passcode Verification)**: 4-Digit Security PIN entry. Authorizes payout, updates `appStateSync.withdraw()`, adds payout record & activity log, and displays success receipt!
+
+4. **Auth Flow Streamlining (`apps/web/src/app/pages/AuthFlow.tsx`)**:
+   - Removed secondary "Magic Link" and "Email OTP" button clutter from both `register` and `login` views.
+   - Made "Continue with Google" / "Sign in with Google" the primary prominent auth action alongside clean Email/Password form.
+
+**Test Results:** Vitest Web Suite: 21 files, 78 tests passed (100% green).
+
+**Files touched:**
+- `apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `apps/web/src/app/pages/Settings.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/AuthFlow.tsx`
 
 ## Session 49 (2026-08-03) — Phase 12C: Withdrawal Email OTP Gate
 

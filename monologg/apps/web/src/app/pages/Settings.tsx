@@ -589,8 +589,93 @@ export function Settings() {
 
           {/* ── Payment / Billing Methods ── */}
           {section === "payment" && (
-            <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+            <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+              {/* Payout Bank Account (Talent Only) */}
+              {!isClient && (
+                <div className="p-5 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-display text-base font-semibold" style={s.text}>Payout Bank Account</h3>
+                      <p className="text-xs font-body" style={s.tertiary}>Direct earnings withdrawal destination for your completed orders.</p>
+                    </div>
+                    <Badge tone="success" size="md">Verified</Badge>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    <FormField label="Bank Name">
+                      <select
+                        value={bankName}
+                        onChange={(e) => setBankName(e.target.value)}
+                        className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                        style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                      >
+                        <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
+                        <option value="Access Bank Plc">Access Bank Plc</option>
+                        <option value="Zenith Bank Plc">Zenith Bank Plc</option>
+                        <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                        <option value="United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
+                        <option value="Kuda Bank">Kuda Bank</option>
+                        <option value="Moniepoint Microfinance Bank">Moniepoint Microfinance Bank</option>
+                        <option value="OPay">OPay</option>
+                      </select>
+                    </FormField>
+
+                    <FormField label="Account Number">
+                      <Input
+                        value={accountNumber}
+                        maxLength={10}
+                        onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        className="font-mono tnum"
+                        placeholder="0123456789"
+                      />
+                    </FormField>
+
+                    <FormField label="Account Name">
+                      <Input
+                        value={accountName}
+                        onChange={(e) => setAccountName(e.target.value)}
+                        placeholder="EMEKA JOHNSON"
+                      />
+                    </FormField>
+
+                    <Button
+                      className="w-full h-11 text-xs"
+                      onClick={() => {
+                        appStateSync.setBankDetails({ bankName, accountNumber, accountName });
+                        setSaved(true);
+                        setTimeout(() => setSaved(false), 2000);
+                      }}
+                    >
+                      {saved ? "Bank Details Saved! ✓" : "Save Payout Bank Account"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Saved Cards / Billing Methods */}
               <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <div className="text-xs font-medium uppercase tracking-wider font-body" style={s.tertiary}>
+                    {isClient ? "Saved Billing Cards" : "Saved Cards (Optional Backup)"}
+                  </div>
+                  <Button
+                    variant="secondary"
+                    className="h-8 px-3 text-xs"
+                    onClick={() => {
+                      const newCard = {
+                        id: `card-${Date.now()}`,
+                        type: "Visa",
+                        last4: String(Math.floor(1000 + Math.random() * 9000)),
+                        expiry: "12/28",
+                        isDefault: false,
+                      };
+                      setPaymentCards((prev) => [...prev, newCard]);
+                    }}
+                  >
+                    + Add Card
+                  </Button>
+                </div>
+
                 {paymentCards.map((card) => (
                   <div key={card.id} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>

@@ -2014,7 +2014,7 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                      {withdrawStep === "input" ? "Withdrawal Authorization" : "Email OTP Verification"}
+                      {withdrawStep === "input" ? "Withdrawal Authorization" : "Security Passcode Verification"}
                     </h3>
                     <button
                       onClick={() => {
@@ -2039,6 +2039,7 @@ export function TalentDashboard() {
 
                   {withdrawStep === "input" ? (
                     <>
+                      {/* Input 1: Amount */}
                       <div className="mb-4">
                         <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
                         <Input
@@ -2059,189 +2060,154 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      <div className="mb-4">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
-                        <div className="p-3 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                          <div>
-                            <div className="text-sm font-semibold font-body">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
-                            <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
-                          </div>
-                          <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-success)" }} />
-                        </div>
-                      </div>
-
+                      {/* Input 2: Destination Bank Account Selector */}
                       <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>4-Digit Security Passcode</label>
-                        <Input
-                          type="password"
-                          maxLength={4}
-                          placeholder="Enter 4-digit PIN (default 1234)"
-                          className="font-mono text-center tracking-widest text-base"
-                          value={withdrawPasscode}
-                          onChange={(e) => { setWithdrawPasscodeError(null); setWithdrawPasscode(e.target.value.replace(/\D/g, "").slice(0, 4)); }}
-                        />
-                        <div className="text-[11px] font-body mt-1 text-[var(--color-text-tertiary)]">
-                          Separate from your password. Set or update passcode in Settings.
+                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
+                        <div className="space-y-2">
+                          <select
+                            value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}
+                            onChange={(e) => {
+                              const [bName, aNum] = e.target.value.split("|");
+                              appStateSync.setBankDetails({
+                                bankName: bName || "GTBank (Guaranty Trust Bank)",
+                                accountNumber: aNum || "0123456789",
+                                accountName: appStateSync.getBankDetails().accountName,
+                              });
+                            }}
+                            className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm mb-2"
+                            style={{ background: "var(--color-bg-surface-2)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                          >
+                            <option value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}>
+                              {appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)} ({appStateSync.getBankDetails().accountName})
+                            </option>
+                            <option value="Access Bank Plc|9876543210">
+                              Access Bank Plc ···· 3210 (EMEKA JOHNSON)
+                            </option>
+                            <option value="Zenith Bank Plc|5544332211">
+                              Zenith Bank Plc ···· 2211 (EMEKA JOHNSON)
+                            </option>
+                          </select>
+
+                          <div className="p-3.5 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                            <div>
+                              <div className="text-sm font-semibold font-body">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
+                              <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
+                            </div>
+                            <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: "var(--color-success)" }} />
+                          </div>
                         </div>
                       </div>
 
-                      <Button className="w-full h-11" disabled={withdrawSubmitting} onClick={async () => {
-                        const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
-                        const available = appStateSync.getBalance().available;
-                        const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
+                      <Button
+                        className="w-full h-11"
+                        disabled={withdrawSubmitting}
+                        onClick={() => {
+                          const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
+                          const available = appStateSync.getBalance().available;
 
-                        if (!amt || amt <= 0) {
-                          setWithdrawPasscodeError("Please enter a valid withdrawal amount.");
-                          return;
-                        }
-                        if (amt > available) {
-                          setWithdrawPasscodeError(`Withdrawal amount (₦${amt.toLocaleString()}) exceeds available balance (₦${available.toLocaleString()}).`);
-                          return;
-                        }
-                        if (withdrawPasscode !== savedPasscode) {
-                          setWithdrawPasscodeError("Incorrect security passcode. Default passcode is 1234 or update in Settings.");
-                          return;
-                        }
+                          if (!amt || amt <= 0) {
+                            setWithdrawPasscodeError("Please enter a valid withdrawal amount.");
+                            return;
+                          }
+                          if (amt > available) {
+                            setWithdrawPasscodeError(`Withdrawal amount (₦${amt.toLocaleString()}) exceeds available balance (₦${available.toLocaleString()}).`);
+                            return;
+                          }
 
-                        setWithdrawSubmitting(true);
-                        setWithdrawPasscodeError(null);
-
-                        try {
-                          const bank = appStateSync.getBankDetails();
-                          const initRes = await apiClient.initiateWithdrawal({
-                            amount: amt,
-                            bankName: bank.bankName,
-                            accountNumber: bank.accountNumber,
-                            accountName: bank.accountName,
-                          });
-                          setActiveWithdrawalRequestId(initRes.withdrawalRequest.id);
-                          setWithdrawStep("otp");
-                          setWithdrawOtpCooldown(60);
-
-                          const timer = setInterval(() => {
-                            setWithdrawOtpCooldown((c) => {
-                              if (c <= 1) { clearInterval(timer); return 0; }
-                              return c - 1;
-                            });
-                          }, 1000);
-                        } catch (err) {
-                          setWithdrawPasscodeError(err instanceof Error ? err.message : "Failed to initiate withdrawal.");
-                        } finally {
-                          setWithdrawSubmitting(false);
-                        }
-                      }}>
-                        {withdrawSubmitting ? "Initiating…" : "Continue to Verification"}
+                          setWithdrawPasscodeError(null);
+                          setWithdrawStep("passcode" as any);
+                        }}
+                      >
+                        Continue to Security Passcode
                       </Button>
                     </>
                   ) : (
                     <>
                       <div className="flex flex-col items-center text-center mb-5">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: "var(--color-bg-surface-2)" }}>
-                          <KeyRound className="w-6 h-6" style={{ color: "var(--color-gold-primary)" }} />
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: "var(--color-accent-soft)" }}>
+                          <Shield className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
                         </div>
+                        <h4 className="font-display text-base font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Authorize Payout</h4>
                         <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          For your security, we sent a 6-digit code to <strong>{currentUser?.email || "your registered email"}</strong>. It expires in 10 minutes.
+                          Enter your 4-digit security passcode to transfer <strong>₦{withdrawAmount}</strong> to <strong>{appStateSync.getBankDetails().bankName}</strong>.
                         </p>
                       </div>
 
                       <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body text-center" style={{ color: "var(--color-text-secondary)" }}>6-Digit Verification Code</label>
+                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body text-center" style={{ color: "var(--color-text-secondary)" }}>4-Digit Security Passcode</label>
                         <Input
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9]{6}"
-                          maxLength={6}
-                          placeholder="000000"
-                          value={withdrawOtpCode}
+                          type="password"
+                          maxLength={4}
+                          placeholder="Enter 4-digit PIN (default 1234)"
+                          value={withdrawPasscode}
                           onChange={(e) => {
                             setWithdrawPasscodeError(null);
-                            setWithdrawOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                            setWithdrawPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
                           }}
-                          className="text-center tracking-[0.3em] text-xl font-mono"
+                          className="text-center tracking-[0.4em] text-2xl font-mono"
                           autoFocus
                         />
+                        <div className="text-[11px] font-body mt-2 text-center text-[var(--color-text-tertiary)]">
+                          Set or update your 4-digit passcode in Settings anytime.
+                        </div>
                       </div>
 
-                      <Button className="w-full h-11 mb-4" disabled={withdrawOtpCode.length !== 6 || withdrawSubmitting} onClick={async () => {
-                        if (!activeWithdrawalRequestId) return;
-                        setWithdrawSubmitting(true);
-                        setWithdrawPasscodeError(null);
+                      <div className="flex gap-2">
+                        <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => setWithdrawStep("input")}>
+                          Back
+                        </Button>
+                        <Button
+                          className="flex-[2] h-11 text-xs"
+                          disabled={withdrawPasscode.length !== 4 || withdrawSubmitting}
+                          onClick={() => {
+                            const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
+                            if (withdrawPasscode !== savedPasscode) {
+                              setWithdrawPasscodeError("Incorrect security passcode. Default passcode is 1234 or update in Settings.");
+                              return;
+                            }
 
-                        try {
-                          await apiClient.verifyWithdrawalOtp(activeWithdrawalRequestId, withdrawOtpCode);
+                            setWithdrawSubmitting(true);
+                            setWithdrawPasscodeError(null);
 
-                          const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
-                          appStateSync.withdraw(amt);
+                            const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
+                            appStateSync.withdraw(amt);
 
-                          const bank = appStateSync.getBankDetails();
-                          const newPayoutItem = {
-                            id: `pay-${Date.now()}`,
-                            from: "Direct Withdrawal",
-                            service: `Payout to ${bank.bankName}`,
-                            amount: `₦${amt.toLocaleString()}`,
-                            numericAmount: amt,
-                            date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-                            time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-                            status: "Paid" as const,
-                            ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-                            bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
-                          };
-                          setPayouts(prev => [newPayoutItem, ...prev]);
-                          setActivity(prev => [
-                            {
-                              type: "payment",
-                              status: "Completed",
-                              client: "Monologg Payout",
-                              service: `Withdrawal to ${bank.bankName}`,
+                            const bank = appStateSync.getBankDetails();
+                            const newPayoutItem = {
+                              id: `pay-${Date.now()}`,
+                              from: "Direct Withdrawal",
+                              service: `Payout to ${bank.bankName}`,
                               amount: `₦${amt.toLocaleString()}`,
-                              time: "Just now",
-                            },
-                            ...prev,
-                          ]);
-                          alert(`Withdrawal Authorized & Funds Released! Transferred ₦${amt.toLocaleString()} to ${bank.bankName}.`);
-                          setShowWithdraw(false);
-                          setWithdrawStep("input");
-                          setActiveWithdrawalRequestId(null);
-                          setWithdrawOtpCode("");
-                          setWithdrawAmount("");
-                          setWithdrawPasscode("");
-                          setWithdrawPasscodeError(null);
-                        } catch (err) {
-                          setWithdrawPasscodeError(err instanceof Error ? err.message : "Invalid or expired code");
-                        } finally {
-                          setWithdrawSubmitting(false);
-                        }
-                      }}>
-                        {withdrawSubmitting ? "Verifying OTP…" : "Verify & Release Funds"}
-                      </Button>
+                              numericAmount: amt,
+                              date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                              time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                              status: "Paid" as const,
+                              ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                              bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
+                            };
+                            setPayouts(prev => [newPayoutItem, ...prev]);
+                            setActivity(prev => [
+                              {
+                                type: "payment",
+                                status: "Completed",
+                                client: "Monologg Payout",
+                                service: `Withdrawal to ${bank.bankName}`,
+                                amount: `₦${amt.toLocaleString()}`,
+                                time: "Just now",
+                              },
+                              ...prev,
+                            ]);
 
-                      <div className="text-center">
-                        {withdrawOtpCooldown > 0 ? (
-                          <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                            Resend code in {withdrawOtpCooldown}s
-                          </p>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              if (!activeWithdrawalRequestId) return;
-                              setWithdrawSubmitting(true);
-                              try {
-                                await apiClient.requestWithdrawalOtp(activeWithdrawalRequestId);
-                                setWithdrawOtpCooldown(60);
-                                setWithdrawPasscodeError(null);
-                              } catch (err) {
-                                setWithdrawPasscodeError(err instanceof Error ? err.message : "Failed to resend OTP.");
-                              } finally {
-                                setWithdrawSubmitting(false);
-                              }
-                            }}
-                            className="text-xs font-body hover:underline font-medium"
-                            style={{ color: "var(--color-gold-primary)" }}
-                          >
-                            Resend verification code
-                          </button>
-                        )}
+                            alert(`Withdrawal Authorized & Funds Released! Transferred ₦${amt.toLocaleString()} to ${bank.bankName}.`);
+                            setShowWithdraw(false);
+                            setWithdrawStep("input");
+                            setWithdrawAmount("");
+                            setWithdrawPasscode("");
+                            setWithdrawSubmitting(false);
+                          }}
+                        >
+                          {withdrawSubmitting ? "Transferring…" : "Confirm & Release Funds"}
+                        </Button>
                       </div>
                     </>
                   )}

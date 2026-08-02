@@ -381,7 +381,7 @@ export function AuthFlow() {
                     type="button"
                     onClick={handleSupabaseGoogle}
                     disabled={submitting}
-                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-2 active:scale-[0.99]"
+                    className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -392,65 +392,9 @@ export function AuthFlow() {
                     Continue with Google
                   </button>
 
-                  {/* Magic link + OTP — email-first alternatives (Phase 12B) */}
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      type="button"
-                      onClick={() => { setShowMagicLinkInput(!showMagicLinkInput); setShowOtpInput(false); }}
-                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      Magic Link
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowOtpInput(!showOtpInput); setShowMagicLinkInput(false); setOtpEmail(email); }}
-                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      <KeyRound className="w-3.5 h-3.5" />
-                      Email OTP
-                    </button>
-                  </div>
-
-                  {/* Magic link email input (expandable) */}
-                  {showMagicLinkInput && (
-                    <form onSubmit={handleMagicLink} className="flex gap-2 mb-2">
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        value={magicLinkEmail}
-                        onChange={e => setMagicLinkEmail(e.target.value)}
-                        required
-                        className="flex-1"
-                      />
-                      <Button type="submit" className="h-11 px-4" disabled={submitting}>
-                        {submitting ? "…" : "Send"}
-                      </Button>
-                    </form>
-                  )}
-
-                  {/* OTP email input (expandable) */}
-                  {showOtpInput && (
-                    <form onSubmit={handleOtpRequest} className="flex gap-2 mb-2">
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        value={otpEmail}
-                        onChange={e => setOtpEmail(e.target.value)}
-                        required
-                        className="flex-1"
-                      />
-                      <Button type="submit" className="h-11 px-4" disabled={submitting}>
-                        {submitting ? "…" : "Send OTP"}
-                      </Button>
-                    </form>
-                  )}
-
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with password</span>
+                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with email</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
@@ -547,7 +491,7 @@ export function AuthFlow() {
                     type="button"
                     onClick={handleSupabaseGoogle}
                     disabled={submitting}
-                    className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-2 active:scale-[0.99]"
+                    className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -558,44 +502,9 @@ export function AuthFlow() {
                     Sign in with Google
                   </button>
 
-                  {/* Magic link + OTP alternatives (Phase 12B) */}
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      type="button"
-                      onClick={() => { setShowMagicLinkInput(!showMagicLinkInput); setShowOtpInput(false); setMagicLinkEmail(email); }}
-                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      Magic Link
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowOtpInput(!showOtpInput); setShowMagicLinkInput(false); setOtpEmail(email); }}
-                      className="flex-1 h-9 rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-2 text-xs font-semibold font-body active:scale-[0.99]"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
-                      <KeyRound className="w-3.5 h-3.5" />
-                      Email OTP
-                    </button>
-                  </div>
-
-                  {showMagicLinkInput && (
-                    <form onSubmit={handleMagicLink} className="flex gap-2 mb-2">
-                      <Input type="email" placeholder="your@email.com" value={magicLinkEmail} onChange={e => setMagicLinkEmail(e.target.value)} required className="flex-1" />
-                      <Button type="submit" className="h-11 px-4" disabled={submitting}>{submitting ? "…" : "Send"}</Button>
-                    </form>
-                  )}
-                  {showOtpInput && (
-                    <form onSubmit={handleOtpRequest} className="flex gap-2 mb-2">
-                      <Input type="email" placeholder="your@email.com" value={otpEmail} onChange={e => setOtpEmail(e.target.value)} required className="flex-1" />
-                      <Button type="submit" className="h-11 px-4" disabled={submitting}>{submitting ? "…" : "Send OTP"}</Button>
-                    </form>
-                  )}
-
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with password</span>
+                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or sign in with email</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 

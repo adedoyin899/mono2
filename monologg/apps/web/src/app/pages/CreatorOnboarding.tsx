@@ -381,18 +381,51 @@ export function CreatorOnboarding() {
               </div>
 
               {isEditingTags && (
-                <div className="pt-3 border-t border-[var(--color-hairline)] flex gap-2">
-                  <Input
-                    placeholder="Type new tag..."
-                    value={newTagInput}
-                    onChange={(e) => setNewTagInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddTag(); } }}
-                    className="h-10 text-xs"
-                    disabled={tags.length >= 7}
-                  />
-                  <Button type="button" variant="secondary" className="h-10 text-xs shrink-0 px-3" onClick={handleAddTag} disabled={tags.length >= 7 || !newTagInput.trim()}>
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Add
-                  </Button>
+                <div className="pt-3 border-t border-[var(--color-hairline)] space-y-3">
+                  <div>
+                    <div className="text-[11px] font-body uppercase tracking-wider font-semibold text-[var(--color-text-tertiary)] mb-2">Suggested Style Tags</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {["Warm Texture", "Conversational", "Expressive", "High Energy", "Deep Voice", "Commanding", "Narrative", "Character"].map((preset) => {
+                        const isSelected = tags.includes(preset);
+                        return (
+                          <button
+                            key={preset}
+                            type="button"
+                            disabled={tags.length >= 7 && !isSelected}
+                            onClick={() => {
+                              if (isSelected) {
+                                setTags(tags.filter(t => t !== preset));
+                              } else if (tags.length < 7) {
+                                setTags([...tags, preset]);
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-[var(--radius-full)] text-xs font-body font-medium transition-all active:scale-95 disabled:opacity-40"
+                            style={{
+                              background: isSelected ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                              color: isSelected ? "var(--color-accent)" : "var(--color-text-secondary)",
+                              border: `1px solid ${isSelected ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                            }}
+                          >
+                            {isSelected ? `✓ ${preset}` : `+ ${preset}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-1">
+                    <Input
+                      placeholder="Type custom style tag..."
+                      value={newTagInput}
+                      onChange={(e) => setNewTagInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddTag(); } }}
+                      className="h-10 text-xs flex-1"
+                      disabled={tags.length >= 7}
+                    />
+                    <Button type="button" variant="secondary" className="h-10 text-xs shrink-0 px-3" onClick={handleAddTag} disabled={tags.length >= 7 || !newTagInput.trim()}>
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Custom
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
