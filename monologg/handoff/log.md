@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-02 (Session 47: Tag Editor, Passcode Withdrawal, Project Detail View, Media Kit & Storefront Fixes)
+**Last updated:** 2026-08-02 (Session 47b: Currency Input Layout & Storefront Button Audit)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
