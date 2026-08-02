@@ -652,10 +652,38 @@ export function AuthFlow() {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => navigate("/dashboard")}>
+                    <Button
+                      variant="secondary"
+                      className="flex-1 h-11 text-sm"
+                      onClick={() => {
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-talent",
+                          email: "elias@monologg.test",
+                          name: "Elias Thorne",
+                          userType: "TALENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/dashboard");
+                      }}
+                    >
                       Talent
                     </Button>
-                    <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => navigate("/client")}>
+                    <Button
+                      variant="secondary"
+                      className="flex-1 h-11 text-sm"
+                      onClick={() => {
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-client",
+                          email: "client@studio.test",
+                          name: "FilmCraft Studios",
+                          userType: "CLIENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/client");
+                      }}
+                    >
                       Client
                     </Button>
                   </div>

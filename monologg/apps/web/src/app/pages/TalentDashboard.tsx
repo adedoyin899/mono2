@@ -218,7 +218,7 @@ export function TalentDashboard() {
   const [withdrawOtpCooldown, setWithdrawOtpCooldown] = useState(0);
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
   const currentUser = appStateSync.getLoggedInUser();
-  const [isNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? true) : false);
+  const [isNewUser, setIsNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? false) : false);
 
   const effectiveServices = isNewUser ? [] : services;
   const effectiveOrders = isNewUser ? [] : orders;

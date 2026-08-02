@@ -38,6 +38,8 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 ### Client Integration
 8. **`apps/web/src/lib/api-client.ts`** — Added `initiateWithdrawal`, `requestWithdrawalOtp`, `verifyWithdrawalOtp`, and `getDevWithdrawalOtp` methods.
 9. **`apps/web/src/app/pages/TalentDashboard.tsx`** — Updated the withdrawal modal into a 2-step flow: input confirmation -> OTP 6-digit entry with copy `"For your security, we sent a 6-digit code to <masked email>. It expires in 10 minutes."`, 60s resend cooldown timer, and error handling.
+10. **`apps/web/src/app/pages/AuthFlow.tsx`** — Fixed quick "continue as Talent" / "continue as Client" demo buttons to explicitly store `isNewUser: false` session state so continuing directly as Talent or Client opens the populated demo dashboard with default values instead of the new user empty state.
+11. **`apps/web/src/app/pages/TalentDashboard.tsx` & `ClientDashboard.tsx`** — Changed default `isNewUser` fallback from `true` to `false` for returning/demo sessions.
 
 ### Tests
 10. **`apps/api/src/routes/withdrawals.test.ts`** [NEW] — 12 tests covering cryptography, Argon2id storage, happy path verify & release, 5-attempt lockout, 10-minute expiry, rate limits (3/10m, 5/1h, 60s cooldown), generic error leakage, and release security gating.
