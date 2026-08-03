@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "prisma generate",
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --import tsx --env-file=.env --watch src/index.ts",
     "start": "prisma migrate deploy && tsx src/index.ts",
     "typecheck": "tsc --noEmit",
     "verify:db": "node scripts/verify-supabase-connection.mjs",

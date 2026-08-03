@@ -34,7 +34,7 @@ export function signMockSupabaseToken(claims: {
       role: "authenticated",
     },
     getMockSigningSecret(),
-    { expiresIn: claims.expiresIn ?? "15m" },
+    { expiresIn: (claims.expiresIn ?? "15m") as any },
   );
 }
 

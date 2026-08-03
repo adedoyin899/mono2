@@ -89,6 +89,8 @@ const envSchema = z.object({
   // SUPABASE_SERVICE_ROLE_KEY: SERVER-SIDE ONLY — never ship to the client.
   // Has full database bypass; only used server-side for Admin API calls if needed.
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // The secret used to verify Supabase-issued HS256 JWTs.
+  SUPABASE_JWT_SECRET: z.string().optional(),
   // ── Withdrawal OTP (Phase 12C) ───────────────────────────────────────────
   // WITHDRAWAL_OTP_MODE controls OTP delivery:
   //   "mock" (default) → logs code to pino + writes Notification row of kind WITHDRAWAL_OTP
