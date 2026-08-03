@@ -1,11 +1,17 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 Stress Test & UX Overhauls are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, streamlined 2-step passcode withdrawal flow, and interactive style tag editing.
+**Last updated:** 2026-08-03 (Session 40: Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test & Fixes are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, and demo user routing.
 
 ---
 
 ## ✅ Done
+
+### Session 40 — Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing
+- [x] **Production ReferenceErrors Fixed**: Imported missing `X` icon from `lucide-react` and declared `paymentCards` / `deleteCardModal` state variables in `Settings.tsx` to fix Vercel runtime crashes.
+- [x] **Availability Calendar Tabs & Copy**: Updated calendar switcher tabs to `"Month"`, `"Week"`, `"Day"` and condensed helper text to single responsive line: `"Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default."`.
+- [x] **Auth Demo Routing**: Updated Talent and Client demo buttons in `AuthFlow.tsx` to set `localStorage.setItem("monologg_is_new_user", "false")` and route directly to default regular user dashboards (Emeka Johnson / FilmCraft Studios).
+- [x] **Verification**: Vitest Web test suite 100% passing (21 test files, 78 tests). Vite production build: 2129 modules transformed cleanly.
 
 ### Session 39 — Platform Stress Testing, Bug Fixes & Withdrawal / Auth UX Overhauls
 - [x] **Creator Onboarding Style Tags Editing**: Enhanced Step 4 tag editing (`CreatorOnboarding.tsx`) with preset performance style tags (`Warm Texture`, `Conversational`, `Expressive`, `High Energy`, `Deep Voice`, `Commanding`, `Narrative`, `Character`), 1-click toggling, custom tag creation, and tag removal.

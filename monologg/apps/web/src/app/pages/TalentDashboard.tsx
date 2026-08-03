@@ -218,7 +218,11 @@ export function TalentDashboard() {
   const [withdrawOtpCooldown, setWithdrawOtpCooldown] = useState(0);
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
   const currentUser = appStateSync.getLoggedInUser();
-  const [isNewUser, setIsNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? false) : false);
+  const [isNewUser, setIsNewUser] = useState(() => {
+    const stored = localStorage.getItem("monologg_is_new_user");
+    if (stored !== null) return stored === "true";
+    return currentUser ? (currentUser.isNewUser ?? false) : false;
+  });
 
   const effectiveServices = isNewUser ? [] : services;
   const effectiveOrders = isNewUser ? [] : orders;
@@ -1152,13 +1156,13 @@ export function TalentDashboard() {
                 )}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <div>
-                    <h2 className="font-display text-2xl lg:hidden" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
-                    <p className="hidden lg:block text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    <h2 className="font-display text-2xl lg:hidden mb-1" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
+                    <p className="text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                       Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
                     </p>
                   </div>
                   {/* 3-View Switcher: Month | Week | Day */}
-                  <div className="flex p-1 rounded-xl self-start sm:self-auto" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                  <div className="flex p-1 rounded-xl self-start sm:self-auto shrink-0" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
                     {(["month", "week", "day"] as const).map((view) => (
                       <button
                         key={view}
@@ -1169,7 +1173,7 @@ export function TalentDashboard() {
                           color: calendarView === view ? "var(--color-accent-on)" : "var(--color-text-secondary)",
                         }}
                       >
-                        {view} View
+                        {view}
                       </button>
                     ))}
                   </div>

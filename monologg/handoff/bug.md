@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
+**Last updated:** 2026-08-03 (Session 40: Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 22. Vercel Production ReferenceErrors (`X is not defined`, `paymentCards is not defined`)
+- **Severity:** High
+- **What happened:** Opening Settings -> Payment Methods or deleting payment cards on Vercel deployment threw unhandled React runtime errors: `ReferenceError: X is not defined` and `ReferenceError: paymentCards is not defined`.
+- **Root Cause:** `X` was missing from `lucide-react` import statement, and `paymentCards` state variable was undeclared in `Settings.tsx`.
+- **Resolution:** Added `X` to imports and declared `paymentCards` / `deleteCardModal` state variables in `Settings.tsx`.
 
 ### 20. Creator Onboarding Style Tags Edit Toggle & Preset Tag Selection Missing
 - **Severity:** Medium

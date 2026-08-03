@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 39 Overhauls are built. Real Postgres/Prisma backend, real auth (custom JWT + Supabase Auth bridge), real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, project applications, public marketplace profile, external-visitor deferred booking flow, streamlined 2-step passcode withdrawal authorization, and interactive style tag editor.
+**Last updated:** 2026-08-03 (Session 40: Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 39 & 40 Overhauls are built. Real Postgres/Prisma backend, real auth (custom JWT + Supabase Auth bridge), real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, project applications, public marketplace profile, external-visitor deferred booking flow, 2-step passcode withdrawal authorization, interactive style tag editor, ReferenceError bug fixes, and demo user routing.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.

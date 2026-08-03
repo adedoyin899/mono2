@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-03 (Session 39: Platform Stress Testing, Bug Fixes & UX Overhauls)
+**Last updated:** 2026-08-03 (Session 40: Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -8,6 +8,32 @@ Chronological record of what was done, in what order, and why. Each entry names 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
 
 ---
+
+## Session 40 (2026-08-03) — Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing
+
+**Goal:** Fix Vercel production ReferenceErrors (`X is not defined`, `paymentCards is not defined`), clean up Availability Calendar tabs and copy, and ensure Auth demo buttons route to default regular user dashboards.
+
+**Changes Made:**
+
+1. **Fix `ReferenceError: X is not defined` & `ReferenceError: paymentCards is not defined` (`apps/web/src/app/pages/Settings.tsx`)**:
+   - Added `X` icon to imports from `"lucide-react"`.
+   - Declared missing `paymentCards` state array and `deleteCardModal` modal state in `Settings.tsx`.
+
+2. **Availability Calendar Tabs & Copy Update (`apps/web/src/app/pages/TalentDashboard.tsx`)**:
+   - Renamed calendar switcher tabs from `"Month View"`, `"Week View"`, `"Day View"` to `"Month"`, `"Week"`, `"Day"`.
+   - Condensed helper copy to single responsive line: `"Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default."`.
+
+3. **Auth Flow Demo Routing (`apps/web/src/app/pages/AuthFlow.tsx`, `TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+   - Updated Talent and Client demo buttons ("or continue as") in `AuthFlow.tsx` to set `localStorage.setItem("monologg_is_new_user", "false")` and log in as default regular users (Emeka Johnson / FilmCraft Studios).
+   - Updated `isNewUser` state initialization in `TalentDashboard.tsx` and `ClientDashboard.tsx` to respect `localStorage`.
+
+**Test Results:** Vitest Web Suite: 21 files, 78 tests passed (100% green). Vite production build: 2129 modules transformed cleanly.
+
+**Files touched:**
+- `apps/web/src/app/pages/Settings.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/ClientDashboard.tsx`
+- `apps/web/src/app/pages/AuthFlow.tsx`
 
 ## Session 39 (2026-08-03) — Platform Stress Testing, Bug Fixes & Withdrawal / Auth UX Overhauls
 

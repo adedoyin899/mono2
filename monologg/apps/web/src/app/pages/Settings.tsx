@@ -11,7 +11,7 @@ import { apiClient, type PhysicalAttributes, type AttributeVisibility, type Upda
 import { appStateSync } from "../../lib/state-sync";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2
+  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X
 } from "lucide-react";
 
 type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes";
@@ -77,6 +77,13 @@ export function Settings() {
   const [bankName, setBankName] = useState(bankDetails.bankName);
   const [accountNumber, setAccountNumber] = useState(bankDetails.accountNumber);
   const [accountName, setAccountName] = useState(bankDetails.accountName);
+
+  // Payment Cards state
+  const [paymentCards, setPaymentCards] = useState<Array<{ id: string; type: string; last4: string; expiry: string; isDefault: boolean }>>([
+    { id: "card-1", type: "Mastercard", last4: "4242", expiry: "08/28", isDefault: true },
+    { id: "card-2", type: "Visa", last4: "8899", expiry: "11/27", isDefault: false },
+  ]);
+  const [deleteCardModal, setDeleteCardModal] = useState<{ id: string; type: string; last4: string } | null>(null);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
   const [securityPasscode, setSecurityPasscode] = useState(() => localStorage.getItem("monologg_withdrawal_passcode") || "1234");

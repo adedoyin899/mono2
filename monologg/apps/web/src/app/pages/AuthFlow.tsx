@@ -563,12 +563,13 @@ export function AuthFlow() {
                   <div className="flex gap-3">
                     <Button
                       variant="secondary"
-                      className="flex-1 h-11 text-sm"
+                      className="flex-1 h-11 text-sm font-semibold"
                       onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
                         appStateSync.setLoggedInUser({
                           id: "usr-demo-talent",
-                          email: "elias@monologg.test",
-                          name: "Elias Thorne",
+                          email: "emeka@example.com",
+                          name: "Emeka Johnson",
                           userType: "TALENT",
                           authProvider: "EMAIL",
                           isNewUser: false,
@@ -580,12 +581,13 @@ export function AuthFlow() {
                     </Button>
                     <Button
                       variant="secondary"
-                      className="flex-1 h-11 text-sm"
+                      className="flex-1 h-11 text-sm font-semibold"
                       onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
                         appStateSync.setLoggedInUser({
                           id: "usr-demo-client",
-                          email: "client@studio.test",
-                          name: "FilmCraft Studios",
+                          email: "sarah@filmcraft.com",
+                          name: "Sarah Jenkins",
                           userType: "CLIENT",
                           authProvider: "EMAIL",
                           isNewUser: false,

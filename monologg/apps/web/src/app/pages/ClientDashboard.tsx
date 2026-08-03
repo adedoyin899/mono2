@@ -121,7 +121,11 @@ export function ClientDashboard() {
     { id: "act-4", type: "message", title: "New Message", desc: "Emeka Johnson uploaded script audio file", time: "3d ago", refId: "ORD-001" },
   ]);
   const currentUser = appStateSync.getLoggedInUser();
-  const [isNewUser, setIsNewUser] = useState(() => currentUser ? (currentUser.isNewUser ?? false) : false);
+  const [isNewUser, setIsNewUser] = useState(() => {
+    const stored = localStorage.getItem("monologg_is_new_user");
+    if (stored !== null) return stored === "true";
+    return currentUser ? (currentUser.isNewUser ?? false) : false;
+  });
 
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;
