@@ -7,14 +7,19 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "pnpm --filter @monologg/web dev",
-    "build": "pnpm --filter @monologg/web build",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm --filter @monologg/web lint",
-    "format": "pnpm --filter @monologg/web format",
-    "format:check": "pnpm --filter @monologg/web format:check",
-    "test": "pnpm --filter @monologg/web test && pnpm --filter @monologg/api test",
-    "audit": "pnpm audit --audit-level=high"
+    "dev": "npx pnpm --filter @monologg/web dev",
+    "api:dev": "npx pnpm --filter @monologg/api dev",
+    "db:seed": "npx pnpm --filter @monologg/api db:seed",
+    "db:migrate": "npx pnpm --filter @monologg/api exec prisma migrate deploy",
+    "db:push": "npx pnpm --filter @monologg/api exec prisma db push --accept-data-loss",
+    "test:e2e": "npx pnpm --filter @monologg/web exec playwright test",
+    "build": "npx pnpm --filter @monologg/web build",
+    "typecheck": "npx pnpm -r typecheck",
+    "lint": "npx pnpm --filter @monologg/web lint",
+    "format": "npx pnpm --filter @monologg/web format",
+    "format:check": "npx pnpm --filter @monologg/web format:check",
+    "test": "npx pnpm --filter @monologg/web test && npx pnpm --filter @monologg/api test",
+    "audit": "npx pnpm audit --audit-level=high"
   },
   "pnpm": {
     "auditConfig": {
