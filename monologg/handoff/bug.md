@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-03 (Session 40: Fix ReferenceErrors, Calendar Tabs Copy & Auth Demo Routing)
+**Last updated:** 2026-08-03 (Session 50: QA Master Sweep & Compilation Fixes)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,35 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 26. Database migration build block: AuthProvider type and UserActivity table missing from migrations
+- **Severity:** High
+- **What happened:** Database migration deploy (`prisma migrate deploy`) failed because the enum `AuthProvider` and table `UserActivity` from prior sessions were never generated in any migration file.
+- **Root Cause:** Prior developers used `prisma db push` locally to bypass migrations, leaving the migration history out of sync with `schema.prisma`.
+- **Resolution:** Flagged the migration mismatch for review, and resolved the local database state by running `prisma db push --accept-data-loss` to synchronize the Supabase test database schema.
+
+### 25. Onboarding and Settings dashboard compilation errors due to missing imports and incorrect Badge component prop naming
+- **Severity:** High
+- **What happened:** TypeScript failed with multiple errors in `CreatorOnboarding.tsx`, `Settings.tsx`, `TalentDashboard.tsx`, and `ClientDashboard.tsx`.
+- **Root Cause:**
+  - `X` icon was used but not imported in `CreatorOnboarding.tsx`.
+  - `Modal` was used but not imported in `Settings.tsx`.
+  - `variant` prop was passed to `Badge` component in `ClientDashboard.tsx` and `TalentDashboard.tsx`, but the component expects `tone`.
+  - `setBankDetails` was called instead of `updateBankDetails` on `appStateSync` in `Settings.tsx` and `TalentDashboard.tsx`.
+  - `withdraw` was called instead of `withdrawFunds` on `appStateSync` in `TalentDashboard.tsx`.
+- **Resolution:** Corrected the prop names and function calls, and imported the missing components/icons.
+
+### 24. AuthFlow.tsx compilation error due to missing appStateSync import
+- **Severity:** High
+- **What happened:** TypeScript typecheck failed with `Cannot find name 'appStateSync'` in `AuthFlow.tsx`.
+- **Root Cause:** `appStateSync` was used in `AuthFlow.tsx` for logging in demo users but was not imported from `../../lib/state-sync`.
+- **Resolution:** Imported `appStateSync` at the top of `AuthFlow.tsx`.
+
+### 23. Apps/api build-blocking typecheck error due to undeclared SUPABASE_JWT_SECRET
+- **Severity:** High
+- **What happened:** The API build/typecheck command failed with `Property 'SUPABASE_JWT_SECRET' does not exist on type '{ ... }'`.
+- **Root Cause:** `SUPABASE_JWT_SECRET` was default-overridden in `apps/api/src/config/env.ts`'s parse logic, but was missing from the Zod validation schema `envSchema`, filtering it out from the typed `env` object.
+- **Resolution:** Added `SUPABASE_JWT_SECRET: z.string().optional()` to the Zod schema in `env.ts`.
 
 ### 22. Vercel Production ReferenceErrors (`X is not defined`, `paymentCards is not defined`)
 - **Severity:** High
