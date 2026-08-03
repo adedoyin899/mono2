@@ -545,7 +545,7 @@ export function TalentDashboard() {
                         </p>
                       </div>
                     </div>
-                    <Badge variant={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Profile"}</Badge>
+                    <Badge tone={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Profile"}</Badge>
                   </div>
 
                   <div className="w-full h-1.5 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden mb-4">
@@ -888,7 +888,7 @@ export function TalentDashboard() {
                               <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
                             </div>
                             <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
-                            <Button className="w-full h-10 text-sm" onClick={() => navigate(`/book/${talentProfile?.id || "me"}`)}>Book Now</Button>
+                            <Button className="w-full h-10 text-sm" onClick={() => navigate(`/book/${currentUser?.id || "me"}`)}>Book Now</Button>
                           </div>
                         ))}
                       </div>
@@ -1532,7 +1532,7 @@ export function TalentDashboard() {
                         <div
                           key={application.id}
                           onClick={() => {
-                            const found = projects.find((p) => p.id === application.brief.id) || {
+                            const found = (projects.find((p) => p.id === application.brief.id) || {
                               id: application.brief.id,
                               projectName: application.brief.projectName,
                               clientName: application.brief.clientName,
@@ -1543,7 +1543,7 @@ export function TalentDashboard() {
                               applicationsOpen: true,
                               nicheReq: ["VOICE_OVER"],
                               myApplication: application,
-                            };
+                            }) as any;
                             setSelectedProject(found);
                             setPitchText(application.pitch ?? "");
                             setApplyError(null);
@@ -2072,7 +2072,7 @@ export function TalentDashboard() {
                             value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}
                             onChange={(e) => {
                               const [bName, aNum] = e.target.value.split("|");
-                              appStateSync.setBankDetails({
+                              appStateSync.updateBankDetails({
                                 bankName: bName || "GTBank (Guaranty Trust Bank)",
                                 accountNumber: aNum || "0123456789",
                                 accountName: appStateSync.getBankDetails().accountName,
@@ -2174,7 +2174,7 @@ export function TalentDashboard() {
                             setWithdrawPasscodeError(null);
 
                             const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
-                            appStateSync.withdraw(amt);
+                            appStateSync.withdrawFunds(amt);
 
                             const bank = appStateSync.getBankDetails();
                             const newPayoutItem = {

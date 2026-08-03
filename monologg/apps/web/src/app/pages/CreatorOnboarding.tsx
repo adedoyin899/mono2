@@ -6,7 +6,7 @@ import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
-import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles, AlertTriangle } from "lucide-react";
+import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles, AlertTriangle, X } from "lucide-react";
 
 const DEFAULT_STYLE_TAGS = ["Warm Texture", "Conversational", "Expressive", "High Energy"];
 const TAGGING_POLL_INTERVAL_MS = 1000;

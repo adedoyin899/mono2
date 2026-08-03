@@ -1116,7 +1116,7 @@ export const apiClient = {
         slotStart: input.slotStart,
         slotEnd: input.slotEnd,
         state: "PENDING_PAYMENT",
-      };
+      } as any;
     }
     return request("/public/bookings", {
       method: "POST",

@@ -7,6 +7,7 @@ import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../Root";
 import { apiClient } from "../../lib/api-client";
 import { supabase, SUPABASE_MODE } from "../../lib/supabase";
+import { appStateSync } from "../../lib/state-sync";
 import { CURRENT_TERMS_VERSION } from "@monologg/types";
 import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check, Mail, KeyRound } from "lucide-react";
 

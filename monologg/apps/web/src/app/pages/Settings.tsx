@@ -9,6 +9,7 @@ import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
+import { Modal } from "../components/ui/Modal";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X
@@ -648,7 +649,7 @@ export function Settings() {
                     <Button
                       className="w-full h-11 text-xs"
                       onClick={() => {
-                        appStateSync.setBankDetails({ bankName, accountNumber, accountName });
+                        appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
                         setSaved(true);
                         setTimeout(() => setSaved(false), 2000);
                       }}
