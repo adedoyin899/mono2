@@ -211,7 +211,7 @@ export function OrderRoom() {
   );
 
   return (
-    <div className="role-talent min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
+    <div className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
       {/* Header */}
       <div
         className="h-16 flex items-center justify-between gap-3 px-4 sticky top-0 z-40 glass-panel"

@@ -10,6 +10,7 @@ import { supabase, SUPABASE_MODE } from "../../lib/supabase";
 import { appStateSync } from "../../lib/state-sync";
 import { CURRENT_TERMS_VERSION } from "@monologg/types";
 import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check, Mail, KeyRound } from "lucide-react";
+import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
 
 type View = "splash" | "register" | "login" | "forgot" | "otp_entry" | "magic_sent";
 type Role = "talent" | "client";
@@ -236,11 +237,13 @@ export function AuthFlow() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col relative overflow-hidden`}
       style={s.canvas}
     >
+      <WebGLHeroCanvas opacityMultiplier={0.2} />
+
       {/* Top bar */}
-      <div className="h-16 flex items-center justify-between px-5 md:px-8" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
+      <div className="h-16 flex items-center justify-between px-5 md:px-8 relative z-20" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
         <Link to="/" aria-label="Monologg"><Logo className="h-5 w-auto" style={s.primary} /></Link>
         <button
           onClick={toggle}
@@ -252,7 +255,7 @@ export function AuthFlow() {
         </button>
       </div>
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex relative z-10">
         {/* Left panel — desktop illustration */}
         <div
           className="hidden lg:flex flex-col justify-between p-14 w-[480px] shrink-0 relative overflow-hidden"
@@ -260,17 +263,22 @@ export function AuthFlow() {
         >
           <div
             className="absolute -top-24 -left-16 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-red-glow) 0%, transparent 70%)", filter: "blur(50px)" }}
+            style={{ background: `radial-gradient(50% 50% at 50% 50%, var(--color-accent-glow) 0%, transparent 70%)`, filter: "blur(50px)" }}
           />
-          <div className="relative">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center mb-8"
-              style={{ background: "var(--color-accent-soft)" }}
-            >
-              <Shield className="w-6 h-6 text-[var(--color-accent)]" />
-            </div>
-            <h2 className="font-display text-[38px] font-bold leading-[1.05] tracking-[-0.02em] mb-4 text-[var(--color-text-primary)]">
-              Your craft. On your terms.
+          <div className="relative space-y-4">
+            <h2 className="font-wise-sans text-[36px] sm:text-[42px] font-black uppercase tracking-[-0.03em] leading-[0.95] text-[var(--color-text-primary)]">
+              YOUR CRAFT. ON YOUR TERMS.<br />
+              <span className="relative inline-block text-[var(--color-accent)] mt-1">
+                INSTANTLY BOOKED.
+                <svg
+                  className="absolute left-0 -bottom-1.5 w-full h-3 text-[var(--color-accent)] pointer-events-none"
+                  viewBox="0 0 300 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M5 15Q75 2 150 15T295 12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+              </span>
             </h2>
             <p className="text-base font-body leading-relaxed text-[var(--color-text-secondary)]">
               Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.

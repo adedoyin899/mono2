@@ -618,28 +618,22 @@ export function TalentDashboard() {
                 {/* HERO — earnings moment */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
-                  className="relative overflow-hidden mb-5 p-6 lg:p-7"
-                  style={{
-                    borderRadius: "var(--radius-2xl)",
-                    background: "linear-gradient(140deg, var(--color-accent) 0%, var(--color-accent-press) 100%)",
-                    boxShadow: "var(--shadow-elevated)",
-                    color: "var(--color-accent-on)",
-                  }}
+                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#F13030] to-[#D31F20] text-white shadow-xl"
                 >
-                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
-                  <div className="relative">
-                    <div className="text-xs font-body uppercase tracking-wider" style={{ opacity: 0.85 }}>Available balance</div>
-                    <div className="font-display tnum leading-none mt-2" style={{ fontSize: "clamp(2.5rem, 9vw, 3.5rem)" }}>
+                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
+                  <div className="relative space-y-2">
+                    <div className="text-xs font-mono uppercase tracking-wider text-[#FFECEC] font-semibold">Available balance</div>
+                    <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
                       {isNewUser ? "₦0" : "₦148,000"}
                     </div>
-                    <div className="flex items-center gap-1.5 mt-3 text-sm font-body" style={{ opacity: 0.9 }}>
-                      <TrendingUp className="w-4 h-4" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
+                    <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#FFECEC]/90">
+                      <TrendingUp className="w-4 h-4 text-[#FFECEC]" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
                     </div>
-                    <div className="flex gap-2.5 mt-5">
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>
+                    <div className="flex gap-2.5 pt-3">
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#F13030] shadow-md hover:bg-white/90">
                         {isNewUser ? "Setup Payouts" : "Withdraw"}
                       </button>
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-4 rounded-full text-sm font-semibold font-body transition-transform active:scale-95" style={{ background: "rgba(255,255,255,0.18)", color: "var(--color-accent-on)" }}>
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">
                         View earnings
                       </button>
                     </div>
@@ -663,19 +657,6 @@ export function TalentDashboard() {
                       </span>
                       <span className="text-[11px] font-body text-center" style={{ color: "var(--color-text-secondary)" }}>{qa.label}</span>
                     </button>
-                  ))}
-                </div>
-
-                {/* Stat cluster */}
-                <div
-                  className="grid grid-cols-3 mb-6 p-5 rounded-[var(--radius-lg)]"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
-                >
-                  {effectiveStats.slice(1).map((stat, i) => (
-                    <div key={i} className="text-center px-2" style={{ borderLeft: i > 0 ? "1px solid var(--color-hairline)" : undefined }}>
-                      <div className="font-display text-2xl tnum" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
-                      <div className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
-                    </div>
                   ))}
                 </div>
 

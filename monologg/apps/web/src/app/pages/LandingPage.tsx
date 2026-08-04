@@ -103,12 +103,14 @@ const CAROUSEL_TALENTS = [
 ];
 
 // ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
+
+// ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
 const RADAR_NODES = [
   {
     id: "lagos",
     city: "Lagos, Nigeria",
     flag: "🇳🇬",
-    coords: { x: "47%", y: "52%" },
+    coords: { x: "52%", y: "51%" },
     talentName: "Adaeze Obi",
     category: "Senior Voice Artist",
     quote: "Booked 12 Netflix voice-overs via Monologg Escrow with 0 commission.",
@@ -119,7 +121,7 @@ const RADAR_NODES = [
     id: "accra",
     city: "Accra, Ghana",
     flag: "🇬🇭",
-    coords: { x: "43%", y: "54%" },
+    coords: { x: "47%", y: "52%" },
     talentName: "Kwame Asante",
     category: "Commercial Lead Actor",
     quote: "International casting directors book me directly in USD & GHS.",
@@ -130,7 +132,7 @@ const RADAR_NODES = [
     id: "nairobi",
     city: "Nairobi, Kenya",
     flag: "🇰🇪",
-    coords: { x: "58%", y: "57%" },
+    coords: { x: "59%", y: "55%" },
     talentName: "Wanjiku Kimani",
     category: "Documentary Narrator",
     quote: "Thespian AI tagged my vocal range in 30 seconds. Seamless payouts.",
@@ -141,7 +143,7 @@ const RADAR_NODES = [
     id: "joburg",
     city: "Johannesburg, SA",
     flag: "🇿🇦",
-    coords: { x: "54%", y: "76%" },
+    coords: { x: "55%", y: "73%" },
     talentName: "Sipho Dlamini",
     category: "Film Stunt Lead",
     quote: "FINCRA Escrow locked full payment before I stepped on stage.",
@@ -152,7 +154,7 @@ const RADAR_NODES = [
     id: "london",
     city: "London, UK",
     flag: "🇬🇧",
-    coords: { x: "43%", y: "28%" },
+    coords: { x: "47%", y: "25%" },
     talentName: "Elena Vance",
     category: "Global Brand Director",
     quote: "Sourced 5 African voice talents for our campaign in 20 minutes.",
@@ -163,7 +165,7 @@ const RADAR_NODES = [
     id: "newyork",
     city: "New York, USA",
     flag: "🇺🇸",
-    coords: { x: "24%", y: "34%" },
+    coords: { x: "27%", y: "30%" },
     talentName: "Marcus Sterling",
     category: "Ad Agency Producer",
     quote: "Monologg's escrow protocol is lightyears ahead of traditional talent reps.",
@@ -172,43 +174,74 @@ const RADAR_NODES = [
   },
 ];
 
-// ── SVG Dot Matrix World Map Component (Inspired by Attachments 1 & 2) ──
-function DotMatrixWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSelectNode: (idx: number) => void }) {
-  const rows = 18;
-  const cols = 40;
-
-  const isLand = (r: number, c: number): boolean => {
-    if (r >= 2 && r <= 7 && c >= 3 && c <= 14) return true;
-    if (r >= 8 && r <= 15 && c >= 9 && c <= 15) return true;
-    if (r >= 2 && r <= 6 && c >= 16 && c <= 22) return true;
-    if (r >= 7 && r <= 15 && c >= 16 && c <= 24) return true;
-    if (r >= 3 && r <= 9 && c >= 23 && c <= 35) return true;
-    if (r >= 11 && r <= 15 && c >= 31 && c <= 37) return true;
-    return false;
-  };
-
+// ── Vector World Map SVG Component (vector map.svg) ──
+function VectorWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSelectNode: (idx: number) => void }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center p-4">
-      <svg className="w-full h-full opacity-35" viewBox="0 0 800 400" fill="none">
-        {Array.from({ length: rows }).map((_, r) =>
-          Array.from({ length: cols }).map((_, c) => {
-            const cx = 20 + c * 19.5;
-            const cy = 20 + r * 21;
-            const land = isLand(r, c);
-            return (
-              <circle
-                key={`${r}-${c}`}
-                cx={cx}
-                cy={cy}
-                r={land ? 2.5 : 1}
-                fill={land ? "#F13030" : "#A6A6B0"}
-                opacity={land ? 0.75 : 0.2}
-              />
-            );
-          })
-        )}
+      <svg
+        className="w-full h-full opacity-60 transition-opacity hover:opacity-80"
+        viewBox="0 0 800 400"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="grid-dots" width="16" height="16" patternUnits="userSpaceOnUse">
+            <circle cx="8" cy="8" r="1.2" fill="#5D5D66" opacity="0.3" />
+          </pattern>
+        </defs>
+
+        {/* Global Grid Background */}
+        <rect width="800" height="400" fill="url(#grid-dots)" />
+
+        {/* Continent Vector Outlines */}
+        <g stroke="#26262E" strokeWidth="1.5" className="transition-colors">
+          {/* North America & Greenland */}
+          <path
+            d="M100 65 Q150 40 220 45 T280 90 Q300 120 250 160 Q210 175 160 150 Q120 120 100 65 Z"
+            fill="#16161A"
+            className="hover:fill-[#F13030]/10 transition-colors"
+          />
+          <path
+            d="M260 25 Q300 15 330 30 T320 60 Q280 70 260 25 Z"
+            fill="#16161A"
+          />
+          {/* South America */}
+          <path
+            d="M210 185 Q260 180 290 230 Q300 280 260 350 Q230 380 215 320 Q200 250 210 185 Z"
+            fill="#16161A"
+            className="hover:fill-[#F13030]/10 transition-colors"
+          />
+          {/* Europe */}
+          <path
+            d="M380 60 Q430 45 470 70 Q480 100 440 120 Q400 120 380 60 Z"
+            fill="#16161A"
+            className="hover:fill-[#F13030]/10 transition-colors"
+          />
+          {/* Africa */}
+          <path
+            d="M375 125 Q450 115 505 160 Q520 220 480 290 Q440 335 410 270 Q370 200 375 125 Z"
+            fill="#1B1B20"
+            stroke="#F13030"
+            strokeWidth="1.5"
+            strokeDasharray="4 4"
+            className="hover:fill-[#F13030]/20 transition-colors"
+          />
+          {/* Asia */}
+          <path
+            d="M475 55 Q580 35 730 65 Q740 140 680 175 Q580 190 475 130 Z"
+            fill="#16161A"
+            className="hover:fill-[#F13030]/10 transition-colors"
+          />
+          {/* Australia & Oceania */}
+          <path
+            d="M640 240 Q710 230 735 270 Q740 320 690 335 Q640 310 640 240 Z"
+            fill="#16161A"
+            className="hover:fill-[#F13030]/10 transition-colors"
+          />
+        </g>
       </svg>
 
+      {/* Interactive Node Badges */}
       {RADAR_NODES.map((node, index) => {
         const isActive = index === activeNode;
         return (
@@ -216,17 +249,17 @@ function DotMatrixWorldMap({ activeNode, onSelectNode }: { activeNode: number; o
             key={node.id}
             onClick={() => onSelectNode(index)}
             style={{ left: node.coords.x, top: node.coords.y }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-transform active:scale-90"
+            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-transform active:scale-90 z-20"
           >
             <span className="relative flex items-center justify-center">
               {isActive && (
-                <span className="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-[#F13030] opacity-60" />
+                <span className="animate-ping absolute inline-flex h-9 w-9 rounded-full bg-[#F13030] opacity-60" />
               )}
               <span
-                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold font-mono transition-all shadow-lg border ${
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shadow-lg border ${
                   isActive
-                    ? "bg-[#F13030] text-white border-[#F13030] scale-110 shadow-[0_0_16px_rgba(241,48,48,0.6)]"
-                    : "bg-[#16161A] text-[#F5F5F0] border-[#26262E] hover:border-[#F13030]"
+                    ? "bg-[#F13030] text-white border-[#F13030] scale-110 shadow-[0_0_20px_rgba(241,48,48,0.7)] z-30"
+                    : "bg-[#16161A] text-[#F5F5F0] border-[#26262E] hover:border-[#F13030] hover:scale-105"
                 }`}
               >
                 <span className="text-sm">{node.flag}</span>
@@ -388,9 +421,9 @@ function SciFiTrustMap() {
       </div>
 
       <div className="relative z-10 flex flex-col lg:flex-row gap-10 items-center justify-between">
-        {/* Left Dot-Matrix World Map Canvas Simulator (Attachments 1 & 2) */}
+        {/* Left Vector World Map Canvas Simulator (vector map.svg) */}
         <div className="relative w-full lg:w-3/5 h-[360px] bg-[#16161A] rounded-[24px] border border-[#26262E] overflow-hidden">
-          <DotMatrixWorldMap activeNode={activeNode} onSelectNode={setActiveNode} />
+          <VectorWorldMap activeNode={activeNode} onSelectNode={setActiveNode} />
 
           <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-mono text-white/90 flex items-center gap-2 border border-white/10 shadow-md">
             <span className="w-2 h-2 rounded-full bg-[#F13030] animate-pulse" />
@@ -809,7 +842,7 @@ export function LandingPage() {
                 Verified Performer Marketplace
               </span>
               <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
-                Discover Top Performing Artists
+                Discover &amp; Book Top Performing Artists Instantly
               </h2>
             </div>
             <Button variant="outline-pill" className="h-10 px-5 text-xs font-bold shrink-0" onClick={() => navigate("/auth")}>

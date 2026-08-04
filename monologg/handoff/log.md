@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 55: Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert)
+**Last updated:** 2026-08-04 (Session 56: Client Purple Role Theme, Vector World Map SVG & Hero Card Contrast)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,32 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 55 (2026-08-04) — Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert
+## Session 56 (2026-08-04) — Client Purple Role Theme, Vector World Map SVG & Hero Card Contrast
+
+**Goal:** Enable dynamic Mono-Purple (`#7B00FE`) theme adaptation when simulating/active as Client across `OrderRoom.tsx` and `AuthFlow.tsx`, add WebGL background reveal and all-caps display headline with red/purple squiggle line emphasis to `AuthFlow.tsx`, replace dot-grid map with SVG `VectorWorldMap` continent outlines, fix dark mode white cards, clean Home tab stat previews onto dedicated Analytics tab, rework performer roster headline, and upgrade hero balance card money text to crisp white with lighter brand accent washes.
+
+**Changes Made:**
+
+1. **Client Role Theme Scope (`OrderRoom.tsx`, `AuthFlow.tsx`)**:
+   - Updated `OrderRoom.tsx` container to dynamically toggle `.role-client` vs `.role-talent` based on active simulated role (`role === "client"`).
+   - Dynamically styled chat bubbles, action buttons, status pills, and headers with Mono-Purple (`#7B00FE`) theme when in client mode.
+
+2. **AuthFlow Sign Up Page Upgrades (`AuthFlow.tsx`)**:
+   - Added `<WebGLHeroCanvas opacityMultiplier={0.2} />` to left panel background.
+   - Removed shield icon above headline and upgraded text to all-caps display typography: `"YOUR CRAFT. ON YOUR TERMS. INSTANTLY BOOKED."` with hand-drawn SVG squiggle underline.
+   - Tied role toggle to container class so switching between Talent (Mono-Red) and Client (Mono-Purple) updates the entire page styling dynamically.
+
+3. **Vector World Map SVG Asset (`LandingPage.tsx`)**:
+   - Replaced dot-matrix canvas with `VectorWorldMap` rendering SVG continent outlines (North America, South America, Europe, Africa, Asia, Australia) with custom fill/stroke control (`stroke="#F13030"` for Africa) and glowing location pins.
+
+4. **Hero Balance Card Money Text & Stat Preview Clean-up (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+   - Upgraded hero card balance text (`₦148,000` / `₦850,000`) to crisp white (`text-white`) with lighter brand red (`#FFECEC`) and brand purple (`#F1E9FF`) sub/super-text washes.
+   - Removed stat cluster preview card from Home tab and placed metrics exclusively inside dedicated Analytics tab.
+
+5. **Landing Page Roster Headline Extension (`LandingPage.tsx`)**:
+   - Updated headline from `"Discover Top Performing Artists"` to `"Discover & Book Top Performing Artists Instantly"`.
+
+---
 
 **Goal:** Redesign the trust map as an SVG Dot-Matrix World Map with country flag pin badges matching user design attachments 1 & 2, revert hero grid reveal intensity back to status-quo subtle opacity, add WebGL grid reveal to footer, fix dark mode white cards and form inputs in LandingPage and AuthFlow, update invite link copy to lead back to landing page base URL, fix sticky header, and organize Quick Actions by moving Analytics under the dedicated Analytics tab.
 
