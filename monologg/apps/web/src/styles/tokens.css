@@ -13,6 +13,23 @@
 
 /* ── Light mode (default) ── */
 :root {
+  /* Wise Design Tokens Reference */
+  --color-forest-ink: #163300;
+  --color-lime-voltage: #9fe870;
+  --color-spruce: #054d28;
+  --color-linen-mist: #e2f6d5;
+  --color-fog: #e8ebe6;
+  --color-charcoal: #454745;
+  --color-obsidian: #0e0f0c;
+  --color-pebble: #868685;
+  --color-slate: #6a6c6a;
+  --color-clay-ember: #bc7155;
+  --color-midnight-hull: #0f0f1c;
+
+  /* Fonts */
+  --font-wise-sans: 'Inter', system-ui, sans-serif;
+  --font-display-heavy: 'Inter', system-ui, sans-serif;
+
   /* Neutrals — warm, quiet, generous */
   --color-bg-canvas: #F6F6F4;
   --color-bg-surface: #FFFFFF;

@@ -1,11 +1,38 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-03 (Session 50: QA Master Sweep & Compilation Fixes)
+**Last updated:** 2026-08-04 (Session 51: Hyper-Design & Wise Design System Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 51 (2026-08-04) — Hyper-Design & Wise Design System Overhaul
+
+**Goal:** Rework the landing page and web application design system blending Hyper-Design luxury editorial display typography scale with Wise's signature color palette, pill geometry (`9999px`), interactive rate calculator, and WebGL canvas micro-interactions.
+
+**Changes Made:**
+
+1. **Design Tokens & Typography System (`tokens.css`, `fonts.css`)**:
+   - Integrated Wise design tokens: `--color-forest-ink` (`#163300`), `--color-lime-voltage` (`#9fe870`), `--color-spruce` (`#054d28`), `--color-linen-mist` (`#e2f6d5`), `--color-fog` (`#e8ebe6`), `--color-charcoal` (`#454745`), `--color-obsidian` (`#0e0f0c`), `--color-clay-ember` (`#bc7155`).
+   - Added `@import` for Inter 900 heavy display typography (Wise Sans substitute) and DM Sans.
+
+2. **Interactive WebGL Hero Background Canvas (`WebGLHeroCanvas.tsx`)**:
+   - Created `WebGLHeroCanvas.tsx` rendering mouse and scroll-reactive ambient particle waves and geometric grid lines.
+
+3. **Hyper-Design & Wise Landing Page Rework (`LandingPage.tsx`)**:
+   - Implemented ultra-heavy display headlines (`105px` scale, tight `-0.04em` tracking).
+   - Added Wise-style Escrow Calculator (`WiseBookingCalculator`) with interactive range slider and live rate breakdown.
+   - Built 3D perspective talent cards (`Talent3DCard`) with tilt hover micro-interaction, star ratings, and audio reel preview player.
+   - Designed 3-step workflow, creator testimonial mosaic grid, FAQ accordion, and fixed floating QR app download badge.
+
+4. **Wise-Style Button Variants (`Button.tsx`)**:
+   - Extended `Button.tsx` with `lime`, `forest`, `outline-pill`, and `clay` variants.
+
+5. **Design System Showcase (`DesignSystem.tsx`)**:
+   - Updated `DesignSystem.tsx` with live Wise & Hyer pill button Matrix and Web vs Mobile layout breakdown.
 
 ---
 

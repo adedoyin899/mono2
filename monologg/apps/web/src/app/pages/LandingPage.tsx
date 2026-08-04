@@ -1,302 +1,351 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Avatar } from "../components/ui/Avatar";
 import { Logo } from "../components/ui/Logo";
+import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
 import { useTheme } from "../Root";
 import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
-  Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare
+  Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
+  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap
 } from "lucide-react";
 
-// Curated artistic talent categories with beautiful pictures representing the variety of crafts
-const NICHES = [
-  { label: "Actors", icon: User, img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80&fit=crop", stat: "1,240+" },
-  { label: "Voice Artists", icon: Mic, img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&fit=crop", stat: "890+" },
-  { label: "Dancers & Choreographers", icon: Star, img: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80&fit=crop", stat: "430+" },
-  { label: "Comperes & Hosts", icon: Video, img: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=600&q=80&fit=crop", stat: "620+" },
+// ── Interactive Talent Roster Data ──
+const FEATURED_TALENTS = [
+  {
+    id: "t1",
+    name: "Emeka Johnson",
+    category: "Dramatic Voice Artist",
+    location: "Lagos · Global Remote",
+    rate: "₦120,000 / day",
+    usdRate: "$150 USD",
+    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80&fit=crop",
+    audioSample: "https://actions.google.com/sounds/v1/ambiences/rain_heavy.ogg",
+    tags: ["Deep Tone", "Nollywood Drama", "Accented", "High Energy"],
+    rating: 4.98,
+    reviews: 142,
+    verified: true,
+  },
+  {
+    id: "t2",
+    name: "Amara Kalu",
+    category: "Commercial Lead Actor",
+    location: "Abuja · On-Site",
+    rate: "₦250,000 / day",
+    usdRate: "$310 USD",
+    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&fit=crop",
+    audioSample: "https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg",
+    tags: ["Charismatic", "Lead Presence", "Brand Campaign", "Fluency"],
+    rating: 5.0,
+    reviews: 98,
+    verified: true,
+  },
+  {
+    id: "t3",
+    name: "Tariq Mansoor",
+    category: "Live Event Compere",
+    location: "Accra · International",
+    rate: "₦180,000 / event",
+    usdRate: "$225 USD",
+    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&fit=crop",
+    audioSample: "https://actions.google.com/sounds/v1/ambiences/outdoor_market.ogg",
+    tags: ["Stage Command", "Multilingual", "Corporate", "Humor"],
+    rating: 4.95,
+    reviews: 84,
+    verified: true,
+  },
 ];
 
+// ── Step Process ──
 const STEPS = [
   {
     num: "01",
-    title: "Build Your Style Profile",
-    body: "Upload your showcase reel. Thespian AI analyzes your performance parameters and generates style tags in seconds — no middleman, no gatekeeping.",
+    title: "Upload Reel & Style Tags",
+    body: "Upload your performance reel. Thespian AI extracts tone, diction, and presence — building your verified style card in under 30 seconds.",
   },
   {
     num: "02",
-    title: "Set Your Rate Cards",
-    body: "Turn your craft into purchasable services. Actors, voice artists, performers — define what you offer and your price.",
+    title: "Define Purchasable Rate Cards",
+    body: "Turn your craft into seamless booking packages. Set transparent prices for voice-overs, film appearances, and live hosting.",
   },
   {
     num: "03",
-    title: "Get Booked. Get Paid.",
-    body: "Clients discover you, lock payment in escrow, and you deliver. Funds release the moment you're done. No waiting, no chasing.",
+    title: "Instant Booking & Escrow Release",
+    body: "Clients book and fund contracts into FINCRA escrow. Funds auto-release directly to your bank account upon deliverable approval.",
   },
 ];
 
+// ── Testimonials ──
 const TESTIMONIALS = [
   {
     name: "Adaeze Obi",
-    role: "Voice-Over Artist · Lagos",
-    avatar: "AO",
-    photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80&fit=crop",
-    quote: "I used to lose 25% to my agent for just picking up the phone. With Monologg, I set my own rates and the money hits my account the same day the client approves.",
-    stars: 5,
+    role: "Senior Voice Artist · Lagos",
+    photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80&fit=crop",
+    quote: "I used to lose 25% to talent agencies just to make phone calls. Monologg gave me direct client bookings and instant escrow payouts. Game changer.",
+    metric: "₦3.8M earned on platform",
+    tag: "Voice-Over",
   },
   {
     name: "Tunde Balogun",
     role: "Commercial Actor · Abuja",
-    avatar: "TB",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop",
-    quote: "Having real style tags on my profile gave me instant credibility. I got my first international booking within 72 hours of going live. This platform is the future.",
-    stars: 5,
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop",
+    quote: "Having AI style tagging on my profile gave international casting directors immediate confidence. Booked my first global spot in 72 hours.",
+    metric: "14 International Bookings",
+    tag: "Acting",
   },
   {
     name: "Sarah Mensah",
-    role: "Events Director · Accra",
-    avatar: "SM",
-    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80&fit=crop",
-    quote: "Finding a compere used to take me two weeks of WhatsApp threads. Now I shortlist five candidates, compare their reels side by side, and book in 20 minutes.",
-    stars: 5,
+    role: "Head of Talent · Brand Matrix Accra",
+    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80&fit=crop",
+    quote: "Sourcing voice actors used to mean 2 weeks of WhatsApp back-and-forth. On Monologg, we shortlist, preview reels, and lock escrow in 15 minutes.",
+    metric: "80+ Hours Saved / Mo",
+    tag: "Client / Brand",
   },
 ];
 
+// ── FAQ Accordion ──
 const FAQS = [
   {
-    q: "What percentage does Monologg take?",
-    a: "We charge a 9% platform fee on completed transactions. There's also a 12% escrow processing fee that clients pay — so your rate is what you earn.",
+    q: "What fee does Monologg charge creators?",
+    a: "Monologg charges a flat 9% platform commission on completed talent bookings. Profile creation, rate cards, and AI style tagging are 100% free.",
   },
   {
-    q: "How does the AI style tagging work?",
-    a: "You upload a performance reel (video or audio, up to 150MB). Thespian AI analyzes vocal patterns, pacing, clarity, and presence — then generates your profile's style tags. The process takes 15–45 seconds. This is separate from identity verification, which uses a dedicated ID check.",
+    q: "How does the Wise-style Escrow protection work?",
+    a: "When a client places an order, full contract payment is securely locked in FINCRA Escrow. Talent works with complete peace of mind, and funds auto-release immediately when deliverables are approved.",
   },
   {
-    q: "When do I get paid?",
-    a: "The moment the client approves your deliverable, funds are released from escrow automatically. Most payouts arrive within 24 business hours.",
+    q: "How does Thespian AI Style Tagging work?",
+    a: "Upload any 30-90 second performance reel (audio or video up to 150MB). Thespian AI analyzes vocal resonance, pacing, and dramatic timbre to tag your profile automatically.",
   },
   {
-    q: "Can I use Monologg if I'm not in Nigeria?",
-    a: "Yes — Monologg is built for the African creative economy but serves global talent. Payouts are available in multiple currencies via our FINCRA integration.",
-  },
-  {
-    q: "What if a client disputes my work?",
-    a: "Our support team mediates all disputes. Escrow funds are never released without either mutual agreement or a support decision. Your money is always safe.",
+    q: "Which countries and currencies are supported?",
+    a: "Monologg supports multi-currency escrow payouts in NGN (Nigerian Naira), GHS (Ghanaian Cedi), KES (Kenyan Shilling), USD, and GBP.",
   },
 ];
 
-// ── Interactive Self-Running Sub-Components for FAANG-level UX Motion Storytelling ──
+// ── Wise-Inspired Interactive Booking Calculator Component ──
+function WiseBookingCalculator() {
+  const [amount, setAmount] = useState(150000);
+  const [currency, setCurrency] = useState("NGN");
 
-function AITaggingDemo() {
-  const [phase, setPhase] = useState(0); // 0: drop/idle, 1: analysis scan, 2: tags loaded
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPhase((prev) => {
-        const next = (prev + 1) % 3;
-        if (next === 0) setProgress(0);
-        return next;
-      });
-    }, 7000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (phase === 1) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 5;
-        });
-      }, 80);
-      return () => clearInterval(interval);
-    }
-  }, [phase]);
+  const platformFee = Math.round(amount * 0.09);
+  const escrowFee = Math.round(amount * 0.12);
+  const talentEarnings = amount;
+  const clientTotal = amount + escrowFee;
 
   return (
-    <div className="p-6 rounded-[var(--radius-xl)] relative min-h-[300px] flex flex-col justify-center transition-all duration-500" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
-      <AnimatePresence mode="wait">
-        {phase === 0 && (
-          <motion.div
-            key="phase-upload"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 border-current/20 text-center"
-          >
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            >
-              <UploadCloud className="w-10 h-10 mb-3" style={{ color: "var(--color-accent)" }} />
-            </motion.div>
-            <div className="text-xs font-semibold uppercase tracking-wider mb-1">Drag &amp; Drop Reel</div>
-            <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Supports MP3, WAV or MP4 up to 150MB</div>
-          </motion.div>
-        )}
+    <div
+      className="p-6 md:p-8 rounded-[28px] transition-all duration-300 relative overflow-hidden"
+      style={{
+        background: "#163300",
+        color: "#ffffff",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
+      }}
+    >
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-[#9fe870] animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#9fe870]">
+            Wise Escrow Calculator
+          </span>
+        </div>
+        <div className="bg-[#054d28] px-3 py-1 rounded-full text-xs text-[#9fe870] font-mono">
+          Guaranteed 100% Escrow
+        </div>
+      </div>
 
-        {phase === 1 && (
-          <motion.div
-            key="phase-scan"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex justify-between items-center text-xs font-semibold">
-              <span className="flex items-center gap-1.5"><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Thespian AI Scanning...</span>
-              <span className="font-mono text-[var(--color-accent)]">{progress}%</span>
+      <div className="space-y-4">
+        {/* Input box 1: Booking Amount */}
+        <div className="bg-white rounded-[16px] p-4 text-black space-y-1">
+          <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
+            <span>Client Pays Total Contract</span>
+            <span className="font-mono">Including Escrow</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <input
+              type="number"
+              value={clientTotal}
+              readOnly
+              className="text-2xl font-bold font-mono bg-transparent outline-none w-full text-[#163300]"
+            />
+            <div className="flex items-center gap-2 bg-[#e8ebe6] px-3 py-1.5 rounded-full text-xs font-bold text-[#163300] shrink-0">
+              <span className="w-5 h-5 rounded-full bg-[#9fe870] text-[10px] flex items-center justify-center font-black">
+                🇳🇬
+              </span>
+              <span>{currency}</span>
             </div>
-            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-surface)" }}>
-              <div className="h-full rounded-full transition-all duration-75" style={{ width: `${progress}%`, background: "var(--color-accent)" }} />
-            </div>
-            <div className="text-[10px] text-center italic" style={{ color: "var(--color-text-tertiary)" }}>Analyzing voice pitch modulation, articulation, and pacing attributes...</div>
-          </motion.div>
-        )}
+          </div>
+        </div>
 
-        {phase === 2 && (
-          <motion.div
-            key="phase-result"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
+        {/* Breakdown List */}
+        <div className="space-y-2 px-2 text-xs text-white/80">
+          <div className="flex justify-between items-center py-1 border-b border-white/10">
+            <span>Talent Base Rate</span>
+            <span className="font-mono text-[#9fe870]">
+              ₦{amount.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-1 border-b border-white/10">
+            <span>Platform Escrow Fee (12%)</span>
+            <span className="font-mono">₦{escrowFee.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between items-center py-1">
+            <span>Talent Receives (Net Payout)</span>
+            <span className="font-mono font-bold text-white text-sm">
+              ₦{talentEarnings.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Range slider */}
+        <div className="pt-2">
+          <div className="flex justify-between text-[11px] text-[#9fe870] mb-1 font-mono">
+            <span>Adjust Booking Amount</span>
+            <span>₦{amount.toLocaleString()}</span>
+          </div>
+          <input
+            type="range"
+            min={50000}
+            max={1000000}
+            step={25000}
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            className="w-full accent-[#9fe870] cursor-pointer"
+          />
+        </div>
+
+        {/* Primary Wise Lime CTA */}
+        <div className="pt-2">
+          <button
+            className="w-full py-3.5 px-6 rounded-full bg-[#9fe870] text-[#163300] font-bold text-sm hover:bg-[#8edb5f] transition-all flex items-center justify-center gap-2 shadow-lg"
           >
-            <div className="flex items-center gap-3">
-              <Avatar className="w-12 h-12" background="var(--color-accent-glow)" color="var(--color-accent)">EJ</Avatar>
-              <div>
-                <div className="text-sm font-bold flex items-center gap-1.5">
-                  Emeka Johnson
-                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, delay: 0.2 }}>
-                    <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />
-                  </motion.span>
-                </div>
-                <div className="text-xs" style={{ color: "var(--color-text-tertiary)" }}>Dramatic Actor · Lagos</div>
-              </div>
-            </div>
-            <div className="p-3.5 rounded-lg" style={{ background: "var(--color-bg-surface)" }}>
-              <div className="text-[10px] uppercase tracking-wider mb-2 font-mono" style={{ color: "var(--color-text-tertiary)" }}>AI Generated Vibe tags</div>
-              <div className="flex flex-wrap gap-1.5">
-                {["Deep Tone", "Intense", "Nollywood Drama", "Accented", "High-Energy"].map((tag, idx) => (
-                  <motion.span
-                    key={tag}
-                    initial={{ opacity: 0, y: 5, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: idx * 0.15, type: "spring", stiffness: 100 }}
-                    className="text-[11px] px-2.5 py-1 rounded-full font-body font-semibold"
-                    style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
-                  >
-                    {tag}
-                  </motion.span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <Zap className="w-4 h-4 fill-current" />
+            Lock Contract in Escrow
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-function EscrowDemo() {
-  const [phase, setPhase] = useState(0); // 0: client locks, 1: files uploaded, 2: release checkout
+// ── 3D Interactive Talent Card Component ──
+function Talent3DCard({ talent }: { talent: (typeof FEATURED_TALENTS)[0] }) {
+  const [playing, setPlaying] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPhase((prev) => (prev + 1) % 3);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, []);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left - rect.width / 2) / 15;
+    const y = (e.clientY - rect.top - rect.height / 2) / -15;
+    setTilt({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
 
   return (
-    <div className="p-6 rounded-[var(--radius-xl)] transition-all duration-500 min-h-[300px] flex flex-col justify-center" style={{ background: "#1c1c1f", border: "1px solid #333335" }}>
-      <AnimatePresence mode="wait">
-        {phase === 0 && (
-          <motion.div
-            key="escrow-lock"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="space-y-4 text-center"
-          >
-            <motion.div
-              animate={{ rotate: [0, -10, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
-              className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto"
-            >
-              <Lock className="w-5 h-5 text-emerald-400" />
-            </motion.div>
-            <div className="space-y-1">
-              <div className="text-xs uppercase tracking-widest text-white/50 font-mono">FINCRA Escrow Lock</div>
-              <h4 className="text-lg font-bold text-white">₦120,000 Contract Active</h4>
-            </div>
-            <p className="text-[11px] text-white/60 leading-relaxed max-w-xs mx-auto">
-              Client locks the contract fee securely. Payment is verified and held safely before any voice recording or staging begins.
-            </p>
-          </motion.div>
-        )}
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ rotateX: tilt.y, rotateY: tilt.x }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      style={{ perspective: 1000 }}
+      className="group relative rounded-[24px] overflow-hidden bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] p-4 transition-shadow hover:shadow-2xl cursor-pointer"
+    >
+      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-4">
+        <img
+          src={talent.img}
+          alt={talent.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        {phase === 1 && (
-          <motion.div
-            key="escrow-chat"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-3"
-          >
-            <div className="text-xs uppercase tracking-widest text-white/50 font-mono mb-2">Order Room Milestones</div>
-            <motion.div
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="p-3 rounded-lg text-xs space-y-1.5"
-              style={{ background: "#27272a" }}
-            >
-              <div className="flex justify-between items-center text-white/40 text-[10px]">
-                <span>Emeka Johnson</span>
-                <span>Uploaded Deliverable</span>
-              </div>
-              <div className="text-white font-semibold">commercial_spot_v2.wav</div>
-            </motion.div>
-            <motion.div
-              initial={{ x: 10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="p-3 rounded-lg text-xs space-y-1.5 self-end"
-              style={{ background: "var(--color-purple-press)" }}
-            >
-              <div className="text-white/80 font-medium">Draft looks fantastic, launching final review!</div>
-            </motion.div>
-          </motion.div>
-        )}
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
+          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+          <span>{talent.rating}</span>
+          <span className="text-white/60">({talent.reviews})</span>
+        </div>
 
-        {phase === 2 && (
-          <motion.div
-            key="escrow-release"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4 text-center"
-          >
-            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto text-emerald-400">
-              <Check className="w-6 h-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-lg font-bold text-white">Funds Released</h4>
-              <p className="text-[11px] text-emerald-400">₦109,200 transferred safely to Talent bank</p>
-            </div>
-            <div className="text-[10px] text-white/40">Escrow cycle complete · 9% platform commission applied</div>
-          </motion.div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setPlaying(!playing);
+          }}
+          className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-[#9fe870] text-[#163300] flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+        >
+          {playing ? (
+            <Pause className="w-4 h-4 fill-current" />
+          ) : (
+            <Play className="w-4 h-4 fill-current ml-0.5" />
+          )}
+        </button>
+
+        {playing && (
+          <div className="absolute bottom-3 left-3 bg-[#163300]/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-mono text-[#9fe870] flex items-center gap-2 border border-[#9fe870]/30 animate-pulse">
+            <span className="w-2 h-2 rounded-full bg-[#9fe870]" />
+            <span>Playing Reel...</span>
+          </div>
         )}
-      </AnimatePresence>
-    </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-base flex items-center gap-1.5 font-display text-[var(--color-text-primary)]">
+            {talent.name}
+            {talent.verified && (
+              <Shield className="w-4 h-4 text-[#1A7544] fill-[#1A7544]/20" />
+            )}
+          </h3>
+          <span className="text-xs font-bold font-mono text-[#1A7544] dark:text-[#9fe870]">
+            {talent.rate}
+          </span>
+        </div>
+
+        <p className="text-xs text-[var(--color-text-secondary)] font-body">
+          {talent.category} · {talent.location}
+        </p>
+
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {talent.tags.map((tag) => (
+            <span
+              key={tag}
+              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#e2f6d5] text-[#163300] dark:bg-[#163300] dark:text-[#9fe870]"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Floating QR App Badge Component ──
+function FloatingQRBadge() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="fixed bottom-6 right-6 z-40 hidden lg:flex items-center gap-3 p-3 rounded-[18px] bg-[#163300] text-white border border-[#054d28] shadow-2xl hover:scale-105 transition-transform cursor-pointer"
+    >
+      <div className="w-12 h-12 bg-white p-1 rounded-[12px] flex items-center justify-center shrink-0">
+        <QrCode className="w-full h-full text-[#163300]" />
+      </div>
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#9fe870]">
+          Get the Monologg App
+        </div>
+        <div className="text-[10px] text-white/70">Scan to download iOS/Android</div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -313,64 +362,62 @@ export function LandingPage() {
     if (email) setSubmitted(true);
   };
 
-  const s = {
-    canvas: { background: "var(--color-bg-canvas)" } as React.CSSProperties,
-    text: { color: "var(--color-text-primary)" } as React.CSSProperties,
-    secondary: { color: "var(--color-text-secondary)" } as React.CSSProperties,
-    tertiary: { color: "var(--color-text-tertiary)" } as React.CSSProperties,
-    surface: { background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" } as React.CSSProperties,
-    inkBorder: { border: "1px solid var(--color-hairline)" } as React.CSSProperties,
-  };
-
   return (
-    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)", fontFamily: "SF Pro Text, system-ui, sans-serif" }} className="min-h-screen flex flex-col overflow-x-hidden">
-      {/* ── Top thin global-nav (Apple 44px style) ── */}
-      <div className="h-[44px] bg-[#000000] text-[#ffffff] flex items-center justify-between px-6 text-xs font-medium border-b border-[#333333] z-50">
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body">
+      {/* ── Top thin global announcement bar (Wise / Apple Style) ── */}
+      <div className="h-[40px] bg-[#163300] text-[#9fe870] flex items-center justify-between px-6 text-xs font-semibold border-b border-[#054d28] z-50">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
-          <span className="tracking-wide uppercase text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Monologg SaaS</span>
+          <span className="w-2 h-2 rounded-full bg-[#9fe870] animate-ping" />
+          <span className="uppercase tracking-widest text-[10px]">
+            Monologg Marketplace v3.0 Live
+          </span>
         </div>
-        <div className="flex items-center gap-6">
-          <a href="#features" className="hover:text-white/80 transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-white/80 transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-white/80 transition-colors">Pricing</a>
+        <div className="flex items-center gap-4 text-white/80 text-[11px]">
+          <span>FINCRA Escrow Secured</span>
+          <span className="hidden sm:inline">·</span>
+          <span className="hidden sm:inline font-mono">3,200+ Verified Talents</span>
         </div>
       </div>
 
-      {/* ── Sub-Nav Frosted sticky bar (Apple 52px style) ── */}
-      <header
-        className="h-[52px] sticky top-0 z-40 px-5 md:px-16 flex items-center justify-between backdrop-blur-xl border-b"
-        style={{ background: "color-mix(in srgb, var(--color-bg-canvas) 72%, transparent)", borderColor: "var(--color-hairline)" }}
-      >
-        <div className="flex items-center gap-3">
-          <Logo className="h-5 w-auto" style={{ color: "var(--color-text-primary)" }} title="Monologg" />
+      {/* ── Frosted Sticky Header ── */}
+      <header className="h-[64px] sticky top-0 z-40 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)]">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
         </div>
-        <div className="flex items-center gap-2.5">
+
+        {/* Wise Pill Navigation Tabs */}
+        <nav className="hidden md:flex items-center gap-1 bg-[var(--color-bg-surface-2)] p-1 rounded-full border border-[var(--color-hairline)]">
+          {["Features", "Talent Roster", "How it Works", "Escrow Calculator"].map((item, idx) => (
+            <a
+              key={item}
+              href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+              className="px-4 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)] transition-all"
+            >
+              {item}
+            </a>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-3">
           <button
             onClick={toggle}
-            className="w-8 h-8 rounded-full flex items-center justify-center border transition-colors active:scale-[0.95]"
-            style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
+            className="w-9 h-9 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors active:scale-95"
             aria-label="Toggle theme"
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="w-8 h-8 rounded-full md:hidden flex items-center justify-center border transition-colors active:scale-[0.95]"
-            style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-primary)" }}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
+
           <Button
-            variant="ghost"
-            className="h-8 px-3 text-xs hidden md:inline-flex"
+            variant="outline-pill"
+            className="h-9 px-4 text-xs font-bold hidden sm:inline-flex"
             onClick={() => navigate("/auth")}
           >
             Sign In
           </Button>
+
           <Button
-            className="h-8 px-4 text-xs font-semibold"
+            variant="lime"
+            className="h-9 px-5 text-xs font-bold"
             onClick={() => navigate("/auth")}
           >
             Launch Storefront
@@ -378,376 +425,345 @@ export function LandingPage() {
         </div>
       </header>
 
-      {/* ── Mobile Nav Sheet ── */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden sticky top-[52px] z-40 px-5 py-6 border-b glass-panel space-y-4"
-            style={{ borderColor: "var(--color-hairline)" }}
-          >
-            {["Features", "How It Works", "Pricing"].map(item => (
-              <button
-                key={item}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-left font-display text-lg py-2"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                {item}
-              </button>
-            ))}
-            <div className="pt-4 border-t flex flex-col gap-2.5" style={{ borderColor: "var(--color-hairline)" }}>
-              <Button variant="secondary" className="w-full h-10" onClick={() => navigate("/auth")}>
-                Sign In
-              </Button>
-              <Button className="w-full h-10" onClick={() => navigate("/auth")}>
-                Get Started
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <main className="flex-1">
+        {/* ── HERO SECTION (Hyper-Design Display Scale Typography + WebGL Canvas) ── */}
+        <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
+          <WebGLHeroCanvas />
 
-      <main id="main-content" className="flex-1">
-        {/* ── Hero Section (Join Waitlist / Queue focus) ── */}
-        <section className="relative pt-20 pb-28 px-5 md:px-16 overflow-hidden" style={{ background: "var(--color-bg-canvas)" }}>
-          <div className="absolute -top-48 -left-24 w-[640px] h-[640px] rounded-full pointer-events-none opacity-80" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-red-glow) 0%, transparent 70%)", filter: "blur(90px)" }} />
-          <div className="absolute -top-32 -right-24 w-[560px] h-[560px] rounded-full pointer-events-none opacity-80" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-purple-glow) 0%, transparent 70%)", filter: "blur(90px)" }} />
-
-          <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border animate-pulse" style={{ background: "var(--color-accent-glow)", borderColor: "var(--color-accent)", color: "var(--color-text-primary)" }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-success)" }} />
-              Series-C Built · 3,200+ Verified Talents
+          <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
+            {/* Top pill status badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#e2f6d5] text-[#163300] dark:bg-[#163300] dark:text-[#9fe870] border border-[#9fe870]/30 shadow-sm">
+              <Zap className="w-3.5 h-3.5 fill-current text-[#163300] dark:text-[#9fe870]" />
+              <span>THE FIRST BRIEF-TO-BOOKING PIPELINE FOR PERFORMING ARTS</span>
             </div>
 
-            <h1 className="font-display text-[44px] md:text-[76px] leading-[1.02] tracking-[-0.04em] font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Your craft. On your terms.<br />
-              <span style={{ background: "var(--gradient-brand)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                Instantly booked.
+            {/* Hyper-Design Architectural Block Display Headline */}
+            <h1 className="font-wise-sans text-[52px] sm:text-[80px] md:text-[105px] font-black tracking-[-0.04em] leading-[0.88] text-[var(--color-text-primary)] uppercase max-w-5xl mx-auto">
+              YOUR CRAFT. ON YOUR TERMS.<br />
+              <span className="text-[#163300] dark:text-[#9fe870] underline decoration-[#9fe870] decoration-wavy">
+                INSTANTLY BOOKED.
               </span>
             </h1>
 
-            <p className="text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-body" style={s.secondary}>
-              The world's first brief-to-booking pipeline for performing arts and the creator economy. Verified profiles, escrow protection, zero middlemen.
+            <p className="text-lg md:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto font-body leading-relaxed font-medium">
+              Verified performer profiles, Wise-inspired escrow protection, and AI style analysis. No middlemen, no gatekeeping.
             </p>
 
-            <div className="max-w-md mx-auto relative min-h-[120px]">
-              <AnimatePresence mode="wait">
-                {!submitted ? (
-                  <motion.form
-                    key="form"
-                    onSubmit={handleSubmit}
-                    className="p-5 rounded-[var(--radius-xl)] flex flex-col gap-3"
-                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+            {/* Waitlist Form / CTA Cluster */}
+            <div className="max-w-lg mx-auto pt-2">
+              {!submitted ? (
+                <form
+                  onSubmit={handleSubmit}
+                  className="p-2 rounded-full bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] shadow-xl flex items-center gap-2"
+                >
+                  <input
+                    type="email"
+                    placeholder="Enter email for instant storefront invite"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="flex-1 px-5 py-3 text-xs md:text-sm bg-transparent outline-none text-[var(--color-text-primary)]"
+                  />
+                  <Button
+                    type="submit"
+                    variant="lime"
+                    className="h-11 px-6 text-xs font-bold shrink-0"
                   >
-                    <div className="flex gap-2">
-                      <Input
-                        type="email"
-                        placeholder="Enter your email to join the queue"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required
-                        className="h-10 text-xs flex-1"
-                      />
-                      <Button type="submit" className="h-10 px-4 text-xs font-semibold">
-                        Launch Storefront
-                      </Button>
-                    </div>
-                  </motion.form>
-                ) : (
-                  <motion.div
-                    key="success"
-                    className="p-5 rounded-[var(--radius-xl)] flex flex-col items-center text-center border"
-                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-success)" }}
-                  >
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "var(--color-success-bg)" }}>
-                      <Check className="w-5 h-5" style={{ color: "var(--color-success)" }} />
-                    </div>
-                    <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>You're in queue!</h3>
-                    <p className="text-xs font-body" style={s.secondary}>
-                      You are <span className="font-semibold text-[var(--color-accent)]">#347</span>. Share to climb: <span className="font-mono underline">monologg.app/invite/abc1234</span>
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Product Alternating Tiles (Apple Style with Interactive Demos & CTAs) ── */}
-        <section id="features" className="space-y-12">
-          {/* Tile 1: AI Style Tagging (Light Canvas + Dynamic Demo + CTA) */}
-          <div className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-hairline)", borderBottom: "1px solid var(--color-hairline)" }}>
-            <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                  <span className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-accent)" }}>Thespian AI Engine</span>
-                </div>
-                <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight" style={s.text}>
-                  Atmospheric AI Style Tagging.
-                </h2>
-                <p className="text-sm font-body leading-relaxed" style={s.secondary}>
-                  No middleman. No gatekeeping. Our proprietary model analyzes your vocal and dramatic attributes to generate rich profile style tags so clients find your unique vibe instantly.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
-                    Analyze My Performance Reel
+                    Get Early Access <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
+                </form>
+              ) : (
+                <div className="p-4 rounded-[20px] bg-[#e2f6d5] text-[#163300] border border-[#9fe870] flex items-center justify-center gap-3">
+                  <Check className="w-5 h-5 text-[#1A7544]" />
+                  <span className="text-xs font-bold">
+                    You're #347 in queue! Share link: monologg.app/invite/abc123
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* 3-Column Trust Stats */}
+            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto pt-12 border-t border-[var(--color-hairline)] text-center">
+              <div>
+                <div className="text-3xl md:text-5xl font-black font-mono text-[#163300] dark:text-[#9fe870]">
+                  97%
+                </div>
+                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                  On-Time Delivery Rate
                 </div>
               </div>
               <div>
-                <AITaggingDemo />
+                <div className="text-3xl md:text-5xl font-black font-mono text-[#163300] dark:text-[#9fe870]">
+                  2.9 hrs
+                </div>
+                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                  Avg Brief to Booking
+                </div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-5xl font-black font-mono text-[#163300] dark:text-[#9fe870]">
+                  3,200+
+                </div>
+                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                  Verified Talent Profiles
+                </div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Tile 2: Escrow Protection & Order Room (Dark Canvas + Dynamic Demo + CTA) */}
-          <div className="py-20 px-5 md:px-16" style={{ background: "#0f0f11", color: "#ffffff" }}>
-            <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-              <div className="order-2 md:order-1">
-                <EscrowDemo />
-              </div>
-              <div className="order-1 md:order-2 space-y-6">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-emerald-400" />
-                  <span className="text-xs font-semibold uppercase tracking-wider font-body text-emerald-400">FINCRA Integrated Escrow</span>
-                </div>
-                <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-white">
-                  Payment Security.<br />Automated.
+        {/* ── FEATURED TALENT ROSTER (Wise Grid + 3D Tilt Cards) ── */}
+        <section id="talent-roster" className="py-24 px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="space-y-3">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#163300] dark:text-[#9fe870]">
+                  Verified Performer Marketplace
+                </span>
+                <h2 className="font-wise-sans text-3xl md:text-5xl font-black uppercase tracking-tight text-[var(--color-text-primary)]">
+                  Discover Top Performing Artists
                 </h2>
-                <p className="text-sm leading-relaxed text-white/70">
-                  Payments are locked safely in escrow before you begin recording. The moment deliverables are uploaded and approved by the client, funds release automatically to your bank.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button className="h-10 px-6 text-xs font-semibold bg-emerald-500 text-black hover:bg-emerald-600 border-none" onClick={() => navigate("/auth")}>
-                    Book Talent Safely
-                  </Button>
-                </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Curated Art Categories (Nice Photography Cards + CTA) ── */}
-        <section className="py-24 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-2">
-              <h2 className="font-display text-3xl md:text-5xl font-bold" style={s.text}>Built for every creative discipline</h2>
-              <p className="text-xs uppercase tracking-wider" style={s.tertiary}>Connecting top artists with premium brand campaigns</p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {NICHES.map((niche, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  className="group relative aspect-[3/4] rounded-[var(--radius-xl)] overflow-hidden border cursor-pointer transition-shadow hover:shadow-lg"
-                  style={s.inkBorder}
-                  onClick={() => navigate("/auth")}
-                >
-                  <img
-                    src={niche.img}
-                    alt={niche.label}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <div className="text-sm font-semibold font-body">{niche.label}</div>
-                    <div className="text-[10px] text-white/70 font-mono mt-0.5">{niche.stat} active profiles</div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="text-center pt-4">
-              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
-                Browse All 8 Niche Categories
+              <Button variant="outline-pill" className="h-10 px-5 text-xs font-bold" onClick={() => navigate("/auth")}>
+                Explore Full Directory (3,200+)
               </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Go Live in 3 Steps (How it works + CTA) ── */}
-        <section id="how-it-works" className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-hairline)" }}>
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-3">
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-accent)" }}>Fast Onboarding</span>
-              <h2 className="font-display text-3xl md:text-5xl font-bold" style={s.text}>How Monologg Works</h2>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {STEPS.map((step, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -4 }}
-                  className="p-5 rounded-[var(--radius-xl)] border space-y-3 transition-shadow hover:shadow-md"
-                  style={{ background: "var(--color-bg-canvas)", borderColor: "var(--color-hairline)" }}
-                >
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
-                    {step.num}
-                  </div>
-                  <h3 className="font-display text-base font-semibold" style={s.text}>{step.title}</h3>
-                  <p className="text-xs leading-relaxed" style={s.secondary}>{step.body}</p>
-                </motion.div>
+              {FEATURED_TALENTS.map((talent) => (
+                <Talent3DCard key={talent.id} talent={talent} />
               ))}
-            </div>
-
-            <div className="text-center pt-4">
-              <Button className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
-                Get Started Now
-              </Button>
             </div>
           </div>
         </section>
 
-        {/* ── Testimonials + CTA ── */}
-        <section className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
-          <div className="max-w-5xl mx-auto space-y-12">
-            <h2 className="font-display text-3xl md:text-5xl font-bold text-center" style={s.text}>Endorsed by working artists</h2>
+        {/* ── WISE ESCROW & CALCULATOR SECTION (Dark Surface Alternate) ── */}
+        <section id="escrow-calculator" className="py-24 px-6 md:px-16 bg-[#163300] text-white">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#9fe870] text-[#163300]">
+                <Shield className="w-3.5 h-3.5 fill-current" />
+                <span>Wise-Inspired Security Architecture</span>
+              </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {TESTIMONIALS.map((t, i) => (
-                <div key={i} className="p-6 rounded-[var(--radius-xl)] border flex flex-col justify-between transition-shadow hover:shadow-md" style={s.surface}>
-                  <p className="text-xs italic font-body leading-relaxed mb-6" style={s.secondary}>
-                    "{t.quote}"
+              <h2 className="font-wise-sans text-4xl md:text-6xl font-black uppercase tracking-tight leading-[0.95] text-white">
+                PAYMENT SECURITY.<br />
+                <span className="text-[#9fe870]">AUTOMATED IN ESCROW.</span>
+              </h2>
+
+              <p className="text-base text-white/80 leading-relaxed font-body">
+                Contracts are funded upfront into FINCRA Escrow before recording or performance begins. Talent works with complete confidence, and clients enjoy automated deliverable verification.
+              </p>
+
+              <div className="space-y-4 pt-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-[#9fe870] text-[#163300] flex items-center justify-center font-bold text-xs shrink-0 mt-1">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Zero Payment Risk for Talent</h4>
+                    <p className="text-xs text-white/70">Escrow funds are locked securely prior to project kickoff.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-[#9fe870] text-[#163300] flex items-center justify-center font-bold text-xs shrink-0 mt-1">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Instant Payouts on Approval</h4>
+                    <p className="text-xs text-white/70">Direct bank transfer release within 24 hours of client signoff.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <WiseBookingCalculator />
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS (3-Step Cards with Pill Badges) ── */}
+        <section id="how-it-works" className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="text-center space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#163300] dark:text-[#9fe870]">
+                Simple Workflow
+              </span>
+              <h2 className="font-wise-sans text-3xl md:text-5xl font-black uppercase tracking-tight text-[var(--color-text-primary)]">
+                Go Live in 3 Easy Steps
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {STEPS.map((step, idx) => (
+                <div
+                  key={idx}
+                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#e2f6d5] text-[#163300] dark:bg-[#163300] dark:text-[#9fe870] font-mono font-black text-lg flex items-center justify-center">
+                    {step.num}
+                  </div>
+                  <h3 className="font-bold text-lg font-display text-[var(--color-text-primary)]">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed font-body">
+                    {step.body}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 text-xs" background="var(--color-accent-glow)" color="var(--color-accent)">
-                      {t.avatar}
-                    </Avatar>
-                    <div>
-                      <div className="text-xs font-bold font-body" style={s.text}>{t.name}</div>
-                      <div className="text-[10px]" style={s.tertiary}>{t.role}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TESTIMONIAL MOSAIC ── */}
+        <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-t border-[var(--color-hairline)]">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="text-center space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#163300] dark:text-[#9fe870]">
+                Endorsed by Performers &amp; Brands
+              </span>
+              <h2 className="font-wise-sans text-3xl md:text-5xl font-black uppercase tracking-tight text-[var(--color-text-primary)]">
+                Trusted Across the Continent
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {TESTIMONIALS.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] space-y-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <p className="text-sm italic text-[var(--color-text-secondary)] leading-relaxed">
+                    "{item.quote}"
+                  </p>
+
+                  <div className="space-y-4 pt-4 border-t border-[var(--color-hairline)]">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.photo}
+                        alt={item.name}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-[#9fe870]"
+                      />
+                      <div>
+                        <div className="font-bold text-sm text-[var(--color-text-primary)] font-display">
+                          {item.name}
+                        </div>
+                        <div className="text-xs text-[var(--color-text-secondary)] font-body">
+                          {item.role}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono font-bold pt-1 text-[#163300] dark:text-[#9fe870]">
+                      <span>{item.metric}</span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#e2f6d5] text-[#163300] dark:bg-[#163300] dark:text-[#9fe870] text-[10px]">
+                        {item.tag}
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-
-            <div className="text-center pt-4">
-              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
-                Join the Elite Roster
-              </Button>
-            </div>
           </div>
         </section>
 
-        {/* ── Pricing ── */}
-        <section id="pricing" className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-hairline)" }}>
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-2">
-              <h2 className="font-display text-3xl md:text-5xl font-bold" style={s.text}>Simple value fees</h2>
-              <p className="text-xs" style={s.tertiary}>Zero monthly subscription. We only make money when you do.</p>
-            </div>
+        {/* ── FAQ ACCORDION ── */}
+        <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
+          <div className="max-w-3xl mx-auto space-y-12">
+            <h2 className="font-wise-sans text-3xl md:text-5xl font-black uppercase text-center tracking-tight text-[var(--color-text-primary)]">
+              Frequently Asked Questions
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-[var(--radius-xl)] border space-y-4" style={{ background: "var(--color-bg-canvas)", borderColor: "var(--color-hairline)" }}>
-                <h3 className="font-display text-lg font-semibold" style={s.text}>For Creative Talent</h3>
-                <div className="text-3xl font-bold font-display" style={{ color: "var(--color-accent)" }}>9%</div>
-                <div className="text-xs" style={s.tertiary}>Charged per completed transaction. Profile, rate cards, and style analysis are 100% free.</div>
-                <Button className="w-full h-9 text-xs" onClick={() => navigate("/auth")}>Launch Storefront Free</Button>
-              </div>
-
-              <div className="p-6 rounded-[var(--radius-xl)] border space-y-4" style={{ background: "var(--color-bg-canvas)", borderColor: "var(--color-hairline)" }}>
-                <h3 className="font-display text-lg font-semibold" style={s.text}>For Clients &amp; Brands</h3>
-                <div className="text-3xl font-bold font-display" style={{ color: "var(--color-purple)" }}>12%</div>
-                <div className="text-xs" style={s.tertiary}>Escrow protection &amp; platform processing fee. Pay only when deliverables are approved.</div>
-                <Button variant="secondary" className="w-full h-9 text-xs" onClick={() => navigate("/auth")}>Post a Project</Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── FAQ + CTA ── */}
-        <section className="py-20 px-5 md:px-16" style={{ background: "var(--color-bg-canvas)" }}>
-          <div className="max-w-2xl mx-auto space-y-12">
-            <h2 className="font-display text-3xl md:text-5xl font-bold text-center" style={s.text}>Frequently Asked Questions</h2>
-
-            <div className="space-y-3">
+            <div className="space-y-4">
               {FAQS.map((faq, i) => (
-                <div key={i} className="rounded-[var(--radius-md)] border animate-fade-in" style={s.inkBorder}>
+                <div
+                  key={i}
+                  className="rounded-[18px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] overflow-hidden"
+                >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full p-4 flex items-center justify-between text-left text-xs font-semibold"
-                    style={{ background: "var(--color-bg-surface)" }}
+                    className="w-full p-6 flex items-center justify-between text-left font-bold text-sm text-[var(--color-text-primary)]"
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown className="w-4 h-4 transition-transform duration-200" style={{ transform: openFaq === i ? "rotate(180deg)" : "rotate(0)" }} />
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 shrink-0 ${
+                        openFaq === i ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
                   {openFaq === i && (
-                    <div className="p-4 text-xs leading-relaxed border-t" style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-secondary)", borderColor: "var(--color-hairline)" }}>
+                    <div className="px-6 pb-6 text-xs text-[var(--color-text-secondary)] leading-relaxed border-t border-[var(--color-hairline)] pt-4">
                       {faq.a}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-
-            <div className="text-center pt-4">
-              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>
-                Still Have Questions? Join Monologg
-              </Button>
-            </div>
           </div>
         </section>
 
-        {/* ── Final Conversion CTA (Apple Style Quote) ── */}
-        <section className="py-24 px-5 md:px-16 text-center border-t" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight" style={s.text}>
-              Take control of your craft.
+        {/* ── FINAL HYER & WISE CONVERSION CTA ── */}
+        <section className="py-28 px-6 md:px-16 bg-[#163300] text-white text-center">
+          <div className="max-w-3xl mx-auto space-y-8">
+            <h2 className="font-wise-sans text-4xl md:text-7xl font-black uppercase tracking-tight leading-[0.9] text-[#9fe870]">
+              TAKE CONTROL OF YOUR CRAFT.
             </h2>
-            <p className="text-sm font-body max-w-lg mx-auto" style={s.secondary}>
-              Join over 3,200 verified actors, hosts, and creators getting booked directly with zero commission on their first booking.
+            <p className="text-base text-white/80 max-w-xl mx-auto font-body">
+              Join over 3,200 verified actors, voice talent, and comperes getting booked directly with zero commission on their first booking.
             </p>
-            <div className="flex justify-center gap-3">
-              <Button className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>Launch Storefront Free</Button>
-              <Button variant="secondary" className="h-10 px-6 text-xs font-semibold" onClick={() => navigate("/auth")}>Post a Project</Button>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+              <Button
+                variant="lime"
+                className="h-12 px-8 text-sm font-bold shadow-xl"
+                onClick={() => navigate("/auth")}
+              >
+                Launch Storefront Free
+              </Button>
+              <Button
+                variant="forest"
+                className="h-12 px-8 text-sm font-bold border border-[#9fe870]/40"
+                onClick={() => navigate("/auth")}
+              >
+                Post a Project Brief
+              </Button>
             </div>
           </div>
         </section>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="py-12 px-5 md:px-16" style={{ background: "#000000", borderTop: "1px solid #222225", color: "#ffffff" }}>
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-            <div className="space-y-3">
-              <Logo className="h-5 w-auto" style={{ color: "#ffffff" }} />
-              <p className="text-xs text-white/50 max-w-xs leading-relaxed">
-                The world's first brief-to-booking pipeline for performing arts and the creator economy.
-              </p>
+      <FloatingQRBadge />
+
+      {/* ── Wise Terminal Footer ── */}
+      <footer className="py-12 px-6 md:px-16 bg-[#0e0f0c] text-white border-t border-white/10 text-xs">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+          <div className="space-y-3">
+            <Logo className="h-6 w-auto text-white" />
+            <p className="text-white/60 max-w-xs text-[11px] leading-relaxed">
+              The world's first brief-to-booking marketplace pipeline for performing arts and the creator economy.
+            </p>
+          </div>
+          <div className="flex gap-12 text-white/70">
+            <div>
+              <h4 className="font-bold text-white mb-2">Product</h4>
+              <ul className="space-y-1">
+                <li><a href="#" className="hover:text-white">Directory</a></li>
+                <li><a href="#" className="hover:text-white">Escrow Rates</a></li>
+                <li><a href="#" className="hover:text-white">AI Style Tagging</a></li>
+              </ul>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 text-xs">
-              <div>
-                <h4 className="font-bold mb-2">Product</h4>
-                <ul className="space-y-1.5 text-white/50">
-                  <li><a href="#" className="hover:text-white">Features</a></li>
-                  <li><a href="#" className="hover:text-white">Pricing</a></li>
-                  <li><a href="#" className="hover:text-white">Security</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-2">Legal</h4>
-                <ul className="space-y-1.5 text-white/50">
-                  <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-                  <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                </ul>
-              </div>
-              <div className="text-white/50">
-                <h4 className="font-bold mb-2 text-white">Security Integration</h4>
-                <p className="text-[11px] leading-relaxed">Secured by FINCRA Escrow. NDPA compliant and protected against fraud.</p>
-              </div>
+            <div>
+              <h4 className="font-bold text-white mb-2">Legal</h4>
+              <ul className="space-y-1">
+                <li><a href="/legal/terms" className="hover:text-white">Terms</a></li>
+                <li><a href="/legal/privacy" className="hover:text-white">Privacy</a></li>
+              </ul>
             </div>
           </div>
-          <div className="pt-6 border-t border-[#222225] flex flex-col md:flex-row justify-between items-center text-[10px] text-white/40">
-            <span>© {new Date().getFullYear()} Monologg Inc. All rights reserved.</span>
-            <span>Nigerian Data Protection Act verified.</span>
-          </div>
+        </div>
+        <div className="max-w-6xl mx-auto pt-8 mt-8 border-t border-white/10 flex justify-between items-center text-[10px] text-white/40 font-mono">
+          <span>© {new Date().getFullYear()} Monologg Inc. All rights reserved.</span>
+          <span>Secured by FINCRA Escrow</span>
         </div>
       </footer>
     </div>

@@ -1,3 +1,6 @@
+/* Google Fonts import for Wise Sans (Inter 900 heavy tracking) and DM Sans */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
 /* Self-hosted brand fonts — Display: General Sans · Body: Plus Jakarta Sans · Data: JetBrains Mono
    Files live in public/fonts/; licenses alongside each family (Fontshare FFL / SIL OFL).
    No CDN dependency — renders offline. font-display: swap avoids invisible-text flash. */
