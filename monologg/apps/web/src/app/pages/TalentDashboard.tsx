@@ -652,7 +652,7 @@ export function TalentDashboard() {
                     { label: "Storefront", icon: User, action: () => setActiveTab("storefront") },
                     { label: "Availability", icon: Calendar, action: () => setActiveTab("calendar") },
                     { label: "Rates", icon: DollarSign, action: () => setActiveTab("rates") },
-                    { label: "Earnings", icon: BarChart2, action: () => setActiveTab("earnings") },
+                    { label: "Orders", icon: MessageSquare, action: () => setActiveTab("orders") },
                   ].map((qa, i) => (
                     <button key={i} onClick={qa.action} className="flex flex-col items-center gap-2 py-1 group">
                       <span

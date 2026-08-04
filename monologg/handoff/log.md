@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 54: Sci-Fi Radar Trust Map & App-Wide Overhaul)
+**Last updated:** 2026-08-04 (Session 55: Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,32 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 54 (2026-08-04) — Sci-Fi Radar Trust Map & App-Wide Overhaul
+## Session 55 (2026-08-04) — Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert
+
+**Goal:** Redesign the trust map as an SVG Dot-Matrix World Map with country flag pin badges matching user design attachments 1 & 2, revert hero grid reveal intensity back to status-quo subtle opacity, add WebGL grid reveal to footer, fix dark mode white cards and form inputs in LandingPage and AuthFlow, update invite link copy to lead back to landing page base URL, fix sticky header, and organize Quick Actions by moving Analytics under the dedicated Analytics tab.
+
+**Changes Made:**
+
+1. **SVG Dot-Matrix World Map (`LandingPage.tsx`)**:
+   - Built `DotMatrixWorldMap` component with SVG dot grid landmass density matching Attachments 1 & 2.
+   - Added country flag pin markers (🇳🇬, 🇬🇭, 🇰🇪, 🇿🇦, 🇬🇧, 🇺🇸) with glowing pulse rings and popping performer cards.
+
+2. **Reverted Hero WebGL Grid Intensity & Added Footer Reveal (`WebGLHeroCanvas.tsx`, `LandingPage.tsx`)**:
+   - Reverted `WebGLHeroCanvas` grid reveal opacity to subtle status quo (`0.25` opacity, faint red stroke).
+   - Added `WebGLHeroCanvas opacityMultiplier={0.2}` grid reveal inside footer.
+
+3. **Dark Mode White Card & Input Fixes (`AuthFlow.tsx`, `LandingPage.tsx`)**:
+   - Fixed hero waitlist input form pill in dark mode: high-contrast text (`#F5F5F0`), dark container (`#16161A`), and border (`#26262E`).
+   - Replaced hardcoded dark text classes in `AuthFlow.tsx` left panel with CSS variables (`var(--color-text-primary)` and `var(--color-text-secondary)`).
+
+4. **Landing Page Sticky Header & Base Share Link (`LandingPage.tsx`)**:
+   - Set top navigation header to `sticky top-0 z-50` with backdrop blur and shadow.
+   - Updated `handleCopyLink` to copy `window.location.origin` (leading visitors straight to landing page).
+
+5. **Dashboard Analytics Organization (`TalentDashboard.tsx`)**:
+   - Moved Analytics from Home quick actions to dedicated Analytics tab, placing `Orders` (`MessageSquare`) in Quick Actions.
+
+---
 
 **Goal:** Build an interactive Sci-Fi Radar Map ("TRUSTED ACROSS THE CONTINENT") with 6 global nodes and popping performer cards, add working copy button on waitlist invite pill, add SVG hand-drawn red squiggle under hero text, add carousel edge fade gradient masks + 45s drift, fix sticky navigation header, build interactive QR code modal overlay, and overhaul design system styling across all navigation views in both Talent and Client web apps.
 

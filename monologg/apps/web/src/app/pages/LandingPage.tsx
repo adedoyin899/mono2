@@ -107,7 +107,8 @@ const RADAR_NODES = [
   {
     id: "lagos",
     city: "Lagos, Nigeria",
-    coords: { x: "44%", y: "48%" },
+    flag: "🇳🇬",
+    coords: { x: "47%", y: "52%" },
     talentName: "Adaeze Obi",
     category: "Senior Voice Artist",
     quote: "Booked 12 Netflix voice-overs via Monologg Escrow with 0 commission.",
@@ -117,7 +118,8 @@ const RADAR_NODES = [
   {
     id: "accra",
     city: "Accra, Ghana",
-    coords: { x: "41%", y: "50%" },
+    flag: "🇬🇭",
+    coords: { x: "43%", y: "54%" },
     talentName: "Kwame Asante",
     category: "Commercial Lead Actor",
     quote: "International casting directors book me directly in USD & GHS.",
@@ -127,7 +129,8 @@ const RADAR_NODES = [
   {
     id: "nairobi",
     city: "Nairobi, Kenya",
-    coords: { x: "56%", y: "54%" },
+    flag: "🇰🇪",
+    coords: { x: "58%", y: "57%" },
     talentName: "Wanjiku Kimani",
     category: "Documentary Narrator",
     quote: "Thespian AI tagged my vocal range in 30 seconds. Seamless payouts.",
@@ -137,7 +140,8 @@ const RADAR_NODES = [
   {
     id: "joburg",
     city: "Johannesburg, SA",
-    coords: { x: "53%", y: "74%" },
+    flag: "🇿🇦",
+    coords: { x: "54%", y: "76%" },
     talentName: "Sipho Dlamini",
     category: "Film Stunt Lead",
     quote: "FINCRA Escrow locked full payment before I stepped on stage.",
@@ -147,7 +151,8 @@ const RADAR_NODES = [
   {
     id: "london",
     city: "London, UK",
-    coords: { x: "38%", y: "24%" },
+    flag: "🇬🇧",
+    coords: { x: "43%", y: "28%" },
     talentName: "Elena Vance",
     category: "Global Brand Director",
     quote: "Sourced 5 African voice talents for our campaign in 20 minutes.",
@@ -157,7 +162,8 @@ const RADAR_NODES = [
   {
     id: "newyork",
     city: "New York, USA",
-    coords: { x: "22%", y: "30%" },
+    flag: "🇺🇸",
+    coords: { x: "24%", y: "34%" },
     talentName: "Marcus Sterling",
     category: "Ad Agency Producer",
     quote: "Monologg's escrow protocol is lightyears ahead of traditional talent reps.",
@@ -165,6 +171,74 @@ const RADAR_NODES = [
     img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&q=80&fit=crop",
   },
 ];
+
+// ── SVG Dot Matrix World Map Component (Inspired by Attachments 1 & 2) ──
+function DotMatrixWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSelectNode: (idx: number) => void }) {
+  const rows = 18;
+  const cols = 40;
+
+  const isLand = (r: number, c: number): boolean => {
+    if (r >= 2 && r <= 7 && c >= 3 && c <= 14) return true;
+    if (r >= 8 && r <= 15 && c >= 9 && c <= 15) return true;
+    if (r >= 2 && r <= 6 && c >= 16 && c <= 22) return true;
+    if (r >= 7 && r <= 15 && c >= 16 && c <= 24) return true;
+    if (r >= 3 && r <= 9 && c >= 23 && c <= 35) return true;
+    if (r >= 11 && r <= 15 && c >= 31 && c <= 37) return true;
+    return false;
+  };
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center p-4">
+      <svg className="w-full h-full opacity-35" viewBox="0 0 800 400" fill="none">
+        {Array.from({ length: rows }).map((_, r) =>
+          Array.from({ length: cols }).map((_, c) => {
+            const cx = 20 + c * 19.5;
+            const cy = 20 + r * 21;
+            const land = isLand(r, c);
+            return (
+              <circle
+                key={`${r}-${c}`}
+                cx={cx}
+                cy={cy}
+                r={land ? 2.5 : 1}
+                fill={land ? "#F13030" : "#A6A6B0"}
+                opacity={land ? 0.75 : 0.2}
+              />
+            );
+          })
+        )}
+      </svg>
+
+      {RADAR_NODES.map((node, index) => {
+        const isActive = index === activeNode;
+        return (
+          <button
+            key={node.id}
+            onClick={() => onSelectNode(index)}
+            style={{ left: node.coords.x, top: node.coords.y }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-transform active:scale-90"
+          >
+            <span className="relative flex items-center justify-center">
+              {isActive && (
+                <span className="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-[#F13030] opacity-60" />
+              )}
+              <span
+                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold font-mono transition-all shadow-lg border ${
+                  isActive
+                    ? "bg-[#F13030] text-white border-[#F13030] scale-110 shadow-[0_0_16px_rgba(241,48,48,0.6)]"
+                    : "bg-[#16161A] text-[#F5F5F0] border-[#26262E] hover:border-[#F13030]"
+                }`}
+              >
+                <span className="text-sm">{node.flag}</span>
+                <span className="hidden sm:inline text-[11px] font-semibold">{node.city.split(",")[0]}</span>
+              </span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── 3-Step Process ──
 const STEPS = [
@@ -309,48 +383,18 @@ function SciFiTrustMap() {
   return (
     <div className="relative w-full max-w-5xl mx-auto rounded-[32px] bg-[#0D0D0F] border border-[#26262E] p-6 sm:p-10 overflow-hidden shadow-2xl text-white">
       {/* Sci-Fi Grid Lines & Glowing Radar Rings */}
-      <div className="absolute inset-0 pointer-events-none opacity-25">
+      <div className="absolute inset-0 pointer-events-none opacity-20">
         <div className="w-full h-full bg-[radial-gradient(#F13030_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-[#F13030]/20 animate-ping opacity-20" />
       </div>
 
       <div className="relative z-10 flex flex-col lg:flex-row gap-10 items-center justify-between">
-        {/* Left Interactive Map Canvas Simulator */}
-        <div className="relative w-full lg:w-3/5 h-[340px] bg-[#16161A] rounded-[24px] border border-[#26262E] overflow-hidden p-4">
-          <div className="absolute inset-0 flex items-center justify-center opacity-30">
-            <Globe className="w-80 h-80 text-[#F13030]" />
-          </div>
+        {/* Left Dot-Matrix World Map Canvas Simulator (Attachments 1 & 2) */}
+        <div className="relative w-full lg:w-3/5 h-[360px] bg-[#16161A] rounded-[24px] border border-[#26262E] overflow-hidden">
+          <DotMatrixWorldMap activeNode={activeNode} onSelectNode={setActiveNode} />
 
-          {/* Radar Nodes */}
-          {RADAR_NODES.map((node, index) => {
-            const isActive = index === activeNode;
-            return (
-              <button
-                key={node.id}
-                onClick={() => setActiveNode(index)}
-                style={{ left: node.coords.x, top: node.coords.y }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none"
-              >
-                <span className="relative flex h-5 w-5 items-center justify-center">
-                  {isActive && (
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F13030] opacity-75" />
-                  )}
-                  <span
-                    className={`relative inline-flex rounded-full h-3.5 w-3.5 transition-transform ${
-                      isActive ? "bg-[#F13030] scale-125 shadow-[0_0_12px_#F13030]" : "bg-white/40 hover:bg-white"
-                    }`}
-                  />
-                </span>
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-white whitespace-nowrap border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {node.city}
-                </span>
-              </button>
-            );
-          })}
-
-          <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-mono text-white/80 flex items-center gap-2 border border-white/10">
+          <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-mono text-white/90 flex items-center gap-2 border border-white/10 shadow-md">
             <span className="w-2 h-2 rounded-full bg-[#F13030] animate-pulse" />
-            <span>GLOBAL RADAR MODE: {current.city.toUpperCase()}</span>
+            <span>GLOBAL RADAR: {current.flag} {current.city.toUpperCase()}</span>
           </div>
         </div>
 
@@ -377,7 +421,7 @@ function SciFiTrustMap() {
                 </div>
                 <div className="text-xs text-gray-400 font-body flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-[#F13030]" />
-                  {current.city}
+                  {current.flag} {current.city}
                 </div>
               </div>
             </div>
@@ -582,14 +626,14 @@ export function LandingPage() {
   };
 
   const handleCopyLink = () => {
-    const inviteUrl = `${window.location.origin}/invite/abc123`;
+    const inviteUrl = window.location.origin;
     navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body text-base">
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body text-base">
       {/* ── Top Announcement Bar ── */}
       <div className="h-[40px] bg-[#16161A] text-[#F5F5F0] flex items-center justify-between px-6 text-xs font-semibold border-b border-[#26262E] z-50">
         <div className="flex items-center gap-2">
@@ -606,7 +650,7 @@ export function LandingPage() {
       </div>
 
       {/* ── Fixed Sticky Header ── */}
-      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-sm">
+      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
         </div>
@@ -652,9 +696,9 @@ export function LandingPage() {
       </header>
 
       <main className="flex-1">
-        {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Enhanced Grid Reveal) ── */}
+        {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Status Quo Grid Reveal) ── */}
         <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
-          <WebGLHeroCanvas />
+          <WebGLHeroCanvas opacityMultiplier={0.25} />
 
           <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/30 shadow-sm">
@@ -687,12 +731,12 @@ export function LandingPage() {
               Verified performer profiles, Monologg Escrow Protocol, and proprietary Thespian AI vibe scanner. Zero middlemen, zero gatekeeping.
             </p>
 
-            {/* Email Form with Working Copy Link Button */}
+            {/* Email Form with Working Copy Link Button & High-Contrast Dark Mode Inputs */}
             <div className="max-w-lg mx-auto pt-2">
               {!submitted ? (
                 <form
                   onSubmit={handleSubmit}
-                  className="p-2 rounded-full bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] shadow-xl flex items-center gap-2"
+                  className="p-2 rounded-full bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] shadow-xl flex items-center gap-2"
                 >
                   <input
                     type="email"
@@ -700,7 +744,7 @@ export function LandingPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="flex-1 px-5 py-3 text-sm bg-transparent outline-none text-[var(--color-text-primary)]"
+                    className="flex-1 px-5 py-3 text-sm bg-transparent outline-none text-[#16161A] dark:text-[#F5F5F0] placeholder:text-gray-400 dark:placeholder:text-[#A6A6B0]"
                   />
                   <Button
                     type="submit"
@@ -714,7 +758,7 @@ export function LandingPage() {
                 <div className="p-3 px-5 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex items-center justify-between gap-3 shadow-md">
                   <div className="flex items-center gap-2 text-xs font-bold truncate">
                     <Check className="w-4 h-4 text-[#F13030] shrink-0" />
-                    <span className="truncate">You're #347 in queue! Share link: monologg.app/invite/abc123</span>
+                    <span className="truncate">You're #347 in queue! Share link: monologg.app</span>
                   </div>
                   <button
                     onClick={handleCopyLink}
@@ -940,6 +984,7 @@ export function LandingPage() {
 
       {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
       <footer className="pt-20 pb-12 px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
+        <WebGLHeroCanvas opacityMultiplier={0.2} />
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 text-sm">
             <div className="col-span-2 space-y-4">

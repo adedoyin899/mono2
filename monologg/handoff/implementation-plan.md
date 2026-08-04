@@ -1,11 +1,19 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-04 (Session 54: Sci-Fi Radar Trust Map & App-Wide Overhaul)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–54 Visual Overhauls & Interactive Upgrades are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, Sci-Fi global radar map, interactive QR code modal, and full navigation view overhaul.
+**Last updated:** 2026-08-04 (Session 55: Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–55 Visual Overhauls & Design Fixes are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, SVG Dot-Matrix World Map with flag pins, interactive QR code modal, and full navigation view overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 55 — Map Redesign, Dark Mode Card Fixes & Hero Reveal Revert
+- [x] **SVG Dot-Matrix World Map**: Built DotMatrixWorldMap component with SVG landmass dot matrix and country flag pin markers (🇳🇬, 🇬🇭, 🇰🇪, 🇿🇦, 🇬🇧, 🇺🇸) matching Attachments 1 & 2.
+- [x] **Reverted Hero Grid Reveal & Added Footer Reveal**: Reverted WebGL grid reveal to status quo subtle opacity (`0.25`) and added matching grid reveal to footer.
+- [x] **Dark Mode White Card & Input Fixes**: Fixed hero waitlist input form pill in dark mode (`#16161A`, `#F5F5F0`) and replaced hardcoded text classes in AuthFlow left panel with CSS variables.
+- [x] **Sticky Navigation Header & Base Invite Link**: Fixed top header sticky behavior and updated copied share invite link to copy `window.location.origin` (directing visitors straight to landing page).
+- [x] **Dashboard Analytics Organization**: Moved Analytics quick action to dedicated Analytics tab and placed Orders in Quick Actions.
+- [x] **Verification**: Web typecheck (`tsc --noEmit`), Vitest test suite (21 test files, 78 tests passing 100%), and Vite production build (`dist/assets` compiled in 2.09s) verified clean.
 
 ### Session 54 — Sci-Fi Radar Trust Map & App-Wide Overhaul
 - [x] **Working Copy Link Button**: Added `Copy` button to waitlist invite pill with clipboard copy and 2.5s "Copied!" checkmark feedback.

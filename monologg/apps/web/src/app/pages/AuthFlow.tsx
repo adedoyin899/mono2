@@ -265,14 +265,14 @@ export function AuthFlow() {
           <div className="relative">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center mb-8"
-              style={{ background: "var(--color-red-soft)" }}
+              style={{ background: "var(--color-accent-soft)" }}
             >
-              <Shield className="w-6 h-6 text-[#F13030]" />
+              <Shield className="w-6 h-6 text-[var(--color-accent)]" />
             </div>
-            <h2 className="font-display text-[38px] font-bold leading-[1.05] tracking-[-0.02em] mb-4 text-[#16161A] dark:text-[#F5F5F0]">
+            <h2 className="font-display text-[38px] font-bold leading-[1.05] tracking-[-0.02em] mb-4 text-[var(--color-text-primary)]">
               Your craft. On your terms.
             </h2>
-            <p className="text-base font-body leading-relaxed text-[#5D5D66] dark:text-[#A6A6B0]">
+            <p className="text-base font-body leading-relaxed text-[var(--color-text-secondary)]">
               Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.
             </p>
           </div>
@@ -286,11 +286,11 @@ export function AuthFlow() {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[#FFECEC] dark:bg-[#F13030]/20"
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)]"
                 >
-                  <Check className="w-3.5 h-3.5 text-[#F13030]" />
+                  <Check className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                 </div>
-                <span className="text-sm font-body text-[#16161A] dark:text-[#F5F5F0] font-medium">{item}</span>
+                <span className="text-sm font-body text-[var(--color-text-primary)] font-medium">{item}</span>
               </div>
             ))}
           </div>
@@ -336,10 +336,10 @@ export function AuthFlow() {
                   exit={{ opacity: 0, y: -16 }}
                   className="flex flex-col"
                 >
-                  <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[#16161A] dark:text-[#F5F5F0]">
+                  <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
                     Welcome to Monologg.
                   </h1>
-                  <p className="text-base font-body mb-8 text-[#5D5D66] dark:text-[#A6A6B0]">
+                  <p className="text-base font-body mb-8 text-[var(--color-text-secondary)]">
                     Sign in or create a free {role === "talent" ? "Talent" : "Client"} account to continue.
                   </p>
                   <div className="flex flex-col gap-3">

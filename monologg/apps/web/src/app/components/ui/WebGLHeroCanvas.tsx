@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export function WebGLHeroCanvas() {
+export function WebGLHeroCanvas({ opacityMultiplier = 0.25 }: { opacityMultiplier?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -11,8 +11,8 @@ export function WebGLHeroCanvas() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
 
     let mouseX = -1000;
     let mouseY = -1000;
@@ -33,8 +33,8 @@ export function WebGLHeroCanvas() {
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+      height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -53,17 +53,17 @@ export function WebGLHeroCanvas() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Render architectural blueprint grid on hover
+      // Render subtle blueprint grid on hover (status quo)
       if (hoverAlpha > 0.01) {
         ctx.save();
-        ctx.globalAlpha = hoverAlpha * 0.75;
-        ctx.strokeStyle = "rgba(241, 48, 48, 0.45)";
+        ctx.globalAlpha = hoverAlpha * opacityMultiplier;
+        ctx.strokeStyle = "rgba(241, 48, 48, 0.25)";
         ctx.lineWidth = 1;
 
         // Draw vertical grid lines
         for (let x = 0; x <= width; x += gridSize) {
           const dist = Math.abs(mouseX - x);
-          if (dist < 400) {
+          if (dist < 320) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
@@ -74,7 +74,7 @@ export function WebGLHeroCanvas() {
         // Draw horizontal grid lines
         for (let y = 0; y <= height; y += gridSize) {
           const dist = Math.abs(mouseY - y);
-          if (dist < 400) {
+          if (dist < 320) {
             ctx.beginPath();
             ctx.moveTo(0, y);
             ctx.lineTo(width, y);
@@ -82,21 +82,14 @@ export function WebGLHeroCanvas() {
           }
         }
 
-        // Mouse-following cursor spotlight ring
-        const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 320);
-        grad.addColorStop(0, "rgba(241, 48, 48, 0.18)");
-        grad.addColorStop(0.5, "rgba(123, 0, 254, 0.10)");
+        // Soft cursor spotlight ring
+        const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 280);
+        grad.addColorStop(0, "rgba(241, 48, 48, 0.10)");
+        grad.addColorStop(0.6, "rgba(123, 0, 254, 0.04)");
         grad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
-
-        // Crosshair marker at cursor position
-        ctx.strokeStyle = "rgba(241, 48, 48, 0.7)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 20, 0, Math.PI * 2);
-        ctx.stroke();
 
         ctx.restore();
       }
@@ -112,7 +105,7 @@ export function WebGLHeroCanvas() {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [opacityMultiplier]);
 
   return (
     <canvas
