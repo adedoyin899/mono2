@@ -1,11 +1,19 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-04 (Session 52: Monologg Brand Identity Remix & Oversized Logotype Footer)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51 & 52 Visual Overhaul are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL ambient hero canvas, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, unified 16px body typography scale, and demo user routing.
+**Last updated:** 2026-08-04 (Session 53: Targeted UI Polish, Dark Mode Fixes & Talent Carousel)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–53 Visual Overhauls & UI Polish are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel, primary/secondary CTA pair, and Wise-style AuthFlow clean layout.
 
 ---
 
 ## ✅ Done
+
+### Session 53 — Targeted UI Polish, Dark Mode Fixes & Talent Carousel
+- [x] **Primary Red + Outlined Secondary CTA Pair**: Fixed side-by-side CTA button pair in final conversion section.
+- [x] **Dark Mode Contrast Fix Across Cards**: Replaced white card backgrounds in dark mode with dark surface containers (`#16161A`, `#26262E`) and high-contrast text (`#F5F5F0`, `#A6A6B0`) across Step cards, FAQ accordion, and talent cards.
+- [x] **Auto-Looping 7-Talent Carousel**: Built an infinite horizontal auto-scrolling Framer Motion talent carousel with 7 artist profiles.
+- [x] **Clean Hero Background & Hover Blueprint Grid**: Reworked `WebGLHeroCanvas.tsx` to default to a plain background and reveal an architectural blueprint grid on hover.
+- [x] **Wise-Style Auth / Sign-Up Page Overhaul**: Reworked `AuthFlow.tsx` with segmented role switcher (`Talent / Creator` vs `Client / Employer`), rounded-full inputs, and high-contrast dark/light mode copy.
+- [x] **Verification**: Web typecheck (`tsc --noEmit`), Vitest test suite (21 test files, 78 tests passing 100%), and Vite production build (`dist/assets` compiled in 2.08s) verified clean.
 
 ### Session 52 — Monologg Brand Identity Remix & Oversized Logotype Footer
 - [x] **Monologg Native Brand Palette**: Replaced Wise green tokens with Monologg Mono-Red (`#F13030`), Mono-Purple (`#7B00FE`), soft washes, and clean neutrals (`#F8F8F6`, `#16161A`, `#0D0D0F`).

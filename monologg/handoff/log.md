@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 52: Monologg Brand Identity Remix & Oversized Logotype Footer)
+**Last updated:** 2026-08-04 (Session 53: Targeted UI Polish, Dark Mode Fixes & Talent Carousel)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,33 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 52 (2026-08-04) — Monologg Brand Identity Remix & Oversized Logotype Footer
+## Session 53 (2026-08-04) — Targeted UI Polish, Dark Mode Fixes & Talent Carousel
+
+**Goal:** Address user feedback regarding screenshot bugs: replace side-by-side filled CTA pair with Primary Red + Outlined Secondary Pill, fix dark mode accessibility on Step Cards, FAQ accordions, and Talent Cards, implement an auto-scrolling 7-talent card carousel, replace AI-slop Hero WebGL gradient with clean canvas + hover blueprint grid reveal, and overhaul AuthFlow sign-up page in Wise clean UX.
+
+**Changes Made:**
+
+1. **CTA Pair Update (`LandingPage.tsx`)**:
+   - Replaced side-by-side filled red + purple CTAs with Primary Mono-Red Pill (`"Launch Storefront Free"`) paired with Outlined Secondary Pill (`"Post a Project Brief"`).
+
+2. **Dark Mode Contrast Fix Across All Cards (`LandingPage.tsx`)**:
+   - Step Cards: Set dark mode container background to `bg-[#16161A]` with `border-[#26262E]`, step circle `bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D]`, titles `text-[#F5F5F0]`, and body `text-[#A6A6B0]`.
+   - FAQ Accordion: Set item headers in dark mode to `bg-[#16161A] border-[#26262E] text-[#F5F5F0]` with `text-[#A6A6B0]` body copy.
+   - Talent Cards: Replaced white card backgrounds in dark mode with dark surface containers (`#16161A`).
+
+3. **Auto-Scrolling 7-Talent Card Carousel (`LandingPage.tsx`)**:
+   - Built a 7-talent artist roster (Voice Artist, Commercial Lead Actor, Event Compere, Stunt Choreographer, Commercial Model, Radio Host, Stage Choreographer).
+   - Created an infinite horizontal auto-scrolling Framer Motion carousel with pause-on-hover.
+
+4. **Hero Canvas Clean Background with Hover Blueprint Grid (`WebGLHeroCanvas.tsx`)**:
+   - Removed colorful radial gradient overlays ("AI slop feel").
+   - Set canvas default to clean neutral background, and on mouse hover, subtly reveal an architectural blueprint grid and cursor spotlight.
+
+5. **Auth / Sign-Up Page Overhaul (`AuthFlow.tsx`)**:
+   - Redesigned sign-up/login layout with Wise-style segmented role control (`Talent / Creator` vs `Client / Employer`).
+   - Standardized `rounded-full` inputs and high-contrast dark/light mode copy.
+
+---
 
 **Goal:** Replace Wise green accents with Monologg native brand identity (Mono-Red `#F13030`, Mono-Purple `#7B00FE`, soft washes, neutral grays), audit and fix dark mode text contrast for WCAG AA compliance, implement an oversized 8Returns/Lumos style logotype footer, standardize typography scale (`16px` base body), and replace Wise-inspired text with Monologg native terms.
 

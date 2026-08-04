@@ -264,42 +264,67 @@ export function AuthFlow() {
           />
           <div className="relative">
             <div
-              className="w-12 h-12 rounded-[var(--radius-lg)] flex items-center justify-center mb-10"
+              className="w-12 h-12 rounded-full flex items-center justify-center mb-8"
               style={{ background: "var(--color-red-soft)" }}
             >
-              <Shield className="w-6 h-6" style={{ color: "var(--color-red)" }} />
+              <Shield className="w-6 h-6 text-[#F13030]" />
             </div>
-            <h2 className="font-display text-[40px] leading-[1.05] tracking-[-0.02em] mb-5" style={s.primary}>
-              Your career belongs here.
+            <h2 className="font-display text-[38px] font-bold leading-[1.05] tracking-[-0.02em] mb-4 text-[#16161A] dark:text-[#F5F5F0]">
+              Your craft. On your terms.
             </h2>
-            <p className="text-[15px] font-body leading-relaxed" style={s.secondary}>
-              Join 3,200+ verified performers who've taken control of their bookings with escrow-protected payments and AI-generated style tags.
+            <p className="text-base font-body leading-relaxed text-[#5D5D66] dark:text-[#A6A6B0]">
+              Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.
             </p>
           </div>
 
-          <div className="relative space-y-4">
+          <div className="relative space-y-3.5">
             {[
-              "Free to join — no subscription fees",
-              "AI-generated style tags in 45 seconds",
-              "Get paid the same day work is approved",
-              "Full escrow protection on every booking",
+              "Free to join — zero subscription fees",
+              "Proprietary Thespian AI vibe scanner in 30s",
+              "Get paid the same day deliverables are approved",
+              "Full FINCRA escrow protection on every booking",
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: "var(--color-success-bg)" }}
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[#FFECEC] dark:bg-[#F13030]/20"
                 >
-                  <Check className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
+                  <Check className="w-3.5 h-3.5 text-[#F13030]" />
                 </div>
-                <span className="text-sm font-body" style={s.secondary}>{item}</span>
+                <span className="text-sm font-body text-[#16161A] dark:text-[#F5F5F0] font-medium">{item}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right panel — forms */}
-        <div className="flex-1 flex items-center justify-center p-5">
-          <div className="w-full max-w-[400px]">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-[420px]">
+            {/* Wise-Style Segmented Role Switcher */}
+            <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
+              <button
+                type="button"
+                onClick={() => setRole("talent")}
+                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  role === "talent"
+                    ? "bg-[#F13030] text-white shadow-md"
+                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                Talent / Creator
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("client")}
+                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  role === "client"
+                    ? "bg-[#7B00FE] text-white shadow-md"
+                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                Client / Employer
+              </button>
+            </div>
+
             <AnimatePresence mode="wait">
 
               {/* ── Splash ── */}
@@ -311,26 +336,37 @@ export function AuthFlow() {
                   exit={{ opacity: 0, y: -16 }}
                   className="flex flex-col"
                 >
-                  <h1 className="font-display text-[40px] leading-[1.05] tracking-[-0.02em] mb-3" style={s.primary}>Welcome to Monologg.</h1>
-                  <p className="text-[15px] font-body mb-10" style={s.secondary}>
-                    Sign in or create a free account to continue.
+                  <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[#16161A] dark:text-[#F5F5F0]">
+                    Welcome to Monologg.
+                  </h1>
+                  <p className="text-base font-body mb-8 text-[#5D5D66] dark:text-[#A6A6B0]">
+                    Sign in or create a free {role === "talent" ? "Talent" : "Client"} account to continue.
                   </p>
                   <div className="flex flex-col gap-3">
-                    <Button className="w-full h-12" onClick={() => setView("register")}>
+                    <Button
+                      variant={role === "talent" ? "red" : "purple"}
+                      className="w-full h-12 text-sm font-bold shadow-lg"
+                      onClick={() => setView("register")}
+                    >
                       Create Free Account
                     </Button>
-                    <Button variant="secondary" className="w-full h-12" onClick={() => setView("login")}>
+                    <Button
+                      variant="outline-pill"
+                      className="w-full h-12 text-sm font-bold"
+                      onClick={() => setView("login")}
+                    >
                       Sign In
                     </Button>
                   </div>
-                  <div className="mt-8 pt-8 text-center" style={{ borderTop: "1px solid var(--color-hairline)" }}>
-                    <p className="text-xs font-body mb-3" style={s.secondary}>Are you a brand or agency?</p>
+                  <div className="mt-8 pt-6 text-center border-t border-[var(--color-hairline)]">
+                    <p className="text-xs font-body mb-2 text-[var(--color-text-secondary)]">
+                      {role === "talent" ? "Are you a brand or casting director?" : "Are you an actor or performer?"}
+                    </p>
                     <button
-                      onClick={() => { setRole("client"); setView("register"); }}
-                      className="text-sm font-medium font-body hover:underline"
-                      style={s.gold}
+                      onClick={() => setRole(role === "talent" ? "client" : "talent")}
+                      className="text-xs font-bold font-mono text-[#F13030] dark:text-[#FF4D4D] hover:underline"
                     >
-                      Continue as Client / Employer →
+                      Switch to {role === "talent" ? "Client / Employer" : "Talent / Creator"} Mode →
                     </button>
                   </div>
                 </motion.div>

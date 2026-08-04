@@ -11,20 +11,19 @@ import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
   Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
-  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight
+  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Music, Radio
 } from "lucide-react";
 
-// ── Interactive Talent Roster Data ──
-const FEATURED_TALENTS = [
+// ── 7 Curated Talent Profiles for Infinite Auto-Looping Carousel ──
+const CAROUSEL_TALENTS = [
   {
     id: "t1",
     name: "Emeka Johnson",
     category: "Dramatic Voice Artist",
-    location: "Lagos · Global Remote",
+    location: "Lagos · Remote",
     rate: "₦120,000 / day",
-    usdRate: "$150 USD",
     img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80&fit=crop",
-    tags: ["Deep Tone", "Nollywood Drama", "Accented", "High Energy"],
+    tags: ["Deep Tone", "Nollywood", "High Energy"],
     rating: 4.98,
     reviews: 142,
     verified: true,
@@ -35,9 +34,8 @@ const FEATURED_TALENTS = [
     category: "Commercial Lead Actor",
     location: "Abuja · On-Site",
     rate: "₦250,000 / day",
-    usdRate: "$310 USD",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&fit=crop",
-    tags: ["Charismatic", "Lead Presence", "Brand Campaign", "Fluency"],
+    tags: ["Charismatic", "Lead Presence", "Brand Spot"],
     rating: 5.0,
     reviews: 98,
     verified: true,
@@ -48,11 +46,58 @@ const FEATURED_TALENTS = [
     category: "Live Event Compere",
     location: "Accra · International",
     rate: "₦180,000 / event",
-    usdRate: "$225 USD",
     img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&fit=crop",
-    tags: ["Stage Command", "Multilingual", "Corporate", "Humor"],
+    tags: ["Stage Command", "Multilingual", "Corporate"],
     rating: 4.95,
     reviews: 84,
+    verified: true,
+  },
+  {
+    id: "t4",
+    name: "Zainab Bello",
+    category: "Stunt & Motion Performer",
+    location: "Kano · On-Location",
+    rate: "₦210,000 / day",
+    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80&fit=crop",
+    tags: ["Martial Arts", "High Agility", "Cinema"],
+    rating: 4.99,
+    reviews: 67,
+    verified: true,
+  },
+  {
+    id: "t5",
+    name: "David Osei",
+    category: "Radio & Podcast Host",
+    location: "Kumasi · Remote",
+    rate: "₦150,000 / episode",
+    img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600&q=80&fit=crop",
+    tags: ["Baritone", "Storytelling", "Live FM"],
+    rating: 4.92,
+    reviews: 115,
+    verified: true,
+  },
+  {
+    id: "t6",
+    name: "Chidinma Nwosu",
+    category: "High-Fashion Commercial Model",
+    location: "Lagos · International",
+    rate: "₦300,000 / day",
+    img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=80&fit=crop",
+    tags: ["Runway", "Editorial", "Vogue Africa"],
+    rating: 5.0,
+    reviews: 89,
+    verified: true,
+  },
+  {
+    id: "t7",
+    name: "Kofi Mensah",
+    category: "Afrobeat Stage Choreographer",
+    location: "Accra · Remote/On-Site",
+    rate: "₦190,000 / routine",
+    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80&fit=crop",
+    tags: ["Stage Sync", "High Tempo", "Tour Ready"],
+    rating: 4.96,
+    reviews: 73,
     verified: true,
   },
 ];
@@ -124,7 +169,7 @@ const FAQS = [
   },
 ];
 
-// ── Monologg Escrow Calculator Component (Mono-Red & Mono-Purple) ──
+// ── Escrow Calculator ──
 function MonologgEscrowCalculator() {
   const [amount, setAmount] = useState(150000);
 
@@ -133,124 +178,92 @@ function MonologgEscrowCalculator() {
   const clientTotal = amount + escrowFee;
 
   return (
-    <div
-      className="p-6 md:p-8 rounded-[28px] transition-all duration-300 relative overflow-hidden bg-[#16161A] text-white border border-[#26262E] shadow-2xl"
-    >
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 md:p-8 rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#F13030] animate-pulse" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#F13030]">
             Monologg Escrow Protocol
           </span>
         </div>
-        <div className="bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] px-3 py-1 rounded-full text-xs font-bold font-mono">
+        <div className="bg-[#F13030]/20 text-[#FF4D4D] px-3 py-1 rounded-full text-xs font-bold font-mono border border-[#F13030]/30">
           100% Guaranteed Payout
         </div>
       </div>
 
-      <div className="space-y-4">
-        {/* Client Total Box */}
-        <div className="bg-white dark:bg-[#1B1B20] rounded-[18px] p-4 text-black dark:text-white border border-gray-200 dark:border-[#26262E] space-y-1">
-          <div className="flex justify-between items-center text-xs text-gray-500 dark:text-[#A6A6B0] font-medium">
-            <span>Client Pays Total Contract</span>
-            <span className="font-mono">FINCRA Locked</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <input
-              type="number"
-              value={clientTotal}
-              readOnly
-              className="text-2xl font-bold font-mono bg-transparent outline-none w-full text-[#16161A] dark:text-[#F5F5F0]"
-            />
-            <div className="flex items-center gap-2 bg-[#F8F8F6] dark:bg-[#232329] px-3 py-1.5 rounded-full text-xs font-bold text-[#16161A] dark:text-white shrink-0 border border-gray-200 dark:border-white/10">
-              <span className="w-5 h-5 rounded-full bg-[#F13030] text-white text-[10px] flex items-center justify-center font-black">
-                🇳🇬
-              </span>
-              <span>NGN</span>
-            </div>
-          </div>
+      <div className="bg-[#1B1B20] rounded-[18px] p-4 border border-[#26262E] space-y-1">
+        <div className="flex justify-between items-center text-xs text-[#A6A6B0] font-medium">
+          <span>Client Pays Total Contract</span>
+          <span className="font-mono">FINCRA Locked</span>
         </div>
-
-        {/* Breakdown List */}
-        <div className="space-y-2 px-2 text-xs text-white/80">
-          <div className="flex justify-between items-center py-2 border-b border-white/10">
-            <span className="text-gray-300">Talent Base Rate</span>
-            <span className="font-mono font-bold text-[#FF4D4D]">
-              ₦{amount.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-b border-white/10">
-            <span className="text-gray-300">Escrow Processing Fee (12%)</span>
-            <span className="font-mono text-gray-300">₦{escrowFee.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-center py-2">
-            <span className="font-bold text-white">Talent Receives (Net Payout)</span>
-            <span className="font-mono font-extrabold text-white text-base">
-              ₦{talentEarnings.toLocaleString()}
-            </span>
-          </div>
-        </div>
-
-        {/* Range Slider */}
-        <div className="pt-2">
-          <div className="flex justify-between text-[11px] text-[#FF4D4D] mb-1 font-mono">
-            <span>Adjust Booking Amount</span>
-            <span>₦{amount.toLocaleString()}</span>
-          </div>
+        <div className="flex items-center justify-between gap-4">
           <input
-            type="range"
-            min={50000}
-            max={1000000}
-            step={25000}
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            className="w-full accent-[#F13030] cursor-pointer"
+            type="number"
+            value={clientTotal}
+            readOnly
+            className="text-2xl font-bold font-mono bg-transparent outline-none w-full text-[#F5F5F0]"
           />
+          <div className="flex items-center gap-2 bg-[#232329] px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0 border border-white/10">
+            <span className="w-5 h-5 rounded-full bg-[#F13030] text-white text-[10px] flex items-center justify-center font-black">
+              🇳🇬
+            </span>
+            <span>NGN</span>
+          </div>
         </div>
+      </div>
 
-        {/* CTA Button */}
-        <div className="pt-2">
-          <button
-            className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg"
-          >
-            <Lock className="w-4 h-4" />
-            Lock Contract in Monologg Escrow
-          </button>
+      <div className="space-y-2 px-2 text-xs text-white/80">
+        <div className="flex justify-between items-center py-2 border-b border-white/10">
+          <span className="text-[#A6A6B0]">Talent Base Rate</span>
+          <span className="font-mono font-bold text-[#FF4D4D]">
+            ₦{amount.toLocaleString()}
+          </span>
         </div>
+        <div className="flex justify-between items-center py-2 border-b border-white/10">
+          <span className="text-[#A6A6B0]">Escrow Processing Fee (12%)</span>
+          <span className="font-mono text-[#A6A6B0]">₦{escrowFee.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between items-center py-2">
+          <span className="font-bold text-white">Talent Receives (Net Payout)</span>
+          <span className="font-mono font-extrabold text-white text-base">
+            ₦{talentEarnings.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <div className="pt-2">
+        <div className="flex justify-between text-[11px] text-[#FF4D4D] mb-1 font-mono">
+          <span>Adjust Booking Amount</span>
+          <span>₦{amount.toLocaleString()}</span>
+        </div>
+        <input
+          type="range"
+          min={50000}
+          max={1000000}
+          step={25000}
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+          className="w-full accent-[#F13030] cursor-pointer"
+        />
+      </div>
+
+      <div className="pt-2">
+        <button className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg">
+          <Lock className="w-4 h-4" />
+          Lock Contract in Monologg Escrow
+        </button>
       </div>
     </div>
   );
 }
 
-// ── 3D Interactive Talent Card Component ──
-function Talent3DCard({ talent }: { talent: (typeof FEATURED_TALENTS)[0] }) {
+// ── Single Talent Card Component with WCAG AA High Contrast Dark Mode ──
+function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
   const [playing, setPlaying] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left - rect.width / 2) / 15;
-    const y = (e.clientY - rect.top - rect.height / 2) / -15;
-    setTilt({ x, y });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-  };
 
   return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      animate={{ rotateX: tilt.y, rotateY: tilt.x }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      style={{ perspective: 1000 }}
-      className="group relative rounded-[24px] overflow-hidden bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] p-4 transition-all duration-300 hover:shadow-xl cursor-pointer"
-    >
-      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-4">
+    <div className="w-[320px] sm:w-[360px] shrink-0 rounded-[24px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] p-4 shadow-sm hover:shadow-xl transition-all duration-300">
+      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-4 bg-gray-100 dark:bg-[#1B1B20]">
         <img
           src={talent.img}
           alt={talent.name}
@@ -258,7 +271,7 @@ function Talent3DCard({ talent }: { talent: (typeof FEATURED_TALENTS)[0] }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
+        <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
           <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
           <span>{talent.rating}</span>
           <span className="text-white/60">({talent.reviews})</span>
@@ -271,28 +284,22 @@ function Talent3DCard({ talent }: { talent: (typeof FEATURED_TALENTS)[0] }) {
           }}
           className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-[#F13030] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
         >
-          {playing ? (
-            <Pause className="w-4 h-4 fill-current" />
-          ) : (
-            <Play className="w-4 h-4 fill-current ml-0.5" />
-          )}
+          {playing ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
         </button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 text-left">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-lg flex items-center gap-1.5 font-display text-[var(--color-text-primary)]">
+          <h3 className="font-bold text-base flex items-center gap-1.5 font-display text-[#16161A] dark:text-[#F5F5F0]">
             {talent.name}
-            {talent.verified && (
-              <Shield className="w-4 h-4 text-[#F13030] fill-[#F13030]/20" />
-            )}
+            {talent.verified && <Shield className="w-4 h-4 text-[#F13030] fill-[#F13030]/20" />}
           </h3>
           <span className="text-xs font-bold font-mono text-[#F13030] dark:text-[#FF4D4D]">
             {talent.rate}
           </span>
         </div>
 
-        <p className="text-sm text-[var(--color-text-secondary)] font-body">
+        <p className="text-xs text-gray-600 dark:text-[#A6A6B0] font-body">
           {talent.category} · {talent.location}
         </p>
 
@@ -300,18 +307,46 @@ function Talent3DCard({ talent }: { talent: (typeof FEATURED_TALENTS)[0] }) {
           {talent.tags.map((tag) => (
             <span
               key={tag}
-              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D]"
+              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/20"
             >
               {tag}
             </span>
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// ── Floating App Download Badge ──
+// ── Infinite Auto-Scrolling Framer Motion Talent Carousel ──
+function TalentCarousel() {
+  const [paused, setPaused] = useState(false);
+  const extendedTalents = [...CAROUSEL_TALENTS, ...CAROUSEL_TALENTS];
+
+  return (
+    <div
+      className="relative w-full overflow-hidden py-4"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <motion.div
+        className="flex gap-6 w-max"
+        animate={{ x: paused ? undefined : ["0%", "-50%"] }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: 25,
+        }}
+      >
+        {extendedTalents.map((talent, idx) => (
+          <TalentCardItem key={`${talent.id}-${idx}`} talent={talent} />
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Floating QR App Badge ──
 function FloatingQRBadge() {
   return (
     <motion.div
@@ -361,7 +396,7 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ── Frosted Sticky Navigation ── */}
+      {/* ── Frosted Sticky Header ── */}
       <header className="h-[68px] sticky top-0 z-40 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)]">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
@@ -408,7 +443,7 @@ export function LandingPage() {
       </header>
 
       <main className="flex-1">
-        {/* ── HERO SECTION (Hyper-Design Scale + WebGL Canvas) ── */}
+        {/* ── HERO SECTION (Clean Background with Hover Grid Reveal) ── */}
         <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
           <WebGLHeroCanvas />
 
@@ -493,29 +528,23 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FEATURED TALENT ROSTER ── */}
-        <section id="talent-roster" className="py-24 px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
-          <div className="max-w-6xl mx-auto space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="space-y-3">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
-                  Verified Performer Marketplace
-                </span>
-                <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
-                  Discover Top Performing Artists
-                </h2>
-              </div>
-              <Button variant="outline-pill" className="h-10 px-5 text-xs font-bold" onClick={() => navigate("/auth")}>
-                Explore Full Directory (3,200+)
-              </Button>
+        {/* ── FEATURED TALENT ROSTER CAROUSEL (Infinite Auto-Looping) ── */}
+        <section id="talent-roster" className="py-24 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
+          <div className="max-w-6xl mx-auto px-6 md:px-16 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
+                Verified Performer Marketplace
+              </span>
+              <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
+                Discover Top Performing Artists
+              </h2>
             </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {FEATURED_TALENTS.map((talent) => (
-                <Talent3DCard key={talent.id} talent={talent} />
-              ))}
-            </div>
+            <Button variant="outline-pill" className="h-10 px-5 text-xs font-bold shrink-0" onClick={() => navigate("/auth")}>
+              Explore Directory (3,200+)
+            </Button>
           </div>
+
+          <TalentCarousel />
         </section>
 
         {/* ── MONOLOGG ESCROW CALCULATOR SECTION ── */}
@@ -564,7 +593,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── HOW IT WORKS ── */}
+        {/* ── HOW IT WORKS (High Contrast Dark Mode Cards) ── */}
         <section id="how-it-works" className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-3">
@@ -580,15 +609,15 @@ export function LandingPage() {
               {STEPS.map((step, idx) => (
                 <div
                   key={idx}
-                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
+                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
                 >
                   <div className="w-12 h-12 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] font-mono font-bold text-lg flex items-center justify-center">
                     {step.num}
                   </div>
-                  <h3 className="font-bold text-lg font-display text-[var(--color-text-primary)]">
+                  <h3 className="font-bold text-lg font-display text-[#16161A] dark:text-[#F5F5F0]">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed font-body">
+                  <p className="text-sm text-gray-600 dark:text-[#A6A6B0] leading-relaxed font-body">
                     {step.body}
                   </p>
                 </div>
@@ -613,13 +642,13 @@ export function LandingPage() {
               {TESTIMONIALS.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] space-y-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow"
+                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <p className="text-sm italic text-[var(--color-text-secondary)] leading-relaxed font-body">
+                  <p className="text-sm italic text-gray-700 dark:text-[#A6A6B0] leading-relaxed font-body">
                     "{item.quote}"
                   </p>
 
-                  <div className="space-y-4 pt-4 border-t border-[var(--color-hairline)]">
+                  <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-[#26262E]">
                     <div className="flex items-center gap-3">
                       <img
                         src={item.photo}
@@ -627,10 +656,10 @@ export function LandingPage() {
                         className="w-12 h-12 rounded-full object-cover border-2 border-[#F13030]"
                       />
                       <div>
-                        <div className="font-bold text-base text-[var(--color-text-primary)] font-display">
+                        <div className="font-bold text-base text-[#16161A] dark:text-[#F5F5F0] font-display">
                           {item.name}
                         </div>
-                        <div className="text-xs text-[var(--color-text-secondary)] font-body">
+                        <div className="text-xs text-gray-500 dark:text-[#A6A6B0] font-body">
                           {item.role}
                         </div>
                       </div>
@@ -649,7 +678,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FAQ ACCORDION (High Contrast Dark Mode) ── */}
+        {/* ── FAQ ACCORDION (High Contrast Dark Mode Fix) ── */}
         <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
           <div className="max-w-3xl mx-auto space-y-12">
             <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase text-center tracking-tight text-[var(--color-text-primary)]">
@@ -660,21 +689,21 @@ export function LandingPage() {
               {FAQS.map((faq, i) => (
                 <div
                   key={i}
-                  className="rounded-[18px] bg-white dark:bg-[#16161A] border border-[var(--color-hairline)] overflow-hidden shadow-sm"
+                  className="rounded-[18px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] overflow-hidden shadow-sm"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full p-6 flex items-center justify-between text-left font-bold text-base text-[var(--color-text-primary)]"
+                    className="w-full p-6 flex items-center justify-between text-left font-bold text-base text-[#16161A] dark:text-[#F5F5F0]"
                   >
                     <span>{faq.q}</span>
                     <ChevronDown
-                      className={`w-5 h-5 transition-transform duration-200 shrink-0 text-[var(--color-text-secondary)] ${
-                        openFaq === i ? "rotate-180 text-[#F13030]" : ""
+                      className={`w-5 h-5 transition-transform duration-200 shrink-0 text-gray-400 dark:text-[#A6A6B0] ${
+                        openFaq === i ? "rotate-180 text-[#F13030] dark:text-[#FF4D4D]" : ""
                       }`}
                     />
                   </button>
                   {openFaq === i && (
-                    <div className="px-6 pb-6 text-sm text-[var(--color-text-secondary)] leading-relaxed border-t border-[var(--color-hairline)] pt-4 font-body">
+                    <div className="px-6 pb-6 text-sm text-gray-600 dark:text-[#A6A6B0] leading-relaxed border-t border-gray-100 dark:border-[#26262E] pt-4 font-body">
                       {faq.a}
                     </div>
                   )}
@@ -684,7 +713,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FINAL CONVERSION CTA ── */}
+        {/* ── FINAL CONVERSION CTA (Primary Red + Outlined Secondary Pair) ── */}
         <section className="py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10">
           <div className="max-w-3xl mx-auto space-y-8">
             <h2 className="font-wise-sans text-4xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white">
@@ -702,8 +731,8 @@ export function LandingPage() {
                 Launch Storefront Free
               </Button>
               <Button
-                variant="purple"
-                className="h-12 px-8 text-sm font-bold shadow-xl"
+                variant="outline-pill"
+                className="h-12 px-8 text-sm font-bold border-white/30 text-white hover:bg-white/10"
                 onClick={() => navigate("/auth")}
               >
                 Post a Project Brief
@@ -715,10 +744,9 @@ export function LandingPage() {
 
       <FloatingQRBadge />
 
-      {/* ── OVERSIZED LOGOTYPE FOOTER (8Returns / Lumos / Runlayer Style) ── */}
+      {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
       <footer className="pt-20 pb-12 px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
-          {/* Top Row: Contact + Multi-column Links */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 text-sm">
             <div className="col-span-2 space-y-4">
               <div className="flex items-center gap-2">
@@ -774,7 +802,6 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* Certification Badges & Copyright */}
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs text-white/50 font-mono gap-4">
             <div>© {new Date().getFullYear()} Monologg Inc. All rights reserved.</div>
             <div className="flex items-center gap-4 text-[11px]">
@@ -783,7 +810,6 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* OVERSIZED EDGE-TO-EDGE LOGOTYPE DISPLAY (8Returns / Lumos Style) */}
           <div className="pt-8 text-center select-none overflow-hidden">
             <h1 className="font-wise-sans text-[64px] sm:text-[120px] md:text-[180px] font-black uppercase tracking-tighter leading-none text-white/10 hover:text-white/20 transition-colors pointer-events-none">
               MONOLOGG
