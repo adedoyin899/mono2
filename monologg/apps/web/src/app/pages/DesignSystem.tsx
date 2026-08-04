@@ -217,14 +217,14 @@ export function DesignSystem() {
         <Section title="Components" description="Rendered from the actual source in src/app/components/ui — not a copy. Editing Button.tsx, Badge.tsx, etc. changes both the live app and this page.">
           <div className="space-y-8">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>Wise &amp; Hyer Pill Buttons</div>
+              <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>Monologg Brand Pill Buttons</div>
               <div className="flex flex-wrap gap-3">
-                <Button variant="lime">Lime Voltage</Button>
-                <Button variant="forest">Forest Ink</Button>
+                <Button variant="red">Mono-Red (Talent)</Button>
+                <Button variant="purple">Mono-Purple (Client)</Button>
+                <Button variant="dark-pill">Dark Neutral Pill</Button>
                 <Button variant="outline-pill">Outline Pill</Button>
-                <Button variant="clay">Clay Ember</Button>
-                <Button variant="primary">Primary</Button>
-                <Button variant="secondary">Secondary</Button>
+                <Button variant="primary">Primary Adaptive</Button>
+                <Button variant="secondary">Secondary Neutral</Button>
                 <Button variant="ghost">Ghost</Button>
                 <Button variant="destructive">Destructive</Button>
                 <Button variant="icon"><Check className="w-4 h-4" /></Button>
@@ -235,13 +235,13 @@ export function DesignSystem() {
               <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>Web vs Mobile Breakpoints &amp; Layout Strategy</div>
               <Card className="space-y-3">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-[16px] bg-[#163300] text-white space-y-2">
-                    <div className="text-xs font-bold text-[#9fe870] uppercase font-mono">Web Application (Desktop)</div>
-                    <div className="text-xs text-white/80">Persistent left sidebar navigation, multi-column bento grids, 1200px max-width centered canvas, elevated hover tilt cards, and WebGL particle backgrounds.</div>
+                  <div className="p-4 rounded-[16px] bg-[#16161A] text-white space-y-2 border border-[#26262E]">
+                    <div className="text-xs font-bold text-[#F13030] uppercase font-mono">Web Application (Desktop)</div>
+                    <div className="text-xs text-white/80">Persistent sidebar navigation, multi-column bento grids, 1200px max-width centered canvas, 3D hover tilt cards, ambient WebGL particle canvas, and oversized logotype footer.</div>
                   </div>
-                  <div className="p-4 rounded-[16px] bg-[#e8ebe6] text-[#163300] dark:bg-[#16161A] dark:text-[#9fe870] space-y-2 border border-[var(--color-hairline)]">
+                  <div className="p-4 rounded-[16px] bg-[#F8F8F6] text-[#16161A] dark:bg-[#1B1B20] dark:text-[#FF4D4D] space-y-2 border border-[var(--color-hairline)]">
                     <div className="text-xs font-bold uppercase font-mono">Mobile Web App (Touch)</div>
-                    <div className="text-xs text-[var(--color-text-secondary)]">Bottom pill navigation sheet with safe-area spacing, single-column stacked card streams, 9999px pill action triggers, and swipeable gesture cards.</div>
+                    <div className="text-xs text-[var(--color-text-secondary)]">Bottom pill navigation bar with safe-area spacing, single-column stacked cards, full pill action buttons, and touch gesture cards.</div>
                   </div>
                 </div>
               </Card>

@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 51: Hyper-Design & Wise Design System Overhaul)
+**Last updated:** 2026-08-04 (Session 52: Monologg Brand Identity Remix & Oversized Logotype Footer)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,32 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 51 (2026-08-04) — Hyper-Design & Wise Design System Overhaul
+## Session 52 (2026-08-04) — Monologg Brand Identity Remix & Oversized Logotype Footer
+
+**Goal:** Replace Wise green accents with Monologg native brand identity (Mono-Red `#F13030`, Mono-Purple `#7B00FE`, soft washes, neutral grays), audit and fix dark mode text contrast for WCAG AA compliance, implement an oversized 8Returns/Lumos style logotype footer, standardize typography scale (`16px` base body), and replace Wise-inspired text with Monologg native terms.
+
+**Changes Made:**
+
+1. **Monologg Brand Tokens & Dark Mode Accessibility (`tokens.css`)**:
+   - Replaced Wise green variables with `--color-mono-red` (`#F13030`), `--color-mono-red-soft` (`#FFECEC`), `--color-mono-purple` (`#7B00FE`), `--color-mono-purple-soft` (`#F1E9FF`), `--color-obsidian` (`#0D0D0F`), `--color-charcoal` (`#16161A`), `--color-fog` (`#F8F8F6`), `--color-slate` (`#5D5D66`).
+   - Fixed dark mode contrast variables for WCAG AA compliance across text primary (`#F5F5F0`), secondary (`#A6A6B0`), and elevated surfaces (`#16161A` / `#1B1B20`).
+
+2. **WebGL Ambient Motion (`WebGLHeroCanvas.tsx`)**:
+   - Updated ambient WebGL particle mesh colors to Monologg Mono-Red (`rgba(241, 48, 48, 0.12)`) and Mono-Purple (`rgba(123, 0, 254, 0.08)`) gradients.
+
+3. **Pill Buttons (`Button.tsx`)**:
+   - Added `red`, `purple`, `dark-pill`, and `outline-pill` variants supporting Monologg's native brand palette.
+
+4. **Landing Page Rework & Oversized Logotype Footer (`LandingPage.tsx`)**:
+   - Updated display headlines to use Monologg Mono-Red accents.
+   - Built oversized edge-to-edge "MONOLOGG" logotype footer (inspired by 8Returns/Lumos) with contact email, multi-column navigation links, social links with external arrows (`↗`), and certification badges (`NDPA Compliant`, `FINCRA Escrow Verified`).
+   - Replaced Wise text with `"MONOLOGG ESCROW PROTOCOL"` and `"PROPRIETARY THESPIAN AI SCANNER"`.
+   - Standardized font scale with a unified `16px` base body font size across all copy.
+
+5. **Design System Showcase (`DesignSystem.tsx`)**:
+   - Updated Design System page to document Monologg brand pill buttons, dark mode contrast audit, and Web vs Mobile layout strategy matrix.
+
+---
 
 **Goal:** Rework the landing page and web application design system blending Hyper-Design luxury editorial display typography scale with Wise's signature color palette, pill geometry (`9999px`), interactive rate calculator, and WebGL canvas micro-interactions.
 

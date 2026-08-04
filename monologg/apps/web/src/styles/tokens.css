@@ -13,29 +13,27 @@
 
 /* ── Light mode (default) ── */
 :root {
-  /* Wise Design Tokens Reference */
-  --color-forest-ink: #163300;
-  --color-lime-voltage: #9fe870;
-  --color-spruce: #054d28;
-  --color-linen-mist: #e2f6d5;
-  --color-fog: #e8ebe6;
-  --color-charcoal: #454745;
-  --color-obsidian: #0e0f0c;
-  --color-pebble: #868685;
-  --color-slate: #6a6c6a;
-  --color-clay-ember: #bc7155;
-  --color-midnight-hull: #0f0f1c;
+  /* Monologg Native Brand Tokens (Talent Mono-Red #F13030 · Client Mono-Purple #7B00FE) */
+  --color-mono-red: #F13030;
+  --color-mono-red-soft: #FFECEC;
+  --color-mono-purple: #7B00FE;
+  --color-mono-purple-soft: #F1E9FF;
+  --color-obsidian: #0D0D0F;
+  --color-charcoal: #16161A;
+  --color-fog: #F8F8F6;
+  --color-slate: #5D5D66;
+  --color-hairline: #ECECE8;
 
   /* Fonts */
   --font-wise-sans: 'Inter', system-ui, sans-serif;
   --font-display-heavy: 'Inter', system-ui, sans-serif;
 
   /* Neutrals — warm, quiet, generous */
-  --color-bg-canvas: #F6F6F4;
+  --color-bg-canvas: #F8F8F6;
   --color-bg-surface: #FFFFFF;
-  --color-bg-surface-2: #FBFBFA;
-  --color-bg-elevated: #F1F1EE;
-  --color-bg-glass: rgba(255,255,255,0.72);
+  --color-bg-surface-2: #F1F1EE;
+  --color-bg-elevated: #EFEFEA;
+  --color-bg-glass: rgba(255,255,255,0.85);
   --color-hairline: #ECECE8;
 
   /* Overlay — modal/sheet scrims (previously hardcoded per-instance) */

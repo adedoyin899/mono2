@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "../../../lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "destructive" | "icon" | "lime" | "forest" | "outline-pill" | "clay";
+  variant?: "primary" | "secondary" | "ghost" | "destructive" | "icon" | "red" | "purple" | "dark-pill" | "outline-pill" | "lime" | "forest" | "clay";
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -11,21 +11,27 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       /* primary: role accent fill (red for Talent, purple for Client) + on-accent text — WCAG AA */
-      primary: "h-[54px] px-7 rounded-[var(--radius-lg)] bg-[var(--color-accent)] text-[var(--color-accent-on)] shadow-[var(--shadow-card)] hover:bg-[var(--color-accent-press)] focus-visible:shadow-[var(--shadow-focus)]",
+      primary: "h-[50px] px-7 rounded-full bg-[var(--color-accent)] text-[var(--color-accent-on)] shadow-[var(--shadow-card)] hover:opacity-90 focus-visible:shadow-[var(--shadow-focus)] font-semibold",
       /* secondary: neutral inked surface — quiet, high-contrast */
-      secondary: "h-[54px] px-7 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)]",
+      secondary: "h-[50px] px-7 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] font-semibold",
       /* ghost: text-only, primary text so it always passes contrast */
-      ghost: "h-[54px] px-5 rounded-[var(--radius-lg)] bg-transparent text-[var(--color-text-primary)] opacity-75 hover:opacity-100 hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)]",
-      destructive: "h-[54px] px-7 rounded-[var(--radius-lg)] bg-[var(--color-error-bg)] text-[var(--color-error)] border border-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white focus-visible:shadow-[var(--shadow-focus)]",
-      icon: "w-[46px] h-[46px] rounded-[var(--radius-md)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] flex-shrink-0",
-      /* Wise signature Lime Voltage pill CTA */
-      lime: "h-[48px] px-6 rounded-[9999px] bg-[#9fe870] text-[#163300] font-semibold text-[15px] hover:bg-[#8edb5f] transition-all focus-visible:shadow-[var(--shadow-focus)]",
-      /* Wise Forest Ink dark pill button */
-      forest: "h-[48px] px-6 rounded-[9999px] bg-[#163300] text-[#9fe870] font-semibold text-[15px] hover:bg-[#054d28] transition-all focus-visible:shadow-[var(--shadow-focus)]",
-      /* Wise Outlined Pill Button */
-      "outline-pill": "h-[48px] px-6 rounded-[9999px] bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:border-[#163300] hover:bg-[var(--color-bg-elevated)] transition-all",
-      /* Hyer Featured Clay Pill Button */
-      clay: "h-[48px] px-6 rounded-[9999px] bg-[#bc7155] text-white font-semibold text-[15px] hover:bg-[#a55f45] transition-all"
+      ghost: "h-[50px] px-5 rounded-full bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] font-semibold",
+      destructive: "h-[50px] px-7 rounded-full bg-[var(--color-error-bg)] text-[var(--color-error)] border border-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white focus-visible:shadow-[var(--shadow-focus)]",
+      icon: "w-[46px] h-[46px] rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] flex-shrink-0",
+      
+      /* Monologg Native Mono-Red Pill CTA (Talent) */
+      red: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)]",
+      /* Monologg Native Mono-Purple Pill CTA (Client) */
+      purple: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)]",
+      /* Monologg Dark Neutral Pill Button */
+      "dark-pill": "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all",
+      /* Monologg Outlined Pill Button */
+      "outline-pill": "h-[48px] px-6 rounded-full bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-elevated)] transition-all",
+      
+      /* Backward compatibility aliases */
+      lime: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all",
+      forest: "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all",
+      clay: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all"
     };
 
     return (

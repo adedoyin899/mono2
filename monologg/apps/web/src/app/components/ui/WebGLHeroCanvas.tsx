@@ -71,7 +71,7 @@ export function WebGLHeroCanvas() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Ambient glowing mesh background
+      // Ambient glowing mesh background (Monologg Red + Purple)
       const grad = ctx.createRadialGradient(
         mouseX,
         mouseY,
@@ -80,9 +80,9 @@ export function WebGLHeroCanvas() {
         height / 2,
         Math.max(width, height)
       );
-      grad.addColorStop(0, "rgba(159, 232, 112, 0.08)");
-      grad.addColorStop(0.5, "rgba(123, 0, 254, 0.04)");
-      grad.addColorStop(1, "rgba(22, 51, 0, 0)");
+      grad.addColorStop(0, "rgba(241, 48, 48, 0.12)"); // Mono-Red
+      grad.addColorStop(0.5, "rgba(123, 0, 254, 0.08)"); // Mono-Purple
+      grad.addColorStop(1, "rgba(22, 22, 26, 0)");
 
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
@@ -94,8 +94,8 @@ export function WebGLHeroCanvas() {
         const yOffset = height * 0.4 + j * 60;
         ctx.strokeStyle =
           j === 0
-            ? "rgba(159, 232, 112, 0.15)"
-            : "rgba(22, 51, 0, 0.08)";
+            ? "rgba(241, 48, 48, 0.15)"
+            : "rgba(123, 0, 254, 0.10)";
 
         for (let x = 0; x <= width; x += 20) {
           const dx = mouseX - x;
@@ -134,8 +134,8 @@ export function WebGLHeroCanvas() {
 
         ctx.fillStyle =
           p.hue === 100
-            ? "rgba(159, 232, 112, 0.6)"
-            : "rgba(241, 48, 48, 0.4)";
+            ? "rgba(241, 48, 48, 0.6)"
+            : "rgba(123, 0, 254, 0.5)";
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -147,7 +147,7 @@ export function WebGLHeroCanvas() {
           const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
 
           if (pdist < 110) {
-            ctx.strokeStyle = `rgba(159, 232, 112, ${0.12 * (1 - pdist / 110)})`;
+            ctx.strokeStyle = `rgba(241, 48, 48, ${0.12 * (1 - pdist / 110)})`;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
