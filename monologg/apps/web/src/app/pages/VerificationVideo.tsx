@@ -85,32 +85,49 @@ export function VerificationVideo() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
-      <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-        <button
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
-          style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="text-sm font-semibold font-display" style={s.text}>Verification Video</div>
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body">
+      {/* Sticky Top Header */}
+      <div className="h-16 flex items-center justify-between px-5 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            aria-label="Go back"
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all active:scale-95"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-base font-bold font-display text-[var(--color-text-primary)]">
+            Verification &amp; Performance Review Video
+          </div>
+        </div>
+
+        {status && (
+          <Badge tone={STATUS_META[status.status].tone}>
+            {STATUS_META[status.status].label}
+          </Badge>
+        )}
       </div>
 
-      <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full space-y-5">
-        {status && (
-          <div className="rounded-[var(--radius-xl)] p-4 flex items-center justify-between" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
-            <div>
-              <div className="text-sm font-semibold font-body" style={s.text}>Current recording</div>
-              <div className="text-xs font-body mt-0.5" style={s.tertiary}>{status.durationSec}s</div>
-              {status.status === "NEEDS_RERECORD" && status.reviewerNote && (
-                <div className="text-xs font-body mt-1" style={{ color: "var(--color-error)" }}>{status.reviewerNote}</div>
-              )}
+      <div className="flex-1 px-4 sm:px-6 py-8 max-w-2xl mx-auto w-full space-y-6">
+        {/* Verification Status Banner */}
+        <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#F13030]/20 text-[#FF4D4D] flex items-center justify-center border border-[#F13030]/30">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#F5F5F0]">Performance Verification</h3>
+                <p className="text-xs text-[#A6A6B0]">90-second waist-up introduction video for casting directors.</p>
+              </div>
             </div>
-            <Badge tone={STATUS_META[status.status].tone}>{STATUS_META[status.status].label}</Badge>
+            {status && (
+              <span className="px-3 py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] text-xs font-bold font-mono">
+                {status.status}
+              </span>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Framing overlay guide — a static viewfinder mockup, not a live camera
             preview (see the file-level docstring for why this is upload-based). */}

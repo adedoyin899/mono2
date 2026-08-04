@@ -53,17 +53,17 @@ export function WebGLHeroCanvas() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Render subtle architectural blueprint grid on hover
+      // Render architectural blueprint grid on hover
       if (hoverAlpha > 0.01) {
         ctx.save();
-        ctx.globalAlpha = hoverAlpha * 0.35;
-        ctx.strokeStyle = "rgba(241, 48, 48, 0.15)";
-        ctx.lineWidth = 0.5;
+        ctx.globalAlpha = hoverAlpha * 0.75;
+        ctx.strokeStyle = "rgba(241, 48, 48, 0.45)";
+        ctx.lineWidth = 1;
 
         // Draw vertical grid lines
         for (let x = 0; x <= width; x += gridSize) {
           const dist = Math.abs(mouseX - x);
-          if (dist < 300) {
+          if (dist < 400) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
@@ -74,7 +74,7 @@ export function WebGLHeroCanvas() {
         // Draw horizontal grid lines
         for (let y = 0; y <= height; y += gridSize) {
           const dist = Math.abs(mouseY - y);
-          if (dist < 300) {
+          if (dist < 400) {
             ctx.beginPath();
             ctx.moveTo(0, y);
             ctx.lineTo(width, y);
@@ -83,19 +83,19 @@ export function WebGLHeroCanvas() {
         }
 
         // Mouse-following cursor spotlight ring
-        const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 260);
-        grad.addColorStop(0, "rgba(241, 48, 48, 0.08)");
-        grad.addColorStop(0.5, "rgba(123, 0, 254, 0.04)");
+        const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 320);
+        grad.addColorStop(0, "rgba(241, 48, 48, 0.18)");
+        grad.addColorStop(0.5, "rgba(123, 0, 254, 0.10)");
         grad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
 
-        // Subtle crosshair marker at cursor position
-        ctx.strokeStyle = "rgba(241, 48, 48, 0.4)";
-        ctx.lineWidth = 1;
+        // Crosshair marker at cursor position
+        ctx.strokeStyle = "rgba(241, 48, 48, 0.7)";
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 16, 0, Math.PI * 2);
+        ctx.arc(mouseX, mouseY, 20, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.restore();

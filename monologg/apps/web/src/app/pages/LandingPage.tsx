@@ -11,7 +11,7 @@ import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
   Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
-  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Music, Radio
+  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2
 } from "lucide-react";
 
 // ── 7 Curated Talent Profiles for Infinite Auto-Looping Carousel ──
@@ -102,6 +102,70 @@ const CAROUSEL_TALENTS = [
   },
 ];
 
+// ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
+const RADAR_NODES = [
+  {
+    id: "lagos",
+    city: "Lagos, Nigeria",
+    coords: { x: "44%", y: "48%" },
+    talentName: "Adaeze Obi",
+    category: "Senior Voice Artist",
+    quote: "Booked 12 Netflix voice-overs via Monologg Escrow with 0 commission.",
+    earnings: "₦3,800,000",
+    img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80&fit=crop",
+  },
+  {
+    id: "accra",
+    city: "Accra, Ghana",
+    coords: { x: "41%", y: "50%" },
+    talentName: "Kwame Asante",
+    category: "Commercial Lead Actor",
+    quote: "International casting directors book me directly in USD & GHS.",
+    earnings: "$8,400 USD",
+    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&fit=crop",
+  },
+  {
+    id: "nairobi",
+    city: "Nairobi, Kenya",
+    coords: { x: "56%", y: "54%" },
+    talentName: "Wanjiku Kimani",
+    category: "Documentary Narrator",
+    quote: "Thespian AI tagged my vocal range in 30 seconds. Seamless payouts.",
+    earnings: "KSh 420,000",
+    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80&fit=crop",
+  },
+  {
+    id: "joburg",
+    city: "Johannesburg, SA",
+    coords: { x: "53%", y: "74%" },
+    talentName: "Sipho Dlamini",
+    category: "Film Stunt Lead",
+    quote: "FINCRA Escrow locked full payment before I stepped on stage.",
+    earnings: "R 95,000",
+    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop",
+  },
+  {
+    id: "london",
+    city: "London, UK",
+    coords: { x: "38%", y: "24%" },
+    talentName: "Elena Vance",
+    category: "Global Brand Director",
+    quote: "Sourced 5 African voice talents for our campaign in 20 minutes.",
+    earnings: "80+ Hours Saved",
+    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80&fit=crop",
+  },
+  {
+    id: "newyork",
+    city: "New York, USA",
+    coords: { x: "22%", y: "30%" },
+    talentName: "Marcus Sterling",
+    category: "Ad Agency Producer",
+    quote: "Monologg's escrow protocol is lightyears ahead of traditional talent reps.",
+    earnings: "$24,000 Spent",
+    img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&q=80&fit=crop",
+  },
+];
+
 // ── 3-Step Process ──
 const STEPS = [
   {
@@ -118,34 +182,6 @@ const STEPS = [
     num: "03",
     title: "Instant Escrow Lock & Release",
     body: "Clients book and lock funds into Monologg Escrow. Funds auto-release directly to your bank account upon deliverable signoff with zero chasing.",
-  },
-];
-
-// ── Testimonials ──
-const TESTIMONIALS = [
-  {
-    name: "Adaeze Obi",
-    role: "Senior Voice Artist · Lagos",
-    photo: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80&fit=crop",
-    quote: "I used to lose 25% to talent agencies for basic coordination. Monologg gave me direct client bookings and instant escrow payouts. Game changer.",
-    metric: "₦3.8M earned on platform",
-    tag: "Voice-Over",
-  },
-  {
-    name: "Tunde Balogun",
-    role: "Commercial Actor · Abuja",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop",
-    quote: "Having AI style tagging on my profile gave international casting directors immediate confidence. Booked my first global spot in 72 hours.",
-    metric: "14 International Bookings",
-    tag: "Acting",
-  },
-  {
-    name: "Sarah Mensah",
-    role: "Head of Talent · Brand Matrix Accra",
-    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80&fit=crop",
-    quote: "Sourcing voice actors used to mean 2 weeks of WhatsApp threads. On Monologg, we shortlist, preview reels, and lock escrow in 15 minutes.",
-    metric: "80+ Hours Saved / Mo",
-    tag: "Client / Brand",
   },
 ];
 
@@ -257,7 +293,117 @@ function MonologgEscrowCalculator() {
   );
 }
 
-// ── Single Talent Card Component with WCAG AA High Contrast Dark Mode ──
+// ── Sci-Fi Interactive Global Radar Map ──
+function SciFiTrustMap() {
+  const [activeNode, setActiveNode] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveNode((prev) => (prev + 1) % RADAR_NODES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const current = RADAR_NODES[activeNode];
+
+  return (
+    <div className="relative w-full max-w-5xl mx-auto rounded-[32px] bg-[#0D0D0F] border border-[#26262E] p-6 sm:p-10 overflow-hidden shadow-2xl text-white">
+      {/* Sci-Fi Grid Lines & Glowing Radar Rings */}
+      <div className="absolute inset-0 pointer-events-none opacity-25">
+        <div className="w-full h-full bg-[radial-gradient(#F13030_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-[#F13030]/20 animate-ping opacity-20" />
+      </div>
+
+      <div className="relative z-10 flex flex-col lg:flex-row gap-10 items-center justify-between">
+        {/* Left Interactive Map Canvas Simulator */}
+        <div className="relative w-full lg:w-3/5 h-[340px] bg-[#16161A] rounded-[24px] border border-[#26262E] overflow-hidden p-4">
+          <div className="absolute inset-0 flex items-center justify-center opacity-30">
+            <Globe className="w-80 h-80 text-[#F13030]" />
+          </div>
+
+          {/* Radar Nodes */}
+          {RADAR_NODES.map((node, index) => {
+            const isActive = index === activeNode;
+            return (
+              <button
+                key={node.id}
+                onClick={() => setActiveNode(index)}
+                style={{ left: node.coords.x, top: node.coords.y }}
+                className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none"
+              >
+                <span className="relative flex h-5 w-5 items-center justify-center">
+                  {isActive && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F13030] opacity-75" />
+                  )}
+                  <span
+                    className={`relative inline-flex rounded-full h-3.5 w-3.5 transition-transform ${
+                      isActive ? "bg-[#F13030] scale-125 shadow-[0_0_12px_#F13030]" : "bg-white/40 hover:bg-white"
+                    }`}
+                  />
+                </span>
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-white whitespace-nowrap border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {node.city}
+                </span>
+              </button>
+            );
+          })}
+
+          <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-mono text-white/80 flex items-center gap-2 border border-white/10">
+            <span className="w-2 h-2 rounded-full bg-[#F13030] animate-pulse" />
+            <span>GLOBAL RADAR MODE: {current.city.toUpperCase()}</span>
+          </div>
+        </div>
+
+        {/* Right Popping Performer Sci-Fi Card */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.id}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="w-full lg:w-2/5 p-6 rounded-[24px] bg-[#16161A] border border-[#26262E] space-y-4 shadow-xl"
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src={current.img}
+                alt={current.talentName}
+                className="w-14 h-14 rounded-full object-cover border-2 border-[#F13030]"
+              />
+              <div>
+                <div className="font-bold text-lg font-display text-white flex items-center gap-1.5">
+                  {current.talentName}
+                  <Shield className="w-4 h-4 text-[#F13030]" />
+                </div>
+                <div className="text-xs text-gray-400 font-body flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-[#F13030]" />
+                  {current.city}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs italic text-gray-300 leading-relaxed font-body">
+              "{current.quote}"
+            </p>
+
+            <div className="flex items-center justify-between pt-3 border-t border-[#26262E]">
+              <div>
+                <div className="text-[10px] text-gray-500 font-mono uppercase">Verified Payout</div>
+                <div className="text-sm font-bold font-mono text-[#FF4D4D]">{current.earnings}</div>
+              </div>
+              <div className="px-3 py-1 rounded-full bg-[#F13030]/20 text-[#FF4D4D] text-[10px] font-mono border border-[#F13030]/30 flex items-center gap-1">
+                <Volume2 className="w-3 h-3 animate-pulse" />
+                <span>Audio Reel Verified</span>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ── Single Talent Card Component ──
 function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
   const [playing, setPlaying] = useState(false);
 
@@ -318,7 +464,7 @@ function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
   );
 }
 
-// ── Infinite Auto-Scrolling Framer Motion Talent Carousel ──
+// ── Infinite Auto-Scrolling Talent Carousel with Edge Fade Gradient Masks ──
 function TalentCarousel() {
   const [paused, setPaused] = useState(false);
   const extendedTalents = [...CAROUSEL_TALENTS, ...CAROUSEL_TALENTS];
@@ -329,13 +475,17 @@ function TalentCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* Edge Fade Mask Overlays */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[var(--color-bg-surface-2)] via-[var(--color-bg-surface-2)]/60 to-transparent z-20 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[var(--color-bg-surface-2)] via-[var(--color-bg-surface-2)]/60 to-transparent z-20 pointer-events-none" />
+
       <motion.div
         className="flex gap-6 w-max"
         animate={{ x: paused ? undefined : ["0%", "-50%"] }}
         transition={{
           repeat: Infinity,
           ease: "linear",
-          duration: 25,
+          duration: 45,
         }}
       >
         {extendedTalents.map((talent, idx) => (
@@ -346,12 +496,62 @@ function TalentCarousel() {
   );
 }
 
+// ── Interactive QR Code Scan Modal Overlay ──
+function QRCodeModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const navigate = useNavigate();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="relative w-full max-w-sm rounded-[28px] bg-[#16161A] text-white border border-[#26262E] p-6 text-center space-y-5 shadow-2xl"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="space-y-1">
+          <h3 className="font-bold text-xl font-display text-white">Scan Monologg App QR</h3>
+          <p className="text-xs text-gray-400 font-body">Scan with your camera to open instant PWA web app.</p>
+        </div>
+
+        <div className="relative mx-auto w-52 h-52 bg-white p-3 rounded-[20px] flex items-center justify-center shadow-inner">
+          <QrCode className="w-full h-full text-[#16161A]" />
+          {/* Animated Sci-Fi Scanning Laser */}
+          <div className="absolute left-2 right-2 h-1 bg-[#F13030] shadow-[0_0_12px_#F13030] animate-bounce" />
+        </div>
+
+        <div className="space-y-2">
+          <Button
+            variant="red"
+            className="w-full h-11 text-xs font-bold"
+            onClick={() => {
+              onClose();
+              navigate("/auth");
+            }}
+          >
+            Launch Web App Storefront Directly
+          </Button>
+          <div className="text-[11px] font-mono text-gray-500">Works on iOS &amp; Android Camera</div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ── Floating QR App Badge ──
-function FloatingQRBadge() {
+function FloatingQRBadge({ onClick }: { onClick: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      onClick={onClick}
       className="fixed bottom-6 right-6 z-40 hidden lg:flex items-center gap-3 p-3 rounded-[18px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl hover:scale-105 transition-transform cursor-pointer"
     >
       <div className="w-12 h-12 bg-white p-1 rounded-[12px] flex items-center justify-center shrink-0">
@@ -361,7 +561,7 @@ function FloatingQRBadge() {
         <div className="text-[11px] font-bold uppercase tracking-wider text-[#F13030]">
           Get Monologg App
         </div>
-        <div className="text-[10px] text-white/70">Scan to download iOS/Android</div>
+        <div className="text-[10px] text-white/70">Click to scan QR code</div>
       </div>
     </motion.div>
   );
@@ -370,13 +570,22 @@ function FloatingQRBadge() {
 export function LandingPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showQrModal, setShowQrModal] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) setSubmitted(true);
+  };
+
+  const handleCopyLink = () => {
+    const inviteUrl = `${window.location.origin}/invite/abc123`;
+    navigator.clipboard.writeText(inviteUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -396,8 +605,8 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ── Frosted Sticky Header ── */}
-      <header className="h-[68px] sticky top-0 z-40 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)]">
+      {/* ── Fixed Sticky Header ── */}
+      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
         </div>
@@ -443,7 +652,7 @@ export function LandingPage() {
       </header>
 
       <main className="flex-1">
-        {/* ── HERO SECTION (Clean Background with Hover Grid Reveal) ── */}
+        {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Enhanced Grid Reveal) ── */}
         <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
           <WebGLHeroCanvas />
 
@@ -453,11 +662,24 @@ export function LandingPage() {
               <span>THE FIRST BRIEF-TO-BOOKING PIPELINE FOR PERFORMING ARTS</span>
             </div>
 
-            {/* Oversized Display Headline */}
-            <h1 className="font-wise-sans text-[48px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.035em] leading-[0.9] text-[var(--color-text-primary)] uppercase max-w-5xl mx-auto">
+            {/* Oversized Display Headline with Red Squiggle Underline */}
+            <h1 className="font-wise-sans text-[48px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.9] text-[var(--color-text-primary)] uppercase max-w-5xl mx-auto">
               YOUR CRAFT. ON YOUR TERMS.<br />
-              <span className="text-[#F13030] dark:text-[#FF4D4D]">
+              <span className="relative inline-block text-[#F13030] dark:text-[#FF4D4D]">
                 INSTANTLY BOOKED.
+                <svg
+                  className="absolute left-0 -bottom-2 w-full h-4 text-[#F13030] pointer-events-none"
+                  viewBox="0 0 300 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 15Q75 2 150 15T295 12"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </span>
             </h1>
 
@@ -465,7 +687,7 @@ export function LandingPage() {
               Verified performer profiles, Monologg Escrow Protocol, and proprietary Thespian AI vibe scanner. Zero middlemen, zero gatekeeping.
             </p>
 
-            {/* Email Form */}
+            {/* Email Form with Working Copy Link Button */}
             <div className="max-w-lg mx-auto pt-2">
               {!submitted ? (
                 <form
@@ -489,11 +711,18 @@ export function LandingPage() {
                   </Button>
                 </form>
               ) : (
-                <div className="p-4 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex items-center justify-center gap-3">
-                  <Check className="w-5 h-5 text-[#F13030]" />
-                  <span className="text-sm font-bold">
-                    You're #347 in queue! Share link: monologg.app/invite/abc123
-                  </span>
+                <div className="p-3 px-5 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex items-center justify-between gap-3 shadow-md">
+                  <div className="flex items-center gap-2 text-xs font-bold truncate">
+                    <Check className="w-4 h-4 text-[#F13030] shrink-0" />
+                    <span className="truncate">You're #347 in queue! Share link: monologg.app/invite/abc123</span>
+                  </div>
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-3 py-1 rounded-full bg-[#F13030] text-white text-xs font-bold hover:bg-[#d31f20] transition-all flex items-center gap-1.5 shrink-0"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? "Copied!" : "Copy Link"}</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -528,7 +757,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FEATURED TALENT ROSTER CAROUSEL (Infinite Auto-Looping) ── */}
+        {/* ── FEATURED TALENT ROSTER CAROUSEL (Infinite Auto-Looping with Edge Fade Masks) ── */}
         <section id="talent-roster" className="py-24 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
           <div className="max-w-6xl mx-auto px-6 md:px-16 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
@@ -626,7 +855,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── TESTIMONIAL MOSAIC ── */}
+        {/* ── SCI-FI INTERACTIVE GLOBAL TRUST MAP ── */}
         <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-t border-[var(--color-hairline)]">
           <div className="max-w-6xl mx-auto space-y-16">
             <div className="text-center space-y-3">
@@ -638,43 +867,7 @@ export function LandingPage() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {TESTIMONIALS.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <p className="text-sm italic text-gray-700 dark:text-[#A6A6B0] leading-relaxed font-body">
-                    "{item.quote}"
-                  </p>
-
-                  <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-[#26262E]">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={item.photo}
-                        alt={item.name}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-[#F13030]"
-                      />
-                      <div>
-                        <div className="font-bold text-base text-[#16161A] dark:text-[#F5F5F0] font-display">
-                          {item.name}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-[#A6A6B0] font-body">
-                          {item.role}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs font-mono font-bold pt-1 text-[#F13030] dark:text-[#FF4D4D]">
-                      <span>{item.metric}</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] text-[10px]">
-                        {item.tag}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SciFiTrustMap />
           </div>
         </section>
 
@@ -713,7 +906,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FINAL CONVERSION CTA (Primary Red + Outlined Secondary Pair) ── */}
+        {/* ── FINAL CONVERSION CTA ── */}
         <section className="py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10">
           <div className="max-w-3xl mx-auto space-y-8">
             <h2 className="font-wise-sans text-4xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white">
@@ -742,7 +935,8 @@ export function LandingPage() {
         </section>
       </main>
 
-      <FloatingQRBadge />
+      <FloatingQRBadge onClick={() => setShowQrModal(true)} />
+      <QRCodeModal isOpen={showQrModal} onClose={() => setShowQrModal(false)} />
 
       {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
       <footer className="pt-20 pb-12 px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">

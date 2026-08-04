@@ -51,31 +51,65 @@ export function TransactionHistory() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
-      <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-        <button
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
-          style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="text-sm font-semibold font-display" style={s.text}>Transaction History</div>
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body">
+      {/* Sticky Fixed Top Navigation Bar */}
+      <div className="h-16 flex items-center justify-between px-5 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            aria-label="Go back"
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all active:scale-95"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-base font-bold font-display text-[var(--color-text-primary)]">
+            Earnings &amp; Transaction History
+          </div>
+        </div>
+
+        <Badge tone="accent">Monologg Escrow Verified</Badge>
       </div>
 
-      <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
+      <div className="flex-1 px-4 sm:px-6 py-8 max-w-3xl mx-auto w-full space-y-6">
+        {/* Earnings Summary Card */}
+        <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="space-y-1">
+            <div className="text-xs font-mono text-[#F13030] uppercase tracking-wider font-bold">Total Platform Payouts</div>
+            <div className="text-3xl sm:text-4xl font-bold font-mono text-[#F5F5F0]">₦1,420,000</div>
+            <div className="text-xs text-white/70">8 Completed Escrow Contracts</div>
+          </div>
+          <Button variant="red" className="h-10 px-5 text-xs font-bold shrink-0" onClick={() => navigate("/dashboard")}>
+            Request Payout Withdrawal
+          </Button>
+        </div>
+
+        {/* Status Filter Pill Segmented Control & Hidden Accessible Select */}
         <select
           aria-label="Filter by status"
           value={stateFilter}
           onChange={(e) => setStateFilter(e.target.value as Transaction["state"] | "")}
-          className="w-full h-11 mb-5 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
-          style={{ ...s.surface, color: "var(--color-text-primary)" }}
+          className="sr-only"
         >
           {STATE_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {STATE_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setStateFilter(f.value)}
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                stateFilter === f.value
+                  ? "bg-[#F13030] text-white border-[#F13030] shadow-sm"
+                  : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)]"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
 
         {!loading && transactions.length === 0 && (
           <div className="flex flex-col items-center text-center py-16">

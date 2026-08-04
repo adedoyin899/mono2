@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-04 (Session 53: Targeted UI Polish, Dark Mode Fixes & Talent Carousel)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–53 Visual Overhauls & UI Polish are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel, primary/secondary CTA pair, and Wise-style AuthFlow clean layout.
+**Last updated:** 2026-08-04 (Session 54: Sci-Fi Radar Trust Map & App-Wide Overhaul)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–54 Visual Overhauls & Interactive Upgrades are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, Sci-Fi global radar map, interactive QR code modal, and full navigation view overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 54 — Sci-Fi Radar Trust Map & App-Wide Overhaul
+- [x] **Working Copy Link Button**: Added `Copy` button to waitlist invite pill with clipboard copy and 2.5s "Copied!" checkmark feedback.
+- [x] **Sci-Fi Interactive Global Radar Map**: Replaced static testimonials with an interactive Sci-Fi Radar Map of Africa & Global Hubs (Lagos, Accra, Nairobi, Joburg, London, NY) featuring glowing pulse nodes and popping performer cards.
+- [x] **Hero Red Squiggle & Enhanced Grid Reveal**: Added SVG hand-drawn red squiggle underline beneath `"INSTANTLY BOOKED"` and enhanced `WebGLHeroCanvas` hover grid contrast (`0.75` max opacity).
+- [x] **Carousel Edge Fade Masks & Slower Drift**: Added left/right gradient mask overlays (`from-[var(--color-bg-surface-2)] via-transparent to-[var(--color-bg-surface-2)]`) and set `45s` Framer Motion duration.
+- [x] **Interactive QR Code Scan Modal**: Added `QRCodeModal` overlay triggered by floating QR badge.
+- [x] **App-Wide Navigation View Redesign**: Overhauled Rate Cards, Availability, Shortlist, Activity, Analytics, Earnings/Transactions, Projects, Order Room, Verification Video, and Settings across Client and Talent web apps.
+- [x] **Verification**: Web typecheck (`tsc --noEmit`), Vitest test suite (21 test files, 78 tests passing 100%), and Vite production build (`dist/assets` compiled in 2.29s) verified clean.
 
 ### Session 53 — Targeted UI Polish, Dark Mode Fixes & Talent Carousel
 - [x] **Primary Red + Outlined Secondary CTA Pair**: Fixed side-by-side CTA button pair in final conversion section.

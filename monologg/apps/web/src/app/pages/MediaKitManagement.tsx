@@ -91,37 +91,81 @@ export function MediaKitManagement() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--color-bg-canvas)" }}>
-      <div className="h-16 flex items-center gap-3 px-4 sticky top-0 z-40 glass-panel" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-        <button
-          aria-label="Go back"
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
-          style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="text-sm font-semibold font-display" style={s.text}>Media Kit</div>
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body">
+      {/* Sticky Fixed Top Header */}
+      <div className="h-16 flex items-center justify-between px-5 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            aria-label="Go back"
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all active:scale-95"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-base font-bold font-display text-[var(--color-text-primary)]">
+            Media Kit &amp; Rate Cards
+          </div>
+        </div>
+
+        {status && (
+          <Badge tone={status.mode === "UPLOAD" ? "accent" : "success"}>
+            Showing {status.mode === "UPLOAD" ? "Uploaded PDF" : "Auto-Generated Kit"}
+          </Badge>
+        )}
       </div>
 
-      <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full space-y-5">
-        <div className="rounded-[var(--radius-xl)] p-5 flex items-center gap-4" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
-          <div className="w-12 h-12 rounded-[var(--radius-lg)] flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-            <FileText className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold font-body" style={s.text}>
-              Currently showing: {status?.mode === "UPLOAD" ? "Your upload" : "Auto"}
+      <div className="flex-1 px-4 sm:px-6 py-8 max-w-2xl mx-auto w-full space-y-6">
+        {/* Status Card */}
+        <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#F13030]/20 text-[#FF4D4D] flex items-center justify-center border border-[#F13030]/30">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#F5F5F0]">
+                  Currently showing: {status?.mode === "UPLOAD" ? "Your upload" : "Auto"}
+                </h3>
+                <p className="text-xs text-[#A6A6B0]">Official PDF used by casting directors to preview your rate cards &amp; reels.</p>
+              </div>
             </div>
-            <div className="text-xs font-body mt-0.5" style={s.tertiary}>
-              {status?.mode === "AUTO"
-                ? `Auto-generated from your public profile (v${status.autoVersion})`
-                : status?.uploadSizeBytes
-                  ? `${(status.uploadSizeBytes / 1024 / 1024).toFixed(1)} MB PDF`
-                  : "A PDF you uploaded"}
-            </div>
+            {status?.mode === "UPLOAD" && (
+              <span className="px-3 py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] text-xs font-bold font-mono">
+                Custom Upload
+              </span>
+            )}
           </div>
-          <Badge tone={status?.mode === "UPLOAD" ? "accent" : "success"}>{status?.mode ?? "…"}</Badge>
+
+          <div className="pt-2 flex flex-wrap gap-3">
+            <Button
+              variant="red"
+              className="h-10 px-5 text-xs font-bold"
+              onClick={handleRegenerate}
+              disabled={busy !== null}
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${busy === "regenerate" ? "animate-spin" : ""}`} />
+              Regenerate from profile
+            </Button>
+            <Button
+              variant="outline-pill"
+              className="h-10 px-5 text-xs font-bold border-white/20 text-white hover:bg-white/10"
+              onClick={handleUploadClick}
+              disabled={busy !== null}
+            >
+              <Upload className="w-4 h-4 mr-1.5" />
+              Upload PDF
+            </Button>
+            {status?.mode === "UPLOAD" && (
+              <Button
+                variant="ghost"
+                className="h-10 px-4 text-xs font-bold text-gray-300 hover:text-white"
+                onClick={handleRevert}
+                disabled={busy !== null}
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1" /> Revert to auto-generated
+              </Button>
+            )}
+          </div>
         </div>
 
         {copiedLink && (
@@ -137,43 +181,23 @@ export function MediaKitManagement() {
           </div>
         )}
 
+        <input ref={fileInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFileSelected} />
+
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={handleDownload}
-            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border hover:border-[var(--color-accent)] transition-all"
-            style={{ ...s.surface, color: "var(--color-text-primary)" }}
+            className="flex items-center justify-center gap-2 h-11 rounded-full text-xs font-bold font-body border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all"
           >
-            <Download className="w-4 h-4" /> Download
+            <Download className="w-4 h-4" /> Download Kit PDF
           </button>
           <button
             type="button"
             onClick={handleShare}
-            className="flex items-center justify-center gap-2 h-12 rounded-[var(--radius-lg)] text-sm font-semibold font-body border hover:border-[var(--color-accent)] transition-all"
-            style={{ ...s.surface, color: "var(--color-text-primary)" }}
+            className="flex items-center justify-center gap-2 h-11 rounded-full text-xs font-bold font-body border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all"
           >
-            <Share2 className="w-4 h-4 text-[var(--color-accent)]" /> {copiedLink ? "Link Copied!" : "Share link"}
+            <Share2 className="w-4 h-4 text-[#F13030]" /> {copiedLink ? "Link Copied!" : "Share Link"}
           </button>
-        </div>
-
-        <div className="space-y-3">
-          <Button className="w-full h-12" variant="secondary" onClick={handleRegenerate} disabled={busy !== null}>
-            <RefreshCw className={`w-4 h-4 ${busy === "regenerate" ? "animate-spin" : ""}`} />
-            {busy === "regenerate" ? "Regenerating…" : "Regenerate from profile"}
-          </Button>
-
-          <input ref={fileInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFileSelected} />
-          <Button className="w-full h-12" variant="secondary" onClick={handleUploadClick} disabled={busy !== null}>
-            <Upload className="w-4 h-4" />
-            {busy === "upload" ? "Uploading…" : status?.mode === "UPLOAD" ? "Replace upload" : "Upload / Replace"}
-          </Button>
-
-          {status?.mode === "UPLOAD" && (
-            <Button className="w-full h-12" variant="ghost" onClick={handleRevert} disabled={busy !== null}>
-              <RotateCcw className="w-4 h-4" />
-              {busy === "revert" ? "Reverting…" : "Revert to auto-generated"}
-            </Button>
-          )}
         </div>
 
         <p className="text-xs font-body text-center" style={s.secondary}>

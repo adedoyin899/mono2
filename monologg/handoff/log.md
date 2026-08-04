@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 53: Targeted UI Polish, Dark Mode Fixes & Talent Carousel)
+**Last updated:** 2026-08-04 (Session 54: Sci-Fi Radar Trust Map & App-Wide Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,32 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 53 (2026-08-04) — Targeted UI Polish, Dark Mode Fixes & Talent Carousel
+## Session 54 (2026-08-04) — Sci-Fi Radar Trust Map & App-Wide Overhaul
+
+**Goal:** Build an interactive Sci-Fi Radar Map ("TRUSTED ACROSS THE CONTINENT") with 6 global nodes and popping performer cards, add working copy button on waitlist invite pill, add SVG hand-drawn red squiggle under hero text, add carousel edge fade gradient masks + 45s drift, fix sticky navigation header, build interactive QR code modal overlay, and overhaul design system styling across all navigation views in both Talent and Client web apps.
+
+**Changes Made:**
+
+1. **Working Copy Button on Invite Pill (`LandingPage.tsx`)**:
+   - Added `Copy` button to `monologg.app/invite/abc123` with `navigator.clipboard.writeText()` and a 2.5s "Copied!" feedback state.
+
+2. **Sci-Fi Interactive Global Radar Map (`LandingPage.tsx`)**:
+   - Replaced static testimonial boxes with `SciFiTrustMap` featuring 6 interactive nodes (Lagos, Accra, Nairobi, Johannesburg, London, NY) with glowing radar pulse effects and popping performer cards.
+
+3. **Hero Red Squiggle & Enhanced Grid Reveal (`WebGLHeroCanvas.tsx`, `LandingPage.tsx`)**:
+   - Added SVG hand-drawn red squiggle underline beneath `"INSTANTLY BOOKED"`.
+   - Enhanced `WebGLHeroCanvas` hover grid contrast (`0.75` max opacity).
+
+4. **Carousel Edge Fade Masks & Slower Drift (`LandingPage.tsx`)**:
+   - Added left and right gradient masks (`from-[var(--color-bg-surface-2)] via-transparent to-[var(--color-bg-surface-2)]`) and set `45s` duration.
+
+5. **Interactive QR Code Scan Modal (`LandingPage.tsx`)**:
+   - Added `QRCodeModal` overlay triggered by clicking the floating QR badge.
+
+6. **App-Wide Navigation View Redesign (`TransactionHistory.tsx`, `MediaKitManagement.tsx`, `VerificationVideo.tsx`)**:
+   - Updated Rate Cards, Availability, Shortlist, Activity, Analytics, Earnings/Transactions, Projects, Order Room, Verification Video, and Settings across Client and Talent web apps.
+
+---
 
 **Goal:** Address user feedback regarding screenshot bugs: replace side-by-side filled CTA pair with Primary Red + Outlined Secondary Pill, fix dark mode accessibility on Step Cards, FAQ accordions, and Talent Cards, implement an auto-scrolling 7-talent card carousel, replace AI-slop Hero WebGL gradient with clean canvas + hover blueprint grid reveal, and overhaul AuthFlow sign-up page in Wise clean UX.
 
