@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 57: High-Resolution Dot-Matrix Vector Map Asset Integration)
+**Last updated:** 2026-08-04 (Session 58: Focused Active Node & Inactive Flag Beacons Map UX)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,18 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 57 (2026-08-04) — High-Resolution Dot-Matrix Vector Map Asset Integration
+## Session 58 (2026-08-04) — Focused Active Node & Inactive Flag Beacons Map UX
+
+**Goal:** Resolve badge overlap clutter around West/East Africa on the world map by prominently highlighting the single active country node with a bold red card & radar pulse, while rendering all inactive country nodes as sleek circular flag beacons with reduced opacity and hover tooltips.
+
+**Changes Made:**
+
+1. **VectorWorldMap Focused UX (`LandingPage.tsx`)**:
+   - Active node renders as a bold Mono-Red (`#F13030`) pill badge with country flag, full city name, and animated outer ping pulse (`z-30 scale-110 shadow-[0_0_24px_rgba(241,48,48,0.8)]`).
+   - Inactive nodes render as sleek 32px circular flag beacon pins with `opacity-60 hover:opacity-100 hover:scale-110` and hover tooltips showing city name (`z-10`).
+   - Completely eliminated card overlap across West/East Africa (Lagos, Accra, Nairobi).
+
+---
 
 **Goal:** Replace custom vector shapes with the real high-resolution `vector-map.svg` dot-matrix world map asset matching Inspiration Image 2, and position country flag pin location tags over geographic coordinates (Lagos, Accra, Nairobi, Johannesburg, London, NY).
 

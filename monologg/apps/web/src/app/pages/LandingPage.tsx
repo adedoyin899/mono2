@@ -191,22 +191,30 @@ function VectorWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSe
             key={node.id}
             onClick={() => onSelectNode(index)}
             style={{ left: node.coords.x, top: node.coords.y }}
-            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-transform active:scale-90 z-20"
+            className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-all duration-300 ${
+              isActive ? "z-30 scale-110" : "z-10 opacity-60 hover:opacity-100 hover:scale-110"
+            }`}
           >
             <span className="relative flex items-center justify-center">
-              {isActive && (
-                <span className="animate-ping absolute inline-flex h-9 w-9 rounded-full bg-[#F13030] opacity-60" />
+              {isActive ? (
+                <>
+                  <span className="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-[#F13030] opacity-60" />
+                  <span className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold font-mono bg-[#F13030] text-white border border-[#F13030] shadow-[0_0_24px_rgba(241,48,48,0.8)]">
+                    <span className="text-sm">{node.flag}</span>
+                    <span className="font-bold tracking-wide">{node.city.split(",")[0]}</span>
+                  </span>
+                </>
+              ) : (
+                <span className="relative flex items-center justify-center">
+                  <span className="w-8 h-8 rounded-full bg-[#16161A] border border-[#34343E] hover:border-[#F13030] text-sm flex items-center justify-center shadow-md transition-all group-hover:bg-[#F13030]/20">
+                    {node.flag}
+                  </span>
+                  {/* Subtle Tooltip on Hover for Inactive Pins */}
+                  <span className="absolute bottom-full mb-1.5 hidden group-hover:flex items-center px-2 py-0.5 rounded-md bg-[#16161A] text-[10px] font-semibold text-[#F5F5F0] border border-[#26262E] whitespace-nowrap shadow-xl">
+                    {node.city.split(",")[0]}
+                  </span>
+                </span>
               )}
-              <span
-                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all shadow-lg border ${
-                  isActive
-                    ? "bg-[#F13030] text-white border-[#F13030] scale-110 shadow-[0_0_20px_rgba(241,48,48,0.7)] z-30"
-                    : "bg-[#16161A] text-[#F5F5F0] border-[#26262E] hover:border-[#F13030] hover:scale-105"
-                }`}
-              >
-                <span className="text-sm">{node.flag}</span>
-                <span className="hidden sm:inline text-[11px] font-semibold">{node.city.split(",")[0]}</span>
-              </span>
             </span>
           </button>
         );
