@@ -103,14 +103,12 @@ const CAROUSEL_TALENTS = [
 ];
 
 // ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
-
-// ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
 const RADAR_NODES = [
   {
     id: "lagos",
     city: "Lagos, Nigeria",
     flag: "🇳🇬",
-    coords: { x: "52%", y: "51%" },
+    coords: { x: "50.8%", y: "52%" },
     talentName: "Adaeze Obi",
     category: "Senior Voice Artist",
     quote: "Booked 12 Netflix voice-overs via Monologg Escrow with 0 commission.",
@@ -121,7 +119,7 @@ const RADAR_NODES = [
     id: "accra",
     city: "Accra, Ghana",
     flag: "🇬🇭",
-    coords: { x: "47%", y: "52%" },
+    coords: { x: "48%", y: "53%" },
     talentName: "Kwame Asante",
     category: "Commercial Lead Actor",
     quote: "International casting directors book me directly in USD & GHS.",
@@ -132,7 +130,7 @@ const RADAR_NODES = [
     id: "nairobi",
     city: "Nairobi, Kenya",
     flag: "🇰🇪",
-    coords: { x: "59%", y: "55%" },
+    coords: { x: "59.5%", y: "56%" },
     talentName: "Wanjiku Kimani",
     category: "Documentary Narrator",
     quote: "Thespian AI tagged my vocal range in 30 seconds. Seamless payouts.",
@@ -143,7 +141,7 @@ const RADAR_NODES = [
     id: "joburg",
     city: "Johannesburg, SA",
     flag: "🇿🇦",
-    coords: { x: "55%", y: "73%" },
+    coords: { x: "56.5%", y: "74%" },
     talentName: "Sipho Dlamini",
     category: "Film Stunt Lead",
     quote: "FINCRA Escrow locked full payment before I stepped on stage.",
@@ -154,7 +152,7 @@ const RADAR_NODES = [
     id: "london",
     city: "London, UK",
     flag: "🇬🇧",
-    coords: { x: "47%", y: "25%" },
+    coords: { x: "48.5%", y: "28%" },
     talentName: "Elena Vance",
     category: "Global Brand Director",
     quote: "Sourced 5 African voice talents for our campaign in 20 minutes.",
@@ -165,7 +163,7 @@ const RADAR_NODES = [
     id: "newyork",
     city: "New York, USA",
     flag: "🇺🇸",
-    coords: { x: "27%", y: "30%" },
+    coords: { x: "28%", y: "34%" },
     talentName: "Marcus Sterling",
     category: "Ad Agency Producer",
     quote: "Monologg's escrow protocol is lightyears ahead of traditional talent reps.",
@@ -174,74 +172,18 @@ const RADAR_NODES = [
   },
 ];
 
-// ── Vector World Map SVG Component (vector map.svg) ──
+// ── Vector World Map SVG Component (vector-map.svg Asset) ──
 function VectorWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSelectNode: (idx: number) => void }) {
   return (
-    <div className="relative w-full h-full flex items-center justify-center p-4">
-      <svg
-        className="w-full h-full opacity-60 transition-opacity hover:opacity-80"
-        viewBox="0 0 800 400"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <pattern id="grid-dots" width="16" height="16" patternUnits="userSpaceOnUse">
-            <circle cx="8" cy="8" r="1.2" fill="#5D5D66" opacity="0.3" />
-          </pattern>
-        </defs>
+    <div className="relative w-full h-full flex items-center justify-center p-4 select-none">
+      {/* Real High-Resolution Vector World Map SVG Asset */}
+      <img
+        src="/vector-map.svg"
+        alt="Vector World Map"
+        className="w-full h-full object-contain opacity-50 dark:opacity-40 transition-opacity hover:opacity-75 pointer-events-none filter dark:invert"
+      />
 
-        {/* Global Grid Background */}
-        <rect width="800" height="400" fill="url(#grid-dots)" />
-
-        {/* Continent Vector Outlines */}
-        <g stroke="#26262E" strokeWidth="1.5" className="transition-colors">
-          {/* North America & Greenland */}
-          <path
-            d="M100 65 Q150 40 220 45 T280 90 Q300 120 250 160 Q210 175 160 150 Q120 120 100 65 Z"
-            fill="#16161A"
-            className="hover:fill-[#F13030]/10 transition-colors"
-          />
-          <path
-            d="M260 25 Q300 15 330 30 T320 60 Q280 70 260 25 Z"
-            fill="#16161A"
-          />
-          {/* South America */}
-          <path
-            d="M210 185 Q260 180 290 230 Q300 280 260 350 Q230 380 215 320 Q200 250 210 185 Z"
-            fill="#16161A"
-            className="hover:fill-[#F13030]/10 transition-colors"
-          />
-          {/* Europe */}
-          <path
-            d="M380 60 Q430 45 470 70 Q480 100 440 120 Q400 120 380 60 Z"
-            fill="#16161A"
-            className="hover:fill-[#F13030]/10 transition-colors"
-          />
-          {/* Africa */}
-          <path
-            d="M375 125 Q450 115 505 160 Q520 220 480 290 Q440 335 410 270 Q370 200 375 125 Z"
-            fill="#1B1B20"
-            stroke="#F13030"
-            strokeWidth="1.5"
-            strokeDasharray="4 4"
-            className="hover:fill-[#F13030]/20 transition-colors"
-          />
-          {/* Asia */}
-          <path
-            d="M475 55 Q580 35 730 65 Q740 140 680 175 Q580 190 475 130 Z"
-            fill="#16161A"
-            className="hover:fill-[#F13030]/10 transition-colors"
-          />
-          {/* Australia & Oceania */}
-          <path
-            d="M640 240 Q710 230 735 270 Q740 320 690 335 Q640 310 640 240 Z"
-            fill="#16161A"
-            className="hover:fill-[#F13030]/10 transition-colors"
-          />
-        </g>
-      </svg>
-
-      {/* Interactive Node Badges */}
+      {/* Interactive Location Pin Badges Over Geographic Coordinates */}
       {RADAR_NODES.map((node, index) => {
         const isActive = index === activeNode;
         return (

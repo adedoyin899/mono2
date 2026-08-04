@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 56: Client Purple Role Theme, Vector World Map SVG & Hero Card Contrast)
+**Last updated:** 2026-08-04 (Session 57: High-Resolution Dot-Matrix Vector Map Asset Integration)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,26 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 56 (2026-08-04) — Client Purple Role Theme, Vector World Map SVG & Hero Card Contrast
+## Session 57 (2026-08-04) — High-Resolution Dot-Matrix Vector Map Asset Integration
+
+**Goal:** Replace custom vector shapes with the real high-resolution `vector-map.svg` dot-matrix world map asset matching Inspiration Image 2, and position country flag pin location tags over geographic coordinates (Lagos, Accra, Nairobi, Johannesburg, London, NY).
+
+**Changes Made:**
+
+1. **High-Resolution Vector Map Asset (`monologg/apps/web/public/vector-map.svg`)**:
+   - Copied `Vector map.svg` into public assets directory as `vector-map.svg`.
+
+2. **VectorWorldMap Component (`LandingPage.tsx`)**:
+   - Updated `VectorWorldMap` component to render `/vector-map.svg` with dark mode inverted styling.
+   - Calibrated percentage coordinates for global creative hub location pins:
+     - Lagos (`50.8%, 52%`)
+     - Accra (`48%, 53%`)
+     - Nairobi (`59.5%, 56%`)
+     - Johannesburg (`56.5%, 74%`)
+     - London (`48.5%, 28%`)
+     - New York (`28%, 34%`)
+
+---
 
 **Goal:** Enable dynamic Mono-Purple (`#7B00FE`) theme adaptation when simulating/active as Client across `OrderRoom.tsx` and `AuthFlow.tsx`, add WebGL background reveal and all-caps display headline with red/purple squiggle line emphasis to `AuthFlow.tsx`, replace dot-grid map with SVG `VectorWorldMap` continent outlines, fix dark mode white cards, clean Home tab stat previews onto dedicated Analytics tab, rework performer roster headline, and upgrade hero balance card money text to crisp white with lighter brand accent washes.
 
