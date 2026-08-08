@@ -334,13 +334,13 @@ function MonologgEscrowCalculator() {
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="w-2.5 h-2.5 rounded-full bg-[#F13030] animate-pulse shrink-0" />
           <span className="text-xs font-bold uppercase tracking-wider text-[#F13030] truncate">
-            <span className="max-[400px]:hidden">Monologg Escrow Protocol</span>
-            <span className="min-[400px]:inline hidden">Escrow Protocol</span>
+            <span className="hidden min-[400px]:inline">Monologg Escrow Protocol</span>
+            <span className="inline min-[400px]:hidden">Escrow Protocol</span>
           </span>
         </div>
         <div className="bg-[#F13030]/20 text-[#FF4D4D] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold font-mono border border-[#F13030]/30 shrink-0">
-          <span className="max-[400px]:hidden">100% Guaranteed Payout</span>
-          <span className="min-[400px]:inline hidden">100% Payout</span>
+          <span className="hidden min-[400px]:inline">100% Guaranteed Payout</span>
+          <span className="inline min-[400px]:hidden">100% Payout</span>
         </div>
       </div>
 
@@ -444,8 +444,8 @@ function MonologgEscrowCalculator() {
       <div className="pt-2">
         <button className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg">
           <Lock className="w-4 h-4 shrink-0" />
-          <span className="max-[500px]:hidden">Lock Contract in Monologg Escrow ({selectedCurr.code})</span>
-          <span className="min-[500px]:inline hidden">Lock in Escrow ({selectedCurr.code})</span>
+          <span className="hidden min-[500px]:inline">Lock Contract in Monologg Escrow ({selectedCurr.code})</span>
+          <span className="inline min-[500px]:hidden">Lock in Escrow ({selectedCurr.code})</span>
         </button>
       </div>
     </div>
