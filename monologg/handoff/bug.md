@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-04 (Session 59: Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support)
+**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 27. Multi-currency project brief budget multiplier bug
+- **Severity:** Medium
+- **What happened:** Selecting USD/GBP/EUR or other non-Naira currencies in `ProjectBrief.tsx` and selecting a budget preset caused the posted `budgetAmount` to be wrong, e.g., posting $150,000 instead of $100.
+- **Root Cause:** The component parsed the Naira preset values (`selectedBudget.split("-")[0]`) and sent them directly to the API as the base budget unit for the selected currency.
+- **Resolution:** Introduced unified currency conversion. The budget presets are now calculated on-the-fly and click presets update a precise `budgetAmount` in the selected currency, which is properly multiplied into cents/kobo units for transmission.
 
 ### 26. Database migration build block: AuthProvider type and UserActivity table missing from migrations
 - **Severity:** High

@@ -20,6 +20,7 @@ import type {
 } from "@monologg/types";
 import * as mocks from "../mocks";
 import { appStateSync } from "./state-sync";
+import { CODE_TO_SYMBOL } from "./currency";
 
 /**
  * The one seam every screen's data flows through (features.md Phase 1).
@@ -560,9 +561,10 @@ export const apiClient = {
     status?: "DRAFT" | "ACTIVE" | "IN_REVIEW" | "CLOSED";
   }): Promise<void> {
     if (API_MODE !== "live") {
+      const symbol = CODE_TO_SYMBOL[input.budgetCurrency || "NGN"] || "₦";
       const budgetFormatted = input.budgetAmount >= 100
-        ? `₦${(input.budgetAmount / 100).toLocaleString()}`
-        : `₦${input.budgetAmount.toLocaleString()}`;
+        ? `${symbol}${(input.budgetAmount / 100).toLocaleString()}`
+        : `${symbol}${input.budgetAmount.toLocaleString()}`;
       appStateSync.addProject({
         projectName: input.projectName,
         projectType: input.projectType,

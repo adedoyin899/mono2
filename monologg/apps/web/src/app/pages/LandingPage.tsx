@@ -13,6 +13,7 @@ import {
   Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
   Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2
 } from "lucide-react";
+import { CURRENCIES, convertCurrency } from "../../lib/currency";
 
 // ── 7 Curated Talent Profiles for Infinite Auto-Looping Carousel ──
 const CAROUSEL_TALENTS = [
@@ -263,29 +264,65 @@ const FAQS = [
 ];
 
 // ── Multi-Currency Support Definitions ──
-const CURRENCIES = [
-  { code: "NGN", symbol: "₦", flag: "🇳🇬", name: "Nigerian Naira", min: 50000, max: 2000000, step: 25000, defaultAmount: 150000 },
-  { code: "USD", symbol: "$", flag: "🇺🇸", name: "US Dollar", min: 50, max: 3000, step: 25, defaultAmount: 250 },
-  { code: "GBP", symbol: "£", flag: "🇬🇧", name: "British Pound", min: 40, max: 2500, step: 20, defaultAmount: 200 },
-  { code: "EUR", symbol: "€", flag: "🇪🇺", name: "Euro", min: 45, max: 2800, step: 25, defaultAmount: 220 },
-  { code: "GHS", symbol: "GH₵", flag: "🇬🇭", name: "Ghanaian Cedi", min: 500, max: 30000, step: 500, defaultAmount: 3000 },
-  { code: "KES", symbol: "KSh", flag: "🇰🇪", name: "Kenyan Shilling", min: 5000, max: 300000, step: 2500, defaultAmount: 30000 },
-  { code: "ZAR", symbol: "R", flag: "🇿🇦", name: "South African Rand", min: 800, max: 50000, step: 500, defaultAmount: 4500 },
-];
 
 function MonologgEscrowCalculator() {
   const [selectedCurr, setSelectedCurr] = useState(CURRENCIES[0]);
   const [amount, setAmount] = useState(CURRENCIES[0].defaultAmount);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [sliderMax, setSliderMax] = useState(CURRENCIES[0].max);
+  const [amountInputString, setAmountInputString] = useState(CURRENCIES[0].defaultAmount.toLocaleString("en-US"));
 
   const escrowFee = Math.round(amount * 0.12);
   const talentEarnings = amount;
   const clientTotal = amount + escrowFee;
 
+  // Sync sliderMax when selected currency changes
+  useEffect(() => {
+    setSliderMax(prev => Math.max(prev, selectedCurr.max));
+  }, [selectedCurr]);
+
+  // Sync string value when amount changes
+  useEffect(() => {
+    setAmountInputString(amount.toLocaleString("en-US"));
+  }, [amount]);
+
   const handleCurrencySelect = (curr: typeof CURRENCIES[0]) => {
+    const converted = convertCurrency(amount, selectedCurr.code, curr.code);
     setSelectedCurr(curr);
-    setAmount(curr.defaultAmount);
+    const roundedConverted = Math.round(converted);
+    setAmount(roundedConverted);
+    setSliderMax(Math.max(curr.max, roundedConverted));
     setShowDropdown(false);
+  };
+
+  const handleAmountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    const numericStr = rawVal.replace(/\D/g, "");
+    setAmountInputString(numericStr);
+    
+    const numericVal = numericStr ? parseInt(numericStr, 10) : 0;
+    setAmount(numericVal);
+    if (numericVal > sliderMax) {
+      setSliderMax(numericVal);
+    }
+  };
+
+  const handleAmountInputFocus = () => {
+    setAmountInputString(amount === 0 ? "" : amount.toString());
+  };
+
+  const handleAmountInputBlur = () => {
+    setAmountInputString(amount.toLocaleString("en-US"));
+  };
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setAmount(val);
+    
+    // Auto-expand range if dragging near the edge (>= 95%)
+    if (val >= sliderMax * 0.95) {
+      setSliderMax(prev => Math.round(prev * 1.5));
+    }
   };
 
   return (
@@ -376,17 +413,27 @@ function MonologgEscrowCalculator() {
       </div>
 
       <div className="pt-2">
-        <div className="flex justify-between text-[11px] text-[#FF4D4D] mb-1 font-mono">
+        <div className="flex justify-between items-center text-[11px] text-[#FF4D4D] mb-1 font-mono">
           <span>Adjust Booking Amount ({selectedCurr.code})</span>
-          <span>{selectedCurr.symbol}{amount.toLocaleString()}</span>
+          <div className="flex items-center gap-1 bg-[#1F1F24] border border-white/10 rounded px-1.5 py-0.5">
+            <span className="text-white/40">{selectedCurr.symbol}</span>
+            <input
+              type="text"
+              className="bg-transparent text-right font-mono text-[#FF4D4D] focus:outline-none w-28 text-xs font-bold"
+              value={amountInputString}
+              onChange={handleAmountInputChange}
+              onFocus={handleAmountInputFocus}
+              onBlur={handleAmountInputBlur}
+            />
+          </div>
         </div>
         <input
           type="range"
           min={selectedCurr.min}
-          max={selectedCurr.max}
+          max={sliderMax}
           step={selectedCurr.step}
           value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          onChange={handleSliderChange}
           className="w-full accent-[#F13030] cursor-pointer"
         />
       </div>

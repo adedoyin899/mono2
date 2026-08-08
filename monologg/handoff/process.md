@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-04 (Session 58: Focused Active Node & Inactive Flag Beacons Map UX)
+**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -156,6 +156,15 @@ Conducted a comprehensive quality sweep and workspace stabilization to establish
 - Successfully executed the integration database seed script, populating realistic test profiles, briefs, applications, and bookings across all possible lifecycle states.
 - Cleaned up web app compilation defects by adding missing imports (`appStateSync` in `AuthFlow`, `Modal` in `Settings`, and `X` icon in `CreatorOnboarding`), updating component props (`Badge` expects `tone` instead of `variant`), and matching correct state-sync method names (`updateBankDetails`, `withdrawFunds`).
 - Verified build and test suite integrity (Vitest) returning a 100% passing state (577 API, 78 Web tests).
+
+### Step 37: manual currency inputs, auto-expanding range sliders, and dynamic currency conversions (Session 60)
+
+Stabilized multi-currency workflows across the app by allowing users to enter custom base rates / budgets manually and dynamically expanding the range limits on sliders as users drag them to the edge. Unified conversions under a common library so values swap seamlessly into their equivalents when switching currencies.
+- Created `/apps/web/src/lib/currency.ts` to manage conversion logic and rates.
+- Refactored `LandingPage.tsx` and `ProjectBrief.tsx` to enable raw text fields that format on blur, auto-scaling sliders, and converting currency.
+- Fixed budget multiplication bug on publishing briefs for non-Naira selections by transmitting values in currency-appropriate minor units.
+- Updated `CreatorOnboarding.tsx` and `TalentDashboard.tsx` base price setup to convert rate values automatically on dropdown select.
+- Verified workspace builds and Vitest test suite passes successfully.
 
 ---
 

@@ -1,11 +1,41 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 59: Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support)
+**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 60 (2026-08-08) — Manual Currency Input, Auto-Expanding Sliders & Currency Conversion
+
+**Goal:** Enable manual currency inputs, auto-expanding range sliders, and dynamic conversions when switching between the 7 supported currencies across all currency entry points.
+
+**Changes Made:**
+
+1. **Core Currency Utility (`currency.ts`)**:
+   - Created `/apps/web/src/lib/currency.ts` to hold unified exchange rates, currency definitions, symbol mappings, and a standard `convertCurrency` conversion function.
+
+2. **Escrow Calculator (`LandingPage.tsx`)**:
+   - Replaced static Talent Base Rate text with a styled manual numeric text input field.
+   - Designed local text input logic to format numbers with commas on blur and display raw numbers on focus to prevent cursor jumping.
+   - Refactored currency change event handler to convert the entered amount to the new currency using stable conversion rates.
+   - Implemented dynamic auto-expanding range slider max limit: if the user drags near the edge (>= 95% of current max) or enters a manual value higher than max, the range scales up (1.5x) automatically.
+
+3. **Project Brief Budget (`ProjectBrief.tsx`)**:
+   - Added manual numeric input field and auto-expanding slider for the project brief budget.
+   - Refactored currency selections to automatically convert the entered budget value.
+   - Replaced static Naira budget range preset buttons with dynamic preset buttons generated on-the-fly based on conversion rates. Preset buttons act as quick presets, updating the custom input and slider values on click.
+   - Fixed budget minor unit multiplier bug by converting the custom entered budget to kobo/cents in the selected currency on publishing.
+
+4. **Creator Onboarding & Talent Dashboard (`CreatorOnboarding.tsx`, `TalentDashboard.tsx`)**:
+   - Updated the rate card "Base Price & Currency" form. Changing the currency selection dropdown now dynamically converts the currently entered rate to the equivalent value in the new currency.
+   - Enhanced `TalentDashboard.tsx` edit handler to parse both symbol and numeric digits safely from any saved currency string.
+
+5. **API Client Mock (`api-client.ts`)**:
+   - Updated mock mode project formatter to use the correct symbol corresponding to the brief's `budgetCurrency` instead of hardcoding `₦`.
 
 ---
 

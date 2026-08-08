@@ -11,6 +11,7 @@ import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
 import { formatRelativeTime } from "../../lib/utils";
+import { convertCurrency } from "../../lib/currency";
 import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
@@ -979,7 +980,15 @@ export function TalentDashboard() {
                               onClick={() => {
                                 setEditServiceId(service.id);
                                 setNewServiceTitle(service.title);
-                                setNewServicePrice(service.price.replace("₦", "").replace(/,/g, ""));
+                                const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                                if (match) {
+                                  const symbol = match[1] || "₦";
+                                  const amountStr = match[2] || "";
+                                  setRateCardCurrency(symbol);
+                                  setNewServicePrice(amountStr.replace(/,/g, ""));
+                                } else {
+                                  setNewServicePrice(service.price.replace(/[^0-9]/g, ""));
+                                }
                                 setNewServiceDelivery(service.delivery);
                               }}
                             >
@@ -1068,7 +1077,14 @@ export function TalentDashboard() {
                                />
                                <select
                                  value={rateCardCurrency}
-                                 onChange={(e) => setRateCardCurrency(e.target.value)}
+                                 onChange={(e) => {
+                                   const newCurr = e.target.value;
+                                   const currentVal = Number(newServicePrice.replace(/[^0-9]/g, "")) || 0;
+                                   const converted = convertCurrency(currentVal, rateCardCurrency, newCurr);
+                                   const newVal = Math.round(converted);
+                                   setNewServicePrice(newVal > 0 ? newVal.toLocaleString("en-US") : "");
+                                   setRateCardCurrency(newCurr);
+                                 }}
                                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
                                  style={{ background: "var(--color-bg-elevated)", color: "var(--color-accent)" }}
                                >

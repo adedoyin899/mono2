@@ -7,6 +7,7 @@ import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
+import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL } from "../../lib/currency";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
   Check, Mic, User, Star, Video, Music
@@ -47,13 +48,29 @@ const PROJECT_TYPES = [
   "Other",
 ];
 
-const BUDGET_RANGES = [
-  { label: "Under ₦50K", value: "0-50000" },
-  { label: "₦50K – ₦150K", value: "50000-150000" },
-  { label: "₦150K – ₦500K", value: "150000-500000" },
-  { label: "₦500K – ₦1M", value: "500000-1000000" },
-  { label: "₦1M+", value: "1000000+" },
+const NGN_PRESETS = [
+  { min: 0, max: 50000 },
+  { min: 50000, max: 150000 },
+  { min: 150000, max: 500000 },
+  { min: 500000, max: 1000000 },
+  { min: 1000000, max: null },
 ];
+
+const getFormattedPresetLabel = (min: number, max: number | null, symbol: string) => {
+  const formatValue = (v: number) => {
+    if (v >= 1000000) return `${(v / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+    if (v >= 1000) return `${(v / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+    return v.toString();
+  };
+
+  if (min === 0 && max !== null) {
+    return `Under ${symbol}${formatValue(max)}`;
+  }
+  if (max === null) {
+    return `${symbol}${formatValue(min)}+`;
+  }
+  return `${symbol}${formatValue(min)} – ${symbol}${formatValue(max)}`;
+};
 
 const STEPS = [
   { num: 1 as Step, label: "Project Details", icon: FileText },
@@ -72,13 +89,31 @@ export function ProjectBrief() {
   const [location, setLocation] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [additionalNotes, setAdditionalNotes] = useState("");
-  const [selectedBudget, setSelectedBudget] = useState("");
+  const [selectedCurrency, setSelectedCurrency] = useState("NGN");
+  const [budgetAmount, setBudgetAmount] = useState(150000);
+  const [sliderMax, setSliderMax] = useState(2000000);
+  const [budgetInputStr, setBudgetInputStr] = useState("150,000");
   // features.md Phase 14 (X4): empty = uncapped, matching the server's own
   // "null = uncapped" convention (routes/briefs.ts).
   const [applicantCap, setApplicantCap] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const navigate = useNavigate();
+
+  const activeCurr = CURRENCIES.find(c => c.code === selectedCurrency) || CURRENCIES[0];
+
+  // Sync sliderMax when currency changes
+  React.useEffect(() => {
+    const active = CURRENCIES.find(c => c.code === selectedCurrency);
+    if (active) {
+      setSliderMax(prev => Math.max(prev, active.max));
+    }
+  }, [selectedCurrency]);
+
+  // Sync input string when budgetAmount changes
+  React.useEffect(() => {
+    setBudgetInputStr(budgetAmount.toLocaleString("en-US"));
+  }, [budgetAmount]);
 
   const toggleNiche = (id: string) => {
     setSelectedNiches(prev => prev.includes(id) ? prev.filter(n => n !== id) : [...prev, id]);
@@ -88,11 +123,73 @@ export function ProjectBrief() {
     if (step === 1) return projectName.trim() && projectType;
     if (step === 2) return selectedNiches.length > 0;
     if (step === 3) return true;
-    if (step === 4) return selectedBudget;
+    if (step === 4) return budgetAmount > 0;
     return false;
   };
 
-  const [selectedCurrency, setSelectedCurrency] = useState("NGN");
+  const handleCurrencyChange = (newCode: string) => {
+    const converted = convertCurrency(budgetAmount, selectedCurrency, newCode);
+    const roundedConverted = Math.round(converted);
+    setBudgetAmount(roundedConverted);
+    const active = CURRENCIES.find(c => c.code === newCode);
+    if (active) {
+      setSliderMax(Math.max(active.max, roundedConverted));
+    }
+    setSelectedCurrency(newCode);
+  };
+
+  const handleBudgetInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    const numericStr = rawVal.replace(/\D/g, "");
+    setBudgetInputStr(numericStr);
+    
+    const numericVal = numericStr ? parseInt(numericStr, 10) : 0;
+    setBudgetAmount(numericVal);
+    if (numericVal > sliderMax) {
+      setSliderMax(numericVal);
+    }
+  };
+
+  const handleBudgetInputFocus = () => {
+    setBudgetInputStr(budgetAmount === 0 ? "" : budgetAmount.toString());
+  };
+
+  const handleBudgetInputBlur = () => {
+    setBudgetInputStr(budgetAmount.toLocaleString("en-US"));
+  };
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setBudgetAmount(val);
+    if (val >= sliderMax * 0.95) {
+      setSliderMax(prev => Math.round(prev * 1.5));
+    }
+  };
+
+  const symbol = CODE_TO_SYMBOL[selectedCurrency] || "$";
+  const presets = NGN_PRESETS.map(preset => {
+    const minVal = Math.round(convertCurrency(preset.min, "NGN", selectedCurrency));
+    const maxVal = preset.max !== null ? Math.round(convertCurrency(preset.max, "NGN", selectedCurrency)) : null;
+    return {
+      label: getFormattedPresetLabel(minVal, maxVal, symbol),
+      min: minVal,
+      max: maxVal
+    };
+  });
+
+  const handlePresetSelect = (preset: { min: number, max: number | null }) => {
+    const val = preset.min === 0 && preset.max !== null ? preset.max : preset.min;
+    setBudgetAmount(val);
+    setBudgetInputStr(val.toLocaleString("en-US"));
+    if (val > sliderMax) {
+      setSliderMax(val);
+    }
+  };
+
+  const isPresetActive = (preset: { min: number, max: number | null }) => {
+    const targetVal = preset.min === 0 && preset.max !== null ? preset.max : preset.min;
+    return budgetAmount === targetVal;
+  };
 
   const handleNext = async () => {
     if (step < 4) {
@@ -103,14 +200,11 @@ export function ProjectBrief() {
     // "My Projects" list. Mock mode: unchanged — just show the success screen.
     setPublishing(true);
     try {
-      // The budget picker is a range ("50000-150000" / "1000000+") — the real Brief
-      // needs one number, so this uses the range's lower bound in kobo.
-      const lowerBoundNaira = Number(selectedBudget.split("-")[0].replace("+", ""));
       await apiClient.createBrief({
         projectName,
         projectType,
         nicheReq: selectedNiches.map(id => NICHE_TO_ENUM[id]).filter(Boolean),
-        budgetAmount: Math.round(lowerBoundNaira * 100),
+        budgetAmount: Math.round(budgetAmount * 100),
         budgetCurrency: selectedCurrency,
         applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
         status: "ACTIVE",
@@ -148,7 +242,7 @@ export function ProjectBrief() {
           </p>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12" onClick={() => navigate("/client")}>View My Projects</Button>
-            <Button variant="secondary" className="w-full h-12" onClick={() => { setStep(1); setSubmitSuccess(false); setProjectName(""); setProjectType(""); setSelectedNiches([]); setSelectedBudget(""); setApplicantCap(""); }}>
+            <Button variant="secondary" className="w-full h-12" onClick={() => { setStep(1); setSubmitSuccess(false); setProjectName(""); setProjectType(""); setSelectedNiches([]); setSelectedCurrency("NGN"); setBudgetAmount(150000); setSliderMax(2000000); setBudgetInputStr("150,000"); setApplicantCap(""); }}>
               Post Another Project
             </Button>
           </div>
@@ -440,8 +534,9 @@ export function ProjectBrief() {
                     { code: "ZAR", flag: "🇿🇦", label: "ZAR (R)" },
                   ].map(curr => (
                     <button
+                      type="button"
                       key={curr.code}
-                      onClick={() => setSelectedCurrency(curr.code)}
+                      onClick={() => handleCurrencyChange(curr.code)}
                       className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-bold font-mono transition-all"
                       style={{
                         background: selectedCurrency === curr.code ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
@@ -456,23 +551,52 @@ export function ProjectBrief() {
                 </div>
               </FormField>
 
-              <FormField label={`Budget Range (${selectedCurrency}) *`}>
-                <div className="space-y-2">
-                  {BUDGET_RANGES.map(range => (
-                    <button
-                      key={range.value}
-                      onClick={() => setSelectedBudget(range.value)}
-                      className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-body transition-all"
-                      style={{
-                        background: selectedBudget === range.value ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                        border: `1px solid ${selectedBudget === range.value ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                        color: selectedBudget === range.value ? "var(--color-accent)" : "var(--color-text-secondary)",
-                      }}
-                    >
-                      {range.label}
-                      {selectedBudget === range.value && <Check className="w-4 h-4" />}
-                    </button>
-                  ))}
+              <FormField label={`Budget Presets (${selectedCurrency})`}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {presets.map((preset, index) => {
+                    const isActive = isPresetActive(preset);
+                    return (
+                      <button
+                        type="button"
+                        key={index}
+                        onClick={() => handlePresetSelect(preset)}
+                        className="flex items-center justify-center p-2.5 rounded-xl text-xs font-semibold font-body transition-all"
+                        style={{
+                          background: isActive ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                          border: `1px solid ${isActive ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                          color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </FormField>
+
+              <FormField label={`Budget Amount (${selectedCurrency}) *`}>
+                <div className="space-y-4">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
+                      {symbol}
+                    </span>
+                    <Input
+                      className="pl-8 pr-4 font-mono tnum w-full"
+                      value={budgetInputStr}
+                      onChange={handleBudgetInputChange}
+                      onFocus={handleBudgetInputFocus}
+                      onBlur={handleBudgetInputBlur}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min={activeCurr.min}
+                    max={sliderMax}
+                    step={activeCurr.step}
+                    value={budgetAmount}
+                    onChange={handleSliderChange}
+                    className="w-full accent-[#F13030] cursor-pointer"
+                  />
                 </div>
               </FormField>
 
@@ -500,7 +624,7 @@ export function ProjectBrief() {
                     { label: "Type", value: projectType || "—" },
                     { label: "Niches", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
                     { label: "Timeline", value: timeline || "Flexible" },
-                    { label: "Budget", value: BUDGET_RANGES.find(r => r.value === selectedBudget)?.label || "—" },
+                    { label: "Budget", value: `${symbol}${budgetAmount.toLocaleString()}` },
                     { label: "Applicant cap", value: applicantCap || "Unlimited" },
                   ].map((item, i) => (
                     <div key={i} className="flex justify-between gap-4">

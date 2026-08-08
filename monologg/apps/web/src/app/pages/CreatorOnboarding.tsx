@@ -7,6 +7,7 @@ import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
 import { ChevronLeft, User, Mic, Star, Video, Check, Shield, UploadCloud, Plus, Sparkles, AlertTriangle, X } from "lucide-react";
+import { convertCurrency } from "../../lib/currency";
 
 const DEFAULT_STYLE_TAGS = ["Warm Texture", "Conversational", "Expressive", "High Energy"];
 const TAGGING_POLL_INTERVAL_MS = 1000;
@@ -472,7 +473,14 @@ export function CreatorOnboarding() {
                     />
                     <select
                       value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
+                      onChange={(e) => {
+                        const newCurr = e.target.value;
+                        const currentVal = Number(ratePrice.replace(/[^0-9]/g, "")) || 0;
+                        const converted = convertCurrency(currentVal, currency, newCurr);
+                        const newVal = Math.round(converted);
+                        setRatePrice(newVal > 0 ? newVal.toLocaleString("en-US") : "");
+                        setCurrency(newCurr);
+                      }}
                       className="absolute right-2 top-1/2 -translate-y-1/2 h-9 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
                       style={{ background: "var(--color-bg-surface-2)", color: "var(--color-accent)" }}
                     >
