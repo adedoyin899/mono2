@@ -270,11 +270,13 @@ function MonologgEscrowCalculator() {
   const [amount, setAmount] = useState(CURRENCIES[0].defaultAmount);
   const [showDropdown, setShowDropdown] = useState(false);
   const [sliderMax, setSliderMax] = useState(CURRENCIES[0].max);
-  const [amountInputString, setAmountInputString] = useState(CURRENCIES[0].defaultAmount.toLocaleString("en-US"));
-
   const escrowFee = Math.round(amount * 0.12);
   const talentEarnings = amount;
   const clientTotal = amount + escrowFee;
+
+  const [clientTotalInputStr, setClientTotalInputStr] = useState(
+    clientTotal.toLocaleString("en-US")
+  );
 
   // Sync sliderMax when selected currency changes
   useEffect(() => {
@@ -283,7 +285,7 @@ function MonologgEscrowCalculator() {
 
   // Sync string value when amount changes
   useEffect(() => {
-    setAmountInputString(amount.toLocaleString("en-US"));
+    setClientTotalInputStr(clientTotal.toLocaleString("en-US"));
   }, [amount]);
 
   const handleCurrencySelect = (curr: typeof CURRENCIES[0]) => {
@@ -295,24 +297,25 @@ function MonologgEscrowCalculator() {
     setShowDropdown(false);
   };
 
-  const handleAmountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleClientTotalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     const numericStr = rawVal.replace(/\D/g, "");
-    setAmountInputString(numericStr);
+    setClientTotalInputStr(numericStr);
     
-    const numericVal = numericStr ? parseInt(numericStr, 10) : 0;
-    setAmount(numericVal);
-    if (numericVal > sliderMax) {
-      setSliderMax(numericVal);
+    const totalVal = numericStr ? parseInt(numericStr, 10) : 0;
+    const baseVal = Math.round(totalVal / 1.12);
+    setAmount(baseVal);
+    if (baseVal > sliderMax) {
+      setSliderMax(baseVal);
     }
   };
 
-  const handleAmountInputFocus = () => {
-    setAmountInputString(amount === 0 ? "" : amount.toString());
+  const handleClientTotalInputFocus = () => {
+    setClientTotalInputStr(clientTotal === 0 ? "" : clientTotal.toString());
   };
 
-  const handleAmountInputBlur = () => {
-    setAmountInputString(amount.toLocaleString("en-US"));
+  const handleClientTotalInputBlur = () => {
+    setClientTotalInputStr(clientTotal.toLocaleString("en-US"));
   };
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -328,14 +331,16 @@ function MonologgEscrowCalculator() {
   return (
     <div className="p-6 md:p-8 rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4 relative">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#F13030] animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#F13030]">
-            Monologg Escrow Protocol
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#F13030] animate-pulse shrink-0" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#F13030] truncate">
+            <span className="max-[400px]:hidden">Monologg Escrow Protocol</span>
+            <span className="min-[400px]:inline hidden">Escrow Protocol</span>
           </span>
         </div>
-        <div className="bg-[#F13030]/20 text-[#FF4D4D] px-3 py-1 rounded-full text-xs font-bold font-mono border border-[#F13030]/30">
-          100% Guaranteed Payout
+        <div className="bg-[#F13030]/20 text-[#FF4D4D] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold font-mono border border-[#F13030]/30 shrink-0">
+          <span className="max-[400px]:hidden">100% Guaranteed Payout</span>
+          <span className="min-[400px]:inline hidden">100% Payout</span>
         </div>
       </div>
 
@@ -345,8 +350,16 @@ function MonologgEscrowCalculator() {
           <span className="font-mono">FINCRA Locked</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <div className="text-2xl font-bold font-mono text-[#F5F5F0]">
-            {selectedCurr.symbol}{clientTotal.toLocaleString()}
+          <div className="flex items-center gap-1 text-2xl font-bold font-mono text-[#F5F5F0]">
+            <span>{selectedCurr.symbol}</span>
+            <input
+              type="text"
+              className="bg-transparent font-bold font-mono text-[#F5F5F0] focus:outline-none w-full max-w-[200px] border-b border-transparent focus:border-white/20 transition-colors"
+              value={clientTotalInputStr}
+              onChange={handleClientTotalInputChange}
+              onFocus={handleClientTotalInputFocus}
+              onBlur={handleClientTotalInputBlur}
+            />
           </div>
 
           {/* Interactive Multi-Currency Selector Dropdown */}
@@ -415,17 +428,7 @@ function MonologgEscrowCalculator() {
       <div className="pt-2">
         <div className="flex justify-between items-center text-[11px] text-[#FF4D4D] mb-1 font-mono">
           <span>Adjust Booking Amount ({selectedCurr.code})</span>
-          <div className="flex items-center gap-1 bg-[#1F1F24] border border-white/10 rounded px-1.5 py-0.5">
-            <span className="text-white/40">{selectedCurr.symbol}</span>
-            <input
-              type="text"
-              className="bg-transparent text-right font-mono text-[#FF4D4D] focus:outline-none w-28 text-xs font-bold"
-              value={amountInputString}
-              onChange={handleAmountInputChange}
-              onFocus={handleAmountInputFocus}
-              onBlur={handleAmountInputBlur}
-            />
-          </div>
+          <span>{selectedCurr.symbol}{amount.toLocaleString()}</span>
         </div>
         <input
           type="range"
@@ -440,8 +443,9 @@ function MonologgEscrowCalculator() {
 
       <div className="pt-2">
         <button className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg">
-          <Lock className="w-4 h-4" />
-          Lock Contract in Monologg Escrow ({selectedCurr.code})
+          <Lock className="w-4 h-4 shrink-0" />
+          <span className="max-[500px]:hidden">Lock Contract in Monologg Escrow ({selectedCurr.code})</span>
+          <span className="min-[500px]:inline hidden">Lock in Escrow ({selectedCurr.code})</span>
         </button>
       </div>
     </div>
@@ -533,8 +537,8 @@ function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
   const [playing, setPlaying] = useState(false);
 
   return (
-    <div className="w-[320px] sm:w-[360px] shrink-0 rounded-[24px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] p-4 shadow-sm hover:shadow-xl transition-all duration-300">
-      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-4 bg-gray-100 dark:bg-[#1B1B20]">
+    <div className="w-[280px] min-[400px]:w-[320px] sm:w-[360px] shrink-0 rounded-[24px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] p-3 min-[400px]:p-4 shadow-sm hover:shadow-xl transition-all duration-300">
+      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-3 min-[400px]:mb-4 bg-gray-100 dark:bg-[#1B1B20]">
         <img
           src={talent.img}
           alt={talent.name}
@@ -542,8 +546,8 @@ function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
-          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+        <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] min-[400px]:text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
+          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
           <span>{talent.rating}</span>
           <span className="text-white/60">({talent.reviews})</span>
         </div>
@@ -553,32 +557,32 @@ function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
             e.stopPropagation();
             setPlaying(!playing);
           }}
-          className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-[#F13030] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+          className="absolute bottom-3 right-3 w-8 h-8 min-[400px]:w-10 min-[400px]:h-10 rounded-full bg-[#F13030] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
         >
-          {playing ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+          {playing ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
         </button>
       </div>
 
       <div className="space-y-2 text-left">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-base flex items-center gap-1.5 font-display text-[#16161A] dark:text-[#F5F5F0]">
+          <h3 className="font-bold text-sm min-[400px]:text-base flex items-center gap-1.5 font-display text-[#16161A] dark:text-[#F5F5F0] truncate">
             {talent.name}
-            {talent.verified && <Shield className="w-4 h-4 text-[#F13030] fill-[#F13030]/20" />}
+            {talent.verified && <Shield className="w-3.5 h-3.5 text-[#F13030] fill-[#F13030]/20 shrink-0" />}
           </h3>
-          <span className="text-xs font-bold font-mono text-[#F13030] dark:text-[#FF4D4D]">
+          <span className="text-xs min-[400px]:text-sm font-bold font-mono text-[#F13030] dark:text-[#FF4D4D] shrink-0">
             {talent.rate}
           </span>
         </div>
 
-        <p className="text-xs text-gray-600 dark:text-[#A6A6B0] font-body">
+        <p className="text-[10px] min-[400px]:text-xs text-gray-600 dark:text-[#A6A6B0] font-body truncate">
           {talent.category} · {talent.location}
         </p>
 
-        <div className="flex flex-wrap gap-1.5 pt-1">
+        <div className="flex flex-wrap gap-1 min-[400px]:gap-1.5 pt-1">
           {talent.tags.map((tag) => (
             <span
               key={tag}
-              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/20"
+              className="text-[9px] min-[400px]:text-[11px] font-semibold px-2 py-0.5 min-[400px]:px-2.5 min-[400px]:py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/20"
             >
               {tag}
             </span>
@@ -817,64 +821,64 @@ export function LandingPage() {
               {!submitted ? (
                 <form
                   onSubmit={handleSubmit}
-                  className="p-2 rounded-full bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] shadow-xl flex items-center gap-2"
+                  className="p-1.5 min-[480px]:p-2 rounded-[24px] min-[480px]:rounded-full bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] shadow-xl flex flex-col min-[480px]:flex-row items-stretch min-[480px]:items-center gap-2"
                 >
                   <input
                     type="email"
-                    placeholder="Enter email for instant storefront invite"
+                    placeholder="Enter email for instant invite"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="flex-1 px-5 py-3 text-sm bg-transparent outline-none text-[#16161A] dark:text-[#F5F5F0] placeholder:text-gray-400 dark:placeholder:text-[#A6A6B0]"
+                    className="flex-1 px-4 py-2.5 min-[480px]:px-5 min-[480px]:py-3 text-sm bg-transparent outline-none text-[#16161A] dark:text-[#F5F5F0] placeholder:text-gray-400 dark:placeholder:text-[#A6A6B0] text-center min-[480px]:text-left"
                   />
                   <Button
                     type="submit"
                     variant="red"
-                    className="h-11 px-6 text-xs font-bold shrink-0"
+                    className="h-11 px-6 text-xs font-bold w-full min-[480px]:w-auto rounded-full shrink-0"
                   >
-                    Get Early Access <ArrowRight className="w-4 h-4 ml-1" />
+                    Get Early Access <ArrowRight className="w-4 h-4 ml-1 inline" />
                   </Button>
                 </form>
               ) : (
-                <div className="p-3 px-5 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex items-center justify-between gap-3 shadow-md">
+                <div className="p-3 px-5 rounded-[24px] min-[480px]:rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex flex-col min-[480px]:flex-row items-center justify-between gap-3 shadow-md">
                   <div className="flex items-center gap-2 text-xs font-bold truncate">
                     <Check className="w-4 h-4 text-[#F13030] shrink-0" />
-                    <span className="truncate">You're #347 in queue! Share link: monologg.app</span>
+                    <span className="truncate">You're #347 in queue!</span>
                   </div>
                   <button
                     onClick={handleCopyLink}
-                    className="px-3 py-1 rounded-full bg-[#F13030] text-white text-xs font-bold hover:bg-[#d31f20] transition-all flex items-center gap-1.5 shrink-0"
+                    className="px-3 py-1 rounded-full bg-[#F13030] text-white text-xs font-bold hover:bg-[#d31f20] transition-all flex items-center gap-1.5 shrink-0 w-full min-[480px]:w-auto justify-center"
                   >
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copied ? "Copied!" : "Copy Link"}</span>
+                    <span>{copied ? "Copied Link!" : "Copy Invite Link"}</span>
                   </button>
                 </div>
               )}
             </div>
 
             {/* 3-Column Stats */}
-            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto pt-12 border-t border-[var(--color-hairline)] text-center">
+            <div className="grid grid-cols-3 gap-2 min-[400px]:gap-6 max-w-3xl mx-auto pt-12 border-t border-[var(--color-hairline)] text-center">
               <div>
-                <div className="text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
+                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
                   97%
                 </div>
-                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
                   On-Time Delivery Rate
                 </div>
               </div>
               <div>
-                <div className="text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
+                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
                   2.9 hrs
                 </div>
-                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
                   Avg Brief to Booking
                 </div>
               </div>
               <div>
-                <div className="text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
+                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
                   3,200+
                 </div>
-                <div className="text-xs text-[var(--color-text-secondary)] font-medium mt-1">
+                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
                   Verified Talent Profiles
                 </div>
               </div>

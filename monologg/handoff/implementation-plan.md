@@ -9,7 +9,8 @@
 
 ### Session 60 — Manual Currency Input, Auto-Expanding Sliders & Currency Conversion
 - [x] **Shared Currency Utility**: Created unified `currency.ts` helper with stable exchange rates and currency conversion methods.
-- [x] **Escrow Calculator**: Refactored `LandingPage.tsx` so base rate is manual text input. Sliders auto-expand up by 1.5x as they are dragged to edge. Currency dropdown changes convert existing values dynamically.
+- [x] **Escrow Calculator**: Refactored `LandingPage.tsx` to shift manual input to the top contract total display, keep slider values read-only, and dynamically scale slider max limits.
+- [x] **Mobile Responsiveness Polish**: Scaled stats columns, stacked email forms on mobile (<480px), shortened card header titles and CTA text, and scaled carousel talent cards down dynamically to prevent clipping.
 - [x] **Project Brief Stepper**: Added manual text input, auto-expanding range slider, dynamic presets matching selected currency, and currency conversion. Fixed bug where non-Naira brief budget was posted with incorrect values.
 - [x] **Creator Onboarding & Talent Dashboard**: Updated base price input form to automatically convert rate card values when selecting a new currency.
 - [x] **Verification**: Web typecheck (`tsc --noEmit`) and Vitest test suite (21 test files, 78 tests passing 100%) passed successfully.

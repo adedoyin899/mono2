@@ -18,11 +18,14 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 1. **Core Currency Utility (`currency.ts`)**:
    - Created `/apps/web/src/lib/currency.ts` to hold unified exchange rates, currency definitions, symbol mappings, and a standard `convertCurrency` conversion function.
 
-2. **Escrow Calculator (`LandingPage.tsx`)**:
-   - Replaced static Talent Base Rate text with a styled manual numeric text input field.
-   - Designed local text input logic to format numbers with commas on blur and display raw numbers on focus to prevent cursor jumping.
-   - Refactored currency change event handler to convert the entered amount to the new currency using stable conversion rates.
-   - Implemented dynamic auto-expanding range slider max limit: if the user drags near the edge (>= 95% of current max) or enters a manual value higher than max, the range scales up (1.5x) automatically.
+2. **Escrow Calculator & Mobile Polish (`LandingPage.tsx`)**:
+   - Refactored calculation manual inputs: shifted the manual entry from the slider label to the top contract total big number, reverting the slider label back to read-only text that updates automatically as the slider is dragged.
+   - Refactored text input handler to update base rate from entered client contract total.
+   - Shortened card header text and dot indicators to prevent wrapping on narrow screens.
+   - Shortened Lock CTA button text on mobile viewports (<500px) to prevent wrapping.
+   - Replaced email signup form layout with a responsive column stacking flex on mobile viewports (<480px).
+   - Scaled 3-column stats section font size and grid gaps to fit on mobile viewports cleanly.
+   - Scaled down carousel artist cards (`TalentCardItem`) width dynamically from `360px` to `320px` to `280px` on mobile viewports, adjusting font and tag paddings accordingly to prevent text overflow.
 
 3. **Project Brief Budget (`ProjectBrief.tsx`)**:
    - Added manual numeric input field and auto-expanding slider for the project brief budget.
