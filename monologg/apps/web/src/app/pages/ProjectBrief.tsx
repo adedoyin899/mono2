@@ -92,6 +92,8 @@ export function ProjectBrief() {
     return false;
   };
 
+  const [selectedCurrency, setSelectedCurrency] = useState("NGN");
+
   const handleNext = async () => {
     if (step < 4) {
       setStep((step + 1) as Step);
@@ -109,7 +111,7 @@ export function ProjectBrief() {
         projectType,
         nicheReq: selectedNiches.map(id => NICHE_TO_ENUM[id]).filter(Boolean),
         budgetAmount: Math.round(lowerBoundNaira * 100),
-        budgetCurrency: "NGN",
+        budgetCurrency: selectedCurrency,
         applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
         status: "ACTIVE",
       });
@@ -426,7 +428,35 @@ export function ProjectBrief() {
                 <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right talent.</p>
               </div>
 
-              <FormField label="Budget Range *">
+              <FormField label="Budget Currency *">
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[
+                    { code: "NGN", flag: "🇳🇬", label: "NGN (₦)" },
+                    { code: "USD", flag: "🇺🇸", label: "USD ($)" },
+                    { code: "GBP", flag: "🇬🇧", label: "GBP (£)" },
+                    { code: "EUR", flag: "🇪🇺", label: "EUR (€)" },
+                    { code: "GHS", flag: "🇬🇭", label: "GHS (GH₵)" },
+                    { code: "KES", flag: "🇰🇪", label: "KES (KSh)" },
+                    { code: "ZAR", flag: "🇿🇦", label: "ZAR (R)" },
+                  ].map(curr => (
+                    <button
+                      key={curr.code}
+                      onClick={() => setSelectedCurrency(curr.code)}
+                      className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-bold font-mono transition-all"
+                      style={{
+                        background: selectedCurrency === curr.code ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                        border: `1px solid ${selectedCurrency === curr.code ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                        color: selectedCurrency === curr.code ? "var(--color-accent)" : "var(--color-text-secondary)",
+                      }}
+                    >
+                      <span>{curr.flag}</span>
+                      <span>{curr.code}</span>
+                    </button>
+                  ))}
+                </div>
+              </FormField>
+
+              <FormField label={`Budget Range (${selectedCurrency}) *`}>
                 <div className="space-y-2">
                   {BUDGET_RANGES.map(range => (
                     <button

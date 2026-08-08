@@ -258,20 +258,38 @@ const FAQS = [
   },
   {
     q: "Which countries and currencies are supported?",
-    a: "Monologg supports multi-currency escrow payouts in NGN (Nigerian Naira), GHS (Ghanaian Cedi), KES (Kenyan Shilling), USD, and GBP.",
+    a: "Monologg supports multi-currency escrow payouts in NGN (Nigerian Naira), GHS (Ghanaian Cedi), KES (Kenyan Shilling), ZAR (South African Rand), EUR, USD, and GBP.",
   },
 ];
 
-// ── Escrow Calculator ──
+// ── Multi-Currency Support Definitions ──
+const CURRENCIES = [
+  { code: "NGN", symbol: "₦", flag: "🇳🇬", name: "Nigerian Naira", min: 50000, max: 2000000, step: 25000, defaultAmount: 150000 },
+  { code: "USD", symbol: "$", flag: "🇺🇸", name: "US Dollar", min: 50, max: 3000, step: 25, defaultAmount: 250 },
+  { code: "GBP", symbol: "£", flag: "🇬🇧", name: "British Pound", min: 40, max: 2500, step: 20, defaultAmount: 200 },
+  { code: "EUR", symbol: "€", flag: "🇪🇺", name: "Euro", min: 45, max: 2800, step: 25, defaultAmount: 220 },
+  { code: "GHS", symbol: "GH₵", flag: "🇬🇭", name: "Ghanaian Cedi", min: 500, max: 30000, step: 500, defaultAmount: 3000 },
+  { code: "KES", symbol: "KSh", flag: "🇰🇪", name: "Kenyan Shilling", min: 5000, max: 300000, step: 2500, defaultAmount: 30000 },
+  { code: "ZAR", symbol: "R", flag: "🇿🇦", name: "South African Rand", min: 800, max: 50000, step: 500, defaultAmount: 4500 },
+];
+
 function MonologgEscrowCalculator() {
-  const [amount, setAmount] = useState(150000);
+  const [selectedCurr, setSelectedCurr] = useState(CURRENCIES[0]);
+  const [amount, setAmount] = useState(CURRENCIES[0].defaultAmount);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const escrowFee = Math.round(amount * 0.12);
   const talentEarnings = amount;
   const clientTotal = amount + escrowFee;
 
+  const handleCurrencySelect = (curr: typeof CURRENCIES[0]) => {
+    setSelectedCurr(curr);
+    setAmount(curr.defaultAmount);
+    setShowDropdown(false);
+  };
+
   return (
-    <div className="p-6 md:p-8 rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4">
+    <div className="p-6 md:p-8 rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4 relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#F13030] animate-pulse" />
@@ -284,23 +302,54 @@ function MonologgEscrowCalculator() {
         </div>
       </div>
 
-      <div className="bg-[#1B1B20] rounded-[18px] p-4 border border-[#26262E] space-y-1">
+      <div className="bg-[#1B1B20] rounded-[18px] p-4 border border-[#26262E] space-y-1 relative">
         <div className="flex justify-between items-center text-xs text-[#A6A6B0] font-medium">
           <span>Client Pays Total Contract</span>
           <span className="font-mono">FINCRA Locked</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <input
-            type="number"
-            value={clientTotal}
-            readOnly
-            className="text-2xl font-bold font-mono bg-transparent outline-none w-full text-[#F5F5F0]"
-          />
-          <div className="flex items-center gap-2 bg-[#232329] px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0 border border-white/10">
-            <span className="w-5 h-5 rounded-full bg-[#F13030] text-white text-[10px] flex items-center justify-center font-black">
-              🇳🇬
-            </span>
-            <span>NGN</span>
+          <div className="text-2xl font-bold font-mono text-[#F5F5F0]">
+            {selectedCurr.symbol}{clientTotal.toLocaleString()}
+          </div>
+
+          {/* Interactive Multi-Currency Selector Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-2 bg-[#232329] hover:bg-[#2c2c34] px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0 border border-white/15 transition-all active:scale-95"
+            >
+              <span className="w-5 h-5 rounded-full bg-[#F13030] text-white text-[10px] flex items-center justify-center font-black">
+                {selectedCurr.flag}
+              </span>
+              <span>{selectedCurr.code}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+            </button>
+
+            {/* Currency Menu Modal */}
+            {showDropdown && (
+              <div className="absolute right-0 top-full mt-2 w-52 bg-[#16161A] border border-[#34343E] rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 backdrop-blur-xl">
+                <div className="px-3 py-1.5 text-[10px] font-mono font-bold uppercase text-[#A6A6B0] border-b border-white/10">
+                  Select Currency
+                </div>
+                {CURRENCIES.map((curr) => (
+                  <button
+                    key={curr.code}
+                    onClick={() => handleCurrencySelect(curr)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                      selectedCurr.code === curr.code
+                        ? "bg-[#F13030] text-white font-bold"
+                        : "hover:bg-[#232329] text-[#F5F5F0]"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{curr.flag}</span>
+                      <span>{curr.code} ({curr.symbol})</span>
+                    </span>
+                    {selectedCurr.code === curr.code && <Check className="w-3.5 h-3.5" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -309,31 +358,33 @@ function MonologgEscrowCalculator() {
         <div className="flex justify-between items-center py-2 border-b border-white/10">
           <span className="text-[#A6A6B0]">Talent Base Rate</span>
           <span className="font-mono font-bold text-[#FF4D4D]">
-            ₦{amount.toLocaleString()}
+            {selectedCurr.symbol}{amount.toLocaleString()}
           </span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-white/10">
           <span className="text-[#A6A6B0]">Escrow Processing Fee (12%)</span>
-          <span className="font-mono text-[#A6A6B0]">₦{escrowFee.toLocaleString()}</span>
+          <span className="font-mono text-[#A6A6B0]">
+            {selectedCurr.symbol}{escrowFee.toLocaleString()}
+          </span>
         </div>
         <div className="flex justify-between items-center py-2">
           <span className="font-bold text-white">Talent Receives (Net Payout)</span>
           <span className="font-mono font-extrabold text-white text-base">
-            ₦{talentEarnings.toLocaleString()}
+            {selectedCurr.symbol}{talentEarnings.toLocaleString()}
           </span>
         </div>
       </div>
 
       <div className="pt-2">
         <div className="flex justify-between text-[11px] text-[#FF4D4D] mb-1 font-mono">
-          <span>Adjust Booking Amount</span>
-          <span>₦{amount.toLocaleString()}</span>
+          <span>Adjust Booking Amount ({selectedCurr.code})</span>
+          <span>{selectedCurr.symbol}{amount.toLocaleString()}</span>
         </div>
         <input
           type="range"
-          min={50000}
-          max={1000000}
-          step={25000}
+          min={selectedCurr.min}
+          max={selectedCurr.max}
+          step={selectedCurr.step}
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
           className="w-full accent-[#F13030] cursor-pointer"
@@ -343,7 +394,7 @@ function MonologgEscrowCalculator() {
       <div className="pt-2">
         <button className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg">
           <Lock className="w-4 h-4" />
-          Lock Contract in Monologg Escrow
+          Lock Contract in Monologg Escrow ({selectedCurr.code})
         </button>
       </div>
     </div>

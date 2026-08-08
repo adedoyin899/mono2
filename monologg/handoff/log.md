@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-04 (Session 58: Focused Active Node & Inactive Flag Beacons Map UX)
+**Last updated:** 2026-08-04 (Session 59: Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,21 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 58 (2026-08-04) — Focused Active Node & Inactive Flag Beacons Map UX
+## Session 59 (2026-08-04) — Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support
+
+**Goal:** Enable interactive multi-currency selection across the application, specifically converting the Escrow Calculator currency pill into a full dropdown selector supporting 7 currencies (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`), and adding multi-currency selector buttons to `ProjectBrief.tsx` budget step.
+
+**Changes Made:**
+
+1. **Escrow Calculator Multi-Currency Selector (`LandingPage.tsx`)**:
+   - Converted static currency pill into an interactive dropdown selector with flag icons (`🇳🇬 NGN`, `🇺🇸 USD`, `🇬🇧 GBP`, `🇪🇺 EUR`, `🇬🇭 GHS`, `🇰🇪 KES`, `🇿🇦 ZAR`).
+   - Dynamically adapts slider min/max/step and auto-converts all values (Base rate, Escrow Fee, Net Payout, FINCRA Total) with exact currency symbols (`₦`, `$`, `£`, `€`, `GH₵`, `KSh`, `R`).
+
+2. **Project Brief Multi-Currency Inputs (`ProjectBrief.tsx`)**:
+   - Added multi-currency pill selector in Step 4 Budget section allowing clients to select brief budget currency (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`).
+   - Updated `apiClient.createBrief` payload to pass selected currency.
+
+---
 
 **Goal:** Resolve badge overlap clutter around West/East Africa on the world map by prominently highlighting the single active country node with a bold red card & radar pulse, while rendering all inactive country nodes as sleek circular flag beacons with reduced opacity and hover tooltips.
 

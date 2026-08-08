@@ -1,11 +1,16 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-04 (Session 58: Focused Active Node & Inactive Flag Beacons Map UX)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–58 Visual Overhauls & Design Fixes are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-Resolution Dot-Matrix Vector Map SVG (`vector-map.svg`) with focused active country node & sleek inactive flag beacons, interactive QR code modal, and full navigation view overhaul.
+**Last updated:** 2026-08-04 (Session 59: Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–59 Visual Overhauls & Design Fixes are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-Resolution Dot-Matrix Vector Map SVG (`vector-map.svg`) with focused active country node & sleek inactive flag beacons, interactive 7-currency dropdown selector (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`), interactive QR code modal, and full navigation view overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 59 — Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support
+- [x] **Escrow Calculator Multi-Currency Selector**: Built an interactive currency dropdown supporting `NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, and `ZAR` with flag icons and automatic price re-calculation.
+- [x] **Project Brief Multi-Currency Buttons**: Added multi-currency pill selection row to `ProjectBrief.tsx` Step 4 budget view.
+- [x] **Verification**: Web typecheck (`tsc --noEmit`), Vitest test suite (21 test files, 78 tests passing 100%), and Vite production build (`dist/assets` compiled in 2.11s) verified clean.
 
 ### Session 58 — Focused Active Node & Inactive Flag Beacons Map UX
 - [x] **Clutter-Free Map UX Overhaul**: Rendered active focus node as a bold Mono-Red pill card (`bg-[#F13030]`) with animated radar pulse, while rendering inactive nodes as sleek 32px circular flag beacon pins with `opacity-60` and hover tooltips.
