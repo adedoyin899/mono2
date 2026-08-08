@@ -19,6 +19,12 @@ This tracks every defect found during this engagement — both classic "the buil
 
 ## Bugs found and fixed during this engagement
 
+### 28. Overlarge numeric amount layout breakage
+- **Severity:** Medium
+- **What happened:** Entering extremely large base rates or project budgets (e.g. 15+ digits) caused calculations to overflow and broken layout blocks with text overlapping in the escrow calculator card and client brief screens.
+- **Root Cause:** Input fields accepted arbitrary string length digits without limit validation, rendering labels that overflowed the fixed-width UI panels.
+- **Resolution:** Implemented high-value limit validation in all currency inputs capping entry at `999,999,999,999,999`. If exceeded, it triggers a funny error modal rotating warning options with mobile layout viewport safety.
+
 ### 27. Multi-currency project brief budget multiplier bug
 - **Severity:** Medium
 - **What happened:** Selecting USD/GBP/EUR or other non-Naira currencies in `ProjectBrief.tsx` and selecting a budget preset caused the posted `budgetAmount` to be wrong, e.g., posting $150,000 instead of $100.

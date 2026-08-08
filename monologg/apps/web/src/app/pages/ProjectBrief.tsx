@@ -7,10 +7,11 @@ import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
-import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL } from "../../lib/currency";
+import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL, getRandomLimitError, LimitError } from "../../lib/currency";
+import { Modal } from "../components/ui/Modal";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
-  Check, Mic, User, Star, Video, Music
+  Check, Mic, User, Star, Video, Music, AlertTriangle
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -93,6 +94,7 @@ export function ProjectBrief() {
   const [budgetAmount, setBudgetAmount] = useState(150000);
   const [sliderMax, setSliderMax] = useState(2000000);
   const [budgetInputStr, setBudgetInputStr] = useState("150,000");
+  const [limitError, setLimitError] = useState<LimitError | null>(null);
   // features.md Phase 14 (X4): empty = uncapped, matching the server's own
   // "null = uncapped" convention (routes/briefs.ts).
   const [applicantCap, setApplicantCap] = useState("");
@@ -141,6 +143,13 @@ export function ProjectBrief() {
   const handleBudgetInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     const numericStr = rawVal.replace(/\D/g, "");
+    
+    if (numericStr.length > 15 || (numericStr.length === 15 && parseInt(numericStr, 10) > 999999999999999)) {
+      const isMobile = window.innerWidth < 500;
+      setLimitError(getRandomLimitError(isMobile));
+      return;
+    }
+    
     setBudgetInputStr(numericStr);
     
     const numericVal = numericStr ? parseInt(numericStr, 10) : 0;
@@ -672,6 +681,33 @@ export function ProjectBrief() {
           )}
         </div>
       </div>
+
+      {limitError && (
+        <Modal onClose={() => setLimitError(null)} align="center" strength="strong">
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-[28px] p-6 max-w-sm w-full text-center space-y-6 shadow-2xl relative"
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#F13030]/10 flex items-center justify-center text-[#F13030]">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-display text-[#16161A] dark:text-white">
+                {limitError.heading}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-[#A6A6B0] font-body leading-relaxed">
+                {limitError.subtext}
+              </p>
+            </div>
+            <button
+              onClick={() => setLimitError(null)}
+              className="w-full py-3 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all shadow-lg active:scale-95"
+            >
+              Adjust Amount
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -164,6 +164,7 @@ Stabilized multi-currency workflows across the app by allowing users to enter cu
 - Refactored `LandingPage.tsx` and `ProjectBrief.tsx` to enable raw text fields that format on blur, auto-scaling sliders, and converting currency.
 - Fixed budget multiplication bug on publishing briefs for non-Naira selections by transmitting values in currency-appropriate minor units.
 - Updated `CreatorOnboarding.tsx` and `TalentDashboard.tsx` base price setup to convert rate values automatically on dropdown select.
+- Added numeric amount validation capping all currency entries at `999,999,999,999,999` and displaying funny error messages via pop-up modals when exceeded.
 - Verified workspace builds and Vitest test suite passes successfully.
 
 ---

@@ -61,3 +61,21 @@ export function convertCurrency(amount: number, fromCode: string, toCode: string
   const amountInUSD = amount / fromRate;
   return amountInUSD * toRate;
 }
+
+export interface LimitError {
+  heading: string;
+  subtext: string;
+}
+
+export function getRandomLimitError(isMobile: boolean): LimitError {
+  const choice = Math.random() < 0.5 ? 0 : 1;
+  if (isMobile) {
+    return choice === 0
+      ? { heading: "Amount too high", subtext: "That's a lot of zeros. Try again." }
+      : { heading: "Too many zeros", subtext: "Even we're speechless. Try a smaller number." };
+  } else {
+    return choice === 0
+      ? { heading: "Amount too high", subtext: "That's a little too ambitious. Please enter a smaller number." }
+      : { heading: "Even FINCRA has limits.", subtext: "Please enter an amount under 999,999,999,999,999." };
+  }
+}

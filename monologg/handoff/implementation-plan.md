@@ -8,7 +8,8 @@
 ## ✅ Done
 
 ### Session 60 — Manual Currency Input, Auto-Expanding Sliders & Currency Conversion
-- [x] **Shared Currency Utility**: Created unified `currency.ts` helper with stable exchange rates and currency conversion methods.
+- [x] **Shared Currency Utility**: Created unified `currency.ts` helper with stable exchange rates, currency conversion methods, and added rotating `getRandomLimitError` warnings for overlarge amounts.
+- [x] **Limit Warning Modals**: Added validation modals to the Escrow Calculator (`LandingPage.tsx`) and Project Brief Stepper (`ProjectBrief.tsx`) budget inputs, triggering when values exceed `999,999,999,999,999` in any currency.
 - [x] **Escrow Calculator**: Refactored `LandingPage.tsx` to shift manual input to the top contract total display, keep slider values read-only, and dynamically scale slider max limits.
 - [x] **Mobile Responsiveness Polish**: Scaled stats columns, stacked email forms on mobile (<480px), shortened card header titles and CTA text, and scaled carousel talent cards down dynamically to prevent clipping.
 - [x] **Project Brief Stepper**: Added manual text input, auto-expanding range slider, dynamic presets matching selected currency, and currency conversion. Fixed bug where non-Naira brief budget was posted with incorrect values.

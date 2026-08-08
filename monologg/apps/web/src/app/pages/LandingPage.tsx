@@ -7,13 +7,14 @@ import { Avatar } from "../components/ui/Avatar";
 import { Logo } from "../components/ui/Logo";
 import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
 import { useTheme } from "../Root";
+import { Modal } from "../components/ui/Modal";
 import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
   Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
-  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2
+  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2, AlertTriangle
 } from "lucide-react";
-import { CURRENCIES, convertCurrency } from "../../lib/currency";
+import { CURRENCIES, convertCurrency, getRandomLimitError, LimitError } from "../../lib/currency";
 
 // ── 7 Curated Talent Profiles for Infinite Auto-Looping Carousel ──
 const CAROUSEL_TALENTS = [
@@ -278,6 +279,8 @@ function MonologgEscrowCalculator() {
     clientTotal.toLocaleString("en-US")
   );
 
+  const [limitError, setLimitError] = useState<LimitError | null>(null);
+
   // Sync sliderMax when selected currency changes
   useEffect(() => {
     setSliderMax(prev => Math.max(prev, selectedCurr.max));
@@ -300,6 +303,13 @@ function MonologgEscrowCalculator() {
   const handleClientTotalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     const numericStr = rawVal.replace(/\D/g, "");
+    
+    if (numericStr.length > 15 || (numericStr.length === 15 && parseInt(numericStr, 10) > 999999999999999)) {
+      const isMobile = window.innerWidth < 500;
+      setLimitError(getRandomLimitError(isMobile));
+      return;
+    }
+    
     setClientTotalInputStr(numericStr);
     
     const totalVal = numericStr ? parseInt(numericStr, 10) : 0;
@@ -448,6 +458,33 @@ function MonologgEscrowCalculator() {
           <span className="inline min-[500px]:hidden">Lock in Escrow ({selectedCurr.code})</span>
         </button>
       </div>
+
+      {limitError && (
+        <Modal onClose={() => setLimitError(null)} align="center" strength="strong">
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-[28px] p-6 max-w-sm w-full text-center space-y-6 shadow-2xl relative"
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#F13030]/10 flex items-center justify-center text-[#F13030]">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-display text-[#16161A] dark:text-white">
+                {limitError.heading}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-[#A6A6B0] font-body leading-relaxed">
+                {limitError.subtext}
+              </p>
+            </div>
+            <button
+              onClick={() => setLimitError(null)}
+              className="w-full py-3 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all shadow-lg active:scale-95"
+            >
+              Adjust Amount
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

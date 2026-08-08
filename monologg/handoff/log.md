@@ -40,6 +40,10 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 5. **API Client Mock (`api-client.ts`)**:
    - Updated mock mode project formatter to use the correct symbol corresponding to the brief's `budgetCurrency` instead of hardcoding `₦`.
 
+6. **Amount Limit Validation & Warning Modals (`currency.ts`, `LandingPage.tsx`, `ProjectBrief.tsx`)**:
+   - Added validation checking if manual input amount exceeds `999,999,999,999,999` in any currency.
+   - Built a warning modal component triggering on overflow, randomly selecting between rotating funny messages, and adapting text copy automatically for mobile viewports.
+
 ---
 
 ## Session 59 (2026-08-04) — Interactive Multi-Currency Dropdown Selector & Multi-Currency Input Support
