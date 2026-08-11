@@ -28,7 +28,9 @@ pnpm dev         # http://localhost:5173
 | `packages/types/` | Shared zod schemas/TypeScript types — the single source of truth for every data shape, imported by both `apps/web` and `apps/api`. |
 | `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`, `.dockerignore` | `features.md` Phase 12 — the full stack (Postgres + Redis + API + web), all-mock, no real keys: `docker compose up --build`. See `apps/api/README.md`'s "Deployment" section for local vs. real-deploy config. |
 | `handoff/` | All project documentation: what the product is, the tech stack, a running implementation log, every bug found and fixed, and a plain-language walkthrough of how it was all built. **Read this before making changes**, and keep it updated after. |
+| `qa/` | Dated QA/security/UAT gate reports (`features.md` Phase 17 onward) — what was independently verified, what's still open, before any production cutover. |
 | `brand/` | `icon.svg` (mark) and `logo.svg` (wordmark) — the real brand assets, wired into the app via `apps/web/src/app/components/ui/Logo.tsx` everywhere the wordmark appears. |
+| `reference-screenshots/` | 18 original Figma design screenshots (~17MB), historical visual reference only — not imported or used by any running page. Lives at the top level (not inside `apps/web/src/`) specifically to keep the active app's source tree free of large, unused, non-code assets. |
 | `ATTRIBUTIONS.md` | Required credit for third-party components (shadcn/ui) and photos (Unsplash) used in the original design. |
 | `CONTRIBUTING.md` | How to run the checks CI runs, and the ground rules for the phase-by-phase backend build-out. |
 | `.editorconfig` | Shared editor whitespace/indent settings for the whole project. |
@@ -55,8 +57,7 @@ apps/web/
 │   ├── imports/        original product spec (PRD, UX spec) + historical/reference material
 │   │   ├── Monologg_Beta_PRD_PDF.pdf       ← the real product requirements doc
 │   │   ├── monologg_ux_spec.md             ← the real, current UX spec
-│   │   ├── historical-drafts/              ← earlier/superseded drafts, kept for record only
-│   │   └── reference-screenshots/          ← original Figma design screenshots, not used by the app itself
+│   │   └── historical-drafts/              ← earlier/superseded drafts, kept for record only
 │   └── styles/          design tokens and stylesheets — the single source of truth for colors/spacing/etc.
 ├── package.json          dev, build, build:standalone, build:designsystem, typecheck, lint, format, test
 ├── .env.example           VITE_API_MODE=mock|live

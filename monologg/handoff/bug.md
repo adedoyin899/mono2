@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
+**Last updated:** 2026-08-11 (Session 61: folder-structure cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -283,6 +283,17 @@ These didn't break anything today, but they meant a future change to a design to
 | Modal background color (`rgba(0,0,0,0.5)` / `0.6`) was hardcoded in 10 different places | Medium | Changing the intended overlay darkness would require finding and editing 10 separate lines correctly, with high odds of missing one | Replaced with `var(--color-overlay)` / `var(--color-overlay-strong)`, defined once |
 | A handful of `text-gray-400`/`text-gray-500` Tailwind classes bypassed the text-color tokens | Low–Medium | Those specific labels wouldn't shift color if the app's text-color tokens were ever redefined (e.g. a contrast fix) | Replaced with `var(--color-text-secondary)` / `var(--color-text-tertiary)` |
 | Sidebar, BottomNav, Modal, Avatar, Badge, and FormField were each hand-duplicated 2–11× with drifting details (padding, margins) | Medium | A design change to any of these (e.g. "make all avatars 2px bigger") required manually finding and editing every duplicate correctly — easy to miss one and end up with visible inconsistency | Extracted into shared components in `src/app/components/ui/`, wired into their real call sites |
+
+---
+
+### 16. Deeply-nested, space-containing asset folders broke copying the project via cloud sync
+
+- **Severity:** Low–Medium (never broke the running app or a build — every affected file was unreferenced by any code — but a real, user-facing operational problem: the project folder couldn't be reliably copied/synced)
+- **What happened:** `brand/mono fonts/` nested a full font-family archive 8 levels deep (`GeneralSans_Complete/Fonts/WEB/fonts/GeneralSans-VariableItalic.woff2`, etc.) with spaces in folder names (`mono fonts`, `plus jakarta`), and `apps/web/src/imports/reference-screenshots/` put 17MB of images inside the active app's source tree. Cloud-sync tools (Dropbox/OneDrive/Google Drive-class) enforce their own path-length caps, often stricter than the OS's own limit — combined absolute paths through these folders were long enough to trip that cap.
+- **What it meant:** The user reported real trouble copying the project folder.
+- **How it was found:** Reported directly by the user, then confirmed by measuring actual path lengths/depths and cross-checking which folders were the real contributors (`apps/web/public/fonts/` — the font files actually wired into the app — was already flat and fine; it was specifically the two unused/misplaced trees above).
+- **How it was fixed:** `brand/mono fonts/` was deleted outright (confirmed unreferenced by any code, easily re-sourced later if ever needed). `reference-screenshots/` was moved to a top-level `monologg/reference-screenshots/` folder (still historical reference material, just no longer nested inside `apps/web/src/`). See `log.md` Session 61.
+- **Lesson for next time:** "Committed for future use" asset archives are exactly the kind of thing that quietly accumulates depth/size without anyone noticing, since nothing ever fails to build because of them — worth a periodic sweep for large, unreferenced, deeply-nested folders, not just a reactive fix once someone hits a real copy/sync failure.
 
 ---
 

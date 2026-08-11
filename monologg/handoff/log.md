@@ -2015,9 +2015,28 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 | `.gstack/design-reports/design-audit-localhost-2026-08-02.md` | Generated structured design audit markdown report |
 | `.gstack/design-reports/screenshots/*.png` | Captured page-by-page design verification screenshots |
 
+---
 
+## Session 61 (2026-08-11) — Folder-structure cleanup: deeply-nested/unused assets moved or removed
 
+**Goal:** the user reported real trouble copying this project folder (cloud-sync tools — Dropbox/OneDrive/Google Drive-class — enforce their own, often stricter, path-length caps than the OS itself), caused by two genuinely deep, space-containing, largely-unused asset trees. Not a code change — pure repo hygiene, requested directly, confirmed with the user before deleting anything.
 
+**A note on session numbering before the substance:** picking up this thread, `log.md` had grown to Session 60 with several genuine duplicates (37, 38, 39, 40 each appear twice — independent sessions choosing the same next number without coordinating). This entry is numbered 61 (one past the highest number in use) rather than trying to renumber history — re-sequencing 60 sessions' worth of already-pushed, already-referenced entries would create more confusion than it resolves. Flagging the duplication here for whoever next has bandwidth to reconcile it; not fixed in this pass.
+
+- **Deleted `monologg/brand/mono fonts/` entirely** — 113 files, 7.3MB, nested up to 8 levels deep (`GeneralSans_Complete/Fonts/WEB/fonts/...`) with spaces in folder names (`mono fonts`, `plus jakarta`). Confirmed via grep across `apps/` and `packages/` that nothing in the running app imports or references any file under this path — it was committed "for future use" back in Phase 11 (see Session 21) and never wired into anything; `apps/web/public/fonts/` (14 files, flat, all actually consumed by `fonts.css`'s `@font-face` rules) is the real, in-use font asset location and was untouched. User confirmed deletion over relocation — easily re-sourced from Fontshare/Google Fonts if ever needed again.
+- **Moved `apps/web/src/imports/reference-screenshots/` → top-level `monologg/reference-screenshots/`** (18 files, ~17MB) — already documented as "historical visual reference only, not imported or used by any running page" since Session 2. Its old location put a large, non-code, image-only folder inside the active app's `src/` tree; moving it to a top-level, purpose-named sibling folder (matching the existing `handoff/`, `brand/`, `qa/` convention) keeps `apps/web/src/` as "only real app code, plus the still-referenced PRD/UX-spec/historical-drafts docs" — those three stayed put in `apps/web/src/imports/` since they weren't the reported problem and aren't deeply nested.
+- **Verified safe against the current codebase, not just the one from a week ago**: this session started by discovering `origin/main` had moved 61 commits ahead of this repo's last state this thread had directly touched (Phase 12B Supabase Auth, Phase 12C withdrawal OTP, and ~10 sessions of currency/landing-page/design work, per `git log`/`git reflog`) — confirmed via `git merge-base --is-ancestor` that this was clean, linear history (nothing rewritten or lost), then re-confirmed via `git log <old>..<new> -- <path>` that neither asset path touched in this cleanup had been referenced by any of those intervening commits, before deleting or moving anything.
+- **Left alone, deliberately**: the outer wrapping folder (the true git-repo root, one level above `monologg/`) — it also hosts an unrelated `gstack` project sharing this same repo's history, and the user confirmed only `monologg/`'s internal structure was in scope. Prisma's migration-folder names (`prisma/migrations/<timestamp>_<description>/`) are long but not fixable without touching real migration history, and aren't part of what a folder *copy* walks any differently than a short name would.
+- **Re-verified**: `pnpm run typecheck`/`build` both clean after the moves (neither asset tree was ever code-imported, so zero impact expected and confirmed).
+
+### File inventory additions (Session 61)
+
+| File | Change |
+|---|---|
+| `brand/mono fonts/**` | **Deleted** — 113 files, unused font-family archive |
+| `apps/web/src/imports/reference-screenshots/` → `reference-screenshots/` | **Moved** (git-tracked rename, 18 files) to the top level |
+| `handoff/design.md` | Source-documents section updated: screenshots' new location, `mono fonts/` no longer mentioned |
+| `README.md` | Top-level file table gained `reference-screenshots/` and (previously missing) `qa/` rows; `apps/web/` tree diagram no longer lists `reference-screenshots/` under `src/imports/` |
 
 
 

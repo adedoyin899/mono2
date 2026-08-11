@@ -29,7 +29,8 @@ The original product brief, UX spec, and a design-system prompt live in `apps/we
 | `historical-drafts/MONOLOGG_DESIGN_SYSTEM.md` | An earlier design-system draft (red/purple/green/gold on off-white, Inter typeface) — **superseded**, kept for record only |
 | `historical-drafts/monologg_design_prompt.md` | A later, more detailed design-system + build prompt (dark-mode-first, gold accent, DM Serif Display + Inter) — also **superseded** by what was actually built |
 | `historical-drafts/monologg-ux-spec-early-draft.md` | An earlier, shorter (739-line) draft of the UX spec, superseded by the 1309-line current version above |
-| `reference-screenshots/` | 18 original Figma design screenshots (~18MB) — historical visual reference only, not imported or used by any running page |
+
+18 original Figma design screenshots (~17MB), historical visual reference only, not imported or used by any running page, now live at the top-level **`monologg/reference-screenshots/`** — moved out of `apps/web/src/` during a folder-structure cleanup (see `log.md` Session 61) so the active app's source tree only contains real app code, and so a deeply-nested, image-heavy folder isn't sitting inside what a build tool or IDE walks by default.
 
 **Important:** neither of the two `historical-drafts/` design-system documents matches the colors/fonts actually implemented in the running app (which uses mono-red/mono-purple on a warm off-white/near-black canvas, General Sans + Plus Jakarta Sans — see Section 5). Treat everything under `historical-drafts/` as **historical design exploration**, not current spec — that's exactly why it's separated from `monologg_ux_spec.md` and the PRD PDF, which remain current and authoritative.
 
