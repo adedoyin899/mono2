@@ -137,22 +137,16 @@ describe("AuthFlow", () => {
     expect(screen.queryByText("Client dashboard")).not.toBeInTheDocument();
   });
 
-  it("Google OAuth flow: clicking Continue with Google opens modal and authenticates user", async () => {
+  it("Google OAuth: clicking Continue with Google without Supabase configured shows a real error, not a fake login", async () => {
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
     await renderAuthFlow();
 
     fireEvent.click(screen.getByText("Create Free Account"));
     fireEvent.click(await screen.findByRole("button", { name: /Continue with Google/i }));
 
-    // Verify modal pops up
-    expect(await screen.findByText("Sign in with Google")).toBeInTheDocument();
-    expect(screen.getByText("Choose an account")).toBeInTheDocument();
-
-    // Click account option
-    fireEvent.click(screen.getByText("Google Creative User"));
-
     await waitFor(() => {
-      expect(screen.getByText("Talent onboarding")).toBeInTheDocument();
+      expect(screen.getByText("Google Sign-In isn't configured in this environment yet.")).toBeInTheDocument();
     });
+    expect(screen.queryByText("Talent onboarding")).not.toBeInTheDocument();
   });
 });

@@ -25,11 +25,7 @@ export function AuthFlow() {
   const [agreed, setAgreed] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [googleEmailInput, setGoogleEmailInput] = useState("");
-  const [googleNameInput, setGoogleNameInput] = useState("");
   const [googleAuthLoading, setGoogleAuthLoading] = useState(false);
-  const [useCustomGoogleAccount, setUseCustomGoogleAccount] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   // Phase 12B: magic-link + OTP state
   const [otpEmail, setOtpEmail] = useState("");
@@ -75,24 +71,6 @@ export function AuthFlow() {
     }
   };
 
-  const executeGoogleLogin = async (targetEmail: string, targetName: string) => {
-    setError(null);
-    setGoogleAuthLoading(true);
-    try {
-      await apiClient.googleLogin({
-        email: targetEmail,
-        name: targetName,
-        userType: role === "talent" ? "TALENT" : "CLIENT",
-      });
-      setShowGoogleModal(false);
-      navigate(role === "talent" ? "/onboarding" : "/onboarding/client");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Google authentication failed.");
-    } finally {
-      setGoogleAuthLoading(false);
-    }
-  };
-
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -111,12 +89,12 @@ export function AuthFlow() {
 
   /** Real Google OAuth via Supabase — fires the browser redirect. */
   const handleSupabaseGoogle = async () => {
+    setError(null);
     if (!supabase) {
-      // ALL-MOCK mode fallback: use the existing mock Google modal
-      setShowGoogleModal(true);
+      setError("Google Sign-In isn't configured in this environment yet.");
       return;
     }
-    setError(null);
+    setGoogleAuthLoading(true);
     const appUrl = window.location.origin;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -126,7 +104,10 @@ export function AuthFlow() {
         queryParams: { state: btoa(JSON.stringify({ userType: role === "talent" ? "TALENT" : "CLIENT" })) },
       },
     });
+    // On success the browser navigates away to Google immediately; only errors
+    // return control here, so it's safe to always clear the loading flag.
     if (oauthError) setError(oauthError.message);
+    setGoogleAuthLoading(false);
   };
 
   /** Magic link — sends an email with a sign-in link, then shows a confirmation. */
@@ -307,31 +288,33 @@ export function AuthFlow() {
         {/* Right panel — forms */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-[420px]">
-            {/* Wise-Style Segmented Role Switcher */}
-            <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
-              <button
-                type="button"
-                onClick={() => setRole("talent")}
-                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                  role === "talent"
-                    ? "bg-[#F13030] text-white shadow-md"
-                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                }`}
-              >
-                Talent / Creator
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("client")}
-                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                  role === "client"
-                    ? "bg-[#7B00FE] text-white shadow-md"
-                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                }`}
-              >
-                Client / Employer
-              </button>
-            </div>
+            {/* Wise-Style Segmented Role Switcher — hidden on Register, which has its own "I'm joining as" toggle */}
+            {view !== "register" && (
+              <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
+                <button
+                  type="button"
+                  onClick={() => setRole("talent")}
+                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                    role === "talent"
+                      ? "bg-[#F13030] text-white shadow-md"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                  }`}
+                >
+                  Talent / Creator
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("client")}
+                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                    role === "client"
+                      ? "bg-[#7B00FE] text-white shadow-md"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                  }`}
+                >
+                  Client / Employer
+                </button>
+              </div>
+            )}
 
             <AnimatePresence mode="wait">
 
@@ -365,17 +348,6 @@ export function AuthFlow() {
                     >
                       Sign In
                     </Button>
-                  </div>
-                  <div className="mt-8 pt-6 text-center border-t border-[var(--color-hairline)]">
-                    <p className="text-xs font-body mb-2 text-[var(--color-text-secondary)]">
-                      {role === "talent" ? "Are you a brand or casting director?" : "Are you an actor or performer?"}
-                    </p>
-                    <button
-                      onClick={() => setRole(role === "talent" ? "client" : "talent")}
-                      className="text-xs font-bold font-mono text-[#F13030] dark:text-[#FF4D4D] hover:underline"
-                    >
-                      Switch to {role === "talent" ? "Client / Employer" : "Talent / Creator"} Mode →
-                    </button>
                   </div>
                 </motion.div>
               )}
@@ -425,7 +397,7 @@ export function AuthFlow() {
                   <button
                     type="button"
                     onClick={handleSupabaseGoogle}
-                    disabled={submitting}
+                    disabled={submitting || googleAuthLoading}
                     className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -434,7 +406,7 @@ export function AuthFlow() {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                     </svg>
-                    Continue with Google
+                    {googleAuthLoading ? "Redirecting to Google…" : "Continue with Google"}
                   </button>
 
                   <div className="flex items-center gap-3 mb-4">
@@ -535,7 +507,7 @@ export function AuthFlow() {
                   <button
                     type="button"
                     onClick={handleSupabaseGoogle}
-                    disabled={submitting}
+                    disabled={submitting || googleAuthLoading}
                     className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -544,7 +516,7 @@ export function AuthFlow() {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                     </svg>
-                    Sign in with Google
+                    {googleAuthLoading ? "Redirecting to Google…" : "Sign in with Google"}
                   </button>
 
                   <div className="flex items-center gap-3 mb-4">
@@ -788,146 +760,6 @@ export function AuthFlow() {
           </div>
         </div>
       </div>
-
-      {/* ── Google OAuth Sign-In Modal ── */}
-      <AnimatePresence>
-        {showGoogleModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-[420px] rounded-2xl p-6 shadow-2xl relative font-body"
-              style={{
-                background: "var(--color-bg-surface)",
-                border: "1px solid var(--color-hairline)",
-              }}
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setShowGoogleModal(false)}
-                className="absolute top-4 right-4 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors p-1 text-sm"
-              >
-                ✕
-              </button>
-
-              {/* Google Brand Header */}
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center mb-3 border border-stone-200">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                  </svg>
-                </div>
-                <h3 className="font-display text-xl font-bold text-[var(--color-text-primary)]">Sign in with Google</h3>
-                <p className="text-xs text-[var(--color-text-secondary)] mt-1">to continue to <strong className="text-[var(--color-text-primary)]">Monologg</strong></p>
-              </div>
-
-              {googleAuthLoading ? (
-                <div className="flex flex-col items-center justify-center py-8 gap-3">
-                  <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                  <p className="text-xs text-[var(--color-text-secondary)] animate-pulse">Authenticating with Google OAuth 2.0…</p>
-                </div>
-              ) : !useCustomGoogleAccount ? (
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">Choose an account</p>
-                  
-                  {/* Option 1: Typed email or default personal email */}
-                  <button
-                    type="button"
-                    onClick={() => executeGoogleLogin(email || "user.creative@gmail.com", name || "Google Creative User")}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] transition-all text-left group"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-900 font-bold flex items-center justify-center text-sm shadow">
-                      {(email ? email[0] : "G").toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">{name || "Google Creative User"}</p>
-                      <p className="text-xs text-[var(--color-text-secondary)] truncate">{email || "user.creative@gmail.com"}</p>
-                    </div>
-                    <ChevronLeft className="w-4 h-4 rotate-180 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)] transition-colors shrink-0" />
-                  </button>
-
-                  {/* Option 2: Preconfigured Studio / Nollywood Account */}
-                  <button
-                    type="button"
-                    onClick={() => executeGoogleLogin(role === "talent" ? "artist.nollywood@gmail.com" : "studio.filmcraft@gmail.com", role === "talent" ? "Nollywood Star" : "FilmCraft Studios")}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] transition-all text-left group"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">
-                      {role === "talent" ? "N" : "F"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">{role === "talent" ? "Nollywood Creator" : "FilmCraft Studios"}</p>
-                      <p className="text-xs text-[var(--color-text-secondary)] truncate">{role === "talent" ? "artist.nollywood@gmail.com" : "studio.filmcraft@gmail.com"}</p>
-                    </div>
-                    <ChevronLeft className="w-4 h-4 rotate-180 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)] transition-colors shrink-0" />
-                  </button>
-
-                  {/* Option 3: Use another Google account */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseCustomGoogleAccount(true);
-                      setGoogleEmailInput(email);
-                      setGoogleNameInput(name);
-                    }}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] transition-all text-left mt-1 text-xs font-semibold text-[var(--color-gold-primary)]"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-[var(--color-bg-surface-2)] flex items-center justify-center text-sm">
-                      +
-                    </div>
-                    Use another Google account
-                  </button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!googleEmailInput) return;
-                    executeGoogleLogin(googleEmailInput, googleNameInput || googleEmailInput.split("@")[0]);
-                  }}
-                  className="flex flex-col gap-3"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)]">Enter your Google details</p>
-                  <Input
-                    type="email"
-                    placeholder="your.email@gmail.com"
-                    value={googleEmailInput}
-                    onChange={(e) => setGoogleEmailInput(e.target.value)}
-                    required
-                    autoFocus
-                  />
-                  <Input
-                    placeholder="Full Name (optional)"
-                    value={googleNameInput}
-                    onChange={(e) => setGoogleNameInput(e.target.value)}
-                  />
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="flex-1 h-10"
-                      onClick={() => setUseCustomGoogleAccount(false)}
-                    >
-                      Back
-                    </Button>
-                    <Button type="submit" className="flex-1 h-10">
-                      Sign In
-                    </Button>
-                  </div>
-                </form>
-              )}
-
-              <p className="text-[11px] text-center text-[var(--color-text-tertiary)] mt-6">
-                To continue, Google will share your name, email address, and profile picture with Monologg.
-              </p>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
