@@ -163,6 +163,7 @@ export interface CreatorProfile {
   location: string;
   styleTags: string[];
   verification: VerificationState;
+  avatarUrl?: string | null;
 }
 
 // features.md Phase 12: the client-side equivalent of CreatorProfile. Not yet
@@ -177,6 +178,7 @@ export interface ClientProfile {
   orgName: string | null;
   orgType: "STUDIO" | "EVENT" | "BRAND" | "CHURCH" | null;
   location: string;
+  avatarUrl?: string | null;
 }
 
 // features.md Phase 12A.1 — Media Kit.
@@ -399,7 +401,7 @@ export const apiClient = {
   async sessionSync(
     supabaseAccessToken: string,
     userType: "TALENT" | "CLIENT",
-    opts: { name?: string; provider?: "GOOGLE" | "MAGIC_LINK" | "EMAIL_OTP" } = {},
+    opts: { name?: string; avatarUrl?: string; provider?: "GOOGLE" | "MAGIC_LINK" | "EMAIL_OTP" } = {},
   ): Promise<AuthUser & { isNewUser?: boolean }> {
     if (API_MODE !== "live") {
       const user: AuthUser & { isNewUser?: boolean } = {
@@ -426,6 +428,7 @@ export const apiClient = {
       supabaseAccessToken,
       userType,
       name: opts.name,
+      avatarUrl: opts.avatarUrl,
       provider: opts.provider ?? "GOOGLE",
     });
     setSession(data);

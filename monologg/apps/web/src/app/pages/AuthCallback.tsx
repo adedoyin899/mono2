@@ -69,17 +69,18 @@ export function AuthCallback() {
         const syncProvider =
           provider === "google" ? "GOOGLE" : provider === "email" ? "EMAIL_OTP" : "MAGIC_LINK";
 
-        // Sync with our app backend — creates/links the User, issues an app JWT
+        // Sync with our app backend — creates/links the User, issues an app JWT.
+        // avatarUrl is only ever a Google-hosted photo URL (never an uploaded
+        // file), stored on Creator/Client and refreshed on every sign-in.
         const user = await apiClient.sessionSync(supabaseAccessToken, userType, {
           name,
+          avatarUrl,
           provider: syncProvider,
         });
 
-        // The backend only stores name/email — avatarUrl has no column yet
-        // (frontend-only for now), so it's applied here rather than passed
-        // through sessionSync. Keeps Settings/sidebar showing the real Google
-        // identity immediately, not the "Emeka Johnson"/"Sarah Jenkins" demo
-        // defaults every fresh browser session otherwise starts with.
+        // Also push into local profile state immediately, so Settings/sidebar
+        // show the real Google identity right away instead of the
+        // "Emeka Johnson"/"Sarah Jenkins" demo defaults a fresh browser starts with.
         if (user.userType === "CLIENT") {
           appStateSync.updateClientProfile({ name: name || email.split("@")[0], email, avatarUrl });
         } else {

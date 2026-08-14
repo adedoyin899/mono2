@@ -182,12 +182,14 @@ export function Settings() {
         if (cp.orgName) setClientOrgName(cp.orgName);
         if (cp.orgType) setClientOrgType(cp.orgType);
         if (cp.location) setClientLocation(cp.location);
+        if (cp.avatarUrl) setAvatarUrl(cp.avatarUrl);
       }).catch(() => {});
     } else {
       apiClient.getCreatorProfile().then((profile) => {
         setName(profile.name);
         setBio(profile.bio ?? "");
         setLocation(profile.location ?? "");
+        if (profile.avatarUrl) setAvatarUrl(profile.avatarUrl);
       }).catch(() => {});
     }
 

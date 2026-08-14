@@ -15,8 +15,8 @@ vi.mock("../db/client.js", () => ({
       create: vi.fn(),
       update: vi.fn(),
     },
-    creator: { create: vi.fn() },
-    client: { create: vi.fn() },
+    creator: { create: vi.fn(), update: vi.fn() },
+    client: { create: vi.fn(), update: vi.fn() },
     refreshToken: { create: vi.fn() },
     termsAcceptance: { create: vi.fn() },
     authEvent: { create: vi.fn() },
@@ -215,6 +215,78 @@ describe("POST /api/v1/auth/session/sync", () => {
         data: expect.objectContaining({ event: "signin_success" }),
       }),
     );
+  });
+
+  it("stores avatarUrl on Creator at signup when provided", async () => {
+    prismaMock.user.findFirst.mockResolvedValue(null);
+    prismaMock.user.create.mockResolvedValue({ id: "usr-new-002", email: "ada@talent.test" });
+    prismaMock.creator.create.mockResolvedValue({ id: "cre-002" });
+    prismaMock.termsAcceptance.create.mockResolvedValue({});
+    prismaMock.user.findUniqueOrThrow.mockResolvedValue({
+      id: "usr-new-002",
+      email: "ada@talent.test",
+      userType: "TALENT",
+      isNewUser: true,
+      creator: { name: "Ada" },
+      client: null,
+    });
+    prismaMock.refreshToken.create.mockResolvedValue({});
+    prismaMock.authEvent.create.mockResolvedValue({});
+
+    const token = signMockSupabaseToken({ sub: "sub-ada-001", email: "ada@talent.test" });
+
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/session/sync",
+      payload: {
+        supabaseAccessToken: token,
+        userType: "TALENT",
+        name: "Ada",
+        avatarUrl: "https://lh3.googleusercontent.com/a/ada.jpg",
+        provider: "GOOGLE",
+      },
+    });
+
+    expect(prismaMock.creator.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ avatarUrl: "https://lh3.googleusercontent.com/a/ada.jpg" }),
+      }),
+    );
+  });
+
+  it("refreshes an existing account's avatarUrl on a returning sign-in", async () => {
+    const linkedUser = {
+      id: "usr-linked-002",
+      email: "linked2@talent.test",
+      userType: "TALENT",
+      authProvider: "GOOGLE",
+      supabaseUserId: "sub-already-002",
+      isNewUser: false,
+      creator: { id: "cre-linked-002", name: "Linked Creator" },
+      client: null,
+    };
+    prismaMock.user.findFirst.mockResolvedValue(linkedUser);
+    prismaMock.refreshToken.create.mockResolvedValue({});
+    prismaMock.authEvent.create.mockResolvedValue({});
+    prismaMock.creator.update.mockResolvedValue({});
+
+    const token = signMockSupabaseToken({ sub: "sub-already-002", email: "linked2@talent.test" });
+
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/session/sync",
+      payload: {
+        supabaseAccessToken: token,
+        userType: "TALENT",
+        avatarUrl: "https://lh3.googleusercontent.com/a/updated.jpg",
+        provider: "GOOGLE",
+      },
+    });
+
+    expect(prismaMock.creator.update).toHaveBeenCalledWith({
+      where: { id: "cre-linked-002" },
+      data: { avatarUrl: "https://lh3.googleusercontent.com/a/updated.jpg" },
+    });
   });
 
   it("returns 401 for an expired or invalid Supabase token", async () => {

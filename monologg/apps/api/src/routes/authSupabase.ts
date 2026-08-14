@@ -34,6 +34,9 @@ const sessionSyncSchema = z.object({
   userType: z.enum(["TALENT", "CLIENT"]),
   // Human-readable name (from Supabase user metadata or form input)
   name: z.string().min(1, "name is required").optional(),
+  // Google's hosted profile photo URL (Supabase user_metadata.avatar_url) —
+  // absent for password/OTP accounts. Never an uploaded file, just a URL.
+  avatarUrl: z.string().url().optional(),
   // Which Supabase provider was used — determines AuthEvent.provider
   provider: z.enum(["GOOGLE", "MAGIC_LINK", "EMAIL_OTP"]).default("GOOGLE"),
 });
@@ -69,7 +72,7 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      const { supabaseAccessToken, userType, name, provider } = parsed.data;
+      const { supabaseAccessToken, userType, name, avatarUrl, provider } = parsed.data;
 
       // ── 1. Verify the Supabase JWT ───────────────────────────────────────
       let claims: { sub: string; email: string };
@@ -133,6 +136,7 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
                 location: "",
                 niche: "CONTENT_CREATOR",
                 referralCode,
+                avatarUrl,
                 mediaKit: { create: {} },
               },
             });
@@ -142,6 +146,7 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
                 userId: newUser.id,
                 name: effectiveName,
                 location: "",
+                avatarUrl,
               },
             });
           }
@@ -186,6 +191,17 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
         // ── Already-linked user: regular sign-in ─────────────────────────────
         eventType = "signin_success";
         isNewUser = appUser.isNewUser;
+      }
+
+      // Keep the avatar current with Google on every returning sign-in too
+      // (not just at signup) — Google photos change; never clears an existing
+      // one just because this particular sign-in method didn't supply one.
+      if (avatarUrl && eventType !== "signup_success") {
+        if (appUser.creator) {
+          await prisma.creator.update({ where: { id: appUser.creator.id }, data: { avatarUrl } });
+        } else if (appUser.client) {
+          await prisma.client.update({ where: { id: appUser.client.id }, data: { avatarUrl } });
+        }
       }
 
       // ── 3. Issue app JWT pair (same as /auth/login — zero middleware changes) ─

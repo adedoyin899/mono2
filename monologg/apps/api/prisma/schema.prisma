@@ -115,6 +115,12 @@ model Creator {
   niche          Niche
   bio            String?
   location       String
+  // Phase 12B follow-up: populated from Supabase Auth's Google profile
+  // (user_metadata.avatar_url) on sign-in/link; null for password-only
+  // accounts and never required. Manual photo upload (Settings.tsx) is
+  // still browser-local only — this column is specifically the
+  // Google-provided avatar URL, not an uploaded file.
+  avatarUrl      String?
   styleTags      String[] // X3: AI-generated vibe tags — NOT identity
   verification   VerificationState   @default(UNVERIFIED) // X3: identity KYC, separate
   celebrityBadge Boolean             @default(false) // referral-earned, distinct from KYC
@@ -150,15 +156,17 @@ enum VerificationState {
 }
 
 model Client {
-  id       String    @id @default(cuid())
-  userId   String    @unique
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name     String
-  orgName  String?
-  orgType  OrgType?
-  location String
-  briefs   Brief[]
-  bookings Booking[] @relation("ClientBookings")
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  orgName   String?
+  orgType   OrgType?
+  location  String
+  // See Creator.avatarUrl — same Google-avatar-only scope.
+  avatarUrl String?
+  briefs    Brief[]
+  bookings  Booking[] @relation("ClientBookings")
 }
 
 enum OrgType {
