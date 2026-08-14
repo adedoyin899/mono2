@@ -139,6 +139,12 @@ describe("AuthFlow", () => {
 
   it("Google OAuth: clicking Continue with Google without Supabase configured shows a real error, not a fake login", async () => {
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    // This machine's apps/web/.env.local carries real Supabase dev credentials
+    // (needed for the actual app to do real Google sign-in) — explicitly blank
+    // them out here so this test exercises the "Supabase not configured" path
+    // it's actually named for, regardless of what's in the local dev env.
+    vi.stubEnv("VITE_SUPABASE_URL", undefined as unknown as string);
+    vi.stubEnv("VITE_SUPABASE_ANON_KEY", undefined as unknown as string);
     await renderAuthFlow();
 
     fireEvent.click(screen.getByText("Create Free Account"));

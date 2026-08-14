@@ -432,7 +432,10 @@ export const apiClient = {
     appStateSync.setLoggedInUser({
       id: data.user.userId,
       email: data.user.email,
-      name: opts.name ?? (userType === "TALENT" ? "Elias Thorne" : "FilmCraft Studios"),
+      // A real signed-in user's own name/email — never the mock-mode demo
+      // personas above, which would otherwise leak into a real account whenever
+      // the Supabase provider didn't hand back a name (e.g. some magic-link/OTP flows).
+      name: opts.name || data.user.email.split("@")[0],
       userType: data.user.userType,
       authProvider: opts.provider ?? "GOOGLE",
       isNewUser: data.user.isNewUser ?? true,

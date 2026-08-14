@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Logo } from "../components/ui/Logo";
 import { supabase } from "../../lib/supabase";
 import { apiClient } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 
 /**
  * /auth/callback — OAuth / magic-link callback landing page.
@@ -11,7 +12,9 @@ import { apiClient } from "../../lib/api-client";
  * After Supabase Auth redirects the browser here, this component:
  *  1. Retrieves the Supabase session (supabase.auth.getSession or exchangeCodeForSession)
  *  2. Sends the Supabase access token to POST /api/v1/auth/session/sync
- *  3. On success: routes to the correct home screen (TALENT → /dashboard, CLIENT → /client)
+ *  3. On success: brand-new accounts go to the first onboarding step for their
+ *     role (TALENT → /onboarding, CLIENT → /onboarding/client); returning
+ *     accounts go straight to their home screen (TALENT → /dashboard, CLIENT → /client)
  *  4. On failure: routes to /auth with an error message
  *
  * Shows a clean loading state while the sync completes.
@@ -52,7 +55,14 @@ export function AuthCallback() {
         }
 
         const supabaseAccessToken = data.session.access_token;
-        const name = data.session.user.user_metadata?.["name"] as string | undefined;
+        // Google (via Supabase) puts the real profile under a few different
+        // possible keys depending on the flow — check them all rather than
+        // trusting a single one, so a real name/avatar is never silently
+        // dropped in favor of a fallback.
+        const metadata = data.session.user.user_metadata ?? {};
+        const name = (metadata["full_name"] ?? metadata["name"]) as string | undefined;
+        const avatarUrl = (metadata["avatar_url"] ?? metadata["picture"]) as string | undefined;
+        const email = data.session.user.email ?? "";
 
         // Determine which Supabase provider was used
         const provider = data.session.user.app_metadata?.["provider"];
@@ -65,8 +75,24 @@ export function AuthCallback() {
           provider: syncProvider,
         });
 
-        // Navigate to the appropriate home screen
-        navigate(user.userType === "CLIENT" ? "/client" : "/dashboard", { replace: true });
+        // The backend only stores name/email — avatarUrl has no column yet
+        // (frontend-only for now), so it's applied here rather than passed
+        // through sessionSync. Keeps Settings/sidebar showing the real Google
+        // identity immediately, not the "Emeka Johnson"/"Sarah Jenkins" demo
+        // defaults every fresh browser session otherwise starts with.
+        if (user.userType === "CLIENT") {
+          appStateSync.updateClientProfile({ name: name || email.split("@")[0], email, avatarUrl });
+        } else {
+          appStateSync.updateTalentProfile({ name: name || email.split("@")[0], email, avatarUrl });
+        }
+
+        // Brand-new accounts land on the first onboarding step for their role;
+        // returning accounts go straight to their home screen.
+        if (user.isNewUser) {
+          navigate(user.userType === "CLIENT" ? "/onboarding/client" : "/onboarding", { replace: true });
+        } else {
+          navigate(user.userType === "CLIENT" ? "/client" : "/dashboard", { replace: true });
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Sign-in failed";
         setError(message);

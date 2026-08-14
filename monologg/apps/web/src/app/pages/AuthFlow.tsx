@@ -193,12 +193,20 @@ export function AuthFlow() {
           userType,
           { provider: "EMAIL_OTP" },
         );
-        navigate(user.userType === "CLIENT" ? "/client" : "/dashboard");
+        navigate(
+          user.isNewUser
+            ? user.userType === "CLIENT" ? "/onboarding/client" : "/onboarding"
+            : user.userType === "CLIENT" ? "/client" : "/dashboard",
+        );
       } else {
         // Mock mode: any 6-digit code works
         if (otpCode.length !== 6) throw new Error("Enter the 6-digit code.");
         const user = await apiClient.sessionSync("", userType, { provider: "EMAIL_OTP" });
-        navigate(user.userType === "CLIENT" ? "/client" : "/dashboard");
+        navigate(
+          user.isNewUser
+            ? user.userType === "CLIENT" ? "/onboarding/client" : "/onboarding"
+            : user.userType === "CLIENT" ? "/client" : "/dashboard",
+        );
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "OTP verification failed.");
