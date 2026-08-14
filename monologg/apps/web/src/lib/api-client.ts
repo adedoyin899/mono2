@@ -366,6 +366,10 @@ export const apiClient = {
       }
     }
     setSession(null);
+    // Without this, every "signed in" UI (landing page header, dashboard
+    // sidebar) kept showing the account as logged in after Sign Out, since
+    // they all key off this local session record, not the token alone.
+    appStateSync.setLoggedInUser(null);
   },
   async forgotPassword(email: string): Promise<void> {
     if (API_MODE === "mock") return;

@@ -427,6 +427,7 @@ export function TalentDashboard() {
         activeTab={activeTab}
         onTab={setActiveTab}
         onNavigate={navigate}
+        onSignOut={async () => { await apiClient.logout(); navigate("/"); }}
         identity={{
           initials: talentInitials,
           name: talentName,

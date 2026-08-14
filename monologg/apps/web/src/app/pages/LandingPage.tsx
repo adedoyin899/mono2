@@ -8,11 +8,14 @@ import { Logo } from "../components/ui/Logo";
 import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
 import { useTheme } from "../Root";
 import { Modal } from "../components/ui/Modal";
+import { appStateSync } from "../../lib/state-sync";
+import { apiClient } from "../../lib/api-client";
 import {
   Star, Shield, Mic, Video, User,
   Sun, Moon, Check, ChevronDown,
   Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
-  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2, AlertTriangle
+  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2, AlertTriangle,
+  LayoutDashboard, Settings as SettingsIcon, Receipt, FileText, LogOut,
 } from "lucide-react";
 import { CURRENCIES, convertCurrency, getRandomLimitError, LimitError } from "../../lib/currency";
 
@@ -742,6 +745,61 @@ export function LandingPage() {
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
+  // Signed-in state for the header — replaces Sign In / Launch Storefront
+  // with an avatar + account menu once a user session exists.
+  const [loggedInUser, setLoggedInUserState] = useState(() => appStateSync.getLoggedInUser());
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null | undefined>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const syncUser = () => {
+      const u = appStateSync.getLoggedInUser();
+      setLoggedInUserState(u);
+      if (u) {
+        const profile = u.userType === "CLIENT" ? appStateSync.getClientProfile() : appStateSync.getTalentProfile();
+        setUserAvatarUrl(profile.avatarUrl);
+      }
+    };
+    syncUser();
+    return appStateSync.subscribe(syncUser);
+  }, []);
+
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [showUserMenu]);
+
+  const handleSignOut = async () => {
+    setShowUserMenu(false);
+    await apiClient.logout();
+    navigate("/");
+  };
+
+  const userInitials = loggedInUser?.name
+    ? loggedInUser.name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("")
+    : "U";
+
+  const userMenuItems = loggedInUser?.userType === "CLIENT"
+    ? [
+        { label: "Dashboard", icon: LayoutDashboard, path: "/client" },
+        { label: "Post a Project", icon: FileText, path: "/brief" },
+        { label: "Transactions", icon: Receipt, path: "/transactions" },
+        { label: "Settings", icon: SettingsIcon, path: "/settings?role=client" },
+      ]
+    : [
+        { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+        { label: "My Media Kit", icon: FileText, path: "/media-kit" },
+        { label: "Transactions", icon: Receipt, path: "/transactions" },
+        { label: "Settings", icon: SettingsIcon, path: "/settings?role=talent" },
+      ];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) setSubmitted(true);
@@ -799,21 +857,87 @@ export function LandingPage() {
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          <Button
-            variant="outline-pill"
-            className="h-10 px-5 text-xs font-bold hidden sm:inline-flex"
-            onClick={() => navigate("/auth")}
-          >
-            Sign In
-          </Button>
+          {loggedInUser ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setShowUserMenu((v) => !v)}
+                className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors active:scale-95"
+                aria-label="Account menu"
+                aria-expanded={showUserMenu}
+              >
+                <Avatar size="sm" src={userAvatarUrl ?? undefined} background="var(--color-accent-glow)" color="var(--color-accent)">
+                  {userInitials}
+                </Avatar>
+                <ChevronDown className={`w-3.5 h-3.5 text-[var(--color-text-tertiary)] transition-transform ${showUserMenu ? "rotate-180" : ""}`} />
+              </button>
 
-          <Button
-            variant="red"
-            className="h-10 px-5 text-xs font-bold"
-            onClick={() => navigate("/auth")}
-          >
-            Launch Storefront
-          </Button>
+              <AnimatePresence>
+                {showUserMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50"
+                    style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+                  >
+                    <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
+                      <Avatar size="md" src={userAvatarUrl ?? undefined} background="var(--color-accent-glow)" color="var(--color-accent)">
+                        {userInitials}
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold truncate font-body" style={{ color: "var(--color-text-primary)" }}>{loggedInUser.name}</div>
+                        <div className="text-xs truncate font-body" style={{ color: "var(--color-text-tertiary)" }}>{loggedInUser.email}</div>
+                      </div>
+                    </div>
+
+                    <div className="py-1.5">
+                      {userMenuItems.map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => { setShowUserMenu(false); navigate(item.path); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:bg-[var(--color-bg-elevated)] transition-colors"
+                          style={{ color: "var(--color-text-primary)" }}
+                        >
+                          <item.icon className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="py-1.5" style={{ borderTop: "1px solid var(--color-hairline)" }}>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:bg-[var(--color-bg-elevated)] transition-colors"
+                        style={{ color: "var(--color-error)" }}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <>
+              <Button
+                variant="outline-pill"
+                className="h-10 px-5 text-xs font-bold hidden sm:inline-flex"
+                onClick={() => navigate("/auth")}
+              >
+                Sign In
+              </Button>
+
+              <Button
+                variant="red"
+                className="h-10 px-5 text-xs font-bold"
+                onClick={() => navigate("/auth")}
+              >
+                Launch Storefront
+              </Button>
+            </>
+          )}
         </div>
       </header>
 

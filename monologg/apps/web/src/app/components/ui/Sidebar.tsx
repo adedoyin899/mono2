@@ -23,13 +23,14 @@ interface SidebarProps<T extends string> {
   activeTab: T;
   onTab: (t: T) => void;
   onNavigate: (path: string) => void;
+  onSignOut: () => void;
   identity: SidebarIdentity;
 }
 
 /** Desktop sidebar shared by TalentDashboard and ClientDashboard — the
  * two were previously byte-for-byte-identical markup reimplemented
  * per file, differing only in nav items, portal label and identity. */
-export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, onTab, onNavigate, identity }: SidebarProps<T>) {
+export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, onTab, onNavigate, onSignOut, identity }: SidebarProps<T>) {
   const { isDark, toggle } = useTheme();
 
   return (
@@ -80,7 +81,7 @@ export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, on
           {isDark ? "Light Mode" : "Dark Mode"}
         </button>
         <button
-          onClick={() => onNavigate("/")}
+          onClick={onSignOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body transition-all text-left"
           style={{ color: "var(--color-error)" }}
         >

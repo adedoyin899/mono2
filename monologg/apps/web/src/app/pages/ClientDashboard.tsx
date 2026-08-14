@@ -293,6 +293,7 @@ export function ClientDashboard() {
         activeTab={activeTab}
         onTab={setActiveTab}
         onNavigate={navigate}
+        onSignOut={async () => { await apiClient.logout(); navigate("/"); }}
         identity={{ initials: clientInitials, name: orgName, subtitle: "Client Account" }}
       />
 
