@@ -1067,8 +1067,9 @@ export function LandingPage() {
         </section>
 
         {/* ── MONOLOGG ESCROW CALCULATOR SECTION ── */}
-        <section id="escrow-calculator" className="py-24 px-6 md:px-16 bg-[#0D0D0F] text-white">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+        <section id="escrow-calculator" className="relative py-24 px-6 md:px-16 bg-[#0D0D0F] text-white overflow-hidden">
+          <WebGLHeroCanvas opacityMultiplier={0.2} />
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#F13030] text-white">
                 <Shield className="w-3.5 h-3.5 fill-current" />
@@ -1197,8 +1198,9 @@ export function LandingPage() {
         </section>
 
         {/* ── FINAL CONVERSION CTA ── */}
-        <section className="py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10">
-          <div className="max-w-3xl mx-auto space-y-8">
+        <section className="relative py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
+          <WebGLHeroCanvas opacityMultiplier={0.2} />
+          <div className="max-w-3xl mx-auto space-y-8 relative z-10">
             <h2 className="font-wise-sans text-4xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white">
               TAKE CONTROL OF YOUR CRAFT.
             </h2>

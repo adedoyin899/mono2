@@ -1,11 +1,27 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-17 (Session 66: Google Auth Identity Sync, Avatar Display, Logo Navigation & Hand-Off Updates)
+**Last updated:** 2026-08-17 (Session 67: bg.svg Background Integration & Hover-to-Reveal Spotlight)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 67 (2026-08-17) — bg.svg Background Pattern & Hover-to-Reveal Spotlight Integration
+
+**Goal:** Integrate the user-supplied `bg.svg` grid pattern as the primary ambient background texture across hero, escrow calculator, final CTA, auth pages, and footer sections while retaining interactive mouse hover-to-reveal spotlight and dynamic scroll position illumination.
+
+**Changes Made:**
+
+1. **Asset Deployment (`public/bg.svg`)**:
+   - Copied `/bg.svg` vector pattern asset into `apps/web/public/bg.svg`.
+2. **Interactive Canvas Upgrade (`WebGLHeroCanvas.tsx`)**:
+   - Updated `WebGLHeroCanvas` to load `/bg.svg` and render repeating canvas pattern background layers.
+   - Built dual-layer rendering pipeline: (a) base ambient geometric grid layer with scroll-position reactive intensity pulse, and (b) mouse-driven radial spotlight mask revealing `bg.svg` with dual-tone Mono-Red to Mono-Purple halo around cursor on hover/movement.
+3. **Landing Page & Auth Integration (`LandingPage.tsx`, `AuthFlow.tsx`)**:
+   - Applied `<WebGLHeroCanvas>` across Hero, Escrow Calculator, Final CTA, and Oversized Logotype Footer sections.
 
 ---
 
