@@ -122,8 +122,7 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.05 }: { opacityMultiplie
         ctx.restore();
 
         // 2. Interactive mouse hover: a shimmering, non-uniform reveal of the
-        // bg.svg grid (some patches brighter than others, drifting over
-        // time) plus a vibrant accent halo.
+        // bg.svg grid — some patches brighter than others, drifting over time.
         if (hoverAlpha > 0.01 && maskCtx && shimmerCtx) {
           const maxAlpha = Math.min(0.85, hoverAlpha * opacityMultiplier * 2.6);
           const now = performance.now();
@@ -163,16 +162,6 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.05 }: { opacityMultiplie
           ctx.clip();
           ctx.globalAlpha = maxAlpha;
           ctx.drawImage(shimmerCanvas, mouseX - REVEAL_RADIUS, mouseY - REVEAL_RADIUS);
-
-          // Dual-tone accent halo (Mono-Red to Mono-Purple)
-          ctx.globalAlpha = 1;
-          const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, REVEAL_RADIUS);
-          grad.addColorStop(0, "rgba(241, 48, 48, 0.22)");
-          grad.addColorStop(0.5, "rgba(123, 0, 254, 0.10)");
-          grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-
-          ctx.fillStyle = grad;
-          ctx.fillRect(mouseX - REVEAL_RADIUS, mouseY - REVEAL_RADIUS, BUFFER_SIZE, BUFFER_SIZE);
           ctx.restore();
         }
       } else {
