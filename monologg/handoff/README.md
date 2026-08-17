@@ -1,6 +1,6 @@
 # Monologg — Handoff Folder Index
 
-**Last updated:** 2026-07-31
+**Last updated:** 2026-08-17 (Session 67: bg.svg Background Integration & Hover-to-Reveal Spotlight)
 
 Looking for how to just open or run the product? See the root-level `README.md` (one level up) — it covers the double-clickable HTML files, the `app/` folder, and the `brand/` assets.
 

@@ -39,6 +39,7 @@ Monologg is structured as a high-performance **pnpm monorepo** located in the [`
 - **Project Brief & Escrow Pipeline**: 4-step brief creator, multi-currency budget inputs (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`), and Paystack-backed escrow payment flow.
 - **Interactive Global Radar & Vector Map**: Real-time performer network visualization with location nodes (Lagos, Accra, Nairobi, Joburg, London, NY).
 - **Google OAuth & Verification**: Real Supabase identity bridge, avatar persistence, and 2-step passcode withdrawal protection.
+- **Google OAuth Avatar Persistence & Pattern Spotlights (Sessions 66 & 67)**: Real Google profile photo sync with initials fallback, persistent-session logo navigation, and `bg.svg` geometric background canvas with mouse hover-to-reveal spotlight & scroll tracking.
 
 ---
 
