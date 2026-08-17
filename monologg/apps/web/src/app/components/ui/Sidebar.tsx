@@ -38,10 +38,15 @@ export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, on
       className="hidden lg:flex flex-col w-60 shrink-0 min-h-screen fixed left-0 top-0 bottom-0 z-20"
       style={{ background: "var(--color-bg-surface)", borderRight: "1px solid var(--color-border-default)" }}
     >
-      <div className="p-5 mb-2" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
+      <button
+        onClick={() => onNavigate("/")}
+        className="p-5 mb-2 text-left"
+        style={{ borderBottom: "1px solid var(--color-border-default)" }}
+        aria-label="Monologg home"
+      >
         <Logo className="h-6 w-auto" style={{ color: "var(--color-text-primary)" }} />
         <div className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>{portalLabel}</div>
-      </div>
+      </button>
 
       <nav className="flex-1 px-3 py-3 space-y-0.5">
         {navItems.map(item => {
