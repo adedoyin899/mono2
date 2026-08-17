@@ -13,6 +13,7 @@ export interface SidebarNavItem<T extends string> {
 interface SidebarIdentity {
   initials: string;
   name: string;
+  avatarUrl?: string;
   /** e.g. "Client Account", or a verified-badge row for talent */
   subtitle: React.ReactNode;
 }
@@ -97,7 +98,7 @@ export function Sidebar<T extends string>({ portalLabel, navItems, activeTab, on
           className="mt-3 px-3 py-3 rounded-xl flex items-center gap-3"
           style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
         >
-          <Avatar size="sm" background="var(--color-accent-glow)" color="var(--color-accent)">
+          <Avatar size="sm" src={identity.avatarUrl} background="var(--color-accent-glow)" color="var(--color-accent)">
             {identity.initials}
           </Avatar>
           <div className="min-w-0">

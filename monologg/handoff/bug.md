@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-17 (Session 65: GitHub Repository Front Page & Vercel Deployment Configuration Cleanup)
+**Last updated:** 2026-08-17 (Session 66: Google Auth Identity Sync, Avatar Display, Logo Navigation & Hand-Off Updates)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 29. Missing avatarUrl in SidebarIdentity interface
+- **Severity:** Medium
+- **What happened:** Attempting to pass `avatarUrl` to `Sidebar` in `ClientDashboard.tsx` and `TalentDashboard.tsx` resulted in TypeScript type errors `TS2353` and `TS2339` because `SidebarIdentity` interface lacked `avatarUrl?: string;`.
+- **Root Cause:** `SidebarIdentity` interface was originally typed only for `initials`, `name`, and `subtitle`.
+- **Resolution:** Added `avatarUrl?: string;` to `SidebarIdentity` in `Sidebar.tsx` and `<Avatar src={identity.avatarUrl}>` to render profile images with initials fallback. Verified with `npx pnpm -r typecheck` passing with 0 errors.
 
 ### 28. Overlarge numeric amount layout breakage
 - **Severity:** Medium

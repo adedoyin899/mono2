@@ -40,6 +40,7 @@ export interface LoggedInUserSession {
   userType: "TALENT" | "CLIENT";
   authProvider?: string;
   isNewUser?: boolean;
+  avatarUrl?: string | null;
 }
 
 const STORAGE_KEYS = {

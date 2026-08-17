@@ -421,6 +421,7 @@ export const apiClient = {
         userType,
         authProvider: opts.provider ?? "GOOGLE",
         isNewUser: true,
+        avatarUrl: opts.avatarUrl,
       });
       return user;
     }
@@ -446,6 +447,7 @@ export const apiClient = {
       userType: data.user.userType,
       authProvider: opts.provider ?? "GOOGLE",
       isNewUser: data.user.isNewUser ?? true,
+      avatarUrl: opts.avatarUrl,
     });
     return data.user;
   },

@@ -431,6 +431,7 @@ export function TalentDashboard() {
         identity={{
           initials: talentInitials,
           name: talentName,
+          avatarUrl: talentProfile.avatarUrl ?? undefined,
           subtitle: (
             <span className="flex items-center gap-1" style={{ color: "var(--color-success)" }}>
               <Shield className="w-3 h-3" /> Verified

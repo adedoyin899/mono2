@@ -294,7 +294,7 @@ export function ClientDashboard() {
         onTab={setActiveTab}
         onNavigate={navigate}
         onSignOut={async () => { await apiClient.logout(); navigate("/"); }}
-        identity={{ initials: clientInitials, name: orgName, subtitle: "Client Account" }}
+        identity={{ initials: clientInitials, name: orgName, avatarUrl: clientProfile.avatarUrl ?? undefined, subtitle: "Client Account" }}
       />
 
       {/* Mobile top bar */}
