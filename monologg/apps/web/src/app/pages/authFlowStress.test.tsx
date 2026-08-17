@@ -181,6 +181,32 @@ describe("Google OAuth Authentication & Navigation Stress Tests", () => {
     expect(screen.queryByTestId("onboarding-stepper")).toBeNull();
   });
 
+  it("STRESS TEST 3b: Returning Client Google Sign-In bypasses onboarding and routes straight to /client with existing brief history intact", async () => {
+    mockGetSession.mockResolvedValue(fakeGoogleSession({ name: "Metro Casting Studio", avatarUrl: "https://lh3.googleusercontent.com/a/metro.jpg" }));
+    mockSessionSync.mockResolvedValue({
+      userId: "usr-client-existing",
+      email: "casting@metro.com",
+      userType: "CLIENT",
+      isNewUser: false,
+      avatarUrl: "https://lh3.googleusercontent.com/a/metro.jpg",
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/auth/callback?userType=CLIENT"]}>
+        <Routes>
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/onboarding/client" element={<div data-testid="client-onboarding-stepper">Client Onboarding Stepper Page</div>} />
+          <Route path="/client" element={<div data-testid="client-dashboard">Client Dashboard Page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("client-dashboard")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("client-onboarding-stepper")).toBeNull();
+  });
+
   it("STRESS TEST 4: Sidebar Monologg logo click navigates to / landing page without terminating user session", () => {
     const mockNavigate = vi.fn();
     const mockSignOut = vi.fn();

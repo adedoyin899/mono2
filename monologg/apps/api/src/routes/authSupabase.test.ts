@@ -254,6 +254,43 @@ describe("POST /api/v1/auth/session/sync", () => {
     );
   });
 
+  it("stores avatarUrl on Client at signup when provided", async () => {
+    prismaMock.user.findFirst.mockResolvedValue(null);
+    prismaMock.user.create.mockResolvedValue({ id: "usr-new-003", email: "studio@client.test" });
+    prismaMock.client.create.mockResolvedValue({ id: "cli-003" });
+    prismaMock.termsAcceptance.create.mockResolvedValue({});
+    prismaMock.user.findUniqueOrThrow.mockResolvedValue({
+      id: "usr-new-003",
+      email: "studio@client.test",
+      userType: "CLIENT",
+      isNewUser: true,
+      creator: null,
+      client: { name: "Metro Casting Studio" },
+    });
+    prismaMock.refreshToken.create.mockResolvedValue({});
+    prismaMock.authEvent.create.mockResolvedValue({});
+
+    const token = signMockSupabaseToken({ sub: "sub-metro-001", email: "studio@client.test" });
+
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/session/sync",
+      payload: {
+        supabaseAccessToken: token,
+        userType: "CLIENT",
+        name: "Metro Casting Studio",
+        avatarUrl: "https://lh3.googleusercontent.com/a/metro.jpg",
+        provider: "GOOGLE",
+      },
+    });
+
+    expect(prismaMock.client.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ avatarUrl: "https://lh3.googleusercontent.com/a/metro.jpg" }),
+      }),
+    );
+  });
+
   it("refreshes an existing account's avatarUrl on a returning sign-in", async () => {
     const linkedUser = {
       id: "usr-linked-002",
