@@ -1,6 +1,6 @@
 # Monologg (`mono2`) — Performing Arts Talent & Booking Platform
 
-[![Deploy with Vercel](https://vercel.com/button)](https://mono2.vercel.app)
+[![Deploy with Vercel](https://vercel.com/button)](https://mono2-eight.vercel.app)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![React](https://img.shields.io/badge/React-18.3-61dafb)
 ![Fastify](https://img.shields.io/badge/Fastify-5.2-green)
@@ -12,9 +12,11 @@
 
 ## 🚀 Live Demo & Deployment
 
-- **Production App**: [https://mono2.vercel.app](https://mono2.vercel.app)
+- **Production App**: [https://mono2-eight.vercel.app](https://mono2-eight.vercel.app)
 - **Vercel Project Dashboard**: [https://vercel.com/adedoyin899s-projects/mono2](https://vercel.com/adedoyin899s-projects/mono2)
 - **GitHub Repository**: [https://github.com/adedoyin899/mono2](https://github.com/adedoyin899/mono2)
+
+**Deploy config (single source of truth — dashboard, not a repo file):** the Vercel project's **Root Directory** is set to `monologg/apps/web` (Project Settings → General). Vercel builds from that directory directly using its own auto-detected Vite settings and the SPA rewrite rule in [`monologg/apps/web/vercel.json`](./monologg/apps/web/vercel.json). There is deliberately no `vercel.json`/`package.json` at this true repo root — one existed briefly and was removed because it silently did nothing (Root Directory takes precedence over a root-level config) while looking like a second, competing setup. `apps/api` is not deployed to Vercel (serverless doesn't fit its Fastify/BullMQ shape) — see `monologg/handoff/` for its deployment status.
 
 ---
 
