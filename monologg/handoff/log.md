@@ -1,11 +1,32 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-17 (Session 67: bg.svg Background Integration & Hover-to-Reveal Spotlight)
+**Last updated:** 2026-08-17 (Session 68: Google OAuth Review, Stress Testing & Architecture Verification)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 68 (2026-08-17) — Google OAuth Architecture Review, End-to-End Stress Testing & Navigation Verification
+
+**Goal:** Review, stress test, and verify the Google OAuth authentication architecture, onboarding stepper routing for brand-new users, direct dashboard routing for returning users, Google profile photo/name persistence, and persistent-session logo navigation.
+
+**Changes Made:**
+
+1. **End-to-End Stress Test Suite (`authFlowStress.test.tsx`)**:
+   - Created `apps/web/src/app/pages/authFlowStress.test.tsx` testing 4 comprehensive scenarios:
+     - *New Talent Sign-Up*: Verifies Google `full_name` and `avatar_url` extraction, `isNewUser: true` detection, and mandatory routing to `/onboarding` stepper with prefilled profile state.
+     - *New Client Sign-Up*: Verifies Google profile metadata extraction, `isNewUser: true` detection, and routing to `/onboarding/client` stepper with prefilled profile state.
+     - *Returning Talent Sign-In*: Verifies `isNewUser: false` detection, bypassing onboarding, and direct routing to `/dashboard` with existing profile/media kit progress intact.
+     - *Sidebar Logo Navigation*: Verifies clicking the Monologg logo in `Sidebar.tsx` navigates to `/` landing page while preserving the active logged-in user session and header account menu.
+2. **Backend API Verification (`authSupabase.ts`)**:
+   - Confirmed `POST /api/v1/auth/session/sync` handles Google JWT access tokens, updates `User`, `Creator`, and `Client` Prisma models, records `AuthEvent`, and calculates `isNewUser` flag reliably.
+3. **Verification**:
+   - Ran `npx pnpm -r typecheck` (0 errors across packages).
+   - Ran `@monologg/web` test suite (22/22 files, 86/86 tests passed).
+   - Ran `@monologg/api` test suite (56/56 files, 579/579 tests passed).
 
 ---
 
