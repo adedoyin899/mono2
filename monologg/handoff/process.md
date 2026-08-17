@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-17 (Session 68: Google OAuth Architecture Review, Stress Testing & Architecture Verification)
+**Last updated:** 2026-08-17 (Session 69: Comprehensive Non-Technical Tools & Integrations Guide)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -164,8 +164,13 @@ Stabilized multi-currency workflows across the app by allowing users to enter cu
 - Refactored `LandingPage.tsx` and `ProjectBrief.tsx` to enable raw text fields that format on blur, auto-scaling sliders, and converting currency.
 - Fixed budget multiplication bug on publishing briefs for non-Naira selections by transmitting values in currency-appropriate minor units.
 - Updated `CreatorOnboarding.tsx` and `TalentDashboard.tsx` base price setup to convert rate values automatically on dropdown select.
-- Added numeric amount validation capping all currency entries at `999,999,999,999,999` and displaying funny error messages via pop-up modals when exceeded.
-- Verified workspace builds and Vitest test suite passes successfully.
+### Step 38: non-technical tools & integrations architecture guide (Session 69)
+
+Authored a comprehensive, plain-language handoff document (`monologg/handoff/tools.md`) covering every single tool, API, service, and integration in Monologg:
+- Explained all 22+ architectural components using an intuitive luxury hotel analogy (frontend decor, backend front desk, database vault, armored money truck, identity scanner, talent scout AI, concierge calendar, messaging mailroom, night-shift queue workers, security guards, quality control bots).
+- Created a quick-reference summary table ranking every tool's architectural importance (Critical Core, High Importance, Supporting).
+- Documented how to set up each provider, including environment variables, API credentials, introduced project stage (Phases 0–17), and configuration guidelines.
+- Updated `monologg/handoff/README.md`, `implementation-plan.md`, `log.md`, `design.md`, and `bug.md` to maintain full handoff documentation discipline.
 
 ---
 
@@ -173,11 +178,12 @@ Stabilized multi-currency workflows across the app by allowing users to enter cu
 
 1. **`README.md`** — the index, and the rule for keeping all of this current.
 2. **`implementation-plan.md`** — current status at a glance: done, in progress, not started.
-3. **`design.md`** — what the product is, what's actually built (everything, as of Phase 17), and the full technical stack.
-4. **`features.md`** — the detailed, phase-by-phase build plan this whole engagement followed, phases 0–17.
-5. **`monologg/qa/2026-07-31-phase17/`** — the current, real gate status: what's still open before a production launch. Read this before assuming anything is "done and shippable."
-6. **`log.md`** — the detailed, technical, file-by-file record of every change made.
-7. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
-8. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
+3. **`tools.md`** — non-technical overview of tools, integrations, and APIs.
+4. **`design.md`** — what the product is, what's actually built (everything, as of Phase 17), and the full technical stack.
+5. **`features.md`** — the detailed, phase-by-phase build plan this whole engagement followed, phases 0–17.
+6. **`monologg/qa/2026-07-31-phase17/`** — the current, real gate status: what's still open before a production launch. Read this before assuming anything is "done and shippable."
+7. **`log.md`** — the detailed, technical, file-by-file record of every change made.
+8. **`bug.md`** — every defect found, how serious it was, and how it was fixed — useful both as a record and as a "here's what to watch out for" list.
+9. **`process.md`** (this file) — the plain-language walkthrough, useful for onboarding non-technical stakeholders or refreshing your own memory quickly.
 
 And practically: this project is a real git repository now, pushed to GitHub. Anyone continuing the work should pull the latest, make changes on top of it, and keep committing — the days of "not tracked anywhere" described earlier in this document are over.

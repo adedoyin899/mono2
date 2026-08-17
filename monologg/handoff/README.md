@@ -4,11 +4,12 @@
 
 Looking for how to just open or run the product? See the root-level `README.md` (one level up) — it covers the double-clickable HTML files, the `app/` folder, and the `brand/` assets.
 
-This folder is the single, continuously-updated record of the project's history and decisions — for a new developer, a new AI agent, or a returning PM. Six documents, each with one job:
+This folder is the single, continuously-updated record of the project's history and decisions — for a new developer, a new AI agent, or a returning PM. Seven documents, each with one job:
 
 | File | What it's for | Update it when... |
 |---|---|---|
 | **`implementation-plan.md`** | The living status board — what's done, what's in progress, what's left, in one glance | Any task starts, finishes, or gets re-scoped |
+| **`tools.md`** | Plain-language guide to every tool, integration, API, setup step, phase, and architectural importance | A new third-party service, tool, API, or integration is added or modified |
 | **`design.md`** | What the product is, what's built vs. the PRD, the tech stack, the design system | The stack changes, a new page/feature ships, or a PRD gap gets closed |
 | **`features.md`** | The technical build-out PRD for turning this into a full-stack product — backend, auth, payments/escrow, KYC, and the new feature areas (availability, applications, public profile, external booking) — ordered into 18 dependency-ordered phases (0–17) | A phase starts, finishes, or a conflict item (X1–X5) gets resolved |
 | **`log.md`** | Chronological, file-by-file record of every implementation change | Any code change worth remembering happens |
@@ -29,6 +30,7 @@ Concretely, for whoever (human or agent) is doing the next unit of work:
    - If it was a bug, add an entry to `bug.md` with severity, cause, and fix, using the existing severity scale.
    - If it changes what the product *is* (new page, stack swap, a PRD gap closed, a new integration), update the relevant section of `design.md`.
    - If it changes the overall process/workflow in a way a non-technical stakeholder would care about, add a step to `process.md`.
+   - If it adds, changes, or re-configures a third-party tool, API, or integration, update `tools.md`.
 4. **Bump `Last updated`** at the top of every file you touched, to today's date.
 
 If a change is small enough that none of this feels worth doing, it's usually still worth one line in `log.md` — err toward logging.
@@ -36,10 +38,11 @@ If a change is small enough that none of this feels worth doing, it's usually st
 ## Reading order for a fresh start
 
 1. `implementation-plan.md` — current status, right now, at a glance
-2. `design.md` — what the product is and how it's built
-3. `features.md` — if backend/full-stack work is next, this is the phase-by-phase build PRD; read it before touching Phase 0
-4. `log.md` — how it got to this state, in detail
-5. `bug.md` — what went wrong along the way and how it was handled
-6. `process.md` — the same story, in plain language
+2. `tools.md` — non-technical overview of tools, integrations, and APIs
+3. `design.md` — what the product is and how it's built
+4. `features.md` — if backend/full-stack work is next, this is the phase-by-phase build PRD; read it before touching Phase 0
+5. `log.md` — how it got to this state, in detail
+6. `bug.md` — what went wrong along the way and how it was handled
+7. `process.md` — the same story, in plain language
 
 And practically: this project is a git repository, pushed to `github.com/adedoyin899/mono2` under the `monologg/` folder (that repo also contains an unrelated `gstack` project at its root — the two are kept deliberately separate). `features.md`'s own Phase 1 will restructure this into a monorepo (`monologg/apps/web`, `monologg/apps/api`, `monologg/packages/types`) — nested under `monologg/` specifically to keep staying separate from that unrelated content.
