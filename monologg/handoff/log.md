@@ -1,11 +1,27 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-17 (Session 64: Account Activity Log Service, Google OAuth & Avatar Flow, Header Menu & Status Audit)
+**Last updated:** 2026-08-17 (Session 65: GitHub Repository Front Page & Vercel Deployment Configuration Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 65 (2026-08-17) — GitHub Repository Front Page & Vercel Deployment Configuration Cleanup
+
+**Goal:** Fix GitHub repository landing page display, configure automatic Vercel monorepo deployment, and clean up loose root directory files.
+
+**Changes Made:**
+
+1. **Root README & Vercel Config (`README.md`, `vercel.json`, `package.json`)**:
+   - Created root `README.md` providing project overview, live deployment badges/links, setup commands, and handoff doc references.
+   - Added root `vercel.json` defining build command (`cd monologg && npx pnpm --filter @monologg/web build`), output directory (`monologg/apps/web/dist`), and install command for seamless Vercel automated deployments.
+   - Added root `package.json` proxying build, typecheck, test, and dev scripts to `monologg/`.
+2. **Root Workspace Clean-up**:
+   - Removed redundant root `Vector map.svg` (already present in `monologg/apps/web/public/vector-map.svg`).
+   - Relocated loose design documents (`hyper-DESIGN (1).md`, `web DESIGN.md`, `wise-DESIGN (1).md`) into `monologg/reference-docs/`.
 
 ---
 
