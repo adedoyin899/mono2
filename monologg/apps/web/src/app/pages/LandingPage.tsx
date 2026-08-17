@@ -830,13 +830,15 @@ export function LandingPage() {
       </div>
 
       {/* ── Fixed Sticky Header ── */}
-      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md">
+      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md relative">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
         </div>
 
-        {/* Pill Navigation Bar */}
-        <nav className="hidden md:flex items-center gap-1 bg-[var(--color-bg-surface-2)] p-1.5 rounded-full border border-[var(--color-hairline)]">
+        {/* Pill Navigation Bar — absolutely centered on the header itself, not
+            just flex-between'd against the logo/buttons either side of it,
+            since those two aren't the same width (optical centering). */}
+        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-bg-surface-2)] p-1.5 rounded-full border border-[var(--color-hairline)]">
           {["Features", "Talent Roster", "How it Works", "Escrow Calculator"].map((item) => (
             <a
               key={item}
