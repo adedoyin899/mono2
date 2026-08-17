@@ -229,7 +229,7 @@ export function AuthFlow() {
       className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col relative overflow-hidden`}
       style={s.canvas}
     >
-      <WebGLHeroCanvas opacityMultiplier={0.2} />
+      <WebGLHeroCanvas opacityMultiplier={0.07} />
 
       {/* Top bar */}
       <div className="h-16 flex items-center justify-between px-5 md:px-8 relative z-20" style={{ borderBottom: "1px solid var(--color-hairline)" }}>

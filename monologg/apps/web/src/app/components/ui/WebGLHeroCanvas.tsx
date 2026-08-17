@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-export function WebGLHeroCanvas({ opacityMultiplier = 0.2 }: { opacityMultiplier?: number }) {
+export function WebGLHeroCanvas({ opacityMultiplier = 0.07 }: { opacityMultiplier?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -75,9 +75,12 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.2 }: { opacityMultiplier
 
       ctx.clearRect(0, 0, width, height);
 
-      // Dynamic scroll reactive ambient intensity
-      const scrollPulse = Math.sin(scrollY * 0.003) * 0.03;
-      const baseAlpha = Math.max(0.04, opacityMultiplier * 0.3 + scrollPulse);
+      // Dynamic scroll reactive ambient intensity — pulse amplitude and the
+      // floor both scale with opacityMultiplier so a low value (subtle) stays
+      // subtle instead of being swamped by a fixed-size pulse/floor tuned for
+      // a much higher intensity.
+      const scrollPulse = Math.sin(scrollY * 0.003) * 0.03 * (opacityMultiplier / 0.2);
+      const baseAlpha = Math.max(0.01 * (opacityMultiplier / 0.2), opacityMultiplier * 0.3 + scrollPulse);
 
       if (pattern) {
         // 1. Ambient base bg.svg grid layer across the section

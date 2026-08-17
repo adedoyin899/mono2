@@ -944,7 +944,7 @@ export function LandingPage() {
       <main className="flex-1">
         {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Status Quo Grid Reveal) ── */}
         <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
-          <WebGLHeroCanvas opacityMultiplier={0.2} />
+          <WebGLHeroCanvas opacityMultiplier={0.07} />
 
           <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/30 shadow-sm">
@@ -1230,7 +1230,7 @@ export function LandingPage() {
 
       {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
       <footer className="pt-20 pb-12 px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
-        <WebGLHeroCanvas opacityMultiplier={0.2} />
+        <WebGLHeroCanvas opacityMultiplier={0.07} />
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 text-sm">
             <div className="col-span-2 space-y-4">
