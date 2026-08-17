@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-export function WebGLHeroCanvas({ opacityMultiplier = 0.07 }: { opacityMultiplier?: number }) {
+export function WebGLHeroCanvas({ opacityMultiplier = 0.05 }: { opacityMultiplier?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.07 }: { opacityMultiplie
     const img = new Image();
     img.src = "/bg.svg";
     let pattern: CanvasPattern | null = null;
-    
+
     const initPattern = () => {
       if (img.complete && img.naturalWidth > 0) {
         try {
@@ -37,6 +37,37 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.07 }: { opacityMultiplie
 
     img.onload = initPattern;
     initPattern();
+
+    // Offscreen buffers for the hover shimmer: the reveal isn't one flat
+    // circle of pattern at a uniform alpha — several soft "hotspots" drift
+    // and pulse independently within the hover radius, each brightening the
+    // pattern's own texture unevenly, so the reveal looks like shimmering
+    // light rather than a spotlight. `mask` composites the hotspots together
+    // (additive), then `shimmer` draws the pattern once and uses the mask to
+    // modulate ITS alpha spatially (destination-in) before it's stamped onto
+    // the main canvas — a plain radial gradient can't do this on its own
+    // since it can only vary color/alpha smoothly from one center outward.
+    const REVEAL_RADIUS = 340;
+    const BUFFER_SIZE = REVEAL_RADIUS * 2;
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = BUFFER_SIZE;
+    maskCanvas.height = BUFFER_SIZE;
+    const maskCtx = maskCanvas.getContext("2d");
+    const shimmerCanvas = document.createElement("canvas");
+    shimmerCanvas.width = BUFFER_SIZE;
+    shimmerCanvas.height = BUFFER_SIZE;
+    const shimmerCtx = shimmerCanvas.getContext("2d");
+
+    // Fixed relative offsets/sizes, animated with independent phases/speeds
+    // so the hotspots drift in and out of prominence rather than pulsing in
+    // lockstep — that asynchrony is what reads as "shimmer" over a static gradient.
+    const HOTSPOTS = [
+      { dx: 0, dy: 0, r: 300, speed: 0.0009, phase: 0 },
+      { dx: -120, dy: -70, r: 150, speed: 0.0014, phase: 1.3 },
+      { dx: 130, dy: -50, r: 140, speed: 0.0011, phase: 2.8 },
+      { dx: -70, dy: 120, r: 150, speed: 0.0017, phase: 4.1 },
+      { dx: 90, dy: 110, r: 130, speed: 0.0013, phase: 5.5 },
+    ];
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -90,26 +121,58 @@ export function WebGLHeroCanvas({ opacityMultiplier = 0.07 }: { opacityMultiplie
         ctx.fillRect(0, 0, width, height);
         ctx.restore();
 
-        // 2. Interactive mouse hover spotlight revealing bg.svg grid with vibrant accent halo
-        if (hoverAlpha > 0.01) {
+        // 2. Interactive mouse hover: a shimmering, non-uniform reveal of the
+        // bg.svg grid (some patches brighter than others, drifting over
+        // time) plus a vibrant accent halo.
+        if (hoverAlpha > 0.01 && maskCtx && shimmerCtx) {
+          const maxAlpha = Math.min(0.85, hoverAlpha * opacityMultiplier * 2.6);
+          const now = performance.now();
+
+          // Build the shimmer mask: several soft radial hotspots combined
+          // additively ("lighter"), each pulsing on its own phase/speed.
+          maskCtx.clearRect(0, 0, BUFFER_SIZE, BUFFER_SIZE);
+          maskCtx.globalCompositeOperation = "lighter";
+          for (const h of HOTSPOTS) {
+            const pulse = 0.5 + 0.5 * Math.sin(now * h.speed + h.phase);
+            const hx = REVEAL_RADIUS + h.dx;
+            const hy = REVEAL_RADIUS + h.dy;
+            const g = maskCtx.createRadialGradient(hx, hy, 0, hx, hy, h.r);
+            g.addColorStop(0, `rgba(255,255,255,${0.35 + 0.5 * pulse})`);
+            g.addColorStop(1, "rgba(255,255,255,0)");
+            maskCtx.fillStyle = g;
+            maskCtx.fillRect(0, 0, BUFFER_SIZE, BUFFER_SIZE);
+          }
+
+          // Stamp the pattern into the shimmer buffer, world-aligned (so its
+          // tiling lines up with the ambient base layer), then let the mask
+          // modulate its alpha spatially.
+          shimmerCtx.clearRect(0, 0, BUFFER_SIZE, BUFFER_SIZE);
+          shimmerCtx.globalCompositeOperation = "source-over";
+          shimmerCtx.globalAlpha = 1;
+          shimmerCtx.save();
+          shimmerCtx.translate(-(mouseX - REVEAL_RADIUS), -(mouseY - REVEAL_RADIUS));
+          shimmerCtx.fillStyle = pattern;
+          shimmerCtx.fillRect(mouseX - REVEAL_RADIUS, mouseY - REVEAL_RADIUS, BUFFER_SIZE, BUFFER_SIZE);
+          shimmerCtx.restore();
+          shimmerCtx.globalCompositeOperation = "destination-in";
+          shimmerCtx.drawImage(maskCanvas, 0, 0);
+
           ctx.save();
           ctx.beginPath();
-          ctx.arc(mouseX, mouseY, 340, 0, Math.PI * 2);
+          ctx.arc(mouseX, mouseY, REVEAL_RADIUS, 0, Math.PI * 2);
           ctx.clip();
-
-          // High visibility reveal mask
-          ctx.globalAlpha = Math.min(0.85, hoverAlpha * opacityMultiplier * 2.6);
-          ctx.fillStyle = pattern;
-          ctx.fillRect(0, 0, width, height);
+          ctx.globalAlpha = maxAlpha;
+          ctx.drawImage(shimmerCanvas, mouseX - REVEAL_RADIUS, mouseY - REVEAL_RADIUS);
 
           // Dual-tone accent halo (Mono-Red to Mono-Purple)
-          const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 340);
+          ctx.globalAlpha = 1;
+          const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, REVEAL_RADIUS);
           grad.addColorStop(0, "rgba(241, 48, 48, 0.22)");
           grad.addColorStop(0.5, "rgba(123, 0, 254, 0.10)");
           grad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
           ctx.fillStyle = grad;
-          ctx.fillRect(mouseX - 340, mouseY - 340, 680, 680);
+          ctx.fillRect(mouseX - REVEAL_RADIUS, mouseY - REVEAL_RADIUS, BUFFER_SIZE, BUFFER_SIZE);
           ctx.restore();
         }
       } else {
