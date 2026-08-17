@@ -1,11 +1,29 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-Resolution Dot-Matrix Vector Map SVG (`vector-map.svg`) with focused active country node & sleek inactive flag beacons, interactive QR code modal, manual currency inputs with dynamic auto-expanding sliders, unified currency conversions, and full navigation view overhaul.
+**Last updated:** 2026-08-17 (Session 64: Account Activity Log Service, Google OAuth & Avatar Flow, Header Menu & Status Audit)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–64 Auth & Account Polish are built and committed. Full-stack: pnpm workspace, real Postgres/Prisma schema, Fastify server, real authentication, real domain endpoints, Paystack-first escrow/payment backend, real KYC + AI style-tagging, Google Calendar/Meet provider layer, notifications backend, design tokens, production hardening, Media Kit, physical attributes, rich time-slot availability, project applications, public marketplace profile, external booking flow, Supabase identity bridge, 2-step passcode withdrawal flow, interactive style tag editing, ReferenceError bug fixes, Availability calendar tab copy updates, Hyper-Design luxury typography, WebGL hero hover grid, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-Resolution Dot-Matrix Vector Map SVG (`vector-map.svg`) with focused active country node & sleek inactive flag beacons, interactive QR code modal, manual currency inputs with dynamic auto-expanding sliders, unified currency conversions, full navigation view overhaul, Google OAuth avatar sync & onboarding routing, signed-in header account menu, and activity logging service.
 
 ---
 
 ## ✅ Done
+
+### Session 64 — Account Activity Log Service & Repository Status Check
+- [x] **Activity Service**: Created `monologg/apps/api/src/services/activity.ts` defining `ActivityAction` union type and best-effort `logActivity` helper for `UserActivity` database model.
+- [x] **Verification**: Executed workspace typecheck (`npx pnpm -r typecheck`) across `packages/types`, `apps/api`, and `apps/web` passing 100% clean.
+- [x] **Handoff Sync**: Synced Sessions 61–64 details across all 5 handoff living documents.
+
+### Session 63 — Signed-in Header Menu, Google OAuth Avatars & Onboarding Routing
+- [x] **Signed-in Landing Header**: Rendered signed-in avatar/initials dropdown with 4 role-aware navigation shortcuts (Dashboard, Media Kit/Post a Project, Transactions, Settings) and Sign Out.
+- [x] **Sign Out Fix**: Fixed `apiClient.logout()` to clear local state sync and fixed Sidebar Sign Out button to invoke full logout path.
+- [x] **Google Avatar Persistence**: Added `avatarUrl` field to Creator/Client schema, migrated database, and synced Google OAuth avatar photos across session sync and settings.
+- [x] **Onboarding Routing**: Routed new OAuth/OTP users to onboarding steppers (`/onboarding` / `/onboarding/client`) while sending returning accounts directly to dashboard.
+
+### Session 62 — AuthFlow UI Redundancy Cleanup & Real Google OAuth
+- [x] **Auth UI Streamlining**: Cleaned up redundant mode toggle buttons on registration screen.
+- [x] **Real Google OAuth**: Integrated `supabase.auth.signInWithOAuth` flow replacing simulated modal.
+
+### Session 61 — Deep Unused Asset Tree Relocation
+- [x] **Path Length Cleanup**: Deleted unreferenced `monologg/brand/mono fonts/` tree and relocated `apps/web/src/imports/reference-screenshots/` to `monologg/reference-screenshots/`.
 
 ### Session 60 — Manual Currency Input, Auto-Expanding Sliders & Currency Conversion
 - [x] **Shared Currency Utility**: Created unified `currency.ts` helper with stable exchange rates, currency conversion methods, and added rotating `getRandomLimitError` warnings for overlarge amounts.

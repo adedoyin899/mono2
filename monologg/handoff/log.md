@@ -1,11 +1,71 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-08 (Session 60: Manual Currency Input, Auto-Expanding Sliders & Currency Conversion)
+**Last updated:** 2026-08-17 (Session 64: Account Activity Log Service, Google OAuth & Avatar Flow, Header Menu & Status Audit)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 64 (2026-08-17) — Account Activity Log Service & Repository Status Check
+
+**Goal:** Implement account activity log helper service (`activity.ts`), audit repository state, run workspace typechecks, and push all recent changes to remote.
+
+**Changes Made:**
+
+1. **Activity Service (`monologg/apps/api/src/services/activity.ts`)**:
+   - Created type-safe `logActivity` helper and `ActivityAction` union type for `UserActivity` database model.
+   - Covers account, booking, payment, escrow, application, media kit, verification, withdrawal, and calendar events.
+2. **Workspace Verification**:
+   - Executed workspace typecheck (`npx pnpm -r typecheck`) across `packages/types`, `apps/api`, and `apps/web` with 0 errors.
+3. **Handoff Documentation Sync**:
+   - Synced Sessions 61–64 details across `log.md`, `implementation-plan.md`, `bug.md`, `design.md`, and `process.md`.
+
+---
+
+## Session 63 (2026-08-14) — Signed-in Header Menu, Google OAuth Avatars & Onboarding Routing
+
+**Goal:** Fix landing header session state, persist Google avatar URLs to Creator/Client models, and route new Google/OTP users properly.
+
+**Changes Made:**
+
+1. **Signed-in Landing Header & Session Logout Fix (`LandingPage.tsx`, `Sidebar.tsx`, `api-client.ts`)**:
+   - Updated landing page header to render signed-in account avatar/initials dropdown with quick navigation shortcuts.
+   - Fixed bug where `apiClient.logout()` cleared the token but left local user state active, and fixed Sidebar sign-out to invoke full logout path.
+2. **Google Avatar Persistence (`schema.prisma`, `authSupabase.ts`, `AuthCallback.tsx`, `Settings.tsx`)**:
+   - Added nullable `avatarUrl` field to Creator and Client schema.
+   - Updated Supabase auth sync endpoint to persist and update Google avatar photos on sign-in.
+3. **Onboarding Routing & Real Name Resolution (`AuthCallback.tsx`, `AuthFlow.tsx`, `api-client.ts`)**:
+   - Routed new Google/OTP user sign-ins to `/onboarding` (Creator) or `/onboarding/client` (Client) rather than skipping onboarding.
+   - Prevented fallback to mock names ("Elias Thorne") for real OAuth users.
+
+---
+
+## Session 62 (2026-08-14) — AuthFlow UI Redundancy Cleanup & Real Google OAuth
+
+**Goal:** Streamline auth registration options and integrate real Supabase Google OAuth workflow.
+
+**Changes Made:**
+
+1. **AuthFlow UI Cleanup (`AuthFlow.tsx`)**:
+   - Removed redundant "Switch to Client/Employer Mode" splash link and top role toggle on Register view.
+2. **Real Supabase OAuth (`AuthFlow.tsx`)**:
+   - Replaced simulated modal with `supabase.auth.signInWithOAuth`.
+
+---
+
+## Session 61 (2026-08-11) — Deep Unused Asset Tree Relocation
+
+**Goal:** Clean up deep nested asset directory trees to prevent path length issues during sync.
+
+**Changes Made:**
+
+1. **Brand Fonts Removal**:
+   - Deleted unreferenced `monologg/brand/mono fonts/` tree.
+2. **Reference Screenshots Relocation**:
+   - Moved `apps/web/src/imports/reference-screenshots/` to `monologg/reference-screenshots/`.
 
 ---
 
