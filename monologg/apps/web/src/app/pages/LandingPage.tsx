@@ -944,7 +944,7 @@ export function LandingPage() {
       <main className="flex-1">
         {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Status Quo Grid Reveal) ── */}
         <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
-          <WebGLHeroCanvas opacityMultiplier={0.25} />
+          <WebGLHeroCanvas opacityMultiplier={0.2} />
 
           <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/30 shadow-sm">
@@ -1068,7 +1068,6 @@ export function LandingPage() {
 
         {/* ── MONOLOGG ESCROW CALCULATOR SECTION ── */}
         <section id="escrow-calculator" className="relative py-24 px-6 md:px-16 bg-[#0D0D0F] text-white overflow-hidden">
-          <WebGLHeroCanvas opacityMultiplier={0.2} />
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#F13030] text-white">
@@ -1199,7 +1198,6 @@ export function LandingPage() {
 
         {/* ── FINAL CONVERSION CTA ── */}
         <section className="relative py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
-          <WebGLHeroCanvas opacityMultiplier={0.2} />
           <div className="max-w-3xl mx-auto space-y-8 relative z-10">
             <h2 className="font-wise-sans text-4xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white">
               TAKE CONTROL OF YOUR CRAFT.

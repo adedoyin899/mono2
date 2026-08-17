@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-export function WebGLHeroCanvas({ opacityMultiplier = 0.25 }: { opacityMultiplier?: number }) {
+export function WebGLHeroCanvas({ opacityMultiplier = 0.2 }: { opacityMultiplier?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
