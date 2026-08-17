@@ -291,7 +291,15 @@ export const apiClient = {
       return user;
     }
     const res = await authRequest<{ userId: string; email: string; userType: "TALENT" | "CLIENT"; emailVerified: boolean; isNewUser?: boolean }>("/register", input);
-    appStateSync.setLoggedInUser({ id: res.userId, email: res.email, name: input.name, userType: input.userType, authProvider: "EMAIL", isNewUser: true });
+    // /register only creates the account — it never issues tokens (the client
+    // is expected to log in separately). Without this, a fresh registration
+    // landed on /onboarding with no session at all, and the very next
+    // protected route (finishing onboarding, /dashboard, ...) bounced back to
+    // /auth as if the user had never signed up. Logging in immediately with
+    // the credentials they just set reuses the real, working session path.
+    await apiClient.login(input.email, input.password);
+    const justRegistered = appStateSync.getLoggedInUser();
+    if (justRegistered) appStateSync.setLoggedInUser({ ...justRegistered, isNewUser: true });
     return res;
   },
   async login(email: string, password: string): Promise<AuthUser & { isNewUser?: boolean }> {
@@ -302,39 +310,22 @@ export const apiClient = {
       appStateSync.setLoggedInUser({ id: user.userId, email: user.email, name: userType === "CLIENT" ? "FilmCraft Studios" : "Elias Thorne", userType, authProvider: "EMAIL", isNewUser: false });
       return user;
     }
-    const data = await authRequest<{ accessToken: string; refreshToken: string; user: AuthUser & { isNewUser?: boolean } }>(
+    const data = await authRequest<{ accessToken: string; refreshToken: string; user: AuthUser & { name: string; isNewUser?: boolean } }>(
       "/login",
       { email, password },
     );
     setSession(data);
-    appStateSync.setLoggedInUser({ id: data.user.userId, email: data.user.email, name: data.user.userType === "CLIENT" ? "FilmCraft Studios" : "Elias Thorne", userType: data.user.userType, authProvider: "EMAIL", isNewUser: data.user.isNewUser ?? false });
-    return data.user;
-  },
-  async googleLogin(input: { email: string; name: string; userType: "TALENT" | "CLIENT"; googleId?: string }): Promise<{
-    user: { id: string; email: string; name: string; userType: "TALENT" | "CLIENT"; authProvider: string; isNewUser: boolean };
-    welcomeLink?: string;
-  }> {
-    if (API_MODE !== "live") {
-      const user = {
-        id: `usr-g-${Date.now()}`,
-        email: input.email,
-        name: input.name,
-        userType: input.userType,
-        authProvider: "GOOGLE",
-        isNewUser: true,
-      };
-      appStateSync.setLoggedInUser(user);
-      return { user, welcomeLink: "/onboarding?welcome=true" };
+    appStateSync.setLoggedInUser({ id: data.user.userId, email: data.user.email, name: data.user.name, userType: data.user.userType, authProvider: "EMAIL", isNewUser: data.user.isNewUser ?? false });
+    // Dashboards read the greeting/sidebar identity from the talent/client
+    // profile store, not from the logged-in-user session record — without
+    // this, every real password-auth account showed the seeded
+    // "Emeka Johnson"/"Sarah Jenkins" demo persona instead of their own name.
+    if (data.user.userType === "CLIENT") {
+      appStateSync.updateClientProfile({ name: data.user.name, email: data.user.email });
+    } else {
+      appStateSync.updateTalentProfile({ name: data.user.name, email: data.user.email });
     }
-    const res = await authRequest<{
-      accessToken: string;
-      refreshToken: string;
-      user: { id: string; email: string; name: string; userType: "TALENT" | "CLIENT"; authProvider: string; isNewUser: boolean };
-      welcomeLink?: string;
-    }>("/google", input);
-    setSession(res);
-    appStateSync.setLoggedInUser(res.user);
-    return res;
+    return data.user;
   },
   async getAdminUsers(): Promise<{ users: Array<{ id: string; email: string; userType: string; authProvider: string; isNewUser: boolean; name: string; createdAt: string }>; totalCount: number }> {
     if (API_MODE !== "live") {

@@ -69,12 +69,25 @@ describe("AuthFlow", () => {
 
   it("live mode: registering sends the required, versioned terms acceptance to the backend", async () => {
     vi.stubEnv("VITE_API_MODE", "live");
-    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
-      new Response(
-        JSON.stringify({ userId: "new-user", email: "ada@example.com", userType: "TALENT", emailVerified: false }),
-        { status: 201, headers: { "content-type": "application/json" } },
-      ),
-    );
+    // register() immediately logs the new account in (see api-client.ts) to
+    // establish a real session, so the mock needs a real /login response too
+    // — not just /register's — or the second call resolves to `undefined`.
+    const fetchMock = vi.fn(async (url: string | URL | Request, _init?: RequestInit) => {
+      if (String(url).includes("/register")) {
+        return new Response(
+          JSON.stringify({ userId: "new-user", email: "ada@example.com", userType: "TALENT", emailVerified: false }),
+          { status: 201, headers: { "content-type": "application/json" } },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          accessToken: "test-access-token",
+          refreshToken: "test-refresh-token",
+          user: { userId: "new-user", email: "ada@example.com", userType: "TALENT", name: "Ada Lovelace" },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    });
     vi.stubGlobal("fetch", fetchMock);
     await renderAuthFlow();
 

@@ -161,7 +161,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const { email, password } = parsed.data;
 
       // Find user
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ where: { email }, include: { creator: true, client: true } });
 
       // Run password verification logic regardless to mitigate timing attacks
       const isValid = user
@@ -207,6 +207,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
           userId: user.id,
           email: user.email,
           userType: user.userType,
+          // Without this, the client has no source for the signed-in user's
+          // real name and previously fell back to hardcoded demo names
+          // ("Elias Thorne" / "FilmCraft Studios") for every real account.
+          name: user.creator?.name ?? user.client?.name ?? user.email.split("@")[0],
         },
       });
     }

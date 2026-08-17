@@ -11,7 +11,7 @@ pnpm dev            # http://localhost:5173 — apps/web only
 pnpm --filter @monologg/api run dev   # http://localhost:3001 — apps/api, needs apps/api/.env
 ```
 
-The two dev servers aren't proxied to each other — `apps/web` with `VITE_API_MODE=live` won't reach `localhost:3001` locally without a Vite proxy (Phase 5+). Until then, run `apps/api` on its own to hit its routes directly (`curl localhost:3001/api/v1/health`, Postman, etc.).
+`apps/web/vite.config.ts` proxies `/api` to `localhost:3001` in dev, so `apps/web` with `VITE_API_MODE=live` reaches a locally running `apps/api` directly — no separate setup needed beyond starting both dev servers. To hit `apps/api` on its own without the browser (`curl localhost:3001/api/v1/health`, Postman, etc.), that still works too.
 
 ## Before you commit
 

@@ -193,6 +193,17 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
         isNewUser = appUser.isNewUser;
       }
 
+      // isNewUser is a one-shot "route to onboarding, not the dashboard"
+      // signal for AuthCallback.tsx. Nothing ever flipped it back to false
+      // after the row was created with isNewUser: true, so every later
+      // sign-in kept reporting true and sent returning users into onboarding
+      // forever. Persist false the moment it's been reported true once — the
+      // update's return value isn't needed, every field this handler still
+      // reads off `appUser` below is already correct on the in-hand object.
+      if (appUser.isNewUser) {
+        await prisma.user.update({ where: { id: appUser.id }, data: { isNewUser: false } });
+      }
+
       // Keep the avatar current with Google on every returning sign-in too
       // (not just at signup) — Google photos change; never clears an existing
       // one just because this particular sign-in method didn't supply one.

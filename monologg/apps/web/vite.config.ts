@@ -10,4 +10,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  // Dev-only: api-client.ts calls relative `/api/v1/...` paths, so
+  // VITE_API_MODE=live needs this to reach apps/api locally (CONTRIBUTING.md).
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
+  },
 })
