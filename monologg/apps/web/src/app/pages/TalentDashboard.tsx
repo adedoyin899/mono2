@@ -15,7 +15,7 @@ import { convertCurrency } from "../../lib/currency";
 import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
-  Plus, Edit2, Trash2, ChevronRight,
+  Plus, Edit2, Trash2, ChevronRight, ChevronLeft, Clock, MapPin, Info,
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound
 } from "lucide-react";
@@ -51,6 +51,34 @@ function addDaysISO(date: string, days: number): string {
 
 function formatDayLabel(date: string): string {
   return new Date(`${date}T00:00:00.000Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function getWeekDaysISO(dateStr: string): string[] {
+  const d = new Date(`${dateStr}T00:00:00.000Z`);
+  const day = d.getUTCDay(); // 0 is Sun, 1 is Mon
+  const diffToMon = day === 0 ? -6 : 1 - day;
+  const mon = new Date(d);
+  mon.setUTCDate(d.getUTCDate() + diffToMon);
+  const result: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const curr = new Date(mon);
+    curr.setUTCDate(mon.getUTCDate() + i);
+    result.push(curr.toISOString().slice(0, 10));
+  }
+  return result;
+}
+
+function navigatePeriodISO(dateStr: string, view: "month" | "week" | "day", direction: "prev" | "next"): string {
+  const d = new Date(`${dateStr}T00:00:00.000Z`);
+  const step = direction === "next" ? 1 : -1;
+  if (view === "month") {
+    d.setUTCMonth(d.getUTCMonth() + step);
+  } else if (view === "week") {
+    d.setUTCDate(d.getUTCDate() + (step * 7));
+  } else {
+    d.setUTCDate(d.getUTCDate() + step);
+  }
+  return d.toISOString().slice(0, 10);
 }
 
 const SLOT_STATE_META: Record<SlotState, { label: string; color: string }> = {
@@ -177,6 +205,22 @@ export function TalentDashboard() {
   const [recurSlotStart, setRecurSlotStart] = useState("09:00");
   const [recurSlotEnd, setRecurSlotEnd] = useState("17:00");
   const [recurSlotState, setRecurSlotState] = useState<Exclude<SlotState, "booked">>("free");
+  const [selectedEventModal, setSelectedEventModal] = useState<{
+    id: string;
+    title: string;
+    date: string;
+    start: string;
+    end: string;
+    kind?: string;
+    venue?: string;
+    description?: string;
+    isSlot?: boolean;
+    slotIndex?: number;
+  } | null>(null);
+  const [actionPopover, setActionPopover] = useState<{
+    date: string;
+    time?: string;
+  } | null>(null);
 
   const navigate = useNavigate();
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -1153,67 +1197,133 @@ export function TalentDashboard() {
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+
+                {/* Header & Subtitle */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div>
-                    <h2 className="font-display text-2xl lg:hidden mb-1" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
+                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
                     <p className="text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                      Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
+                      Set your availability for bookings. Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
                     </p>
                   </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      aria-label="Notifications"
+                      onClick={() => setActiveTab("home")}
+                      className="relative w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                    >
+                      <Bell className="w-4 h-4" style={{ color: "var(--color-text-primary)" }} />
+                      {notifications.some((n) => !n.readAt) && (
+                        <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Calendar Toolbar & Period Navigation */}
+                <div
+                  className="p-3.5 rounded-[var(--radius-lg)] mb-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="flex items-center justify-between w-full sm:w-auto gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        aria-label="Previous period"
+                        onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, calendarView, "prev"))}
+                        className="p-2 rounded-xl transition-all hover:bg-[var(--color-bg-elevated)]"
+                        style={{ border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedDate(todayISO())}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold font-body transition-all hover:bg-[var(--color-bg-elevated)]"
+                        style={{ border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                      >
+                        Today
+                      </button>
+                      <button
+                        aria-label="Next period"
+                        onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, calendarView, "next"))}
+                        className="p-2 rounded-xl transition-all hover:bg-[var(--color-bg-elevated)]"
+                        style={{ border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <span className="font-display text-base font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+                      {new Date(`${selectedDate}T00:00:00.000Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
+                    </span>
+                  </div>
+
                   {/* 3-View Switcher: Month | Week | Day */}
-                  <div className="flex p-1 rounded-xl self-start sm:self-auto shrink-0" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                  <div className="flex p-1 rounded-xl shrink-0 w-full sm:w-auto justify-center" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
                     {(["month", "week", "day"] as const).map((view) => (
                       <button
                         key={view}
                         onClick={() => setCalendarView(view)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold font-body capitalize transition-all"
+                        className="flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-semibold font-body capitalize transition-all"
                         style={{
                           background: calendarView === view ? "var(--color-accent)" : "transparent",
                           color: calendarView === view ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                          boxShadow: calendarView === view ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
                         }}
                       >
-                        {view}
+                        {view === "month" ? "Month" : view === "week" ? "Week" : "Day"}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Date Selection Bar */}
+                {/* Rolling Date Selector Pill Strip */}
                 <div className="flex items-center gap-2 mb-4">
                   <button
                     aria-label="Jump to today"
                     onClick={() => setSelectedDate(todayISO())}
-                    className="w-9 h-9 shrink-0 rounded-[var(--radius-full)] flex items-center justify-center"
+                    className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-all hover:scale-105"
                     style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
                   >
-                    <Calendar className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
+                    <Calendar className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
                   </button>
-                  <div className="flex gap-1.5 overflow-x-auto pb-1 flex-1">
-                    {Array.from({ length: 14 }, (_, i) => addDaysISO(todayISO(), i)).map((date) => (
-                      <button
-                        key={date}
-                        onClick={() => setSelectedDate(date)}
-                        className="shrink-0 px-3 py-2 rounded-[var(--radius-md)] text-xs font-body whitespace-nowrap"
-                        style={{
-                          background: date === selectedDate ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                          color: date === selectedDate ? "var(--color-accent-on)" : "var(--color-text-secondary)",
-                          border: `1px solid ${date === selectedDate ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                        }}
-                      >
-                        {formatDayLabel(date)}
-                      </button>
-                    ))}
+
+                  <div className="flex gap-2 overflow-x-auto pb-1 flex-1 scrollbar-none">
+                    {Array.from({ length: 14 }, (_, i) => addDaysISO(todayISO(), i)).map((date) => {
+                      const isSelected = date === selectedDate;
+                      const isToday = date === todayISO();
+                      return (
+                        <button
+                          key={date}
+                          onClick={() => setSelectedDate(date)}
+                          className="shrink-0 px-3.5 py-2 rounded-xl text-xs font-body font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1.5"
+                          style={{
+                            background: isSelected ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                            color: isSelected ? "var(--color-accent-on)" : "var(--color-text-primary)",
+                            border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                            boxShadow: isSelected ? "0 4px 12px rgba(241,48,48,0.25)" : "none",
+                          }}
+                        >
+                          {isToday && !isSelected && <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />}
+                          {formatDayLabel(date)}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-                    className="h-9 px-2 rounded-[var(--radius-md)] text-xs font-body shrink-0"
-                    style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
-                  />
+
+                  <div className="relative shrink-0">
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+                      className="h-10 px-3 pr-8 rounded-xl text-xs font-body cursor-pointer font-medium"
+                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                    />
+                    <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-text-secondary)" }} />
+                  </div>
                 </div>
 
-                {/* Month View Grid */}
+                {/* MONTH VIEW GRID */}
                 {calendarView === "month" && (() => {
                   const selectedObj = new Date(`${selectedDate}T00:00:00.000Z`);
                   const year = selectedObj.getUTCFullYear();
@@ -1231,38 +1341,192 @@ export function TalentDashboard() {
                   }
 
                   return (
-                    <div className="p-4 rounded-[var(--radius-lg)] mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
-                        <span className="text-xs font-body text-tertiary" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots</span>
+                    <div className="p-5 rounded-[var(--radius-lg)] mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
+                        <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots & events</span>
                       </div>
-                      <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                      <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold mb-3 font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
                         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
                           <div key={day} className="py-1">{day}</div>
                         ))}
                       </div>
-                      <div className="grid grid-cols-7 gap-1.5">
+                      <div className="grid grid-cols-7 gap-2">
                         {daysArray.map((dateStr, idx) => {
-                          if (!dateStr) return <div key={`empty-${idx}`} className="h-10" />;
+                          if (!dateStr) return <div key={`empty-${idx}`} className="h-14 sm:h-16 rounded-xl bg-[var(--color-bg-canvas)]/30" />;
                           const isSelected = dateStr === selectedDate;
                           const isToday = dateStr === todayISO();
                           const dayNum = parseInt(dateStr.slice(8), 10);
                           return (
                             <button
                               key={dateStr}
-                              onClick={() => setSelectedDate(dateStr)}
-                              className="h-10 rounded-[var(--radius-md)] flex flex-col items-center justify-center relative transition-all active:scale-95 text-xs font-body font-medium"
+                              onClick={() => {
+                                setSelectedDate(dateStr);
+                                setActionPopover({ date: dateStr });
+                              }}
+                              className="h-14 sm:h-16 p-2 rounded-xl flex flex-col items-center justify-between relative transition-all active:scale-95 text-xs font-body font-medium"
                               style={{
                                 background: isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                                 color: isSelected ? "var(--color-accent-on)" : isToday ? "var(--color-accent)" : "var(--color-text-primary)",
-                                border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                                border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                boxShadow: isSelected ? "0 4px 14px rgba(241,48,48,0.3)" : "none",
                               }}
                             >
-                              <span>{dayNum}</span>
-                              {isToday && !isSelected && (
-                                <span className="w-1.5 h-1.5 rounded-full mt-0.5" style={{ background: "var(--color-accent)" }} />
-                              )}
+                              <span className="text-sm font-semibold">{dayNum}</span>
+                              <div className="flex items-center gap-1">
+                                {isToday && (
+                                  <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[var(--color-accent)]"}`} />
+                                )}
+                                {isSelected && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+                                )}
+                              </div>
                             </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* WEEK VIEW GRID (Image 3 Inspiration) */}
+                {calendarView === "week" && (() => {
+                  const weekDays = getWeekDaysISO(selectedDate);
+                  const hours = Array.from({ length: 13 }, (_, i) => i + 8);
+                  return (
+                    <div className="p-4 rounded-[var(--radius-lg)] mb-4 overflow-x-auto" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="min-w-[650px]">
+                        <div className="grid grid-cols-8 gap-1 mb-2 text-center text-xs font-body border-b pb-2" style={{ borderColor: "var(--color-border-default)" }}>
+                          <div className="text-left font-semibold uppercase text-tertiary px-2" style={{ color: "var(--color-text-tertiary)" }}>Time</div>
+                          {weekDays.map((dStr) => {
+                            const dObj = new Date(`${dStr}T00:00:00.000Z`);
+                            const dayName = dObj.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
+                            const dayNum = dObj.getUTCDate();
+                            const isSel = dStr === selectedDate;
+                            const isToday = dStr === todayISO();
+                            return (
+                              <button
+                                key={dStr}
+                                onClick={() => setSelectedDate(dStr)}
+                                className={`py-1.5 rounded-lg text-center transition-all ${isSel ? "font-bold text-white bg-[var(--color-accent)] shadow-md" : isToday ? "text-[var(--color-accent)] font-semibold bg-[var(--color-accent-soft)]" : "text-[var(--color-text-primary)]"}`}
+                              >
+                                <div>{dayName}</div>
+                                <div className="text-sm font-semibold">{dayNum}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <div className="relative space-y-1">
+                          <div className="absolute left-0 right-0 top-[28%] z-10 pointer-events-none flex items-center">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[var(--color-accent)] text-white shadow-sm">11:30</span>
+                            <div className="h-[2px] flex-1 bg-[var(--color-accent)] opacity-80" />
+                          </div>
+
+                          {hours.map((hr) => (
+                            <div key={hr} className="grid grid-cols-8 gap-1 items-center min-h-[44px] border-b" style={{ borderColor: "var(--color-border-default)" }}>
+                              <div className="text-xs font-mono font-medium text-tertiary px-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                {String(hr).padStart(2, "0")}:00
+                              </div>
+                              {weekDays.map((dStr) => {
+                                const isSelDay = dStr === selectedDate;
+                                const hasEvent = dayDetail?.events.find(e => parseInt(e.start.slice(0, 2), 10) === hr);
+                                return (
+                                  <div
+                                    key={dStr}
+                                    onClick={() => setActionPopover({ date: dStr, time: `${String(hr).padStart(2, "0")}:00` })}
+                                    className={`h-full min-h-[40px] rounded-md p-1 cursor-pointer transition-all hover:bg-[var(--color-bg-elevated)] ${isSelDay ? "bg-[var(--color-accent-soft)]/20" : ""}`}
+                                  >
+                                    {hasEvent && (
+                                      <div
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedEventModal({
+                                            id: hasEvent.id,
+                                            title: hasEvent.title,
+                                            date: hasEvent.date,
+                                            start: hasEvent.start,
+                                            end: hasEvent.end,
+                                            kind: hasEvent.kind,
+                                            venue: "Studio 4B, Lagos",
+                                            description: "Scheduled performance hold/session.",
+                                          });
+                                        }}
+                                        className="p-1.5 rounded-md text-[11px] font-body font-semibold truncate bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30"
+                                      >
+                                        {hasEvent.title} ({hasEvent.start})
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* DAY VIEW GRID (Image 4 Inspiration) */}
+                {calendarView === "day" && (() => {
+                  const hours = Array.from({ length: 13 }, (_, i) => i + 8);
+                  const dayNameLong = new Date(`${selectedDate}T00:00:00.000Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+                  return (
+                    <div className="p-5 rounded-[var(--radius-lg)] mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: "var(--color-border-default)" }}>
+                        <h3 className="font-display text-lg font-bold uppercase tracking-wide" style={{ color: "var(--color-accent)" }}>{dayNameLong}</h3>
+                        <Button variant="secondary" className="h-8 px-3 text-xs gap-1" onClick={() => setShowAddSlot(true)}>
+                          <Plus className="w-3.5 h-3.5" /> Add slot
+                        </Button>
+                      </div>
+
+                      <div className="relative space-y-2">
+                        <div className="absolute left-0 right-0 top-[35%] z-10 pointer-events-none flex items-center">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[var(--color-accent)] text-white shadow-sm">11:30</span>
+                          <div className="h-[2px] flex-1 bg-[var(--color-accent)] opacity-80" />
+                        </div>
+
+                        {hours.map((hr) => {
+                          const timeStr = `${String(hr).padStart(2, "0")}:00`;
+                          const matchedEvents = dayDetail?.events.filter(e => parseInt(e.start.slice(0, 2), 10) === hr) ?? [];
+                          return (
+                            <div key={hr} className="flex gap-3 min-h-[52px] border-b pb-1" style={{ borderColor: "var(--color-border-default)" }}>
+                              <div className="w-16 shrink-0 text-xs font-mono font-medium text-tertiary pt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                                {timeStr}
+                              </div>
+                              <div
+                                onClick={() => setActionPopover({ date: selectedDate, time: timeStr })}
+                                className="flex-1 rounded-lg p-1.5 cursor-pointer transition-all hover:bg-[var(--color-bg-elevated)] min-h-[44px] flex flex-col justify-center"
+                              >
+                                {matchedEvents.length === 0 ? (
+                                  <div className="text-[11px] font-body text-tertiary opacity-0 hover:opacity-100 transition-opacity">Click to add event or slot</div>
+                                ) : (
+                                  matchedEvents.map((evt) => (
+                                    <div
+                                      key={evt.id}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedEventModal({
+                                          id: evt.id,
+                                          title: evt.title,
+                                          date: evt.date,
+                                          start: evt.start,
+                                          end: evt.end,
+                                          kind: evt.kind,
+                                          venue: "Main Studio / Remote",
+                                          description: "Scheduled event details for this time slot.",
+                                        });
+                                      }}
+                                      className="p-2 rounded-lg mb-1 bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-between text-xs font-body font-semibold text-[var(--color-accent)]"
+                                    >
+                                      <span>{evt.title} ({evt.start} – {evt.end})</span>
+                                      <Badge tone="neutral" size="sm">{evt.kind}</Badge>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
@@ -2667,6 +2931,160 @@ export function TalentDashboard() {
                       </Button>
                     </>
                   )}
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+          {/* Quick Action Popover (Images 2, 3, 4 Inspiration) */}
+          <AnimatePresence>
+            {actionPopover && (
+              <Modal onClose={() => setActionPopover(null)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-xs rounded-[var(--radius-lg)] p-5"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between mb-4 pb-2 border-b" style={{ borderColor: "var(--color-border-default)" }}>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      <h4 className="font-display text-sm font-bold" style={{ color: "var(--color-text-primary)" }}>
+                        Action — {formatDayLabel(actionPopover.date)} {actionPopover.time ? `(${actionPopover.time})` : ""}
+                      </h4>
+                    </div>
+                    <button onClick={() => setActionPopover(null)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                      <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-tertiary)" }} />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <Button
+                      variant="secondary"
+                      className="w-full justify-start text-xs h-10 gap-2"
+                      onClick={() => {
+                        const targetDate = actionPopover.date;
+                        setActionPopover(null);
+                        setSelectedDate(targetDate);
+                        setNewSlotState("free");
+                        setShowAddSlot(true);
+                      }}
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[var(--color-success)]" /> Mark as Available
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      className="w-full justify-start text-xs h-10 gap-2"
+                      onClick={() => {
+                        const targetDate = actionPopover.date;
+                        setActionPopover(null);
+                        setSelectedDate(targetDate);
+                        setNewSlotState("unavailable");
+                        setShowAddSlot(true);
+                      }}
+                    >
+                      <X className="w-4 h-4 text-[var(--color-accent)]" /> Mark as Unavailable
+                    </Button>
+                    <Button
+                      className="w-full justify-start text-xs h-10 gap-2"
+                      onClick={() => {
+                        const targetDate = actionPopover.date;
+                        setActionPopover(null);
+                        setSelectedDate(targetDate);
+                        setShowAddEvent(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4" /> Add Event / Hold
+                    </Button>
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Selected Event Details Modal (Images 2 & 4 Inspiration) */}
+          <AnimatePresence>
+            {selectedEventModal && (
+              <Modal onClose={() => setSelectedEventModal(null)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-sm rounded-[var(--radius-xl)] p-6"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-start justify-between mb-4 border-b pb-3" style={{ borderColor: "var(--color-border-default)" }}>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider font-body text-[var(--color-accent)]">
+                        {formatDayLabel(selectedEventModal.date)}
+                      </span>
+                      <h3 className="font-display text-lg font-bold mt-0.5" style={{ color: "var(--color-text-primary)" }}>
+                        {selectedEventModal.title}
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={async () => {
+                          const evtId = selectedEventModal.id;
+                          setSelectedEventModal(null);
+                          await handleDeleteEvent(evtId);
+                        }}
+                        aria-label="Delete event"
+                        className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-red-500/10 text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedEventModal(null)}
+                        aria-label="Close"
+                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3.5 mb-6">
+                    <div className="flex items-start gap-2.5">
+                      <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider font-semibold font-body text-tertiary" style={{ color: "var(--color-text-tertiary)" }}>Date & Time</div>
+                        <div className="text-xs font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>
+                          {formatDayLabel(selectedEventModal.date)} · {selectedEventModal.start} – {selectedEventModal.end}
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedEventModal.venue && (
+                      <div className="flex items-start gap-2.5">
+                        <MapPin className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider font-semibold font-body text-tertiary" style={{ color: "var(--color-text-tertiary)" }}>Venue / Location</div>
+                          <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
+                            {selectedEventModal.venue}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedEventModal.description && (
+                      <div className="flex items-start gap-2.5">
+                        <Info className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wider font-semibold font-body text-tertiary" style={{ color: "var(--color-text-tertiary)" }}>Description</div>
+                          <div className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                            {selectedEventModal.description}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button className="w-full h-10 text-xs" onClick={() => setSelectedEventModal(null)}>
+                    Done
+                  </Button>
                 </motion.div>
               </Modal>
             )}

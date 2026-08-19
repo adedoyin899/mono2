@@ -1,11 +1,30 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-19 (Session 70: Supabase Row Level Security (RLS) Enablement)
+**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 71 (2026-08-19) — Talent Availability Page UI Overhaul based on Inspiration Screenshots
+
+**Goal:** Transform the Talent Dashboard Availability / Calendar view (`TalentDashboard.tsx`) into a modern, responsive interface matching user-supplied UI inspiration screenshots while enforcing Monologg's design tokens (`var(--color-accent)`, `var(--color-bg-surface)`, `var(--radius-lg)`).
+
+**Files Modified:**
+1. `monologg/apps/web/src/app/pages/TalentDashboard.tsx`:
+   - **Header & Navigation Toolbar:** Built top header bar with `< Prev >`, `Today`, `< Next >` navigation controls, Month/Year label, view switcher pills (`Month | Week | Day`), and date picker input with calendar icon (`Calendar`).
+   - **14-Day Rolling Date Carousel:** Implemented horizontal date pill strip (`Wed, Aug 19`, `Thu, Aug 20`, `Fri, Aug 21 (Active Red)`...) with active solid Mono-Red accent styling and scrollable container.
+   - **Enhanced Month View (`calendarView === "month"`):** Built 7-day grid with day numbers, dot indicators, event previews, and active solid red date pill selection.
+   - **7-Day Week View (`calendarView === "week"`):** Implemented 7-column time-grid layout (Monday – Sunday), 8:00 AM – 8:00 PM time axis, red horizontal current time line with live time pill (`11:30`), colored event blocks placed in grid cells, and click-to-view/add popovers (matching Image 3 inspiration).
+   - **1-Day Day View (`calendarView === "day"`):** Implemented single-column time-grid layout with hourly rows, red current time line, full-width event cards, and event detail popovers (matching Image 4 inspiration).
+   - **Interactive Modals & Popovers:** Built `actionPopover` modal ("Mark as Available", "Mark as Unavailable", "Add Event") and `selectedEventModal` detail modal (Title, Date, Time, Venue, Description, Delete `Trash2` action) matching Images 2 & 4 inspiration.
+
+**Verification:**
+- Workspace typecheck (`npx pnpm -r typecheck`): 0 errors across `@monologg/types`, `@monologg/api`, and `@monologg/web`.
+- Web Vitest suite (`npx vitest run`): 23 test files, 90/90 tests passed 100%.
 
 ---
 

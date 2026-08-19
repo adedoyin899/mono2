@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-19 (Session 70: Supabase Row Level Security (RLS) Enablement)
+**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,20 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 40: Talent Availability / Calendar View UI Overhaul (Session 71)
+
+Redesigned and upgraded the Availability / Calendar tab in `TalentDashboard.tsx` based on 4 user-supplied UI inspiration screenshots:
+- **Toolbar & Period Navigator:** Created navigation bar with Prev / Next period controls, `Today` button, Month/Year label, 3-view pill switcher (`Month | Week | Day`), and date input with calendar icon (`Calendar`).
+- **14-Day Rolling Date Carousel:** Added horizontal date pill carousel with active Mono-Red highlight for fast date switching.
+- **Month View:** Enhanced 7-column month grid with day numbers, event preview dots, and active day selection pill.
+- **Week View:** Implemented 7-column time-grid layout (Monday – Sunday) with hourly time slots (8:00 AM – 8:00 PM), red horizontal current time line with live time pill (`11:30`), colored event blocks, and click-to-view/add popovers (matching Image 3 inspiration).
+- **Day View:** Implemented single-column hourly time-grid layout with red current time line and full-width event cards (matching Image 4 inspiration).
+- **Interactive Modals:** Built `actionPopover` modal ("Mark as Available", "Mark as Unavailable", "Add Event") and `selectedEventModal` detail modal (Title, Date, Time, Venue, Description, Delete `Trash2` action) matching Images 2 & 4 inspiration.
+
+---
 
 All four zips were extracted. One of them contained the actual app code (all the screens, styles, images). The others contained supporting files — a settings file, some one-off scripts the design tool had used internally, and a documentation folder. None of that needed to be run, just understood.
 
