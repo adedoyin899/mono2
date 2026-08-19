@@ -1,11 +1,38 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
+**Last updated:** 2026-08-19 (Session 73: Vercel Environment Audit & Production Redeployment to mono2)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 73 (2026-08-19) — Vercel Environment Audit & Production Redeployment to mono2
+
+**Goal:** Identify duplicate GitHub/Vercel deployment environments, confirm `Production – mono2` as the canonical production, and redeploy the latest codebase (all changes from Sessions 65–72) to it.
+
+### Problem Diagnosed
+- GitHub repo `adedoyin899/mono2` had **3 GitHub environments**: `Production – mono2` (original, Jul 29), `monologgg / production` (typo, Aug 19), `Production` (generic, Aug 19).
+- The two newer environments were created by a previous erroneous deploy to a second Vercel project (`monologg`, `prj_AKf1HslbvmPJcrV6dW6lw5qdrpuc`) instead of the canonical `mono2` project.
+- The canonical Vercel project is **`mono2`** (`prj_mzH0toS17bSP9rBb7OO3haRCZu8W`).
+
+### Root Cause of Deploy Failures
+- The `mono2` Vercel project dashboard had `rootDirectory: monologg/apps/web` cached, causing recursive path resolution when deploying from the `apps/web` directory via CLI.
+- Vercel's remote build looked for `outputDirectory: dist` at the wrong level.
+
+### Resolution
+1. Built the web app locally: `npx pnpm --filter @monologg/web build` → `apps/web/dist/`.
+2. Manually constructed `.vercel/output/` structure (static files + `config.json` + `builds.json`).
+3. Patched local `.vercel/project.json` to set `rootDirectory: null` to unblock CLI.
+4. Deployed with `vercel deploy --prebuilt --prod --yes` from `apps/web/`.
+5. ✅ **Deployment successful** — aliased to `https://mono2-eight.vercel.app`.
+
+### Next Steps (Manual)
+- Delete rogue GitHub environments: `monologgg / production` and `Production` at https://github.com/adedoyin899/mono2/settings/environments
+- Optionally delete `monologg` Vercel project from the Vercel dashboard
+- Fix Vercel project dashboard `rootDirectory` setting so future git-push deploys trigger automatically
 
 ---
 
