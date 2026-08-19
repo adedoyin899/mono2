@@ -25,15 +25,11 @@ The starting point was a folder with four zip files, two logo images, and a hand
 
 ---
 
-### Step 40: Talent Availability / Calendar View UI Overhaul (Session 71)
+### Step 41: Universal Select Dropdown Chevron & Inset Right Padding Fix (Session 72)
 
-Redesigned and upgraded the Availability / Calendar tab in `TalentDashboard.tsx` based on 4 user-supplied UI inspiration screenshots:
-- **Toolbar & Period Navigator:** Created navigation bar with Prev / Next period controls, `Today` button, Month/Year label, 3-view pill switcher (`Month | Week | Day`), and date input with calendar icon (`Calendar`).
-- **14-Day Rolling Date Carousel:** Added horizontal date pill carousel with active Mono-Red highlight for fast date switching.
-- **Month View:** Enhanced 7-column month grid with day numbers, event preview dots, and active day selection pill.
-- **Week View:** Implemented 7-column time-grid layout (Monday – Sunday) with hourly time slots (8:00 AM – 8:00 PM), red horizontal current time line with live time pill (`11:30`), colored event blocks, and click-to-view/add popovers (matching Image 3 inspiration).
-- **Day View:** Implemented single-column hourly time-grid layout with red current time line and full-width event cards (matching Image 4 inspiration).
-- **Interactive Modals:** Built `actionPopover` modal ("Mark as Available", "Mark as Unavailable", "Add Event") and `selectedEventModal` detail modal (Title, Date, Time, Venue, Description, Delete `Trash2` action) matching Images 2 & 4 inspiration.
+Resolved right-padding collisions and border overlap on `<select>` dropdown chevron indicators and input overlays across all screens:
+- **Global Select Rule:** Added a universal CSS rule in `tokens.css` with `appearance: none !important`, custom SVG chevron vector icon (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`.
+- **Input Overlay Adjustments:** Updated inline currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`) and date picker input calendar icon (`right-3 pr-9`) in `TalentDashboard.tsx` and `CreatorOnboarding.tsx`.
 
 ---
 

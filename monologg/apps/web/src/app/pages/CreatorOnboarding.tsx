@@ -481,7 +481,7 @@ export function CreatorOnboarding() {
                         setRatePrice(newVal > 0 ? newVal.toLocaleString("en-US") : "");
                         setCurrency(newCurr);
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-9 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 h-9 rounded-[var(--radius-md)] pl-2.5 pr-8 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
                       style={{ background: "var(--color-bg-surface-2)", color: "var(--color-accent)" }}
                     >
                       <option value="₦">₦ NGN</option>

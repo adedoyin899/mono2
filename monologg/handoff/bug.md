@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
+**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 30. Select dropdown chevron arrow colliding with right rounded border radius
+- **Severity:** Low / Cosmetic
+- **What happened:** Native `<select>` elements (e.g. Role/Category, Budget Range, Status filters) rendered dropdown arrows pressed right against the right border radius of pill containers without adequate right padding.
+- **Root Cause:** Browser-default select arrows use small default padding (`px-3`) that collides with rounded corner curves (`rounded-xl` / `rounded-[var(--radius-md)]`).
+- **Resolution:** Added a global CSS rule in `tokens.css` with `appearance: none !important`, custom SVG chevron vector icon (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`, guaranteeing centered, padded chevron arrows across all dropdowns.
+
+---
 
 ### 29. Missing avatarUrl in SidebarIdentity interface
 - **Severity:** Medium

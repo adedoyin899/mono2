@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
+**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 72 (2026-08-19) — Universal Select Dropdown Chevron & Inset Right Padding Fix
+
+**Goal:** Resolve right-padding collisions and border overlap on `<select>` dropdown chevron indicators and input overlay elements across all screens (Role/Category, Budget Range, Status, Currency Selectors, Date Pickers).
+
+**Files Modified:**
+1. `monologg/apps/web/src/styles/tokens.css`:
+   - Added universal global CSS rule for `select` elements: `appearance: none !important`, custom SVG chevron vector arrow (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`. Ensures dropdown arrows sit centered inside rounded pill controls with generous margins on all sides.
+2. `monologg/apps/web/src/app/pages/TalentDashboard.tsx`:
+   - Updated inline currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`) and date picker input calendar icon (`right-3 pr-9`).
+3. `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`:
+   - Updated currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`).
+
+**Verification:**
+- Workspace typecheck (`npx pnpm -r typecheck`): 0 errors across `@monologg/types`, `@monologg/api`, and `@monologg/web`.
+- Web Vitest suite (`npx vitest run`): 24 test files, 97/97 tests passed 100%.
 
 ---
 

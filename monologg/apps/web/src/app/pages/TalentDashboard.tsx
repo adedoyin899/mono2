@@ -1131,7 +1131,7 @@ export function TalentDashboard() {
                                    setNewServicePrice(newVal > 0 ? newVal.toLocaleString("en-US") : "");
                                    setRateCardCurrency(newCurr);
                                  }}
-                                 className="absolute right-2 top-1/2 -translate-y-1/2 h-8 rounded-[var(--radius-md)] px-2 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
+                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 h-8 rounded-[var(--radius-md)] pl-2.5 pr-8 text-xs font-mono font-semibold border-0 outline-none cursor-pointer"
                                  style={{ background: "var(--color-bg-elevated)", color: "var(--color-accent)" }}
                                >
                                  <option value="₦">₦ NGN</option>
@@ -1316,10 +1316,10 @@ export function TalentDashboard() {
                       type="date"
                       value={selectedDate}
                       onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-                      className="h-10 px-3 pr-8 rounded-xl text-xs font-body cursor-pointer font-medium"
+                      className="h-10 px-3 pr-9 rounded-xl text-xs font-body cursor-pointer font-medium"
                       style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
                     />
-                    <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-text-secondary)" }} />
+                    <Calendar className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-text-secondary)" }} />
                   </div>
                 </div>
 
