@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-17 (Session 69: Comprehensive Non-Technical Tools & Integrations Guide)
+**Last updated:** 2026-08-19 (Session 70: Supabase Row Level Security (RLS) Enablement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 70 (2026-08-19) — Supabase Row Level Security (RLS) Enablement
+
+**Goal:** Inspect, verify, and enable Row Level Security (RLS) across all application tables in the Supabase PostgreSQL database public schema to enforce default-deny security on PostgREST / Data API endpoints without affecting backend Prisma API access.
+
+**Files Created / Modified:**
+1. `monologg/apps/api/prisma/migrations/20260819120000_enable_rls_public_tables/migration.sql` [NEW]:
+   - Created SQL migration containing `ALTER TABLE "..." ENABLE ROW LEVEL SECURITY;` statements for all 28 application models in the `public` schema (`User`, `UserActivity`, `AuthEvent`, `Creator`, `Client`, `MediaAsset`, `RateCard`, `AvailabilityBlock`, `CalendarEvent`, `Brief`, `Application`, `Booking`, `Payment`, `PaymentEvent`, `OrderRoom`, `Message`, `RefreshToken`, `Notification`, `NotificationPreference`, `KycCheck`, `CalendarConnection`, `TermsAcceptance`, `SupportTicket`, `MediaKit`, `VerificationRecording`, `PhysicalAttributes`, `WithdrawalRequest`, `WithdrawalOtp`).
+2. **Database Verification & Migration Execution**:
+   - Executed PostgreSQL system catalog check (`pg_tables`), confirming 0/28 tables previously had RLS enabled.
+   - Applied migration SQL to live Supabase database via `DIRECT_URL`.
+   - Re-queried `pg_tables` to confirm 28/28 public application tables now have `rowsecurity = true` (RLS ENABLED).
+3. **Verification**:
+   - Ran full `@monologg/api` Vitest suite (56 test files, 580/580 tests passed).
+   - Confirmed Prisma client (connecting as table owner `postgres`) bypasses RLS by default, guaranteeing zero API server disruptions.
+
 
 ---
 

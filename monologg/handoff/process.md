@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-17 (Session 69: Comprehensive Non-Technical Tools & Integrations Guide)
+**Last updated:** 2026-08-19 (Session 70: Supabase Row Level Security (RLS) Enablement)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -171,6 +171,14 @@ Authored a comprehensive, plain-language handoff document (`monologg/handoff/too
 - Created a quick-reference summary table ranking every tool's architectural importance (Critical Core, High Importance, Supporting).
 - Documented how to set up each provider, including environment variables, API credentials, introduced project stage (Phases 0–17), and configuration guidelines.
 - Updated `monologg/handoff/README.md`, `implementation-plan.md`, `log.md`, `design.md`, and `bug.md` to maintain full handoff documentation discipline.
+
+### Step 39: Supabase Row Level Security (RLS) enablement (Session 70)
+
+Enforced Row Level Security (RLS) across all application tables in the Supabase PostgreSQL database:
+- Audited PostgreSQL catalog (`pg_tables` / `pg_policies`) to inspect RLS state across all schemas.
+- Authored a SQL migration (`20260819120000_enable_rls_public_tables/migration.sql`) enabling RLS across all 28 public application models.
+- Executed migration on live Supabase instance and verified 28/28 application tables show `rowsecurity = true`.
+- Verified Fastify API server and Prisma backend operation (580/580 unit tests passing 100%).
 
 ---
 
