@@ -461,7 +461,7 @@ export function Settings() {
                     <select
                       value={clientOrgType}
                       onChange={e => setClientOrgType(e.target.value)}
-                      className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                      className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
                       style={{ ...s.elevated, color: "var(--color-text-primary)" }}
                     >
                       <option value="STUDIO">Studio</option>
@@ -526,7 +526,7 @@ export function Settings() {
                       aria-label={field.label}
                       value={attrValues[field.key as string] ?? ""}
                       onChange={(e) => setAttrValues((prev) => ({ ...prev, [field.key as string]: e.target.value }))}
-                      className="flex-1 h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                      className="flex-1 h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
                       style={{ ...s.elevated, color: "var(--color-text-primary)" }}
                     >
                       <option value="">Not set</option>
@@ -616,7 +616,7 @@ export function Settings() {
                       <select
                         value={bankName}
                         onChange={(e) => setBankName(e.target.value)}
-                        className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                        className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
                         style={{ ...s.elevated, color: "var(--color-text-primary)" }}
                       >
                         <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
@@ -775,7 +775,7 @@ export function Settings() {
                           <select
                             value={bankName}
                             onChange={(e) => setBankName(e.target.value)}
-                            className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm"
+                            className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
                             style={{ ...s.elevated, color: "var(--color-text-primary)" }}
                           >
                             <option value="GTBank">Guaranty Trust Bank (GTBank)</option>

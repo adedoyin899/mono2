@@ -1146,7 +1146,7 @@ export function TalentDashboard() {
                               Delivery Timeline
                             </label>
                             <select
-                              className="w-full h-12 rounded-[var(--radius-md)] px-4 text-sm font-body appearance-none border"
+                              className="w-full h-[54px] rounded-[var(--radius-lg)] px-4 text-base font-body appearance-none border"
                               style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
                               value={newServiceDelivery}
                               onChange={e => setNewServiceDelivery(e.target.value)}
@@ -2341,7 +2341,7 @@ export function TalentDashboard() {
                                 accountName: appStateSync.getBankDetails().accountName,
                               });
                             }}
-                            className="w-full h-11 rounded-[var(--radius-lg)] border px-3 font-body text-sm mb-2"
+                            className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base mb-2"
                             style={{ background: "var(--color-bg-surface-2)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
                           >
                             <option value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}>
@@ -2802,7 +2802,7 @@ export function TalentDashboard() {
                     <select
                       value={recurRule}
                       onChange={e => setRecurRule(e.target.value)}
-                      className="w-full h-11 px-3 rounded-[var(--radius-md)] text-sm font-body"
+                      className="w-full h-[54px] px-4 rounded-[var(--radius-lg)] text-base font-body"
                       style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
                     >
                       {RECUR_RULE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}

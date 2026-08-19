@@ -1445,7 +1445,7 @@ export function ClientDashboard() {
                                 <select
                                   value={selectRateCardId}
                                   onChange={(e) => setSelectRateCardId(e.target.value)}
-                                  className="w-full h-10 px-3 rounded-[var(--radius-md)] text-xs font-body"
+                                  className="w-full h-[54px] px-4 rounded-[var(--radius-lg)] text-base font-body"
                                   style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
                                 >
                                   <option value="">Choose a service…</option>

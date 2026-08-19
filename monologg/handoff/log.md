@@ -9,16 +9,22 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 72 (2026-08-19) — Universal Select Dropdown Chevron & Inset Right Padding Fix
+## Session 72 (2026-08-19) — Universal Select Dropdown Chevron, Inset Padding & Form Input Height Standardization
 
-**Goal:** Resolve right-padding collisions and border overlap on `<select>` dropdown chevron indicators and input overlay elements across all screens (Role/Category, Budget Range, Status, Currency Selectors, Date Pickers).
+**Goal:** Resolve right-padding collisions and border overlap on `<select>` dropdown chevron indicators, and standardize form input and dropdown control heights to `54px` (`h-[54px] rounded-[var(--radius-lg)] px-4 text-base`) across all modals and forms (Withdrawal Authorization, Recurring Availability, Add Service, Settings, Project Brief, Client Dashboard).
 
 **Files Modified:**
 1. `monologg/apps/web/src/styles/tokens.css`:
    - Added universal global CSS rule for `select` elements: `appearance: none !important`, custom SVG chevron vector arrow (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`. Ensures dropdown arrows sit centered inside rounded pill controls with generous margins on all sides.
 2. `monologg/apps/web/src/app/pages/TalentDashboard.tsx`:
-   - Updated inline currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`) and date picker input calendar icon (`right-3 pr-9`).
-3. `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`:
+   - Updated Destination Bank Account select in Withdrawal Authorization modal (`h-[54px] rounded-[var(--radius-lg)] px-4 text-base`), Repeats select in Recurring Availability modal (`h-[54px] rounded-[var(--radius-lg)] px-4 text-base`), Delivery Timeline select in Add Service modal (`h-[54px] rounded-[var(--radius-lg)] px-4 text-base`), inline currency select (`right-3.5 pl-2.5 pr-8`), and date picker input calendar icon (`right-3 pr-9`).
+3. `monologg/apps/web/src/app/pages/Settings.tsx`:
+   - Standardized Organization Type, Attributes, Bank Name, and Payout Bank selects to `h-[54px] rounded-[var(--radius-lg)] px-4 text-base`.
+4. `monologg/apps/web/src/app/pages/ClientDashboard.tsx`:
+   - Standardized applicant service select to `h-[54px] rounded-[var(--radius-lg)] px-4 text-base`.
+5. `monologg/apps/web/src/app/pages/ProjectBrief.tsx`:
+   - Standardized Timeline select to `h-[54px] rounded-[var(--radius-lg)] px-4 text-base`.
+6. `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`:
    - Updated currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`).
 
 **Verification:**

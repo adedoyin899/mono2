@@ -19,11 +19,11 @@ This tracks every defect found during this engagement — both classic "the buil
 
 ## Bugs found and fixed during this engagement
 
-### 30. Select dropdown chevron arrow colliding with right rounded border radius
+### 30. Select dropdown chevron arrow colliding with right rounded border radius & height mismatch with form inputs
 - **Severity:** Low / Cosmetic
-- **What happened:** Native `<select>` elements (e.g. Role/Category, Budget Range, Status filters) rendered dropdown arrows pressed right against the right border radius of pill containers without adequate right padding.
-- **Root Cause:** Browser-default select arrows use small default padding (`px-3`) that collides with rounded corner curves (`rounded-xl` / `rounded-[var(--radius-md)]`).
-- **Resolution:** Added a global CSS rule in `tokens.css` with `appearance: none !important`, custom SVG chevron vector icon (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`, guaranteeing centered, padded chevron arrows across all dropdowns.
+- **What happened:** Native `<select>` elements (e.g. Destination Bank Account select in Withdrawal Authorization modal, Repeats select in Recurring Availability modal) rendered dropdown arrows pressed right against the right border radius of pill containers and had mismatched heights (`44px` / `h-11`) compared to `<Input>` fields (`54px` / `h-[54px]`).
+- **Root Cause:** Browser-default select arrows use small default padding (`px-3`) that collides with rounded corner curves (`rounded-xl` / `rounded-[var(--radius-md)]`), and individual components declared non-standard select heights.
+- **Resolution:** Added a global CSS rule in `tokens.css` with `appearance: none !important`, custom SVG chevron vector icon (`stroke="%238E8E93"`), `background-position: right 0.875rem center !important` (14px inset), and `padding-right: 2.75rem !important`. Standardized form `<select>` elements to `h-[54px] rounded-[var(--radius-lg)] px-4 text-base` matching `<Input>` default height across all modals and forms.
 
 ---
 

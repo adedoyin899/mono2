@@ -425,7 +425,7 @@ export function ProjectBrief() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField label="Timeline">
                   <select
-                    className="w-full h-12 px-4 rounded-xl text-sm font-body border appearance-none"
+                    className="w-full h-[54px] px-4 rounded-[var(--radius-lg)] text-base font-body border appearance-none"
                     value={timeline}
                     onChange={e => setTimeline(e.target.value)}
                     style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}

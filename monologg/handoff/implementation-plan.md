@@ -7,9 +7,10 @@
 
 ## ✅ Done
 
-### Session 72 — Universal Select Dropdown Chevron & Inset Right Padding Fix
+### Session 72 — Universal Select Dropdown Chevron, Inset Padding & Form Input Height Standardization
 - [x] **Global Select Dropdown Styling**: Added universal CSS rule in `tokens.css` forcing `appearance: none`, custom vector SVG chevron down icon, `background-position: right 0.875rem center` (14px inset), and `padding-right: 2.75rem`.
-- [x] **Input Overlay & Currency Selector Alignment**: Updated inline currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`) and date picker input calendar icon (`right-3 pr-9`) in `TalentDashboard.tsx` and `CreatorOnboarding.tsx`.
+- [x] **Form Input & Select Height Standardization**: Standardized `<select>` dropdown heights across form modals and pages (`Withdrawal Authorization`, `Recurring Availability`, `Add Service`, `Settings`, `Project Brief`, `Client Dashboard`) to match `<Input>` height `54px` (`h-[54px] rounded-[var(--radius-lg)] px-4 text-base`).
+- [x] **Input Overlay Alignment**: Updated inline currency dropdown select positioning (`right-3.5 pl-2.5 pr-8`) and date picker input calendar icon (`right-3 pr-9`) in `TalentDashboard.tsx` and `CreatorOnboarding.tsx`.
 - [x] **Verification**: Ran `npx pnpm -r typecheck` (0 errors) and Vitest suite (24 test files, 97/97 tests passed 100%).
 
 ### Session 71 — Talent Availability Page UI Overhaul based on Inspiration Screenshots
