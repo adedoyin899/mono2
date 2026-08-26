@@ -1,11 +1,103 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-19 (Session 73: Vercel Environment Audit & Production Redeployment to mono2)
+**Last updated:** 2026-08-26 (Session 75: Performer/Talent Shareable Storefront & Bio Link Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 75 (2026-08-26) — Performer/Talent Shareable Storefront & Bio Link Overhaul
+
+**Goal:** Overhaul the public logged-out shareable profilelink / storefront (`PublicStorefront.tsx` at `/:handle`) inspired by the sleek mobile bio link benchmark, incorporating a video monologue reel player, total social follower metric badge, 12-channel official social icon strip, direct calendar booking card, upfront service rate cards, custom external links, and community newsletter subscription.
+
+### Architecture & Changes Made
+1. **Mobile-First Luxury Phone Presentation (`PublicStorefront.tsx`):**
+   - Redesigned the main storefront container (`rounded-[38px] sm:rounded-[44px] bg-[#16161A]` with glowing ambient gradient background and dark obsidian canvas `#0D0D0F`).
+   - Profile avatar with radiant multi-color gradient halo ring (`#F13030` → `#9B4DFF` → `#D4E938`), verified shield icon, performer name, niche, and location.
+   - Combined total social follower reach badge (`👥 485K+ Combined Social Following`).
+2. **12 Popular Social Media Pages Grid:**
+   - Integrated compact 6-column grid featuring official icons for all 12 requested channels: **Instagram, TikTok, YouTube, X (Twitter), Facebook, Snapchat, Medium, Substack, Website, Discord, Twitch, and Mastodon**.
+3. **Featured Video Reel of Monologue Player:**
+   - Dedicated 16:9 video player container supporting playback of monologue video reels with play/pause overlay, duration tracker, and Nollywood performance preview badges.
+4. **Contact Me — Direct Calendar Audition Booking:**
+   - Prominent interactive booking card (`Schedule live audition calls, readings & consultations`) with direct route transition into the external booking slot scheduler at `/book/:creatorId`.
+5. **Rate Cards & Upfront Service Purchasing:**
+   - Upfront pricing list for feature film auditions, commercial voice-overs, and table readings with turnaround tags and "Book Now" triggers.
+6. **Custom Links & Project Highlights Stack:**
+   - Linktree-style interactive card stack with custom badges (`Watch My 2026 Dramatic Showreel`, `IMDb Profile & Stage Credits`, `Commercial Voiceover Audio Demos`, `My Studio Gear & Recommended Tools`).
+10. **Design System Contrast & Gradient Card Polish (`DesignSystem.tsx`):**
+    - **Removed Nested Dark Pill Containers:** Cleaned gradient preview cards to pure edge-to-edge vibrant gradients with high-contrast text overlay and dynamic text drop-shadow.
+    - **WCAG AA Dynamic Luminance Text Contrast:** Applied dynamic YIQ brightness checking on all 5-step tint scales (e.g. pure `#FFFFFF` crisp text on `#000000`, `#16161A`, `#26262E`, and other dark shades).
+    - **Eliminated Container Background Clashing:** Replaced forced white/dark nested wrappers with theme-adaptive `var(--color-bg-surface)` and `var(--color-hairline)` borders across all sections.
+
+---
+
+## Session 74 (2026-08-26) — Website Copy & Visual Overhaul (Phase 1: Home Page & Global Navigation Architecture)
+
+**Goal:** Overhaul website copy and visual presentation on branch `web_redesign` based on brand guide specifications and inspiration benchmarks, introducing bold typography, dot-matrix pattern canvas, a dynamic typewriter headline micro-animation (`FIND PERFORMERS,` ↔ `GIGS,` ↔ `YOUR STAGE,`), an Upwork-style 8-category exploration grid, unified Monologg luxury brand value modules, live stats bar, multi-currency escrow calculator, and a complete 10-question FAQ accordion.
+
+### Architecture & Changes Made
+1. **Global Website Navigation (`WebsiteHeader.tsx` & `LandingPage.tsx`):**
+   - Created reusable `WebsiteHeader.tsx` featuring a floating glass/pill navbar with Monologg Logo (links to `/`), navigation items (`Product`, `Pricing`, `Resources`), theme toggle (Dark/Light), and action buttons (`Log in` / `Sign Up`).
+   - Retained complete session integration with `appStateSync.getLoggedInUser()` and avatar dropdown shortcuts for signed-in users (`Dashboard`, `Settings`, `Transactions`, `Sign Out`).
+2. **Comprehensive Product Suite Page (`ProductPage.tsx` at `/product`):**
+   - Built interactive three-sided architecture breakdown (Performer Portal, Client Portal, and Thespian AI Engine).
+   - **Performer Portal Suite:** Sleek Bio Storefront, Real-Time Performer Analytics & Visitor Intelligence, Interactive AI Agent, Custom Rate Cards & Micro-Deliverables, Direct Proposal Bidding, Escrow Security (100% payout guarantee), and Integrated Scheduling.
+   - **Client Portal (The Upwork for Performer Acquisition):** Verified Creator Pool (8 Verticals), Post Gigs & Micro-Briefs, Chat with AI Performer Profiles, and Secure Contracts & Escrow Payments.
+   - **Thespian Performance Intelligence Engine:** Full dual-role breakdown for Performers (24/7 Booking Agent, Instant AI Onboarding, Automatic Gig Pitching, AI Rehearsal Partner [Coming Soon], Contract Guardrails) and Clients (Script & Prompt Parsing [Coming Soon], Vibe & Texture Matching, Automated Logistics).
+3. **Comprehensive Pricing Page (`PricingPage.tsx` at `/pricing`):**
+   - Implemented interactive Segment Switcher (`🎭 For Performers (Keep 93%)` ↔ `🎬 For Clients & Studios`).
+   - **Performer Tiering & Capabilities:** Free Tier (7% booking fee, Standard Bio Storefront, 24/7 AI agent, calendar sync, EPK generator) vs 🚀 Monologg Pro (5% booking fee, custom domains `name.monologg.co`, deep conversion analytics, priority AI indexing, AI line reader & rehearsals, verified pro badge).
+   - **Client Tiering & Capabilities:** Basic Free Marketplace ($0/mo, 9% client fee, $0 initiation, 1 seat, 30 invites/brief, 15 DMs/day) vs Business Plus ($20/seat/mo, up to 5 seats, unlimited invites & DMs, curated AI shortlists < 2 hrs, script/PDF parsing, auto-invite top 100, ERP exports).
+   - **Upwork-Style Client Feature Groups:** Discover Trusted Performers, Move Faster with Thespian AI, Analytics & Reporting, Engage & Contract Candidates, Collaborate & Management.
+   - **Interactive Fee Simulator:** Live dynamic slider calculating net performer take-home (93%), 7% performer platform fee, 9% client protection fee, and gross invoice total.
+4. **Comprehensive Resources, Policies & Investor Hub (`ResourcesPage.tsx` at `/resources`):**
+   - **Terms & Trust Policies:** Detailed Escrow Guarantee Policy (Fincra/Paystack locked funds before recording/performance begins, 100% payout guarantee) and Fair Trade Contracts (Automated NDAs, performance agreements, creator IP protection).
+   - **Support & Community:** 24/7 Creator Helpdesk (live dispute and settlement support) and 4 Performer/Production Playbooks (Bio Link conversion, rate cards, Thespian AI indexing, casting guides).
+   - **Contact & Official Socials:** One-click copy email `hello@monologg.co` and 8 official social channel cards (Instagram, X, TikTok, Discord, Twitch, LinkedIn, Product Hunt, YC Hacker News).
+   - **Become an Investor Modal:** High-conversion investor registration modal inspired by partner benchmarks with fields for Contact Name, Title, Email, Phone, Fund/Entity, Website/LinkedIn, Investor Category (Angel, Early-Stage VC, Growth VC, Family Office, Strategic Partner), Target Allocation Range ($10k-$50k, $50k-$250k, $250k-$1M, $1M+), Region, and Investment Notes with instant submission feedback.
+5. **Platform-Wide Visual Unifying Sweep & Expanded Brand Gradients:**
+   - Standardized layout architecture across all 4 public pages using reusable `<WebsiteHeader />` and `<WebsiteFooter />`.
+   - Introduced expanded brand gradient tokens (`--gradient-red-purple`, `--gradient-purple-blue`, `--gradient-green-gold`, `--gradient-red-gold`, `--gradient-blue-navy`) in `tokens.css` with accessibility-compliant contrast across light and dark modes.
+   - Refined active route pill indicators, backdrop blur, dot-matrix pattern canvases, and interactive cards.
+   - Implemented `useTypewriter` hook in `LandingPage.tsx` to cycle words smoothly: `FIND [PERFORMERS, / GIGS, / YOUR STAGE, / VOICE ARTISTS, / COMPERES, / COMEDIANS,]` with a blinking caret cursor before resolving to `FINISH YOUR PROJECT.` in Mono-Red `#F13030`.
+   - Applied dot-matrix background pattern with high-contrast electric chartreuse canvas.
+3. **Monologg Brand Guide Cohesion:**
+   - Unified the 6 core value modules under Monologg's signature luxury dark obsidian/charcoal surfaces (`#0D0D0F`, `#16161A`), Mono-Red (`#F13030`) & Mono-Purple (`#7B00FE`) accents, and clean card styling rather than disjointed third-party slices.
+4. **Multi-Page Shells (`ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`):**
+   - Created `/product` displaying the 4 core product pillars (Single Bio Link, Thespian AI Agent, Escrow Protection, and Analytics).
+   - Created `/pricing` explaining the transparent 16% fee split (7% Performer / 9% Client) with an interactive fee calculation slider.
+   - Created `/resources` featuring curated performer playbooks, casting guides, and escrow documentation.
+   - Registered all new paths in `routes.tsx`.
+3. **Redesigned Home Page (`LandingPage.tsx`):**
+   - **Top Announcement Bar:** `✨ Zero Agent Commissions · 100% Escrow Protection on Every Gig`.
+   - **Hero Section:** Ultra-bold, high-contrast electric lime canvas (`#D4E938`) with massive display typography: `FIND PERFORMERS, FIND GIGS, FINISH YOUR PROJECT.`, subheadline, dual CTAs (`[ Find Performers ]` / `[ Find Gigs ]`), interactive bio-link claim bar (`monologg.com/[username]`), and floating performer showcase card with ratings and micro-deliverable tags.
+   - **Live Stats Bar:** `10,000+ Verified Performers | $5M+ Project Escrow Processed | 98% On-Time Payout Rate | 125 Active Gigs`.
+   - **Find Performers 8-Category Exploration Grid:** Clean Upwork-inspired interactive cards for Actors, Public Speakers, Comperes, Comedians, Streamers, Artists, Musicians, and Creators with dynamic talent preview strip.
+   - **Feature 1 (Share Your Stage Anywhere):** Deep wine/burgundy canvas (`#67001A`) with stacked multi-platform visual cards (TikTok, YouTube, Facebook, QR Code, and master bio link).
+   - **Feature 2 (Monetize Fan Shoutouts & Micro-Deliverables):** Vibrant cobalt blue canvas (`#1652F0`) with mobile mockup showing purchasable micro-deliverables (₦45,000 video shoutouts, ₦75,000 voice drops).
+   - **Feature 3 (Analyze Your Audience):** Warm sand/cream bento grid (`#E7E8D1`) featuring metric widgets (43,500 Clicks, 643 Track Plays, ₦2,362,000 Sales, and geographic visit radar).
+   - **Feature 4 (Set Transparent Custom Rate Cards):** Upfront Naira rate card cards for MC/Compere (₦450k), Voiceover (₦150k), Acting (₦350k), and Comedy (₦600k).
+   - **Feature 5 (Powered by Thespian AI):** Cybernetic dark bento card displaying 24/7 AI inquiry assistant and script PDF role scanner.
+   - **Feature 6 (Bank-Grade Escrow Protection):** Integrated multi-currency Escrow Calculator (NGN, USD, GBP, GHS, KES, ZAR) with 100% payout guarantee.
+   - **Complete 10-Part FAQ Accordion:** All 10 user-provided FAQs with interactive search filter.
+   - **Global High-Energy Conversion Banner & Rich 5-Column Footer.**
+
+**Files Modified / Created:**
+- `monologg/apps/web/src/app/components/ui/WebsiteHeader.tsx` [NEW]
+- `monologg/apps/web/src/app/pages/ProductPage.tsx` [NEW]
+- `monologg/apps/web/src/app/pages/PricingPage.tsx` [NEW]
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx` [NEW]
+- `monologg/apps/web/src/app/routes.tsx` [MODIFIED]
+- `monologg/apps/web/src/app/pages/LandingPage.tsx` [MODIFIED]
+- `monologg/handoff/log.md` [MODIFIED]
+- `monologg/handoff/process.md` [MODIFIED]
+- `monologg/handoff/design.md` [MODIFIED]
+- `monologg/handoff/implementation-plan.md` [MODIFIED]
+- `monologg/handoff/bug.md` [MODIFIED]
 
 ---
 
