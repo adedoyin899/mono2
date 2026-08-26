@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 39 & 40 Overhauls + Session 50 QA Sweep + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, Navigation, Non-Technical Tools Guide (`tools.md`), Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix are built and verified stable. Real Postgres/Prisma backend, real auth (custom JWT + Supabase Auth bridge), real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, project applications, public marketplace profile, external-visitor deferred booking flow, 2-step passcode withdrawal authorization, interactive style tag editor, ReferenceError bug fixes, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-resolution `vector-map.svg` dot matrix world map with focused active country node & sleek inactive flag beacons, interactive 7-currency dropdown selector (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`) with manual currency inputs, dynamic auto-expanding range sliders, unified currency conversions, interactive QR code modal, full navigation view overhaul, Google OAuth avatar sync, avatar display with initials fallback, persistent-session logo navigation, signed-in header account menu dropdown, non-technical tools & integrations architecture guide (`tools.md`), account activity logging service, root README GitHub landing page, automated Vercel monorepo deployment config, Supabase Row Level Security (RLS) default-deny security enabled across all 28 public tables, high-end responsive Talent Availability / Calendar UI overhaul, and universal select dropdown chevron SVG styling with inset right padding across all forms.
+**Last updated:** 2026-08-26 (Session 74: Website Copy & Visual Overhaul — Phase 1: Home Page & Global Navigation)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 39 & 40 Overhauls + Session 50 QA Sweep + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, Navigation, Non-Technical Tools Guide (`tools.md`), Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 74 Website Redesign (Home, Product, Pricing, Resources, high-contrast visual blocks, Upwork-style 8-category exploration grid, Linktree feature modules, escrow calculator, 10 FAQs) are built and verified stable. Real Postgres/Prisma backend, real auth (custom JWT + Supabase Auth bridge), real escrow/payments, real KYC + AI style-tagging, real calendar/notifications, design tokens, production hardening, Media Kit/Verification/Physical-Attributes, rich time-slot availability, project applications, public marketplace profile, external-visitor deferred booking flow, 2-step passcode withdrawal authorization, interactive style tag editor, ReferenceError bug fixes, Monologg Mono-Red / Mono-Purple brand colors, WCAG AA dark mode contrast, 8Returns/Lumos oversized logotype footer, 7-talent card carousel with edge fade masks, working copy invite link button, High-resolution `vector-map.svg` dot matrix world map with focused active country node & sleek inactive flag beacons, interactive 7-currency dropdown selector (`NGN`, `USD`, `GBP`, `EUR`, `GHS`, `KES`, `ZAR`) with manual currency inputs, dynamic auto-expanding range sliders, unified currency conversions, interactive QR code modal, full navigation view overhaul, Google OAuth avatar sync, avatar display with initials fallback, persistent-session logo navigation, signed-in header account menu dropdown, non-technical tools & integrations architecture guide (`tools.md`), account activity logging service, root README GitHub landing page, automated Vercel monorepo deployment config, Supabase Row Level Security (RLS) default-deny security enabled across all 28 public tables, high-end responsive Talent Availability / Calendar UI overhaul, and universal select dropdown chevron SVG styling with inset right padding across all forms.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -42,7 +42,10 @@ The original PRD described a large product; `features.md` extended it further (r
 
 | PRD screen(s) | Implemented as | Status |
 |---|---|---|
-| WEB-01/02/03 (Landing, waitlist + live) | `LandingPage.tsx` | Built, static/marketing content |
+| WEB-01/02/03 (Landing, waitlist + live) | `LandingPage.tsx` | Built, redesigned Session 74 with high-contrast blocks, Upwork category grid, Linktree feature modules, escrow calculator, 10 FAQs |
+| WEB-04 (Product Overview) | `ProductPage.tsx` at `/product` | Built Session 74 (4 Core Pillars: Bio Link, Thespian AI, Escrow, Analytics) |
+| WEB-05 (Pricing & Split Calculator) | `PricingPage.tsx` at `/pricing` | Built Session 74 (16% Split Protocol, 7% Performer / 9% Client Breakdown) |
+| WEB-06 (Resources & Knowledge Hub) | `ResourcesPage.tsx` at `/resources` | Built Session 74 (Performer Playbooks, Casting Guides, Escrow Protocol) |
 | PWA-01 (Welcome/Register/Sign In/Forgot) | `AuthFlow.tsx` | Real auth as of Phase 4 (see Section 4) |
 | PWA-02–06 (Niche, Upload, AI processing, Tags, Rate Cards) | `CreatorOnboarding.tsx` | Real KYC + AI style-tagging as two independent systems as of Phase 7 — the old scripted "Thespian AI" animation is gone in `live` mode |
 | PWA-07 (Storefront) | Embedded inside `TalentDashboard.tsx` ("My Storefront" tab) **plus** a fully public, logged-out version at `/[handle]` (`PublicStorefront.tsx`, Phase 15) | Built |
@@ -143,13 +146,48 @@ Key token groups:
 - **Shadow:** `--shadow-card/elevated/modal/focus`
 - **Motion:** `--duration-fast/med/slow`, `--ease-out/spring` — mirrored as plain JS numbers in `src/lib/motionTokens.ts` for Framer Motion, which can't read CSS custom properties
 - **Type scale:** `--font-size-xs` through `--font-size-5xl` — adopted for every literal px size with an exact token match as of Phase 11 (4 files); sizes with no exact match (15px, 19px, 26px, etc.) remain ad-hoc literals, an intentionally incomplete adoption, not a bug. `--font-weight-*`/`--line-height-*` tokens were also added in Phase 11 but aren't consumed by any call site yet.
-- **Landing-page-only additive tokens:** `--gradient-brand` / `--gradient-brand-soft` (a red→purple diagonal blend — Monologg's own two-sided accent, used as an atmospheric hero background and for gradient-fill stat cards) and `--shadow-cutout` / `--shadow-cutout-sm` (a hard-offset "poster" shadow — no blur — used in place of `--shadow-card` on marketing surfaces). These are purely additive: nothing existing changed value, and they're only referenced from `LandingPage.tsx`, so the rest of the app (dashboards, Order Room, Settings, etc.) is unaffected.
+- **Landing-page & Marketing visual gradients:** `--gradient-brand`, `--gradient-brand-soft`, `--gradient-red-purple` (Talent-to-Client signature), `--gradient-purple-blue` (Monetization/Shoutouts), `--gradient-green-gold` (Escrow/Fintech guarantee), `--gradient-red-gold` (Rates/Storefront), `--gradient-blue-navy` (Analytics/Intelligence), and `--shadow-cutout` / `--shadow-cutout-sm` (poster shadows). These tokens provide high visual hierarchy and cohesive brand gradients across marketing and product pages in both light and dark modes.
+
+### Brand Color Palette & Gradient Specification
+
+#### 1. Core Brand Pigments & Ink Values
+
+| Token / Color Name | Hex Code | RGB | CMYK | Usage Scope |
+|---|---|---|---|---|
+| **Mono-purple** | `#7B00FE` | `rgb(123, 0, 254)` | `C 52%, M 100%, Y 0%, K 0%` | Client portal accent, casting briefs, producer features, order workspace |
+| **Mono-red** | `#F13030` | `rgb(241, 48, 48)` | `C 0%, M 80%, Y 80%, K 5%` | Talent portal accent, performer storefronts, primary call-to-actions, active alerts |
+| **Mono-green** | `#00875A` / `#1A7544` | `rgb(0, 135, 90)` | `C 85%, M 20%, Y 85%, K 10%` | Escrow secured, verification badges, payout releases, positive states |
+| **Mono-blue** | `#1E60FF` / `#0052CC` | `rgb(30, 96, 255)` | `C 85%, M 60%, Y 0%, K 0%` | Visitor analytics, info notifications, calendar sync, audio demos |
+| **Mono-black** | `#0D0D0F` / `#000000` | `rgb(13, 13, 15)` | `C 60%, M 50%, Y 50%, K 100%` | Dark canvas backdrop, luxury obsidian card containers, typography |
+| **Mono-grey** | `#F5F5F0` / `#E9E9E5` | `rgb(245, 245, 240)` | `C 2%, M 2%, Y 4%, K 0%` | Light canvas backdrop, subtle card fills, hairline border dividers |
+
+#### 2. Light Theme Gradients
+
+| Gradient Name | CSS Definition | Semantic Use Case |
+|---|---|---|
+| **Red $\rightarrow$ Purple** | `linear-gradient(135deg, #FF3B30 0%, #7B00FE 100%)` | Two-sided ecosystem hero, performer avatar halos, master bio link |
+| **Purple $\rightarrow$ Blue** | `linear-gradient(135deg, #7B00FE 0%, #1E60FF 100%)` | Monetization modules, fan shoutouts, custom micro-deliverables |
+| **Green $\rightarrow$ Gold** | `linear-gradient(135deg, #00875A 0%, #FFB800 100%)` | Escrow guarantee policy, wallet settlements, financial confidence |
+| **Red $\rightarrow$ Gold** | `linear-gradient(135deg, #FF3B30 0%, #FF9500 100%)` | Custom rate cards, audition booking, high-impact highlight cards |
+| **Blue $\rightarrow$ Navy** | `linear-gradient(135deg, #1E60FF 0%, #0D1B2A 100%)` | Real-time performer analytics, geographic traffic radar, telemetry |
+
+#### 3. Dark Theme Gradients (Obsidian & Electric Accents)
+
+| Gradient Name | CSS Definition | Semantic Use Case |
+|---|---|---|
+| **Red $\rightarrow$ Purple** | `linear-gradient(135deg, #FF4D4D 0%, #9B4DFF 100%)` | Glowing avatar rings, high-contrast button gradients, hero cards |
+| **Purple $\rightarrow$ Blue** | `linear-gradient(135deg, #9B4DFF 0%, #3B82F6 100%)` | Client casting invites, custom link stacks, live message rooms |
+| **Green $\rightarrow$ Gold** | `linear-gradient(135deg, #3EE089 0%, #FFD268 100%)` | Verified performer badges, 100% escrow lock indicators |
+| **Red $\rightarrow$ Gold** | `linear-gradient(135deg, #FF4D4D 0%, #FFAA00 100%)` | Rate card pricing ribbons, priority AI indexing indicators |
+| **Blue $\rightarrow$ Navy** | `linear-gradient(135deg, #3B82F6 0%, #0D172A 100%)` | Dark mode visitor intelligence, analytics bento cards |
 
 ### Shared components (`src/app/components/ui/`)
 
 | Component | Purpose |
 |---|---|
-| `Button.tsx` | primary/secondary/ghost/destructive/icon variants |
+| `WebsiteHeader.tsx` | Floating glass/pill top navbar shared across all public marketing pages (`/`, `/product`, `/pricing`, `/resources`), supporting active route highlights, dark/light theme toggle, and authenticated user account shortcuts (Dashboard, Settings, Transactions, Sign Out) |
+| `WebsiteFooter.tsx` | Standardized 5-column marketing footer across all public routes with direct product, explore, legal, and copyright links |
+| `Button.tsx` | primary/secondary/ghost/destructive/icon/pill variants |
 | `Input.tsx` | text input, token-driven |
 | `Modal.tsx` | Scrim + positioning wrapper (`align: center\|end\|right`, `strength: default\|strong`) — owns the overlay color and backdrop blur; bespoke panel content stays per-call-site |
 | `Avatar.tsx` | Circular initials/icon avatar, 4 sizes, optional `src` for a photo (falls back to initials/icon if the image fails to load) |

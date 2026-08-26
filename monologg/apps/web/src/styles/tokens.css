@@ -143,12 +143,15 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.65;
 
-  /* Landing-page-only visual signature — additive, nothing above changes.
-     A brand-gradient atmosphere (red→purple, Monologg's own two-sided
-     accent, not borrowed from anywhere) plus a hard-offset "poster" shadow
-     used in place of the soft --shadow-card on marketing surfaces only. */
+  /* Landing-page and marketing visual gradients (accessible, rich branding) */
   --gradient-brand: linear-gradient(135deg, var(--color-red) 0%, var(--color-purple) 100%);
   --gradient-brand-soft: linear-gradient(135deg, var(--color-red-glow) 0%, var(--color-purple-glow) 100%);
+  --gradient-red-purple: linear-gradient(135deg, #F13030 0%, #7B00FE 100%);
+  --gradient-purple-blue: linear-gradient(135deg, #7B00FE 0%, #1E60FF 100%);
+  --gradient-green-gold: linear-gradient(135deg, #1A7544 0%, #E6A517 100%);
+  --gradient-red-gold: linear-gradient(135deg, #F13030 0%, #FF9500 100%);
+  --gradient-blue-navy: linear-gradient(135deg, #1E60FF 0%, #0D1B2A 100%);
+  
   --shadow-cutout: 5px 5px 0 0 var(--color-hairline);
   --shadow-cutout-sm: 3px 3px 0 0 var(--color-hairline);
 }
@@ -213,6 +216,14 @@
 
   --shadow-cutout: 5px 5px 0 0 var(--color-border-default);
   --shadow-cutout-sm: 3px 3px 0 0 var(--color-border-default);
+
+  --gradient-brand: linear-gradient(135deg, var(--color-red) 0%, var(--color-purple) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, var(--color-red-glow) 0%, var(--color-purple-glow) 100%);
+  --gradient-red-purple: linear-gradient(135deg, #FF4D4D 0%, #9B4DFF 100%);
+  --gradient-purple-blue: linear-gradient(135deg, #9B4DFF 0%, #3B82F6 100%);
+  --gradient-green-gold: linear-gradient(135deg, #3EE089 0%, #FFD268 100%);
+  --gradient-red-gold: linear-gradient(135deg, #FF4D4D 0%, #FFAA00 100%);
+  --gradient-blue-navy: linear-gradient(135deg, #3B82F6 0%, #0D172A 100%);
 }
 
 /* Role scopes — flip the adaptive accent per app side */
