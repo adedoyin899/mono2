@@ -13,20 +13,8 @@
 
 /* ── Light mode (default) ── */
 :root {
-  /* Monologg Native Brand Tokens (Talent Mono-Red #F13030 · Client Mono-Purple #7B00FE) */
-  --color-mono-red: #F13030;
-  --color-mono-red-soft: #FFECEC;
-  --color-mono-purple: #7B00FE;
-  --color-mono-purple-soft: #F1E9FF;
-  --color-obsidian: #0D0D0F;
-  --color-charcoal: #16161A;
-  --color-fog: #F8F8F6;
-  --color-slate: #5D5D66;
-  --color-hairline: #ECECE8;
-
-  /* Fonts */
+  /* Fonts — --font-wise-sans is still consumed by AuthFlow.tsx */
   --font-wise-sans: 'Inter', system-ui, sans-serif;
-  --font-display-heavy: 'Inter', system-ui, sans-serif;
 
   /* Neutrals — warm, quiet, generous */
   --color-bg-canvas: #F8F8F6;
