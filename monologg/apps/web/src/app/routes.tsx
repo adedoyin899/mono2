@@ -2,9 +2,6 @@ import { createBrowserRouter } from "react-router";
 import { Root } from "./Root";
 import { RequireAuth } from "./RequireAuth";
 import { LandingPage } from "./pages/LandingPage";
-import { ProductPage } from "./pages/ProductPage";
-import { PricingPage } from "./pages/PricingPage";
-import { ResourcesPage } from "./pages/ResourcesPage";
 import { AuthFlow } from "./pages/AuthFlow";
 import { CreatorOnboarding } from "./pages/CreatorOnboarding";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
@@ -46,10 +43,10 @@ export const routeTree = [
     path: "/",
     Component: Root,
     children: [
+      // Product/Pricing/Resources are sections of this single page
+      // (see LandingPage.tsx), reached via anchor scroll (#product,
+      // #pricing, #resources), not separate routes.
       { index: true, Component: LandingPage },
-      { path: "product", Component: ProductPage },
-      { path: "pricing", Component: PricingPage },
-      { path: "resources", Component: ResourcesPage },
       { path: "auth", Component: AuthFlow },
       { path: "onboarding", Component: CreatorOnboarding },
       { path: "onboarding/client", Component: ClientOnboarding },

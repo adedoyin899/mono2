@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "./Button";
 import { Avatar } from "./Avatar";
@@ -12,19 +12,35 @@ import {
   Settings as SettingsIcon, LogOut,
 } from "lucide-react";
 
+// Product/Pricing/Resources are sections of the single merged landing page
+// (see LandingPage.tsx), not separate routes — these scroll-to-anchor.
 const NAV_ITEMS = [
-  { label: "Product", path: "/product" },
-  { label: "Pricing", path: "/pricing" },
-  { label: "Resources", path: "/resources" },
+  { label: "Product", id: "product" },
+  { label: "Pricing", id: "pricing" },
+  { label: "Resources", id: "resources" },
 ];
 
-/** Shared marketing-site header — used by the Home, Product, Pricing, and
- * Resources pages. Owns real session state (not just visual): shows the
- * signed-in avatar/account menu once a session exists, and Sign Out clears
- * it for real via apiClient.logout(). */
+/** Marketing-site header for the single merged landing page (Home/Product/
+ * Pricing/Resources are sections of one page, not separate routes — nav
+ * items scroll-to-anchor). Owns real session state (not just visual): shows
+ * the signed-in avatar/account menu once a session exists, and Sign Out
+ * clears it for real via apiClient.logout(). */
 export function WebsiteHeader() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isDark, toggle } = useTheme();
+
+  // If already on the landing page, scroll smoothly to the section; from any
+  // other route (e.g. /auth, /dashboard), navigate home with the anchor and
+  // let LandingPage's own mount effect (window.location.hash) scroll to it.
+  const goToSection = (id: string) => {
+    if (location.pathname === "/") {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      navigate(`#${id}`, { replace: false });
+    } else {
+      navigate(`/#${id}`);
+    }
+  };
 
   const [loggedInUser, setLoggedInUserState] = useState(() => appStateSync.getLoggedInUser());
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null | undefined>(null);
@@ -91,7 +107,7 @@ export function WebsiteHeader() {
         {NAV_ITEMS.map(item => (
           <button
             key={item.label}
-            onClick={() => navigate(item.path)}
+            onClick={() => goToSection(item.id)}
             className="font-body text-[14px] opacity-70 hover:opacity-100 transition-opacity"
             style={{ color: "var(--color-text-secondary)" }}
           >

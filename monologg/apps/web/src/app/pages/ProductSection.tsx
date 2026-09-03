@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Button } from "../components/ui/Button";
-import { WebsiteHeader } from "../components/ui/WebsiteHeader";
-import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import {
   Layers, TrendingUp, Sparkles, FileText, Send, Lock, Calendar,
   Users, ClipboardList, MessageSquare, ShieldCheck, Zap, Mic, Shield,
@@ -139,14 +137,14 @@ function FeatureCard({
   );
 }
 
-export function ProductPage() {
+/** Product content — rendered as one section of the single merged landing
+ * page (id="product" is the header nav's anchor-scroll target), not a
+ * routed page of its own. */
+export function ProductSection() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden">
-      <WebsiteHeader />
-
-      <main className="flex-1">
+    <section id="product" style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }}>
         {/* ── Performer Portal ── */}
         <section className="pt-20 pb-20 px-5 md:px-16">
           <div className="max-w-5xl mx-auto">
@@ -243,9 +241,6 @@ export function ProductPage() {
             </div>
           </div>
         </section>
-      </main>
-
-      <WebsiteFooter />
-    </div>
+    </section>
   );
 }

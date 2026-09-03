@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -6,6 +6,9 @@ import { Badge } from "../components/ui/Badge";
 import { Avatar } from "../components/ui/Avatar";
 import { WebsiteHeader } from "../components/ui/WebsiteHeader";
 import { WebsiteFooter } from "../components/ui/WebsiteFooter";
+import { ProductSection } from "./ProductSection";
+import { PricingSection } from "./PricingSection";
+import { ResourcesSection } from "./ResourcesSection";
 import { cn } from "../../lib/utils";
 import {
   Shield, ChevronDown, Lock, FileText,
@@ -157,6 +160,17 @@ function IconTile({
 export function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const navigate = useNavigate();
+
+  // Product/Pricing/Resources live as sections of this single page now, not
+  // separate routes — arriving here with a #product/#pricing/#resources
+  // hash (e.g. from WebsiteHeader on another route, or a shared/bookmarked
+  // link) needs to scroll to that section once it's actually mounted.
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
   const bentoItems: Array<
     | { kind: "feature"; feature: (typeof FEATURES)[number]; span: "big" | "tall" | "normal" }
@@ -490,6 +504,10 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
+        <ProductSection />
+        <PricingSection />
+        <ResourcesSection />
       </main>
 
       <WebsiteFooter />
