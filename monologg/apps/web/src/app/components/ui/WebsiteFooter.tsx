@@ -1,9 +1,8 @@
 import { Lock } from "lucide-react";
 import { Logo } from "./Logo";
 
-/** Marketing-site footer for the single merged landing page (Home/Product/
- * Pricing/Resources are sections of one page, not separate routes).
- * Purely presentational, no session logic. */
+/** Shared marketing-site footer — used by the Home, Product, Pricing, and
+ * Resources pages. Purely presentational, no session logic. */
 export function WebsiteFooter() {
   return (
     <footer
@@ -22,9 +21,9 @@ export function WebsiteFooter() {
             <div>
               <div className="font-semibold mb-3">Product</div>
               <ul className="space-y-2">
-                <li><a href="#product" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Product</a></li>
-                <li><a href="#pricing" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Pricing</a></li>
-                <li><a href="#resources" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Resources</a></li>
+                <li><a href="/product" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Product</a></li>
+                <li><a href="/pricing" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Pricing</a></li>
+                <li><a href="/resources" className="hover:opacity-100 transition-opacity font-body" style={{ color: "var(--color-text-tertiary)" }}>Resources</a></li>
               </ul>
             </div>
             <div>

@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import { Button } from "../components/ui/Button";
+import { WebsiteHeader } from "../components/ui/WebsiteHeader";
+import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { Check } from "lucide-react";
 
 type Row = { feature: string; a: string; b: string };
@@ -134,14 +136,14 @@ function ComparisonTable({
   );
 }
 
-/** Pricing content — rendered as one section of the single merged landing
- * page (id="pricing" is the header nav's anchor-scroll target), not a
- * routed page of its own. */
-export function PricingSection() {
+export function PricingPage() {
   const navigate = useNavigate();
 
   return (
-    <section id="pricing" style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }}>
+    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden">
+      <WebsiteHeader />
+
+      <main className="flex-1">
         {/* ── Hero ── */}
         <section className="pt-20 pb-16 px-5 md:px-16 text-center">
           <div className="max-w-2xl mx-auto">
@@ -181,6 +183,9 @@ export function PricingSection() {
             </div>
           </div>
         </section>
-    </section>
+      </main>
+
+      <WebsiteFooter />
+    </div>
   );
 }

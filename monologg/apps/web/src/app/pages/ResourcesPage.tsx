@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { WebsiteHeader } from "../components/ui/WebsiteHeader";
+import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import {
   Lock, FileText, LifeBuoy, BookOpen, Mail,
   Instagram, X, Music, Linkedin, Twitch, Globe,
@@ -52,10 +54,7 @@ function ResourceCard({
   );
 }
 
-/** Resources content — rendered as one section of the single merged
- * landing page (id="resources" is the header nav's anchor-scroll target),
- * not a routed page of its own. */
-export function ResourcesSection() {
+export function ResourcesPage() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -65,7 +64,10 @@ export function ResourcesSection() {
   };
 
   return (
-    <section id="resources" style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }}>
+    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden">
+      <WebsiteHeader />
+
+      <main className="flex-1">
         {/* ── Hero ── */}
         <section className="pt-20 pb-16 px-5 md:px-16 text-center">
           <div className="max-w-2xl mx-auto">
@@ -166,6 +168,9 @@ export function ResourcesSection() {
             )}
           </div>
         </section>
-    </section>
+      </main>
+
+      <WebsiteFooter />
+    </div>
   );
 }
