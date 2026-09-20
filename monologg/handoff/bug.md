@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
+**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 31. Opaque, saturated neon blocks on discovery cards causing visual fatigue
+- **Severity:** Low / Cosmetic
+- **What happened:** In initial marketing explorations, the 6 core feature cards and client portal utilized solid, highly saturated opaque colors (`#1652F0`, `#7B00FE`, `#E91E63`, lime/mustard) that felt heavy, crowded, and harsh to read, clashing with the platform's editorial whitespace.
+- **Root Cause:** Early mockups used solid opaque background fills without alpha transparency or subtle tint scales.
+- **Resolution:** Introduced calibrated transparent pastel tokens (`--color-pastel-*-bg`, `--color-pastel-*-border`, `--color-pastel-*-squircle`) across light and dark modes. Refactored all 6 feature cards and portal containers to use soft, airy, translucent backgrounds, generous 20px rounded corners, and large 28px–32px icons matching Notion's editorial benchmark. Verified with clean Vitest suites (97/97 web, 580/580 API) and zero typecheck errors.
+
+---
 
 ### 30. Select dropdown chevron arrow colliding with right rounded border radius & height mismatch with form inputs
 - **Severity:** Low / Cosmetic

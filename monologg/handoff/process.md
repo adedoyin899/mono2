@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
+**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -182,13 +182,14 @@ Authored a comprehensive, plain-language handoff document (`monologg/handoff/too
 - Documented how to set up each provider, including environment variables, API credentials, introduced project stage (Phases 0–17), and configuration guidelines.
 - Updated `monologg/handoff/README.md`, `implementation-plan.md`, `log.md`, `design.md`, and `bug.md` to maintain full handoff documentation discipline.
 
-### Step 39: Supabase Row Level Security (RLS) enablement (Session 70)
+### Step 40: Notion-Inspired Editorial Visual Redesign (Session 76)
 
-Enforced Row Level Security (RLS) across all application tables in the Supabase PostgreSQL database:
-- Audited PostgreSQL catalog (`pg_tables` / `pg_policies`) to inspect RLS state across all schemas.
-- Authored a SQL migration (`20260819120000_enable_rls_public_tables/migration.sql`) enabling RLS across all 28 public application models.
-- Executed migration on live Supabase instance and verified 28/28 application tables show `rowsecurity = true`.
-- Verified Fastify API server and Prisma backend operation (580/580 unit tests passing 100%).
+Overhauled the visual design language of the entire public marketing and discovery website (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `WebsiteHeader.tsx`, `WebsiteFooter.tsx`, and `tokens.css`) to adopt the founder's requested Notion editorial benchmark:
+- **Surface & Atmosphere**: Implemented the "midnight workspace, warm paper below" philosophy — combining deep `#02093a` midnight ink stages with warm `#f6f5f4` paper white editorial canvases and elevated pure white `#ffffff` cards.
+- **Transparent / Pastel Washes**: Replaced the previous solid/neon blocks with airy, transparent pastel color washes (soft sky, lavender, rose, amber, mint, periwinkle) with translucent matching borders and generous padding.
+- **Large Icons**: Introduced prominent 28px–32px icons housed inside spacious 56px–64px rounded pastel squircle containers across the 8 talent categories, 6 core feature blocks, and capability cards.
+- **Rounded Corners & Easy Text**: Standardized smooth 16px–24px rounded corners (`rounded-2xl`), 8px button controls (`rounded-lg`), tight headline letter-spacing, and comfortable line heights.
+- **100% Copy & Functional Integrity**: Preserved every single word of copy, pricing tables, 10 FAQs, multi-currency escrow slider, investor application form, and authentication flows, verified with 100% clean unit and monorepo typecheck suites.
 
 ---
 

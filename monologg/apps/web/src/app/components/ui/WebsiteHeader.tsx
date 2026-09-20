@@ -81,39 +81,44 @@ export function WebsiteHeader() {
 
   return (
     <header
-      className="h-20 sticky top-0 z-50 px-5 md:px-16 flex items-center justify-between backdrop-blur-xl"
-      style={{ background: "color-mix(in srgb, var(--color-bg-canvas) 72%, transparent)", borderBottom: "1px solid var(--color-hairline)" }}
+      className="h-18 sticky top-0 z-50 px-5 md:px-16 flex items-center justify-between backdrop-blur-xl transition-colors"
+      style={{
+        background: isDark ? "rgba(2, 9, 58, 0.88)" : "rgba(246, 245, 244, 0.88)",
+        borderBottom: "1px solid var(--color-faint-line)",
+      }}
     >
-      <button onClick={() => navigate("/")} aria-label="Monologg home">
+      <button onClick={() => navigate("/")} aria-label="Monologg home" className="flex items-center gap-2">
         <Logo className="h-6 w-auto" style={{ color: "var(--color-text-primary)" }} title="Monologg" />
       </button>
-      <nav className="hidden md:flex items-center gap-9">
+
+      <nav className="hidden md:flex items-center gap-8">
         {NAV_ITEMS.map(item => (
           <button
             key={item.label}
             onClick={() => navigate(item.path)}
-            className="font-body text-[14px] opacity-70 hover:opacity-100 transition-opacity"
-            style={{ color: "var(--color-text-secondary)" }}
+            className="font-body text-[14px] font-medium transition-colors hover:text-[var(--color-text-primary)]"
+            style={{ color: "var(--color-warm-gray)" }}
           >
             {item.label}
           </button>
         ))}
       </nav>
+
       <div className="flex items-center gap-2.5">
         <button
           onClick={toggle}
-          className="w-11 h-11 rounded-[var(--radius-full)] flex items-center justify-center border transition-colors active:scale-[0.97]"
-          style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
+          className="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors active:scale-95"
+          style={{ borderColor: "var(--color-faint-line)", background: "var(--color-pure-white)", color: "var(--color-warm-gray)" }}
           aria-label="Toggle theme"
         >
-          {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
         {loggedInUser ? (
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setShowUserMenu((v) => !v)}
-              className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 border transition-colors active:scale-95"
-              style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)" }}
+              className="flex items-center gap-1.5 rounded-full p-1 pr-2 border transition-colors active:scale-95"
+              style={{ borderColor: "var(--color-faint-line)", background: "var(--color-pure-white)" }}
               aria-label="Account menu"
               aria-expanded={showUserMenu}
             >
@@ -122,7 +127,7 @@ export function WebsiteHeader() {
               </Avatar>
               <ChevronDown
                 className={`w-3.5 h-3.5 transition-transform ${showUserMenu ? "rotate-180" : ""}`}
-                style={{ color: "var(--color-text-tertiary)" }}
+                style={{ color: "var(--color-warm-gray)" }}
               />
             </button>
 
@@ -133,16 +138,16 @@ export function WebsiteHeader() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.97 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-64 rounded-[var(--radius-lg)] overflow-hidden z-50"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-elevated)" }}
+                  className="absolute right-0 mt-2 w-64 rounded-xl overflow-hidden z-50"
+                  style={{ background: "var(--color-pure-white)", border: "1px solid var(--color-faint-line)", boxShadow: "var(--shadow-elevated)" }}
                 >
-                  <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
+                  <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid var(--color-faint-line)" }}>
                     <Avatar size="md" src={userAvatarUrl ?? undefined} background="var(--color-accent-glow)" color="var(--color-accent)">
                       {userInitials}
                     </Avatar>
                     <div className="min-w-0">
                       <div className="text-sm font-semibold truncate font-body" style={{ color: "var(--color-text-primary)" }}>{loggedInUser.name}</div>
-                      <div className="text-xs truncate font-body" style={{ color: "var(--color-text-tertiary)" }}>{loggedInUser.email}</div>
+                      <div className="text-xs truncate font-body" style={{ color: "var(--color-warm-gray)" }}>{loggedInUser.email}</div>
                     </div>
                   </div>
 
@@ -151,19 +156,19 @@ export function WebsiteHeader() {
                       <button
                         key={item.label}
                         onClick={() => { setShowUserMenu(false); navigate(item.path); }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:opacity-80 transition-opacity"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-body text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                         style={{ color: "var(--color-text-primary)" }}
                       >
-                        <item.icon className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                        <item.icon className="w-4 h-4" style={{ color: "var(--color-warm-gray)" }} />
                         {item.label}
                       </button>
                     ))}
                   </div>
 
-                  <div className="py-1.5" style={{ borderTop: "1px solid var(--color-hairline)" }}>
+                  <div className="py-1.5" style={{ borderTop: "1px solid var(--color-faint-line)" }}>
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:opacity-80 transition-opacity"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm font-body text-left hover:bg-red-500/10 transition-colors"
                       style={{ color: "var(--color-error)" }}
                     >
                       <LogOut className="w-4 h-4" />
@@ -178,13 +183,14 @@ export function WebsiteHeader() {
           <>
             <Button
               variant="ghost"
-              className="h-11 px-4 text-sm hidden md:inline-flex"
+              className="h-9 px-3.5 text-sm font-medium rounded-lg hidden md:inline-flex"
               onClick={() => navigate("/auth")}
             >
               Sign In
             </Button>
             <Button
-              className="h-11 px-5 text-sm"
+              className="h-9 px-4 text-sm font-medium rounded-lg"
+              style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
               onClick={() => navigate("/auth")}
             >
               Get Started

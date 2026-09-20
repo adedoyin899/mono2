@@ -1,11 +1,74 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-26 (Session 75: Performer/Talent Shareable Storefront & Bio Link Overhaul)
+**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 76 (2026-09-20) — Notion-Inspired Editorial Visual Redesign (Large Icons, Pastel Washes & Rounded Corners)
+
+**Goal:** Overhaul the public website (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `WebsiteHeader.tsx`, `WebsiteFooter.tsx`, and `tokens.css`) to reflect the founder's requested Notion-inspired editorial room style ("midnight workspace, warm paper below"), with generous whitespace, large prominent icons, transparent/pastel-like color washes, rounded corners, and easy text, while preserving 100% of copy and functionality.
+
+### Architecture & Changes Made
+1. **Design Tokens & Pastel Palette (`tokens.css`):**
+   - Added Notion editorial tokens: Midnight Ink (`#02093a`), Paper White (`#f6f5f4`), Pure White (`#ffffff`), Signal Blue (`#0075de`), Warm Gray (`#615d59`), and Faint Line (`#e3e2de`).
+   - Implemented transparent pastel color washes with matching borders and squircle containers across both Light and Dark mode:
+     - Pastel Blue (`--color-pastel-blue-bg`, `--color-pastel-blue-border`, `--color-pastel-blue-text`, `--color-pastel-blue-squircle`)
+     - Pastel Purple (`--color-pastel-purple-*`)
+     - Pastel Rose (`--color-pastel-rose-*`)
+     - Pastel Amber (`--color-pastel-amber-*`)
+     - Pastel Mint (`--color-pastel-mint-*`)
+     - Pastel Periwinkle (`--color-pastel-periwinkle-*`)
+2. **Website Header & Footer Refinement (`WebsiteHeader.tsx`, `WebsiteFooter.tsx`):**
+   - Redesigned header with floating editorial glass navigation, NotionInter 500 navigation links, 8px rounded controls, Signal Blue CTA, and seamless theme toggle while preserving real session sync and account menu shortcuts.
+   - Refined footer with warm paper background (`#f6f5f4`), 4 structured columns, and verified escrow guarantee badge.
+3. **Landing Page Overhaul (`LandingPage.tsx`):**
+   - Built editorial hero stage with pill announcement tag, bold display headline with tight letter-spacing, and 5-performer showcase photo strip.
+   - Upgraded "Find Performers for Every Kind of Work" 8-category exploration grid with **large 28px icons** housed in generous 56px rounded pastel squircles.
+   - Transformed the 6 core feature bento cards from solid crayon blocks to **airy transparent/pastel-like washes** with 20px rounded corners, subtle translucent borders, and **large 32px icons** in 64px squircles:
+     - *Share Your Stage Anywhere* (Pastel Sky wash, QR code + bio phone preview)
+     - *Monetize Fan Shoutouts & Micro-Deliverables* (Pastel Purple wash, upfront rate cards)
+     - *Analyze Your Audience* (Pastel Amber wash, live analytics widgets)
+     - *Set Transparent Custom Rate Cards* (Pastel Periwinkle wash, custom rate card modal)
+     - *Powered by Thespian AI* (Pastel Mint wash, AI agent chat interface)
+     - *Bank-Grade Escrow Protection* (Pastel Rose wash, interactive multi-currency escrow slider)
+   - Built clean 2-column warm paper FAQ accordion grid with all 10 questions/answers intact.
+   - Integrated midnight workspace final conversion banner and newsletter subscription bar.
+4. **Product Page Overhaul (`ProductPage.tsx`):**
+   - Performer Portal: 6 feature cards upgraded with large icons and pastel squircle containers.
+   - Client Portal: Transformed into an airy, transparent pastel lavender wash with large icons and 4 clear capability cards.
+   - Thespian AI Performance Intelligence Engine: Dual editorial cards with large icons and status pill badges.
+5. **Pricing Page Overhaul (`PricingPage.tsx`):**
+   - Clean comparison tables with warm paper headers, subtle row borders, and green checkmarks.
+   - Performer avatar cluster and Client partner brand logos (Vimeo, Netflix, Prime Video, Paystack, Spotify, Twitch).
+   - Retained full tiering structure (Free vs Pro, Basic vs Business Plus) and interactive smooth scroll anchor.
+6. **Resources Page Overhaul (`ResourcesPage.tsx`):**
+   - Terms of Service cards (Escrow Guarantee Policy, Fair Trade Contracts) with large icons.
+   - Support & Community cards (24/7 Creator Helpdesk, Onboarding & EPK Guides) with large icons and email contact row with social icons.
+   - Complete multi-field "Become an Investor" application form (First Name, Last Name, Email, Phone, Category dropdown, Message, Submit button) with instant submission feedback.
+7. **Verification:**
+   - Full workspace typecheck: 0 errors across `packages/types`, `apps/web`, `apps/api`.
+   - Web Vitest suite: 24/24 test files passed, 97/97 tests passed 100%.
+   - API Vitest suite: 56/56 test files passed, 580/580 tests passed 100%.
+   - Production Vite build: compiled successfully in 2.30s.
+
+**Files Touched:**
+- `monologg/apps/web/src/styles/tokens.css`
+- `monologg/apps/web/src/app/components/ui/WebsiteHeader.tsx`
+- `monologg/apps/web/src/app/components/ui/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/PricingPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
+- `monologg/handoff/bug.md`
 
 ---
 

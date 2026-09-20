@@ -142,6 +142,54 @@
   
   --shadow-cutout: 5px 5px 0 0 var(--color-hairline);
   --shadow-cutout-sm: 3px 3px 0 0 var(--color-hairline);
+
+  /* ── Notion Editorial Tokens & Surfaces ── */
+  --color-midnight-ink: #02093a;
+  --color-signal-blue: #0075de;
+  --color-sky-tint: #62aef0;
+  --color-royal-violet: #2537b1;
+  --color-periwinkle: #455dd3;
+  --color-cerulean: #097fe8;
+  --color-paper-white: #f6f5f4;
+  --color-pure-white: #ffffff;
+  --color-onyx: #000000;
+  --color-graphite: #0b0b0b;
+  --color-warm-gray: #615d59;
+  --color-stone: #a39e98;
+  --color-smoke: #c6c6c5;
+  --color-faint-line: #e3e2de;
+  --color-charcoal: #31302e;
+
+  /* ── Transparent / Pastel Washes (Light Mode) ── */
+  --color-pastel-blue-bg: rgba(0, 117, 222, 0.07);
+  --color-pastel-blue-border: rgba(0, 117, 222, 0.22);
+  --color-pastel-blue-text: #0060b9;
+  --color-pastel-blue-squircle: rgba(0, 117, 222, 0.12);
+
+  --color-pastel-purple-bg: rgba(123, 0, 254, 0.07);
+  --color-pastel-purple-border: rgba(123, 0, 254, 0.22);
+  --color-pastel-purple-text: #6600d6;
+  --color-pastel-purple-squircle: rgba(123, 0, 254, 0.12);
+
+  --color-pastel-rose-bg: rgba(241, 48, 48, 0.07);
+  --color-pastel-rose-border: rgba(241, 48, 48, 0.22);
+  --color-pastel-rose-text: #cc1f1f;
+  --color-pastel-rose-squircle: rgba(241, 48, 48, 0.12);
+
+  --color-pastel-amber-bg: rgba(230, 165, 23, 0.09);
+  --color-pastel-amber-border: rgba(230, 165, 23, 0.24);
+  --color-pastel-amber-text: #a87200;
+  --color-pastel-amber-squircle: rgba(230, 165, 23, 0.14);
+
+  --color-pastel-mint-bg: rgba(26, 117, 68, 0.08);
+  --color-pastel-mint-border: rgba(26, 117, 68, 0.22);
+  --color-pastel-mint-text: #145e36;
+  --color-pastel-mint-squircle: rgba(26, 117, 68, 0.14);
+
+  --color-pastel-periwinkle-bg: rgba(69, 93, 211, 0.07);
+  --color-pastel-periwinkle-border: rgba(69, 93, 211, 0.22);
+  --color-pastel-periwinkle-text: #374bb5;
+  --color-pastel-periwinkle-squircle: rgba(69, 93, 211, 0.12);
 }
 
 /* ── Dark mode (#0D0D0F rich near-black) ── */
@@ -212,6 +260,37 @@
   --gradient-green-gold: linear-gradient(135deg, #3EE089 0%, #FFD268 100%);
   --gradient-red-gold: linear-gradient(135deg, #FF4D4D 0%, #FFAA00 100%);
   --gradient-blue-navy: linear-gradient(135deg, #3B82F6 0%, #0D172A 100%);
+
+  /* ── Transparent / Pastel Washes (Dark Mode) ── */
+  --color-pastel-blue-bg: rgba(98, 174, 240, 0.09);
+  --color-pastel-blue-border: rgba(98, 174, 240, 0.24);
+  --color-pastel-blue-text: #8dc6f8;
+  --color-pastel-blue-squircle: rgba(98, 174, 240, 0.16);
+
+  --color-pastel-purple-bg: rgba(155, 77, 255, 0.09);
+  --color-pastel-purple-border: rgba(155, 77, 255, 0.24);
+  --color-pastel-purple-text: #c084fc;
+  --color-pastel-purple-squircle: rgba(155, 77, 255, 0.16);
+
+  --color-pastel-rose-bg: rgba(255, 77, 77, 0.09);
+  --color-pastel-rose-border: rgba(255, 77, 77, 0.24);
+  --color-pastel-rose-text: #fca5a5;
+  --color-pastel-rose-squircle: rgba(255, 77, 77, 0.16);
+
+  --color-pastel-amber-bg: rgba(255, 210, 104, 0.10);
+  --color-pastel-amber-border: rgba(255, 210, 104, 0.26);
+  --color-pastel-amber-text: #fde047;
+  --color-pastel-amber-squircle: rgba(255, 210, 104, 0.18);
+
+  --color-pastel-mint-bg: rgba(62, 224, 137, 0.09);
+  --color-pastel-mint-border: rgba(62, 224, 137, 0.24);
+  --color-pastel-mint-text: #86efac;
+  --color-pastel-mint-squircle: rgba(62, 224, 137, 0.16);
+
+  --color-pastel-periwinkle-bg: rgba(129, 140, 248, 0.09);
+  --color-pastel-periwinkle-border: rgba(129, 140, 248, 0.24);
+  --color-pastel-periwinkle-text: #a5b4fc;
+  --color-pastel-periwinkle-squircle: rgba(129, 140, 248, 0.16);
 }
 
 /* Role scopes — flip the adaptive accent per app side */
