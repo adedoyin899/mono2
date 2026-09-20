@@ -91,35 +91,35 @@ const FAQS = [
 ];
 
 const PERFORMER_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80&fit=crop",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80&fit=crop",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80&fit=crop",
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop",
+  { border: "#0075de", src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80&fit=crop" },
+  { border: "#f64932", src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop" },
+  { border: "#ffb110", src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80&fit=crop" },
+  { border: "#62aef0", src: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80&fit=crop" },
+  { border: "#097fe8", src: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop" },
 ];
 
 const CLIENT_PARTNER_LOGOS = [
-  { name: "Vimeo", color: "#1AB7EA" },
-  { name: "Netflix", color: "#E50914" },
-  { name: "Prime Video", color: "#00A8E1" },
-  { name: "Paystack", color: "#0BA4DB" },
-  { name: "Spotify", color: "#1ED760" },
-  { name: "Twitch", color: "#9146FF" },
+  "Vimeo",
+  "Netflix",
+  "Prime Video",
+  "Paystack",
+  "Spotify",
+  "Twitch",
 ];
 
-function Cell({ value, tone }: { value: string; tone: "blue" | "purple" }) {
+function Cell({ value }: { value: string }) {
   if (value === "Included" || value === "Full Access") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-        <Check className="w-4 h-4 shrink-0" />
+      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1A7544]">
+        <Check className="w-4 h-4 shrink-0 text-[#1A7544]" />
         {value}
       </span>
     );
   }
   if (value === "—") {
-    return <span className="text-sm text-[var(--color-warm-gray)]">—</span>;
+    return <span className="text-sm text-[#757575]">—</span>;
   }
-  return <span className="text-sm font-medium text-[var(--color-text-primary)]">{value}</span>;
+  return <span className="text-sm text-[#615d59]">{value}</span>;
 }
 
 function ComparisonTable({
@@ -127,36 +127,28 @@ function ComparisonTable({
   colB,
   rows,
   sections,
-  tone,
 }: {
   colA: string;
   colB: string;
   rows?: Row[];
   sections?: Section[];
-  tone: "blue" | "purple";
 }) {
   const groups: Section[] = sections ?? [{ rows: rows ?? [] }];
-  const accentColor = tone === "purple" ? "#7B00FE" : "var(--color-signal-blue)";
 
   return (
     <div
-      className="overflow-x-auto rounded-2xl border"
-      style={{
-        background: "var(--color-pure-white)",
-        borderColor: "var(--color-faint-line)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-      }}
+      className="overflow-x-auto rounded-xl border border-black/[0.08] bg-white"
     >
       <table className="w-full min-w-[640px] border-collapse">
         <thead>
-          <tr style={{ background: "var(--color-paper-white)", borderBottom: "1px solid var(--color-faint-line)" }}>
-            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider font-body text-[var(--color-warm-gray)]">
+          <tr className="bg-[#f6f5f4] border-b border-black/[0.08]">
+            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[#757575]">
               Feature / Capability
             </th>
-            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider font-body text-[var(--color-warm-gray)]">
+            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[#757575]">
               {colA}
             </th>
-            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider font-body" style={{ color: accentColor }}>
+            <th className="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[#0075de]">
               {colB}
             </th>
           </tr>
@@ -165,8 +157,8 @@ function ComparisonTable({
           {groups.map((group, gi) => (
             <React.Fragment key={gi}>
               {group.section && (
-                <tr style={{ background: "rgba(0,0,0,0.02)" }}>
-                  <td colSpan={3} className="px-6 pt-5 pb-2 text-[11px] font-bold uppercase tracking-wider font-body text-[var(--color-warm-gray)]">
+                <tr className="bg-[#f6f5f4]/70 border-t border-black/[0.08]">
+                  <td colSpan={3} className="px-6 pt-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-[#757575]">
                     {group.section}
                   </td>
                 </tr>
@@ -174,17 +166,16 @@ function ComparisonTable({
               {group.rows.map((row, ri) => (
                 <tr
                   key={ri}
-                  className="hover:bg-black/[0.01] transition-colors"
-                  style={{ borderTop: "1px solid var(--color-faint-line)" }}
+                  className="border-t border-black/[0.06] hover:bg-black/[0.01] transition-colors"
                 >
-                  <td className="px-6 py-4 text-sm font-medium text-[var(--color-text-primary)]">
+                  <td className="px-6 py-4 text-sm font-medium text-black">
                     {row.feature}
                   </td>
                   <td className="px-6 py-4">
-                    <Cell value={row.a} tone={tone} />
+                    <Cell value={row.a} />
                   </td>
                   <td className="px-6 py-4">
-                    <Cell value={row.b} tone={tone} />
+                    <Cell value={row.b} />
                   </td>
                 </tr>
               ))}
@@ -208,178 +199,172 @@ export function PricingPage() {
   };
 
   return (
-    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden font-body selection:bg-blue-100 selection:text-blue-900">
+    <div
+      style={{
+        background: "var(--color-paper-warmth, #f6f5f4)",
+        color: "var(--color-ink-black, #000000)",
+        fontFamily: "var(--font-notioninter, 'Inter', sans-serif)",
+      }}
+      className="min-h-screen flex flex-col overflow-x-hidden selection:bg-[#e6f3fe] selection:text-[#0075de]"
+    >
       <WebsiteHeader />
 
       <main className="flex-1">
         {/* ── Pricing Hero Stage ── */}
-        <section className="pt-20 pb-16 px-5 md:px-16 text-center">
-          <div className="max-w-3xl mx-auto">
-            <div
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-5 border shadow-xs"
-              style={{
-                borderColor: "var(--color-faint-line)",
-                background: "var(--color-pure-white)",
-                color: "var(--color-signal-blue)",
-              }}
-            >
-              <span>Simple, Transparent Pricing</span>
+        <section className="pt-16 pb-20 md:pt-20 md:pb-24 px-5 md:px-16 text-center">
+          <div className="max-w-3xl mx-auto flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium mb-5 border border-black/[0.08] bg-white text-[#0075de]">
+              <span>Simple, transparent pricing</span>
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold uppercase tracking-tight mb-5 text-[var(--color-text-primary)]">
-              Pricing
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-[-0.03em] leading-[1.15] mb-5 text-black">
+              Pricing designed to{" "}
+              <span className="inline-block px-3.5 py-0.5 rounded-full bg-[#f6d5b8] text-black font-medium border border-black/10 mx-1 align-middle">
+                maximize creator revenue.
+              </span>
             </h1>
-            <p className="text-lg md:text-xl text-[var(--color-warm-gray)] leading-relaxed max-w-2xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-[#615d59] leading-relaxed max-w-2xl mx-auto mb-8">
               Simple, transparent pricing designed to maximize creator revenue with zero agent commissions or hidden fees.
             </p>
             <Button
-              className="h-11 px-6 text-sm font-medium rounded-lg"
-              style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
+              className="h-10 px-5 text-sm font-medium rounded-lg shadow-none transition-opacity"
+              style={{ background: "#0075de", color: "#ffffff" }}
               onClick={() => {
                 const el = document.getElementById("performers-section");
                 el?.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              See calculator ↓
+              See pricing breakdown ↓
             </Button>
           </div>
         </section>
 
         {/* ── For Performers ── */}
-        <section id="performers-section" className="pb-24 px-5 md:px-16">
+        <section id="performers-section" className="pb-24 px-5 md:px-16 border-t border-black/[0.08] pt-16">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
               <div>
-                <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-tight text-[var(--color-text-primary)] mb-2">
-                  For Performers
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#0075de] mb-1.5 block">
+                  Keep what you earn
+                </span>
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black mb-2">
+                  For performers
                 </h2>
-                <p className="text-base text-[var(--color-warm-gray)] max-w-xl leading-relaxed">
+                <p className="text-base text-[#615d59] max-w-xl leading-relaxed">
                   Keep 93% of your booking and shoutout revenue with zero agent commissions (compared to traditional 20%+ agency fees or Cameo's 25% platform cut).
                 </p>
               </div>
 
-              {/* Performer Avatar Cluster */}
-              <div className="flex items-center -space-x-3 shrink-0">
-                {PERFORMER_AVATARS.map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt="Performer"
-                    className="w-12 h-12 rounded-full border-2 border-white dark:border-black object-cover shadow-xs"
-                  />
-                ))}
-              </div>
-            </div>
-
-            <ComparisonTable
-              colA="Free Tier"
-              colB="🚀 Monologg Pro (Coming Soon)"
-              rows={PERFORMER_ROWS}
-              tone="blue"
-            />
-
-            <div className="mt-8">
-              <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
-                onClick={() => navigate("/auth")}
-              >
-                Find Gigs
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* ── For Clients ── */}
-        <section
-          className="py-24 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderTop: "1px solid var(--color-faint-line)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-              <div>
-                <h2 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-tight text-[var(--color-text-primary)] mb-2">
-                  For Clients (Employers, Studios &amp; Fans)
-                </h2>
-                <p className="text-base text-[var(--color-warm-gray)] max-w-xl leading-relaxed">
-                  Choose the plan that fits your production scale. All client fees are structured on invoices as an Automated Casting, Escrow Protection, and Project Management Service Fee.
-                </p>
-              </div>
-
-              {/* Partner Brand Logos Grid */}
-              <div className="flex items-center gap-4 flex-wrap">
-                {CLIENT_PARTNER_LOGOS.map((p) => (
+              {/* Performer Character Marks Row */}
+              <div className="flex items-center -space-x-2 shrink-0">
+                {PERFORMER_AVATARS.map((av, i) => (
                   <div
-                    key={p.name}
-                    className="px-3 py-1.5 rounded-lg border text-xs font-semibold uppercase tracking-wider"
-                    style={{
-                      background: "var(--color-pure-white)",
-                      borderColor: "var(--color-faint-line)",
-                      color: p.color,
-                    }}
+                    key={i}
+                    className="w-10 h-10 md:w-11 md:h-11 rounded-full p-0.5 bg-white shrink-0 shadow-xs"
+                    style={{ border: `2px solid ${av.border}` }}
                   >
-                    {p.name}
+                    <img
+                      src={av.src}
+                      alt="Performer"
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
             </div>
 
             <ComparisonTable
-              colA="Basic (Free Marketplace)"
-              colB="Business Plus (Coming Soon)"
-              sections={CLIENT_SECTIONS}
-              tone="purple"
+              colA="Free tier"
+              colB="Monologg Pro (Coming soon)"
+              rows={PERFORMER_ROWS}
             />
 
             <div className="mt-8">
               <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm"
-                style={{ background: "#7B00FE", color: "#ffffff" }}
+                className="h-10 px-5 text-sm font-medium rounded-lg shadow-none"
+                style={{ background: "#0075de", color: "#ffffff" }}
                 onClick={() => navigate("/auth")}
               >
-                Find Performers
+                Find gigs
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* ── For Clients ── */}
+        <section className="py-24 px-5 md:px-16 border-t border-black/[0.08]">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#0075de] mb-1.5 block">
+                  Flexible casting plans
+                </span>
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black mb-2">
+                  For clients (employers, studios &amp; fans)
+                </h2>
+                <p className="text-base text-[#615d59] max-w-xl leading-relaxed">
+                  Choose the plan that fits your production scale. All client fees are structured on invoices as an Automated Casting, Escrow Protection, and Project Management Service Fee.
+                </p>
+              </div>
+
+              {/* Partner Brand Logos as clean greyscale Notion-style typography */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {CLIENT_PARTNER_LOGOS.map((name) => (
+                  <div
+                    key={name}
+                    className="px-3 py-1.5 rounded-lg border border-black/[0.08] bg-white text-xs font-medium text-black/70"
+                  >
+                    {name}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <ComparisonTable
+              colA="Basic (Free marketplace)"
+              colB="Business Plus (Coming soon)"
+              sections={CLIENT_SECTIONS}
+            />
+
+            <div className="mt-8">
+              <Button
+                className="h-10 px-5 text-sm font-medium rounded-lg shadow-none"
+                style={{ background: "#0075de", color: "#ffffff" }}
+                onClick={() => navigate("/auth")}
+              >
+                Find performers
               </Button>
             </div>
           </div>
         </section>
 
         {/* ── FAQ Section ── */}
-        <section className="py-24 px-5 md:px-16">
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase text-[var(--color-text-primary)]">
-                Frequently Asked Questions
+            <div className="mb-12 text-left md:text-center">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black">
+                Frequently asked questions
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               {FAQS.map((faq, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border transition-all overflow-hidden"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
-                  }}
+                  className="rounded-xl border border-black/[0.08] bg-white transition-all overflow-hidden"
                 >
                   <button
-                    className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-black/[0.01]"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-black/[0.01] transition-colors"
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   >
-                    <span className="text-[15px] font-semibold font-body leading-snug text-[var(--color-text-primary)] pr-3">
+                    <span className="text-[15px] font-semibold text-black pr-3 leading-snug">
                       {faq.q}
                     </span>
                     <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 transition-transform"
+                      className="w-6 h-6 rounded-md flex items-center justify-center border border-black/[0.08] shrink-0 transition-transform"
                       style={{
-                        borderColor: "var(--color-faint-line)",
                         transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)",
                       }}
                     >
-                      <ChevronDown className="w-4 h-4 text-[var(--color-warm-gray)]" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#757575]" />
                     </div>
                   </button>
                   <AnimatePresence>
@@ -390,13 +375,7 @@ export function PricingPage() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div
-                          className="px-5 pb-5 text-sm font-body leading-relaxed border-t pt-3"
-                          style={{
-                            color: "var(--color-warm-gray)",
-                            borderColor: "var(--color-faint-line)",
-                          }}
-                        >
+                        <div className="px-5 pb-5 text-sm leading-relaxed text-[#615d59] border-t border-black/[0.06] pt-3">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -408,52 +387,43 @@ export function PricingPage() {
           </div>
         </section>
 
-        {/* ── Final Conversion CTA (Midnight Workspace Stage) ── */}
-        <section
-          className="py-24 px-5 md:px-16 text-center transition-colors relative overflow-hidden"
-          style={{ background: "var(--color-midnight-ink)", color: "#ffffff" }}
-        >
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 text-white">
-              Find Performers. Find Gigs. <br /> Finish Your Project.
+        {/* ── Final Conversion CTA (Midnight Card Island #02093a) ── */}
+        <section className="py-16 px-5 md:px-16">
+          <div className="max-w-5xl mx-auto rounded-xl p-10 md:p-16 bg-[#02093a] text-white text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-white">
+              Find performers, find gigs, and finish your project.
             </h2>
-            <p className="text-base font-body mb-8 text-white/70 max-w-lg mx-auto leading-relaxed">
-              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally with zero agent commissions.
+            <p className="text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-8">
+              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally — with zero agent commissions.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm w-full sm:w-auto"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
+                className="h-10 px-6 text-sm font-medium rounded-lg shadow-none w-full sm:w-auto"
+                style={{ background: "#0075de", color: "#ffffff" }}
                 onClick={() => navigate("/auth")}
               >
-                Find Performers
+                Find performers
               </Button>
               <Button
                 variant="ghost"
-                className="h-12 px-8 text-[15px] font-medium rounded-lg border border-white/20 text-white hover:bg-white/10 w-full sm:w-auto"
+                className="h-10 px-6 text-sm font-medium rounded-lg border border-white/20 text-white hover:bg-white/10 w-full sm:w-auto"
                 onClick={() => navigate("/auth")}
               >
-                Find Gigs
+                Find gigs
               </Button>
             </div>
           </div>
         </section>
 
         {/* ── Join Our Newsletter ── */}
-        <section
-          className="py-14 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        <section className="py-12 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[var(--color-text-primary)] mb-1">
-                Join Our Newsletter
+              <h3 className="text-lg font-semibold tracking-tight text-black mb-1">
+                Join our newsletter
               </h3>
-              <p className="text-xs text-[var(--color-warm-gray)]">
+              <p className="text-xs text-[#757575]">
                 Stay updated with our investor news and updates about upcoming funding rounds.
               </p>
             </div>
@@ -466,23 +436,18 @@ export function PricingPage() {
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   required
-                  className="h-10 px-3.5 rounded-lg border text-sm w-full md:w-64 focus:outline-none focus:border-[#0075de]"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    color: "var(--color-text-primary)",
-                  }}
+                  className="h-9 px-3.5 rounded-lg border border-black/[0.12] bg-white text-black text-sm w-full md:w-64 focus:outline-none focus:border-[#0075de]"
                 />
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
-                  style={{ background: "var(--color-signal-blue)" }}
+                  className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
+                  style={{ background: "#0075de" }}
                 >
                   Subscribe
                 </button>
               </form>
             ) : (
-              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600">
+              <div className="flex items-center gap-2 text-sm font-medium text-[#1A7544]">
                 <Check className="w-4 h-4" />
                 <span>You're subscribed — thank you!</span>
               </div>

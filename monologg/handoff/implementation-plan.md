@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 61–75 Visual Overhauls, Bio Link Storefront & Availability Overhauls + Session 76 Notion-Inspired Editorial Visual Redesign (Large Icons, Transparent Pastel Washes, Rounded Corners, Warm Paper Canvas & Preserved Copy) are built, verified, and committed.
+**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 61–76 Visual Overhauls, Bio Link Storefront & Availability Overhauls + Session 77 Notion Warm Paper Notebook Strict Redesign (Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons, 7 Character Marks & Preserved Copy) are built, verified, and committed.
 
 ---
 
 ## ✅ Done
+
+### Session 77 — Notion Warm Paper Notebook Strict Redesign (Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards & Large Icons)
+- [x] **Typography & Font Tokens**: Standardized `Inter` (`--font-notioninter`) and `Source Serif 4` (`--font-lyon-text`) in `fonts.css` and `tokens.css`. Enforced negative letter-spacing (`tracking-[-0.03em]`) and eliminated all-caps displays across all 4 public pages in favor of natural Title/Sentence Case.
+- [x] **Surfaces & Color Tokens**: Enforced `#f6f5f4` (Paper Warmth) page canvas, pure white `#ffffff` cards with 12px corners and 1px hairline borders (`rgba(0,0,0,0.08)`), strictly NO drop shadows on content cards, single-chromatic `#0075de` Notion Blue action buttons, and rotating flat sticky-note fills (`#ffb110`, `#f64932`, `#62aef0`, `#e6f3fe`, `#02093a`).
+- [x] **Landing Page (`LandingPage.tsx`)**: Rebuilt with 7 avatar character marks (2px colored borders), headline with peach highlight pill (`#f6d5b8`), centered Order Room product UI mockup with subtle elevation, 8 category cards with large 28px icons, 6 sticky-note feature blocks, 10-item FAQ accordion in white cards, and midnight island conversion card.
+- [x] **Product Page (`ProductPage.tsx`)**: Rebuilt with Title Case typography, 6 Performer feature cards with large icons, Client Portal with 4 capability cards, and Thespian AI Engine dual cards.
+- [x] **Pricing Page (`PricingPage.tsx`)**: Rebuilt with Title Case typography, Performer character marks cluster, greyscale partner brand logos, pure white card comparison tables (`border border-black/[0.08]`), and `#0075de` CTA buttons.
+- [x] **Resources Page (`ResourcesPage.tsx`)**: Rebuilt with Title Case typography, large 28px icons in pastel squircles for Terms and Support cards, and clean pure white card for the Investor application form with `#0075de` submit button.
+- [x] **Verification**: Full typecheck passed with 0 errors across 4 projects, web Vitest passed (24/24 files, 97/97 tests), API Vitest passed (56/56 files, 580/580 tests), and Vite production build succeeded in 2.15s.
 
 ### Session 76 — Notion-Inspired Editorial Visual Redesign (Large Icons, Pastel Washes & Rounded Corners)
 - [x] **Design Tokens & Pastel Palette**: Added Notion editorial colors (`--color-midnight-ink`, `--color-paper-white`, `--color-pure-white`, `--color-signal-blue`, `--color-warm-gray`, `--color-faint-line`) and 6 transparent pastel color washes (`--color-pastel-blue-*`, `--color-pastel-purple-*`, `--color-pastel-rose-*`, `--color-pastel-amber-*`, `--color-pastel-mint-*`, `--color-pastel-periwinkle-*`) across both Light and Dark mode in `tokens.css`.

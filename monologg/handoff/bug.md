@@ -1,7 +1,7 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
-**This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
+**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
+**This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the change. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
 
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 32. Harsh all-caps typography, box-shadow card elevation, and saturated buttons clashing with Notion Warm Paper notebook benchmark
+- **Severity:** Low / Cosmetic
+- **What happened:** Initial iterations of the marketing redesign still had all-caps uppercase headlines (e.g. `PRICING`, `FOR PERFORMERS`, `TERMS OF SERVICE`), content cards with box-shadows, and multi-colored buttons (`#7B00FE`, `#F13030`), which conflicted with the founder's explicit audio instructions for calm Sentence/Title Case ("Camel case"), no shadows on content cards, and the Notion Warm Paper aesthetic.
+- **Root Cause:** Residual legacy styling from previous dark-mode and neon iterations.
+- **Resolution:** Replaced all display headings with natural Title Case / Sentence Case with negative letter-spacing (`tracking-[-0.03em]`). Replaced card shadows with 1px hairline borders (`rgba(0,0,0,0.08)`) and 12px corners (`rounded-xl`). Standardized primary actions to `#0075de` Notion Blue (8px radius) and secondary actions to `#e6f3fe` Sky Tint ghost buttons. Preserved drop shadow strictly for the hero Order Room product UI screenshot mockup. Validated with 0 typecheck errors and 100% test pass.
+
+---
 
 ### 31. Opaque, saturated neon blocks on discovery cards causing visual fatigue
 - **Severity:** Low / Cosmetic

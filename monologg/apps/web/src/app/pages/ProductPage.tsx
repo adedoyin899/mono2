@@ -13,83 +13,83 @@ import {
 const PERFORMER_FEATURES = [
   {
     icon: Layers,
-    title: "Sleek Bio Storefront",
+    title: "Sleek bio storefront",
     desc: "Ditch scattered bio links for a mobile storefront that showcases your video monologues, audio reels, reach metrics, and verified reviews all in one place.",
-    color: "var(--color-pastel-rose-text)",
-    bg: "var(--color-pastel-rose-squircle)",
+    color: "#f64932",
+    bg: "#fbeae8",
   },
   {
     icon: TrendingUp,
-    title: "Real-Time Performer Analytics & Visitor Intelligence",
+    title: "Real-time performer analytics & visitor intelligence",
     desc: "See exactly who is visiting your page, which monologues they play, where they find your link, and how many views turn into paid bookings.",
-    color: "var(--color-pastel-amber-text)",
-    bg: "var(--color-pastel-amber-squircle)",
+    color: "#e89d01",
+    bg: "#fff7e6",
   },
   {
     icon: Sparkles,
-    title: "Interactive AI Agent",
+    title: "Interactive AI agent",
     desc: "Your AI agent works while you sleep, chatting with visitors about your style and instantly booking audition slots straight onto your calendar.",
-    color: "var(--color-pastel-purple-text)",
-    bg: "var(--color-pastel-purple-squircle)",
+    color: "#7B00FE",
+    bg: "#f3e8ff",
   },
   {
     icon: FileText,
-    title: "Custom Rate Cards & Micro-Deliverables",
+    title: "Custom rate cards & micro-deliverables",
     desc: "Set clear baseline prices for gigs and fan requests so clients can book your auditions, MC hosting, voiceovers, or personalized shoutouts instantly.",
-    color: "var(--color-pastel-periwinkle-text)",
-    bg: "var(--color-pastel-periwinkle-squircle)",
+    color: "#b18164",
+    bg: "#f9f2ed",
   },
   {
     icon: Send,
-    title: "Direct Proposal Bidding",
+    title: "Direct proposal bidding",
     desc: "Browse open casting briefs posted by verified studios and commercial media vendors; submit auditions and proposals in seconds.",
-    color: "var(--color-pastel-blue-text)",
-    bg: "var(--color-pastel-blue-squircle)",
+    color: "#0075de",
+    bg: "#e6f3fe",
   },
   {
     icon: Lock,
-    title: "Escrow Security",
+    title: "Escrow security",
     desc: "Never worry about non-payment or client ghosting again. Funds for gigs and custom shoutouts are deposited safely into escrow prior to production or recording and released immediately upon project completion.",
-    color: "var(--color-pastel-mint-text)",
-    bg: "var(--color-pastel-mint-squircle)",
+    color: "#1A7544",
+    bg: "#e6f4ea",
   },
   {
     icon: Calendar,
-    title: "Integrated Scheduling",
+    title: "Integrated scheduling",
     desc: "Sync your calendar so visitors can book audition slots, phone consultations, or quick custom messages without back-and-forth emails.",
-    color: "var(--color-pastel-blue-text)",
-    bg: "var(--color-pastel-blue-squircle)",
+    color: "#097fe8",
+    bg: "#e6f3fe",
   },
 ];
 
 const CLIENT_FEATURES = [
   {
     icon: Users,
-    title: "Verified Creator Pool",
+    title: "Verified creator pool",
     desc: "Browse rich, data-verified candidate pipelines across Actors, Comedians, Voiceover Artistes, Comperes, Musicians, Public speakers, Streamers, and Content Creators.",
-    color: "var(--color-pastel-purple-text)",
-    bg: "var(--color-pastel-purple-squircle)",
+    color: "#7B00FE",
+    bg: "#f3e8ff",
   },
   {
     icon: ClipboardList,
-    title: "Post Gigs & Micro-Briefs",
+    title: "Post gigs & micro-briefs",
     desc: "Publish creative briefs, indie movie roles, corporate event jobs, or direct shoutout requests in minutes and receive direct, structured applications or instant fulfillments.",
-    color: "var(--color-pastel-blue-text)",
-    bg: "var(--color-pastel-blue-squircle)",
+    color: "#0075de",
+    bg: "#e6f3fe",
   },
   {
     icon: MessageSquare,
-    title: "Chat with AI Performer Profiles",
+    title: "Chat with AI performer profiles",
     desc: "Instant Q&A with a performer's AI agent to verify availability, review project fits, book audition slots, or request custom video drops in seconds.",
-    color: "var(--color-pastel-amber-text)",
-    bg: "var(--color-pastel-amber-squircle)",
+    color: "#e89d01",
+    bg: "#fff7e6",
   },
   {
     icon: ShieldCheck,
-    title: "Secure Contracts & Escrow Payments",
+    title: "Secure contracts & escrow payments",
     desc: "Sign standard digital agreements with built-in milestones and escrow payment safety.",
-    color: "var(--color-pastel-mint-text)",
-    bg: "var(--color-pastel-mint-squircle)",
+    color: "#1A7544",
+    bg: "#e6f4ea",
   },
 ];
 
@@ -138,140 +138,60 @@ export function ProductPage() {
   };
 
   return (
-    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden font-body selection:bg-blue-100 selection:text-blue-900">
+    <div
+      style={{
+        background: "var(--color-paper-warmth, #f6f5f4)",
+        color: "var(--color-ink-black, #000000)",
+        fontFamily: "var(--font-notioninter, 'Inter', sans-serif)",
+      }}
+      className="min-h-screen flex flex-col overflow-x-hidden selection:bg-[#e6f3fe] selection:text-[#0075de]"
+    >
       <WebsiteHeader />
 
       <main className="flex-1">
         {/* ── Performer Portal Hero & Features ── */}
-        <section className="pt-20 pb-24 px-5 md:px-16 text-center">
+        <section className="pt-16 pb-20 md:pt-20 md:pb-24 px-5 md:px-16 text-center">
           <div className="max-w-5xl mx-auto">
-            <div className="max-w-3xl mx-auto mb-16 flex flex-col items-center">
-              <div
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-5 border shadow-xs"
-                style={{
-                  borderColor: "var(--color-pastel-rose-border)",
-                  background: "var(--color-pure-white)",
-                  color: "var(--color-pastel-rose-text)",
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                Performer Portal
-              </div>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold uppercase tracking-tight mb-5 text-[var(--color-text-primary)]">
+            <div className="max-w-3xl mx-auto mb-14 flex flex-col items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#f64932] mb-3 block">
+                Performer portal
+              </span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-[-0.03em] leading-[1.12] mb-5 text-black">
                 Build your personal digital stage
               </h1>
-              <p className="text-lg md:text-xl text-[var(--color-warm-gray)] leading-relaxed max-w-2xl mb-8">
+              <p className="text-lg md:text-xl text-[#615d59] leading-relaxed max-w-2xl mb-8">
                 Pitch on live casting briefs, set your custom service rates, track customer analytics, and get paid securely.
               </p>
               <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
+                className="h-10 px-6 text-sm font-medium rounded-lg shadow-none"
+                style={{ background: "#0075de", color: "#ffffff" }}
                 onClick={() => navigate("/auth")}
               >
-                Find Gigs
+                Find gigs
               </Button>
             </div>
 
-            {/* 6+ Performer Feature Cards (Large Icons + Transparent/Pastel Washes) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+            {/* 6+ Performer Feature White Cards (12px radius, 1px hairline border, no shadows) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
               {PERFORMER_FEATURES.map((f) => {
-                const IconComponent = f.icon;
-                return (
-                  <motion.div
-                    key={f.title}
-                    whileHover={{ y: -4 }}
-                    transition={{ duration: 0.2 }}
-                    className="p-7 rounded-2xl border flex flex-col justify-between"
-                    style={{
-                      background: "var(--color-pure-white)",
-                      borderColor: "var(--color-faint-line)",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-                    }}
-                  >
-                    <div>
-                      {/* Large prominent icon squircle */}
-                      <div
-                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 mb-6"
-                        style={{ background: f.bg, color: f.color }}
-                      >
-                        <IconComponent className="w-7 h-7" />
-                      </div>
-                      <h3 className="font-display text-xl font-bold mb-2 text-[var(--color-text-primary)]">
-                        {f.title}
-                      </h3>
-                      <p className="text-sm leading-relaxed text-[var(--color-warm-gray)]">
-                        {f.desc}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Client Portal (Pastel Lavender Wash & Large Icons) ── */}
-        <section
-          className="py-24 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-pastel-purple-bg)",
-            borderTop: "1px solid var(--color-pastel-purple-border)",
-            borderBottom: "1px solid var(--color-pastel-purple-border)",
-          }}
-        >
-          <div className="max-w-5xl mx-auto">
-            <div className="max-w-3xl mb-14">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 border"
-                style={{
-                  borderColor: "var(--color-pastel-purple-border)",
-                  background: "var(--color-pure-white)",
-                  color: "var(--color-pastel-purple-text)",
-                }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-                Client Portal
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 text-[var(--color-text-primary)]">
-                The Upwork for Performer Acquisition
-              </h2>
-              <p className="text-lg text-[var(--color-warm-gray)] leading-relaxed mb-6">
-                A professional performer acquisition network built for production houses, casting directors, brand managers, live event organizers, and fans.
-              </p>
-              <Button
-                className="h-11 px-6 text-sm font-medium rounded-lg"
-                style={{ background: "#7B00FE", color: "#ffffff" }}
-                onClick={() => navigate("/auth")}
-              >
-                Find Performers
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {CLIENT_FEATURES.map((f) => {
                 const IconComponent = f.icon;
                 return (
                   <div
                     key={f.title}
-                    className="p-7 rounded-2xl border flex flex-col justify-between"
-                    style={{
-                      background: "var(--color-pure-white)",
-                      borderColor: "var(--color-faint-line)",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-                    }}
+                    className="p-6 rounded-xl border border-black/[0.08] bg-white flex flex-col justify-between"
                   >
                     <div>
                       {/* Large prominent icon squircle */}
                       <div
-                        className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 mb-6"
+                        className="w-13 h-13 rounded-lg flex items-center justify-center shrink-0 mb-5"
                         style={{ background: f.bg, color: f.color }}
                       >
                         <IconComponent className="w-7 h-7" />
                       </div>
-                      <h3 className="font-display text-xl font-bold mb-2 text-[var(--color-text-primary)]">
+                      <h3 className="text-xl font-semibold mb-2 text-black">
                         {f.title}
                       </h3>
-                      <p className="text-sm leading-relaxed text-[var(--color-warm-gray)]">
+                      <p className="text-sm leading-relaxed text-[#615d59]">
                         {f.desc}
                       </p>
                     </div>
@@ -282,66 +202,101 @@ export function ProductPage() {
           </div>
         </section>
 
-        {/* ── Thespian AI Engine ── */}
-        <section className="py-24 px-5 md:px-16 transition-colors">
+        {/* ── Client Portal ("The Upwork for performer acquisition") ── */}
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="max-w-3xl mb-16">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 border"
-                style={{
-                  borderColor: "var(--color-pastel-mint-border)",
-                  background: "var(--color-pure-white)",
-                  color: "var(--color-pastel-mint-text)",
-                }}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Thespian
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 text-[var(--color-text-primary)]">
-                Performance Intelligence Engine
+            <div className="max-w-3xl mb-12 text-left md:text-center md:mx-auto">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#7B00FE] mb-2 block">
+                Client portal
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-black">
+                The Upwork for performer acquisition
               </h2>
-              <p className="text-lg text-[var(--color-warm-gray)] leading-relaxed">
+              <p className="text-lg text-[#615d59] leading-relaxed mb-6">
+                A professional performer acquisition network built for production houses, casting directors, brand managers, live event organizers, and fans.
+              </p>
+              <Button
+                className="h-10 px-6 text-sm font-medium rounded-lg shadow-none"
+                style={{ background: "#7B00FE", color: "#ffffff" }}
+                onClick={() => navigate("/auth")}
+              >
+                Find performers
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {CLIENT_FEATURES.map((f) => {
+                const IconComponent = f.icon;
+                return (
+                  <div
+                    key={f.title}
+                    className="p-6 rounded-xl border border-black/[0.08] bg-white flex flex-col justify-between"
+                  >
+                    <div>
+                      <div
+                        className="w-13 h-13 rounded-lg flex items-center justify-center shrink-0 mb-5"
+                        style={{ background: f.bg, color: f.color }}
+                      >
+                        <IconComponent className="w-7 h-7" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2 text-black">
+                        {f.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-[#615d59]">
+                        {f.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Performance Intelligence Engine (Thespian AI) ── */}
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
+          <div className="max-w-5xl mx-auto">
+            <div className="max-w-3xl mb-14 text-left md:text-center md:mx-auto">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#0075de] mb-2 block">
+                Thespian AI
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-black">
+                Performance intelligence engine
+              </h2>
+              <p className="text-lg text-[#615d59] leading-relaxed">
                 Say goodbye to manual form fatigue and endless email threads. Thespian AI works for both sides of the stage — acting as an untiring, 24/7 digital agent for performers and an automated casting butler for studios.
               </p>
             </div>
 
             {/* Performers AI Container */}
             <div className="mb-14">
-              <h3 className="font-display text-xl md:text-2xl font-bold uppercase tracking-tight mb-6 flex items-center gap-2 text-[var(--color-text-primary)]">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                What Thespian AI Does For The Performer (Your Digital AI Agent)
+              <h3 className="text-xl md:text-2xl font-semibold tracking-tight mb-6 flex items-center gap-2 text-black">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#f64932]" />
+                What Thespian AI does for the performer (your digital AI agent)
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {THESPIAN_PERFORMER.map((f) => {
                   const IconComp = f.icon;
                   return (
                     <div
                       key={f.title}
-                      className="p-6 rounded-2xl border flex flex-col justify-between"
-                      style={{
-                        background: "var(--color-pure-white)",
-                        borderColor: "var(--color-faint-line)",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-                      }}
+                      className="p-5 rounded-xl border border-black/[0.08] bg-white flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-4">
-                          <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                            style={{ background: "var(--color-pastel-rose-squircle)", color: "var(--color-pastel-rose-text)" }}
-                          >
-                            <IconComp className="w-6 h-6" />
+                          <div className="w-10 h-10 rounded-lg bg-[#fbeae8] text-[#f64932] flex items-center justify-center shrink-0">
+                            <IconComp className="w-5 h-5" />
                           </div>
                           {f.badge && (
-                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--color-warm-gray)]">
+                            <span className="text-[10px] font-medium tracking-wider px-2 py-0.5 rounded-full bg-black/5 text-[#757575]">
                               {f.badge}
                             </span>
                           )}
                         </div>
-                        <h4 className="font-semibold text-base text-[var(--color-text-primary)] mb-2">
+                        <h4 className="font-semibold text-base text-black mb-1.5">
                           {f.title}
                         </h4>
-                        <p className="text-xs leading-relaxed text-[var(--color-warm-gray)]">
+                        <p className="text-xs leading-relaxed text-[#615d59]">
                           {f.desc}
                         </p>
                       </div>
@@ -353,41 +308,33 @@ export function ProductPage() {
 
             {/* Clients AI Container */}
             <div>
-              <h3 className="font-display text-xl md:text-2xl font-bold uppercase tracking-tight mb-6 flex items-center gap-2 text-[var(--color-text-primary)]">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
-                What Thespian AI Does For The Client (Your Automated Casting Butler)
+              <h3 className="text-xl md:text-2xl font-semibold tracking-tight mb-6 flex items-center gap-2 text-black">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#7B00FE]" />
+                What Thespian AI does for the client (your automated casting butler)
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {THESPIAN_CLIENT.map((f) => {
                   const IconComp = f.icon;
                   return (
                     <div
                       key={f.title}
-                      className="p-6 rounded-2xl border flex flex-col justify-between"
-                      style={{
-                        background: "var(--color-pure-white)",
-                        borderColor: "var(--color-faint-line)",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-                      }}
+                      className="p-5 rounded-xl border border-black/[0.08] bg-white flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-4">
-                          <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                            style={{ background: "var(--color-pastel-purple-squircle)", color: "var(--color-pastel-purple-text)" }}
-                          >
-                            <IconComp className="w-6 h-6" />
+                          <div className="w-10 h-10 rounded-lg bg-[#f3e8ff] text-[#7B00FE] flex items-center justify-center shrink-0">
+                            <IconComp className="w-5 h-5" />
                           </div>
                           {f.badge && (
-                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[var(--color-warm-gray)]">
+                            <span className="text-[10px] font-medium tracking-wider px-2 py-0.5 rounded-full bg-black/5 text-[#757575]">
                               {f.badge}
                             </span>
                           )}
                         </div>
-                        <h4 className="font-semibold text-base text-[var(--color-text-primary)] mb-2">
+                        <h4 className="font-semibold text-base text-black mb-1.5">
                           {f.title}
                         </h4>
-                        <p className="text-xs leading-relaxed text-[var(--color-warm-gray)]">
+                        <p className="text-xs leading-relaxed text-[#615d59]">
                           {f.desc}
                         </p>
                       </div>
@@ -400,46 +347,33 @@ export function ProductPage() {
         </section>
 
         {/* ── FAQ Section ── */}
-        <section
-          className="py-20 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderTop: "1px solid var(--color-faint-line)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase text-[var(--color-text-primary)]">
-                Frequently Asked Questions
+            <div className="mb-12 text-left md:text-center">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black">
+                Frequently asked questions
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               {FAQS.map((faq, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border transition-all overflow-hidden"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
-                  }}
+                  className="rounded-xl border border-black/[0.08] bg-white transition-all overflow-hidden"
                 >
                   <button
-                    className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-black/[0.01]"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-black/[0.01] transition-colors"
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   >
-                    <span className="text-[15px] font-semibold font-body leading-snug text-[var(--color-text-primary)] pr-3">
+                    <span className="text-[15px] font-semibold text-black pr-3 leading-snug">
                       {faq.q}
                     </span>
                     <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 transition-transform"
+                      className="w-6 h-6 rounded-md flex items-center justify-center border border-black/[0.08] shrink-0 transition-transform"
                       style={{
-                        borderColor: "var(--color-faint-line)",
                         transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)",
                       }}
                     >
-                      <ChevronDown className="w-4 h-4 text-[var(--color-warm-gray)]" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#757575]" />
                     </div>
                   </button>
                   <AnimatePresence>
@@ -450,13 +384,7 @@ export function ProductPage() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div
-                          className="px-5 pb-5 text-sm font-body leading-relaxed border-t pt-3"
-                          style={{
-                            color: "var(--color-warm-gray)",
-                            borderColor: "var(--color-faint-line)",
-                          }}
-                        >
+                        <div className="px-5 pb-5 text-sm leading-relaxed text-[#615d59] border-t border-black/[0.06] pt-3">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -468,52 +396,43 @@ export function ProductPage() {
           </div>
         </section>
 
-        {/* ── Final Conversion CTA (Midnight Workspace Stage) ── */}
-        <section
-          className="py-24 px-5 md:px-16 text-center transition-colors relative overflow-hidden"
-          style={{ background: "var(--color-midnight-ink)", color: "#ffffff" }}
-        >
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 text-white">
-              Find Performers. Find Gigs. <br /> Finish Your Project.
+        {/* ── Final Conversion CTA (Midnight Card Island #02093a) ── */}
+        <section className="py-16 px-5 md:px-16">
+          <div className="max-w-5xl mx-auto rounded-xl p-10 md:p-16 bg-[#02093a] text-white text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-white">
+              Find performers, find gigs, and finish your project.
             </h2>
-            <p className="text-base font-body mb-8 text-white/70 max-w-lg mx-auto leading-relaxed">
-              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally with zero agent commissions.
+            <p className="text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-8">
+              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally — with zero agent commissions.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm w-full sm:w-auto"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
+                className="h-10 px-6 text-sm font-medium rounded-lg shadow-none w-full sm:w-auto"
+                style={{ background: "#0075de", color: "#ffffff" }}
                 onClick={() => navigate("/auth")}
               >
-                Find Performers
+                Find performers
               </Button>
               <Button
                 variant="ghost"
-                className="h-12 px-8 text-[15px] font-medium rounded-lg border border-white/20 text-white hover:bg-white/10 w-full sm:w-auto"
+                className="h-10 px-6 text-sm font-medium rounded-lg border border-white/20 text-white hover:bg-white/10 w-full sm:w-auto"
                 onClick={() => navigate("/auth")}
               >
-                Find Gigs
+                Find gigs
               </Button>
             </div>
           </div>
         </section>
 
         {/* ── Join Our Newsletter ── */}
-        <section
-          className="py-14 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        <section className="py-12 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[var(--color-text-primary)] mb-1">
-                Join Our Newsletter
+              <h3 className="text-lg font-semibold text-black mb-1">
+                Join our newsletter
               </h3>
-              <p className="text-xs text-[var(--color-warm-gray)]">
+              <p className="text-xs text-[#757575]">
                 Stay updated with our investor news and updates about upcoming funding rounds.
               </p>
             </div>
@@ -526,23 +445,18 @@ export function ProductPage() {
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   required
-                  className="h-10 px-3.5 rounded-lg border text-sm w-full md:w-64 focus:outline-none focus:border-[#0075de]"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    color: "var(--color-text-primary)",
-                  }}
+                  className="h-9 px-3 rounded-lg border border-black/[0.12] text-sm bg-white text-black w-full md:w-64 focus:outline-none focus:border-[#0075de]"
                 />
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
-                  style={{ background: "var(--color-signal-blue)" }}
+                  className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
+                  style={{ background: "#0075de" }}
                 >
                   Subscribe
                 </button>
               </form>
             ) : (
-              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#1A7544]">
                 <Check className="w-4 h-4" />
                 <span>You're subscribed — thank you!</span>
               </div>

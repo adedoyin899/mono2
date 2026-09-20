@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–75 Bio Link Storefront, Availability Overhauls & Architecture Reviews + Session 76 Notion-Inspired Editorial Redesign (Midnight workspace, warm paper below, transparent pastel color washes, large icons, rounded-2xl cards, clean typography, and 100% copy preservation) are built and verified stable.
+**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–76 Bio Link Storefront, Availability Overhauls & Architecture Reviews + Session 77 Notion Warm Paper Notebook Redesign (Sentence/Title Case, #f6f5f4 canvas, white hairline cards, no card shadows, single Notion Blue #0075de CTAs, 7 character marks, large icons in pastel squircles, and 100% copy preservation) are built and verified stable.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.

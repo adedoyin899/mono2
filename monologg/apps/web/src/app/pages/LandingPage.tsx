@@ -11,24 +11,27 @@ import {
   ArrowRight, Check, ShieldCheck
 } from "lucide-react";
 
-// ── "Find Performers" niche grid — 8 categories with large icons ──
+// ── "Find Performers" niche grid — 8 categories with Title Case & large icons ──
 const NICHES = [
-  { label: "Actors", icon: User, color: "var(--color-pastel-rose-text)", bg: "var(--color-pastel-rose-squircle)", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80&fit=crop" },
-  { label: "Public Speakers", icon: Presentation, color: "var(--color-pastel-blue-text)", bg: "var(--color-pastel-blue-squircle)", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&fit=crop" },
-  { label: "Comperes", icon: Mic, color: "var(--color-pastel-purple-text)", bg: "var(--color-pastel-purple-squircle)", img: "https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=400&q=80&fit=crop" },
-  { label: "Comedians", icon: Star, color: "var(--color-pastel-amber-text)", bg: "var(--color-pastel-amber-squircle)", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=80&fit=crop" },
-  { label: "Streamers", icon: Video, color: "var(--color-pastel-periwinkle-text)", bg: "var(--color-pastel-periwinkle-squircle)", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&q=80&fit=crop" },
-  { label: "Artists", icon: Camera, color: "var(--color-pastel-mint-text)", bg: "var(--color-pastel-mint-squircle)", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80&fit=crop" },
-  { label: "Musicians", icon: Music, color: "var(--color-pastel-rose-text)", bg: "var(--color-pastel-rose-squircle)", img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&q=80&fit=crop" },
-  { label: "Creators", icon: Sparkles, color: "var(--color-pastel-purple-text)", bg: "var(--color-pastel-purple-squircle)", img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80&fit=crop" },
+  { label: "Actors", icon: User, color: "#f64932", bg: "#fbeae8" },
+  { label: "Public Speakers", icon: Presentation, color: "#0075de", bg: "#e6f3fe" },
+  { label: "Comperes", icon: Mic, color: "#7B00FE", bg: "#f3e8ff" },
+  { label: "Comedians", icon: Star, color: "#e89d01", bg: "#fff7e6" },
+  { label: "Streamers", icon: Video, color: "#097fe8", bg: "#e6f3fe" },
+  { label: "Artists", icon: Camera, color: "#1A7544", bg: "#e6f4ea" },
+  { label: "Musicians", icon: Music, color: "#b18164", bg: "#f9f2ed" },
+  { label: "Creators", icon: Sparkles, color: "#ffb110", bg: "#fff7e6" },
 ];
 
-const SHOWCASE_PERFORMERS = [
-  { name: "Folake Bakare", role: "Voice Actor · Commercials", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80&fit=crop" },
-  { name: "Emeka Johnson", role: "Lead Actor · Nollywood", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&fit=crop" },
-  { name: "Kareem Adeleke", role: "Standup Comedian · MC", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80&fit=crop" },
-  { name: "Zainab Balogun", role: "Presenter · Event Compere", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80&fit=crop" },
-  { name: "Tunde Williams", role: "Music Director · Producer", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&q=80&fit=crop" },
+// 7 Avatar character marks for hero arrangement
+const HERO_CHARACTER_MARKS = [
+  { name: "Folake", border: "#0075de", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80&fit=crop" },
+  { name: "Emeka", border: "#f64932", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop" },
+  { name: "Kareem", border: "#ffb110", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80&fit=crop" },
+  { name: "Zainab", border: "#62aef0", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80&fit=crop" },
+  { name: "Tunde", border: "#097fe8", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop" },
+  { name: "Elena", border: "#f64932", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&q=80&fit=crop" },
+  { name: "Chidi", border: "#ffb110", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop" },
 ];
 
 const HERO_STATS = [
@@ -98,159 +101,162 @@ export function LandingPage() {
   };
 
   return (
-    <div style={{ background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }} className="min-h-screen flex flex-col overflow-x-hidden font-body selection:bg-blue-100 selection:text-blue-900">
+    <div
+      style={{
+        background: "var(--color-paper-warmth, #f6f5f4)",
+        color: "var(--color-ink-black, #000000)",
+        fontFamily: "var(--font-notioninter, 'Inter', sans-serif)",
+      }}
+      className="min-h-screen flex flex-col overflow-x-hidden selection:bg-[#e6f3fe] selection:text-[#0075de]"
+    >
       <WebsiteHeader />
 
       <main className="flex-1">
-        {/* ── Top Hero Stage ── */}
-        <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 px-5 md:px-16 text-center overflow-hidden">
-          {/* Subtle ambient spotlight */}
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[480px] rounded-full pointer-events-none opacity-40 blur-[100px]"
-            style={{ background: "radial-gradient(ellipse at center, rgba(98, 174, 240, 0.25) 0%, rgba(123, 0, 254, 0.15) 50%, transparent 70%)" }}
-          />
-
-          <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-            {/* Pill Announcement Badge */}
+        {/* ── Top Hero Stage (Warm paper notebook under afternoon sun) ── */}
+        <section className="pt-16 pb-20 md:pt-20 md:pb-24 px-5 md:px-16 text-center">
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            {/* Horizontal row of 7 avatar character marks */}
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium mb-8 border transition-colors shadow-xs"
-              style={{
-                background: "var(--color-pure-white)",
-                borderColor: "var(--color-faint-line)",
-                color: "var(--color-text-primary)",
-              }}
+              className="flex items-center justify-center gap-2 mb-8"
             >
-              <span className="w-2 h-2 rounded-full bg-[#0075de] animate-pulse" />
-              <span className="tracking-[0.04em] uppercase text-[11px] font-semibold text-[var(--color-signal-blue)]">Zero Agent Commissions</span>
-              <span className="text-[var(--color-warm-gray)]">· 100% Escrow Protection</span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="font-display text-[42px] sm:text-[60px] md:text-[72px] leading-[1.02] tracking-[-0.035em] uppercase font-bold mb-6 text-[var(--color-text-primary)]"
-            >
-              Find Performers, <br className="hidden sm:inline" />
-              Find Gigs, <br className="hidden sm:inline" />
-              <span style={{ color: "var(--color-signal-blue)" }}>Finish Your Project.</span>
-            </motion.h1>
-
-            {/* Subtext */}
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg md:text-xl max-w-2xl leading-relaxed mb-10 text-[var(--color-warm-gray)]"
-            >
-              Discover the performing arts' best-kept secrets. Connect directly with directors, studios, agencies, brand managers, and live event organizers globally with zero agent commissions.
-            </motion.p>
-
-            {/* Dual CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.25 }}
-              className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-14"
-            >
-              <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm w-full sm:w-auto transition-transform active:scale-95"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
-                onClick={() => navigate("/auth")}
-              >
-                Find Performers
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-12 px-8 text-[15px] font-medium rounded-lg border w-full sm:w-auto transition-colors"
-                style={{
-                  borderColor: "var(--color-faint-line)",
-                  background: "var(--color-pure-white)",
-                  color: "var(--color-text-primary)",
-                }}
-                onClick={() => navigate("/auth")}
-              >
-                Find Gigs
-              </Button>
-            </motion.div>
-
-            {/* Live Stats Strip */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 pt-6 border-t w-full max-w-3xl"
-              style={{ borderColor: "var(--color-faint-line)" }}
-            >
-              {HERO_STATS.map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="font-display text-2xl md:text-3xl font-bold tracking-tight text-[var(--color-text-primary)] mb-0.5">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs font-medium text-[var(--color-warm-gray)]">
-                    {stat.label}
-                  </div>
+              {HERO_CHARACTER_MARKS.map((mark, i) => (
+                <div
+                  key={i}
+                  className="w-10 h-10 md:w-11 md:h-11 rounded-full p-0.5 bg-white shrink-0 shadow-xs"
+                  style={{ border: `2px solid ${mark.border}` }}
+                >
+                  <img
+                    src={mark.img}
+                    alt={mark.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 </div>
               ))}
             </motion.div>
-          </div>
 
-          {/* 5-Performer Showcase Strip */}
-          <div className="mt-14 max-w-6xl mx-auto overflow-hidden">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {SHOWCASE_PERFORMERS.map((talent, idx) => (
-                <motion.div
-                  key={idx}
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-xs border cursor-pointer group"
-                  style={{ borderColor: "var(--color-faint-line)", background: "var(--color-pure-white)" }}
-                  onClick={() => navigate("/emeka")}
-                >
-                  <img
-                    src={talent.img}
-                    alt={talent.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 text-left">
-                    <div className="text-white text-sm font-semibold truncate flex items-center gap-1">
-                      {talent.name}
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#3EE089] shrink-0" />
-                    </div>
-                    <div className="text-white/70 text-xs truncate mt-0.5">
-                      {talent.role}
-                    </div>
+            {/* Headline with embedded colored highlight pill (Sentence Case / Title Case) */}
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.1 }}
+              className="text-4xl sm:text-6xl md:text-[68px] font-semibold tracking-[-0.03em] leading-[1.12] mb-6 text-black"
+            >
+              Find performers, find gigs, and{" "}
+              <span className="inline-block px-4 py-1 rounded-full bg-[#f6d5b8] text-black font-medium border border-black/10 mx-1 align-middle">
+                finish your project.
+              </span>
+            </motion.h1>
+
+            {/* Subhead in Graphite #615d59 */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.18 }}
+              className="text-lg md:text-xl text-[#615d59] max-w-2xl leading-relaxed mb-8"
+            >
+              Discover the performing arts' best-kept secrets. Connect directly with directors, studios, agencies, brand managers, and live event organizers globally — with zero agent commissions.
+            </motion.p>
+
+            {/* Dual CTA Buttons (Primary #0075de + Ghost #e6f3fe) */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.24 }}
+              className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-14"
+            >
+              <Button
+                className="h-10 px-5 text-sm font-medium rounded-lg shadow-none w-full sm:w-auto transition-opacity"
+                style={{ background: "#0075de", color: "#ffffff" }}
+                onClick={() => navigate("/auth")}
+              >
+                Find performers
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-10 px-5 text-sm font-medium rounded-lg w-full sm:w-auto border-0 transition-opacity"
+                style={{ background: "#e6f3fe", color: "#0075de" }}
+                onClick={() => navigate("/auth")}
+              >
+                Find gigs
+              </Button>
+            </motion.div>
+
+            {/* Product UI Mockup (12px radius, 1px border rgba(0,0,0,0.08), single drop shadow) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="w-full max-w-3xl rounded-xl p-6 text-left"
+              style={{
+                background: "#ffffff",
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-black/[0.08] mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-[#f64932]" />
+                  <span className="w-3 h-3 rounded-full bg-[#ffb110]" />
+                  <span className="w-3 h-3 rounded-full bg-[#62aef0]" />
+                  <span className="text-xs text-[#757575] font-medium ml-2">Order Room · #ord-8924</span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e6f4ea] text-[#1A7544]">
+                  Escrow active
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-3.5 rounded-lg border border-black/[0.08] bg-[#f6f5f4]">
+                  <div className="text-xs text-[#757575] mb-1">Talent</div>
+                  <div className="font-semibold text-sm text-black flex items-center gap-1">
+                    Emeka Johnson
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#0075de]" />
                   </div>
-                </motion.div>
+                  <div className="text-xs text-[#757575] mt-0.5">Lead Actor · Drama</div>
+                </div>
+
+                <div className="p-3.5 rounded-lg border border-black/[0.08] bg-[#f6f5f4]">
+                  <div className="text-xs text-[#757575] mb-1">Escrow held</div>
+                  <div className="font-semibold text-sm font-mono text-black">₦350,000</div>
+                  <div className="text-xs text-[#1A7544] mt-0.5">100% protected payout</div>
+                </div>
+
+                <div className="p-3.5 rounded-lg border border-black/[0.08] bg-[#f6f5f4]">
+                  <div className="text-xs text-[#757575] mb-1">Deliverable</div>
+                  <div className="font-semibold text-sm text-black">Feature Audition Tape</div>
+                  <div className="text-xs text-[#757575] mt-0.5">Due in 48 hours</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 mt-12 w-full max-w-3xl pt-8 border-t border-black/[0.08]">
+              {HERO_STATS.map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-2xl md:text-3xl font-semibold tracking-tight text-black mb-0.5">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs text-[#757575]">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── Category Exploration Grid (Large Icons) ── */}
-        <section
-          className="py-20 md:py-24 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderTop: "1px solid var(--color-faint-line)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        {/* ── "Find performers for every kind of work" (8 Categories in White Cards) ── */}
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-3 border"
-                style={{ borderColor: "var(--color-faint-line)", background: "var(--color-pure-white)", color: "var(--color-signal-blue)" }}
-              >
-                <span>Find Gigs</span>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase text-[var(--color-text-primary)]">
-                Find Performers For Every Kind Of Work
+            <div className="mb-10 text-left md:text-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#0075de] mb-2 block">
+                Explore categories
+              </span>
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black">
+                Find performers for every kind of work
               </h2>
             </div>
 
@@ -258,331 +264,198 @@ export function LandingPage() {
               {NICHES.map((niche, idx) => {
                 const IconComponent = niche.icon;
                 return (
-                  <motion.div
+                  <div
                     key={idx}
-                    whileHover={{ y: -4 }}
-                    transition={{ duration: 0.2 }}
                     onClick={() => navigate("/auth")}
-                    className="p-5 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 group"
-                    style={{
-                      background: "var(--color-pure-white)",
-                      borderColor: "var(--color-faint-line)",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
-                    }}
+                    className="p-5 rounded-xl border border-black/[0.08] bg-white transition-all cursor-pointer flex items-center gap-4 hover:border-black/20 group"
                   >
-                    {/* Large prominent icon squircle */}
+                    {/* Large 28px icon in a 52px rounded squircle */}
                     <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                      className="w-13 h-13 rounded-lg flex items-center justify-center shrink-0"
                       style={{ background: niche.bg, color: niche.color }}
                     >
                       <IconComponent className="w-7 h-7" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-signal-blue)] transition-colors">
+                      <div className="text-base font-semibold text-black group-hover:text-[#0075de] transition-colors">
                         {niche.label}
                       </div>
-                      <div className="text-xs text-[var(--color-warm-gray)] mt-0.5 flex items-center gap-1">
-                        <span>Browse category</span>
+                      <div className="text-xs text-[#757575] mt-0.5 flex items-center gap-1">
+                        <span>Browse talent</span>
                         <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
           </div>
         </section>
 
-        {/* ── 6 Core Features (Transparent / Pastel Washes & Large Icons) ── */}
-        <section className="py-24 px-5 md:px-16">
+        {/* ── 6 Core Features (Sticky-Note Accent Panels & Ruled White Cards) ── */}
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3 text-[var(--color-signal-blue)] border"
-                style={{ borderColor: "var(--color-faint-line)", background: "var(--color-pure-white)" }}
-              >
-                Why Performers Choose Monologg
-              </div>
-              <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-[var(--color-text-primary)]">
+            <div className="mb-14 text-left md:text-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#0075de] mb-2 block">
+                Platform features
+              </span>
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black">
                 Everything you need, nothing you don't
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Feature 1: Share Your Stage Anywhere */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-blue-bg)",
-                  borderColor: "var(--color-pastel-blue-border)",
-                }}
-              >
+              {/* Feature 1: Share your stage anywhere (Sky Tint #e6f3fe panel) */}
+              <div className="p-7 rounded-xl border border-black/[0.08] bg-[#e6f3fe] flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-blue-squircle)", color: "var(--color-pastel-blue-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-white flex items-center justify-center text-[#0075de] shrink-0 border border-black/[0.06]">
                       <QrCode className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-blue-border)", color: "var(--color-pastel-blue-text)" }}
-                    >
-                      One Link
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-[#0075de] border border-black/[0.06]">
+                      One link
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
-                    Share Your Stage Anywhere
+                  <h3 className="text-2xl font-semibold mb-2 text-black">
+                    Share your stage anywhere
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-[#615d59] mb-5">
                     Join other performers using a single master link and instant QR code to share their portfolios, showreels, and press kits directly with casting directors, studios, agencies, brand managers, and live event organizers globally across all platforms.
                   </p>
                 </div>
-
-                {/* Visual Preview Card */}
-                <div
-                  className="p-4 rounded-xl border flex items-center gap-4 mt-2"
-                  style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}
-                >
-                  <div className="w-12 h-12 rounded-lg bg-black/5 flex items-center justify-center shrink-0">
-                    <QrCode className="w-6 h-6 text-[var(--color-signal-blue)]" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-mono text-[var(--color-warm-gray)]">monologg.co/emeka</div>
-                    <div className="text-xs font-medium text-[var(--color-text-primary)] mt-0.5">Instant Digital Press Kit &amp; Showreel</div>
-                  </div>
+                <div className="p-3.5 rounded-lg bg-white border border-black/[0.08] flex items-center gap-3">
+                  <QrCode className="w-5 h-5 text-[#0075de] shrink-0" />
+                  <div className="text-xs font-mono text-black truncate">monologg.co/emeka</div>
                 </div>
               </div>
 
-              {/* Feature 2: Monetize Fan Shoutouts & Micro-Deliverables */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-purple-bg)",
-                  borderColor: "var(--color-pastel-purple-border)",
-                }}
-              >
+              {/* Feature 2: Monetize fan shoutouts & micro-deliverables (Coral Tint #fbeae8 panel) */}
+              <div className="p-7 rounded-xl border border-black/[0.08] bg-[#fbeae8] flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-purple-squircle)", color: "var(--color-pastel-purple-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-white flex items-center justify-center text-[#f64932] shrink-0 border border-black/[0.06]">
                       <Video className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-purple-border)", color: "var(--color-pastel-purple-text)" }}
-                    >
-                      93% Payout
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-[#f64932] border border-black/[0.06]">
+                      93% payout
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
-                    Monetize Fan Shoutouts &amp; Micro-Deliverables
+                  <h3 className="text-2xl font-semibold mb-2 text-black">
+                    Monetize fan shoutouts &amp; micro-deliverables
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-[#615d59] mb-5">
                     Earn up to 93% of your rate by selling custom video shoutouts, voice drops, and private consultations directly from your bio link — on your own prices and delivery timelines.
                   </p>
                 </div>
-
-                {/* Visual Preview Card */}
-                <div
-                  className="p-3.5 rounded-xl border flex items-center justify-between mt-2"
-                  style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 font-bold text-xs">
-                      ₦
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-[var(--color-text-primary)]">Custom Video Drop</div>
-                      <div className="text-[11px] text-[var(--color-warm-gray)]">24h turnaround · ₦45,000</div>
-                    </div>
+                <div className="p-3 rounded-lg bg-white border border-black/[0.08] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-black">Custom Video Drop</span>
+                    <span className="text-[#757575] ml-2">₦45,000</span>
                   </div>
-                  <span className="text-xs font-medium px-2.5 py-1 rounded bg-[#7B00FE] text-white">Book</span>
+                  <span className="px-2 py-0.5 rounded bg-[#f64932] text-white font-medium">Book</span>
                 </div>
               </div>
 
-              {/* Feature 3: Analyze Your Audience */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-amber-bg)",
-                  borderColor: "var(--color-pastel-amber-border)",
-                }}
-              >
+              {/* Feature 3: Analyze your audience (Marigold Tint #fff7e6 panel) */}
+              <div className="p-7 rounded-xl border border-black/[0.08] bg-[#fff7e6] flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-amber-squircle)", color: "var(--color-pastel-amber-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-white flex items-center justify-center text-[#e89d01] shrink-0 border border-black/[0.06]">
                       <TrendingUp className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-amber-border)", color: "var(--color-pastel-amber-text)" }}
-                    >
-                      Real-Time
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-[#e89d01] border border-black/[0.06]">
+                      Real-time
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
-                    Analyze Your Audience
+                  <h3 className="text-2xl font-semibold mb-2 text-black">
+                    Analyze your audience
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-[#615d59] mb-5">
                     Track your profile visits and link clicks in real time to see exactly where your fans are coming from and which packages make you the most money.
                   </p>
                 </div>
-
-                {/* Visual Preview Card */}
-                <div
-                  className="grid grid-cols-2 gap-3 mt-2"
-                >
-                  <div className="p-3 rounded-xl border" style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}>
-                    <div className="text-[11px] text-[var(--color-warm-gray)]">Profile Clicks</div>
-                    <div className="text-lg font-bold font-mono text-[var(--color-text-primary)]">43,500</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-white border border-black/[0.08]">
+                    <div className="text-[11px] text-[#757575]">Profile views</div>
+                    <div className="text-lg font-semibold text-black">43,500</div>
                   </div>
-                  <div className="p-3 rounded-xl border" style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}>
-                    <div className="text-[11px] text-[var(--color-warm-gray)]">Sales Volume</div>
-                    <div className="text-lg font-bold font-mono text-[var(--color-text-primary)]">₦2.36M</div>
+                  <div className="p-3 rounded-lg bg-white border border-black/[0.08]">
+                    <div className="text-[11px] text-[#757575]">Sales volume</div>
+                    <div className="text-lg font-semibold text-black">₦2.36M</div>
                   </div>
                 </div>
               </div>
 
-              {/* Feature 4: Set Transparent Custom Rate Cards */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-periwinkle-bg)",
-                  borderColor: "var(--color-pastel-periwinkle-border)",
-                }}
-              >
+              {/* Feature 4: Set transparent custom rate cards (Mocha Tint #f9f2ed panel) */}
+              <div className="p-7 rounded-xl border border-black/[0.08] bg-[#f9f2ed] flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-periwinkle-squircle)", color: "var(--color-pastel-periwinkle-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-white flex items-center justify-center text-[#b18164] shrink-0 border border-black/[0.06]">
                       <FileText className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-periwinkle-border)", color: "var(--color-pastel-periwinkle-text)" }}
-                    >
-                      No-Haggle
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-[#b18164] border border-black/[0.06]">
+                      No-haggle
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
-                    Set Transparent Custom Rate Cards
+                  <h3 className="text-2xl font-semibold mb-2 text-black">
+                    Set transparent custom rate cards
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-[#615d59] mb-5">
                     Stop wasting time emailing back and forth — set clear, upfront Naira rates for auditions, hosting, voiceovers, or comedy sets so clients can book you instantly.
                   </p>
                 </div>
-
-                {/* Visual Preview Card */}
-                <div
-                  className="p-3.5 rounded-xl border flex items-center justify-between mt-2 text-xs"
-                  style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[var(--color-text-primary)]">Voiceover Session</span>
-                    <span className="text-[var(--color-warm-gray)]">· 60 mins</span>
-                  </div>
-                  <span className="font-mono font-bold text-[var(--color-text-primary)]">₦150,000</span>
+                <div className="p-3 rounded-lg bg-white border border-black/[0.08] flex items-center justify-between text-xs">
+                  <span className="font-semibold text-black">Corporate MC / Compere</span>
+                  <span className="font-mono font-bold text-black">₦450,000</span>
                 </div>
               </div>
 
-              {/* Feature 5: Powered by Thespian AI */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-mint-bg)",
-                  borderColor: "var(--color-pastel-mint-border)",
-                }}
-              >
+              {/* Feature 5: Powered by Thespian AI (Dark Card Surface Island #02093a) */}
+              <div className="p-7 rounded-xl bg-[#02093a] text-white flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-mint-squircle)", color: "var(--color-pastel-mint-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-white/10 flex items-center justify-center text-[#62aef0] shrink-0 border border-white/10">
                       <Sparkles className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-mint-border)", color: "var(--color-pastel-mint-text)" }}
-                    >
-                      AI-Powered
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white/10 text-[#62aef0] border border-white/10">
+                      AI-powered
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
+                  <h3 className="text-2xl font-semibold mb-2 text-white">
                     Powered by Thespian AI
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-white/70 mb-5">
                     Get a 24/7 AI agent that automatically responds to questions on your behalf and books gigs onto your calendar while you sleep, and scans script PDFs to pitch your talent for open roles. Terms and Conditions apply.
                   </p>
                 </div>
-
-                {/* Visual Preview Card */}
-                <div
-                  className="p-3.5 rounded-xl border flex items-center gap-3 mt-2"
-                  style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}
-                >
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 font-bold">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div className="text-xs text-[var(--color-warm-gray)]">
-                    <span className="font-semibold text-[var(--color-text-primary)]">Thespian:</span> "Elena is available this Friday at 3:00 PM for reading."
-                  </div>
+                <div className="p-3.5 rounded-lg bg-white/10 border border-white/10 text-xs text-white/80">
+                  <span className="font-semibold text-white">Thespian:</span> "Elena is available this Friday for reading."
                 </div>
               </div>
 
-              {/* Feature 6: Bank-Grade Escrow Protection (with interactive budget calculator) */}
-              <div
-                className="p-8 rounded-2xl border flex flex-col justify-between transition-all"
-                style={{
-                  background: "var(--color-pastel-rose-bg)",
-                  borderColor: "var(--color-pastel-rose-border)",
-                }}
-              >
+              {/* Feature 6: Bank-grade escrow protection (White Card with Interactive Calculator) */}
+              <div className="p-7 rounded-xl border border-black/[0.08] bg-white flex flex-col justify-between">
                 <div>
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Large Icon */}
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                      style={{ background: "var(--color-pastel-rose-squircle)", color: "var(--color-pastel-rose-text)" }}
-                    >
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="w-14 h-14 rounded-lg bg-[#e6f4ea] flex items-center justify-center text-[#1A7544] shrink-0 border border-black/[0.06]">
                       <Lock className="w-8 h-8" />
                     </div>
-                    <span
-                      className="text-xs font-medium px-3 py-1 rounded-full border"
-                      style={{ background: "var(--color-pure-white)", borderColor: "var(--color-pastel-rose-border)", color: "var(--color-pastel-rose-text)" }}
-                    >
-                      Escrow Backed
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#e6f4ea] text-[#1A7544]">
+                      Escrow backed
                     </span>
                   </div>
-                  <h3 className="font-display text-2xl font-bold mb-3 text-[var(--color-text-primary)]">
-                    Bank-Grade Escrow Protection
+                  <h3 className="text-2xl font-semibold mb-2 text-black">
+                    Bank-grade escrow protection
                   </h3>
-                  <p className="text-sm leading-relaxed mb-6 text-[var(--color-warm-gray)]">
+                  <p className="text-sm leading-relaxed text-[#615d59] mb-5">
                     Never worry about late payments again — booking funds are safely held in escrow before you start working and sent straight to your bank account the moment you finish.
                   </p>
                 </div>
 
-                {/* Escrow Simulator Widget */}
-                <div
-                  className="p-4 rounded-xl border mt-2"
-                  style={{ background: "var(--color-pure-white)", borderColor: "var(--color-faint-line)" }}
-                >
+                <div className="p-3.5 rounded-lg bg-[#f6f5f4] border border-black/[0.08]">
                   <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="text-[var(--color-warm-gray)]">Contract Amount:</span>
-                    <span className="font-mono font-bold text-[var(--color-text-primary)]">₦{calculatorBudget.toLocaleString()}</span>
+                    <span className="text-[#757575]">Contract value:</span>
+                    <span className="font-mono font-bold text-black">₦{calculatorBudget.toLocaleString()}</span>
                   </div>
                   <input
                     type="range"
@@ -591,16 +464,16 @@ export function LandingPage() {
                     step="25000"
                     value={calculatorBudget}
                     onChange={(e) => setCalculatorBudget(Number(e.target.value))}
-                    className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#0075de] mb-3"
+                    className="w-full h-1.5 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#0075de] mb-3"
                   />
-                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-black/[0.08]">
                     <div>
-                      <div className="text-[10px] text-[var(--color-warm-gray)]">Performer Takes (93%)</div>
-                      <div className="font-mono font-semibold text-emerald-600">₦{performerCut.toLocaleString()}</div>
+                      <div className="text-[10px] text-[#757575]">Performer take-home (93%)</div>
+                      <div className="font-mono font-semibold text-[#1A7544]">₦{performerCut.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[var(--color-warm-gray)]">Client Invoice (109%)</div>
-                      <div className="font-mono font-semibold text-[var(--color-text-primary)]">₦{clientInvoice.toLocaleString()}</div>
+                      <div className="text-[10px] text-[#757575]">Client invoice (109%)</div>
+                      <div className="font-mono font-semibold text-black">₦{clientInvoice.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
@@ -609,19 +482,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── FAQ Section (2-Column Clean Editorial Cards) ── */}
-        <section
-          className="py-24 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderTop: "1px solid var(--color-faint-line)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        {/* ── Frequently Asked Questions (2-Column White Card Grid) ── */}
+        <section className="py-20 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight uppercase text-[var(--color-text-primary)]">
-                Frequently Asked Questions
+            <div className="mb-12 text-left md:text-center">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-black">
+                Frequently asked questions
               </h2>
             </div>
 
@@ -629,28 +495,22 @@ export function LandingPage() {
               {FAQS.map((faq, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border transition-all overflow-hidden"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
-                  }}
+                  className="rounded-xl border border-black/[0.08] bg-white transition-all overflow-hidden"
                 >
                   <button
-                    className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-black/[0.01]"
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-black/[0.01] transition-colors"
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   >
-                    <span className="text-[15px] font-semibold font-body leading-snug text-[var(--color-text-primary)] pr-3">
+                    <span className="text-[15px] font-semibold text-black pr-3 leading-snug">
                       {faq.q}
                     </span>
                     <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 transition-transform"
+                      className="w-6 h-6 rounded-md flex items-center justify-center border border-black/[0.08] shrink-0 transition-transform"
                       style={{
-                        borderColor: "var(--color-faint-line)",
                         transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)",
                       }}
                     >
-                      <ChevronDown className="w-4 h-4 text-[var(--color-warm-gray)]" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#757575]" />
                     </div>
                   </button>
                   <AnimatePresence>
@@ -661,13 +521,7 @@ export function LandingPage() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div
-                          className="px-5 pb-5 text-sm font-body leading-relaxed border-t pt-3"
-                          style={{
-                            color: "var(--color-warm-gray)",
-                            borderColor: "var(--color-faint-line)",
-                          }}
-                        >
+                        <div className="px-5 pb-5 text-sm leading-relaxed text-[#615d59] border-t border-black/[0.06] pt-3">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -679,42 +533,41 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── Final Conversion CTA (Midnight Workspace Stage) ── */}
-        <section
-          className="py-24 md:py-28 px-5 md:px-16 text-center transition-colors relative overflow-hidden"
-          style={{ background: "var(--color-midnight-ink)", color: "#ffffff" }}
-        >
-          <div
-            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[350px] rounded-full pointer-events-none opacity-20 blur-[90px]"
-            style={{ background: "radial-gradient(circle, #62aef0 0%, #2537b1 70%, transparent 100%)" }}
-          />
-
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 text-white">
-              Find Performers. Find Gigs. <br /> Finish Your Project.
+        {/* ── Final CTA (Midnight Card Island #02093a) ── */}
+        <section className="py-16 px-5 md:px-16">
+          <div className="max-w-5xl mx-auto rounded-xl p-10 md:p-16 bg-[#02093a] text-white text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight mb-4 text-white">
+              Find performers, find gigs, and finish your project.
             </h2>
-            <p className="text-base font-body mb-8 text-white/70 max-w-lg mx-auto leading-relaxed">
-              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally with zero agent commissions.
+            <p className="text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-8">
+              Connect directly with directors, studios, agencies, brand managers, and live event organizers globally — with zero agent commissions.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
               <Button
-                className="h-12 px-8 text-[15px] font-medium rounded-lg shadow-sm w-full sm:w-auto"
-                style={{ background: "var(--color-signal-blue)", color: "#ffffff" }}
+                className="h-10 px-6 text-sm font-medium rounded-lg shadow-none w-full sm:w-auto"
+                style={{ background: "#0075de", color: "#ffffff" }}
                 onClick={() => navigate("/auth")}
               >
-                Get Started
+                Find performers
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-10 px-6 text-sm font-medium rounded-lg border border-white/20 text-white hover:bg-white/10 w-full sm:w-auto"
+                onClick={() => navigate("/auth")}
+              >
+                Find gigs
               </Button>
             </div>
 
-            {/* Avatar Pill Strip */}
+            {/* Character marks row */}
             <div className="flex items-center justify-center -space-x-2">
-              {SHOWCASE_PERFORMERS.map((p, idx) => (
+              {HERO_CHARACTER_MARKS.map((m, i) => (
                 <img
-                  key={idx}
-                  src={p.img}
-                  alt={p.name}
-                  className="w-10 h-10 rounded-full border-2 border-[#02093a] object-cover"
+                  key={i}
+                  src={m.img}
+                  alt={m.name}
+                  className="w-9 h-9 rounded-full border-2 border-[#02093a] object-cover"
                 />
               ))}
             </div>
@@ -722,19 +575,13 @@ export function LandingPage() {
         </section>
 
         {/* ── Join Our Newsletter ── */}
-        <section
-          className="py-14 px-5 md:px-16 transition-colors"
-          style={{
-            background: "var(--color-paper-white)",
-            borderBottom: "1px solid var(--color-faint-line)",
-          }}
-        >
+        <section className="py-12 px-5 md:px-16 border-t border-black/[0.08]">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="font-display text-xl font-bold uppercase tracking-tight text-[var(--color-text-primary)] mb-1">
-                Join Our Newsletter
+              <h3 className="text-lg font-semibold text-black mb-1">
+                Join our newsletter
               </h3>
-              <p className="text-xs text-[var(--color-warm-gray)]">
+              <p className="text-xs text-[#757575]">
                 Stay updated with our investor news and updates about upcoming funding rounds.
               </p>
             </div>
@@ -747,23 +594,18 @@ export function LandingPage() {
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   required
-                  className="h-10 px-3.5 rounded-lg border text-sm w-full md:w-64 focus:outline-none focus:border-[#0075de]"
-                  style={{
-                    background: "var(--color-pure-white)",
-                    borderColor: "var(--color-faint-line)",
-                    color: "var(--color-text-primary)",
-                  }}
+                  className="h-9 px-3 rounded-lg border border-black/[0.12] text-sm bg-white text-black w-full md:w-64 focus:outline-none focus:border-[#0075de]"
                 />
                 <button
                   type="submit"
-                  className="h-10 px-5 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
-                  style={{ background: "var(--color-signal-blue)" }}
+                  className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-opacity shrink-0"
+                  style={{ background: "#0075de" }}
                 >
                   Subscribe
                 </button>
               </form>
             ) : (
-              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#1A7544]">
                 <Check className="w-4 h-4" />
                 <span>You're subscribed — thank you!</span>
               </div>

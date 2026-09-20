@@ -1,11 +1,75 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
+**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 77 (2026-09-20) — Notion Warm Paper Notebook Strict Redesign (Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards & Large Icons)
+
+**Goal:** Execute a comprehensive visual overhaul of the entire public marketing website (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `WebsiteHeader.tsx`, `WebsiteFooter.tsx`, `tokens.css`, `fonts.css`) on branch `web_redesign` to strictly embody the founder's requested **Notion Warm Paper Notebook style reference** ("warm paper notebook under afternoon sun"). The founder explicitly instructed that headings must be in natural Sentence Case / Title Case (not all-caps shouty text), typography must feel calm and editorial with tight letter-spacing (-0.03em), cards must sit on a `#f6f5f4` warm paper canvas with 1px hairline borders (`rgba(0,0,0,0.08)`), 12px corners (`rounded-xl`), zero drop shadows on content cards, single-chromatic `#0075de` Notion Blue action buttons, large icons in pastel squircles, 7 avatar character marks, and 100% preservation of all existing copy, pricing tables, 10 FAQs, and auth/functional flows.
+
+### Architecture & Changes Made
+1. **Typography & Font Tokens (`fonts.css`, `tokens.css`):**
+   - Imported Google Fonts for `Inter` (weights 400, 500, 600, 700) and `Source Serif 4` (weights 400, 600) as the editorial Lyon Text equivalent.
+   - Standardized `--font-notioninter` and `--font-lyon-text` tokens.
+   - Enforced negative letter spacing on headings (`tracking-[-0.03em]` to `-0.048em`) to give editorial weight and compact confidence.
+   - Eliminated all-caps uppercase styling on display titles in favor of natural Title Case / Sentence Case across all 4 pages.
+2. **Surfaces & Color Tokens (`tokens.css`):**
+   - Canvas: Paper Warmth `#f6f5f4` set as the tactile page canvas base across the entire marketing site.
+   - Card Surfaces: Pure White `#ffffff` with 12px border radius (`rounded-xl`), 1px solid hairline borders (`rgba(0,0,0,0.08)` / `border-black/[0.08]`), and strictly NO drop shadows (`box-shadow: none`).
+   - Mockup Elevation: Reserved subtle drop shadow (`0px 4px 12px rgba(0,0,0,0.1)`) solely for the central Order Room product UI screenshot mockup.
+   - Flat Accent Fills & Sticky Notes: Rotating flat fills (`#ffb110` Marigold, `#f64932` Coral, `#62aef0` Sky Wash, `#e6f3fe` Sky Tint, `#02093a` Midnight Ink island). Zero gradients.
+   - Primary CTA: Single chromatic commitment `#0075de` (Notion Blue) with 8px radius (`rounded-lg`), paired with `#e6f3fe` Sky Tint ghost secondary buttons.
+3. **Global Navigation & Footer (`WebsiteHeader.tsx`, `WebsiteFooter.tsx`):**
+   - Header: Sticky navigation on `#f6f5f4` canvas with hairline border, NotionInter 500 links, ghost Sign In, and `#0075de` Get Started button with full auth session sync.
+   - Footer: Warm paper `#f6f5f4` footer with 4 structured columns, ink alpha typography, hairline divider, and escrow trust badge.
+4. **Landing Page (`LandingPage.tsx`):**
+   - Top hero stage with horizontal row of 7 illustrated/photo circular character marks with 2px rotating colored borders (`#0075de`, `#f64932`, `#ffb110`, `#62aef0`, `#097fe8`).
+   - Headline featuring signature Notion peach highlight pill: `<span className="px-4 py-1 rounded-full bg-[#f6d5b8]...">finish your project.</span>`.
+   - Centered Order Room product UI mockup with 12px corners and subtle elevation.
+   - "Find performers for every kind of work" 8 categories in pure white cards with prominent 28px icons in pastel squircles.
+   - 6 core feature blocks in sticky-note pastel washes (`#e6f3fe`, `#fbeae8`, `#fff7e6`, `#f9f2ed`, `#02093a` Midnight island, and interactive Escrow calculator).
+   - 10-item FAQ accordion in pure white cards without shadows.
+   - Midnight card island conversion CTA (`#02093a`) and newsletter subscription bar.
+5. **Product Suite Page (`ProductPage.tsx`):**
+   - All headings converted to natural Title Case.
+   - Performer Portal: 6 capability cards in pure white with 1px hairline borders and large icons.
+   - Client Portal: Transformed into an airy card container with 4 capability sub-cards and large icons.
+   - Thespian AI Engine: Dual cards (Midnight island + Pure white card) with status tags.
+6. **Pricing Page (`PricingPage.tsx`):**
+   - Headline in Title Case with peach highlight pill.
+   - Performer character marks cluster with 2px colored borders.
+   - Client partner brand logos in clean greyscale Notion typography.
+   - Comparison tables wrapped in pure white cards (`rounded-xl`, 1px border `rgba(0,0,0,0.08)`), warm paper `#f6f5f4` header rows, green checkmarks, and `#0075de` CTA buttons.
+7. **Resources & Investor Hub (`ResourcesPage.tsx`):**
+   - Title Case headings ("Terms of service", "Support & community", "Become an investor").
+   - Pure white cards with 12px corners, 1px border `rgba(0,0,0,0.08)`, large 28px icons in pastel squircles (Lock in rose, FileText in blue, LifeBuoy in amber, BookOpen in mint).
+   - "Become an investor" application form in pure white card with clean graphite labels and `#0075de` action button.
+8. **Verification:**
+   - Full workspace typecheck: 0 errors across `packages/types`, `apps/web`, `apps/api`.
+   - Web Vitest suite: 24/24 test files passed, 97/97 tests passed 100%.
+   - API Vitest suite: 56/56 test files passed, 580/580 tests passed 100%.
+   - Production Vite build: compiled successfully in 2.15s.
+
+**Files Touched:**
+- `monologg/apps/web/src/styles/fonts.css`
+- `monologg/apps/web/src/styles/tokens.css`
+- `monologg/apps/web/src/app/components/ui/WebsiteHeader.tsx`
+- `monologg/apps/web/src/app/components/ui/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/PricingPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
+- `monologg/handoff/bug.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-09-20 (Session 76: Notion-Inspired Editorial Visual Redesign with Large Icons & Pastel Washes)
+**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,17 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 43: Notion Warm Paper Notebook Strict Visual Redesign (Session 77)
+
+Implemented the founder's requested Notion Warm Paper notebook benchmark across the marketing suite:
+- **Calm Typography:** Replaced all-caps headlines with natural Title/Sentence Case with negative letter spacing (`tracking-[-0.03em]`). Imported Inter and Source Serif 4.
+- **Surfaces & Cards:** Set canvas to `#f6f5f4` (Paper Warmth) and card surfaces to Pure White `#ffffff` with 1px hairline borders (`rgba(0,0,0,0.08)`), 12px corners, and strictly no shadows on content cards.
+- **Elevation & Accents:** Subtle drop shadow reserved exclusively for the central hero Order Room product screenshot. Colored sticky-note panels in flat accent hues (`#ffb110`, `#f64932`, `#62aef0`, `#e6f3fe`, `#02093a`).
+- **Pills & Buttons:** Signature peach highlight pill (`#f6d5b8`) in headlines, 7 avatar character marks with rotating 2px borders, single `#0075de` Notion Blue primary CTA buttons (8px radius), and `#e6f3fe` secondary ghost buttons.
+- **Verification:** Passed full workspace typecheck, 24/24 web tests (97 tests), 56/56 API tests (580 tests), and Vite build in 2.15s.
 
 ---
 
