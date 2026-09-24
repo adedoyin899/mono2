@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–76 Bio Link Storefront, Availability Overhauls & Architecture Reviews + Session 77 Notion Warm Paper Notebook Redesign (Sentence/Title Case, #f6f5f4 canvas, white hairline cards, no card shadows, single Notion Blue #0075de CTAs, 7 character marks, large icons in pastel squircles, and 100% copy preservation) are built and verified stable.
+**Last updated:** 2026-09-24 (Session 78: Full-Stack Frontend & Backend Technical Architecture Documentation)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–76 Bio Link Storefront, Availability Overhauls & Architecture Reviews + Session 77 Notion Warm Paper Notebook Redesign + Session 78 Full-Stack Architecture Documentation are built, verified stable, and documented in `stack.md`.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -94,6 +94,27 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 | CI | GitHub Actions, `.github/workflows/monologg-ci.yml` (repo root) | `typecheck → lint → test → build → audit`, plus a `docker` job (Phase 12); path-scoped to `monologg/**`, blocks merge on failure |
 
 **Full dependency list, post-cleanup (2026-07-27):** `clsx`, `lucide-react`, `motion`, `react-router`, `tailwind-merge` (runtime) + `@tailwindcss/vite`, `@vitejs/plugin-react`, `tailwindcss`, `vite` (dev/build). Everything else that shipped in the original Figma Make export — `@emotion/react`, `@emotion/styled`, `class-variance-authority`, `cmdk`, `date-fns`, `embla-carousel-react`, `input-otp`, `next-themes`, `react-day-picker`, `react-dnd`, `react-dnd-html5-backend`, `react-hook-form`, `react-popper`, `react-resizable-panels`, `react-responsive-masonry`, `react-slick`, `recharts`, `sonner`, `tw-animate-css`, `vaul`, plus `vite-plugin-dts` and its `@microsoft`/`@rushstack` transitive tree — was never imported by any page and has been removed (`node_modules` went from 292MB to 134MB). See `bug.md` and `log.md` for what broke and how it was caught.
+
+### Backend & Database (Full Technical Specification)
+
+> For the exhaustive, production-grade architecture manual covering both frontend and backend down to every interface and provider seam, see [`monologg/handoff/stack.md`](./stack.md).
+
+| Layer | Choice | Notes |
+|---|---|---|
+| Runtime | Node.js >=20 (ESM) | Native ECMAScript Modules (`"type": "module"`) |
+| Language & Execution | TypeScript 5 + `tsx` | Strict mode typing; `tsx` handles runtime TypeScript execution |
+| Framework | Fastify 5.4.0 | Schema-driven, low-overhead HTTP engine |
+| Web Security | `@fastify/helmet` + `@fastify/cors` | Strict CSP (`default-src 'none'`), secure headers, scoped CORS |
+| Rate Limiting | `@fastify/rate-limit` | Global & per-route limits (auth, checkout endpoints) |
+| Database & Hosting | PostgreSQL (Supabase) | Transaction-pooled `DATABASE_URL` + direct migration `DIRECT_URL` |
+| ORM & Migrations | Prisma ORM 6.19.3 | 15 relational models, declarative migrations, automated seeds |
+| Authentication | Custom JWT + Argon2id | Short-lived access JWTs, rotating refresh tokens with DB reuse detection |
+| Identity Bridge | Supabase Auth Bridge | Google OAuth, Magic Links, Email OTP (`Phase 12B`) |
+| Background Queues | BullMQ + Redis (`ioredis`) | Asynchronous job queues for notifications and media tagging |
+| Schema Validation | Zod 3.23.8 | Boot-time environment validation (`env.ts`) & route request schemas |
+| Provider Seams | Pluggable Provider Architecture | Dynamic `"mock"` vs `"real"` seams for Paystack, Smile Identity, OpenAI, etc. |
+| Observability & Logs | Pino + Sentry Node | Structured JSON logging with PII redaction filters and Sentry APM |
+| Testing | Vitest 3.2.7 | Parallel unit & integration test suites (`vitest.integration.config.ts`) |
 
 ### Backend, database, authentication — where things actually stand
 

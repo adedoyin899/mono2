@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
+**Last updated:** 2026-09-24 (Session 78: Full-Stack Frontend & Backend Technical Architecture Documentation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 78 (2026-09-24) — Full-Stack Frontend & Backend Technical Architecture Documentation
+
+**Goal:** Provide an exhaustive, authoritative technical documentation of both the Frontend and Backend stacks across the entire Monologg monorepo. Create a standalone, comprehensive stack reference (`stack.md`), update the system design documentation (`design.md`) with a matching backend technology matrix, synchronize the handoff reading order in `README.md`, and record all transitions in the living handoff records.
+
+### Architecture & Changes Made
+1. **Dedicated Stack Architecture Guide (`monologg/handoff/stack.md`):**
+   - Documented the pnpm monorepo architecture and package boundaries (`apps/web`, `apps/api`, `packages/types`).
+   - Detailed the entire Frontend stack: TypeScript 5.9, React 18.3, Vite 6.4, Tailwind CSS v4, Motion 12, Lucide icons, self-hosted and web fonts, dual-mode client architecture (`VITE_API_MODE=mock` vs `live`), Vitest, and Playwright with Axe-core accessibility auditing.
+   - Detailed the entire Backend stack: Node.js 20+ ESM, TypeScript via `tsx`, Fastify 5.4 with security plugins (`@fastify/helmet`, `@fastify/cors`, `@fastify/rate-limit`), PostgreSQL on Supabase via Prisma ORM 6.19, custom JWTs with rotating refresh tokens, Argon2id hashing, and BullMQ + Redis task queues.
+   - Documented the Pluggable Provider Seam Architecture (`PaymentProvider`, `KycProvider`, `AiTaggingProvider`, `CalendarProvider`, `NotifyProvider`, `JobQueueProvider`, `StorageProvider`, `ScannerProvider`) enabling instant switching between mock testing and real third-party integrations.
+   - Documented database models, strict zero-float financial integrity rules, and build/run scripts.
+2. **Design Reference Updates (`monologg/handoff/design.md`):**
+   - Added a structured Backend & Database specification table matching the existing Frontend table in Section 3.
+   - Linked directly to `monologg/handoff/stack.md` for the deep-dive implementation details.
+3. **Handoff Index & Reading Order (`monologg/handoff/README.md`):**
+   - Registered `stack.md` as the 8th core document in the handoff index table.
+   - Placed `stack.md` in the reading order immediately following `implementation-plan.md` for technical onboarding.
+
+**Files Touched:**
+- `monologg/handoff/stack.md` (created)
+- `monologg/handoff/design.md`
+- `monologg/handoff/README.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/log.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/process.md`
 
 ---
 

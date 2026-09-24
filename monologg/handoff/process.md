@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
+**Last updated:** 2026-09-24 (Session 78: Full-Stack Frontend & Backend Technical Architecture Documentation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,16 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 44: Full-Stack Frontend & Backend Technical Architecture Documentation (Session 78)
+
+Authored an authoritative, end-to-end technical reference manual (`stack.md`) documenting both sides of the application:
+- **Frontend Stack Architecture:** Cataloged React 18, Vite 6, Tailwind CSS v4, Motion, Lucide, CSS custom property tokens, self-hosted web fonts, dual-mode client handling (`mock` vs `live`), and automated testing (Vitest + Playwright + Axe-core).
+- **Backend Stack Architecture:** Cataloged Node.js 20+ ESM, Fastify 5, PostgreSQL on Supabase via Prisma ORM 6, custom JWTs + Argon2id security, BullMQ + Redis background workers, and Sentry/Pino observability.
+- **Pluggable Provider Architecture:** Documented the interface seams (`PaymentProvider`, `KycProvider`, `NotifyProvider`, etc.) that decouple application business logic from specific third-party APIs.
+- **Handoff Alignment:** Updated `design.md` with structured backend specification tables, added `stack.md` to `README.md`, and synchronized the living handoff records.
 
 ---
 

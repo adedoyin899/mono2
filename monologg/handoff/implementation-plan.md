@@ -1,11 +1,16 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-09-20 (Session 77: Notion Warm Paper Notebook Strict Implementation — Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons & Character Marks)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 61–76 Visual Overhauls, Bio Link Storefront & Availability Overhauls + Session 77 Notion Warm Paper Notebook Strict Redesign (Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards, Large Icons, 7 Character Marks & Preserved Copy) are built, verified, and committed.
+**Last updated:** 2026-09-24 (Session 78: Full-Stack Frontend & Backend Technical Architecture Documentation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 61–76 Visual Overhauls, Bio Link Storefront & Availability Overhauls + Session 77 Notion Warm Paper Notebook Strict Redesign + Session 78 Full-Stack Architecture Documentation are built, verified, and committed.
 
 ---
 
 ## ✅ Done
+
+### Session 78 — Full-Stack Frontend & Backend Technical Architecture Documentation
+- [x] **Authoritative Stack Architecture Reference (`monologg/handoff/stack.md`)**: Authored comprehensive architectural specification documenting the monorepo topology (`apps/web`, `apps/api`, `packages/types`), Frontend technology matrix (React 18, Vite 6, Tailwind v4, Motion, Lucide, fonts, Vitest, Playwright), Backend technology matrix (Node.js ESM, Fastify 5, PostgreSQL on Supabase, Prisma ORM 6, BullMQ, Redis, Argon2id, custom JWTs), and Pluggable Provider Seam Architecture.
+- [x] **Design Reference Synchronization (`design.md`)**: Added structured Backend & Database specification table matching the existing Frontend table, linked directly to `stack.md`, and refreshed handoff headers.
+- [x] **Index & Reading Order Synchronization (`README.md`)**: Integrated `stack.md` as the 8th core handoff document and updated the recommended onboarding reading order for engineers.
 
 ### Session 77 — Notion Warm Paper Notebook Strict Redesign (Sentence/Title Case, #f6f5f4 Canvas, White Hairline Cards & Large Icons)
 - [x] **Typography & Font Tokens**: Standardized `Inter` (`--font-notioninter`) and `Source Serif 4` (`--font-lyon-text`) in `fonts.css` and `tokens.css`. Enforced negative letter-spacing (`tracking-[-0.03em]`) and eliminated all-caps displays across all 4 public pages in favor of natural Title/Sentence Case.
