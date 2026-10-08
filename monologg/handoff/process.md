@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-09-24 (Session 78: Full-Stack Frontend & Backend Technical Architecture Documentation)
+**Last updated:** 2026-10-08 (Session 79: Redundant Branch Pruning & Git Repository Hygiene)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,15 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 45: Redundant Branch Pruning & Git Repository Hygiene (Session 79)
+
+Audited repository branches to streamline topology before pushing the Alpha webapp:
+- **Branch Analysis:** Confirmed that `app_redesign`, `feature_update`, and `feat/design-system-visuals` were 100% merged into `main` and `web_redesign`.
+- **Branch Deletion:** Safely deleted all three branches locally (`git branch -d`) and deleted the stale remote tracking branches from GitHub origin (`git push origin --delete`).
+- **Clean Topology:** Consolidated the repository into a crisp two-branch workflow: `main` (production deployment) and `web_redesign` (active working branch containing all features and handoff records).
 
 ---
 
