@@ -1,11 +1,48 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
+**Last updated:** 2026-10-08 (Session 83: Onboarding Step UI Polish — DOB cleanup, Location city+state, Anti-AI notice relocation, 150MB error state, Performance Summary rename, Profile Tags refactor)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 83 (2026-10-08) — Onboarding Step UI Polish
+
+**Goal:** Targeted UI/UX refinements across the creator onboarding flow based on user feedback.
+
+### Changes Made — `CreatorOnboarding.tsx`
+
+1. **DOB Input (`Step 1`):** Removed the "Calendar" label text and the compressed native date `<input>` beside the trigger button. DOB now uses a single full-width button that opens the custom calendar popover.
+
+2. **Location Dropdown (`Step 1`):** Updated dropdown rows to show city name (bold, primary) and state name (small, tertiary) in a `justify-between` row for visual hierarchy. Added `filteredCities.length > 0` guard to avoid empty popover.
+
+3. **Anti-AI Notice (`Step 3`):** Moved from above the upload box to below it. Simplified copy from multi-sentence bold callout to a one-liner: *"Human performers only. AI-generated reels, deepfakes, or copied content will result in an account ban."* Confirmation checkbox moved to below the notice (standalone, not inside the notice card).
+
+4. **File Size Error State (`Step 3`):** Added `fileSizeError` boolean state. File `onChange` now checks `file.size > 150MB` — if exceeded, shows an error variant of the upload zone (red border, `AlertTriangle` icon, "File too large" copy, Try again button). Regular file state unchanged.
+
+5. **"You Belong Here" Superscript (`Step 2`):** Removed the mono-font superscript label from above the craft selection heading.
+
+6. **Step 5 Hero Section:** Removed the large check icon avatar and "Style Tags Generated" chip from the top of step 5 — now goes straight to the heading.
+
+7. **Performance Summary (`Step 5`):** Renamed from "AI Performance Summary" to "Performance Summary". Removed the "Refine Summary" button and its `Sparkles` icon. Removed `isRefiningSummary` state. Removed "Click to edit text directly" hint; only the Reset button remains aligned right.
+
+8. **Profile Tags (`Step 5`):**
+   - Renamed section from "Your performance profile" to "Profile Tags ({n}/7)".
+   - Removed the Sparkles icon and "Edit tags" toggle button.
+   - **Active tags:** Now use `h-8` uniform height; text span is clickable to enter an inline `<input>` edit mode (blur/Enter confirms, Escape cancels). Remove (×) button appears only on group-hover.
+   - **Suggested tags:** Unified to same `h-8` chip size as active tags. Clicking a suggestion calls `handleAddSuggestion` which adds it to active tags AND removes it from the suggestions list (true promotion). Dismiss (×) button appears on group-hover only.
+   - Removed `isEditingTags` / `isRefiningSummary` state.
+   - Added `editingTagIndex` and `editingTagValue` state for inline editing.
+   - Added `handleTagClick`, `handleTagEditConfirm`, `handleAddSuggestion` handlers.
+   - Custom tag input section separated by a border-top divider.
+
+9. **Unused imports cleaned:** `Shield`, `User` removed from lucide-react imports.
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`
 
 ---
 

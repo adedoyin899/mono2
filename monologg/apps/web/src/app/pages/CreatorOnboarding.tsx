@@ -9,11 +9,9 @@ import { apiClient } from "../../lib/api-client";
 import {
   ChevronLeft,
   ChevronRight,
-  User,
   Mic,
   Video,
   Check,
-  Shield,
   UploadCloud,
   Plus,
   Sparkles,
@@ -130,6 +128,7 @@ export function CreatorOnboarding() {
 
   // Step 3: Showcase Reel Upload
   const [file, setFile] = useState<File | null>(null);
+  const [fileSizeError, setFileSizeError] = useState(false);
   const [antiAiCertified, setAntiAiCertified] = useState(true);
 
   // Step 5: AI Summary & Style Tags
@@ -146,10 +145,10 @@ export function CreatorOnboarding() {
     "Nuanced",
     "Vibrant",
   ]);
-  const [isEditingTags, setIsEditingTags] = useState(false);
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
+  const [editingTagValue, setEditingTagValue] = useState("");
   const [newTagInput, setNewTagInput] = useState("");
   const [aiSummary, setAiSummary] = useState(DEFAULT_SUMMARIES.actors);
-  const [isRefiningSummary, setIsRefiningSummary] = useState(false);
 
   // Step 6: Rate Cards State (Alpha limit: max 2 rate cards)
   const [rateCards, setRateCards] = useState<RateCardItem[]>([
@@ -188,14 +187,32 @@ export function CreatorOnboarding() {
 
   const handleRemoveTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
+    if (editingTagIndex === index) setEditingTagIndex(null);
+  };
+
+  const handleTagClick = (index: number, value: string) => {
+    setEditingTagIndex(index);
+    setEditingTagValue(value);
+  };
+
+  const handleTagEditConfirm = (index: number) => {
+    const trimmed = editingTagValue.trim();
+    if (trimmed && !tags.some((t, i) => t === trimmed && i !== index)) {
+      setTags(tags.map((t, i) => (i === index ? trimmed : t)));
+    }
+    setEditingTagIndex(null);
+  };
+
+  const handleAddSuggestion = (suggestion: string) => {
+    if (tags.length >= 7 || tags.includes(suggestion)) return;
+    // Move from suggestions into active tags
+    setTags([...tags, suggestion]);
+    setSuggestedTags(suggestedTags.filter((t) => t !== suggestion));
   };
 
   const handleDeleteSuggestion = (e: React.MouseEvent, suggestion: string) => {
     e.stopPropagation();
     setSuggestedTags(suggestedTags.filter((t) => t !== suggestion));
-    if (tags.includes(suggestion)) {
-      setTags(tags.filter((t) => t !== suggestion));
-    }
   };
 
   // Rate Card Handlers
@@ -418,36 +435,16 @@ export function CreatorOnboarding() {
                 <label className="font-body text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                   Date of Birth
                 </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    className="flex-1 h-[52px] px-4 rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] flex items-center justify-between font-body text-sm text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <CalendarIcon className="w-4 h-4 text-[var(--color-accent)]" />
-                      <span>{dob || "Select your birth date"}</span>
-                    </div>
-                    <span className="text-xs text-[var(--color-accent)] font-medium">Calendar</span>
-                  </button>
-
-                  <input
-                    type="date"
-                    value={dob}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        setDob(e.target.value);
-                        const parts = e.target.value.split("-");
-                        if (parts.length === 3) {
-                          setCalendarViewYear(parseInt(parts[0], 10));
-                          setCalendarViewMonth(parseInt(parts[1], 10) - 1);
-                        }
-                      }
-                    }}
-                    className="w-12 h-[52px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] text-center text-xs opacity-80 cursor-pointer"
-                    title="Open native date picker"
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="w-full h-[52px] px-4 rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] flex items-center gap-2.5 font-body text-sm text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors"
+                >
+                  <CalendarIcon className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                  <span className={dob ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-tertiary)]"}>
+                    {dob || "Select your birth date"}
+                  </span>
+                </button>
 
                 {/* Interactive Custom Calendar Popover */}
                 {showCalendar && (
@@ -577,8 +574,8 @@ export function CreatorOnboarding() {
                   )}
                 </div>
 
-                {/* Simple dropdown list (no state displayed in option, no 'select' text beside) */}
-                {showLocationDropdown && (
+                {/* Location dropdown: city + state shown distinctly */}
+                {showLocationDropdown && filteredCities.length > 0 && (
                   <div className="mt-1.5 p-1 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] max-h-48 overflow-y-auto space-y-0.5 z-20 relative">
                     {filteredCities.map((item) => (
                       <button
@@ -589,9 +586,10 @@ export function CreatorOnboarding() {
                           setLocation(item.city);
                           setShowLocationDropdown(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-[var(--radius-md)] text-sm font-body hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] transition-colors"
+                        className="w-full text-left px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--color-bg-elevated)] transition-colors flex items-baseline justify-between gap-3"
                       >
-                        {item.city}
+                        <span className="text-sm font-body font-medium text-[var(--color-text-primary)]">{item.city}</span>
+                        <span className="text-[11px] font-body text-[var(--color-text-tertiary)] shrink-0">{item.state}</span>
                       </button>
                     ))}
                   </div>
@@ -611,9 +609,6 @@ export function CreatorOnboarding() {
         {step === 2 && (
           <motion.div key="step-craft" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-6">
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[var(--color-accent)] block mb-1">
-                You Belong Here
-              </span>
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
                 What best describes your craft?
               </h2>
@@ -687,39 +682,12 @@ export function CreatorOnboarding() {
               </p>
             </div>
 
-            {/* Anti-AI Policy Banner */}
-            <div className="mb-5 p-4 rounded-[var(--radius-xl)] bg-[var(--color-error-bg)] border border-[var(--color-error)]/30 space-y-2.5">
-              <div className="flex items-start gap-2.5">
-                <ShieldAlert className="w-5 h-5 text-[var(--color-error)] shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-body text-xs font-bold text-[var(--color-error)] uppercase tracking-wider">
-                    Strict Anti-AI Policy — Human Talent Only
-                  </h4>
-                  <p className="font-body text-xs text-[var(--color-text-primary)] leading-relaxed mt-1">
-                    Monologg is built exclusively for authentic human performers. Uploading AI-generated reels, deepfakes,
-                    voice clones, or content duplicating other creators&apos; work is strictly prohibited and will result in
-                    an <strong className="text-[var(--color-error)]">immediate and permanent account ban</strong>.
-                  </p>
-                </div>
-              </div>
-
-              <label className="flex items-center gap-2 pt-1 border-t border-[var(--color-error)]/20 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={antiAiCertified}
-                  onChange={(e) => setAntiAiCertified(e.target.checked)}
-                  className="w-4 h-4 rounded text-[var(--color-accent)] focus:ring-0"
-                />
-                <span className="font-body text-[11px] font-medium text-[var(--color-text-secondary)]">
-                  I confirm this reel is 100% my own authentic human performance.
-                </span>
-              </label>
-            </div>
-
             {/* Upload Zone */}
             <div
               className={`relative min-h-[200px] rounded-[var(--radius-xl)] border-2 border-dashed flex flex-col items-center justify-center p-6 text-center transition-colors ${
-                file
+                fileSizeError
+                  ? "border-[var(--color-error)] bg-[var(--color-error-bg)]"
+                  : file
                   ? "border-[var(--color-success)] bg-[var(--color-success-bg)]"
                   : "border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]"
               }`}
@@ -727,11 +695,39 @@ export function CreatorOnboarding() {
               <input
                 type="file"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const selected = e.target.files?.[0] || null;
+                  if (selected && selected.size > 150 * 1024 * 1024) {
+                    setFileSizeError(true);
+                    setFile(null);
+                  } else {
+                    setFileSizeError(false);
+                    setFile(selected);
+                  }
+                }}
                 accept="video/*,audio/*"
               />
 
-              {!file ? (
+              {fileSizeError ? (
+                <>
+                  <div className="w-14 h-14 rounded-[var(--radius-full)] bg-[var(--color-error-bg)] flex items-center justify-center mb-4">
+                    <AlertTriangle className="w-6 h-6 text-[var(--color-error)]" />
+                  </div>
+                  <p className="font-body text-[15px] font-semibold text-[var(--color-error)]">
+                    File too large
+                  </p>
+                  <p className="font-body text-[13px] text-[var(--color-text-secondary)] mt-1">
+                    Maximum file size is 150MB. Please choose a smaller file.
+                  </p>
+                  <Button
+                    variant="ghost"
+                    className="h-9 mt-3 z-10 relative text-[var(--color-error)] opacity-100 hover:opacity-80"
+                    onClick={() => { setFileSizeError(false); setFile(null); }}
+                  >
+                    Try again
+                  </Button>
+                </>
+              ) : !file ? (
                 <>
                   <div className="w-14 h-14 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] flex items-center justify-center mb-4">
                     <UploadCloud className="w-6 h-6 text-[var(--color-accent)]" />
@@ -763,12 +759,29 @@ export function CreatorOnboarding() {
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Shield className="w-4 h-4 text-[var(--color-text-tertiary)] shrink-0" />
-              <p className="font-body text-[13px] text-[var(--color-text-tertiary)] text-center">
-                Processed securely to extract performance parameters.
-              </p>
+            {/* Anti-AI Policy Notice — below upload box */}
+            <div className="mt-4 p-3.5 rounded-[var(--radius-lg)] bg-[var(--color-error-bg)] border border-[var(--color-error)]/25">
+              <div className="flex items-start gap-2">
+                <ShieldAlert className="w-4 h-4 text-[var(--color-error)] shrink-0 mt-0.5" />
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <span className="font-semibold text-[var(--color-error)]">Human performers only.</span>{" "}
+                  AI-generated reels, deepfakes, or copied content will result in an account ban.
+                </p>
+              </div>
             </div>
+
+            {/* Certification checkbox */}
+            <label className="flex items-center gap-2 mt-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={antiAiCertified}
+                onChange={(e) => setAntiAiCertified(e.target.checked)}
+                className="w-4 h-4 rounded text-[var(--color-accent)] focus:ring-0 shrink-0"
+              />
+              <span className="font-body text-[12px] text-[var(--color-text-secondary)]">
+                I confirm this reel is my own authentic performance.
+              </span>
+            </label>
 
             <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
               <Button onClick={handleUploadAndAnalyse} disabled={!file || !antiAiCertified} className="w-full">
@@ -845,22 +858,6 @@ export function CreatorOnboarding() {
             className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto"
           >
             <div className="flex flex-col items-center text-center mt-6 mb-6">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: [1.1, 1] }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="w-[72px] h-[72px] rounded-[var(--radius-full)] bg-[var(--color-success-bg)] flex items-center justify-center mb-4 relative"
-              >
-                <Check className="w-8 h-8 text-[var(--color-success)]" strokeWidth={2.5} />
-              </motion.div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-full)] bg-[var(--color-success-bg)] mb-3">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--color-success)]" />
-                <span className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-success)] uppercase tracking-wider">
-                  Style Tags Generated
-                </span>
-              </div>
-
               <h2 className="font-display text-[26px] leading-[1.15] text-[var(--color-text-primary)] mb-2">
                 Your style tags are ready.
               </h2>
@@ -869,39 +866,20 @@ export function CreatorOnboarding() {
               </p>
             </div>
 
-            {/* 1. Editable Thespian AI Summary */}
+            {/* 1. Editable Performance Summary */}
             <div className="mb-5 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                  <span className="text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-                    AI Performance Summary
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsRefiningSummary(true);
-                    setTimeout(() => {
-                      setAiSummary((curr) => `${curr} Elevated with refined vocal cadences and magnetic stage poise.`);
-                      setIsRefiningSummary(false);
-                    }, 400);
-                  }}
-                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1"
-                >
-                  <Sparkles className="w-3 h-3" /> {isRefiningSummary ? "Refining..." : "Refine Summary"}
-                </button>
-              </div>
+              <span className="text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block">
+                Performance Summary
+              </span>
 
               <textarea
                 value={aiSummary}
                 onChange={(e) => setAiSummary(e.target.value)}
                 rows={3}
                 className="w-full text-xs font-body leading-relaxed text-[var(--color-text-primary)] bg-[var(--color-bg-surface-2)] p-3 rounded-[var(--radius-md)] border border-[var(--color-hairline)] focus:border-[var(--color-accent)] outline-none resize-none"
-                placeholder="Edit your AI-generated performance summary..."
+                placeholder="Edit your performance summary..."
               />
-              <div className="flex items-center justify-between text-[11px] text-[var(--color-text-tertiary)] pt-0.5">
-                <span>Click to edit text directly</span>
+              <div className="flex items-center justify-end text-[11px] text-[var(--color-text-tertiary)] pt-0.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -915,130 +893,124 @@ export function CreatorOnboarding() {
               </div>
             </div>
 
-            {/* 2. Style Tags & Suggestions (Editable and Deletable) */}
+            {/* 2. Profile Tags & Suggestions */}
             <div className="mb-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                  <h3 className="font-body text-[length:var(--font-size-xs)] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-                    Your performance profile ({tags.length}/7 tags)
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingTags(!isEditingTags)}
-                  className="font-body text-[13px] font-semibold text-[var(--color-accent)] hover:underline"
-                >
-                  {isEditingTags ? "Done" : "Edit tags"}
-                </button>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+                  Profile Tags ({tags.length}/7)
+                </span>
               </div>
 
-              {/* Active Tags */}
+              {/* Active Tags — click to edit inline */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {tags.map((tag, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)]"
-                  >
-                    <span>{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(i)}
-                      className="hover:opacity-70 text-[var(--color-accent)]"
-                      title="Remove tag"
+                {tags.map((tag, i) =>
+                  editingTagIndex === i ? (
+                    <input
+                      key={i}
+                      autoFocus
+                      value={editingTagValue}
+                      onChange={(e) => setEditingTagValue(e.target.value)}
+                      onBlur={() => handleTagEditConfirm(i)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); handleTagEditConfirm(i); }
+                        if (e.key === "Escape") setEditingTagIndex(null);
+                      }}
+                      className="h-8 px-3 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] text-[var(--color-accent)] text-[13px] font-medium font-body outline-none min-w-[80px] max-w-[160px]"
+                    />
+                  ) : (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1.5 h-8 px-3.5 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)] cursor-text group"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                      <span onClick={() => handleTagClick(i, tag)} className="leading-none">{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(i)}
+                        className="opacity-0 group-hover:opacity-100 hover:opacity-70 text-[var(--color-accent)] transition-opacity"
+                        title="Remove tag"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )
+                )}
               </div>
 
-              {/* Suggested Tags (Editable & Deletable) */}
-              <div className="pt-3 border-t border-[var(--color-hairline)] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-body uppercase tracking-wider font-semibold text-[var(--color-text-tertiary)]">
-                    Suggested Style Tags (Tap to toggle, ✕ to delete)
+              {/* Suggested Tags — same chip size, clicking moves it to active */}
+              {suggestedTags.length > 0 && (
+                <div className="pt-3 border-t border-[var(--color-hairline)] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-body uppercase tracking-wider font-semibold text-[var(--color-text-tertiary)]">
+                      Suggested
+                    </span>
+                    {suggestedTags.length < 5 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSuggestedTags([
+                            "Warm Texture", "Conversational", "Expressive", "High Energy",
+                            "Deep Voice", "Commanding", "Narrative", "Character", "Nuanced", "Vibrant",
+                          ])
+                        }
+                        className="text-[10px] text-[var(--color-accent)] font-semibold hover:underline"
+                      >
+                        Restore All
+                      </button>
+                    )}
                   </div>
-                  {suggestedTags.length < 5 && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSuggestedTags([
-                          "Warm Texture", "Conversational", "Expressive", "High Energy",
-                          "Deep Voice", "Commanding", "Narrative", "Character", "Nuanced", "Vibrant",
-                        ])
-                      }
-                      className="text-[10px] text-[var(--color-accent)] font-semibold hover:underline"
-                    >
-                      Restore All
-                    </button>
-                  )}
-                </div>
 
-                <div className="flex flex-wrap gap-1.5">
-                  {suggestedTags.map((preset) => {
-                    const isSelected = tags.includes(preset);
-                    return (
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedTags.map((preset) => (
                       <div
                         key={preset}
-                        className={`inline-flex items-center rounded-[var(--radius-full)] text-xs font-body font-medium transition-all ${
-                          isSelected
-                            ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]"
-                            : "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border-default)]"
-                        }`}
+                        className="flex items-center gap-1 h-8 px-3.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] font-body text-[13px] font-medium text-[var(--color-text-secondary)] group"
                       >
                         <button
                           type="button"
-                          disabled={tags.length >= 7 && !isSelected}
-                          onClick={() => {
-                            if (isSelected) {
-                              setTags(tags.filter((t) => t !== preset));
-                            } else if (tags.length < 7) {
-                              setTags([...tags, preset]);
-                            }
-                          }}
-                          className="px-2.5 py-1 text-xs"
+                          disabled={tags.length >= 7}
+                          onClick={() => handleAddSuggestion(preset)}
+                          className="leading-none disabled:opacity-40"
                         >
-                          {isSelected ? `✓ ${preset}` : `+ ${preset}`}
+                          {preset}
                         </button>
                         <button
                           type="button"
                           onClick={(e) => handleDeleteSuggestion(e, preset)}
-                          className="pr-2 pl-0.5 py-1 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)]"
-                          title={`Delete suggestion "${preset}"`}
+                          className="opacity-0 group-hover:opacity-100 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-opacity"
+                          title={`Remove suggestion`}
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                {/* Add Custom Tag */}
-                <div className="flex gap-2 pt-1">
-                  <Input
-                    placeholder="Type custom style tag..."
-                    value={newTagInput}
-                    onChange={(e) => setNewTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    className="h-10 text-xs flex-1"
-                    disabled={tags.length >= 7}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="h-10 text-xs shrink-0 px-3"
-                    onClick={handleAddTag}
-                    disabled={tags.length >= 7 || !newTagInput.trim()}
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Add Custom
-                  </Button>
-                </div>
+              {/* Add Custom Tag */}
+              <div className="flex gap-2 pt-3 border-t border-[var(--color-hairline)] mt-3">
+                <Input
+                  placeholder="Add a custom tag..."
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  className="h-10 text-xs flex-1"
+                  disabled={tags.length >= 7}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-10 text-xs shrink-0 px-3"
+                  onClick={handleAddTag}
+                  disabled={tags.length >= 7 || !newTagInput.trim()}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add
+                </Button>
               </div>
             </div>
 
