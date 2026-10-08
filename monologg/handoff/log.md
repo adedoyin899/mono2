@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
+**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 88 (2026-10-08) — Standalone Single-File Distribution Regeneration (monologg-app.html & monologg-design-system.html) to Latest Production Build
+
+**Goal:** Synchronize the double-clickable, server-free HTML preview builds at the project root (`monologg-app.html` and `monologg-design-system.html`) to the most recent production state. These files had not been regenerated since July 28 and lacked the recent 80+ sessions of platform improvements.
+
+### Changes Made
+
+1. **Rebuilt Production and Standalone Bundles (`apps/web`):**
+   - Executed `npm run build:standalone` (`vite.config.standalone.ts`) producing updated hash-router distribution bundle `dist-standalone/assets/standalone-DVpxhs1v.js` (1.30MB) and `standalone-CRKCDrCw.css` (93.3KB).
+   - Executed `npm run build:designsystem` (`vite.config.designsystem.ts`) producing `dist-designsystem/assets/design-system-8wGnRPrx.js` (234.6KB) and `design-system-CRKCDrCw.css` (93.3KB).
+   - Executed `npm run build` validating clean standard SPA bundle generation.
+
+2. **Self-Contained Inlining & HTML Regeneration (`monologg-app.html`, `monologg-design-system.html`):**
+   - Inlined the newly transpiled JavaScript (`<script type="module">`) and compiled Tailwind CSS (`<style>`) directly into `monologg/monologg-app.html` (1.36MB) and `monologg/monologg-design-system.html` (320.4KB).
+   - Confirmed zero external chunk dependencies or dangling assets.
+   - The standalone distribution now bundles all recent features:
+     - 5-dimension inline project filter bar (Category, Budget, Status, Location, Rating) beside the search input
+     - Airbnb-style two-column Project Detail View with 4 client brief steps (Overview, Requirements, Script & Assets, Client & Escrow)
+     - "Client Favorite" trust badge, "Brief at a Glance" scan strip, one-click "Copy Sides" action, and transparent fee-free payout breakdown
+     - Availability calendar with right-click context menu, clean open days, greyed-out unavailable days, and official Monologg crimson LogoMark indicators
+     - Performance Reel video player modal with scrubber, timestamp, and volume controls
+     - 2 rate cards cap on public storefront and performer profiles with `max-w-5xl` full-width parity
+     - 4-point profile completion application gate and in-page profile editing mode.
+
+### Files Touched
+- `monologg/monologg-app.html`
+- `monologg/monologg-design-system.html`
 
 ---
 

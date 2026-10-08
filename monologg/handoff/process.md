@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
+**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -249,6 +249,13 @@ Re-architected the performer project discovery and review flow for maximum trans
   - **Left-Hand Fast-Nav Tabs Bar:** High-speed switching across all 4 stages of client brief setup (`Overview`, `Requirements`, `Script & Assets`, `Client & Escrow`) showcasing creative synopsis, timelines, technical requirements, monologue/sides excerpt in a monospace screenplay container, and 100% Monologg Escrow Guarantee breakdown.
   - **Right-Hand Floating Action Card:** Sticky reservation card displaying fixed compensation (`₦200,000`), applicant capacity progress bar, escrow guarantee seal, and dynamic status-dependent CTAs (Already Applied with pitch quote & withdraw, Closed, Profile Completion Gate checklist, or Ready to Apply audition pitch form).
 - **Unified My Applications Inspection:** Wired My Applications cards to launch the identical rich Airbnb project view, providing performers complete visibility into the client brief alongside their submission status.
+
+### Step 49: Standalone Single-File Distribution Regeneration (monologg-app.html & monologg-design-system.html) (Session 88)
+
+Regenerated the zero-dependency, server-free offline preview distribution artifacts to achieve 100% parity with the latest production build:
+- **Production Bundling:** Built latest self-contained bundles via Vite (`npm run build:standalone` and `npm run build:designsystem`) incorporating all recent releases (Airbnb-style client favorites, brief at a glance strip, copy sides, escrow breakdowns, and 5-dimension project filters).
+- **Inlined Asset Artifacts:** Embedded compiled JavaScript (`<script type="module">`) and compiled design tokens & CSS (`<style>`) directly into `monologg/monologg-app.html` (1.36MB) and `monologg/monologg-design-system.html` (320KB).
+- **Zero-Server Portable Previews:** Verified that both single-file HTML distributions open directly via `file://` protocol or double-click in any browser without requiring Node, Vite, or external asset servers, fully resolving stale distribution artifact drift (Bug 39).
 
 ---
 

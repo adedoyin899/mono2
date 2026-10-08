@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
+**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 39. Stale standalone HTML distribution artifacts
+- **Severity:** Low / Deployment & Distribution
+- **What happened:** The root double-clickable preview files `monologg-app.html` and `monologg-design-system.html` had not been rebuilt since Session 3 (July 28). When opened directly by non-technical stakeholders or reviewers, they rendered a months-old version of the product lacking 80+ sessions of subsequent features.
+- **Root Cause:** Build inlining was a manual step rather than an automated hook, causing the single-file distribution artifacts to drift from the active TypeScript codebase.
+- **Resolution:** Re-ran `npm run build:standalone` and `npm run build:designsystem`, and inlined the updated production JavaScript and Tailwind CSS directly into both root distribution files.
+
+---
 
 ### 38. Filter UX clutter and project brief transparency disconnect
 - **Severity:** Medium / UX & Discovery
