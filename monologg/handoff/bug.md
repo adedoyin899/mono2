@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
+**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 38. Filter UX clutter and project brief transparency disconnect
+- **Severity:** Medium / UX & Discovery
+- **What happened:** In `TalentDashboard.tsx`, project filters were rendered as separate rows eating vertical space and lacked critical dimensions requested by users (Location, Client Rating). Furthermore, the project detail view was a compact modal that only showed a sparse summary and didn't reflect the detailed steps that clients completed during brief creation (script sides, deliverables, requirements, client credentials).
+- **Root Cause:** Early mockups used a simple modal designed for initial brief previews without accommodating rich multi-step creative briefs or advanced filtering.
+- **Resolution:** Replaced stacked filters with an inline `Filters` toggle button directly beside the search bar with 5 filter dimensions (Category, Budget Range, Status, Location, Rating). Redesigned the project detail view into a two-column Airbnb-style modal with a static header, 4 fast-nav brief tabs (`Overview`, `Requirements`, `Script & Assets`, `Client & Escrow`), and a sticky floating action card dynamically adapting to application status.
+
+---
 
 ### 37. Projects and Activity search bar height and styling mismatch with filter dropdowns
 - **Severity:** Low / Cosmetic

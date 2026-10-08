@@ -1,11 +1,59 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
+**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 87 (2026-10-08) — Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection
+
+**Goal:** Consolidate project filters into an inline filter control beside the search bar with 5 filter dimensions (Category, Budget Range, Status, Location, Rating); replace the narrow project detail modal with a comprehensive Airbnb-style detail experience reflecting all brief setup steps (Overview, Requirements, Script & Assets, Client & Escrow) with a static sticky header, fast-nav tabs, and a sticky floating reservation card with status-dependent CTAs; and unify the My Applications tab so performers inspect their applications in the identical full-featured Airbnb view.
+
+### Changes Made
+
+1. **Inline 5-Dimension Filter Control Beside Search Bar (`TalentDashboard.tsx`):**
+   - Replaced stacked rows and separate dropdown selectors with a consolidated search & filter header: a search bar (`flex-1 h-10 rounded-xl`) paired directly beside an inline `Filters` toggle button (`h-10 px-3.5 rounded-xl border font-semibold text-xs`) equipped with an active filter badge counter (`activeProjectFilterCount`).
+   - Built a sleek expandable filter panel supporting 5 explicit dimensions requested by the user:
+     - **Category:** All Categories, Voice-Over Artist, Actor, Model, Presenter / Compere, Comedian, Musician.
+     - **Budget Range:** Any Budget, Under ₦100,000, ₦100,000 – ₦300,000, Over ₦300,000.
+     - **Status:** Any Status, Open for Applications, Already Applied, Closed.
+     - **Location:** Any Location, Lagos, NG, Abuja, NG, Remote (Online).
+     - **Rating:** Any Rating, 4.8+ ★ Top Rated, 4.5+ ★, 4.0+ ★ (anticipating upcoming client rating system).
+   - Added active filter chips row with individual dismiss buttons and a "Clear all" action.
+
+2. **Enriched Project Data & Brief Schema (`application.ts`, `projects.ts`):**
+   - Extended `ProjectSchema` in `packages/types/src/application.ts` with optional client brief fields: `location`, `clientRating`, `clientReviews`, `description`, `timeline`, `deliverables`, `scriptSample`, `additionalNotes`, and `escrowProtected`.
+   - Populated rich mock data in `mocks/projects.ts` across all projects (`P-001` Nike Voice-Over, `P-004` Nollywood Feature Film, `P-005` Fintech Explainer, `P-002` Tech Summit Compere) with real-world creative briefs, timelines, deliverable checklists, script sides excerpts, client review counts, and 4.7–5.0 star ratings.
+
+3. **Airbnb-Style Project Detail View (`TalentDashboard.tsx`):**
+   - Redesigned the project detail modal into a spacious `max-w-5xl rounded-[28px]` two-column layout inspired by Airbnb's stay/experience details:
+     - **Static Sticky Header:** Back button, client name, verified client badge, star rating (`★ 4.9 (18 reviews)`), location pin (`Lagos, NG`), project title, and close button (`X`).
+     - **Left-Hand Fast-Nav Tabs Bar:** High-speed tab switcher reflecting all 4 stages of client brief creation:
+       - *Overview:* Creative brief synopsis, production timeline, location & delivery mode, category tags.
+       - *Requirements:* Craft requirements, technical/vocal criteria (e.g. condenser mic, acoustic treatment), required deliverables checklist.
+       - *Script & Assets:* Monospace screenplay audition sides box (`font-mono`, dark canvas styling, high contrast), usage licensing details.
+       - *Client & Escrow:* Client verification profile card, completed hires history, and 100% Monologg Escrow Guarantee breakdown.
+     - **Right-Hand Floating Reservation / Action Card:** Sticky `lg:w-80 xl:w-96` card displaying:
+       - Fixed Escrow Rate compensation (`₦200,000`).
+       - Applicant capacity meter (`8 of 15 spots filled`) with progress bar.
+       - Status-dependent action area:
+         - *Already Applied:* Status badge (`APPLIED`, `SHORTLISTED`), pitch snippet quote, and "Withdraw Pitch" button.
+         - *Closed:* Cap reached message.
+         - *Incomplete Profile:* Profile completion gate checklist (Bio, Location, Rate Card, Reel) + "Complete Profile" CTA.
+         - *Ready to Apply:* Audition pitch textarea + "Submit Application" CTA.
+       - Monologg Escrow Guarantee assurance seal.
+
+4. **Unified My Applications Experience (`TalentDashboard.tsx`):**
+   - Updated the My Applications tab so clicking any submitted application loads the exact same rich Airbnb detail view pre-configured to `activeProjectDetailTab("overview")`, giving performers full transparency into the client brief alongside their submission status.
+
+### Files Touched
+- `monologg/packages/types/src/application.ts`
+- `monologg/apps/web/src/mocks/projects.ts`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
 
 ---
 

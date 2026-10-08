@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
+**Last updated:** 2026-10-08 (Session 87: Inline 5-Dimension Filter Bar Beside Search, Airbnb-Style Project Detail View with Fast Brief Tabs & Sticky Floating Action Card, and Unified Applications Inspection)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -239,6 +239,16 @@ Resolved public profile layout parity, streamlined the performer calendar experi
 - **Right-Click Context Menu & Schedule View:** Left-clicking a date tile selects the date and loads that day's schedule and events below the calendar without an intrusive modal. Right-clicking (`onContextMenu`) launches a floating action menu to "Mark as Available", "Mark as Unavailable", "Add Custom Slot", or "Add Event".
 - **Visual Distinction for Calendar States:** Unavailable days are greyed out with dashed borders and `UNAVAILABLE` badges; open days remain clean and neutral without dots or colors; Monologg bookings are distinguished with the official Monologg icon (`LogoMark` in crimson accent).
 - **Projects Tab Search Bar Sizing Consistency:** Standardized the search input height to `!h-10` (40px) to match the Role/Category, Budget Range, and Status dropdown selects below it, with matching surface background, border, corner radius (`rounded-xl`), and an interactive clear button (`X`).
+
+### Step 48: Inline 5-Dimension Filter Bar, Airbnb-Style Project Detail View with Fast Tabs and Sticky Floating Action Card, and Unified Applications Inspection (Session 87)
+
+Re-architected the performer project discovery and review flow for maximum transparency and rapid navigation:
+- **Inline 5-Dimension Filter Bar:** Consolidated separate filter rows into an inline `Filters` toggle button directly beside the search bar with active filter badge counter, supporting 5 core dimensions: Category (6 craft roles), Budget Range (Under ₦100k, ₦100k–₦300k, Over ₦300k), Status (Open, Applied, Closed), Location (Lagos, Abuja, Remote), and Rating (4.8+ ★, 4.5+ ★, 4.0+ ★), accompanied by active filter chips and clear-all action.
+- **Airbnb-Style Project Detail View:** Transformed the project modal into a spacious `max-w-5xl` two-column layout mirroring Airbnb stay listings:
+  - **Static Sticky Header:** Back button, client name, verified client badge, star rating (`★ 4.9`), location pin, project title, and close button.
+  - **Left-Hand Fast-Nav Tabs Bar:** High-speed switching across all 4 stages of client brief setup (`Overview`, `Requirements`, `Script & Assets`, `Client & Escrow`) showcasing creative synopsis, timelines, technical requirements, monologue/sides excerpt in a monospace screenplay container, and 100% Monologg Escrow Guarantee breakdown.
+  - **Right-Hand Floating Action Card:** Sticky reservation card displaying fixed compensation (`₦200,000`), applicant capacity progress bar, escrow guarantee seal, and dynamic status-dependent CTAs (Already Applied with pitch quote & withdraw, Closed, Profile Completion Gate checklist, or Ready to Apply audition pitch form).
+- **Unified My Applications Inspection:** Wired My Applications cards to launch the identical rich Airbnb project view, providing performers complete visibility into the client brief alongside their submission status.
 
 ---
 

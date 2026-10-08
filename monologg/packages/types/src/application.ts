@@ -24,6 +24,15 @@ export const ProjectSchema = z.object({
   myApplication: z
     .object({ id: z.string(), status: ApplicationStatusSchema, pitch: z.string().nullable() })
     .nullable(),
+  location: z.string().optional(),
+  clientRating: z.number().optional(),
+  clientReviews: z.number().optional(),
+  description: z.string().optional(),
+  timeline: z.string().optional(),
+  deliverables: z.array(z.string()).optional(),
+  scriptSample: z.string().optional(),
+  additionalNotes: z.string().optional(),
+  escrowProtected: z.boolean().optional(),
 });
 export type Project = z.infer<typeof ProjectSchema>;
 
