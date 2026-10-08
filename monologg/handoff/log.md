@@ -1,11 +1,66 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
+**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 90 (2026-10-09) — Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills
+
+**Goal:** Simplify the project details experience into a dedicated, clean, fresh page layout (removing cramped popup modals, AI slop, gradients, and noisy medal badges); strip the category tag strip directly under the search bar; and transform project filtering into a streamlined modal with interactive sliders for budget and client rating, plus clickable craft category pills.
+
+### Changes Made
+
+1. **Clean Search Header & Removal of Bottom Category Strip (`TalentDashboard.tsx`):**
+   - Removed the horizontal category pills row that was rendered directly below the search bar.
+   - Preserved clean dismissible filter chips when filters are applied (with an instant "Clear all" button) while keeping the default search bar sleek and uncluttered.
+   - Connected the `Filters` button to trigger the new `showProjectFilterModal` modal dialog with an active filter badge counter (`(N)`).
+
+2. **Dedicated Project Filter Modal with Sliders & Category Pills (`TalentDashboard.tsx`):**
+   - Implemented an accessible dialog modal (`showProjectFilterModal`) centered with backdrop blur and smooth transitions.
+   - **Craft Categories:** Rendered as interactive, clickable pills (`All Roles`, `Voice-Over`, `Actor`, `Model`, `Presenter / Host`, `Comedian`, `Musician`) with clean selected states.
+   - **Budget Range Slider:** Added an interactive range slider (`min=0`, `max=600000`, `step=25000`) displaying live formatted amounts (`Any Budget` or `₦{amount}+ minimum`).
+   - **Client Rating Slider:** Added an interactive range slider (`min=0`, `max=5.0`, `step=0.1`) displaying live star values (`Any Rating` or `{rating} ★ and above`).
+   - **Location & Status Controls:** Added clean clickable pill chips for Location (`All`, `Lagos`, `Abuja`, `Remote`) and Application Status (`All`, `Open Roles`, `Applied`).
+   - **Modal Actions:** "Reset All" button that restores all filter defaults and a primary "Show {N} Projects" submit action that closes the modal.
+
+3. **Fresh Page Editorial Layout for Project Details (`TalentDashboard.tsx`):**
+   - Transformed the project inspection experience from a cramped popup modal into a dedicated full-width fresh view within the dashboard.
+   - Hidden the desktop dashboard header when inspecting a project to provide an immersive, distraction-free reading experience.
+   - Structured the layout with strong typographic hierarchy and clean card panels:
+     - **Header Bar:** Simple back button (`← Back to Projects`), casting client link with verified shield, rating, craft pill, location, and dates.
+     - **Left Editorial Column:**
+       - **Creative Brief & Synopsis:** Clean, high-legibility typography outlining campaign goals and tone.
+       - **Role Requirements:** Tagged craft competencies, eligibility requirements, and audition parameters.
+       - **Audition Sides & Script Excerpt:** Crisp monospaced code panel with a 1-click "Copy Script" button and reactive `Copied!` tooltip.
+       - **Deliverables & Production Schedule:** Clean deliverable checklist with emerald badges and production milestones.
+       - **Casting Client & Escrow Security:** Subtle verified client stats card with an explicit 100% escrow protection guarantee notice.
+     - **Right Sticky Sidebar:**
+       - Prominent `₦200,000 Fixed Escrow Rate` with transparent fee-free payout confirmation.
+       - Applicant spots progress meter (`8 / 10 filled`).
+       - Status-aware Action Center:
+         - `APPLIED`: Status badge, quoted pitch excerpt, and one-click "Withdraw Application" button.
+         - `SELECTED`: Celebratory banner and direct "Open Order Room" navigation link (`/order/ORD-001`).
+         - `OPEN`: Audition pitch textarea and "Submit Application" button with instant state update.
+       - Secure escrow guarantee badge.
+   - Completely purged tacky "Client Favorite" gradient cards, colored icons, and AI slop.
+
+4. **Standalone Preview Regeneration (`monologg-app.html`):**
+   - Ran `npm run build:standalone` producing latest hash-router JS/CSS artifacts.
+   - Inlined the updated production bundle into the project-root `monologg/monologg-app.html` (1.39MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

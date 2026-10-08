@@ -1,11 +1,25 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish.
+**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders.
 
 ---
 
 ## ✅ Done
+
+### Session 90 — Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills
+- [x] **Fresh Page for Project Details**: Replaced popup modal dialog with an uncluttered, full-page editorial view when clicking into any project from discovery or applications.
+- [x] **Editorial Content Hierarchy**: Removed tacky "Client Favorite" gradient card, colored icon badges, and AI slop. Structured clean sections for Creative Brief & Synopsis, Role Requirements with craft pills, Audition Sides with monospace box and 1-click "Copy Script", Deliverables & Schedule, and quiet Casting Client & Escrow verification.
+- [x] **Sticky Action Sidebar**: Kept a focused right-hand action column with prominent fixed escrow rate, capacity meter, status-driven action center (pitch withdrawal, order room entry, or pitch submission), and 100% escrow protection guarantee.
+- [x] **Clean Search Bar (Tags Stripped)**: Removed the category tag pill strip directly under the search bar to prevent visual noise.
+- [x] **Project Filter Modal**:
+  - Replaced inline accordion with a dedicated modal triggered by the `Filters` button with an active filter badge.
+  - Interactive clickable pills for craft categories (`All Roles`, `Voice-Over`, `Actor`, `Model`, `Presenter / Host`, `Comedian`, `Musician`).
+  - Budget range slider with live feedback (`₦0` to `₦600,000+` in `₦25,000` steps).
+  - Client rating slider with live feedback (`0.0 ★` to `5.0 ★` in `0.1` steps).
+  - Location and Status clickable chips with "Reset All" and "Show {N} Projects" actions.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt `monologg/monologg-app.html` with new inlined production bundle (1.39MB).
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 89 — Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State
 - [x] **Airbnb-Style Category Quick Pills Strip**: Introduced horizontal category filter pill carousel (`All Roles`, `Voice-Over`, `Actor`, `Model`, `Presenter / Host`, `Comedian`, `Musician`) right below search and filter bar for instant 1-click filtering.

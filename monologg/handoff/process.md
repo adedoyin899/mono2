@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
+**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -269,6 +269,16 @@ Delivered rapid 1-click category discovery, enriched all 6 craft niches in mock 
 - **Enriched Mock Projects & Applications Catalog:** Populated full entries for `P-006` (Radio Drama VO, REJECTED), `P-007` (Lookbook Model, SELECTED), `P-008` (Afrobeats Musician), and `P-009` (Corporate Comedian), ensuring every filter parameter yields real, beautifully formatted briefs.
 - **Unified My Applications Inspection:** Ensured clicking an application merges the underlying catalog brief so performers inspect complete client brief tabs, requirements, deliverables, and escrow protection alongside their submission status.
 - **Standalone Distribution Inlining:** Re-compiled and inlined updated assets into `monologg/monologg-app.html` and `monologg/monologg-design-system.html`.
+
+---
+
+### Step 51: Dedicated Fresh Page for Project Details & Filter Modal with Sliders (Session 90)
+
+Overhauled the project inspection and search experience to eliminate visual clutter and AI slop:
+- **Clean Search Bar:** Stripped the horizontal category pills row that was rendered directly beneath the search input, keeping the search bar crisp and focused. Retained dismissible active filter badges when filters are set.
+- **Filter Modal Dialog:** Moved project filtering out of an inline accordion into a dedicated modal dialog triggered by the `Filters` button (with active count badge). Incorporated continuous range sliders for budget (`₦0` to `₦600k+`) and client rating (`0.0 ★` to `5.0 ★`), clickable craft category pills, location and status chips, reset action, and submit action.
+- **Dedicated Fresh Page for Project Details:** Replaced cramped modal overlays with a clean in-page layout when viewing a project. Hidden the standard dashboard header to provide an editorial reading experience. Organized content into structured sections: Creative Brief & Synopsis, Role Requirements, Audition Sides (with one-click "Copy Script" and feedback), Deliverables & Schedule, and verified Casting Client profile with 100% escrow protection notice. Maintained a sticky right action sidebar with escrow compensation, capacity progress, and status-driven CTAs (applied pitch with withdraw, selected status with Order Room routing, and open pitch submission).
+- **Standalone Artifact Regeneration:** Rebuilt `monologg-app.html` with newly inlined production bundle.
 
 ---
 

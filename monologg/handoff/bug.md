@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
+**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 41. Over-cluttered project detail modal with AI slop/gradient cards and redundant search category pills strip
+- **Severity:** Low / UX & Visual Design
+- **What happened:** Inspecting a project presented a cramped overlay modal with visual clutter ("Client Favorite" gradient cards, multiple colored icon strips, fragmented tab navigation). Simultaneously, a redundant row of category tags sat directly under the search bar while filters were displayed as an inline accordion panel.
+- **Root Cause:** Accumulated prototype UI elements (tabs, gradient badges, inline accordion controls) led to visual fatigue and cramped presentation on smaller viewports.
+- **Resolution:** Replaced the modal with a dedicated fresh-page editorial view with clean typography hierarchy, clear sections (Creative Brief, Role Requirements, Audition Sides with copy button, Deliverables, Escrow), stripped the redundant category strip beneath the search bar, and moved filtering into an accessible Filter Modal featuring budget and rating sliders alongside clickable craft pills.
+
+---
 
 ### 40. Stale application state sync in project modal and unmapped mock applications
 - **Severity:** Low / UI State & Data Integrity

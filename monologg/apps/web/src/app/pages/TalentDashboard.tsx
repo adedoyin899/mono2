@@ -15,7 +15,7 @@ import { convertCurrency } from "../../lib/currency";
 import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
-  Plus, Edit2, Trash2, ChevronRight, ChevronLeft, Clock, MapPin, Info,
+  Plus, Edit2, Trash2, ChevronRight, ChevronLeft, ArrowLeft, Clock, MapPin, Info,
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
@@ -303,11 +303,12 @@ export function TalentDashboard() {
   const [projectSearch, setProjectSearch] = useState("");
   const [projectRoleFilter, setProjectRoleFilter] = useState("all");
   const [projectBudgetFilter, setProjectBudgetFilter] = useState("all");
+  const [projectBudgetSlider, setProjectBudgetSlider] = useState(0);
   const [projectStatusFilter, setProjectStatusFilter] = useState("all");
   const [projectLocationFilter, setProjectLocationFilter] = useState("all");
   const [projectRatingFilter, setProjectRatingFilter] = useState("all");
-  const [showProjectFilters, setShowProjectFilters] = useState(false);
-  const [activeProjectDetailTab, setActiveProjectDetailTab] = useState<"overview" | "requirements" | "script" | "client">("overview");
+  const [projectRatingSlider, setProjectRatingSlider] = useState(0);
+  const [showProjectFilterModal, setShowProjectFilterModal] = useState(false);
   const [copiedScript, setCopiedScript] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [pitchText, setPitchText] = useState("");
@@ -514,9 +515,17 @@ export function TalentDashboard() {
     setApplyError(null);
     try {
       await apiClient.applyToProject(selectedProject.id, pitchText.trim() || undefined);
-      setSelectedProject(null);
-      setPitchText("");
       loadProjects();
+      setSelectedProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              applicantCount: prev.applicantCount + 1,
+              myApplication: { id: `app-${Date.now()}`, status: "APPLIED", pitch: pitchText.trim() || null },
+            }
+          : null
+      );
+      setPitchText("");
     } catch {
       setApplyError("That project just closed to new applications — please try another.");
     } finally {
@@ -536,17 +545,19 @@ export function TalentDashboard() {
 
   const activeProjectFilterCount =
     (projectRoleFilter !== "all" ? 1 : 0) +
-    (projectBudgetFilter !== "all" ? 1 : 0) +
+    (projectBudgetSlider > 0 || projectBudgetFilter !== "all" ? 1 : 0) +
+    (projectRatingSlider > 0 || projectRatingFilter !== "all" ? 1 : 0) +
     (projectStatusFilter !== "all" ? 1 : 0) +
-    (projectLocationFilter !== "all" ? 1 : 0) +
-    (projectRatingFilter !== "all" ? 1 : 0);
+    (projectLocationFilter !== "all" ? 1 : 0);
 
   const resetProjectFilters = () => {
     setProjectRoleFilter("all");
+    setProjectBudgetSlider(0);
     setProjectBudgetFilter("all");
+    setProjectRatingSlider(0);
+    setProjectRatingFilter("all");
     setProjectStatusFilter("all");
     setProjectLocationFilter("all");
-    setProjectRatingFilter("all");
   };
 
   const filteredProjects = projects.filter((p) => {
@@ -558,10 +569,12 @@ export function TalentDashboard() {
       p.projectType.toLowerCase().includes(roleTarget) ||
       p.nicheReq.some((n) => n.toLowerCase().includes(roleTarget) || (roleTarget === "voice-over" && n.toLowerCase().includes("vo")));
     const budgetNum = Number(p.budget.replace(/[^0-9]/g, "")) || 0;
-    const matchesBudget = projectBudgetFilter === "all"
-      || (projectBudgetFilter === "under100" && budgetNum < 100000)
-      || (projectBudgetFilter === "100to300" && budgetNum >= 100000 && budgetNum <= 300000)
-      || (projectBudgetFilter === "over300" && budgetNum > 300000);
+    const matchesBudget =
+      (projectBudgetSlider === 0 || budgetNum >= projectBudgetSlider) &&
+      (projectBudgetFilter === "all"
+        || (projectBudgetFilter === "under100" && budgetNum < 100000)
+        || (projectBudgetFilter === "100to300" && budgetNum >= 100000 && budgetNum <= 300000)
+        || (projectBudgetFilter === "over300" && budgetNum > 300000));
     const matchesStatus = projectStatusFilter === "all"
       || (projectStatusFilter === "open" && p.applicationsOpen && !p.myApplication)
       || (projectStatusFilter === "applied" && Boolean(p.myApplication))
@@ -572,10 +585,12 @@ export function TalentDashboard() {
       || (projectLocationFilter === "abuja" && loc.includes("abuja"))
       || (projectLocationFilter === "remote" && (loc.includes("remote") || loc.includes("online")));
     const clientRating = p.clientRating ?? 4.8;
-    const matchesRating = projectRatingFilter === "all"
-      || (projectRatingFilter === "4.8" && clientRating >= 4.8)
-      || (projectRatingFilter === "4.5" && clientRating >= 4.5)
-      || (projectRatingFilter === "4.0" && clientRating >= 4.0);
+    const matchesRating =
+      (projectRatingSlider === 0 || clientRating >= projectRatingSlider) &&
+      (projectRatingFilter === "all"
+        || (projectRatingFilter === "4.8" && clientRating >= 4.8)
+        || (projectRatingFilter === "4.5" && clientRating >= 4.5)
+        || (projectRatingFilter === "4.0" && clientRating >= 4.0));
 
     return matchesSearch && matchesRole && matchesBudget && matchesStatus && matchesLocation && matchesRating;
   });
@@ -811,7 +826,7 @@ export function TalentDashboard() {
         <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
 
           {/* Desktop page header */}
-          <div className="hidden lg:flex items-center justify-between mb-8">
+          <div className={`hidden ${activeTab === "projects" && selectedProject ? "lg:hidden" : "lg:flex"} items-center justify-between mb-8`}>
             <div>
               <h1 className="font-display text-3xl" style={{ color: "var(--color-text-primary)" }}>
                 {activeTab === "home" && `Good morning, ${firstName} 👋`}
@@ -2658,7 +2673,570 @@ export function TalentDashboard() {
 
             {/* ── Projects Tab (features.md Phase 14, PWA-14/15/16) ── */}
             {activeTab === "projects" && (
-              <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              selectedProject ? (
+                /* ── Fresh Project Details Page View ── */
+                <motion.div
+                  key={`project-detail-${selectedProject.id}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  {/* Top Bar: Back link & Status */}
+                  <div className="flex items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProject(null)}
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold font-body py-1.5 px-3 -ml-2 rounded-xl transition-all hover:bg-[var(--color-bg-elevated)]"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back to Projects</span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {selectedProject.myApplication ? (
+                        <Badge
+                          tone={
+                            selectedProject.myApplication.status === "SELECTED"
+                              ? "success"
+                              : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN"
+                              ? "error"
+                              : "accent"
+                          }
+                          size="md"
+                        >
+                          {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
+                        </Badge>
+                      ) : selectedProject.applicationsOpen ? (
+                        <Badge tone="success" size="md">Accepting Pitches</Badge>
+                      ) : (
+                        <Badge tone="neutral" size="md">Applications Closed</Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Project Header Banner (Clean editorial style, no gradients) */}
+                  <div
+                    className="p-6 sm:p-8 rounded-3xl border"
+                    style={{
+                      background: "var(--color-bg-surface)",
+                      borderColor: "var(--color-border-default)",
+                      boxShadow: "var(--shadow-card)",
+                    }}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <span className="font-semibold text-sm font-body text-[var(--color-accent)]">
+                          {selectedProject.clientName}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                          <ShieldCheck className="w-3.5 h-3.5" /> Verified Client
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-500">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          {selectedProject.clientRating ?? 4.9} ({selectedProject.clientReviews ?? 18} reviews)
+                        </span>
+                      </div>
+
+                      <div>
+                        <Badge tone="accent" size="md">{selectedProject.projectType}</Badge>
+                      </div>
+                    </div>
+
+                    <h1
+                      className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {selectedProject.projectName}
+                    </h1>
+
+                    <div className="flex items-center gap-4 sm:gap-6 flex-wrap text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                        <span>{selectedProject.location || "Lagos, NG (Hybrid/Remote)"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                        <span>{selectedProject.timeline || "Auditions close Oct 24 · Production: Nov 2026"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Lock className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span>100% Escrow Funded</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Two-Column Breakdown: Left Brief details, Right Sticky Compensation & Action */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+                    {/* Left Column (8 cols): Clean Breakdown & Readable Hierarchy */}
+                    <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+
+                      {/* 1. Project Synopsis & Brief */}
+                      <div
+                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[var(--color-accent)]" />
+                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            Creative Brief &amp; Synopsis
+                          </h2>
+                        </div>
+                        <p className="text-sm sm:text-base font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          {selectedProject.description ||
+                            "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
+                        </p>
+                      </div>
+
+                      {/* 2. Role Requirements */}
+                      <div
+                        className="p-6 sm:p-7 rounded-3xl border space-y-5"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-[var(--color-accent)]" />
+                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            Role &amp; Craft Requirements
+                          </h2>
+                        </div>
+
+                        <div>
+                          <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                            Target Craft Niches
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {selectedProject.nicheReq.map((n) => (
+                              <Badge key={n} tone="neutral" size="md" className="capitalize">
+                                {n.replace(/_/g, " ")}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                          <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                            Performer Guidelines &amp; Quality Standards
+                          </div>
+                          <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                            {selectedProject.additionalNotes ||
+                              "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
+                          </p>
+                          <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                            <li>Must have verified profile and demo samples matching requested crafts.</li>
+                            <li>Access to professional recording acoustics or studio space.</li>
+                            <li>Prompt communication and adherence to production delivery milestones.</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      {/* 3. Audition Sides & Script Excerpt */}
+                      <div
+                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-[var(--color-accent)]" />
+                            <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              Audition Sides &amp; Script Excerpt
+                            </h2>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textToCopy =
+                                selectedProject.scriptSample ||
+                                "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'";
+                              navigator.clipboard.writeText(textToCopy);
+                              setCopiedScript(true);
+                              setTimeout(() => setCopiedScript(false), 2000);
+                            }}
+                            className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)]"
+                            style={{
+                              borderColor: "var(--color-border-default)",
+                              color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
+                            }}
+                          >
+                            {copiedScript ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                <span className="text-emerald-500">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copy Script</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Use this excerpt for your audition take or pitch video recording:
+                        </p>
+
+                        <div
+                          className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
+                          style={{
+                            background: "var(--color-bg-elevated)",
+                            borderColor: "var(--color-hairline)",
+                            color: "var(--color-text-primary)",
+                          }}
+                        >
+                          {selectedProject.scriptSample ||
+                            "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'"}
+                        </div>
+                      </div>
+
+                      {/* 4. Deliverables & Production Timeline */}
+                      <div
+                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            Deliverables &amp; Licensing
+                          </h2>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          {(
+                            selectedProject.deliverables || [
+                              "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
+                              "1x 15s social media cutdown variation",
+                              "Raw vocal tracks and room-tone stems",
+                              "Full commercial usage rights for digital and broadcast media",
+                            ]
+                          ).map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 5. Client & Escrow Security */}
+                      <div
+                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
+                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            Casting Client &amp; Escrow
+                          </h2>
+                        </div>
+
+                        <div className="flex items-center gap-3.5">
+                          <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center font-display text-lg font-bold text-white shrink-0 shadow-sm"
+                            style={{ background: "var(--color-accent)" }}
+                          >
+                            {selectedProject.clientName.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5 font-semibold text-sm sm:text-base font-body" style={{ color: "var(--color-text-primary)" }}>
+                              <span>{selectedProject.clientName}</span>
+                              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                            </div>
+                            <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Verified Client · {selectedProject.clientReviews ?? 18} projects completed · {selectedProject.clientRating ?? 4.9} rating
+                            </p>
+                          </div>
+                        </div>
+
+                        <div
+                          className="p-4 rounded-2xl border text-xs sm:text-sm font-body leading-relaxed"
+                          style={{
+                            background: "var(--color-bg-elevated)",
+                            borderColor: "var(--color-hairline)",
+                            color: "var(--color-text-secondary)",
+                          }}
+                        >
+                          <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+                            <Lock className="w-4 h-4" />
+                            <span>100% Monologg Escrow Guarantee</span>
+                          </div>
+                          When selected, 100% of the project budget is held securely in Monologg Escrow before you record. Payment is disbursed directly to your bank account upon client milestone approval. Zero talent deductions.
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column (4 cols): Sticky Compensation & Action Card */}
+                    <div className="lg:col-span-5 xl:col-span-4">
+                      <div
+                        className="p-6 rounded-3xl border sticky top-6 space-y-5"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                          boxShadow: "var(--shadow-card)",
+                        }}
+                      >
+                        {/* Budget */}
+                        <div>
+                          <div className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                            Project Compensation
+                          </div>
+                          <div className="flex items-baseline gap-2 mt-1">
+                            <span className="font-display text-3xl font-bold font-mono text-[var(--color-accent)]">
+                              {selectedProject.budget}
+                            </span>
+                            <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Fixed Escrow Rate
+                            </span>
+                          </div>
+                          <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                            0% platform fee for talent · 100% guaranteed payout
+                          </p>
+                        </div>
+
+                        {/* Applicant spots */}
+                        <div
+                          className="p-4 rounded-2xl border space-y-2"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                        >
+                          <div className="flex items-center justify-between text-xs font-body">
+                            <span style={{ color: "var(--color-text-secondary)" }}>Applicant Spots</span>
+                            <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>
+                              {selectedProject.applicantCount} / {selectedProject.applicantCap || 10} filled
+                            </span>
+                          </div>
+                          <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${Math.min(100, (selectedProject.applicantCount / (selectedProject.applicantCap || 10)) * 100)}%`,
+                                background: selectedProject.applicationsOpen ? "var(--color-accent)" : "var(--color-text-tertiary)",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Action Center */}
+                        {applyError && (
+                          <div
+                            className="p-3 rounded-xl text-xs font-body"
+                            style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}
+                          >
+                            {applyError}
+                          </div>
+                        )}
+
+                        {/* State 1: Already Applied */}
+                        {selectedProject.myApplication ? (
+                          <div
+                            className="p-4 rounded-2xl border space-y-3"
+                            style={{
+                              background:
+                                selectedProject.myApplication.status === "SELECTED"
+                                  ? "rgba(16, 185, 129, 0.08)"
+                                  : "var(--color-bg-elevated)",
+                              borderColor:
+                                selectedProject.myApplication.status === "SELECTED"
+                                  ? "rgba(16, 185, 129, 0.3)"
+                                  : "var(--color-hairline)",
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                Application Status
+                              </span>
+                              <Badge
+                                tone={
+                                  selectedProject.myApplication.status === "SELECTED"
+                                    ? "success"
+                                    : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN"
+                                    ? "error"
+                                    : "accent"
+                                }
+                                size="sm"
+                              >
+                                {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
+                              </Badge>
+                            </div>
+
+                            {selectedProject.myApplication.pitch && (
+                              <div
+                                className="p-3 rounded-xl border text-xs font-body italic"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-hairline)",
+                                  color: "var(--color-text-secondary)",
+                                }}
+                              >
+                                "{selectedProject.myApplication.pitch}"
+                              </div>
+                            )}
+
+                            {selectedProject.myApplication.status === "SELECTED" ? (
+                              <div className="space-y-3">
+                                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-body flex items-start gap-2">
+                                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                                  <span>
+                                    Congratulations! {selectedProject.clientName} selected you. Escrow deposit is funded and your Order Room is active.
+                                  </span>
+                                </div>
+                                <Button
+                                  className="w-full h-11 text-xs font-semibold"
+                                  onClick={() => {
+                                    setSelectedProject(null);
+                                    navigate("/order/ORD-001");
+                                  }}
+                                >
+                                  Open Order Room <ChevronRight className="w-4 h-4 ml-1.5" />
+                                </Button>
+                              </div>
+                            ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
+                              <div className="space-y-3">
+                                <p className="text-xs font-body text-amber-600 dark:text-amber-400">
+                                  ⭐ You're on the shortlist! The casting team is reviewing your profile and performance reel.
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  className="w-full h-10 text-xs font-semibold"
+                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
+                                >
+                                  Withdraw Application
+                                </Button>
+                              </div>
+                            ) : selectedProject.myApplication.status === "APPLIED" ? (
+                              <div className="space-y-3">
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                  Submitted to {selectedProject.clientName}. You'll be notified when the client reviews your pitch.
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  className="w-full h-10 text-xs font-semibold"
+                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
+                                >
+                                  Withdraw Application
+                                </Button>
+                              </div>
+                            ) : selectedProject.myApplication.status === "REJECTED" ? (
+                              <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                The client chose another performer for this campaign. Keep pitching for upcoming roles!
+                              </p>
+                            ) : (
+                              <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                You withdrew your application for this project.
+                              </p>
+                            )}
+                          </div>
+                        ) : !selectedProject.applicationsOpen ? (
+                          /* State 2: Closed */
+                          <div
+                            className="p-4 rounded-2xl text-center text-xs font-body border"
+                            style={{
+                              background: "var(--color-bg-elevated)",
+                              borderColor: "var(--color-hairline)",
+                              color: "var(--color-text-secondary)",
+                            }}
+                          >
+                            Applications closed — this project has reached its maximum applicant cap.
+                          </div>
+                        ) : !isProfileComplete ? (
+                          /* State 3: Incomplete Profile */
+                          <div
+                            className="p-4 rounded-2xl border space-y-3"
+                            style={{ background: "rgba(224, 77, 44, 0.05)", borderColor: "rgba(224, 77, 44, 0.3)" }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                              <span className="text-xs font-bold font-body text-[var(--color-accent)] uppercase tracking-wider">
+                                Complete Profile to Apply
+                              </span>
+                            </div>
+                            <div className="space-y-1.5 text-xs font-body">
+                              <div className="flex items-center gap-2">
+                                {hasBio ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                                <span style={{ color: hasBio ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Bio written</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {hasLocation ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                                <span style={{ color: hasLocation ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Location specified</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {hasRateCard ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                                <span style={{ color: hasRateCard ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>At least 1 Rate Card created</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {hasReel ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                                <span style={{ color: hasReel ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Featured Performance Reel</span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="w-full text-xs"
+                              onClick={() => {
+                                setSelectedProject(null);
+                                setActiveTab("storefront");
+                              }}
+                            >
+                              Complete Profile
+                            </Button>
+                          </div>
+                        ) : (
+                          /* State 4: Ready to Pitch */
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                Audition Pitch (optional)
+                              </label>
+                              <textarea
+                                className="w-full px-3.5 py-2.5 rounded-xl text-xs font-body border resize-none focus:outline-none focus:border-[var(--color-accent)]"
+                                rows={3}
+                                placeholder="Highlight relevant brand work, availability, or turnaround time…"
+                                value={pitchText}
+                                onChange={(e) => setPitchText(e.target.value)}
+                                style={{
+                                  background: "var(--color-bg-elevated)",
+                                  borderColor: "var(--color-hairline)",
+                                  color: "var(--color-text-primary)",
+                                }}
+                              />
+                            </div>
+                            <Button
+                              className="w-full h-11 rounded-xl text-sm font-semibold"
+                              disabled={applying}
+                              onClick={handleApply}
+                            >
+                              {applying ? "Submitting Pitch…" : "Submit Application"}
+                              <Send className="w-4 h-4 ml-2" />
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Escrow Guarantee Footnote */}
+                        <div className="pt-3 border-t flex items-center gap-2 text-xs font-body" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-tertiary)" }}>
+                          <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <span>100% Escrow Protected · Direct Bank Payout</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Projects</h2>
 
                 <div className="flex p-1 rounded-xl mb-5 w-full max-w-xs" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
@@ -2725,23 +3303,18 @@ export function TalentDashboard() {
 
                         <button
                           type="button"
-                          onClick={() => setShowProjectFilters((v) => !v)}
+                          onClick={() => setShowProjectFilterModal(true)}
                           aria-label="Filter projects"
-                          aria-pressed={showProjectFilters}
                           className={`h-10 px-3.5 rounded-xl border text-xs font-semibold font-body inline-flex items-center gap-2 shrink-0 transition-all ${
-                            showProjectFilters || activeProjectFilterCount > 0
+                            activeProjectFilterCount > 0
                               ? "border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--color-accent-soft)]"
                               : "hover:border-[var(--color-border-strong)]"
                           }`}
-                          style={
-                            !(showProjectFilters || activeProjectFilterCount > 0)
-                              ? {
-                                  background: "var(--color-bg-surface)",
-                                  borderColor: "var(--color-border-default)",
-                                  color: "var(--color-text-primary)",
-                                }
-                              : undefined
-                          }
+                          style={{
+                            background: activeProjectFilterCount > 0 ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                            borderColor: activeProjectFilterCount > 0 ? "var(--color-accent)" : "var(--color-border-default)",
+                            color: activeProjectFilterCount > 0 ? "var(--color-accent)" : "var(--color-text-primary)",
+                          }}
                         >
                           <SlidersHorizontal className="w-4 h-4" />
                           <span>Filters</span>
@@ -2756,159 +3329,25 @@ export function TalentDashboard() {
                         </button>
                       </div>
 
-                      {/* Expandable Filter Panel Beside / Underneath Search */}
-                      <AnimatePresence>
-                        {showProjectFilters && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0, y: -6 }}
-                            animate={{ opacity: 1, height: "auto", y: 0 }}
-                            exit={{ opacity: 0, height: 0, y: -6 }}
-                            className="overflow-hidden"
-                          >
-                            <div
-                              className="mt-3 p-4 rounded-2xl border"
-                              style={{
-                                background: "var(--color-bg-surface)",
-                                borderColor: "var(--color-border-default)",
-                                boxShadow: "var(--shadow-card)",
-                              }}
-                            >
-                              <div className="flex items-center justify-between pb-3 mb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                                <div className="flex items-center gap-2">
-                                  <SlidersHorizontal className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
-                                  <span className="text-xs font-bold font-body uppercase tracking-wider" style={{ color: "var(--color-text-primary)" }}>
-                                    Filter Projects
-                                  </span>
-                                </div>
-                                {activeProjectFilterCount > 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={resetProjectFilters}
-                                    className="text-xs font-semibold font-body text-[var(--color-accent)] hover:underline"
-                                  >
-                                    Reset all
-                                  </button>
-                                )}
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                                {/* 1. Category */}
-                                <div>
-                                  <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Category
-                                  </label>
-                                  <select
-                                    value={projectRoleFilter}
-                                    onChange={(e) => setProjectRoleFilter(e.target.value)}
-                                    className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  >
-                                    <option value="all">All Categories</option>
-                                    <option value="voice-over">Voice-Over</option>
-                                    <option value="actor">Actor</option>
-                                    <option value="model">Model</option>
-                                    <option value="presenter">Presenter / Compere</option>
-                                    <option value="comedian">Comedian</option>
-                                    <option value="musician">Musician</option>
-                                  </select>
-                                </div>
-
-                                {/* 2. Budget Range */}
-                                <div>
-                                  <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Budget Range
-                                  </label>
-                                  <select
-                                    value={projectBudgetFilter}
-                                    onChange={(e) => setProjectBudgetFilter(e.target.value)}
-                                    className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  >
-                                    <option value="all">All Budgets</option>
-                                    <option value="under100">Under ₦100,000</option>
-                                    <option value="100to300">₦100,000 – ₦300,000</option>
-                                    <option value="over300">Over ₦300,000</option>
-                                  </select>
-                                </div>
-
-                                {/* 3. Status */}
-                                <div>
-                                  <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Status
-                                  </label>
-                                  <select
-                                    value={projectStatusFilter}
-                                    onChange={(e) => setProjectStatusFilter(e.target.value)}
-                                    className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  >
-                                    <option value="all">All Statuses</option>
-                                    <option value="open">Open for Application</option>
-                                    <option value="applied">Already Applied</option>
-                                    <option value="closed">Applications Closed</option>
-                                  </select>
-                                </div>
-
-                                {/* 4. Location */}
-                                <div>
-                                  <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Location
-                                  </label>
-                                  <select
-                                    value={projectLocationFilter}
-                                    onChange={(e) => setProjectLocationFilter(e.target.value)}
-                                    className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  >
-                                    <option value="all">All Locations</option>
-                                    <option value="lagos">Lagos, NG</option>
-                                    <option value="abuja">Abuja, NG</option>
-                                    <option value="remote">Remote / Online</option>
-                                  </select>
-                                </div>
-
-                                {/* 5. Rating */}
-                                <div>
-                                  <label className="block text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Client Rating
-                                  </label>
-                                  <select
-                                    value={projectRatingFilter}
-                                    onChange={(e) => setProjectRatingFilter(e.target.value)}
-                                    className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  >
-                                    <option value="all">Any Rating</option>
-                                    <option value="4.8">4.8+ ★ Top Rated</option>
-                                    <option value="4.5">4.5+ ★ Very Good</option>
-                                    <option value="4.0">4.0+ ★ Good</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
                       {/* Active Filter Chips */}
-                      {activeProjectFilterCount > 0 && !showProjectFilters && (
-                        <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
+                      {activeProjectFilterCount > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap mt-3">
                           {projectRoleFilter !== "all" && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
                               Category: {projectRoleFilter}
                               <button onClick={() => setProjectRoleFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
                             </span>
                           )}
-                          {projectBudgetFilter !== "all" && (
+                          {projectBudgetSlider > 0 && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
-                              Budget: {projectBudgetFilter}
-                              <button onClick={() => setProjectBudgetFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
+                              Min Budget: ₦{projectBudgetSlider.toLocaleString()}
+                              <button onClick={() => setProjectBudgetSlider(0)} className="hover:opacity-75"><X className="w-3 h-3" /></button>
                             </span>
                           )}
-                          {projectStatusFilter !== "all" && (
+                          {projectRatingSlider > 0 && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
-                              Status: {projectStatusFilter}
-                              <button onClick={() => setProjectStatusFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
+                              Rating: {projectRatingSlider.toFixed(1)}+ ★
+                              <button onClick={() => setProjectRatingSlider(0)} className="hover:opacity-75"><X className="w-3 h-3" /></button>
                             </span>
                           )}
                           {projectLocationFilter !== "all" && (
@@ -2917,10 +3356,10 @@ export function TalentDashboard() {
                               <button onClick={() => setProjectLocationFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
                             </span>
                           )}
-                          {projectRatingFilter !== "all" && (
+                          {projectStatusFilter !== "all" && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
-                              Rating: {projectRatingFilter}+ ★
-                              <button onClick={() => setProjectRatingFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
+                              Status: {projectStatusFilter}
+                              <button onClick={() => setProjectStatusFilter("all")} className="hover:opacity-75"><X className="w-3 h-3" /></button>
                             </span>
                           )}
                           <button onClick={resetProjectFilters} className="text-[11px] font-semibold text-[var(--color-accent)] hover:underline ml-1">
@@ -2928,40 +3367,6 @@ export function TalentDashboard() {
                           </button>
                         </div>
                       )}
-
-                      {/* Airbnb-Style Quick Category Pills */}
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none">
-                        {[
-                          { id: "all", label: "All Roles" },
-                          { id: "voice-over", label: "Voice-Over" },
-                          { id: "actor", label: "Actor" },
-                          { id: "model", label: "Model" },
-                          { id: "presenter", label: "Presenter / Host" },
-                          { id: "comedian", label: "Comedian" },
-                          { id: "musician", label: "Musician" },
-                        ].map((cat) => {
-                          const isSelected = projectRoleFilter === cat.id;
-                          return (
-                            <button
-                              key={cat.id}
-                              type="button"
-                              onClick={() => setProjectRoleFilter(cat.id)}
-                              className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body whitespace-nowrap transition-all ${
-                                isSelected
-                                  ? "shadow-sm"
-                                  : "hover:border-[var(--color-border-strong)]"
-                              }`}
-                              style={{
-                                background: isSelected ? "var(--color-accent)" : "var(--color-bg-surface)",
-                                color: isSelected ? "var(--color-accent-on)" : "var(--color-text-secondary)",
-                                border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
-                              }}
-                            >
-                              {cat.label}
-                            </button>
-                          );
-                        })}
-                      </div>
                     </div>
 
                     {filteredProjects.length === 0 ? (
@@ -2979,7 +3384,6 @@ export function TalentDashboard() {
                               setSelectedProject(project);
                               setPitchText(project.myApplication?.pitch ?? "");
                               setApplyError(null);
-                              setActiveProjectDetailTab("overview");
                             }}
                             className="w-full text-left p-4 rounded-[var(--radius-lg)] hover:opacity-90 transition-opacity"
                             style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
@@ -3070,7 +3474,6 @@ export function TalentDashboard() {
                             setSelectedProject(found);
                             setPitchText(application.pitch ?? "");
                             setApplyError(null);
-                            setActiveProjectDetailTab("overview");
                           }}
                           className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:opacity-90 transition-opacity"
                           style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
@@ -3108,6 +3511,7 @@ export function TalentDashboard() {
                   </div>
                 )}
               </motion.div>
+              )
             )}
 
             {/* ── Orders Tab ── */}
@@ -4103,792 +4507,216 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Project Detail View (Airbnb Style — Static Header, Left Fast-Nav Tabs, Right Floating Action Card) */}
+          {/* Project Filter Modal */}
           <AnimatePresence>
-            {selectedProject && (
-              <Modal onClose={() => setSelectedProject(null)}>
+            {showProjectFilterModal && (
+              <Modal onClose={() => setShowProjectFilterModal(false)}>
                 <motion.div
-                  initial={{ y: 24, scale: 0.98, opacity: 0 }}
+                  initial={{ y: 20, scale: 0.96, opacity: 0 }}
                   animate={{ y: 0, scale: 1, opacity: 1 }}
-                  exit={{ y: 24, scale: 0.98, opacity: 0 }}
-                  className="w-full max-w-5xl rounded-[28px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl"
+                  exit={{ y: 20, scale: 0.96, opacity: 0 }}
+                  className="w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-5"
                   style={{
-                    background: "var(--color-bg-canvas)",
+                    background: "var(--color-bg-surface)",
                     border: "1px solid var(--color-border-default)",
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* ── 1. Static Sticky Header (Airbnb Style) ── */}
-                  <div
-                    className="p-4 sm:px-6 sm:py-5 border-b shrink-0 flex items-center justify-between gap-4"
-                    style={{
-                      background: "var(--color-bg-surface)",
-                      borderColor: "var(--color-hairline)",
-                    }}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <button
-                        onClick={() => setSelectedProject(null)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border hover:bg-[var(--color-bg-elevated)] transition-colors"
-                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
-                        aria-label="Back to projects list"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                          <span className="text-xs font-semibold font-body text-[var(--color-accent)]">
-                            {selectedProject.clientName}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                            <ShieldCheck className="w-3 h-3" /> Verified Client
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            {selectedProject.clientRating ?? 4.9} ({selectedProject.clientReviews ?? 18} reviews)
-                          </span>
-                        </div>
-                        <h2
-                          className="font-display text-lg sm:text-2xl font-bold truncate"
-                          style={{ color: "var(--color-text-primary)" }}
-                        >
-                          {selectedProject.projectName}
-                        </h2>
-                      </div>
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                    <div className="flex items-center gap-2.5">
+                      <SlidersHorizontal className="w-5 h-5 text-[var(--color-accent)]" />
+                      <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                        Filter Projects
+                      </h3>
                     </div>
+                    <button
+                      onClick={() => setShowProjectFilterModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] transition-colors"
+                      style={{ color: "var(--color-text-tertiary)" }}
+                      aria-label="Close filters"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => setSelectedProject(null)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-[var(--color-bg-elevated)] transition-colors"
-                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-tertiary)" }}
-                        aria-label="Close project detail"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                  {/* 1. Category Clickable Tags */}
+                  <div>
+                    <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-secondary)" }}>
+                      Category / Craft Role
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { id: "all", label: "All Roles" },
+                        { id: "voice-over", label: "Voice-Over" },
+                        { id: "actor", label: "Actor" },
+                        { id: "model", label: "Model" },
+                        { id: "presenter", label: "Presenter / Host" },
+                        { id: "comedian", label: "Comedian" },
+                        { id: "musician", label: "Musician" },
+                      ].map((cat) => {
+                        const isSelected = projectRoleFilter === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setProjectRoleFilter(cat.id)}
+                            className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body transition-all ${
+                              isSelected ? "shadow-sm" : "hover:border-[var(--color-border-strong)]"
+                            }`}
+                            style={{
+                              background: isSelected ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                              color: isSelected ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                              border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
+                            }}
+                          >
+                            {cat.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* ── 2. Scrollable Two-Column Body (Airbnb Style) ── */}
-                  <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-                    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
-                      {/* ── Left Column: Fast-Nav Tabs & Client Brief Steps ── */}
-                      <div className="flex-1 min-w-0 w-full space-y-5">
-                        {/* Fast-Switch Tabs Bar */}
-                        <div
-                          className="flex items-center gap-1.5 p-1 rounded-2xl border sticky top-0 z-10 backdrop-blur-md"
-                          style={{
-                            background: "color-mix(in srgb, var(--color-bg-surface) 92%, transparent)",
-                            borderColor: "var(--color-border-default)",
-                          }}
-                        >
-                          {[
-                            { id: "overview", label: "Overview", icon: FileText },
-                            { id: "requirements", label: "Requirements", icon: Users },
-                            { id: "script", label: "Script & Assets", icon: Layers },
-                            { id: "client", label: "Client & Escrow", icon: ShieldCheck },
-                          ].map((tab) => {
-                            const Icon = tab.icon;
-                            const isActive = activeProjectDetailTab === tab.id;
-                            return (
-                              <button
-                                key={tab.id}
-                                onClick={() => setActiveProjectDetailTab(tab.id as any)}
-                                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl text-xs font-semibold font-body transition-all ${
-                                  isActive
-                                    ? "shadow-sm"
-                                    : "hover:bg-[var(--color-bg-elevated)]"
-                                }`}
-                                style={{
-                                  background: isActive ? "var(--color-accent)" : "transparent",
-                                  color: isActive ? "var(--color-accent-on)" : "var(--color-text-secondary)",
-                                }}
-                              >
-                                <Icon className="w-3.5 h-3.5 shrink-0" />
-                                <span className="truncate">{tab.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                  {/* 2. Budget Range Slider */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
+                        Minimum Budget
+                      </label>
+                      <span className="font-mono text-xs font-bold" style={{ color: "var(--color-accent)" }}>
+                        {projectBudgetSlider === 0 ? "Any Budget" : `₦${projectBudgetSlider.toLocaleString()}+`}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={600000}
+                      step={25000}
+                      value={projectBudgetSlider}
+                      onChange={(e) => setProjectBudgetSlider(Number(e.target.value))}
+                      className="w-full accent-[var(--color-accent)] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                      <span>₦0 (Any)</span>
+                      <span>₦300k</span>
+                      <span>₦600k+</span>
+                    </div>
+                  </div>
 
-                        {/* Tab 1: Overview */}
-                        {activeProjectDetailTab === "overview" && (
-                          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                            {/* Airbnb-Style "Client Favorite" Social Proof Banner */}
-                            <div
-                              className="p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  {/* 3. Rating Slider */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
+                        Minimum Client Rating
+                      </label>
+                      <span className="text-xs font-bold font-body text-amber-500 flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        {projectRatingSlider === 0 ? "Any Rating" : `${projectRatingSlider.toFixed(1)}+ ★`}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      value={projectRatingSlider}
+                      onChange={(e) => setProjectRatingSlider(Number(e.target.value))}
+                      className="w-full accent-amber-500 cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
+                    />
+                    <div className="flex justify-between text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                      <span>Any (0.0★)</span>
+                      <span>4.0★</span>
+                      <span>4.5★</span>
+                      <span>5.0★</span>
+                    </div>
+                  </div>
+
+                  {/* 4. Location & Application Status */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                        Location
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { id: "all", label: "All" },
+                          { id: "lagos", label: "Lagos" },
+                          { id: "abuja", label: "Abuja" },
+                          { id: "remote", label: "Remote" },
+                        ].map((loc) => {
+                          const isSelected = projectLocationFilter === loc.id;
+                          return (
+                            <button
+                              key={loc.id}
+                              type="button"
+                              onClick={() => setProjectLocationFilter(loc.id)}
+                              className="px-2.5 py-1 rounded-lg text-xs font-medium font-body transition-all"
                               style={{
-                                background: "linear-gradient(135deg, rgba(224, 77, 44, 0.05) 0%, rgba(139, 92, 246, 0.04) 100%)",
-                                borderColor: "var(--color-border-default)",
+                                background: isSelected ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                                color: isSelected ? "var(--color-accent)" : "var(--color-text-secondary)",
+                                border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
                               }}
                             >
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-[var(--color-accent)] text-white flex items-center justify-center shrink-0 shadow-sm">
-                                  <Award className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-accent)]">
-                                      Client Favorite
-                                    </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
-                                      Verified Employer
-                                    </span>
-                                  </div>
-                                  <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
-                                    One of the most trusted casting clients on Monologg, rated for prompt escrow approvals and responsive direction.
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-4 sm:border-l sm:pl-5 shrink-0" style={{ borderColor: "var(--color-hairline)" }}>
-                                <div className="text-left sm:text-right">
-                                  <div className="flex items-center gap-1 font-display text-base font-bold text-amber-500">
-                                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                    <span>{selectedProject.clientRating ?? 4.9}</span>
-                                  </div>
-                                  <div className="text-[10px] font-body text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                                    Client Rating
-                                  </div>
-                                </div>
-                                <div className="text-left sm:text-right">
-                                  <div className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                    {selectedProject.clientReviews ?? 18}
-                                  </div>
-                                  <div className="text-[10px] font-body text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                                    Completed Hires
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Airbnb-Style "Brief at a Glance" 3-Item Quick Scan Strip */}
-                            <div
-                              className="p-4 sm:p-5 rounded-2xl border space-y-3.5"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="text-[10px] font-bold uppercase tracking-wider font-body text-[var(--color-text-tertiary)]">
-                                Brief at a Glance
-                              </div>
-
-                              <div className="space-y-3">
-                                <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)] shrink-0 mt-0.5">
-                                    <Mic className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                      Craft &amp; Role Fit
-                                    </div>
-                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
-                                      {selectedProject.projectType} · {selectedProject.nicheReq.map((n) => n.replace(/_/g, " ")).join(", ")}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 mt-0.5">
-                                    <Calendar className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                      Production Window &amp; Location
-                                    </div>
-                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
-                                      {selectedProject.timeline || "Auditions close Oct 24 · Production: Nov 2026"} · {selectedProject.location || "Lagos, NG (Hybrid/Remote)"}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 mt-0.5">
-                                    <ShieldCheck className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                      100% Escrow Protection
-                                    </div>
-                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
-                                      {selectedProject.budget} is held in Monologg Escrow before you record. Automatic direct bank payout upon delivery.
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Creative Brief / Synopsis */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
-                                  <FileText className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                    Creative Brief &amp; Synopsis
-                                  </h3>
-                                  <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Provided by {selectedProject.clientName}
-                                  </p>
-                                </div>
-                              </div>
-                              <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                {selectedProject.description ||
-                                  "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
-                              </p>
-                            </div>
-
-                            {/* Key Metadata Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                              <div
-                                className="p-4 rounded-2xl border"
-                                style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                              >
-                                <div className="text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Production Timeline
-                                </div>
-                                <div className="text-xs sm:text-sm font-semibold font-body flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
-                                  <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                                  <span className="truncate">{selectedProject.timeline || "Auditions close Oct 24 · Production: Nov 2026"}</span>
-                                </div>
-                              </div>
-
-                              <div
-                                className="p-4 rounded-2xl border"
-                                style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                              >
-                                <div className="text-[10px] uppercase font-semibold font-body tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Location &amp; Delivery Mode
-                                </div>
-                                <div className="text-xs sm:text-sm font-semibold font-body flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
-                                  <MapPin className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                                  <span className="truncate">{selectedProject.location || "Lagos, NG (Hybrid/Remote)"}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Campaign Category & Specs */}
-                            <div
-                              className="p-4 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="text-[10px] uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                Project Category &amp; Badges
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <Badge tone="accent" size="md">{selectedProject.projectType}</Badge>
-                                <Badge tone="neutral" size="md">Escrow Protected</Badge>
-                                <Badge tone="neutral" size="md">Direct Client Booking</Badge>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        {/* Tab 2: Requirements */}
-                        {activeProjectDetailTab === "requirements" && (
-                          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                            {/* Niche & Craft Requirements */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
-                                  <Users className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                    Required Crafts &amp; Roles
-                                  </h3>
-                                  <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Performer profiles eligible to pitch
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap mb-4">
-                                {selectedProject.nicheReq.map((n) => (
-                                  <Badge key={n} tone="neutral" size="md" className="capitalize">
-                                    {n.replace(/_/g, " ")}
-                                  </Badge>
-                                ))}
-                              </div>
-                              <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                Performers must hold an active profile matching these crafts. Pitches from performers with completed performance reels and verified audio samples receive priority review.
-                              </p>
-                            </div>
-
-                            {/* Performer Guidelines */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <h4 className="text-xs font-bold font-body uppercase tracking-wider mb-3" style={{ color: "var(--color-text-tertiary)" }}>
-                                Guidelines &amp; Quality Standards
-                              </h4>
-                              <p className="text-xs font-body mb-3 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                {selectedProject.additionalNotes ||
-                                  "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
-                              </p>
-                              <ul className="text-xs font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                                <li>Must have access to professional recording environment or studio.</li>
-                                <li>Fast communication and adherence to production schedule.</li>
-                                <li>Collaborative attitude during creative feedback and pickup sessions.</li>
-                              </ul>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        {/* Tab 3: Script & Deliverables */}
-                        {activeProjectDetailTab === "script" && (
-                          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                            {/* Script / Sides Preview */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
-                                    <Layers className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                      Audition Sides &amp; Script Excerpt
-                                    </h3>
-                                    <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Use this text for your audition take or pitch video
-                                    </p>
-                                  </div>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const textToCopy = selectedProject.scriptSample || "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'";
-                                    navigator.clipboard.writeText(textToCopy);
-                                    setCopiedScript(true);
-                                    setTimeout(() => setCopiedScript(false), 2000);
-                                  }}
-                                  className="h-8 px-3 rounded-lg border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)]"
-                                  style={{ borderColor: "var(--color-border-default)", color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)" }}
-                                >
-                                  {copiedScript ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                      <span className="text-emerald-500">Copied!</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Copy className="w-3.5 h-3.5" />
-                                      <span>Copy Sides</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-
-                              <div
-                                className="p-4 rounded-xl border font-mono text-xs leading-relaxed whitespace-pre-wrap"
-                                style={{
-                                  background: "var(--color-bg-elevated)",
-                                  borderColor: "var(--color-hairline)",
-                                  color: "var(--color-text-primary)",
-                                }}
-                              >
-                                {selectedProject.scriptSample ||
-                                  "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'"}
-                              </div>
-                            </div>
-
-                            {/* Deliverables & Usage Rights */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <h4 className="text-xs font-bold font-body uppercase tracking-wider mb-3" style={{ color: "var(--color-text-tertiary)" }}>
-                                Scope of Deliverables &amp; Licensing
-                              </h4>
-                              <div className="space-y-2.5">
-                                {(
-                                  selectedProject.deliverables || [
-                                    "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
-                                    "1x 15s social media cutdown variation",
-                                    "Raw vocal tracks and room-tone stems",
-                                    "Full commercial usage rights for digital and broadcast media",
-                                  ]
-                                ).map((item, idx) => (
-                                  <div key={idx} className="flex items-start gap-2.5 text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                    <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                    <span>{item}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        {/* Tab 4: Client & Escrow */}
-                        {activeProjectDetailTab === "client" && (
-                          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                            {/* Client Profile */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                            >
-                              <div className="flex items-center gap-3 mb-4">
-                                <div
-                                  className="w-12 h-12 rounded-full flex items-center justify-center font-display text-lg font-bold text-white shrink-0 shadow-md"
-                                  style={{ background: "var(--color-accent)" }}
-                                >
-                                  {selectedProject.clientName.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-1.5">
-                                    <h3 className="font-body text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                      {selectedProject.clientName}
-                                    </h3>
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                  </div>
-                                  <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                    Verified Client on Monologg · Member since 2025
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                <div>
-                                  <div className="text-[10px] uppercase font-semibold font-body tracking-wider text-[var(--color-text-tertiary)]">
-                                    Client Rating
-                                  </div>
-                                  <div className="text-sm font-bold font-body text-amber-500 flex items-center gap-1 mt-0.5">
-                                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                                    <span>{selectedProject.clientRating ?? 4.9} / 5.0</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-[10px] uppercase font-semibold font-body tracking-wider text-[var(--color-text-tertiary)]">
-                                    Completed Hires
-                                  </div>
-                                  <div className="text-sm font-bold font-body mt-0.5" style={{ color: "var(--color-text-primary)" }}>
-                                    {selectedProject.clientReviews ?? 18} projects completed
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Escrow Guarantee */}
-                            <div
-                              className="p-5 sm:p-6 rounded-2xl border"
-                              style={{
-                                background: "rgba(16, 185, 129, 0.04)",
-                                borderColor: "rgba(16, 185, 129, 0.3)",
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-                                  <Lock className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-bold font-body text-emerald-600 mb-1">
-                                    100% Monologg Escrow Guarantee
-                                  </h4>
-                                  <p className="text-xs font-body leading-relaxed text-zinc-600 dark:text-zinc-300">
-                                    When a client selects you, 100% of the project budget is deposited into Monologg Escrow before you begin. Funds are automatically disbursed directly to your wallet upon milestone approval.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </div>
-
-                      {/* ── Right Column: Floating Airbnb-Style Reservation / Action Card ── */}
-                      <div className="w-full lg:w-80 xl:w-96 shrink-0">
-                        <div
-                          className="p-5 sm:p-6 rounded-3xl border shadow-xl sticky top-4 space-y-4"
-                          style={{
-                            background: "var(--color-bg-surface)",
-                            borderColor: "var(--color-border-default)",
-                          }}
-                        >
-                          {/* Budget & Price Display */}
-                          <div>
-                            <div className="text-[10px] uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
-                              Project Compensation
-                            </div>
-                            <div className="flex items-baseline gap-2 mt-0.5">
-                              <span className="font-display text-2xl sm:text-3xl font-bold tnum text-[var(--color-accent)]">
-                                {selectedProject.budget}
-                              </span>
-                              <span className="text-xs font-body text-[var(--color-text-secondary)]">
-                                Fixed Escrow Rate
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Transparent Compensation & Payout Breakdown (Airbnb 'Pricing Clarify' style) */}
-                          <div
-                            className="p-3.5 rounded-2xl border space-y-2 text-xs font-body"
-                            style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span style={{ color: "var(--color-text-secondary)" }}>Base Project Budget</span>
-                              <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedProject.budget}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span style={{ color: "var(--color-text-secondary)" }}>Escrow Security Deposit</span>
-                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">100% Guaranteed</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span style={{ color: "var(--color-text-secondary)" }}>Platform Payout Fee</span>
-                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold font-mono">₦0 (0% Talent Fee)</span>
-                            </div>
-                            <div className="pt-2 border-t flex justify-between items-center font-bold" style={{ borderColor: "var(--color-hairline)" }}>
-                              <span style={{ color: "var(--color-text-primary)" }}>Your Direct Bank Payout</span>
-                              <span className="font-mono text-[var(--color-accent)]">{selectedProject.budget}</span>
-                            </div>
-                          </div>
-
-                          {/* Applicant Capacity Meter */}
-                          <div
-                            className="p-3.5 rounded-2xl border"
-                            style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                          >
-                            <div className="flex items-center justify-between text-xs font-body mb-2">
-                              <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                                Applicant Spots
-                              </span>
-                              <span className="font-bold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>
-                                {selectedProject.applicantCount}{selectedProject.applicantCap ? ` / ${selectedProject.applicantCap}` : ""}
-                              </span>
-                            </div>
-                            {selectedProject.applicantCap && (
-                              <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full transition-all"
-                                  style={{
-                                    width: `${Math.min(100, (selectedProject.applicantCount / selectedProject.applicantCap) * 100)}%`,
-                                    background: selectedProject.applicationsOpen ? "var(--color-accent)" : "var(--color-text-tertiary)",
-                                  }}
-                                />
-                              </div>
-                            )}
-                            <div className="mt-2 flex items-center justify-between text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                              <span>Status:</span>
-                              {selectedProject.myApplication ? (
-                                <Badge tone={selectedProject.myApplication.status === "SELECTED" ? "success" : selectedProject.myApplication.status === "REJECTED" ? "error" : "accent"} size="sm">
-                                  {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
-                                </Badge>
-                              ) : selectedProject.applicationsOpen ? (
-                                <Badge tone="success" size="sm">Open for Pitches</Badge>
-                              ) : (
-                                <Badge tone="neutral" size="sm">Applications Closed</Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Constant Container, Status-Dependent Action Center */}
-                          <div className="pt-1">
-                            {applyError && (
-                              <div
-                                className="p-3 rounded-xl mb-3 text-xs font-body"
-                                style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}
-                              >
-                                {applyError}
-                              </div>
-                            )}
-
-                            {/* State A: Already Applied / Application Record */}
-                            {selectedProject.myApplication ? (
-                              <div
-                                className="p-4 rounded-2xl border space-y-3"
-                                style={{
-                                  background:
-                                    selectedProject.myApplication.status === "SELECTED"
-                                      ? "rgba(16, 185, 129, 0.08)"
-                                      : "var(--color-bg-elevated)",
-                                  borderColor:
-                                    selectedProject.myApplication.status === "SELECTED"
-                                      ? "rgba(16, 185, 129, 0.3)"
-                                      : "var(--color-hairline)",
-                                }}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                    Application Status
-                                  </span>
-                                  <Badge
-                                    tone={
-                                      selectedProject.myApplication.status === "SELECTED"
-                                        ? "success"
-                                        : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN"
-                                        ? "error"
-                                        : "accent"
-                                    }
-                                    size="sm"
-                                  >
-                                    {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
-                                  </Badge>
-                                </div>
-
-                                {selectedProject.myApplication.pitch && (
-                                  <div
-                                    className="p-3 rounded-xl border text-xs font-body italic"
-                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                                  >
-                                    "{selectedProject.myApplication.pitch}"
-                                  </div>
-                                )}
-
-                                {selectedProject.myApplication.status === "SELECTED" ? (
-                                  <div className="space-y-3">
-                                    <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-body flex items-start gap-2">
-                                      <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-                                      <span>
-                                        Congratulations! {selectedProject.clientName} selected you. Escrow deposit is funded and your Order Room is active.
-                                      </span>
-                                    </div>
-                                    <Button
-                                      className="w-full h-10 text-xs font-semibold"
-                                      onClick={() => {
-                                        setSelectedProject(null);
-                                        navigate("/order/ORD-001");
-                                      }}
-                                    >
-                                      Open Order Room <ChevronRight className="w-4 h-4 ml-1.5" />
-                                    </Button>
-                                  </div>
-                                ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
-                                  <div className="space-y-3">
-                                    <p className="text-[11px] font-body text-amber-600 dark:text-amber-400">
-                                      ⭐ You're on the client's shortlist! The casting team is reviewing your profile and performance reel.
-                                    </p>
-                                    <Button
-                                      variant="secondary"
-                                      className="w-full h-9 text-xs"
-                                      onClick={() => {
-                                        handleWithdrawApplication(selectedProject.myApplication!.id);
-                                      }}
-                                    >
-                                      Withdraw Pitch
-                                    </Button>
-                                  </div>
-                                ) : selectedProject.myApplication.status === "APPLIED" ? (
-                                  <div className="space-y-3">
-                                    <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
-                                      Submitted to {selectedProject.clientName}. You'll be notified when the client reviews your pitch.
-                                    </p>
-                                    <Button
-                                      variant="secondary"
-                                      className="w-full h-9 text-xs"
-                                      onClick={() => {
-                                        handleWithdrawApplication(selectedProject.myApplication!.id);
-                                      }}
-                                    >
-                                      Withdraw Pitch
-                                    </Button>
-                                  </div>
-                                ) : selectedProject.myApplication.status === "REJECTED" ? (
-                                  <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
-                                    The client has chosen another performer for this campaign. Keep auditioning for upcoming roles!
-                                  </p>
-                                ) : (
-                                  <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
-                                    You withdrew your application for this project.
-                                  </p>
-                                )}
-                              </div>
-                            ) : !selectedProject.applicationsOpen ? (
-                              /* State B: Closed */
-                              <div
-                                className="p-4 rounded-2xl text-center text-xs font-body border"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                              >
-                                Applications closed — this project has reached its maximum applicant cap.
-                              </div>
-                            ) : !isProfileComplete ? (
-                              /* State C: Incomplete Profile */
-                              <div
-                                className="p-4 rounded-2xl border space-y-3"
-                                style={{ background: "rgba(224, 77, 44, 0.05)", borderColor: "rgba(224, 77, 44, 0.3)" }}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <AlertCircle className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                                  <span className="text-xs font-bold font-body text-[var(--color-accent)] uppercase tracking-wider">
-                                    Complete Profile to Apply
-                                  </span>
-                                </div>
-                                <div className="space-y-1.5 text-xs font-body">
-                                  <div className="flex items-center gap-2">
-                                    {hasBio ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
-                                    <span style={{ color: hasBio ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Bio written</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    {hasLocation ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
-                                    <span style={{ color: hasLocation ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Location specified</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    {hasRateCard ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
-                                    <span style={{ color: hasRateCard ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>At least 1 Rate Card created</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    {hasReel ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
-                                    <span style={{ color: hasReel ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Featured Performance Reel</span>
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="w-full text-xs"
-                                  onClick={() => {
-                                    setSelectedProject(null);
-                                    setActiveTab("storefront");
-                                  }}
-                                >
-                                  Complete Profile
-                                </Button>
-                              </div>
-                            ) : (
-                              /* State D: Ready to Apply */
-                              <div className="space-y-3">
-                                <div>
-                                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                    Your Audition Pitch (optional)
-                                  </label>
-                                  <textarea
-                                    className="w-full px-3.5 py-2.5 rounded-xl text-xs font-body border resize-none focus:outline-none focus:border-[var(--color-accent)]"
-                                    rows={3}
-                                    placeholder="Highlight relevant experience, prior brand spots, or audition readiness…"
-                                    value={pitchText}
-                                    onChange={(e) => setPitchText(e.target.value)}
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                  />
-                                </div>
-                                <Button
-                                  className="w-full h-11 rounded-xl text-sm font-semibold"
-                                  disabled={applying}
-                                  onClick={handleApply}
-                                >
-                                  {applying ? "Submitting Pitch…" : "Submit Application"}
-                                  <Send className="w-4 h-4 ml-2" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Escrow Footnote */}
-                          <div className="pt-3 border-t flex items-center gap-2 text-[11px] font-body" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-tertiary)" }}>
-                            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                            <span>100% Escrow Protected · Direct Bank Payout</span>
-                          </div>
-                        </div>
+                              {loc.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
+
+                    <div>
+                      <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                        Status
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { id: "all", label: "All" },
+                          { id: "open", label: "Open" },
+                          { id: "applied", label: "Applied" },
+                        ].map((st) => {
+                          const isSelected = projectStatusFilter === st.id;
+                          return (
+                            <button
+                              key={st.id}
+                              type="button"
+                              onClick={() => setProjectStatusFilter(st.id)}
+                              className="px-2.5 py-1 rounded-lg text-xs font-medium font-body transition-all"
+                              style={{
+                                background: isSelected ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                                color: isSelected ? "var(--color-accent)" : "var(--color-text-secondary)",
+                                border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
+                              }}
+                            >
+                              {st.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="pt-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--color-hairline)" }}>
+                    <button
+                      type="button"
+                      onClick={resetProjectFilters}
+                      className="text-xs font-semibold font-body hover:underline"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      Reset All
+                    </button>
+                    <Button
+                      onClick={() => setShowProjectFilterModal(false)}
+                      className="h-10 px-5 text-xs font-semibold"
+                    >
+                      Show {filteredProjects.length} Projects
+                    </Button>
                   </div>
                 </motion.div>
               </Modal>
             )}
           </AnimatePresence>
+          
           {/* Quick Action Popover (Images 2, 3, 4 Inspiration) */}
           <AnimatePresence>
             {actionPopover && (
