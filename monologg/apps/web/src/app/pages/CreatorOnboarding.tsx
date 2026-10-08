@@ -901,7 +901,7 @@ export function CreatorOnboarding() {
                 </span>
               </div>
 
-              {/* Active Tags — click to edit inline */}
+              {/* Active Tags — always-visible × to remove, click tag text to edit inline */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) =>
                   editingTagIndex === i ? (
@@ -920,13 +920,17 @@ export function CreatorOnboarding() {
                   ) : (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 h-8 px-3.5 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)] cursor-text group"
+                      className="flex items-center gap-1.5 h-8 pl-3.5 pr-2 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)] font-body text-[13px] font-medium text-[var(--color-accent)]"
                     >
-                      <span onClick={() => handleTagClick(i, tag)} className="leading-none">{tag}</span>
+                      <span
+                        onClick={() => handleTagClick(i, tag)}
+                        className="leading-none cursor-text"
+                        title="Click to rename"
+                      >{tag}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(i)}
-                        className="opacity-0 group-hover:opacity-100 hover:opacity-70 text-[var(--color-accent)] transition-opacity"
+                        className="text-[var(--color-accent)] hover:opacity-60 transition-opacity ml-0.5"
                         title="Remove tag"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -936,7 +940,7 @@ export function CreatorOnboarding() {
                 )}
               </div>
 
-              {/* Suggested Tags — same chip size, clicking moves it to active */}
+              {/* Suggested Tags — always-visible + add button */}
               {suggestedTags.length > 0 && (
                 <div className="pt-3 border-t border-[var(--color-hairline)] space-y-2.5">
                   <div className="flex items-center justify-between">
@@ -961,27 +965,16 @@ export function CreatorOnboarding() {
 
                   <div className="flex flex-wrap gap-2">
                     {suggestedTags.map((preset) => (
-                      <div
+                      <button
                         key={preset}
-                        className="flex items-center gap-1 h-8 px-3.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] font-body text-[13px] font-medium text-[var(--color-text-secondary)] group"
+                        type="button"
+                        disabled={tags.length >= 7}
+                        onClick={() => handleAddSuggestion(preset)}
+                        className="flex items-center gap-1.5 h-8 pl-2.5 pr-3.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] font-body text-[13px] font-medium text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] disabled:opacity-40 transition-colors"
                       >
-                        <button
-                          type="button"
-                          disabled={tags.length >= 7}
-                          onClick={() => handleAddSuggestion(preset)}
-                          className="leading-none disabled:opacity-40"
-                        >
-                          {preset}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleDeleteSuggestion(e, preset)}
-                          className="opacity-0 group-hover:opacity-100 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-opacity"
-                          title={`Remove suggestion`}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                        <Plus className="w-3.5 h-3.5 shrink-0" />
+                        {preset}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -1025,23 +1018,15 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 6: Set your Rate Cards (Max 2 for Alpha with 1/2 indicator) ── */}
+        {/* ── STEP 6: Set your Rate Cards (Max 2) ── */}
         {step === 6 && (
           <motion.div key="step-rates" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[var(--color-accent)]">
-                  Alpha Pricing
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-mono text-xs font-semibold">
-                  {rateCards.length}/2 Rate Cards
-                </span>
-              </div>
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
                 Set your rate cards
               </h2>
               <p className="font-body text-[14px] text-[var(--color-text-secondary)] leading-relaxed">
-                Create purchasable services for your profile. Alpha users can create up to 2 rate cards.
+                Create purchasable services for your profile. You can only create up to 2 rate cards.
               </p>
             </div>
 
@@ -1057,8 +1042,8 @@ export function CreatorOnboarding() {
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[var(--color-accent)]" />
 
                     <div className="flex items-center justify-between border-b border-[var(--color-hairline)] pb-3">
-                      <span className="font-mono text-xs font-semibold text-[var(--color-accent)]">
-                        Rate Card #{index + 1} of 2
+                      <span className="font-body text-xs font-semibold text-[var(--color-text-secondary)]">
+                        Rate Card {index + 1}
                       </span>
                       {rateCards.length > 1 && (
                         <button
