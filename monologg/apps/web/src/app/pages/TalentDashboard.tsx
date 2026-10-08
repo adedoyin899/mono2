@@ -19,7 +19,7 @@ import {
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
-  SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users
+  SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -308,6 +308,7 @@ export function TalentDashboard() {
   const [projectRatingFilter, setProjectRatingFilter] = useState("all");
   const [showProjectFilters, setShowProjectFilters] = useState(false);
   const [activeProjectDetailTab, setActiveProjectDetailTab] = useState<"overview" | "requirements" | "script" | "client">("overview");
+  const [copiedScript, setCopiedScript] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
@@ -4167,6 +4168,108 @@ export function TalentDashboard() {
                         {/* Tab 1: Overview */}
                         {activeProjectDetailTab === "overview" && (
                           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                            {/* Airbnb-Style "Client Favorite" Social Proof Banner */}
+                            <div
+                              className="p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                              style={{
+                                background: "linear-gradient(135deg, rgba(224, 77, 44, 0.05) 0%, rgba(139, 92, 246, 0.04) 100%)",
+                                borderColor: "var(--color-border-default)",
+                              }}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-[var(--color-accent)] text-white flex items-center justify-center shrink-0 shadow-sm">
+                                  <Award className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-accent)]">
+                                      Client Favorite
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+                                      Verified Employer
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
+                                    One of the most trusted casting clients on Monologg, rated for prompt escrow approvals and responsive direction.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-4 sm:border-l sm:pl-5 shrink-0" style={{ borderColor: "var(--color-hairline)" }}>
+                                <div className="text-left sm:text-right">
+                                  <div className="flex items-center gap-1 font-display text-base font-bold text-amber-500">
+                                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                    <span>{selectedProject.clientRating ?? 4.9}</span>
+                                  </div>
+                                  <div className="text-[10px] font-body text-[var(--color-text-tertiary)] uppercase tracking-wider">
+                                    Client Rating
+                                  </div>
+                                </div>
+                                <div className="text-left sm:text-right">
+                                  <div className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                    {selectedProject.clientReviews ?? 18}
+                                  </div>
+                                  <div className="text-[10px] font-body text-[var(--color-text-tertiary)] uppercase tracking-wider">
+                                    Completed Hires
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Airbnb-Style "Brief at a Glance" 3-Item Quick Scan Strip */}
+                            <div
+                              className="p-4 sm:p-5 rounded-2xl border space-y-3.5"
+                              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
+                            >
+                              <div className="text-[10px] font-bold uppercase tracking-wider font-body text-[var(--color-text-tertiary)]">
+                                Brief at a Glance
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)] shrink-0 mt-0.5">
+                                    <Mic className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                      Craft &amp; Role Fit
+                                    </div>
+                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
+                                      {selectedProject.projectType} · {selectedProject.nicheReq.map((n) => n.replace(/_/g, " ")).join(", ")}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 mt-0.5">
+                                    <Calendar className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                      Production Window &amp; Location
+                                    </div>
+                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
+                                      {selectedProject.timeline || "Auditions close Oct 24 · Production: Nov 2026"} · {selectedProject.location || "Lagos, NG (Hybrid/Remote)"}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 mt-0.5">
+                                    <ShieldCheck className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                      100% Escrow Protection
+                                    </div>
+                                    <div className="text-xs font-body text-[var(--color-text-secondary)]">
+                                      {selectedProject.budget} is held in Monologg Escrow before you record. Automatic direct bank payout upon delivery.
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             {/* Creative Brief / Synopsis */}
                             <div
                               className="p-5 sm:p-6 rounded-2xl border"
@@ -4299,18 +4402,43 @@ export function TalentDashboard() {
                               className="p-5 sm:p-6 rounded-2xl border"
                               style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
                             >
-                              <div className="flex items-center gap-2 mb-3">
-                                <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
-                                  <Layers className="w-4 h-4" />
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center text-[var(--color-accent)]">
+                                    <Layers className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                      Audition Sides &amp; Script Excerpt
+                                    </h3>
+                                    <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Use this text for your audition take or pitch video
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                    Audition Sides &amp; Script Excerpt
-                                  </h3>
-                                  <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Use this text for your audition take or pitch video
-                                  </p>
-                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const textToCopy = selectedProject.scriptSample || "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'";
+                                    navigator.clipboard.writeText(textToCopy);
+                                    setCopiedScript(true);
+                                    setTimeout(() => setCopiedScript(false), 2000);
+                                  }}
+                                  className="h-8 px-3 rounded-lg border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)]"
+                                  style={{ borderColor: "var(--color-border-default)", color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)" }}
+                                >
+                                  {copiedScript ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                      <span className="text-emerald-500">Copied!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" />
+                                      <span>Copy Sides</span>
+                                    </>
+                                  )}
+                                </button>
                               </div>
 
                               <div
@@ -4449,6 +4577,29 @@ export function TalentDashboard() {
                               <span className="text-xs font-body text-[var(--color-text-secondary)]">
                                 Fixed Escrow Rate
                               </span>
+                            </div>
+                          </div>
+
+                          {/* Transparent Compensation & Payout Breakdown (Airbnb 'Pricing Clarify' style) */}
+                          <div
+                            className="p-3.5 rounded-2xl border space-y-2 text-xs font-body"
+                            style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span style={{ color: "var(--color-text-secondary)" }}>Base Project Budget</span>
+                              <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedProject.budget}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span style={{ color: "var(--color-text-secondary)" }}>Escrow Security Deposit</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">100% Guaranteed</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span style={{ color: "var(--color-text-secondary)" }}>Platform Payout Fee</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold font-mono">₦0 (0% Talent Fee)</span>
+                            </div>
+                            <div className="pt-2 border-t flex justify-between items-center font-bold" style={{ borderColor: "var(--color-hairline)" }}>
+                              <span style={{ color: "var(--color-text-primary)" }}>Your Direct Bank Payout</span>
+                              <span className="font-mono text-[var(--color-accent)]">{selectedProject.budget}</span>
                             </div>
                           </div>
 

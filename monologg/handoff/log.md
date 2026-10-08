@@ -50,6 +50,12 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 4. **Unified My Applications Experience (`TalentDashboard.tsx`):**
    - Updated the My Applications tab so clicking any submitted application loads the exact same rich Airbnb detail view pre-configured to `activeProjectDetailTab("overview")`, giving performers full transparency into the client brief alongside their submission status.
 
+5. **Airbnb Visual Hierarchy Polish (`TalentDashboard.tsx`):**
+   - **"Client Favorite" Social Proof Banner:** Added top-level trust banner on the Overview tab with `Award` badge, verified employer pill, 4.9 client rating, and completed hires tally, directly mirroring Airbnb's "Guest favorite" trust pattern.
+   - **"Brief at a Glance" 3-Item Quick Scan Strip:** Integrated a dedicated 3-bullet scan strip mirroring Airbnb's "Highlight benefits": Craft & Role Fit (`Mic`), Production Window & Location (`Calendar`), and 100% Escrow Protection (`ShieldCheck`).
+   - **One-Click "Copy Sides" Action:** Added an interactive clipboard copy button to the monospace screenplay sides box with instant green "Copied!" feedback, enabling performers to immediately grab script excerpts for teleprompters/mics.
+   - **Transparent Compensation & Payout Breakdown:** Added a financial clarification breakdown in the right floating reservation card (Base Project Budget, 100% Escrow Guarantee, ₦0 Talent Payout Fee, Net Direct Bank Payout).
+
 ### Files Touched
 - `monologg/packages/types/src/application.ts`
 - `monologg/apps/web/src/mocks/projects.ts`
