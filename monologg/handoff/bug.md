@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
+**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,30 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 37. Projects and Activity search bar height and styling mismatch with filter dropdowns
+- **Severity:** Low / Cosmetic
+- **What happened:** In `TalentDashboard.tsx`, the search bar rendered as a bulky `54px` tall box with `bg-surface-2` (grey) background and `rounded-[var(--radius-lg)]`, while the three filter select dropdowns directly underneath were `36px` (`h-9`) tall with `bg-surface` (white) background, creating jarring visual inconsistency.
+- **Root Cause:** `<Input>` defaults to `h-[54px]` while the filter `<select>` elements used `h-9` without synchronized styling.
+- **Resolution:** Standardized both the search input and the filter selects to `h-10` (40px) with `rounded-xl`, matching `bg-[var(--color-bg-surface)]` background and `border-[var(--color-border-default)]` border. Added a quick clear (`X`) button inside the search input.
+
+---
+
+### 36. Duplicate headers and duplicate calendar strips on Availability page
+- **Severity:** Medium / UI Clutter
+- **What happened:** Navigating to the Availability tab rendered a duplicate `<h2>Availability</h2>` title and a second notification bell icon inside the tab content directly below the main shell header, as well as a redundant 14-day rolling horizontal date strip and duplicate date picker input.
+- **Root Cause:** Legacy tab mockup retained an inner header bar and secondary date carousel above the main Month/Week/Day calendar views.
+- **Resolution:** Removed the redundant inner header, notification bell, rolling date strip, and duplicate date input, centering Month, Week, and Day views with clean navigation controls.
+
+---
+
+### 35. TypeScript TS2367 comparison error in `TalentDashboard.tsx`
+- **Severity:** High / Build Failure
+- **What happened:** `npx pnpm -r typecheck` failed with `TS2367: This comparison appears to be unintentional because the types '"personal" | "hold"' and '"booking"' have no overlap.`
+- **Root Cause:** In `handleAddEvent`, `bookingId` evaluated `newEventKind === "booking" ? "bk-local" : null`, but `newEventKind` was typed as `useState<"personal" | "hold">("personal")`.
+- **Resolution:** Simplified `bookingId: null` since manually added creator events are personal/hold entries, while Monologg platform bookings originate from backend orders. Restored clean workspace typecheck.
+
+---
 
 ### 34. `effectiveServices` in TalentDashboard hardcoding empty array for new users
 - **Severity:** Medium / Data Flow

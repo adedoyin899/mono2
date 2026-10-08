@@ -11,7 +11,7 @@ import { useDocumentMeta } from "../../lib/documentMeta";
 import type { PublicStorefront as PublicStorefrontData } from "@monologg/types";
 import {
   Shield, Award, Play, Music, ArrowRight, Lock, CheckCircle2, Users, Share2,
-  Instagram, Youtube, Twitter, Linkedin, Globe
+  Instagram, Youtube, Twitter, Linkedin, Globe, MapPin
 } from "lucide-react";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
@@ -37,14 +37,14 @@ function StorefrontSkeleton() {
   };
   return (
     <div className="min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="rounded-[var(--radius-lg)] overflow-hidden" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
-          <div className="h-24 w-full animate-pulse" style={shimmer} />
-          <div className="px-6 pb-6">
-            <div className="flex items-end gap-4 -mt-10 mb-4">
-              <div className="w-16 h-16 rounded-full animate-pulse" style={shimmer} />
+      <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
+        <div className="rounded-[28px] overflow-hidden" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
+          <div className="h-44 sm:h-52 w-full animate-pulse" style={shimmer} />
+          <div className="px-6 pb-8">
+            <div className="flex items-end gap-4 -mt-12 sm:-mt-14 mb-4">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full animate-pulse" style={shimmer} />
               <div className="flex gap-2 pb-1">
-                <div className="w-16 h-5 rounded-full animate-pulse" style={shimmer} />
+                <div className="w-24 h-6 rounded-full animate-pulse" style={shimmer} />
               </div>
             </div>
             <div className="w-48 h-7 mb-2 animate-pulse" style={shimmer} />
@@ -124,7 +124,7 @@ export function PublicStorefront() {
             </Button>
           </div>
         </header>
-        <div className="flex-1 max-w-2xl mx-auto px-4 py-8 w-full flex flex-col items-center justify-center text-center">
+        <div className="flex-1 max-w-5xl mx-auto px-4 py-8 w-full flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-bg-elevated)" }}>
             <Users className="w-7 h-7" style={{ color: "var(--color-text-tertiary)" }} />
           </div>
@@ -165,114 +165,150 @@ export function PublicStorefront() {
         </div>
       </header>
 
-      {/* ── Main content ── */}
+      {/* ── Main content: matches exact profile width & content ── */}
       <main className="flex-1">
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="rounded-[var(--radius-lg)] overflow-hidden"
-            style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+            className="rounded-[28px] overflow-hidden border shadow-sm transition-all"
+            style={{
+              background: "var(--color-bg-surface)",
+              borderColor: "var(--color-border-default)",
+              boxShadow: "var(--shadow-card)",
+            }}
           >
+            {/* Hero Cover Banner */}
             <div
-              className="h-32 sm:h-40 md:h-44 w-full relative overflow-hidden"
+              className="h-44 sm:h-52 w-full relative transition-all group overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, #8B0000 0%, #DC2626 50%, #450A0A 100%)",
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-black/15" />
             </div>
 
-            <div className="px-6 pb-6">
-              <div className="flex items-end justify-between -mt-12 sm:-mt-14 mb-4">
-                <Avatar size="xl" background="var(--color-accent)" color="var(--color-accent-on)" className="ring-4 ring-[var(--color-bg-surface)] shadow-md">
-                  {profile.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
-                </Avatar>
+            <div className="px-6 pb-8">
+              {/* Avatar & Badges Header */}
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
+                <div className="flex items-end gap-4">
+                  <div
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 overflow-hidden shrink-0 shadow-lg relative group"
+                    style={{
+                      borderColor: "var(--color-bg-surface)",
+                      background: "var(--color-bg-elevated)",
+                    }}
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&q=80&fit=crop"
+                      alt={profile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <div className="pb-1 flex items-center gap-2 flex-wrap">
+                    {profile.verified && (
+                      <Badge tone="success" className="border border-[var(--color-success)] gap-1">
+                        <Shield className="w-3 h-3" /> Verified
+                      </Badge>
+                    )}
+                    {profile.celebrityBadge && (
+                      <Badge tone="warning" className="border border-[var(--color-gold-primary)] gap-1">
+                        <Award className="w-3 h-3" /> Celebrity
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-2">
-                  <Button variant="secondary" className="h-8 px-3 text-xs gap-1.5" onClick={handleShareStorefront}>
-                    <Share2 className="w-3.5 h-3.5" /> {copiedStorefrontLink ? "Copied!" : "Share"}
+                  <Button variant="secondary" size="sm" className="gap-2 text-xs h-9" onClick={handleShareStorefront}>
+                    <Share2 className="w-3.5 h-3.5" /> {copiedStorefrontLink ? "Copied!" : "Share Profile"}
                   </Button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <h1 className="font-display text-2xl sm:text-3xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              {/* Performer Name & Title */}
+              <div className="mb-4">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
                   {profile.name}
                 </h1>
-                {profile.verified && (
-                  <Badge tone="success" className="border border-[var(--color-success)] text-xs">
-                    <Shield className="w-3 h-3" /> Verified
-                  </Badge>
-                )}
-                {profile.celebrityBadge && (
-                  <Badge tone="warning" className="border border-[var(--color-gold-primary)] text-xs">
-                    <Award className="w-3 h-3" /> Celebrity
-                  </Badge>
-                )}
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Available for Booking
+                <p className="text-sm font-body flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                  <span>{profile.nicheLabel} · {profile.location}</span>
+                </p>
+              </div>
+
+              {/* Availability Status Badge */}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "var(--color-success)" }}></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "var(--color-success)" }}></span>
+                </span>
+                <span className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                  Available for bookings &amp; casting
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
-                {profile.nicheLabel} · {profile.location}
-              </p>
-
-              {/* Social Presence Links */}
-              <div className="flex items-center gap-2 flex-wrap mb-4 pt-3 border-t border-[var(--color-hairline)]">
+              {/* Social Media Row (Linktree style) */}
+              <div className="flex flex-wrap items-center gap-2 mb-6 pt-1">
                 <a
                   href={`https://instagram.com/${profile.name.toLowerCase().replace(/\s+/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-body border border-[var(--color-border-default)] hover:border-[var(--color-accent)] bg-[var(--color-bg-elevated)] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#E1306C] hover:text-[#E1306C]"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  <Instagram className="w-3.5 h-3.5 text-pink-500" />
+                  <Instagram className="w-3.5 h-3.5" />
                   <span>@{profile.name.toLowerCase().replace(/\s+/g, "")}</span>
                 </a>
                 <a
                   href={`https://youtube.com/@${profile.name.toLowerCase().replace(/\s+/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-body border border-[var(--color-border-default)] hover:border-[var(--color-accent)] bg-[var(--color-bg-elevated)] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#FF0000] hover:text-[#FF0000]"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  <Youtube className="w-3.5 h-3.5 text-red-500" />
+                  <Youtube className="w-3.5 h-3.5" />
                   <span>@{profile.name.toLowerCase().replace(/\s+/g, "")}</span>
                 </a>
                 <a
-                  href={`https://twitter.com/${profile.name.toLowerCase().replace(/\s+/g, "")}`}
+                  href={`https://x.com/${profile.name.toLowerCase().replace(/\s+/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-body border border-[var(--color-border-default)] hover:border-[var(--color-accent)] bg-[var(--color-bg-elevated)] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#1DA1F2] hover:text-[#1DA1F2]"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  <Twitter className="w-3.5 h-3.5 text-sky-500" />
+                  <Twitter className="w-3.5 h-3.5" />
                   <span>@{profile.name.toLowerCase().replace(/\s+/g, "")}</span>
                 </a>
               </div>
 
+              {/* Tags List */}
               {profile.styleTags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-6">
                   {profile.styleTags.map((tag) => (
-                    <Badge key={tag} tone="neutral" size="md">{tag}</Badge>
+                    <Badge key={tag} tone="neutral" size="lg">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               )}
 
+              {/* Bio Section */}
               {profile.bio && (
-                <div className="mb-6 p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
-                  <p className="text-xs sm:text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                <div className="mb-8">
+                  <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
+                    About the Performer
+                  </h3>
+                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                     {profile.bio}
                   </p>
                 </div>
               )}
 
               {/* Featured Performance Reel (Reduced Height) */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2.5">
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
                     Featured Performance Reel
                   </h3>
@@ -315,41 +351,57 @@ export function PublicStorefront() {
                 </div>
               </div>
 
-              {/* Rate Cards Section with Book Now CTA */}
-              <h2 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>
-                Rate Cards
-              </h2>
-              {profile.rateCards.length === 0 ? (
-                <p className="text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>No services listed yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {profile.rateCards.map((service) => (
-                    <div
-                      key={service.id}
-                      className="p-4 rounded-[var(--radius-lg)] border flex flex-col justify-between hover:shadow-[var(--shadow-elevated)] transition-all"
-                      style={{
-                        background: "var(--color-bg-elevated)",
-                        borderColor: "var(--color-border-default)",
-                        borderLeft: "3px solid var(--color-accent)",
-                      }}
-                    >
-                      <div>
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</span>
-                          <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>{service.price}</span>
-                        </div>
-                        <div className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>Delivery: {service.delivery}</div>
-                      </div>
-                      <Button
-                        className="w-full h-10 text-xs font-semibold gap-2 mt-auto"
-                        onClick={() => navigate(`/book/${profile.id}?rateCard=${service.id}`)}
+              {/* Rate Cards Section with Book Now CTA (Max 2 cards) */}
+              <div>
+                <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>
+                  Rate Cards
+                </h3>
+                {profile.rateCards.length === 0 ? (
+                  <p className="text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>No services listed yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {profile.rateCards.slice(0, 2).map((service) => (
+                      <div
+                        key={service.id}
+                        className="p-4 rounded-[var(--radius-lg)] border flex flex-col justify-between transition-all hover:shadow-md"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          borderColor: "var(--color-border-default)",
+                          borderLeft: "3px solid var(--color-accent)",
+                        }}
                       >
-                        Book Now <ArrowRight className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        <div>
+                          <div className="flex justify-between items-start mb-1.5">
+                            <span className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                              {service.title}
+                            </span>
+                          </div>
+                          <div className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
+                            Delivery: {service.delivery}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="pt-3 pb-3 border-t flex items-baseline justify-between" style={{ borderColor: "var(--color-hairline)" }}>
+                            <span className="text-[11px] uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                              Base Rate
+                            </span>
+                            <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
+                              {service.price}
+                            </span>
+                          </div>
+                          <Button
+                            className="w-full h-10 text-xs font-semibold gap-2"
+                            onClick={() => navigate(`/book/${profile.id}?rateCard=${service.id}`)}
+                          >
+                            Book Now <ArrowRight className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
 
@@ -365,7 +417,7 @@ export function PublicStorefront() {
           />
 
           {/* ── Trust footer — builds confidence for strangers about to pay ── */}
-          <div className="mt-6 flex flex-col items-center gap-4">
+          <div className="mt-8 flex flex-col items-center gap-4">
             <div className="flex items-center gap-6 flex-wrap justify-center">
               <div className="flex items-center gap-1.5 text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                 <Lock className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />

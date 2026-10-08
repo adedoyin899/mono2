@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
+import { LogoMark } from "../components/ui/Logo";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects" | "activity" | "analytics";
 
@@ -230,6 +231,50 @@ export function TalentDashboard() {
     date: string;
     time?: string;
   } | null>(null);
+
+  const [unavailableDates, setUnavailableDates] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem("monologg_unavailable_dates");
+      if (saved) return new Set(JSON.parse(saved));
+    } catch {}
+    return new Set(["2026-10-18", "2026-10-25"]);
+  });
+
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; date: string } | null>(null);
+
+  const [allEvents, setAllEvents] = useState<Record<string, CalendarEvent[]>>(() => {
+    try {
+      const saved = localStorage.getItem("monologg_calendar_events");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      "2026-10-08": [
+        { id: "evt-mono-1", date: "2026-10-08", start: "14:00", end: "16:00", title: "Commercial Voice-Over Booking", kind: "booking", bookingId: "bk-101" },
+      ],
+      "2026-10-14": [
+        { id: "evt-gcal-1", date: "2026-10-14", start: "10:00", end: "11:30", title: "Personal Rehearsal & Prep", kind: "personal", bookingId: null },
+      ],
+      "2026-10-21": [
+        { id: "evt-mono-2", date: "2026-10-21", start: "13:00", end: "15:00", title: "Feature Film Audition Session", kind: "booking", bookingId: "bk-102" },
+      ],
+      "2026-08-05": [
+        { id: "mock-event-1", date: "2026-08-05", start: "14:00", end: "15:00", title: "Table read", kind: "personal", bookingId: null },
+      ],
+    };
+  });
+
+  useEffect(() => {
+    const handleOutsideClick = () => setContextMenu(null);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setContextMenu(null);
+    };
+    window.addEventListener("click", handleOutsideClick);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const navigate = useNavigate();
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -494,9 +539,53 @@ export function TalentDashboard() {
     return matchesSearch && matchesRole && matchesBudget && matchesStatus;
   });
 
+  const handleToggleUnavailable = (date: string, isUnavailable: boolean) => {
+    setUnavailableDates((prev) => {
+      const next = new Set(prev);
+      if (isUnavailable) next.add(date);
+      else next.delete(date);
+      try {
+        localStorage.setItem("monologg_unavailable_dates", JSON.stringify([...next]));
+      } catch {}
+      return next;
+    });
+
+    if (dayDetail && dayDetail.date === date) {
+      if (isUnavailable) {
+        setDayDetail({
+          ...dayDetail,
+          openSlots: [],
+          block: {
+            id: dayDetail.block?.id ?? "unavail-block",
+            slots: [{ start: "00:00", end: "23:59", state: "unavailable" }],
+            isRecurring: false,
+            recurRule: null,
+          },
+        });
+      } else {
+        setDayDetail({
+          ...dayDetail,
+          openSlots: [{ start: "00:00", end: "23:59" }],
+          block: null,
+        });
+      }
+    }
+  };
+
   const loadDay = (date: string) => {
     setLoadingDay(true);
     apiClient.getAvailabilityDay(date).then((detail) => {
+      const storedEvents = allEvents[date] || [];
+      const mergedEvents = [...storedEvents];
+      detail.events.forEach((de) => {
+        if (!mergedEvents.some((me) => me.id === de.id)) {
+          mergedEvents.push(de);
+        }
+      });
+      detail.events = mergedEvents;
+      if (unavailableDates.has(date)) {
+        detail.openSlots = [];
+      }
       setDayDetail(detail);
       setLoadingDay(false);
     });
@@ -555,6 +644,14 @@ export function TalentDashboard() {
       bookingId: null,
     };
     setDayDetail((prev) => (prev ? { ...prev, events: [...prev.events, event].sort((a, b) => a.start.localeCompare(b.start)) } : prev));
+    setAllEvents((prev) => {
+      const existing = prev[selectedDate] || [];
+      const next = { ...prev, [selectedDate]: [...existing, event] };
+      try {
+        localStorage.setItem("monologg_calendar_events", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     setShowAddEvent(false);
     setNewEventTitle("");
   };
@@ -562,6 +659,14 @@ export function TalentDashboard() {
   const handleDeleteEvent = async (id: string) => {
     await apiClient.deleteCalendarEvent(id);
     setDayDetail((prev) => (prev ? { ...prev, events: prev.events.filter((e) => e.id !== id) } : prev));
+    setAllEvents((prev) => {
+      const existing = prev[selectedDate] || [];
+      const next = { ...prev, [selectedDate]: existing.filter((e) => e.id !== id) };
+      try {
+        localStorage.setItem("monologg_calendar_events", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const handleAddRecurring = async () => {
@@ -1908,39 +2013,16 @@ export function TalentDashboard() {
 
             {/* ── Availability Calendar Tab (features.md Phase 13, PWA-08) ── */}
             {activeTab === "calendar" && (
-              <motion.div key="calendar" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <motion.div key="calendar" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="relative">
                 {isNewUser && (
                   <div className="mb-4 p-4 rounded-[var(--radius-lg)] bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-start gap-3">
                     <Calendar className="w-5 h-5 text-[var(--color-accent)] shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-[var(--color-text-primary)] font-body">Default Working Hours Active (9:00 AM – 5:00 PM)</p>
-                      <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 font-body">Your availability automatically defaults to standard bookable slots. Select any date below to add custom time slots or mark specific days unavailable.</p>
+                      <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 font-body">Your availability automatically defaults to standard bookable slots. Click any date below to view details, or right-click to mark availability.</p>
                     </div>
                   </div>
                 )}
-
-                {/* Header & Subtitle */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                  <div>
-                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Availability</h2>
-                    <p className="text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                      Set your availability for bookings. Click a day to see and edit everything scheduled — an unconfigured day is open across normal hours by default.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      aria-label="Notifications"
-                      onClick={() => setActiveTab("home")}
-                      className="relative w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105"
-                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                    >
-                      <Bell className="w-4 h-4" style={{ color: "var(--color-text-primary)" }} />
-                      {notifications.some((n) => !n.readAt) && (
-                        <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
-                      )}
-                    </button>
-                  </div>
-                </div>
 
                 {/* Calendar Toolbar & Period Navigation */}
                 <div
@@ -1949,6 +2031,15 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between w-full sm:w-auto gap-3">
                     <div className="flex items-center gap-1.5">
+                      <button
+                        aria-label="Jump to today"
+                        title="Jump to today"
+                        onClick={() => setSelectedDate(todayISO())}
+                        className="p-2 rounded-xl transition-all hover:bg-[var(--color-bg-elevated)]"
+                        style={{ border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
+                      >
+                        <Calendar className="w-4 h-4 text-[var(--color-accent)]" />
+                      </button>
                       <button
                         aria-label="Previous period"
                         onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, calendarView, "prev"))}
@@ -1998,51 +2089,74 @@ export function TalentDashboard() {
                   </div>
                 </div>
 
-                {/* Rolling Date Selector Pill Strip */}
-                <div className="flex items-center gap-2 mb-4">
-                  <button
-                    aria-label="Jump to today"
-                    onClick={() => setSelectedDate(todayISO())}
-                    className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-all hover:scale-105"
-                    style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
+                {/* Floating Right-Click Context Menu */}
+                {contextMenu && (
+                  <div
+                    className="fixed z-50 min-w-[210px] rounded-2xl p-1.5 shadow-2xl border backdrop-blur-xl animate-in fade-in zoom-in-95 duration-100"
+                    style={{
+                      left: Math.min(contextMenu.x, window.innerWidth - 230),
+                      top: Math.min(contextMenu.y, window.innerHeight - 250),
+                      background: "var(--color-bg-surface)",
+                      borderColor: "var(--color-border-default)",
+                      boxShadow: "0 12px 36px rgba(0,0,0,0.25)",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Calendar className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
-                  </button>
+                    <div className="px-3 py-2 text-[11px] font-bold font-body uppercase tracking-wider border-b mb-1" style={{ color: "var(--color-text-tertiary)", borderColor: "var(--color-hairline)" }}>
+                      {formatDayLabel(contextMenu.date)}
+                    </div>
 
-                  <div className="flex gap-2 overflow-x-auto pb-1 flex-1 scrollbar-none">
-                    {Array.from({ length: 14 }, (_, i) => addDaysISO(todayISO(), i)).map((date) => {
-                      const isSelected = date === selectedDate;
-                      const isToday = date === todayISO();
-                      return (
-                        <button
-                          key={date}
-                          onClick={() => setSelectedDate(date)}
-                          className="shrink-0 px-3.5 py-2 rounded-xl text-xs font-body font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1.5"
-                          style={{
-                            background: isSelected ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                            color: isSelected ? "var(--color-accent-on)" : "var(--color-text-primary)",
-                            border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                            boxShadow: isSelected ? "0 4px 12px rgba(241,48,48,0.25)" : "none",
-                          }}
-                        >
-                          {isToday && !isSelected && <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />}
-                          {formatDayLabel(date)}
-                        </button>
-                      );
-                    })}
-                  </div>
+                    {unavailableDates.has(contextMenu.date) ? (
+                      <button
+                        onClick={() => {
+                          handleToggleUnavailable(contextMenu.date, false);
+                          setNewSlotState("free");
+                          setShowAddSlot(true);
+                          setContextMenu(null);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-[var(--color-bg-elevated)] transition-colors text-left"
+                        style={{ color: "var(--color-success)" }}
+                      >
+                        <CheckCircle2 className="w-4 h-4" /> Mark as Available
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          handleToggleUnavailable(contextMenu.date, true);
+                          setContextMenu(null);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl hover:bg-[var(--color-bg-elevated)] transition-colors text-left"
+                        style={{ color: "var(--color-accent)" }}
+                      >
+                        <X className="w-4 h-4" /> Mark as Unavailable
+                      </button>
+                    )}
 
-                  <div className="relative shrink-0">
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-                      className="h-10 px-3 pr-9 rounded-xl text-xs font-body cursor-pointer font-medium"
-                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)", color: "var(--color-text-primary)" }}
-                    />
-                    <Calendar className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--color-text-secondary)" }} />
+                    <button
+                      onClick={() => {
+                        setSelectedDate(contextMenu.date);
+                        setContextMenu(null);
+                        setShowAddSlot(true);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl hover:bg-[var(--color-bg-elevated)] transition-colors text-left"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      <Clock className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} /> Add Custom Slot
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setSelectedDate(contextMenu.date);
+                        setContextMenu(null);
+                        setShowAddEvent(true);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl hover:bg-[var(--color-bg-elevated)] transition-colors text-left"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      <Plus className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} /> Add Event / Booking
+                    </button>
                   </div>
-                </div>
+                )}
 
                 {/* MONTH VIEW GRID */}
                 {calendarView === "month" && (() => {
@@ -2074,33 +2188,80 @@ export function TalentDashboard() {
                       </div>
                       <div className="grid grid-cols-7 gap-2">
                         {daysArray.map((dateStr, idx) => {
-                          if (!dateStr) return <div key={`empty-${idx}`} className="h-14 sm:h-16 rounded-xl bg-[var(--color-bg-canvas)]/30" />;
+                          if (!dateStr) return <div key={`empty-${idx}`} className="h-16 sm:h-20 rounded-xl bg-[var(--color-bg-canvas)]/30" />;
                           const isSelected = dateStr === selectedDate;
                           const isToday = dateStr === todayISO();
                           const dayNum = parseInt(dateStr.slice(8), 10);
+                          const isUnavailable = unavailableDates.has(dateStr);
+                          const dayEvts = allEvents[dateStr] || (dateStr === selectedDate && dayDetail?.events ? dayDetail.events : []);
+                          const hasMonologg = dayEvts.some(e => e.kind === "booking" || Boolean(e.bookingId) || e.title.toLowerCase().includes("monolog"));
+                          const hasExternal = dayEvts.length > 0 && !hasMonologg;
+
                           return (
                             <button
                               key={dateStr}
                               onClick={() => {
                                 setSelectedDate(dateStr);
-                                setActionPopover({ date: dateStr });
+                                setContextMenu(null);
                               }}
-                              className="h-14 sm:h-16 p-2 rounded-xl flex flex-col items-center justify-between relative transition-all active:scale-95 text-xs font-body font-medium"
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+                                setSelectedDate(dateStr);
+                                setContextMenu({ x: e.clientX, y: e.clientY, date: dateStr });
+                              }}
+                              className={`h-16 sm:h-20 p-2 rounded-xl flex flex-col justify-between relative transition-all active:scale-98 text-xs font-body text-left group ${
+                                isUnavailable
+                                  ? "bg-neutral-100/80 dark:bg-neutral-900/40 border border-dashed border-neutral-300 dark:border-neutral-700/80 text-neutral-400 dark:text-neutral-500"
+                                  : isSelected
+                                  ? "border-2 border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm"
+                                  : "hover:border-[var(--color-border-hover)]"
+                              }`}
                               style={{
-                                background: isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                                color: isSelected ? "var(--color-accent-on)" : isToday ? "var(--color-accent)" : "var(--color-text-primary)",
-                                border: `1px solid ${isSelected ? "var(--color-accent)" : isToday ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                                boxShadow: isSelected ? "0 4px 14px rgba(241,48,48,0.3)" : "none",
+                                background: isUnavailable
+                                  ? undefined
+                                  : isSelected
+                                  ? "var(--color-bg-elevated)"
+                                  : isToday
+                                  ? "var(--color-accent-soft)"
+                                  : "var(--color-bg-elevated)",
+                                borderColor: isUnavailable
+                                  ? undefined
+                                  : isSelected
+                                  ? "var(--color-accent)"
+                                  : isToday
+                                  ? "var(--color-accent)"
+                                  : "var(--color-border-default)",
+                                color: isUnavailable
+                                  ? undefined
+                                  : isToday && !isSelected
+                                  ? "var(--color-accent)"
+                                  : "var(--color-text-primary)",
                               }}
                             >
-                              <span className="text-sm font-semibold">{dayNum}</span>
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center justify-between w-full">
+                                <span className={`text-sm font-semibold ${isUnavailable ? "text-neutral-400 dark:text-neutral-500" : isSelected ? "font-bold text-[var(--color-accent)]" : ""}`}>
+                                  {dayNum}
+                                </span>
                                 {isToday && (
-                                  <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[var(--color-accent)]"}`} />
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" title="Today" />
                                 )}
-                                {isSelected && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
-                                )}
+                              </div>
+
+                              {/* Visual recognition: Unavailable vs Events vs Clean Open */}
+                              <div className="w-full min-h-[18px] flex items-center">
+                                {isUnavailable ? (
+                                  <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 bg-neutral-200/60 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded">
+                                    Unavailable
+                                  </span>
+                                ) : hasMonologg ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/25 truncate max-w-full">
+                                    <LogoMark className="w-2.5 h-2.5 shrink-0" /> Monologg
+                                  </span>
+                                ) : hasExternal ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 truncate max-w-full">
+                                    <Calendar className="w-2.5 h-2.5 shrink-0" /> Event
+                                  </span>
+                                ) : null}
                               </div>
                             </button>
                           );
@@ -2110,7 +2271,7 @@ export function TalentDashboard() {
                   );
                 })()}
 
-                {/* WEEK VIEW GRID (Image 3 Inspiration) */}
+                {/* WEEK VIEW GRID */}
                 {calendarView === "week" && (() => {
                   const weekDays = getWeekDaysISO(selectedDate);
                   const hours = Array.from({ length: 13 }, (_, i) => i + 8);
@@ -2152,6 +2313,7 @@ export function TalentDashboard() {
                               {weekDays.map((dStr) => {
                                 const isSelDay = dStr === selectedDate;
                                 const hasEvent = dayDetail?.events.find(e => parseInt(e.start.slice(0, 2), 10) === hr);
+                                const isMono = hasEvent ? (hasEvent.kind === "booking" || Boolean(hasEvent.bookingId) || hasEvent.title.toLowerCase().includes("monolog")) : false;
                                 return (
                                   <div
                                     key={dStr}
@@ -2173,9 +2335,14 @@ export function TalentDashboard() {
                                             description: "Scheduled performance hold/session.",
                                           });
                                         }}
-                                        className="p-1.5 rounded-md text-[11px] font-body font-semibold truncate bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30"
+                                        className={`p-1.5 rounded-md text-[11px] font-body font-semibold truncate flex items-center gap-1 ${
+                                          isMono
+                                            ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]/30"
+                                            : "bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20"
+                                        }`}
                                       >
-                                        {hasEvent.title} ({hasEvent.start})
+                                        {isMono ? <LogoMark className="w-3 h-3 shrink-0" /> : <Calendar className="w-3 h-3 shrink-0" />}
+                                        <span className="truncate">{hasEvent.title} ({hasEvent.start})</span>
                                       </div>
                                     )}
                                   </div>
@@ -2189,7 +2356,7 @@ export function TalentDashboard() {
                   );
                 })()}
 
-                {/* DAY VIEW GRID (Image 4 Inspiration) */}
+                {/* DAY VIEW GRID */}
                 {calendarView === "day" && (() => {
                   const hours = Array.from({ length: 13 }, (_, i) => i + 8);
                   const dayNameLong = new Date(`${selectedDate}T00:00:00.000Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -2223,28 +2390,38 @@ export function TalentDashboard() {
                                 {matchedEvents.length === 0 ? (
                                   <div className="text-[11px] font-body text-tertiary opacity-0 hover:opacity-100 transition-opacity">Click to add event or slot</div>
                                 ) : (
-                                  matchedEvents.map((evt) => (
-                                    <div
-                                      key={evt.id}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedEventModal({
-                                          id: evt.id,
-                                          title: evt.title,
-                                          date: evt.date,
-                                          start: evt.start,
-                                          end: evt.end,
-                                          kind: evt.kind,
-                                          venue: "Main Studio / Remote",
-                                          description: "Scheduled event details for this time slot.",
-                                        });
-                                      }}
-                                      className="p-2 rounded-lg mb-1 bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex items-center justify-between text-xs font-body font-semibold text-[var(--color-accent)]"
-                                    >
-                                      <span>{evt.title} ({evt.start} – {evt.end})</span>
-                                      <Badge tone="neutral" size="sm">{evt.kind}</Badge>
-                                    </div>
-                                  ))
+                                  matchedEvents.map((evt) => {
+                                    const isMono = evt.kind === "booking" || Boolean(evt.bookingId) || evt.title.toLowerCase().includes("monolog");
+                                    return (
+                                      <div
+                                        key={evt.id}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedEventModal({
+                                            id: evt.id,
+                                            title: evt.title,
+                                            date: evt.date,
+                                            start: evt.start,
+                                            end: evt.end,
+                                            kind: evt.kind,
+                                            venue: "Main Studio / Remote",
+                                            description: "Scheduled event details for this time slot.",
+                                          });
+                                        }}
+                                        className={`p-2 rounded-lg mb-1 flex items-center justify-between text-xs font-body font-semibold ${
+                                          isMono
+                                            ? "bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 text-[var(--color-accent)]"
+                                            : "bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400"
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-1.5">
+                                          {isMono ? <LogoMark className="w-3.5 h-3.5 shrink-0" /> : <Calendar className="w-3.5 h-3.5 shrink-0" />}
+                                          <span>{evt.title} ({evt.start} – {evt.end})</span>
+                                        </div>
+                                        <Badge tone="neutral" size="sm">{isMono ? "Monologg" : evt.kind}</Badge>
+                                      </div>
+                                    );
+                                  })
                                 )}
                               </div>
                             </div>
@@ -2259,12 +2436,47 @@ export function TalentDashboard() {
                   <div className="py-16 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>Loading…</div>
                 ) : (
                   <div className="space-y-4">
-                    {/* Open slots — server-authoritative (getOpenSlots), what a client would actually see. */}
+                    {/* Open slots — server-authoritative (getOpenSlots) */}
                     <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
-                      <div className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
-                        Open for booking on {formatDayLabel(selectedDate)}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-2 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                        <div>
+                          <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                            Schedule for {formatDayLabel(selectedDate)}
+                          </div>
+                          <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                            {unavailableDates.has(selectedDate) ? "Marked as unavailable for bookings." : "Standard bookable slots active."}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-8 px-3 text-xs gap-1.5"
+                            onClick={() => {
+                              handleToggleUnavailable(selectedDate, false);
+                              setNewSlotState("free");
+                              setShowAddSlot(true);
+                            }}
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-success)]" /> Mark as Available
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-8 px-3 text-xs gap-1.5"
+                            onClick={() => handleToggleUnavailable(selectedDate, true)}
+                          >
+                            <X className="w-3.5 h-3.5 text-[var(--color-accent)]" /> Mark as Unavailable
+                          </Button>
+                        </div>
                       </div>
-                      {dayDetail.openSlots.length === 0 ? (
+
+                      {unavailableDates.has(selectedDate) ? (
+                        <div className="p-3.5 rounded-xl bg-neutral-100 dark:bg-neutral-800/60 border border-dashed border-neutral-300 dark:border-neutral-700 text-xs font-body text-neutral-500 flex items-center gap-2">
+                          <X className="w-4 h-4 text-neutral-400" />
+                          <span>This date is currently marked as unavailable. Clients cannot book time slots on this day.</span>
+                        </div>
+                      ) : dayDetail.openSlots.length === 0 ? (
                         <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>No open time — fully unavailable or booked.</p>
                       ) : (
                         <div className="flex flex-wrap gap-1.5">
@@ -2273,7 +2485,7 @@ export function TalentDashboard() {
                           ))}
                         </div>
                       )}
-                      {!dayDetail.block && (
+                      {!dayDetail.block && !unavailableDates.has(selectedDate) && (
                         <p className="text-xs font-body mt-2" style={{ color: "var(--color-text-tertiary)" }}>
                           No overrides set — this day follows the default-free rule{dayDetail.recurringTemplates.length > 0 ? " and your recurring templates" : ""}.
                         </p>
@@ -2310,7 +2522,7 @@ export function TalentDashboard() {
                       )}
                     </div>
 
-                    {/* Events for this day — informational, never subtracted from openSlots. */}
+                    {/* Events for this day — informational */}
                     <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Events</div>
@@ -2322,17 +2534,40 @@ export function TalentDashboard() {
                         <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Nothing added for this day.</p>
                       ) : (
                         <div className="space-y-2">
-                          {dayDetail.events.map((event) => (
-                            <div key={event.id} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
-                              <div>
-                                <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{event.title}</div>
-                                <div className="text-xs font-mono tnum" style={{ color: "var(--color-text-tertiary)" }}>{event.start}–{event.end} · {event.kind}</div>
+                          {dayDetail.events.map((event) => {
+                            const isMono = event.kind === "booking" || Boolean(event.bookingId) || event.title.toLowerCase().includes("monolog");
+                            return (
+                              <div key={event.id} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                                <div className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: isMono ? "var(--color-accent-soft)" : "var(--color-bg-canvas)" }}>
+                                    {isMono ? (
+                                      <LogoMark className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                                    ) : (
+                                      <Calendar className="w-4 h-4 text-sky-500" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{event.title}</span>
+                                      {isMono ? (
+                                        <Badge tone="accent" size="sm" className="gap-1">
+                                          <LogoMark className="w-2.5 h-2.5" /> Monologg Booking
+                                        </Badge>
+                                      ) : (
+                                        <Badge tone="neutral" size="sm">Google Calendar</Badge>
+                                      )}
+                                    </div>
+                                    <div className="text-xs font-mono tnum mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                      {event.start}–{event.end}
+                                    </div>
+                                  </div>
+                                </div>
+                                <button onClick={() => handleDeleteEvent(event.id)} className="w-7 h-7 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ color: "var(--color-text-tertiary)" }}>
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
-                              <button onClick={() => handleDeleteEvent(event.id)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: "var(--color-text-tertiary)" }}>
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -2425,8 +2660,23 @@ export function TalentDashboard() {
                     )}
 
                     <div className="relative mb-3">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                      <Input placeholder="Search projects by title, client, or role…" value={projectSearch} onChange={(e) => setProjectSearch(e.target.value)} className="pl-11" />
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "var(--color-text-tertiary)" }} />
+                      <Input
+                        placeholder="Search projects by title, client, or role…"
+                        value={projectSearch}
+                        onChange={(e) => setProjectSearch(e.target.value)}
+                        className="!h-10 text-xs sm:text-sm pl-10 pr-9 rounded-xl !bg-[var(--color-bg-surface)] border-[var(--color-border-default)] focus:!border-[var(--color-accent)]"
+                      />
+                      {projectSearch && (
+                        <button
+                          type="button"
+                          aria-label="Clear project search"
+                          onClick={() => setProjectSearch("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
@@ -2435,7 +2685,7 @@ export function TalentDashboard() {
                         <select
                           value={projectRoleFilter}
                           onChange={(e) => setProjectRoleFilter(e.target.value)}
-                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
                           style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
                         >
                           <option value="all">All Roles & Categories</option>
@@ -2451,7 +2701,7 @@ export function TalentDashboard() {
                         <select
                           value={projectBudgetFilter}
                           onChange={(e) => setProjectBudgetFilter(e.target.value)}
-                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
                           style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
                         >
                           <option value="all">All Budgets</option>
@@ -2466,7 +2716,7 @@ export function TalentDashboard() {
                         <select
                           value={projectStatusFilter}
                           onChange={(e) => setProjectStatusFilter(e.target.value)}
-                          className="w-full h-9 px-3 rounded-[var(--radius-md)] text-xs font-body border"
+                          className="w-full h-10 px-3 rounded-xl text-xs font-body border transition-colors"
                           style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
                         >
                           <option value="all">All Project Statuses</option>
@@ -2691,12 +2941,12 @@ export function TalentDashboard() {
                 {/* Search & Filter */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 mb-5">
                   <div className="relative flex-1 w-full">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "var(--color-text-tertiary)" }} />
                     <Input
                       placeholder="Search activity..."
                       value={activitySearch}
                       onChange={(e) => setActivitySearch(e.target.value)}
-                      className="pl-11"
+                      className="!h-10 text-xs sm:text-sm pl-10 rounded-xl !bg-[var(--color-bg-surface)] border-[var(--color-border-default)] focus:!border-[var(--color-accent)]"
                     />
                   </div>
                   <div className="flex p-1 rounded-xl w-full sm:w-auto" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>

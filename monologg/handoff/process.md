@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
+**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -231,7 +231,14 @@ Refined creator upload, profile presentation, video playback, and public storefr
 - **Rate Cards Header Button Polish:** Completely removed the header CTA beside the notification icon once 2 rate cards are created (no redundant disabled or pill button; shown only when exactly 1 card exists as "Add Rate Card").
 - **Reduced Reel Height & Custom Video Player Modal:** Reduced the featured reel height on both creator profile and public storefront to a sleek widescreen frame (`h-48 sm:h-56 md:h-60`). Clicking anywhere on the reel launches `WatchPerformanceReelModal` featuring custom Play/Pause, interactive timeline scrubber progress bar, timestamps (`00:18 / 01:30`), volume/mute toggle, replay, fullscreen, and optional owner "Replace Reel" trigger.
 - **Rate Cards Section & Card Redesign:** Renamed "Booking Services & Rate Cards" to "Rate Cards", removed the bottom action buttons ("Edit" and "Book") from the creator's own profile view, repositioned Base Rate and price to the bottom above a clean hairline divider, and placed an edit pencil icon in the top-right corner to open the inline edit modal directly on the page.
-- **Public Profile View Parity:** Brought full visual layout and aesthetic parity to `PublicStorefront.tsx` (hero cover banner, avatar, badges, "Available for Booking" pill, social media row, bio, style tags, reduced-height reel with video player modal), while displaying rate cards with a prominent "Book Now" main CTA navigating to the client booking flow.
+### Step 47: Public Storefront 2-Card & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects Search Bar Consistency (Session 86)
+
+Resolved public profile layout parity, streamlined the performer calendar experience, and harmonized project browsing controls:
+- **Public Profile 2-Card Cap & 5XL Parity:** Capped mock rate cards strictly to 2 in `publicStorefront.ts` and expanded container width from narrow `max-w-2xl` to `max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8` with `rounded-[28px]` surface cards, bringing 1-to-1 visual hierarchy with the creator dashboard.
+- **Availability Double Header & Calendar Cleanup:** Eliminated duplicate inner header title and second notification bell, as well as the redundant 14-day rolling date selector strip and duplicate date picker input.
+- **Right-Click Context Menu & Schedule View:** Left-clicking a date tile selects the date and loads that day's schedule and events below the calendar without an intrusive modal. Right-clicking (`onContextMenu`) launches a floating action menu to "Mark as Available", "Mark as Unavailable", "Add Custom Slot", or "Add Event".
+- **Visual Distinction for Calendar States:** Unavailable days are greyed out with dashed borders and `UNAVAILABLE` badges; open days remain clean and neutral without dots or colors; Monologg bookings are distinguished with the official Monologg icon (`LogoMark` in crimson accent).
+- **Projects Tab Search Bar Sizing Consistency:** Standardized the search input height to `!h-10` (40px) to match the Role/Category, Budget Range, and Status dropdown selects below it, with matching surface background, border, corner radius (`rounded-xl`), and an interactive clear button (`X`).
 
 ---
 

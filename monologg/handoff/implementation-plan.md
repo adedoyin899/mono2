@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish.
+**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency.
 
 ---
 
 ## ✅ Done
+
+### Session 86 — Public Profile 2-Card & 5XL Width Parity, Availability Page Double-Header/Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects Search Bar Consistency
+- [x] **Public Storefront 2-Card Cap**: Removed third rate card from `mocks/publicStorefront.ts`, capping rate cards strictly to 2 (`Feature Film Audition` ₦120,000, `Commercial Voice-Over` ₦45,000).
+- [x] **Public Profile Width Parity**: Replaced `max-w-2xl` container in `PublicStorefront.tsx` with `max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8` matching creator profile structure and eliminating narrow "tab view" styling.
+- [x] **Availability Double-Header & Double-Calendar Cleanup**: Eliminated duplicate `Availability` heading and redundant notification bell inside tab view; eliminated redundant 14-day rolling date strip and redundant date picker input.
+- [x] **Calendar Right-Click Context Menu & Left-Click Inspection**: Left-clicking selects date and loads that day's schedule below the calendar; right-clicking (`onContextMenu`) launches custom floating menu with actions: "Mark as Available", "Mark as Unavailable", "Add Custom Slot", "Add Event".
+- [x] **Calendar Visual State Distinction**: Unavailable days styled with grey canvas background, dashed borders, and `UNAVAILABLE` tag; open days remain clean with neutral styling and no dots/colors; Monologg bookings prominently display the official `LogoMark` crimson icon.
+- [x] **Projects & Activity Search Bar Sizing Consistency**: Standardized Projects tab search input and dropdown selects to matching `h-10` (40px) height with `rounded-xl` and surface background, adding an interactive clear search (`X`) button.
+- [x] **Verification**: All 24 web test files (97/97 tests) and all 56 API test files (580/580 tests) pass 100%; zero TypeScript errors across all workspace projects.
 
 ### Session 85 — Upload Modal Polish, 2-Card CTA Cleanup, Video Player Modal, Rate Card Redesign & Public Profile Parity
 - [x] **Upload Modal Copy & Chip Polish**: Streamlined copy ("Upload a video showcase of your craft", "Click or drag video reel here", "MP4 or QuickTime · Max 90s · Up to 150MB"), removed redundant "Choose Video File" chip, and cleaned checklist.

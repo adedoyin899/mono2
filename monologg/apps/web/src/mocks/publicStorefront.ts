@@ -16,6 +16,5 @@ export const PUBLIC_STOREFRONT: PublicStorefront = {
   rateCards: [
     { id: "1", title: "Feature Film Audition", price: "₦120,000", basePriceAmount: 12_000_000, basePriceCurrency: "NGN", delivery: "48 Hours" },
     { id: "2", title: "Commercial Voice-Over", price: "₦45,000", basePriceAmount: 4_500_000, basePriceCurrency: "NGN", delivery: "Same Day" },
-    { id: "3", title: "Script Table Reading", price: "₦80,000", basePriceAmount: 8_000_000, basePriceCurrency: "NGN", delivery: "2–3 Days" },
   ],
 };

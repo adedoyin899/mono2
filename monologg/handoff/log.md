@@ -1,11 +1,48 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
+**Last updated:** 2026-10-08 (Session 86: Public Profile 2 Rate Cards & 5XL Width Parity, Availability Double Header & Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects & Activity Search Bar Sizing Consistency)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 86 (2026-10-08) — Public Profile 2-Card & 5XL Width Parity, Availability Page Double-Header/Calendar Cleanup with Right-Click Context Menu & Monologg Event Icon, Projects Search Bar Consistency
+
+**Goal:** Cap public storefront rate cards strictly to 2 and expand container width to `max-w-5xl` matching the creator profile; clean up the Availability page by eliminating duplicate headers and duplicate date selector strips; introduce right-click context menu for date status actions while preserving left-click day schedule inspection; add visual differentiation for unavailable, event, and clean open days with official `LogoMark` branding for Monologg bookings; and standardize the Projects tab search bar to `h-10` matching the filter dropdowns with an interactive clear button.
+
+### Changes Made
+
+1. **Public Storefront 2 Rate Cards Cap & Full-Width Parity (`publicStorefront.ts`, `PublicStorefront.tsx`):**
+   - Removed the third rate card ("Script Table Reading") in `mocks/publicStorefront.ts`, strictly capping rate cards to 2 (`Feature Film Audition` ₦120,000, `Commercial Voice-Over` ₦45,000).
+   - Replaced narrow `max-w-2xl` container in `PublicStorefront.tsx` with `max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8` and `rounded-[28px]` surface card, matching the exact width and visual hierarchy of `TalentDashboard.tsx`.
+   - Maintained verified badges, social links, bio, style tags, reduced-height reel with `WatchPerformanceReelModal`, and prominent "Book Now" CTA on rate cards.
+   - Synchronized exact text assertions in `PublicStorefront.test.tsx` (`"Verified"`, `"{nicheLabel} · {location}"`).
+
+2. **Availability Page Cleanup — Removed Duplicate Headers & Calendars (`TalentDashboard.tsx`):**
+   - Removed redundant `<h2>Availability</h2>` and duplicate notification bell inside the calendar tab view.
+   - Removed redundant 14-day rolling horizontal date strip and redundant date picker input, centering Month, Week, and Day views.
+   - Retained accessible period navigation (`ChevronLeft`, `ChevronRight`) and added `<button aria-label="Jump to today">`.
+
+3. **Calendar Interactivity & Visual Distinction (`TalentDashboard.tsx`):**
+   - **Left-click on date cell:** Selects the day, closes context menu, and displays that day's schedule and events below the calendar without an intrusive blocking modal.
+   - **Right-click on date cell (`onContextMenu`):** Prevents default browser menu and opens floating custom context menu with actions: "Mark as Available", "Mark as Unavailable", "Add Custom Slot", and "Add Event".
+   - **Unavailable Days:** Greyed-out surface (`var(--color-bg-canvas)`), dashed border, muted date numbers, and bold `UNAVAILABLE` badge.
+   - **Open Days:** Clean, neutral, quiet styling with no distracting dots or colors.
+   - **Event Days:** Distinct pills; Monologg platform bookings feature the official Monologg icon (`LogoMark` in brand crimson) with "Monologg Booking" badge, visually distinct from external Google Calendar sync entries.
+
+4. **Projects & Activity Tab Search Bar Sizing Consistency (`TalentDashboard.tsx`):**
+   - Standardized the Projects tab search bar to `!h-10 text-xs sm:text-sm pl-10 pr-9 rounded-xl !bg-[var(--color-bg-surface)] border-[var(--color-border-default)] focus:!border-[var(--color-accent)]`.
+   - Matched height and corner radius (`h-10`, `rounded-xl`) across Role/Category, Budget Range, and Status dropdown selects.
+   - Added quick clear button (`X`) to easily reset project search queries.
+   - Standardized Activity tab search bar to `!h-10` with surface styling.
+
+### Files Touched
+- `monologg/apps/web/src/mocks/publicStorefront.ts`
+- `monologg/apps/web/src/app/pages/PublicStorefront.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
 
 ---
 
