@@ -527,6 +527,11 @@ export function TalentDashboard() {
   const handleWithdrawApplication = async (applicationId: string) => {
     await apiClient.withdrawMyApplication(applicationId);
     setMyApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: "WITHDRAWN" } : a)));
+    setSelectedProject((prev) =>
+      prev && prev.myApplication?.id === applicationId
+        ? { ...prev, myApplication: { ...prev.myApplication, status: "WITHDRAWN" } }
+        : prev
+    );
   };
 
   const activeProjectFilterCount =
@@ -547,7 +552,11 @@ export function TalentDashboard() {
   const filteredProjects = projects.filter((p) => {
     const q = projectSearch.trim().toLowerCase();
     const matchesSearch = !q || p.projectName.toLowerCase().includes(q) || p.projectType.toLowerCase().includes(q) || p.clientName.toLowerCase().includes(q);
-    const matchesRole = projectRoleFilter === "all" || p.projectType.toLowerCase().includes(projectRoleFilter.toLowerCase());
+    const roleTarget = projectRoleFilter.toLowerCase();
+    const matchesRole =
+      projectRoleFilter === "all" ||
+      p.projectType.toLowerCase().includes(roleTarget) ||
+      p.nicheReq.some((n) => n.toLowerCase().includes(roleTarget) || (roleTarget === "voice-over" && n.toLowerCase().includes("vo")));
     const budgetNum = Number(p.budget.replace(/[^0-9]/g, "")) || 0;
     const matchesBudget = projectBudgetFilter === "all"
       || (projectBudgetFilter === "under100" && budgetNum < 100000)
@@ -2919,6 +2928,40 @@ export function TalentDashboard() {
                           </button>
                         </div>
                       )}
+
+                      {/* Airbnb-Style Quick Category Pills */}
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none">
+                        {[
+                          { id: "all", label: "All Roles" },
+                          { id: "voice-over", label: "Voice-Over" },
+                          { id: "actor", label: "Actor" },
+                          { id: "model", label: "Model" },
+                          { id: "presenter", label: "Presenter / Host" },
+                          { id: "comedian", label: "Comedian" },
+                          { id: "musician", label: "Musician" },
+                        ].map((cat) => {
+                          const isSelected = projectRoleFilter === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setProjectRoleFilter(cat.id)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body whitespace-nowrap transition-all ${
+                                isSelected
+                                  ? "shadow-sm"
+                                  : "hover:border-[var(--color-border-strong)]"
+                              }`}
+                              style={{
+                                background: isSelected ? "var(--color-accent)" : "var(--color-bg-surface)",
+                                color: isSelected ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                                border: isSelected ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
+                              }}
+                            >
+                              {cat.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {filteredProjects.length === 0 ? (
@@ -3000,27 +3043,30 @@ export function TalentDashboard() {
                         <div
                           key={application.id}
                           onClick={() => {
-                            const found = (projects.find((p) => p.id === application.brief.id) || {
-                              id: application.brief.id,
-                              projectName: application.brief.projectName,
-                              clientName: application.brief.clientName,
-                              projectType: application.brief.projectType || "Voice-Over",
-                              budget: application.brief.budget,
-                              applicantCount: 1,
-                              applicantCap: 10,
-                              applicationsOpen: true,
-                              nicheReq: ["VOICE_OVER"],
-                              location: "Lagos, NG (Hybrid/Remote)",
-                              clientRating: 4.9,
-                              clientReviews: 14,
-                              description: "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording and revisions.",
-                              timeline: "Production schedule agreed upon booking confirmation.",
-                              deliverables: ["Raw audio/video master files", "Revisions included", "Commercial digital rights"],
-                              scriptSample: "Audition sides and project copy will be provided directly in the Order Room.",
-                              additionalNotes: "Review project details and submitted pitch below.",
-                              escrowProtected: true,
-                              myApplication: application,
-                            }) as any;
+                            const base = projects.find((p) => p.id === application.brief.id);
+                            const found = (base
+                              ? { ...base, myApplication: application }
+                              : {
+                                  id: application.brief.id,
+                                  projectName: application.brief.projectName,
+                                  clientName: application.brief.clientName,
+                                  projectType: application.brief.projectType || "Voice-Over",
+                                  budget: application.brief.budget,
+                                  applicantCount: 1,
+                                  applicantCap: 10,
+                                  applicationsOpen: true,
+                                  nicheReq: ["VOICE_OVER"],
+                                  location: "Lagos, NG (Hybrid/Remote)",
+                                  clientRating: 4.9,
+                                  clientReviews: 14,
+                                  description: "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording and revisions.",
+                                  timeline: "Production schedule agreed upon booking confirmation.",
+                                  deliverables: ["Raw audio/video master files", "Revisions included", "Commercial digital rights"],
+                                  scriptSample: "Audition sides and project copy will be provided directly in the Order Room.",
+                                  additionalNotes: "Review project details and submitted pitch below.",
+                                  escrowProtected: true,
+                                  myApplication: application,
+                                }) as any;
                             setSelectedProject(found);
                             setPitchText(application.pitch ?? "");
                             setApplyError(null);
@@ -4652,21 +4698,30 @@ export function TalentDashboard() {
                               </div>
                             )}
 
-                            {/* State A: Already Applied */}
+                            {/* State A: Already Applied / Application Record */}
                             {selectedProject.myApplication ? (
                               <div
                                 className="p-4 rounded-2xl border space-y-3"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                                style={{
+                                  background:
+                                    selectedProject.myApplication.status === "SELECTED"
+                                      ? "rgba(16, 185, 129, 0.08)"
+                                      : "var(--color-bg-elevated)",
+                                  borderColor:
+                                    selectedProject.myApplication.status === "SELECTED"
+                                      ? "rgba(16, 185, 129, 0.3)"
+                                      : "var(--color-hairline)",
+                                }}
                               >
                                 <div className="flex items-center justify-between">
                                   <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                    Your Application
+                                    Application Status
                                   </span>
                                   <Badge
                                     tone={
                                       selectedProject.myApplication.status === "SELECTED"
                                         ? "success"
-                                        : selectedProject.myApplication.status === "REJECTED"
+                                        : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN"
                                         ? "error"
                                         : "accent"
                                     }
@@ -4685,21 +4740,62 @@ export function TalentDashboard() {
                                   </div>
                                 )}
 
-                                <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
-                                  Submitted to {selectedProject.clientName}. You'll be notified when the client responds.
-                                </p>
-
-                                {(selectedProject.myApplication.status === "APPLIED" || selectedProject.myApplication.status === "SHORTLISTED") && (
-                                  <Button
-                                    variant="secondary"
-                                    className="w-full h-9 text-xs"
-                                    onClick={() => {
-                                      handleWithdrawApplication(selectedProject.myApplication!.id);
-                                      setSelectedProject(null);
-                                    }}
-                                  >
-                                    Withdraw Pitch
-                                  </Button>
+                                {selectedProject.myApplication.status === "SELECTED" ? (
+                                  <div className="space-y-3">
+                                    <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-body flex items-start gap-2">
+                                      <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                                      <span>
+                                        Congratulations! {selectedProject.clientName} selected you. Escrow deposit is funded and your Order Room is active.
+                                      </span>
+                                    </div>
+                                    <Button
+                                      className="w-full h-10 text-xs font-semibold"
+                                      onClick={() => {
+                                        setSelectedProject(null);
+                                        navigate("/order/ORD-001");
+                                      }}
+                                    >
+                                      Open Order Room <ChevronRight className="w-4 h-4 ml-1.5" />
+                                    </Button>
+                                  </div>
+                                ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
+                                  <div className="space-y-3">
+                                    <p className="text-[11px] font-body text-amber-600 dark:text-amber-400">
+                                      ⭐ You're on the client's shortlist! The casting team is reviewing your profile and performance reel.
+                                    </p>
+                                    <Button
+                                      variant="secondary"
+                                      className="w-full h-9 text-xs"
+                                      onClick={() => {
+                                        handleWithdrawApplication(selectedProject.myApplication!.id);
+                                      }}
+                                    >
+                                      Withdraw Pitch
+                                    </Button>
+                                  </div>
+                                ) : selectedProject.myApplication.status === "APPLIED" ? (
+                                  <div className="space-y-3">
+                                    <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                                      Submitted to {selectedProject.clientName}. You'll be notified when the client reviews your pitch.
+                                    </p>
+                                    <Button
+                                      variant="secondary"
+                                      className="w-full h-9 text-xs"
+                                      onClick={() => {
+                                        handleWithdrawApplication(selectedProject.myApplication!.id);
+                                      }}
+                                    >
+                                      Withdraw Pitch
+                                    </Button>
+                                  </div>
+                                ) : selectedProject.myApplication.status === "REJECTED" ? (
+                                  <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                                    The client has chosen another performer for this campaign. Keep auditioning for upcoming roles!
+                                  </p>
+                                ) : (
+                                  <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                                    You withdrew your application for this project.
+                                  </p>
                                 )}
                               </div>
                             ) : !selectedProject.applicationsOpen ? (

@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
+**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 89 (2026-10-08) — Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State
+
+**Goal:** Provide rapid one-click category filtering via an Airbnb-style horizontal pill carousel directly under the search and filter header; enrich mock data to cover all 6 performer crafts (Voice-Over, Actor, Model, Presenter, Comedian, Musician) across all application states (`SELECTED`, `SHORTLISTED`, `APPLIED`, `REJECTED`, `WITHDRAWN`); refine the right-hand floating action box with dedicated celebratory CTAs (e.g. "Open Order Room" for `SELECTED` performers) and reactive withdrawal state updates; and ensure seamless two-way data merging when inspecting applications from the "My Applications" tab.
+
+### Changes Made
+
+1. **Airbnb-Style Category Quick Pills (`TalentDashboard.tsx`):**
+   - Added an interactive horizontal pill strip beneath the search bar and filter button: `All Roles`, `Voice-Over`, `Actor`, `Model`, `Presenter / Host`, `Comedian`, `Musician`.
+   - Clicking any pill immediately syncs with `projectRoleFilter`, highlighting the selected pill in `var(--color-accent)` while keeping full compatibility with the 5-dimension expandable filter panel.
+   - Enhanced `matchesRole` filter logic to check both `projectType` and `nicheReq` tags, supporting `vo` alias resolution.
+
+2. **Multi-Status Action Center in Sticky Floating Box (`TalentDashboard.tsx`):**
+   - **`SELECTED` Status:** Renders emerald-accented celebration banner ("🎉 Congratulations! {clientName} selected you. Escrow deposit is funded and your Order Room is active.") with a primary action button `Open Order Room` navigating directly to `/order/ORD-001`.
+   - **`SHORTLISTED` Status:** Displays gold shortlist badge with guidance note ("⭐ You're on the client's shortlist! The casting team is reviewing your profile and performance reel.") and secondary `Withdraw Pitch` button.
+   - **`APPLIED` Status:** Displays status badge, quoted pitch excerpt, submission notice, and secondary `Withdraw Pitch` button.
+   - **`REJECTED` & `WITHDRAWN` Statuses:** Displays informative, empathetic guidance notes without dead-end actions.
+   - Fixed reactive state synchronization: withdrawing an application now immediately updates `selectedProject.myApplication.status` to `WITHDRAWN` inside the open modal without requiring a modal reopen.
+
+3. **Enriched Mock Projects & Applications Catalog (`mocks/projects.ts`):**
+   - Added complete entries for:
+     - `P-006` (Radio Drama Pilot, Voice-Over, ₦60,000, Client: Brand Agency NG, rating: 4.6, status: `REJECTED`)
+     - `P-007` (Lagos Fashion Week Lookbook, Model, ₦180,000, Client: Haute Couture Africa, rating: 4.9, status: `SELECTED` via `myapp-4`)
+     - `P-008` (Afrobeats Commercial Jingle, Musician, ₦280,000, Client: Echo Soundworks NG, rating: 4.8, open: true)
+     - `P-009` (Corporate Gala Headline Set, Comedian, ₦150,000, Client: Apex Entertainment, rating: 5.0, open: true)
+   - Performers can now filter by any craft, location (Lagos, Abuja, Remote), budget range, or rating and find relevant matches.
+
+4. **Seamless Two-Way Application Inspection Merge (`TalentDashboard.tsx`):**
+   - In "My Applications", merged found catalog project data with the clicked application object, guaranteeing full client brief details (brief steps, deliverables, sides, escrow terms) are rendered alongside active pitch text and status.
+
+5. **Updated Standalone Single-File Distributions (`monologg-app.html`, `monologg-design-system.html`):**
+   - Rebuilt standalone production bundle and inlined fresh JavaScript and Tailwind CSS into both double-clickable distribution artifacts.
+
+### Files Touched
+- `monologg/apps/web/src/mocks/projects.ts`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/monologg-app.html`
+- `monologg/monologg-design-system.html`
 
 ---
 

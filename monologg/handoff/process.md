@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
+**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -256,6 +256,19 @@ Regenerated the zero-dependency, server-free offline preview distribution artifa
 - **Production Bundling:** Built latest self-contained bundles via Vite (`npm run build:standalone` and `npm run build:designsystem`) incorporating all recent releases (Airbnb-style client favorites, brief at a glance strip, copy sides, escrow breakdowns, and 5-dimension project filters).
 - **Inlined Asset Artifacts:** Embedded compiled JavaScript (`<script type="module">`) and compiled design tokens & CSS (`<style>`) directly into `monologg/monologg-app.html` (1.36MB) and `monologg/monologg-design-system.html` (320KB).
 - **Zero-Server Portable Previews:** Verified that both single-file HTML distributions open directly via `file://` protocol or double-click in any browser without requiring Node, Vite, or external asset servers, fully resolving stale distribution artifact drift (Bug 39).
+
+### Step 50: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, and Enriched 6-Craft Projects Catalog (Session 89)
+
+Delivered rapid 1-click category discovery, enriched all 6 craft niches in mock datasets, and perfected status-dependent action feedback:
+- **Airbnb-Style Category Quick Pills:** Integrated a horizontal pill carousel directly under the search bar (`All Roles`, `Voice-Over`, `Actor`, `Model`, `Presenter / Host`, `Comedian`, `Musician`) with instant highlighted active states, syncing with the 5-dimension filter engine.
+- **Multi-Status Action Center:** Tailored the constant floating reservation box with status-specific feedback:
+  - `SELECTED`: Green-accented celebratory offer banner + primary CTA `Open Order Room` navigating to `/order/ORD-001`.
+  - `SHORTLISTED`: Gold review status notification + `Withdraw Pitch` button.
+  - `APPLIED`: Application badge + submitted pitch quote + `Withdraw Pitch` button.
+  - `REJECTED` & `WITHDRAWN`: Empathetic, clean status notifications.
+- **Enriched Mock Projects & Applications Catalog:** Populated full entries for `P-006` (Radio Drama VO, REJECTED), `P-007` (Lookbook Model, SELECTED), `P-008` (Afrobeats Musician), and `P-009` (Corporate Comedian), ensuring every filter parameter yields real, beautifully formatted briefs.
+- **Unified My Applications Inspection:** Ensured clicking an application merges the underlying catalog brief so performers inspect complete client brief tabs, requirements, deliverables, and escrow protection alongside their submission status.
+- **Standalone Distribution Inlining:** Re-compiled and inlined updated assets into `monologg/monologg-app.html` and `monologg/monologg-design-system.html`.
 
 ---
 

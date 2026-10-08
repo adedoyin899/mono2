@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 88: Standalone Single-File App & Design System Distribution Regeneration to Latest Production Build)
+**Last updated:** 2026-10-08 (Session 89: Airbnb-Style Fast Category Pills, Multi-Status Action Center Polish, Enriched 6-Craft Mock Projects Catalog, and Reactive Pitch State)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 40. Stale application state sync in project modal and unmapped mock applications
+- **Severity:** Low / UI State & Data Integrity
+- **What happened:** In `TalentDashboard.tsx`, withdrawing an application within the open project detail modal did not immediately update the open modal's state (requiring a close and re-open to see the withdrawn state). Additionally, `MY_APPLICATIONS` had an entry (`myapp-3` referencing `P-006`) that was not registered in `PROJECTS`, causing fallback placeholder data to load instead of an authoritative client brief.
+- **Root Cause:** `handleWithdrawApplication` only updated `myApplications` array state without propagating to `selectedProject`. Furthermore, `P-006` was missing from `mocks/projects.ts`.
+- **Resolution:** Updated `handleWithdrawApplication` to reactively update `selectedProject.myApplication.status`. Added full mock entries for `P-006`, `P-007`, `P-008`, and `P-009` across all 6 crafts, and added `myapp-4` for testing the `SELECTED` state with "Open Order Room" navigation.
+
+---
 
 ### 39. Stale standalone HTML distribution artifacts
 - **Severity:** Low / Deployment & Distribution
