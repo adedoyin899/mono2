@@ -983,7 +983,7 @@ export function ClientDashboard() {
                           Applicants ({applicants.length})
                         </h3>
                         <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Select a candidate to book or inspect their storefront
+                          Select a candidate to book or inspect their profile
                         </span>
                       </div>
 
@@ -1025,7 +1025,7 @@ export function ClientDashboard() {
                                   className="text-xs font-semibold font-body hover:underline flex items-center gap-1"
                                   style={{ color: "var(--color-accent)" }}
                                 >
-                                  View Storefront / Profile →
+                                  View Profile →
                                 </button>
                                 <div className="flex gap-2">
                                   {app.status === "APPLIED" && (

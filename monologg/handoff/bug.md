@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
+**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.

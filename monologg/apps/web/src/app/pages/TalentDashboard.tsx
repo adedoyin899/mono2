@@ -121,7 +121,7 @@ const APPLICATION_STATUS_LABEL: Record<string, string> = {
 
 const TALENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
-  { id: "storefront", label: "My Storefront", icon: User },
+  { id: "storefront", label: "My Profile", icon: User },
   { id: "rates", label: "Rate Cards", icon: DollarSign },
   { id: "calendar", label: "Availability", icon: Calendar },
   { id: "projects", label: "Projects", icon: Briefcase },
@@ -452,7 +452,7 @@ export function TalentDashboard() {
 
   const screenTitle =
     activeTab === "home" ? "Dashboard"
-    : activeTab === "storefront" ? "My Storefront"
+    : activeTab === "storefront" ? "My Profile"
     : activeTab === "rates" ? "Rate Cards"
     : activeTab === "calendar" ? "Availability"
     : activeTab === "projects" ? "Projects"
@@ -528,7 +528,7 @@ export function TalentDashboard() {
             <div>
               <h1 className="font-display text-3xl" style={{ color: "var(--color-text-primary)" }}>
                 {activeTab === "home" && `Good morning, ${firstName} 👋`}
-                {activeTab === "storefront" && "My Storefront"}
+                {activeTab === "storefront" && "My Profile"}
                 {activeTab === "rates" && "Rate Cards"}
                 {activeTab === "calendar" && "Availability"}
                 {activeTab === "projects" && "Projects"}
@@ -537,7 +537,7 @@ export function TalentDashboard() {
               </h1>
               <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
                 {activeTab === "home" && "Here's what's happening with your career today."}
-                {activeTab === "storefront" && "Your public booking page — share this with clients."}
+                {activeTab === "storefront" && "Your public profile — share this with clients."}
                 {activeTab === "rates" && "Define your services and pricing."}
                 {activeTab === "calendar" && "Set your availability for bookings."}
                 {activeTab === "projects" && "Find and apply to client projects."}
@@ -609,7 +609,7 @@ export function TalentDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Storefront <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                          Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
                         <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Bio & headshots</div>
                       </div>
@@ -690,7 +690,7 @@ export function TalentDashboard() {
                 {/* Quick-action ghost-circle row */}
                 <div className="grid grid-cols-4 gap-2 mb-6">
                   {[
-                    { label: "Storefront", icon: User, action: () => setActiveTab("storefront") },
+                    { label: "Profile", icon: User, action: () => setActiveTab("storefront") },
                     { label: "Availability", icon: Calendar, action: () => setActiveTab("calendar") },
                     { label: "Rates", icon: DollarSign, action: () => setActiveTab("rates") },
                     { label: "Orders", icon: MessageSquare, action: () => setActiveTab("orders") },
@@ -1860,14 +1860,14 @@ export function TalentDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Orders</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      You don't have any bookings in progress right now. Share your storefront link or pitch to open projects to land client orders.
+                      You don't have any bookings in progress right now. Share your profile link or pitch to open projects to land client orders.
                     </p>
                     <div className="flex gap-3">
                       <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="gap-2">
                         <Briefcase className="w-4 h-4" /> Apply to Projects
                       </Button>
                       <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
-                        <Share2 className="w-4 h-4" /> Share Storefront Link
+                        <Share2 className="w-4 h-4" /> Share Profile Link
                       </Button>
                     </div>
                   </div>
@@ -2155,7 +2155,7 @@ export function TalentDashboard() {
                   <div>
                     <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Performer Performance &amp; Analytics</h2>
                     <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                      Track storefront impressions, booking conversion, and earnings velocity for {talentProfile.name}.
+                      Track profile impressions, booking conversion, and earnings velocity for {talentProfile.name}.
                     </p>
                   </div>
                   <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
@@ -2168,7 +2168,7 @@ export function TalentDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Analytics Will Unlock Soon</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      Storefront views, conversion metrics, and monthly booking trends will automatically track as clients view your profile and send booking requests.
+                      Profile views, conversion metrics, and monthly booking trends will automatically track as clients view your profile and send booking requests.
                     </p>
                     <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
                       <Share2 className="w-4 h-4" /> Share Profile to Drive Views
@@ -2179,7 +2179,7 @@ export function TalentDashboard() {
                     {/* Metric Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Storefront Views</div>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile Views</div>
                     <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
                     <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
                   </div>
@@ -2584,7 +2584,7 @@ export function TalentDashboard() {
                       className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-[var(--radius-md)] text-xs font-semibold"
                       style={{ background: "var(--color-accent)", color: "var(--color-accent-on)" }}
                     >
-                      Open Public Storefront <ExternalLink className="w-3.5 h-3.5" />
+                      Open Public Profile <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
                   <div className="grid grid-cols-3 gap-2">

@@ -705,7 +705,7 @@ function QRCodeModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               navigate("/auth");
             }}
           >
-            Launch Web App Storefront Directly
+            Launch Web App Profile Directly
           </Button>
           <div className="text-[11px] font-mono text-gray-500">Works on iOS &amp; Android Camera</div>
         </div>
@@ -936,7 +936,7 @@ export function LandingPage() {
                 className="h-10 px-5 text-xs font-bold"
                 onClick={() => navigate("/auth")}
               >
-                Launch Storefront
+                Create Your Profile
               </Button>
             </>
           )}
@@ -1213,7 +1213,7 @@ export function LandingPage() {
                 className="h-12 px-8 text-sm font-bold shadow-xl"
                 onClick={() => navigate("/auth")}
               >
-                Launch Storefront Free
+                Create Your Profile Free
               </Button>
               <Button
                 variant="outline-pill"

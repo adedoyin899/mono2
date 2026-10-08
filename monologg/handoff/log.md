@@ -1,11 +1,52 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
+**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 81 (2026-10-08) — Performer Onboarding Overhaul & Storefront-to-Profile Modernization
+
+**Goal:** Overhaul the performer onboarding stepper (`CreatorOnboarding.tsx`) with 6 craft categories from design, gender, age calendar picker, Nigerian location picker with auto-suggest, an explicit Anti-AI policy enforcement banner, an editable AI performance summary with deletable style tag suggestions, and a refined rate cards screen with "Refine with Thespian AI" in Naira only (max 2 rate cards for Alpha). Standardize all user-facing occurrences of "storefront" to "profile" across the webapp.
+
+### Architecture & Changes Made
+1. **Performer Onboarding Craft & Personal Details (`CreatorOnboarding.tsx`):**
+   - **6 Craft Categories:** Replaced old 8 niches with the 6 verified categories from design: Actors (`Drama`), Public speakers (`AudioLines`), Comperes (`Mic`), Comedians (`Laugh`), Artists (`Headphones`), and Creators (`Video`).
+   - **Gender Selection:** Clean 4-option pill selector: `Female`, `Male`, `Non-Binary`, `Prefer not to say`.
+   - **Age & Date of Birth:** Custom interactive mini-calendar picker with year selection (1950–2010), month controls, day grid, and dynamic age calculation display (`{age} Years Old`), synchronized with native date input.
+   - **Location (Nigeria):** Searchable text input with auto-suggest dropdown covering 28+ Nigerian entertainment hubs (Lagos [Ikeja, Lekki, Yaba, Ajah], Abuja, Port Harcourt, Ibadan, Benin City, Enugu, Asaba, Calabar, etc.) plus custom input and 🇳🇬 badge.
+2. **Anti-AI Policy Enforcement Banner (`CreatorOnboarding.tsx`):**
+   - Added high-visibility Anti-AI policy warning banner on the showcase reel upload screen: explicitly stating Monologg is strictly Anti-AI for performer reels, that AI-generated elements or copied work are rejected, and that violations result in an immediate account ban. Added performer authenticity certification checkbox.
+3. **AI Performance Summary & Editable Style Tags (`CreatorOnboarding.tsx`):**
+   - **AI Performance Summary:** Generated dynamic craft-specific summary via Thespian AI displayed in an editable `<textarea>`, allowing performers to review and tweak their summary text directly with "Refine Summary" and "Reset" controls.
+   - **Editable Style Tags:** Enabled full tag deletion on active performance tags via `X` buttons.
+   - **Deletable Suggestions:** Provided tap-to-toggle style tag suggestions with individual delete buttons (`X`) on each suggestion so unwanted suggestions can be permanently dismissed.
+4. **Rate Card Screen Overhaul (`CreatorOnboarding.tsx`):**
+   - Changed copy from "Set your booking rates" to "Set your rate cards" and subtitle to "Create purchasable services for your profile."
+   - **Alpha Limit:** Enforced max 2 rate cards with visible `{rateCards.length}/2 Rate Cards` badge and helper text.
+   - **Fields:** Booking Service Title, Service Description with interactive **"Refine with Thespian AI"** action button, Base Price fixed to Naira (`₦ NGN` with no extra currency dropdown), and Delivery Timeline dropdown.
+   - Updated primary submit CTA to `"Preview My Profile"`.
+5. **Global "Storefront" to "Profile" Copy Replacement:**
+   - Standardized user-visible copy from "storefront" to "profile" across `TalentDashboard.tsx` (`My Profile` tab, headers, share buttons, `Profile Views` metrics), `ClientDashboard.tsx` (applicant inspection and `View Profile →`), `LandingPage.tsx` (`Launch Web App Profile Directly`, `Create Your Profile`), and `Settings.tsx` (`shown on your profile`).
+6. **Verification:**
+   - Monorepo typecheck: 0 errors across `packages/types`, `apps/web`, `apps/api`.
+   - Web test suite: 24/24 files, 97/97 tests green (100%).
+
+**Files Touched:**
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

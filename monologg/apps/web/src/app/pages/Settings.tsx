@@ -516,7 +516,7 @@ export function Settings() {
                 Every field below is optional — fill in only what you're comfortable
                 sharing, any time. Each has its own visibility: <strong>Private</strong> (never
                 shown), <strong>Searchable</strong> (matches a client's filter, value never shown),
-                or <strong>Public</strong> (shown on your storefront).
+                or <strong>Public</strong> (shown on your profile).
               </p>
 
               {ATTRIBUTE_FIELDS.map((field) => (

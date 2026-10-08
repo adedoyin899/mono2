@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
+**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -194,7 +194,15 @@ Ahead of the Alpha launch, updated the platform's core terminology from "Talent"
 - **Client Experience:** Replaced tabs (`Find Performers`), analytical funnels (`Performer Acquisition Funnel`, `Repeat Performer Rate`), brief builder steps (`Performer Requirements`), and filtering modals (`Filter Performers by Physical Features`).
 - **Performer Experience:** Updated portal headers (`Performer Portal`), onboarding checklists (`Complete your Performer Setup`), counterpart indicators in the Order Room and Checkout, public bio/storefront trust badges, and settings microcopy.
 - **Scope Boundary:** Maintained backend data models (`Creator`, `UserRole`, `TALENT`) and API query parameters to preserve existing database schemas and API stability without breaking changes.
-- **Test Synchronization:** Updated and verified all 24 web test suites (97 tests) and 56 API test suites (580 tests).
+### Step 43: Performer Onboarding Overhaul & Storefront-to-Profile Modernization (Session 81)
+
+Modernized the performer onboarding stepper and standardized platform terminology:
+- **6 Craft Categories:** Replaced the previous 8 niches with the 6 core categories from design (Actors, Public speakers, Comperes, Comedians, Artists, Creators).
+- **Personal Details Collection:** Built an integrated performer essentials card on Step 1 collecting Gender (4 options), Date of Birth with an interactive mini-calendar picker and dynamic age calculator, and a Nigerian Location selector with auto-suggest across 28+ entertainment hubs.
+- **Strict Anti-AI Policy:** Added an explicit Anti-AI warning banner on the reel upload step emphasizing that synthetic, deepfake, or duplicated content is strictly prohibited and results in an immediate permanent account ban.
+- **AI Performance Summary & Deletable Suggestions:** Provided an editable Thespian AI summary textarea on Step 4 along with direct tag deletion (`X`) and individual dismissal/deletion of suggested tags.
+- **Rate Cards Overhaul:** Retitled to "Set your rate cards", enforced an Alpha limit of 2 rate cards with visual counter (`1/2`), added "Refine with Thespian AI" to service descriptions, locked base pricing to Naira (`₦ NGN`), and updated CTA to "Preview My Profile".
+- **Global Profile Nomenclature:** Replaced all user-visible instances of "storefront" with "profile" across the client and performer dashboards and landing pages.
 
 ---
 
