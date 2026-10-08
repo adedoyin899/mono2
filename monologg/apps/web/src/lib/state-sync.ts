@@ -4,11 +4,28 @@ import type { Project, ServiceRateCard, Transaction, SupportTicket, Applicant } 
 export interface TalentProfileState {
   name: string;
   email: string;
+  stageTitle?: string;
   bio: string;
   location: string;
   niche: string;
   verified: boolean;
   avatarUrl?: string | null;
+  coverUrl?: string | null;
+  coverPreset?: string;
+  isAvailable?: boolean;
+  tags?: string[];
+  socialLinks?: {
+    instagram?: string;
+    youtube?: string;
+    twitter?: string;
+    tiktok?: string;
+    linkedin?: string;
+    spotify?: string;
+    website?: string;
+  };
+  hasReel?: boolean;
+  performanceReelUrl?: string | null;
+  performanceReelTitle?: string | null;
 }
 
 export interface ClientProfileState {
@@ -59,11 +76,27 @@ const STORAGE_KEYS = {
 const DEFAULT_TALENT_PROFILE: TalentProfileState = {
   name: "Emeka Johnson",
   email: "emeka@example.com",
+  stageTitle: "Actor & Voice Artist",
   bio: "Specializing in intense dramatic monologues, voice-overs, and Nollywood screen roles. 10+ years stage and screen experience in Lagos.",
   location: "Lagos, Nigeria",
   niche: "ACTOR",
   verified: true,
   avatarUrl: null,
+  coverUrl: null,
+  coverPreset: "crimson-studio",
+  isAvailable: true,
+  tags: ["Dramatic", "Voice-Over", "Commercial", "Nollywood", "Authoritative"],
+  socialLinks: {
+    instagram: "emekajohnson",
+    youtube: "emekaofficial",
+    twitter: "emekaj",
+    tiktok: "emekaacts",
+    spotify: "",
+    linkedin: "emeka-johnson",
+  },
+  hasReel: true,
+  performanceReelUrl: null,
+  performanceReelTitle: "Dramatic Monologue Reel (2026)",
 };
 
 const DEFAULT_CLIENT_PROFILE: ClientProfileState = {
@@ -253,11 +286,14 @@ class StateSyncBus {
   }
 
   addService(service: Omit<ServiceRateCard, "id">): ServiceRateCard {
+    if (this.services.length >= 2) {
+      throw new Error("You can only create up to 2 rate cards.");
+    }
     const newService: ServiceRateCard = {
       id: `srv-${Date.now()}`,
       ...service,
     };
-    this.services = [newService, ...this.services];
+    this.services = [...this.services, newService];
     this.save(STORAGE_KEYS.SERVICES, this.services);
     this.notify();
     return newService;

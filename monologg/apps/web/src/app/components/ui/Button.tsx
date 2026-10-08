@@ -3,11 +3,18 @@ import { cn } from "../../../lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "destructive" | "icon" | "red" | "purple" | "dark-pill" | "outline-pill" | "lime" | "forest" | "clay";
+  size?: "sm" | "md" | "lg";
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", ...props }, ref) => {
+  ({ className, variant = "primary", size, ...props }, ref) => {
     const baseStyles = "inline-flex items-center justify-center gap-2 font-body text-[15px] font-semibold tracking-[-0.01em] transition-all duration-[var(--duration-fast,160ms)] ease-[var(--ease-out,ease-out)] disabled:opacity-35 disabled:pointer-events-none active:scale-[0.97] focus-visible:outline-none";
+
+    const sizeStyles = size ? {
+      sm: "!h-9 !px-4 !text-xs",
+      md: "h-[50px] px-7 text-[15px]",
+      lg: "h-[56px] px-8 text-base",
+    }[size] : "";
 
     const variants = {
       /* primary: role accent fill (red for Talent, purple for Client) + on-accent text — WCAG AA */
@@ -37,7 +44,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={cn(baseStyles, variants[variant], className)}
+        className={cn(baseStyles, variants[variant], sizeStyles, className)}
         {...props}
       />
     );

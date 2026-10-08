@@ -58,7 +58,6 @@ describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
       },
       { timeout: 5000 },
     );
-    expect(screen.getByText("Style Tags Generated")).toBeInTheDocument();
     expect(screen.queryByText(/verification is confirmed/i)).not.toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });

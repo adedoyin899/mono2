@@ -6,6 +6,7 @@ import { Input } from "../components/ui/Input";
 import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import {
   ChevronLeft,
   ChevronRight,
@@ -134,7 +135,6 @@ export function CreatorOnboarding() {
   // Step 5: AI Summary & Style Tags
   const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([
-    "Warm Texture",
     "Conversational",
     "Expressive",
     "High Energy",
@@ -1145,19 +1145,43 @@ export function CreatorOnboarding() {
               })}
             </div>
 
-            {/* Add Rate Card or Alpha Limit Notice */}
+            {/* Add Rate Card or Limit Notice */}
             {rateCards.length < 2 ? (
               <Button onClick={handleAddRateCard} variant="secondary" className="w-full border-dashed mb-8">
                 <Plus className="w-4 h-4 mr-2" /> Add second rate card ({rateCards.length}/2)
               </Button>
             ) : (
               <div className="p-3 mb-8 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] text-center text-xs text-[var(--color-text-secondary)]">
-                Alpha preview limit reached: 2 of 2 rate cards created.
+                You can only create up to 2 rate cards (2/2 created).
               </div>
             )}
 
             <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
-              <Button onClick={() => navigate("/dashboard")} className="w-full">
+              <Button
+                onClick={() => {
+                  for (const card of rateCards) {
+                    if (card.title.trim()) {
+                      try {
+                        appStateSync.addService({
+                          title: card.title,
+                          price: `₦${Number(card.price.replace(/\D/g, "") || "45000").toLocaleString("en-US")}`,
+                          delivery: card.delivery,
+                          bookings: 0,
+                        });
+                      } catch {
+                        // ignore cap
+                      }
+                    }
+                  }
+                  appStateSync.updateTalentProfile({
+                    location: location ? `${location}, Nigeria` : "Lagos, Nigeria",
+                    bio: aiSummary || undefined,
+                    tags: tags.length > 0 ? tags : undefined,
+                  });
+                  navigate("/dashboard");
+                }}
+                className="w-full"
+              >
                 Preview My Profile
               </Button>
             </div>

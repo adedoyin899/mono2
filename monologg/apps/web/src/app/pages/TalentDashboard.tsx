@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -17,8 +17,10 @@ import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight, ChevronLeft, Clock, MapPin, Info,
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
-  BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound
+  BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
+  Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image
 } from "lucide-react";
+import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects" | "activity" | "analytics";
 
@@ -154,6 +156,10 @@ export function TalentDashboard() {
 
   const handleSaveService = async () => {
     if (!newServiceTitle.trim()) return;
+    if (!editServiceId && effectiveServices.length >= 2) {
+      alert("You can only create up to 2 rate cards.");
+      return;
+    }
     const num = Number(newServicePrice.replace(/[^0-9]/g, "")) || 0;
     const formattedPrice = `${rateCardCurrency}${num.toLocaleString("en-US")}`;
 
@@ -173,7 +179,8 @@ export function TalentDashboard() {
       });
       setShowAddService(false);
     }
-    apiClient.listServices().then(setServices);
+    const updated = await apiClient.listServices();
+    setServices(updated.slice(0, 2));
     setNewServiceTitle("");
     setNewServicePrice("45,000");
     setNewServiceDelivery("24 Hours");
@@ -181,7 +188,8 @@ export function TalentDashboard() {
 
   const handleDeleteService = async (id: string) => {
     await apiClient.deleteService(id);
-    apiClient.listServices().then(setServices);
+    const updated = await apiClient.listServices();
+    setServices(updated.slice(0, 2));
   };
 
   // features.md Phase 13 — day-detail + slot editor (PWA-08). getOpenSlots on
@@ -269,7 +277,7 @@ export function TalentDashboard() {
     return currentUser ? (currentUser.isNewUser ?? false) : false;
   });
 
-  const effectiveServices = isNewUser ? [] : services;
+  const effectiveServices = services;
   const effectiveOrders = isNewUser ? [] : orders;
   const effectiveApplications = isNewUser ? [] : myApplications;
   const effectivePayouts = isNewUser ? [] : payouts;
@@ -283,16 +291,143 @@ export function TalentDashboard() {
       ]
     : stats;
 
+  // In-Page Profile Editing State (Airbnb / Upwork / Linktree inspired)
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState(talentProfile.name || "Emeka Johnson");
+  const [editStageTitle, setEditStageTitle] = useState(talentProfile.stageTitle || "Actor & Voice Artist");
+  const [editLocation, setEditLocation] = useState(talentProfile.location || "Lagos, Nigeria");
+  const [editBio, setEditBio] = useState(talentProfile.bio || "");
+  const [editIsAvailable, setEditIsAvailable] = useState(talentProfile.isAvailable ?? true);
+  const [editTags, setEditTags] = useState<string[]>(talentProfile.tags || VIBE_TAGS);
+  const [newTagInput, setNewTagInput] = useState("");
+  const [editSocials, setEditSocials] = useState(
+    talentProfile.socialLinks || {
+      instagram: "emekajohnson",
+      youtube: "emekaofficial",
+      twitter: "emekaj",
+      tiktok: "emekaacts",
+      spotify: "",
+      linkedin: "emeka-johnson",
+    }
+  );
+  const [editCoverUrl, setEditCoverUrl] = useState<string | null>(talentProfile.coverUrl || null);
+  const [editCoverPreset, setEditCoverPreset] = useState<string>(talentProfile.coverPreset || "crimson-studio");
+  const [profileSaveToast, setProfileSaveToast] = useState(false);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
+  const [showUploadReelModal, setShowUploadReelModal] = useState(false);
+
+  // Profile Completeness Gate Formula
+  const hasBio = Boolean(
+    talentProfile.bio &&
+    talentProfile.bio.trim().length > 10 &&
+    !talentProfile.bio.toLowerCase().includes("no bio")
+  );
+  const hasLocation = Boolean(talentProfile.location && talentProfile.location.trim().length > 0);
+  const hasRateCard = effectiveServices.length > 0;
+  const hasReel = Boolean(talentProfile.hasReel || talentProfile.performanceReelUrl || !isNewUser);
+  const isProfileComplete = Boolean(hasBio && hasLocation && hasRateCard && hasReel);
+
+  // Sync edit form with talentProfile
+  useEffect(() => {
+    if (!isEditingProfile) {
+      setEditName(talentProfile.name || (currentUser?.name || "New Creative Performer"));
+      setEditStageTitle(talentProfile.stageTitle || "Actor & Voice Artist");
+      setEditLocation(talentProfile.location || "Lagos, Nigeria");
+      setEditBio(talentProfile.bio || "");
+      setEditIsAvailable(talentProfile.isAvailable ?? true);
+      setEditTags(talentProfile.tags || VIBE_TAGS);
+      setEditSocials(
+        talentProfile.socialLinks || {
+          instagram: "emekajohnson",
+          youtube: "emekaofficial",
+          twitter: "emekaj",
+          tiktok: "emekaacts",
+          spotify: "",
+          linkedin: "emeka-johnson",
+        }
+      );
+      setEditCoverUrl(talentProfile.coverUrl || null);
+      setEditCoverPreset(talentProfile.coverPreset || "crimson-studio");
+    }
+  }, [talentProfile, isEditingProfile, currentUser]);
+
+  const handleSaveProfile = async () => {
+    const updates = {
+      name: editName.trim() || talentProfile.name,
+      stageTitle: editStageTitle.trim() || "Actor & Voice Artist",
+      location: editLocation.trim() || "Lagos, Nigeria",
+      bio: editBio.trim(),
+      isAvailable: editIsAvailable,
+      tags: editTags,
+      socialLinks: editSocials,
+      coverUrl: editCoverUrl,
+      coverPreset: editCoverPreset,
+    };
+
+    appStateSync.updateTalentProfile(updates);
+    try {
+      await apiClient.updateCreatorProfile({
+        name: updates.name,
+        bio: updates.bio,
+        location: updates.location,
+      });
+    } catch {}
+
+    setTalentProfile(appStateSync.getTalentProfile());
+    setIsEditingProfile(false);
+    setProfileSaveToast(true);
+    setTimeout(() => setProfileSaveToast(false), 3000);
+  };
+
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const url = evt.target?.result as string;
+      setEditCoverUrl(url);
+      setEditCoverPreset("custom");
+      appStateSync.updateTalentProfile({ coverUrl: url, coverPreset: "custom" });
+      setTalentProfile(appStateSync.getTalentProfile());
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const getBannerBackground = () => {
+    if (talentProfile.coverUrl) {
+      return `url(${talentProfile.coverUrl}) center / cover no-repeat`;
+    }
+    switch (talentProfile.coverPreset) {
+      case "noir-velvet":
+        return "linear-gradient(135deg, #26262E 0%, #16161A 50%, #0D0D11 100%)";
+      case "amber-gold":
+        return "linear-gradient(135deg, #D97706 0%, #92400E 60%, #1F1305 100%)";
+      case "electric-violet":
+        return "linear-gradient(135deg, #7C3AED 0%, #4C1D95 60%, #140727 100%)";
+      case "crimson-studio":
+      default:
+        return "linear-gradient(135deg, #E52E2E 0%, #991B1B 50%, #450A0A 100%)";
+    }
+  };
+
   useEffect(() => {
     const sync = () => {
       setTalentProfile(appStateSync.getTalentProfile());
       apiClient.listProjects().then(setProjects);
+      apiClient.listServices().then(setServices);
     };
     const unsub = appStateSync.subscribe(sync);
 
     apiClient.getTalentStats().then(setStats);
     apiClient.listTalentActivity().then(setActivity);
-    apiClient.listServices().then(setServices);
+    apiClient.listServices().then((srvs) => {
+      const storedServices = appStateSync.getServices();
+      if (isNewUser && (!storedServices || storedServices.length === 0)) {
+        setServices([]);
+      } else {
+        setServices(srvs.slice(0, 2));
+      }
+    });
     apiClient.listTalentOrders().then(setOrders);
     apiClient.listNotifications().then(({ notifications, unreadCount }) => {
       setNotifications(notifications);
@@ -300,7 +435,7 @@ export function TalentDashboard() {
     });
 
     return unsub;
-  }, []);
+  }, [isNewUser]);
 
   const loadProjects = () => {
     apiClient.listProjects().then(setProjects);
@@ -318,6 +453,10 @@ export function TalentDashboard() {
 
   const handleApply = async () => {
     if (!selectedProject) return;
+    if (!isProfileComplete) {
+      setApplyError("You must complete your profile (bio, rate card, and performance reel) before applying to projects.");
+      return;
+    }
     setApplying(true);
     setApplyError(null);
     try {
@@ -547,13 +686,35 @@ export function TalentDashboard() {
             </div>
             <div className="flex items-center gap-3">
               {activeTab === "storefront" && (
-                <Button variant="secondary" className="h-10 px-4 text-sm gap-2" onClick={() => setShowShare(true)}>
-                  <Share2 className="w-4 h-4" /> Share Profile
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={isEditingProfile ? "primary" : "secondary"}
+                    className="h-10 px-4 text-sm gap-2"
+                    onClick={() => setIsEditingProfile(!isEditingProfile)}
+                  >
+                    <Edit2 className="w-4 h-4" /> {isEditingProfile ? "Preview Profile" : "Edit Profile"}
+                  </Button>
+                  <Button variant="secondary" className="h-10 px-4 text-sm gap-2" onClick={() => setShowShare(true)}>
+                    <Share2 className="w-4 h-4" /> Share Profile
+                  </Button>
+                </div>
               )}
-              {activeTab === "rates" && (
-                <Button className="h-10 px-4 text-sm gap-2" onClick={() => setShowAddService(true)}>
-                  <Plus className="w-4 h-4" /> Add Service
+              {activeTab === "rates" && effectiveServices.length > 0 && (
+                <Button
+                  className="h-10 px-4 text-sm gap-2"
+                  disabled={effectiveServices.length >= 2}
+                  onClick={() => {
+                    if (effectiveServices.length < 2) {
+                      setEditServiceId(null);
+                      setNewServiceTitle("");
+                      setNewServicePrice("45000");
+                      setNewServiceDelivery("24 Hours");
+                      setShowAddService(true);
+                    }
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  {effectiveServices.length >= 2 ? "Rate Cards Full (2/2)" : "Add Rate Card"}
                 </Button>
               )}
               <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity relative" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
@@ -781,183 +942,738 @@ export function TalentDashboard() {
               </motion.div>
             )}
 
-            {/* ── Storefront Tab ── */}
+            {/* ── Storefront Tab (Airbnb / Upwork / Linktree inspired) ── */}
             {activeTab === "storefront" && (
               <motion.div key="storefront" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="flex justify-end mb-4 lg:hidden">
+                {/* Hidden Cover file input */}
+                <input
+                  type="file"
+                  ref={coverFileInputRef}
+                  onChange={handleCoverUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                {/* Mobile action bar */}
+                <div className="flex items-center justify-between mb-4 lg:hidden">
+                  <Button
+                    variant={isEditingProfile ? "primary" : "secondary"}
+                    className="h-9 px-3 text-sm gap-2"
+                    onClick={() => setIsEditingProfile(!isEditingProfile)}
+                  >
+                    <Edit2 className="w-4 h-4" /> {isEditingProfile ? "Preview" : "Edit Profile"}
+                  </Button>
                   <Button variant="secondary" className="h-9 px-3 text-sm gap-2" onClick={() => setShowShare(true)}>
                     <Share2 className="w-4 h-4" /> Share
                   </Button>
                 </div>
+
+                {/* Save Feedback Banner */}
+                {profileSaveToast && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-3 rounded-xl bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[var(--color-success)]/30 text-xs font-semibold font-body flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Profile saved and synced across settings!</span>
+                  </motion.div>
+                )}
+
                 <div
-                  className="rounded-[var(--radius-lg)] overflow-hidden"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                  className="rounded-[28px] overflow-hidden border shadow-sm transition-all"
+                  style={{
+                    background: "var(--color-bg-surface)",
+                    borderColor: "var(--color-border-default)",
+                    boxShadow: "var(--shadow-card)",
+                  }}
                 >
-                  {/* Profile header */}
+                  {/* Hero Cover Banner (Airbnb / Linktree style) */}
                   <div
-                    className="h-24 w-full"
-                    style={{ background: "linear-gradient(135deg, var(--color-accent-glow), var(--color-bg-elevated))" }}
-                  />
-                  <div className="px-6 pb-6">
-                    <div className="flex items-end gap-4 -mt-10 mb-4">
-                      <div
-                        className="w-20 h-20 rounded-full border-4 overflow-hidden shrink-0"
-                        style={{ borderColor: "var(--color-bg-surface)", background: "var(--color-bg-elevated)" }}
-                      >
-                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop" alt="Profile" className="w-full h-full object-cover" />
+                    className="h-44 sm:h-52 w-full relative transition-all group overflow-hidden"
+                    style={{
+                      background: getBannerBackground(),
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-black/15 transition-opacity group-hover:bg-black/25" />
+                    
+                    {/* Change Cover Pill Button */}
+                    <button
+                      type="button"
+                      onClick={() => coverFileInputRef.current?.click()}
+                      className="absolute top-4 right-4 h-9 px-3.5 rounded-full text-xs font-semibold flex items-center gap-2 backdrop-blur-md bg-black/50 hover:bg-black/75 text-white border border-white/20 transition-all shadow-md active:scale-95"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>Change Cover</span>
+                    </button>
+                  </div>
+
+                  {/* Main Profile Info Section */}
+                  <div className="px-6 pb-8">
+                    {/* Avatar & Badges Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
+                      <div className="flex items-end gap-4">
+                        <div
+                          className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 overflow-hidden shrink-0 shadow-lg relative group"
+                          style={{
+                            borderColor: "var(--color-bg-surface)",
+                            background: "var(--color-bg-elevated)",
+                          }}
+                        >
+                          <img
+                            src={talentProfile.avatarUrl || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&q=80&fit=crop"}
+                            alt={talentProfile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        <div className="pb-1">
+                          {isNewUser ? (
+                            <Badge tone="accent" className="border border-[var(--color-accent)] gap-1">
+                              <Shield className="w-3 h-3" /> Draft Profile (Unverified)
+                            </Badge>
+                          ) : (
+                            <Badge tone="success" className="border border-[var(--color-success)] gap-1">
+                              <Shield className="w-3 h-3" /> Verified Performer
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="pb-1">
-                        {isNewUser ? (
-                          <Badge tone="accent" className="border border-[var(--color-accent)]">
-                            <Shield className="w-3 h-3" /> Draft Profile (Unverified)
-                          </Badge>
-                        ) : (
-                          <Badge tone="success" className="border border-[var(--color-success)]">
-                            <Shield className="w-3 h-3" /> Verified
-                          </Badge>
-                        )}
+
+                      <div className="hidden lg:flex items-center gap-2">
+                        <Button
+                          variant={isEditingProfile ? "primary" : "secondary"}
+                          size="sm"
+                          className="gap-2 text-xs h-9"
+                          onClick={() => setIsEditingProfile(!isEditingProfile)}
+                        >
+                          <Edit2 className="w-3.5 h-3.5" /> {isEditingProfile ? "Preview Profile" : "Edit Profile"}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="gap-2 text-xs h-9"
+                          onClick={() => setShowShare(true)}
+                        >
+                          <Share2 className="w-3.5 h-3.5" /> Share
+                        </Button>
                       </div>
                     </div>
 
-                    <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>
-                      {isNewUser ? (currentUser?.name || "New Creative Performer") : talentName}
-                    </h2>
-                    <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                      {isNewUser ? "Voice-Over & Screen Performer · Lagos, Nigeria" : "Actor & Voice Artist · Lagos, Nigeria"}
-                    </p>
+                    {/* Performer Name & Title */}
+                    <div className="mb-4">
+                      <h2 className="font-display text-2xl sm:text-3xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+                        {talentProfile.name || (currentUser?.name || "Emeka Johnson")}
+                      </h2>
+                      <p className="text-sm font-body flex items-center gap-2" style={{ color: "var(--color-text-secondary)" }}>
+                        <span>{talentProfile.stageTitle || (isNewUser ? "Voice-Over & Screen Performer" : "Actor & Voice Artist")}</span>
+                        <span>·</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 opacity-60" /> {talentProfile.location || "Lagos, Nigeria"}
+                        </span>
+                      </p>
+                    </div>
 
+                    {/* Availability Status Badge */}
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="w-2 h-2 rounded-full" style={{ background: "var(--color-success)" }} />
-                      <span className="text-sm font-body" style={{ color: "var(--color-text-primary)" }}>Available for bookings</span>
+                      {talentProfile.isAvailable !== false ? (
+                        <>
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "var(--color-success)" }}></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "var(--color-success)" }}></span>
+                          </span>
+                          <span className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                            Available for bookings &amp; casting
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                          <span className="text-xs font-semibold font-body text-amber-600 dark:text-amber-400">
+                            Booked / Unavailable
+                          </span>
+                        </>
+                      )}
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {VIBE_TAGS.map(tag => (
-                        <Badge key={tag} tone="neutral" size="lg">{tag}</Badge>
+                    {/* Social Media Row (Linktree / Upwork style) */}
+                    <div className="flex flex-wrap items-center gap-2 mb-6 pt-1">
+                      {talentProfile.socialLinks?.instagram && (
+                        <a
+                          href={`https://instagram.com/${talentProfile.socialLinks.instagram.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#E1306C] hover:text-[#E1306C]"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <Instagram className="w-3.5 h-3.5" />
+                          <span>@{talentProfile.socialLinks.instagram.replace(/^@/, "")}</span>
+                        </a>
+                      )}
+                      {talentProfile.socialLinks?.youtube && (
+                        <a
+                          href={`https://youtube.com/@${talentProfile.socialLinks.youtube.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#FF0000] hover:text-[#FF0000]"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <Youtube className="w-3.5 h-3.5" />
+                          <span>@{talentProfile.socialLinks.youtube.replace(/^@/, "")}</span>
+                        </a>
+                      )}
+                      {talentProfile.socialLinks?.tiktok && (
+                        <a
+                          href={`https://tiktok.com/@${talentProfile.socialLinks.tiktok.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-black dark:hover:border-white"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.32a6.34 6.34 0 0 0-.86-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 10.79 4.54V11.8a8.3 8.3 0 0 0 5.66 2.19V10.5a4.88 4.88 0 0 1-3.03-3.81z"/>
+                          </svg>
+                          <span>@{talentProfile.socialLinks.tiktok.replace(/^@/, "")}</span>
+                        </a>
+                      )}
+                      {talentProfile.socialLinks?.twitter && (
+                        <a
+                          href={`https://x.com/${talentProfile.socialLinks.twitter.replace(/^@/, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#1DA1F2] hover:text-[#1DA1F2]"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <Twitter className="w-3.5 h-3.5" />
+                          <span>@{talentProfile.socialLinks.twitter.replace(/^@/, "")}</span>
+                        </a>
+                      )}
+                      {talentProfile.socialLinks?.linkedin && (
+                        <a
+                          href={`https://linkedin.com/in/${talentProfile.socialLinks.linkedin}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#0A66C2] hover:text-[#0A66C2]"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <Linkedin className="w-3.5 h-3.5" />
+                          <span>LinkedIn</span>
+                        </a>
+                      )}
+                      {talentProfile.socialLinks?.spotify && (
+                        <a
+                          href={talentProfile.socialLinks.spotify}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all hover:scale-105 active:scale-95 bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] hover:border-[#1DB954] hover:text-[#1DB954]"
+                          style={{ color: "var(--color-text-secondary)" }}
+                        >
+                          <Music className="w-3.5 h-3.5" />
+                          <span>Spotify</span>
+                        </a>
+                      )}
+                      <button
+                        onClick={() => setIsEditingProfile(true)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium border border-dashed border-[var(--color-hairline)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors"
+                      >
+                        <Plus className="w-3 h-3" /> Social
+                      </button>
+                    </div>
+
+                    {/* ── IN-PAGE PROFILE EDIT MODE ── */}
+                    {isEditingProfile ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-6 rounded-[24px] border mb-8 space-y-6"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          borderColor: "var(--color-border-default)",
+                        }}
+                      >
+                        <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                          <div>
+                            <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              Edit Profile Details
+                            </h3>
+                            <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Changes saved here automatically update your profile and sync with settings.
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="secondary" size="sm" onClick={() => setIsEditingProfile(false)}>
+                              Cancel
+                            </Button>
+                            <Button size="sm" onClick={handleSaveProfile} className="gap-1.5">
+                              <Check className="w-3.5 h-3.5" /> Save Changes
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Basic Info Fields */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Performer Name
+                            </label>
+                            <Input
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              placeholder="Stage Name or Full Name"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Stage Title / Primary Craft
+                            </label>
+                            <Input
+                              value={editStageTitle}
+                              onChange={(e) => setEditStageTitle(e.target.value)}
+                              placeholder="e.g. Actor & Voice Artist"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Location
+                            </label>
+                            <Input
+                              value={editLocation}
+                              onChange={(e) => setEditLocation(e.target.value)}
+                              placeholder="City, Nigeria"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Availability Status
+                            </label>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditIsAvailable(true)}
+                                className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                  editIsAvailable
+                                    ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
+                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                }`}
+                              >
+                                <span className="w-2 h-2 rounded-full bg-emerald-400" /> Available
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditIsAvailable(false)}
+                                className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                  !editIsAvailable
+                                    ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
+                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                }`}
+                              >
+                                <span className="w-2 h-2 rounded-full bg-amber-400" /> Booked
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bio Field */}
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Performer Bio &amp; Summary
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={editBio}
+                            onChange={(e) => setEditBio(e.target.value)}
+                            placeholder="Describe your training, performance styles, notable credits, and vocal qualities..."
+                            className="w-full px-4 py-3 rounded-[var(--radius-md)] text-sm font-body border resize-none outline-none focus:border-[var(--color-accent)]"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                              color: "var(--color-text-primary)",
+                            }}
+                          />
+                        </div>
+
+                        {/* Profile Tags Editor */}
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Profile Tags &amp; Specialties
+                          </label>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {editTags.map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-[var(--color-bg-surface)] border-[var(--color-border-default)]"
+                              >
+                                <span>{tag}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditTags(editTags.filter((_, i) => i !== idx))}
+                                  className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)]"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2 max-w-sm">
+                            <Input
+                              value={newTagInput}
+                              onChange={(e) => setNewTagInput(e.target.value)}
+                              placeholder="Add a new tag (e.g. Igbo Accent, Improvisation)"
+                              className="h-9 text-xs"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && newTagInput.trim()) {
+                                  e.preventDefault();
+                                  if (!editTags.includes(newTagInput.trim())) {
+                                    setEditTags([...editTags, newTagInput.trim()]);
+                                  }
+                                  setNewTagInput("");
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              className="h-9 text-xs"
+                              onClick={() => {
+                                if (newTagInput.trim() && !editTags.includes(newTagInput.trim())) {
+                                  setEditTags([...editTags, newTagInput.trim()]);
+                                  setNewTagInput("");
+                                }
+                              }}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Social Media Links Inputs */}
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Social Media &amp; Portfolios (Linktree style)
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#E1306C]">IG</span>
+                              <Input
+                                value={editSocials.instagram || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, instagram: e.target.value })}
+                                placeholder="Instagram handle (e.g. emeka_acts)"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#FF0000]">YT</span>
+                              <Input
+                                value={editSocials.youtube || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, youtube: e.target.value })}
+                                placeholder="YouTube channel handle"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--color-text-primary)]">TT</span>
+                              <Input
+                                value={editSocials.tiktok || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, tiktok: e.target.value })}
+                                placeholder="TikTok handle"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DA1F2]">X</span>
+                              <Input
+                                value={editSocials.twitter || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, twitter: e.target.value })}
+                                placeholder="X (Twitter) handle"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#0A66C2]">IN</span>
+                              <Input
+                                value={editSocials.linkedin || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, linkedin: e.target.value })}
+                                placeholder="LinkedIn profile slug"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                            <div className="relative">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DB954]">SP</span>
+                              <Input
+                                value={editSocials.spotify || ""}
+                                onChange={(e) => setEditSocials({ ...editSocials, spotify: e.target.value })}
+                                placeholder="Spotify or audio artist URL"
+                                className="pl-10 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Banner Style Presets */}
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Banner Theme Presets
+                          </label>
+                          <div className="flex flex-wrap gap-2.5">
+                            {[
+                              { id: "crimson-studio", name: "Crimson Studio", color: "from-[#E52E2E] to-[#450A0A]" },
+                              { id: "noir-velvet", name: "Noir Velvet", color: "from-[#26262E] to-[#0D0D11]" },
+                              { id: "amber-gold", name: "Amber Gold", color: "from-[#D97706] to-[#1F1305]" },
+                              { id: "electric-violet", name: "Velvet Plum", color: "from-[#7C3AED] to-[#140727]" },
+                            ].map((preset) => (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                onClick={() => {
+                                  setEditCoverPreset(preset.id);
+                                  setEditCoverUrl(null);
+                                }}
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all ${
+                                  editCoverPreset === preset.id && !editCoverUrl
+                                    ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 text-[var(--color-text-primary)]"
+                                    : "border-[var(--color-border-default)] text-[var(--color-text-secondary)]"
+                                }`}
+                              >
+                                <span className={`w-3.5 h-3.5 rounded-full bg-gradient-to-r ${preset.color}`} />
+                                <span>{preset.name}</span>
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => coverFileInputRef.current?.click()}
+                              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-[var(--color-border-default)] hover:border-[var(--color-accent)] flex items-center gap-1.5"
+                            >
+                              <Camera className="w-3.5 h-3.5" /> Upload Custom Banner
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                          <Button variant="secondary" onClick={() => setIsEditingProfile(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSaveProfile} className="gap-2">
+                            <Check className="w-4 h-4" /> Save Profile
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ) : null}
+
+                    {/* Tags List */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {(talentProfile.tags || VIBE_TAGS).map((tag) => (
+                        <Badge key={tag} tone="neutral" size="lg">
+                          {tag}
+                        </Badge>
                       ))}
                     </div>
 
-                    {isNewUser ? (
-                      <div className="p-4 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    {/* Bio Section */}
+                    {talentProfile.bio && talentProfile.bio.trim() && !talentProfile.bio.toLowerCase().includes("no bio") ? (
+                      <div className="mb-8">
+                        <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
+                          About the Performer
+                        </h3>
+                        <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          {talentProfile.bio}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-[var(--radius-lg)] mb-8 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
-                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Write a compelling summary of your performance background and specialized performer niches.</p>
+                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                            Write a compelling summary of your craft, training, and vocal range to complete your profile.
+                          </p>
                         </div>
-                        <Button variant="secondary" className="h-8 text-xs shrink-0" onClick={() => navigate("/settings")}>
+                        <Button
+                          variant="secondary"
+                          className="h-8 text-xs shrink-0"
+                          onClick={() => setIsEditingProfile(true)}
+                        >
                           Add Bio
                         </Button>
                       </div>
-                    ) : (
-                      <p className="text-sm font-body leading-relaxed mb-6" style={{ color: "var(--color-text-secondary)" }}>
-                        Specializing in intense dramatic monologues and authoritative voice-overs. 10+ years of stage experience across Nollywood productions, corporate events, and studio sessions.
-                      </p>
                     )}
 
-                    {/* Featured Reel */}
-                    <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Featured Reel</h3>
-                    {isNewUser ? (
-                      <div className="p-6 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
-                          <Play className="w-6 h-6 ml-0.5" />
-                        </div>
-                        <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">No Featured Monologue Video Uploaded</p>
-                        <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">Upload a high-quality video or audio clip showcasing your dramatic monologues or voice reels.</p>
-                        <Button variant="secondary" className="h-9 px-4 text-xs gap-2" onClick={() => navigate("/verification")}>
-                          <Play className="w-3.5 h-3.5" /> Upload Performance Reel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div
-                        className="relative aspect-video rounded-[var(--radius-md)] overflow-hidden mb-6 group cursor-pointer"
-                        style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                      >
-                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop" alt="Reel" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div
-                            className="w-14 h-14 rounded-full flex items-center justify-center pl-1 shadow-lg"
-                            style={{ background: "var(--color-accent)", boxShadow: "var(--shadow-modal)" }}
+                    {/* Featured Performance Reel (Airbnb / Upwork Portfolio style) */}
+                    <div className="mb-8">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                          Featured Performance Reel
+                        </h3>
+                        {(talentProfile.hasReel || talentProfile.performanceReelUrl || !isNewUser) && (
+                          <button
+                            onClick={() => setShowUploadReelModal(true)}
+                            className="text-xs font-semibold hover:underline flex items-center gap-1"
+                            style={{ color: "var(--color-accent)" }}
                           >
-                            <Play className="w-6 h-6" style={{ color: "var(--color-text-inverse)" }} />
-                          </div>
-                        </div>
-                        <div className="absolute bottom-3 right-3 px-2 py-1 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
-                          02:45
-                        </div>
+                            <Play className="w-3 h-3" /> Replace Reel
+                          </button>
+                        )}
                       </div>
-                    )}
 
-                    {/* Rate Cards */}
-                    <h3 className="text-sm font-semibold font-body mb-3" style={{ color: "var(--color-text-primary)" }}>Booking Services</h3>
-                    {effectiveServices.length === 0 ? (
-                      <div className="p-6 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
-                          <DollarSign className="w-6 h-6" />
-                        </div>
-                        <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">No Rate Cards Published</p>
-                        <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">Create fixed-price service rate cards so clients can instantly book your services.</p>
-                        <Button className="h-9 px-4 text-xs gap-2" onClick={() => setActiveTab("rates")}>
-                          <Plus className="w-3.5 h-3.5" /> Create Rate Card
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {effectiveServices.map(service => (
-                          <div
-                            key={service.id}
-                            className="p-4 rounded-[var(--radius-md)]"
-                            style={{
-                              background: "var(--color-bg-elevated)",
-                              border: "1px solid var(--color-border-default)",
-                              borderLeft: "3px solid var(--color-accent)",
-                            }}
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</span>
-                              <span className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{service.price}</span>
+                      {talentProfile.hasReel || talentProfile.performanceReelUrl || !isNewUser ? (
+                        <div
+                          className="relative aspect-video rounded-[var(--radius-lg)] overflow-hidden group cursor-pointer border shadow-sm"
+                          style={{
+                            background: "var(--color-bg-elevated)",
+                            borderColor: "var(--color-border-default)",
+                          }}
+                          onClick={() => setShowUploadReelModal(true)}
+                        >
+                          <img
+                            src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop"
+                            alt="Reel"
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div
+                              className="w-14 h-14 rounded-full flex items-center justify-center pl-1 shadow-xl transition-transform group-hover:scale-110"
+                              style={{ background: "var(--color-accent)" }}
+                            >
+                              <Play className="w-6 h-6 text-white" />
                             </div>
-                            <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-tertiary)" }}>Delivery: {service.delivery}</div>
-                            <Button className="w-full h-10 text-sm" onClick={() => navigate(`/book/${currentUser?.id || "me"}`)}>Book Now</Button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Media Kit — features.md Phase 12A.1: PWA-07 storefront section
-                        (download + share), management lives at /media-kit (PWA-20). */}
-                    <h3 className="text-sm font-semibold font-body mb-3 mt-6" style={{ color: "var(--color-text-primary)" }}>Media Kit</h3>
-                    <div
-                      className="p-4 rounded-[var(--radius-md)] flex items-center justify-between gap-3"
-                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                    >
-                      <div className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                        A one-page PDF profile — auto-generated, or upload your own.
-                      </div>
-                      <Button
-                        variant="secondary"
-                        className="h-9 px-3 text-sm gap-2 shrink-0"
-                        onClick={() => navigate("/media-kit")}
-                      >
-                        <Share2 className="w-4 h-4" /> Manage
-                      </Button>
+                          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-black/60 text-white backdrop-blur-md">
+                            {talentProfile.performanceReelTitle || "Featured Audition Reel"}
+                          </div>
+                          <div className="absolute bottom-3 right-3 px-2 py-1 rounded font-mono text-xs text-white bg-black/60 backdrop-blur-md">
+                            01:30
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-6 rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
+                            <Play className="w-6 h-6 ml-0.5" />
+                          </div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
+                            No Performance Reel Uploaded
+                          </p>
+                          <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">
+                            Upload a high-quality video clip (max 90 seconds) showcasing your acting, monologue, or voice reel.
+                          </p>
+                          <Button
+                            variant="secondary"
+                            className="h-9 px-4 text-xs gap-2"
+                            onClick={() => setShowUploadReelModal(true)}
+                          >
+                            <Play className="w-3.5 h-3.5" /> Upload Performance Reel
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Verification video — features.md Phase 12A.2. X3: entirely
-                        separate from the Verified badge above (identity KYC). */}
-                    <h3 className="text-sm font-semibold font-body mb-3 mt-6" style={{ color: "var(--color-text-primary)" }}>Verification Video</h3>
-                    <div
-                      className="p-4 rounded-[var(--radius-md)] flex items-center justify-between gap-3"
-                      style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                    >
-                      <div className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                        A short waist-up clip clients see on your profile.
+                    {/* Rate Cards & Booking Services (Upwork Catalog style) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                          Booking Services &amp; Rate Cards
+                        </h3>
+                        {effectiveServices.length > 0 && effectiveServices.length < 2 && (
+                          <button
+                            onClick={() => {
+                              setEditServiceId(null);
+                              setNewServiceTitle("");
+                              setNewServicePrice("45000");
+                              setNewServiceDelivery("24 Hours");
+                              setShowAddService(true);
+                            }}
+                            className="text-xs font-semibold hover:underline flex items-center gap-1"
+                            style={{ color: "var(--color-accent)" }}
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Add Second Rate Card (1/2)
+                          </button>
+                        )}
                       </div>
-                      <Button
-                        variant="secondary"
-                        className="h-9 px-3 text-sm gap-2 shrink-0"
-                        onClick={() => navigate("/verification")}
-                      >
-                        <Play className="w-4 h-4" /> Manage
-                      </Button>
+
+                      {effectiveServices.length === 0 ? (
+                        <div className="p-6 rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] text-center flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-3 text-[var(--color-accent)]">
+                            <DollarSign className="w-6 h-6" />
+                          </div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
+                            No Rate Cards Created
+                          </p>
+                          <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mb-4">
+                            You can create up to 2 service rate cards so clients can instantly book your services.
+                          </p>
+                          <Button
+                            className="h-9 px-4 text-xs gap-2"
+                            onClick={() => {
+                              setEditServiceId(null);
+                              setNewServiceTitle("");
+                              setNewServicePrice("45000");
+                              setNewServiceDelivery("24 Hours");
+                              setShowAddService(true);
+                            }}
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Create Rate Card
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {effectiveServices.map((service) => (
+                            <div
+                              key={service.id}
+                              className="p-4 rounded-[var(--radius-lg)] border flex flex-col justify-between"
+                              style={{
+                                background: "var(--color-bg-elevated)",
+                                borderColor: "var(--color-border-default)",
+                                borderLeft: "3px solid var(--color-accent)",
+                              }}
+                            >
+                              <div>
+                                <div className="flex justify-between items-start mb-1.5">
+                                  <span className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                    {service.title}
+                                  </span>
+                                  <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
+                                    {service.price}
+                                  </span>
+                                </div>
+                                <div className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
+                                  Delivery: {service.delivery}
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="flex-1 h-9 text-xs"
+                                  onClick={() => {
+                                    setEditServiceId(service.id);
+                                    setNewServiceTitle(service.title);
+                                    const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                                    if (match) {
+                                      setRateCardCurrency(match[1] || "₦");
+                                      setNewServicePrice((match[2] || "").replace(/,/g, ""));
+                                    } else {
+                                      setNewServicePrice(service.price.replace(/[^0-9]/g, ""));
+                                    }
+                                    setNewServiceDelivery(service.delivery);
+                                    setShowAddService(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  className="flex-1 h-9 text-xs"
+                                  onClick={() => navigate(`/book/${currentUser?.id || "me"}`)}
+                                >
+                                  Book
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -969,18 +1685,20 @@ export function TalentDashboard() {
               <motion.div key="rates" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <div className="flex items-center justify-between mb-4 lg:hidden">
                   <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Rate Cards</h2>
-                  <Button
-                    className="h-9 px-3 text-sm gap-2"
-                    onClick={() => {
-                      setEditServiceId(null);
-                      setNewServiceTitle("");
-                      setNewServicePrice("45000");
-                      setNewServiceDelivery("24 Hours");
-                      setShowAddService(true);
-                    }}
-                  >
-                    <Plus className="w-4 h-4" /> Add
-                  </Button>
+                  {effectiveServices.length > 0 && effectiveServices.length < 2 && (
+                    <Button
+                      className="h-9 px-3 text-sm gap-2"
+                      onClick={() => {
+                        setEditServiceId(null);
+                        setNewServiceTitle("");
+                        setNewServicePrice("45000");
+                        setNewServiceDelivery("24 Hours");
+                        setShowAddService(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4" /> Add Rate Card
+                    </Button>
+                  )}
                 </div>
 
                 {effectiveServices.length === 0 ? (
@@ -990,7 +1708,7 @@ export function TalentDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Rate Cards Created Yet</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      Create fixed-price service rate cards so clients can instantly book your voice-over, acting, or compere services.
+                      Create fixed-price service rate cards so clients can instantly book your voice-over, acting, or compere services. You can create up to 2 rate cards.
                     </p>
                     <Button onClick={() => setShowAddService(true)} className="gap-2">
                       <Plus className="w-4 h-4" /> Create Your First Rate Card
@@ -1036,6 +1754,7 @@ export function TalentDashboard() {
                                   setNewServicePrice(service.price.replace(/[^0-9]/g, ""));
                                 }
                                 setNewServiceDelivery(service.delivery);
+                                setShowAddService(true);
                               }}
                             >
                               <Edit2 className="w-3.5 h-3.5" /> Edit
@@ -1053,23 +1772,29 @@ export function TalentDashboard() {
                     </div>
                   ))}
 
-                  <button
-                    onClick={() => {
-                      setEditServiceId(null);
-                      setNewServiceTitle("");
-                      setNewServicePrice("45000");
-                      setNewServiceDelivery("24 Hours");
-                      setShowAddService(true);
-                    }}
-                    className="w-full p-5 rounded-[var(--radius-lg)] border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body transition-all hover:border-[var(--color-gold-primary)]"
-                    style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
-                  >
-                    <Plus className="w-4 h-4" /> Add another service
-                  </button>
+                  {effectiveServices.length < 2 ? (
+                    <button
+                      onClick={() => {
+                        setEditServiceId(null);
+                        setNewServiceTitle("");
+                        setNewServicePrice("45000");
+                        setNewServiceDelivery("24 Hours");
+                        setShowAddService(true);
+                      }}
+                      className="w-full p-5 rounded-[var(--radius-lg)] border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body transition-all hover:border-[var(--color-accent)]"
+                      style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                    >
+                      <Plus className="w-4 h-4" /> Add second rate card ({effectiveServices.length}/2)
+                    </button>
+                  ) : (
+                    <div className="p-4 rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] text-center text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      You can only create up to 2 rate cards (2/2 created).
+                    </div>
+                  )}
                 </div>
                 )}
 
-                {/* Add/Edit Service Modal */}
+                {/* Add/Edit Rate Card Modal */}
                 <AnimatePresence>
                   {(showAddService || editServiceId !== null) && (
                     <Modal onClose={() => { setShowAddService(false); setEditServiceId(null); }} align="end">
@@ -1083,7 +1808,7 @@ export function TalentDashboard() {
                       >
                         <div className="flex items-center justify-between mb-5">
                           <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>
-                            {editServiceId ? "Edit Service" : "New Service"}
+                            {editServiceId ? "Edit Rate Card" : "New Rate Card"}
                           </h3>
                           <button
                             onClick={() => { setShowAddService(false); setEditServiceId(null); }}
@@ -1174,7 +1899,7 @@ export function TalentDashboard() {
                               Cancel
                             </Button>
                             <Button className="flex-1 h-11 text-sm" onClick={handleSaveService}>
-                              {editServiceId ? "Save Changes" : "Add Service"}
+                              {editServiceId ? "Save Changes" : "Add Rate Card"}
                             </Button>
                           </div>
                         </div>
@@ -1682,6 +2407,27 @@ export function TalentDashboard() {
 
                 {projectsSubTab === "browse" ? (
                   <>
+                    {!isProfileComplete && (
+                      <div className="mb-5 p-4 rounded-[20px] bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[var(--color-accent-glow)] text-[var(--color-accent)] flex items-center justify-center shrink-0">
+                            <AlertCircle className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold font-body text-[var(--color-text-primary)]">
+                              Complete Your Profile to Apply
+                            </h4>
+                            <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
+                              Clients require a completed bio, at least 1 rate card, and a performance reel before accepting pitches.
+                            </p>
+                          </div>
+                        </div>
+                        <Button size="sm" className="shrink-0" onClick={() => setActiveTab("storefront")}>
+                          Complete Profile
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="relative mb-3">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
                       <Input placeholder="Search projects by title, client, or role…" value={projectSearch} onChange={(e) => setProjectSearch(e.target.value)} className="pl-11" />
@@ -2915,6 +3661,49 @@ export function TalentDashboard() {
                     <div className="p-4 rounded-[var(--radius-md)] text-center text-sm font-body" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
                       Applications closed — this project reached its applicant cap.
                     </div>
+                  ) : !isProfileComplete ? (
+                    <div className="p-4 rounded-[var(--radius-md)] border space-y-3" style={{ background: "rgba(224, 77, 44, 0.05)", borderColor: "rgba(224, 77, 44, 0.3)" }}>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" style={{ color: "var(--color-accent)" }} />
+                        <h4 className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-accent)" }}>
+                          Complete your profile to apply
+                        </h4>
+                      </div>
+                      <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                        Clients require full creator credentials before reviewing applications. Please complete the following items:
+                      </p>
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center gap-2 text-xs font-body">
+                          {hasBio ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                          <span style={{ color: hasBio ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Bio written</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-body">
+                          {hasLocation ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                          <span style={{ color: hasLocation ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Location specified</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-body">
+                          {hasRateCard ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                          <span style={{ color: hasRateCard ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>At least 1 Rate Card created</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-body">
+                          {hasReel ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-dashed border-zinc-400" />}
+                          <span style={{ color: hasReel ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>Featured Performance Reel uploaded</span>
+                        </div>
+                      </div>
+                      <div className="pt-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() => {
+                            setSelectedProject(null);
+                            setActiveTab("storefront");
+                          }}
+                        >
+                          Complete Profile
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
                     <>
                       <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Pitch (optional)</label>
@@ -3089,6 +3878,20 @@ export function TalentDashboard() {
               </Modal>
             )}
           </AnimatePresence>
+
+          <UploadPerformanceReelModal
+            isOpen={showUploadReelModal}
+            onClose={() => setShowUploadReelModal(false)}
+            currentReelUrl={talentProfile.performanceReelUrl}
+            onUploadSuccess={(url, title) => {
+              setTalentProfile((prev) => ({
+                ...prev,
+                hasReel: true,
+                performanceReelUrl: url,
+                performanceReelTitle: title,
+              }));
+            }}
+          />
 
       </main>
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
+**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 34. `effectiveServices` in TalentDashboard hardcoding empty array for new users
+- **Severity:** Medium / Data Flow
+- **What happened:** In `TalentDashboard.tsx`, line 272 defined `const effectiveServices = isNewUser ? [] : services;`. When a new user created a rate card, the newly created card was saved in `services` / `appStateSync`, but `effectiveServices` remained `[]`, hiding their newly created rate cards from both their profile and rate cards tab.
+- **Root Cause:** A stale ternary hardcoded `effectiveServices` to `[]` whenever `isNewUser` was true, ignoring newly created service entries.
+- **Resolution:** Updated `effectiveServices` to directly bind to `services`, which initializes from `appStateSync.getServices()` and accurately reflects empty state initially and created rate cards dynamically.
+
+---
+
+### 33. `ReferenceError: useRef is not defined` in TalentDashboard.tsx
+- **Severity:** High / Build Failure
+- **What happened:** Vitest test suite failed across `TalentDashboard.notifications.test.tsx`, `TalentDashboardAvailability.test.tsx`, and `dashboardParity.test.tsx` with `ReferenceError: useRef is not defined`.
+- **Root Cause:** Added `coverFileInputRef = useRef<HTMLInputElement>(null)` for the profile cover photo upload, but `useRef` was omitted from the React import statement.
+- **Resolution:** Added `useRef` to `import React, { useEffect, useState, useRef } from "react";`. Restored 100% passing tests (24/24 files, 97/97 tests).
+
+---
 
 ### 32. Onboarding test helper single-step transition failure after separating personal details and craft
 - **Severity:** Medium / Test Suite

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
+**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -213,6 +213,16 @@ Refined the performer onboarding stepper and authentication entry point:
 - **Streamlined Location Search:** Simplified the location field to a clean input labeled "Location" with placeholder "Search location...", removing regional chips, "Verified Hub" badges, and "Select" labels. Options display clean city names while intelligently matching both cities and states during keystroke filtering.
 - **Dedicated Step 2 (Craft):** Retained craft selection on Step 2 with the 6 core categories under the title "What best describes your craft?" / "Select your primary craft to personalize your profile."
 - **Auth Role Switcher Copy:** Streamlined role toggles on `/auth` from "Performer / Creator" and "Client / Employer" to strictly "Performer" and "Client".
+
+### Step 45: Creator Profile Overhaul, Gated Applications, Rate Cards Cap & Performance Reel Modal (Session 84)
+
+Overhauled the creator profile and application experience:
+- **Profile Completion Application Gate:** Enforced mandatory profile completeness before allowing creators to pitch or apply to client projects (Bio written >10 characters, Location specified, at least 1 Rate Card created, Featured Performance Reel uploaded). Uncompleted profiles see a 4-point progress checklist with direct links to the profile.
+- **Removed Profile Clutter:** Removed Media Kit downloads and Verification Video sections from the creator profile storefront tab, focusing the screen on booking rate cards, bio, credits, and featured reel.
+- **Rate Cards Cap (Max 2) & Adaptive Header CTA:** Capped rate cards to a maximum of 2 across onboarding and the dashboard. Adapted the Rate Cards header CTA to be hidden for new users (0 cards), titled "Add Rate Card" when 1 card exists, and disabled when 2 cards exist.
+- **In-Page Profile Editing Synced with Settings:** Built in-page edit mode directly on My Profile updating Bio, Stage Title, Location, Availability status, Style Tags, and Social Media links, syncing in real-time with `appStateSync` and `Settings.tsx`.
+- **Social Media Bar & Customizable Cover:** Added Linktree/Upwork-style social media presence links row and hero banner customizer supporting image uploads (JPG/PNG/WebP) and 4 curated studio gradient presets.
+- **Standalone "Upload Performance Reel" Modal:** Added a dedicated modal titled "Upload Performance Reel" with framing guidelines, video player preview, and 150MB file size validation, omitting the verification block.
 
 ---
 

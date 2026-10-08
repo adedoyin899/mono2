@@ -1,11 +1,79 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 83: Onboarding Step UI Polish — DOB cleanup, Location city+state, Anti-AI notice relocation, 150MB error state, Performance Summary rename, Profile Tags refactor)
+**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 84 (2026-10-08) — Creator Profile Overhaul: Application Gate, In-Page Editing, Rate Cards Cap, Socials, Cover Banner & Performance Reel Modal
+
+**Goal:** Implement comprehensive creator experience refinements: gate project applications behind full profile completion, eliminate Media Kit & Verification Video clutter from creator profile, enforce a strict 2-rate-card cap with adaptive header CTAs, enable in-page profile editing synced with Settings, add social media links and customizable profile cover upload/presets, and introduce a standalone "Upload Performance Reel" modal omitting the verification block.
+
+### Changes Made
+
+1. **Profile Completion Gate for Project Applications (`TalentDashboard.tsx`):**
+   - Implemented `isProfileComplete` formula verifying 4 mandatory prerequisites:
+     - Bio written (non-empty, > 10 characters).
+     - Location specified.
+     - At least 1 Rate Card created (`effectiveServices.length > 0`).
+     - Featured Performance Reel uploaded (`hasReel || performanceReelUrl`).
+   - Added an informative profile completion warning banner at the top of the Projects browse tab showing progress and items remaining with direct link to complete the profile.
+   - Gated the Project Application modal (`selectedProject` modal): when `!isProfileComplete`, replaces the pitch textarea and submit button with a 4-item status checklist (green checkmarks for completed items, dotted circles for missing items) and a "Complete Profile" button navigating to the profile tab.
+   - Enforced backend/handler validation in `handleApply`: rejects submission if `!isProfileComplete`.
+
+2. **Removed Media Kit & Verification Video from Creator Profile (`TalentDashboard.tsx`):**
+   - Removed the Media Kit download/management cards and Verification Video section from the My Profile (`storefront`) tab to create a sleek, uncluttered talent portfolio.
+
+3. **Functional Rate Cards with Strict 2-Card Limit (`TalentDashboard.tsx`, `CreatorOnboarding.tsx`, `state-sync.ts`, `services.ts`):**
+   - Enforced maximum of 2 rate cards across onboarding, the profile tab, and the rate cards tab.
+   - Updated onboarding Step 6 copy to: *"You can only create up to 2 rate cards (2/2 created)"*.
+   - Fixed `effectiveServices` bug: previously hardcoded `[]` for new users, preventing newly created rate cards from displaying on the profile and rates tab. Now bound dynamically to `services` synced via `appStateSync.getServices()`.
+   - On the Rate Cards tab, the top-right header CTA beside the notification bell:
+     - Hidden when 0 rate cards exist (`effectiveServices.length === 0`).
+     - Appears as "Add Rate Card" when 1 rate card exists.
+     - Disabled with tooltip/notice when 2 rate cards exist.
+   - Added in-page Rate Card cards directly on the profile tab with price, timeline, deliverables, and booking button.
+
+4. **In-Page Editable Creator Profile Synced with Settings (`TalentDashboard.tsx`, `state-sync.ts`):**
+   - Added interactive "Edit Profile" mode directly on the My Profile tab.
+   - Allows inline editing of: Name, Stage Title, Location, Bio, Availability status toggle, Style Tags, and Social Media links.
+   - "Save Changes" handler immediately persists updates to `appStateSync.updateTalentProfile` and `apiClient.updateCreatorProfile`, ensuring automatic real-time sync with `Settings.tsx` and across dashboard tabs.
+   - Added toast feedback indicating changes saved successfully.
+
+5. **Social Media Icons Row (`TalentDashboard.tsx`, `state-sync.ts`):**
+   - Designed a Linktree/Upwork-inspired sleek social presence bar displaying icons for Instagram, YouTube, X (Twitter), TikTok / Music, Spotify, LinkedIn, and Portfolio Website.
+   - Supports handles or full URLs with hover micro-animations and clean pills.
+   - Editable in profile edit mode with dedicated input fields.
+
+6. **Customizable Profile Cover Banner & Presets (`TalentDashboard.tsx`, `state-sync.ts`):**
+   - Replaced static red banner with a customizable hero background supporting image upload (JPG, PNG, WebP) with instant preview.
+   - "Change Cover" camera button opens file picker or preset selector.
+   - 4 curated studio presets available: Crimson Studio (`#8B0000` / `#DC2626`), Noir Velvet (`#0F172A` / `#334155`), Amber Gold (`#78350F` / `#D97706`), and Velvet Plum (`#4C1D95` / `#9333EA`).
+
+7. **Standalone "Upload Performance Reel" Modal (`UploadPerformanceReelModal.tsx`):**
+   - Created dedicated modal component titled **"Upload Performance Reel"** directly on the profile/dashboard without navigating away or routing to `/verification`.
+   - Completely omitted the dark "Performance Verification" top block per design instructions.
+   - Included clean viewfinder framing guidelines (waist-up, clean lighting, natural gestures, max 90s).
+   - Enforced 150MB file size limit with real-time error banner.
+   - Video file preview player with change/reset capability.
+   - Updates `hasReel`, `performanceReelUrl`, and `performanceReelTitle` in `talentProfile` upon upload.
+
+8. **Test Suite Alignment (`CreatorOnboarding.test.tsx`):**
+   - Updated test assertions to match Step 6 copy and profile tags updates.
+   - Fixed `useRef` import in `TalentDashboard.tsx`.
+   - All 24 test files and 97 tests pass with 100% green status.
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.test.tsx`
+- `monologg/apps/web/src/app/components/UploadPerformanceReelModal.tsx`
+- `monologg/apps/web/src/lib/state-sync.ts`
+- `monologg/apps/web/src/mocks/services.ts`
 
 ---
 
