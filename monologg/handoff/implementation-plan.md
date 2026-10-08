@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul (Application Gate, In-Page Editing, 2 Rate Cards Cap, Social Media Bar, Custom Cover Upload, Upload Performance Reel Modal).
+**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish.
 
 ---
 
 ## ✅ Done
+
+### Session 85 — Upload Modal Polish, 2-Card CTA Cleanup, Video Player Modal, Rate Card Redesign & Public Profile Parity
+- [x] **Upload Modal Copy & Chip Polish**: Streamlined copy ("Upload a video showcase of your craft", "Click or drag video reel here", "MP4 or QuickTime · Max 90s · Up to 150MB"), removed redundant "Choose Video File" chip, and cleaned checklist.
+- [x] **Rate Cards 2-Card Button Removal**: Header button beside the notification bell shows "Add Rate Card" only when 1 card exists, and is completely hidden once 2 cards are created.
+- [x] **Reduced-Height Featured Reel**: Reduced height from tall aspect ratio to a sleek widescreen preview container (`h-48 sm:h-56 md:h-60`).
+- [x] **Custom Video Player Modal (`WatchPerformanceReelModal.tsx`)**: Standalone modal playing performance reel with custom controls: Play/Pause, scrubber with time position (`00:18 / 01:30`), volume toggle, replay, fullscreen, and "Replace Reel" action button.
+- [x] **Rate Cards Card Redesign on Profile**: Retitled section to "Rate Cards", removed Edit and Book buttons, placed an edit icon button in the top-right where the price was, and positioned the base rate price cleanly at the bottom.
+- [x] **Public Storefront Profile Parity**: Redesigned `PublicStorefront.tsx` with cover banner, badges, social presence, bio, reduced-height reel with `WatchPerformanceReelModal`, and prominent "Book Now" CTA on rate cards.
+- [x] **Verification**: All 24 test files passing, 97/97 tests passing (100% green), 0 TypeScript errors.
 
 ### Session 84 — Creator Profile Overhaul: Application Gate, In-Page Editing, Rate Cards Cap, Socials, Cover Banner & Performance Reel Modal
 - [x] **Profile Completion Application Gate**: Creators must complete their Bio (>10 chars), Location, at least 1 Rate Card, and Featured Performance Reel before applying to projects. Gated modal with live 4-point checklist and direct link to profile.

@@ -21,6 +21,7 @@ import {
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
+import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects" | "activity" | "analytics";
 
@@ -315,6 +316,7 @@ export function TalentDashboard() {
   const [profileSaveToast, setProfileSaveToast] = useState(false);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const [showUploadReelModal, setShowUploadReelModal] = useState(false);
+  const [showWatchReelModal, setShowWatchReelModal] = useState(false);
 
   // Profile Completeness Gate Formula
   const hasBio = Boolean(
@@ -699,22 +701,19 @@ export function TalentDashboard() {
                   </Button>
                 </div>
               )}
-              {activeTab === "rates" && effectiveServices.length > 0 && (
+              {activeTab === "rates" && effectiveServices.length === 1 && (
                 <Button
                   className="h-10 px-4 text-sm gap-2"
-                  disabled={effectiveServices.length >= 2}
                   onClick={() => {
-                    if (effectiveServices.length < 2) {
-                      setEditServiceId(null);
-                      setNewServiceTitle("");
-                      setNewServicePrice("45000");
-                      setNewServiceDelivery("24 Hours");
-                      setShowAddService(true);
-                    }
+                    setEditServiceId(null);
+                    setNewServiceTitle("");
+                    setNewServicePrice("45000");
+                    setNewServiceDelivery("24 Hours");
+                    setShowAddService(true);
                   }}
                 >
                   <Plus className="w-4 h-4" />
-                  {effectiveServices.length >= 2 ? "Rate Cards Full (2/2)" : "Add Rate Card"}
+                  Add Rate Card
                 </Button>
               )}
               <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity relative" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
@@ -1521,12 +1520,12 @@ export function TalentDashboard() {
 
                       {talentProfile.hasReel || talentProfile.performanceReelUrl || !isNewUser ? (
                         <div
-                          className="relative aspect-video rounded-[var(--radius-lg)] overflow-hidden group cursor-pointer border shadow-sm"
+                          className="relative h-48 sm:h-56 md:h-60 w-full rounded-[var(--radius-lg)] overflow-hidden group cursor-pointer border shadow-sm"
                           style={{
                             background: "var(--color-bg-elevated)",
                             borderColor: "var(--color-border-default)",
                           }}
-                          onClick={() => setShowUploadReelModal(true)}
+                          onClick={() => setShowWatchReelModal(true)}
                         >
                           <img
                             src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80&fit=crop"
@@ -1570,11 +1569,11 @@ export function TalentDashboard() {
                       )}
                     </div>
 
-                    {/* Rate Cards & Booking Services (Upwork Catalog style) */}
+                    {/* Rate Cards (Upwork Catalog style) */}
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-                          Booking Services &amp; Rate Cards
+                          Rate Cards
                         </h3>
                         {effectiveServices.length > 0 && effectiveServices.length < 2 && (
                           <button
@@ -1622,7 +1621,7 @@ export function TalentDashboard() {
                           {effectiveServices.map((service) => (
                             <div
                               key={service.id}
-                              className="p-4 rounded-[var(--radius-lg)] border flex flex-col justify-between"
+                              className="p-4 rounded-[var(--radius-lg)] border flex flex-col justify-between transition-all hover:shadow-md"
                               style={{
                                 background: "var(--color-bg-elevated)",
                                 borderColor: "var(--color-border-default)",
@@ -1634,41 +1633,38 @@ export function TalentDashboard() {
                                   <span className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
                                     {service.title}
                                   </span>
-                                  <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
-                                    {service.price}
-                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setEditServiceId(service.id);
+                                      setNewServiceTitle(service.title);
+                                      const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                                      if (match) {
+                                        setRateCardCurrency(match[1] || "₦");
+                                        setNewServicePrice((match[2] || "").replace(/,/g, ""));
+                                      } else {
+                                        setNewServicePrice(service.price.replace(/[^0-9]/g, ""));
+                                      }
+                                      setNewServiceDelivery(service.delivery);
+                                      setShowAddService(true);
+                                    }}
+                                    className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] transition-colors shrink-0 -mr-1 -mt-1"
+                                    title="Edit rate card"
+                                    aria-label="Edit rate card"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
-                                <div className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
+                                <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
                                   Delivery: {service.delivery}
                                 </div>
                               </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="flex-1 h-9 text-xs"
-                                  onClick={() => {
-                                    setEditServiceId(service.id);
-                                    setNewServiceTitle(service.title);
-                                    const match = service.price.match(/^([^0-9,]*)(.*)$/);
-                                    if (match) {
-                                      setRateCardCurrency(match[1] || "₦");
-                                      setNewServicePrice((match[2] || "").replace(/,/g, ""));
-                                    } else {
-                                      setNewServicePrice(service.price.replace(/[^0-9]/g, ""));
-                                    }
-                                    setNewServiceDelivery(service.delivery);
-                                    setShowAddService(true);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  className="flex-1 h-9 text-xs"
-                                  onClick={() => navigate(`/book/${currentUser?.id || "me"}`)}
-                                >
-                                  Book
-                                </Button>
+                              <div className="pt-3 border-t flex items-baseline justify-between" style={{ borderColor: "var(--color-hairline)" }}>
+                                <span className="text-[11px] uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Base Rate
+                                </span>
+                                <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
+                                  {service.price}
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -3891,6 +3887,15 @@ export function TalentDashboard() {
                 performanceReelTitle: title,
               }));
             }}
+          />
+
+          <WatchPerformanceReelModal
+            isOpen={showWatchReelModal}
+            onClose={() => setShowWatchReelModal(false)}
+            videoUrl={talentProfile.performanceReelUrl}
+            title={talentProfile.performanceReelTitle || "Featured Audition Reel"}
+            canUpload={true}
+            onOpenUpload={() => setShowUploadReelModal(true)}
           />
 
       </main>

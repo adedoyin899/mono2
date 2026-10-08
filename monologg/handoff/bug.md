@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
+**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.

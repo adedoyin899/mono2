@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
+**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -223,6 +223,15 @@ Overhauled the creator profile and application experience:
 - **In-Page Profile Editing Synced with Settings:** Built in-page edit mode directly on My Profile updating Bio, Stage Title, Location, Availability status, Style Tags, and Social Media links, syncing in real-time with `appStateSync` and `Settings.tsx`.
 - **Social Media Bar & Customizable Cover:** Added Linktree/Upwork-style social media presence links row and hero banner customizer supporting image uploads (JPG/PNG/WebP) and 4 curated studio gradient presets.
 - **Standalone "Upload Performance Reel" Modal:** Added a dedicated modal titled "Upload Performance Reel" with framing guidelines, video player preview, and 150MB file size validation, omitting the verification block.
+
+### Step 46: Upload Modal Simplification, 2-Card Redundant Button Removal, Reduced Reel Height & Custom Video Player Modal, Rate Card Redesign, and Public Storefront Profile Parity (Session 85)
+
+Refined creator upload, profile presentation, video playback, and public storefront parity:
+- **Upload Modal Simplification:** Streamlined header copy ("A high-impact video showcase of your monologue, dialogue, or vocal craft" -> "Upload a video showcase of your craft."), removed the redundant "Choose Video File" chip inside the dropzone, tightened guidelines into 4 clear bullets, and changed CTA to "Save Reel".
+- **Rate Cards Header Button Polish:** Completely removed the header CTA beside the notification icon once 2 rate cards are created (no redundant disabled or pill button; shown only when exactly 1 card exists as "Add Rate Card").
+- **Reduced Reel Height & Custom Video Player Modal:** Reduced the featured reel height on both creator profile and public storefront to a sleek widescreen frame (`h-48 sm:h-56 md:h-60`). Clicking anywhere on the reel launches `WatchPerformanceReelModal` featuring custom Play/Pause, interactive timeline scrubber progress bar, timestamps (`00:18 / 01:30`), volume/mute toggle, replay, fullscreen, and optional owner "Replace Reel" trigger.
+- **Rate Cards Section & Card Redesign:** Renamed "Booking Services & Rate Cards" to "Rate Cards", removed the bottom action buttons ("Edit" and "Book") from the creator's own profile view, repositioned Base Rate and price to the bottom above a clean hairline divider, and placed an edit pencil icon in the top-right corner to open the inline edit modal directly on the page.
+- **Public Profile View Parity:** Brought full visual layout and aesthetic parity to `PublicStorefront.tsx` (hero cover banner, avatar, badges, "Available for Booking" pill, social media row, bio, style tags, reduced-height reel with video player modal), while displaying rate cards with a prominent "Book Now" main CTA navigating to the client booking flow.
 
 ---
 

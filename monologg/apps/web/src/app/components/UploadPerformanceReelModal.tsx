@@ -14,10 +14,10 @@ interface UploadPerformanceReelModalProps {
 }
 
 const CHECKLIST = [
-  "Waist-up framing — head and hands both in view",
-  "Face and hands clearly visible with clean, well-lit setting",
-  "Natural gestures, speaking or performing as you normally would",
-  "Maximum 90 seconds duration",
+  "Waist-up framing with face visible",
+  "Clear lighting and audio",
+  "Natural performance delivery",
+  "Under 90 seconds duration",
 ];
 
 const MAX_FILE_SIZE_BYTES = 150 * 1024 * 1024; // 150MB
@@ -126,7 +126,7 @@ export function UploadPerformanceReelModal({
               Upload Performance Reel
             </h3>
             <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 font-body">
-              A high-impact video showcase of your monologue, dialogue, or vocal craft.
+              Upload a video showcase of your craft.
             </p>
           </div>
           <button
@@ -216,14 +216,11 @@ export function UploadPerformanceReelModal({
                 </div>
 
                 <p className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
-                  Click to select or drag video reel here
+                  Click or drag video reel here
                 </p>
-                <p className="text-xs text-[var(--color-text-secondary)] mb-3">
-                  MP4 or QuickTime format · Maximum 90s · Up to 150MB
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  MP4 or QuickTime · Max 90s · Up to 150MB
                 </p>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-[var(--color-text-primary)]">
-                  <Upload className="w-3.5 h-3.5 text-[var(--color-accent)]" /> Choose Video File
-                </span>
               </div>
             )}
           </div>
@@ -268,7 +265,7 @@ export function UploadPerformanceReelModal({
             className="gap-2 min-w-[140px]"
           >
             <Upload className="w-4 h-4" />
-            {uploading ? "Uploading…" : "Save Performance Reel"}
+            {uploading ? "Saving…" : "Save Reel"}
           </Button>
         </div>
       </motion.div>

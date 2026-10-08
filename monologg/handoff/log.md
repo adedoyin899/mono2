@@ -1,11 +1,61 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 84: Creator Profile Overhaul — Profile Completion Application Gate, In-Page Profile Editing & Settings Sync, Rate Cards Max-2 Cap, Social Links, Custom Cover Upload, Standalone Upload Performance Reel Modal)
+**Last updated:** 2026-10-08 (Session 85: Upload Modal Copy Simplification, 2-Card Header Button Removal, Reduced-Height Reel, Custom Video Player Modal, Rate Card Card Redesign, Public Storefront Profile Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 85 (2026-10-08) — Upload Modal Polish, 2-Card CTA Cleanup, Video Player Modal, Rate Card Redesign & Public Profile Parity
+
+**Goal:** Refine the upload modal copy and remove redundant chips; hide the Rate Cards tab header CTA when 2 rate cards exist; reduce the vertical height of the featured reel and add an interactive video player modal with scrubber, time display, play/pause, and mute; overhaul rate cards cards on the profile with an edit icon where the price was and base rate at the bottom (removing internal "Book" button); and bring full visual parity to the public storefront view with the same layout and a prominent "Book Now" CTA.
+
+### Changes Made
+
+1. **Upload Performance Reel Modal Polish (`UploadPerformanceReelModal.tsx`):**
+   - Simplified header subtitle from *"A high-impact video showcase of your monologue, dialogue, or vocal craft"* to *"Upload a video showcase of your craft"*.
+   - Removed the redundant "Choose Video File" button chip from the dropzone.
+   - Streamlined dropzone copy to clean *"Click or drag video reel here"* and *"MP4 or QuickTime · Max 90s · Up to 150MB"*.
+   - Simplified the "Before you upload" checklist to concise, friendly items (Waist-up framing with face visible, Clear lighting and audio, Natural performance delivery, Under 90 seconds duration).
+   - Updated submit button copy to concise *"Save Reel"*.
+
+2. **Rate Cards Tab Header Action Button (`TalentDashboard.tsx`):**
+   - Removed the disabled `+ Rate Cards Full (2/2)` button beside the notification bell once 2 rate cards are created.
+   - The header CTA now appears as "Add Rate Card" only when exactly 1 card exists (`effectiveServices.length === 1`), and is completely hidden when 0 or 2 cards exist.
+
+3. **Featured Reel Height Reduction & Custom Video Player Modal (`WatchPerformanceReelModal.tsx`, `TalentDashboard.tsx`, `PublicStorefront.tsx`):**
+   - Reduced the height of the featured reel from tall `aspect-video` to a sleek, cinematic widescreen container (`h-48 sm:h-56 md:h-60`).
+   - Created `WatchPerformanceReelModal.tsx` with rich media player controls:
+     - Custom play/pause with prominent central play overlay.
+     - Scrubber progress bar with hover-seek and elapsed fill in brand accent color.
+     - Timestamp display (`current / duration`, e.g. `00:18 / 01:30`).
+     - Volume mute/unmute toggle, restart, and fullscreen toggle.
+     - Optional "Replace Reel" button for profile owners that seamlessly transitions to the upload modal.
+   - Attached click handlers on the reel card across both Performer Dashboard and Public Storefront to launch this video watching modal.
+
+4. **Rate Cards Section Redesign on Performer Profile (`TalentDashboard.tsx`):**
+   - Retitled section from "Booking Services & Rate Cards" to "Rate Cards".
+   - Removed the two bottom buttons ("Edit" and "Book" — performers do not book themselves).
+   - Replaced the top-right price display with a subtle edit icon button (`Edit2`) that immediately opens the inline edit modal on the same page.
+   - Positioned "Base Rate" and the bold price amount at the bottom of the card above a clean hairline divider.
+
+5. **Public Storefront Profile Parity (`PublicStorefront.tsx`):**
+   - Redesigned `PublicStorefront.tsx` to match the performer profile visual hierarchy:
+     - Hero Crimson Studio cover banner.
+     - Avatar overlapping the banner with Verified / Celebrity trust badges and "Available for Booking" live status pill.
+     - Social media presence row (Instagram, YouTube, Twitter/X).
+     - Style tags and bio in a clean container.
+     - Reduced-height Featured Reel card opening `WatchPerformanceReelModal` (with `canUpload={false}`).
+     - Rate Cards section with matching clean cards and the prominent **"Book Now"** primary CTA button.
+
+### Files Touched
+- `monologg/apps/web/src/app/components/UploadPerformanceReelModal.tsx`
+- `monologg/apps/web/src/app/components/WatchPerformanceReelModal.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/PublicStorefront.tsx`
 
 ---
 
