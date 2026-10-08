@@ -174,7 +174,7 @@ export function DesignSystem() {
 
   /* ── Light Mode UI Palette Swatches with Exact Hex Codes ── */
   const LIGHT_UI_PALETTE = [
-    { name: "Primary Red", hex: "#FF3B30", token: "--color-red", rgb: "rgb(255, 59, 48)", text: "#FFFFFF", role: "Talent Actions & CTAs" },
+    { name: "Primary Red", hex: "#FF3B30", token: "--color-red", rgb: "rgb(255, 59, 48)", text: "#FFFFFF", role: "Performer Actions & CTAs" },
     { name: "Secondary Purple", hex: "#7B00FE", token: "--color-purple", rgb: "rgb(123, 0, 254)", text: "#FFFFFF", role: "Client Actions & Briefs" },
     { name: "Success Green", hex: "#00875A", token: "--color-success", rgb: "rgb(0, 135, 90)", text: "#FFFFFF", role: "Escrow Locked & Verified" },
     { name: "Warning Gold", hex: "#FFB800", token: "--color-gold", rgb: "rgb(255, 184, 0)", text: "#000000", role: "Celebrity Tier & Alerts" },
@@ -187,7 +187,7 @@ export function DesignSystem() {
 
   /* ── Dark Mode UI Palette Swatches with Exact Hex Codes ── */
   const DARK_UI_PALETTE = [
-    { name: "Primary Red", hex: "#FF4D4D", token: "--color-red", rgb: "rgb(255, 77, 77)", text: "#FFFFFF", role: "Electric Talent Accent" },
+    { name: "Primary Red", hex: "#FF4D4D", token: "--color-red", rgb: "rgb(255, 77, 77)", text: "#FFFFFF", role: "Electric Performer Accent" },
     { name: "Secondary Purple", hex: "#9B4DFF", token: "--color-purple", rgb: "rgb(155, 77, 255)", text: "#FFFFFF", role: "Electric Client Accent" },
     { name: "Success Green", hex: "#3EE089", token: "--color-success", rgb: "rgb(62, 224, 137)", text: "#000000", role: "100% Escrow Guarantee" },
     { name: "Warning Gold", hex: "#FFD268", token: "--color-gold", rgb: "rgb(255, 210, 104)", text: "#000000", role: "Celebrity Badge" },
@@ -354,7 +354,7 @@ export function DesignSystem() {
           </h1>
           <p className="text-sm font-body max-w-3xl leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
             High-contrast, accessible token architecture. Every color swatch renders its exact <strong>Hex Code</strong>, digital RGB, print CMYK, 5-step tint scale, and edge-to-edge gradient cards.
-            Toggle <strong>Talent / Client</strong> in the header to preview role-based accent shifts, and <strong>Light / Dark</strong> to preview theme shifts.
+            Toggle <strong>Performer / Client</strong> in the header to preview role-based accent shifts, and <strong>Light / Dark</strong> to preview theme shifts.
           </p>
         </div>
 
@@ -578,7 +578,7 @@ export function DesignSystem() {
                 Monologg Brand Buttons
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button variant="red">Mono-Red (Talent)</Button>
+                <Button variant="red">Mono-Red (Performer)</Button>
                 <Button variant="purple">Mono-Purple (Client)</Button>
                 <Button variant="dark-pill">Dark Neutral Pill</Button>
                 <Button variant="outline-pill">Outline Pill</Button>
@@ -595,7 +595,7 @@ export function DesignSystem() {
                 Status Badges &amp; Avatars
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Badge tone="success"><Shield className="w-3 h-3" /> Verified Talent</Badge>
+                <Badge tone="success"><Shield className="w-3 h-3" /> Verified Performer</Badge>
                 <Badge tone="warning">Celebrity Tier</Badge>
                 <Badge tone="accent">Thespian AI Indexed</Badge>
                 <Badge tone="neutral">Dramatic Actor</Badge>

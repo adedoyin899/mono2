@@ -68,7 +68,7 @@ const ATTRIBUTE_FILTER_FIELDS: Array<{ key: keyof TalentFilters; label: string; 
 
 const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
-  { id: "discover", label: "Find Talent", icon: Search },
+  { id: "discover", label: "Find Performers", icon: Search },
   { id: "projects", label: "My Projects", icon: Briefcase },
   { id: "orders", label: "Orders", icon: MessageSquare },
   { id: "shortlist", label: "Shortlist", icon: Star },
@@ -135,7 +135,7 @@ export function ClientDashboard() {
     ? [
         { label: "Total Spent", value: "₦0" },
         { label: "Active Projects", value: "0" },
-        { label: "Talent Hired", value: "0" },
+        { label: "Performers Hired", value: "0" },
         { label: "Applicants", value: "0" },
       ]
     : stats;
@@ -275,7 +275,7 @@ export function ClientDashboard() {
 
   const screenTitle =
     activeTab === "home" ? "Dashboard"
-    : activeTab === "discover" ? "Find Talent"
+    : activeTab === "discover" ? "Find Performers"
     : activeTab === "projects" ? "My Projects"
     : activeTab === "orders" ? "Active Orders"
     : activeTab === "activity" ? "Activity History"
@@ -342,18 +342,18 @@ export function ClientDashboard() {
             <div>
               <h1 className="font-display text-3xl" style={{ color: "var(--color-text-primary)" }}>
                 {activeTab === "home" && `Good morning, ${orgName} 🎬`}
-                {activeTab === "discover" && "Find Talent"}
+                {activeTab === "discover" && "Find Performers"}
                 {activeTab === "projects" && "My Projects"}
                 {activeTab === "orders" && "Active Orders"}
-                {activeTab === "shortlist" && "Shortlisted Talent"}
+                {activeTab === "shortlist" && "Shortlisted Performers"}
                 {activeTab === "activity" && "Activity History"}
               </h1>
               <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
                 {activeTab === "home" && "Your next project is just a few clicks away."}
-                {activeTab === "discover" && "Browse verified talent, style-tagged by AI, across all niches."}
+                {activeTab === "discover" && "Browse verified performers, style-tagged by AI, across all niches."}
                 {activeTab === "projects" && "Manage your project briefs and applications."}
                 {activeTab === "orders" && "Track your active collaborations."}
-                {activeTab === "shortlist" && "Talent you've saved for future bookings."}
+                {activeTab === "shortlist" && "Performers you've saved for future bookings."}
                 {activeTab === "activity" && "Complete log of your project creations, applications, payments, and messages."}
               </p>
             </div>
@@ -398,7 +398,7 @@ export function ClientDashboard() {
                           {isNewUser ? "Welcome! Get Started as a Client" : "Client Onboarding & Action Nudges"}
                         </h3>
                         <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          {isNewUser ? "Follow these steps to discover, shortlist, and hire top talent for your productions." : "Actions to streamline talent acquisition for your current projects."}
+                          {isNewUser ? "Follow these steps to discover, shortlist, and hire top performers for your productions." : "Actions to streamline performer acquisition for your current projects."}
                         </p>
                       </div>
                     </div>
@@ -449,7 +449,7 @@ export function ClientDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Find Talent <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                          Find Performers <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
                         <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Filter by niche & style</div>
                       </div>
@@ -484,11 +484,11 @@ export function ClientDashboard() {
                       {isNewUser ? "₦0" : "₦850,000"}
                     </div>
                     <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#F1E9FF]/90">
-                      <Briefcase className="w-4 h-4 text-[#F1E9FF]" /> {isNewUser ? "0 active projects · 0 talents hired" : "4 active projects · 12 talents hired"}
+                      <Briefcase className="w-4 h-4 text-[#F1E9FF]" /> {isNewUser ? "0 active projects · 0 performers hired" : "4 active projects · 12 performers hired"}
                     </div>
                     <div className="flex gap-2.5 pt-3">
                       <button onClick={() => navigate("/brief")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90">Post a project</button>
-                      <button onClick={() => setActiveTab("discover")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">Find talent</button>
+                      <button onClick={() => setActiveTab("discover")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">Find performers</button>
                     </div>
                   </div>
                 </motion.div>
@@ -524,7 +524,7 @@ export function ClientDashboard() {
                       <AlertCircle className="w-6 h-6" />
                     </div>
                     <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>No activity logged yet</p>
-                    <p className="text-xs font-body mt-1 mb-4 text-[var(--color-text-secondary)]">Post a project brief or discover talent to start building your activity log.</p>
+                    <p className="text-xs font-body mt-1 mb-4 text-[var(--color-text-secondary)]">Post a project brief or discover performers to start building your activity log.</p>
                     <Button onClick={() => navigate("/brief")} className="h-9 px-4 text-xs">
                       Post a Project Brief
                     </Button>
@@ -645,7 +645,7 @@ export function ClientDashboard() {
             {/* ── Discover Tab ── */}
             {activeTab === "discover" && (
               <motion.div key="discover" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Find Talent</h2>
+                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Find Performers</h2>
 
                 {/* Search + filter */}
                 <div className="flex gap-2 mb-4">
@@ -659,7 +659,7 @@ export function ClientDashboard() {
                     />
                   </div>
                   <button
-                    aria-label="Filter talent"
+                    aria-label="Filter performers"
                     aria-pressed={showAttributeFilters}
                     onClick={() => setShowAttributeFilters((v) => !v)}
                     className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center border hover:border-[var(--color-accent)] transition-colors relative"
@@ -747,7 +747,7 @@ export function ClientDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Creators Found</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      We couldn't find any talent matching your current search or filter criteria. Try clearing your filters or posting a project brief to receive direct pitches.
+                      We couldn't find any performers matching your current search or filter criteria. Try clearing your filters or posting a project brief to receive direct pitches.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       <Button
@@ -971,7 +971,7 @@ export function ClientDashboard() {
                       <div className="p-4 rounded-[var(--radius-md)] mb-4" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
                         <div className="text-xs font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Project Overview</div>
                         <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          Looking for professional performing arts talent for production recording and campaign rollout. Requires high quality deliverables and prompt communication.
+                          Looking for professional performing arts performers for production recording and campaign rollout. Requires high quality deliverables and prompt communication.
                         </p>
                       </div>
                     </div>
@@ -1068,7 +1068,7 @@ export function ClientDashboard() {
                         </div>
                         <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Projects Created Yet</h3>
                         <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                          Post a project brief with your role requirements, budget, and timeline to start receiving pitches from verified talent.
+                          Post a project brief with your role requirements, budget, and timeline to start receiving pitches from verified performers.
                         </p>
                         <Button onClick={() => navigate("/brief")} className="gap-2">
                           <Plus className="w-4 h-4" /> Post Your First Project Brief
@@ -1131,11 +1131,11 @@ export function ClientDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Collaborations</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      You don't have any active bookings or talent hires right now. Search the talent marketplace or review project applications to start an order.
+                      You don't have any active bookings or performer hires right now. Search the performer marketplace or review project applications to start an order.
                     </p>
                     <div className="flex gap-3">
                       <Button onClick={() => setActiveTab("discover")} className="gap-2">
-                        <Search className="w-4 h-4" /> Discover Talent
+                        <Search className="w-4 h-4" /> Discover Performers
                       </Button>
                       <Button variant="secondary" onClick={() => navigate("/brief")} className="gap-2">
                         <Plus className="w-4 h-4" /> Post Project Brief
@@ -1155,7 +1155,7 @@ export function ClientDashboard() {
                         <div>
                           <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
                           <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Talent: {order.counterpart}</p>
+                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Performer: {order.counterpart}</p>
                         </div>
                         <div className="text-right">
                           <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
@@ -1198,7 +1198,7 @@ export function ClientDashboard() {
             {/* ── Shortlist Tab ── */}
             {activeTab === "shortlist" && (
               <motion.div key="shortlist" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Shortlisted Talent</h2>
+                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Shortlisted Performers</h2>
                 {effectiveShortlist.length === 0 ? (
                   <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
                     <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
@@ -1206,10 +1206,10 @@ export function ClientDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Your Shortlist is Empty</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      Bookmark creators while searching the talent directory so you can easily compare their rate cards and hire them for upcoming projects.
+                      Bookmark creators while searching the performer directory so you can easily compare their rate cards and hire them for upcoming projects.
                     </p>
                     <Button onClick={() => setActiveTab("discover")} className="gap-2">
-                      <Search className="w-4 h-4" /> Explore Talent Directory
+                      <Search className="w-4 h-4" /> Explore Performer Directory
                     </Button>
                   </div>
                 ) : (
@@ -1249,7 +1249,7 @@ export function ClientDashboard() {
                   <div>
                     <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Hiring &amp; Budget Analytics</h2>
                     <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                      Overview of campaign spending, talent acquisition funnel, and escrow release metrics for {clientProfile.orgName || clientProfile.name}.
+                      Overview of campaign spending, performer acquisition funnel, and escrow release metrics for {clientProfile.orgName || clientProfile.name}.
                     </p>
                   </div>
                   <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
@@ -1262,10 +1262,10 @@ export function ClientDashboard() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Hiring Analytics Pending</h3>
                     <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      Metrics on talent engagement, application response rates, and total booking spend will be tracked here once you initiate hiring campaigns.
+                      Metrics on performer engagement, application response rates, and total booking spend will be tracked here once you initiate hiring campaigns.
                     </p>
                     <Button onClick={() => setActiveTab("discover")} className="gap-2">
-                      <Search className="w-4 h-4" /> Discover Talent
+                      <Search className="w-4 h-4" /> Discover Performers
                     </Button>
                   </div>
                 ) : (
@@ -1288,9 +1288,9 @@ export function ClientDashboard() {
                     <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>12 shortlisted · 4 hired</div>
                   </div>
                   <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat Talent Rate</div>
+                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat Performer Rate</div>
                     <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>25%</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>High talent satisfaction</div>
+                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>High performer satisfaction</div>
                   </div>
                 </div>
 
@@ -1298,7 +1298,7 @@ export function ClientDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Applicant Conversion Funnel */}
                   <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Talent Acquisition Funnel</h3>
+                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Performer Acquisition Funnel</h3>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-xs font-body mb-1">
@@ -1573,7 +1573,7 @@ export function ClientDashboard() {
                   onClick={e => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between mb-5 border-b pb-3" style={{ borderColor: "var(--color-hairline)" }}>
-                    <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Filter Talent by Physical Features</h3>
+                    <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Filter Performers by Physical Features</h3>
                     <button onClick={() => setShowMoreFiltersModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
                       <X className="w-4 h-4" />
                     </button>

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-08-19 (Session 72: Universal Select Dropdown Chevron & Inset Right Padding Fix)
+**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 31. Out-of-sync test assertions and label selectors following talent-to-performer copy change
+- **Severity:** Low / Cosmetic
+- **What happened:** Vitest test suites (`ClientDashboard.test.tsx`, `ProjectBrief.test.tsx`, `AuthFlow.test.tsx`, `HelpSupport.test.tsx`, and `authFlowStress.test.tsx`) failed after updating platform copy from "Talent" to "Performer" due to strict regex string queries (e.g. `/Find Talent/i`, `/Talent Requirements/i`, `/When does a talent get paid/i`).
+- **Root Cause:** Tests asserted on exact user-facing microcopy which was changed to standard "Performer" branding.
+- **Resolution:** Synchronized all query matchers and label assertions in test files to expect "Performer" / "Performers", bringing the entire 24-file web test suite to 100% green (97/97 tests passing).
+
+---
 
 ### 30. Select dropdown chevron arrow colliding with right rounded border radius & height mismatch with form inputs
 - **Severity:** Low / Cosmetic

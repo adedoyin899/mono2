@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-08-19 (Session 71: Talent Availability Page UI Overhaul based on Inspiration Screenshots)
+**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -188,7 +188,13 @@ Enforced Row Level Security (RLS) across all application tables in the Supabase 
 - Audited PostgreSQL catalog (`pg_tables` / `pg_policies`) to inspect RLS state across all schemas.
 - Authored a SQL migration (`20260819120000_enable_rls_public_tables/migration.sql`) enabling RLS across all 28 public application models.
 - Executed migration on live Supabase instance and verified 28/28 application tables show `rowsecurity = true`.
-- Verified Fastify API server and Prisma backend operation (580/580 unit tests passing 100%).
+### Step 42: Platform-Wide Copy Standardization: Talent to Performer (Session 80)
+
+Ahead of the Alpha launch, updated the platform's core terminology from "Talent" to "Performer" across all user-facing screens on both the client and performer webapps:
+- **Client Experience:** Replaced tabs (`Find Performers`), analytical funnels (`Performer Acquisition Funnel`, `Repeat Performer Rate`), brief builder steps (`Performer Requirements`), and filtering modals (`Filter Performers by Physical Features`).
+- **Performer Experience:** Updated portal headers (`Performer Portal`), onboarding checklists (`Complete your Performer Setup`), counterpart indicators in the Order Room and Checkout, public bio/storefront trust badges, and settings microcopy.
+- **Scope Boundary:** Maintained backend data models (`Creator`, `UserRole`, `TALENT`) and API query parameters to preserve existing database schemas and API stability without breaking changes.
+- **Test Synchronization:** Updated and verified all 24 web test suites (97 tests) and 56 API test suites (580 tests).
 
 ---
 

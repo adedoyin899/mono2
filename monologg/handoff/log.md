@@ -1,11 +1,63 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-08-26 (Session 75: Performer/Talent Shareable Storefront & Bio Link Overhaul)
+**Last updated:** 2026-10-08 (Session 80: Platform-Wide Copy Standardization: Talent to Performer)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 80 (2026-10-08) — Platform-Wide Copy Standardization: Talent to Performer
+
+**Goal:** Standardize user-facing platform copy across the authenticated client and talent webapps by replacing all instances of "Talent" / "talent" with "Performer" / "performer" (including plural and sentence forms) while preserving internal code APIs and ensuring all unit tests pass 100%.
+
+### Architecture & Changes Made
+1. **Client Platform (`ClientDashboard.tsx`, `ClientOnboarding.tsx`, `ProjectBrief.tsx`):**
+   - Navigation: Updated `Find Talent` tab to `Find Performers` (sidebar and mobile top bar).
+   - Stats & Funnels: Updated `Talent Hired` to `Performers Hired`, `Repeat Talent Rate` to `Repeat Performer Rate`, `Talent Acquisition Funnel` to `Performer Acquisition Funnel`.
+   - Modals & Headers: `Shortlisted Talent` -> `Shortlisted Performers`, `Discover Talent` -> `Discover Performers`, `Filter Talent by Physical Features` -> `Filter Performers by Physical Features`.
+   - Discovery & Project Brief: `Talent Requirements` -> `Performer Requirements`, notes/descriptions updated to refer to performers throughout brief creation steps.
+   - Onboarding: Updated client questions and escrow descriptions from "hire/book talent" to "hire/book performers".
+2. **Performer / Talent Platform (`TalentDashboard.tsx`, `OrderRoom.tsx`, `Checkout.tsx`, `Settings.tsx`, `HelpSupport.tsx`, `SetPassword.tsx`, `ExternalBookingEntry.tsx`, `PublicStorefront.tsx`, `MediaKitManagement.tsx`, `DesignSystem.tsx`):**
+   - Portal Label: Updated sidebar `portalLabel` to `"Performer Portal"`.
+   - Headlines & Checklist: `Complete your Talent Setup` -> `Complete your Performer Setup`, `New Creative Talent` -> `New Creative Performer`.
+   - Order Room & Checkout: Counterpart label `Talent` -> `Performer`, action banners updated ("so the performer can begin work", "The performer has submitted final work", "Performer Receives").
+   - Public Storefront & Bio Link: 404 and trust badges updated to `Browse Performers on Monologg` and `Verified performer profiles`.
+   - Notification Settings: Updated briefs and order descriptions in `Settings.tsx` to reference performers.
+   - FAQ: Updated `When does a talent get paid?` to `When does a performer get paid?`.
+3. **Test Suite Synchronization:**
+   - Updated test assertions, label lookups, and button selectors across `ClientDashboard.test.tsx`, `ProjectBrief.test.tsx`, `AuthFlow.test.tsx`, `HelpSupport.test.tsx`, and `authFlowStress.test.tsx` to match the new "Performer" copy.
+4. **Verification:**
+   - Full workspace typecheck: 0 errors across `packages/types`, `apps/web`, `apps/api`.
+   - Web test suite: 24/24 test files passed, 97/97 tests green (100%).
+   - API test suite: 56/56 test files passed, 580/580 tests green (100%).
+
+**Files Touched:**
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ProjectBrief.tsx`
+- `monologg/apps/web/src/app/pages/ClientOnboarding.tsx`
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/apps/web/src/app/pages/Checkout.tsx`
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/HelpSupport.tsx`
+- `monologg/apps/web/src/app/pages/SetPassword.tsx`
+- `monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx`
+- `monologg/apps/web/src/app/pages/PublicStorefront.tsx`
+- `monologg/apps/web/src/app/pages/MediaKitManagement.tsx`
+- `monologg/apps/web/src/app/pages/DesignSystem.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/apps/web/src/app/pages/ProjectBrief.test.tsx`
+- `monologg/apps/web/src/app/pages/AuthFlow.test.tsx`
+- `monologg/apps/web/src/app/pages/HelpSupport.test.tsx`
+- `monologg/apps/web/src/app/pages/authFlowStress.test.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/process.md`
 
 ---
 

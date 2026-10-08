@@ -33,7 +33,7 @@ describe("HelpSupport", () => {
     await screen.findByText("Payout hasn't arrived");
     expect(fetchMock).not.toHaveBeenCalled();
 
-    const question = screen.getByText("When does a talent get paid?");
+    const question = screen.getByText("When does a performer get paid?");
     expect(screen.queryByText(/funds release from escrow automatically/)).not.toBeInTheDocument();
     fireEvent.click(question);
     expect(screen.getByText(/funds release from escrow automatically/)).toBeInTheDocument();

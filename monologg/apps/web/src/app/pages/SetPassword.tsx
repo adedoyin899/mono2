@@ -48,7 +48,7 @@ export function SetPassword() {
         </div>
         <h1 className="font-display text-xl mb-2 text-center" style={{ color: "var(--color-text-primary)" }}>Set your password</h1>
         <p className="text-sm font-body mb-6 text-center" style={{ color: "var(--color-text-secondary)" }}>
-          Your booking is confirmed and your escrow is funded. Set a password to manage it — approve deliveries, message your talent, and track your booking.
+          Your booking is confirmed and your escrow is funded. Set a password to manage it — approve deliveries, message your performer, and track your booking.
         </p>
 
         {error && (

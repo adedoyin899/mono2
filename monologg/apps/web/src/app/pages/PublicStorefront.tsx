@@ -123,9 +123,9 @@ export function PublicStorefront() {
             <Users className="w-7 h-7" style={{ color: "var(--color-text-tertiary)" }} />
           </div>
           <h1 className="font-display text-2xl mb-2" style={{ color: "var(--color-text-primary)" }}>Profile not found</h1>
-          <p className="text-sm font-body mb-6 max-w-xs" style={{ color: "var(--color-text-secondary)" }}>This talent link doesn't exist or is no longer available.</p>
+          <p className="text-sm font-body mb-6 max-w-xs" style={{ color: "var(--color-text-secondary)" }}>This performer link doesn't exist or is no longer available.</p>
           <Button variant="secondary" className="h-10 px-6 text-sm" onClick={() => navigate("/")}>
-            Browse Talent on Monologg
+            Browse Performers on Monologg
           </Button>
         </div>
       </div>
@@ -273,7 +273,7 @@ export function PublicStorefront() {
               </div>
               <div className="flex items-center gap-1.5 text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                 <Shield className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
-                Verified talent profiles
+                Verified performer profiles
               </div>
               <div className="flex items-center gap-1.5 text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                 <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />

@@ -819,11 +819,11 @@ export function Settings() {
             <motion.div key="notifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
               <div className="rounded-2xl overflow-hidden" style={s.surface}>
                 {(isClient ? [
-                  { key: "bookings" as const, label: "New Project Applications", desc: "When talent applies to your posted briefs" },
-                  { key: "messages" as const, label: "Order Room Messages", desc: "New messages from booked talent" },
+                  { key: "bookings" as const, label: "New Project Applications", desc: "When performers apply to your posted briefs" },
+                  { key: "messages" as const, label: "Order Room Messages", desc: "New messages from booked performers" },
                   { key: "payments" as const, label: "Escrow Receipts & Charges", desc: "Escrow lock and release confirmations" },
                   { key: "reminders" as const, label: "Project Milestones", desc: "Applicant caps and deliverable updates" },
-                  { key: "marketing" as const, label: "Casting Tips & Product Updates", desc: "Platform features and talent highlights" },
+                  { key: "marketing" as const, label: "Casting Tips & Product Updates", desc: "Platform features and performer highlights" },
                 ] : [
                   { key: "bookings" as const, label: "New Booking Requests", desc: "When a client books one of your services" },
                   { key: "messages" as const, label: "Messages", desc: "New messages in your Order Rooms" },

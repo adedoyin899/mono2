@@ -69,7 +69,7 @@ export function MediaKitManagement() {
     const kitUrl = status ? apiClient.getMediaKitPublicUrl(status.creatorId) : "#";
     const link = document.createElement("a");
     link.href = kitUrl;
-    link.download = `MediaKit_${status?.creatorId || "Talent"}.pdf`;
+    link.download = `MediaKit_${status?.creatorId || "Performer"}.pdf`;
     link.target = "_blank";
     document.body.appendChild(link);
     link.click();

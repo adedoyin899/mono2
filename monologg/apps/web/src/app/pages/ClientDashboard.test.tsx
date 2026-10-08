@@ -13,7 +13,7 @@ async function renderDiscoverTab() {
       <ClientDashboard />
     </MemoryRouter>,
   );
-  fireEvent.click(screen.getAllByText("Find Talent")[0]!);
+  fireEvent.click(screen.getAllByText("Find Performers")[0]!);
   // AnimatePresence (mode="wait") delays mounting the next tab until the
   // previous one's exit transition finishes — same gotcha AuthFlow.test.tsx/
   // ProjectBrief.test.tsx already document; await the switch via something
@@ -36,7 +36,7 @@ describe("ClientDashboard — attribute filters", () => {
     await renderDiscoverTab();
     expect(screen.queryByText("Build")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Filter talent"));
+    fireEvent.click(screen.getByLabelText("Filter performers"));
     expect(await screen.findByText("Build")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -49,7 +49,7 @@ describe("ClientDashboard — attribute filters", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await renderDiscoverTab();
-    fireEvent.click(screen.getByLabelText("Filter talent"));
+    fireEvent.click(screen.getByLabelText("Filter performers"));
     await screen.findByText("Build");
 
     fireEvent.click(screen.getByText("ATHLETIC"));
@@ -68,7 +68,7 @@ describe("ClientDashboard — attribute filters", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await renderDiscoverTab();
-    fireEvent.click(screen.getByLabelText("Filter talent"));
+    fireEvent.click(screen.getByLabelText("Filter performers"));
     await screen.findByText("Build");
     fireEvent.click(screen.getByText("ATHLETIC"));
     await screen.findByText("Clear attribute filters");

@@ -466,7 +466,7 @@ export function TalentDashboard() {
   return (
     <div className="role-talent min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
       <Sidebar
-        portalLabel="Talent Portal"
+        portalLabel="Performer Portal"
         navItems={TALENT_NAV_ITEMS}
         activeTab={activeTab}
         onTab={setActiveTab}
@@ -585,7 +585,7 @@ export function TalentDashboard() {
                       </div>
                       <div>
                         <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                          {isNewUser ? "Welcome! Complete your Talent Setup" : "Career Checklist & Action Nudges"}
+                          {isNewUser ? "Welcome! Complete your Performer Setup" : "Career Checklist & Action Nudges"}
                         </h3>
                         <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
                           {isNewUser ? "Follow these steps to unlock client bookings and start earning." : "Key steps to maximize your visibility and client booking conversion."}
@@ -820,10 +820,10 @@ export function TalentDashboard() {
                     </div>
 
                     <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>
-                      {isNewUser ? (currentUser?.name || "New Creative Talent") : talentName}
+                      {isNewUser ? (currentUser?.name || "New Creative Performer") : talentName}
                     </h2>
                     <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                      {isNewUser ? "Voice-Over & Screen Talent · Lagos, Nigeria" : "Actor & Voice Artist · Lagos, Nigeria"}
+                      {isNewUser ? "Voice-Over & Screen Performer · Lagos, Nigeria" : "Actor & Voice Artist · Lagos, Nigeria"}
                     </p>
 
                     <div className="flex items-center gap-2 mb-4">
@@ -841,7 +841,7 @@ export function TalentDashboard() {
                       <div className="p-4 rounded-[var(--radius-lg)] mb-6 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
-                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Write a compelling summary of your performance background and specialized talent niches.</p>
+                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Write a compelling summary of your performance background and specialized performer niches.</p>
                         </div>
                         <Button variant="secondary" className="h-8 text-xs shrink-0" onClick={() => navigate("/settings")}>
                           Add Bio
@@ -2153,7 +2153,7 @@ export function TalentDashboard() {
               <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Talent Performance &amp; Analytics</h2>
+                    <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Performer Performance &amp; Analytics</h2>
                     <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
                       Track storefront impressions, booking conversion, and earnings velocity for {talentProfile.name}.
                     </p>
@@ -2870,7 +2870,7 @@ export function TalentDashboard() {
                   <div className="mb-4 p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
                     <div className="text-xs font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Project Overview</div>
                     <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                      Client is seeking professional talent for a high-profile production campaign. Selected talent will work directly with the creative direction team for studio recording and revisions.
+                      Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording and revisions.
                     </p>
                   </div>
 

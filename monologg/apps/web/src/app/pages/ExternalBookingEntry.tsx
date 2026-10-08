@@ -309,7 +309,7 @@ export function ExternalBookingEntry() {
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-4">
           <div className="p-5 rounded-2xl space-y-3" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
             <div className="flex justify-between text-sm font-body">
-              <span style={{ color: "var(--color-text-tertiary)" }}>Talent</span>
+              <span style={{ color: "var(--color-text-tertiary)" }}>Performer</span>
               <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>{creator?.name ?? "—"}</span>
             </div>
             <div className="flex justify-between text-sm font-body">
@@ -341,7 +341,7 @@ export function ExternalBookingEntry() {
             <Shield className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
             <div style={{ color: "var(--color-text-primary)" }}>
               <strong className="block font-semibold mb-0.5">Escrow Protection</strong>
-              Your payment is held safely in escrow. {creator?.name ?? "The talent"} gets paid only after they deliver and you approve.
+              Your payment is held safely in escrow. {creator?.name ?? "The performer"} gets paid only after they deliver and you approve.
             </div>
           </div>
 
@@ -360,7 +360,7 @@ export function ExternalBookingEntry() {
         {header("A bit of context", () => setStep("summary"))}
         <div className="flex-1 px-4 py-6 max-w-lg mx-auto w-full space-y-4">
           <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-            Share your project brief, script, or key direction for {creator?.name ?? "the talent"} (optional). Note: this is a one-way note, not a conversation.
+            Share your project brief, script, or key direction for {creator?.name ?? "the performer"} (optional). Note: this is a one-way note, not a conversation.
           </p>
           <textarea
             rows={5}
@@ -441,7 +441,7 @@ export function ExternalBookingEntry() {
             <span className="font-mono tnum font-semibold">{money(total)}</span> secured in escrow
           </p>
           <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>
-            Your funds are held securely until {creator?.name ?? "your talent"} delivers and you approve the work.
+            Your funds are held securely until {creator?.name ?? "your performer"} delivers and you approve the work.
           </p>
 
           <div className="p-4 rounded-2xl mb-6 flex items-start gap-3 text-left" style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-accent)" }}>
@@ -561,7 +561,7 @@ export function ExternalBookingEntry() {
               <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "var(--color-success)" }} />
               <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
                 <strong className="block font-semibold mb-0.5">100% Escrow Money-Back Guarantee</strong>
-                Your <strong>{money(total)}</strong> deposit is held safely by Monologg until {creator?.name ?? "the talent"} completes your order and you approve the deliverables.
+                Your <strong>{money(total)}</strong> deposit is held safely by Monologg until {creator?.name ?? "the performer"} completes your order and you approve the deliverables.
               </div>
             </div>
 

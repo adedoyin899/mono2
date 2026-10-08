@@ -49,7 +49,7 @@ describe("AuthFlow", () => {
     });
     fireEvent.click(screen.getByText(/I agree to the/).closest("label")!.querySelector("div")!);
 
-    fireEvent.click(screen.getByText("Create My Talent Profile"));
+    fireEvent.click(screen.getByText("Create My Performer Profile"));
 
     await waitFor(() => {
       expect(screen.getByText("Talent onboarding")).toBeInTheDocument();
@@ -96,7 +96,7 @@ describe("AuthFlow", () => {
     fireEvent.change(screen.getByPlaceholderText("Email Address"), { target: { value: "ada@example.com" } });
     fireEvent.change(screen.getByPlaceholderText("Create Password (min. 8 chars)"), { target: { value: "password123" } });
     fireEvent.click(screen.getByText(/I agree to the/).closest("label")!.querySelector("div")!);
-    fireEvent.click(screen.getByText("Create My Talent Profile"));
+    fireEvent.click(screen.getByText("Create My Performer Profile"));
 
     await waitFor(() => {
       expect(screen.getByText("Talent onboarding")).toBeInTheDocument();

@@ -76,7 +76,7 @@ export function ClientOnboarding() {
                   Tell us about your company
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  Help us personalize your talent discovery experience.
+                  Help us personalize your performer discovery experience.
                 </p>
               </div>
 
@@ -165,13 +165,13 @@ export function ClientOnboarding() {
                   What are you looking for?
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  Help us show you the most relevant talent.
+                  Help us show you the most relevant performers.
                 </p>
               </div>
 
               <div>
                 <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                  How often do you hire talent?
+                  How often do you hire performers?
                 </label>
                 <div className="space-y-2.5">
                   {[
@@ -225,7 +225,7 @@ export function ClientOnboarding() {
                   Set up your payment
                 </h2>
                 <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  We'll use this to secure escrow for your bookings. You're only charged when you book talent.
+                  We'll use this to secure escrow for your bookings. You're only charged when you book performers.
                 </p>
               </div>
 

@@ -308,7 +308,7 @@ export function AuthFlow() {
                       : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                   }`}
                 >
-                  Talent / Creator
+                  Performer / Creator
                 </button>
                 <button
                   type="button"
@@ -339,7 +339,7 @@ export function AuthFlow() {
                     Welcome to Monologg.
                   </h1>
                   <p className="text-base font-body mb-8 text-[var(--color-text-secondary)]">
-                    Sign in or create a free {role === "talent" ? "Talent" : "Client"} account to continue.
+                    Sign in or create a free {role === "talent" ? "Performer" : "Client"} account to continue.
                   </p>
                   <div className="flex flex-col gap-3">
                     <Button
@@ -396,7 +396,7 @@ export function AuthFlow() {
                             boxShadow: active ? "var(--shadow-card)" : "none",
                           }}
                         >
-                          {r === "talent" ? "Talent / Creator" : "Client / Employer"}
+                          {r === "talent" ? "Performer / Creator" : "Client / Employer"}
                         </button>
                       );
                     })}
@@ -484,7 +484,7 @@ export function AuthFlow() {
                       className="w-full h-12 mt-2"
                       disabled={!agreed || !name || !email || password.length < 8 || submitting}
                     >
-                      {submitting ? "Creating account…" : role === "talent" ? "Create My Talent Profile" : "Create Client Account"}
+                      {submitting ? "Creating account…" : role === "talent" ? "Create My Performer Profile" : "Create Client Account"}
                     </Button>
                   </form>
 
@@ -602,7 +602,7 @@ export function AuthFlow() {
                         navigate("/dashboard");
                       }}
                     >
-                      Talent
+                      Performer
                     </Button>
                     <Button
                       variant="secondary"

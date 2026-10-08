@@ -336,7 +336,7 @@ export function Checkout() {
 
           <div className="p-5 rounded-[var(--radius-xl)] mb-6 text-left" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
             {[
-              { label: "Talent", value: talentName, mono: false },
+              { label: "Performer", value: talentName, mono: false },
               { label: "Service", value: serviceTitle, mono: false },
               { label: "Amount in Escrow", value: money(TOTAL), mono: true },
               { label: "Order ID", value: isLive && booking ? booking.id : "ORD-" + Math.floor(Math.random() * 9000 + 1000), mono: true },

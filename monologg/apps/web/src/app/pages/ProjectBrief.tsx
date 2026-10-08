@@ -247,7 +247,7 @@ export function ProjectBrief() {
             <strong className="text-base" style={{ color: "var(--color-accent)" }}>{projectName || "Your Project"}</strong>
           </p>
           <p className="text-sm font-body mb-8" style={{ color: "var(--color-text-secondary)" }}>
-            Your brief is now live. Verified talents will start applying shortly. You can also browse and invite specific talent.
+            Your brief is now live. Verified performers will start applying shortly. You can also browse and invite specific performers.
           </p>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12" onClick={() => navigate("/client")}>View My Projects</Button>
@@ -372,7 +372,7 @@ export function ProjectBrief() {
                 <textarea
                   className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
                   rows={4}
-                  placeholder="Describe your project, goals, and what you're looking for in a talent..."
+                  placeholder="Describe your project, goals, and what you're looking for in a performer..."
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
@@ -391,8 +391,8 @@ export function ProjectBrief() {
               className="space-y-5"
             >
               <div>
-                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Talent Requirements</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>What type of talent are you looking for?</p>
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Performer Requirements</h2>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>What type of performer are you looking for?</p>
               </div>
 
               <FormField label="Creative Niche * (select all that apply)">
@@ -504,11 +504,11 @@ export function ProjectBrief() {
                 )}
               </div>
 
-              <FormField label="Additional Notes for Talent">
+              <FormField label="Additional Notes for Performers">
                 <textarea
                   className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
                   rows={5}
-                  placeholder="Any specific requirements, tone preferences, reference examples, or important context the talent should know..."
+                  placeholder="Any specific requirements, tone preferences, reference examples, or important context the performer should know..."
                   value={additionalNotes}
                   onChange={e => setAdditionalNotes(e.target.value)}
                   style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
@@ -528,7 +528,7 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Budget & Publish</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right talent.</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right performers.</p>
               </div>
 
               <FormField label="Budget Currency *">
@@ -618,7 +618,7 @@ export function ProjectBrief() {
                   onChange={e => setApplicantCap(e.target.value.replace(/\D/g, ""))}
                 />
                 <p className="text-xs font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
-                  Applications close automatically once this many talents have applied — you still choose who to hire from the pool.
+                  Applications close automatically once this many performers have applied — you still choose who to hire from the pool.
                 </p>
               </FormField>
 

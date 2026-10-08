@@ -12,7 +12,7 @@ import type { SupportTicket } from "@monologg/types";
 
 const FAQS: Array<{ q: string; a: string }> = [
   {
-    q: "When does a talent get paid?",
+    q: "When does a performer get paid?",
     a: "Once a client approves delivered work, funds release from escrow automatically. Payouts typically arrive within 24 business hours.",
   },
   {

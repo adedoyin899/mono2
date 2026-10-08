@@ -213,7 +213,7 @@ describe("Google OAuth Authentication & Navigation Stress Tests", () => {
 
     render(
       <Sidebar
-        portalLabel="Talent Portal"
+        portalLabel="Performer Portal"
         navItems={[{ id: "overview", label: "Overview", icon: UserCheck }]}
         activeTab="overview"
         onTab={() => {}}

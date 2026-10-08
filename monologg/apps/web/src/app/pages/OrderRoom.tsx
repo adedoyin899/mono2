@@ -23,7 +23,7 @@ const PHASES: { id: Phase; label: string; desc: string }[] = [
   { id: "briefing", label: "Briefing", desc: "Review and confirm the project brief" },
   { id: "deliverables", label: "Deliverables", desc: "Submit and review work" },
   { id: "review", label: "Review", desc: "Client approves final work" },
-  { id: "complete", label: "Complete", desc: "Payment released to talent" },
+  { id: "complete", label: "Complete", desc: "Payment released to performer" },
 ];
 
 export function OrderRoom() {
@@ -169,7 +169,7 @@ export function OrderRoom() {
         </div>
         <div className="space-y-2">
           {[
-            { name: appStateSync.getTalentProfile().name, role: "Talent", avatar: appStateSync.getTalentProfile().name.split(/\s+/).map(w => w[0]).join(""), verified: true },
+            { name: appStateSync.getTalentProfile().name, role: "Performer", avatar: appStateSync.getTalentProfile().name.split(/\s+/).map(w => w[0]).join(""), verified: true },
             { name: appStateSync.getClientProfile().orgName || "FilmCraft Studios", role: "Client", avatar: "FS", verified: true },
           ].map((p, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -339,7 +339,7 @@ export function OrderRoom() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Confirm Project Brief</div>
-                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Confirm the scope so talent can begin work</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Confirm the scope so the performer can begin work</div>
                 </div>
                 <Button className="h-9 px-4 text-xs shrink-0" onClick={advancePhase}>Confirm Brief</Button>
               </div>
@@ -363,7 +363,7 @@ export function OrderRoom() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Review & Release Payment</div>
-                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Talent has submitted final work for your approval</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>The performer has submitted final work for your approval</div>
                 </div>
                 <Button className="h-9 px-4 text-xs shrink-0" onClick={() => setShowReleaseModal(true)}>Release ₦120,000</Button>
               </div>
@@ -455,7 +455,7 @@ export function OrderRoom() {
                 </div>
                 <div className="h-px my-3" style={{ background: "var(--color-hairline)" }} />
                 <div className="flex justify-between text-sm font-semibold font-body">
-                  <span style={{ color: "var(--color-text-primary)" }}>Talent Receives</span>
+                  <span style={{ color: "var(--color-text-primary)" }}>Performer Receives</span>
                   <span className="font-mono tnum" style={{ color: "var(--color-success)" }}>₦108,000</span>
                 </div>
               </div>
