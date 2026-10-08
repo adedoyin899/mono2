@@ -19,10 +19,13 @@ async function renderOnboarding() {
 }
 
 async function goToUploadStep(container: HTMLElement) {
-  // Step 1: niche is pre-selected ("actor"); just continue.
+  // Step 1: personal details has defaults; continue.
   fireEvent.click(screen.getByText("Continue"));
 
-  // Step 2: select a file.
+  // Step 2: craft is pre-selected ("actor"); continue.
+  fireEvent.click(await screen.findByText("Continue"));
+
+  // Step 3: select a file.
   await screen.findByText("Upload your showcase reel");
   const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
   const file = new File(["reel-bytes"], "reel.mp4", { type: "video/mp4" });

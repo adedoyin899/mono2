@@ -308,7 +308,7 @@ export function AuthFlow() {
                       : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                   }`}
                 >
-                  Performer / Creator
+                  Performer
                 </button>
                 <button
                   type="button"
@@ -319,7 +319,7 @@ export function AuthFlow() {
                       : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                   }`}
                 >
-                  Client / Employer
+                  Client
                 </button>
               </div>
             )}
@@ -396,7 +396,7 @@ export function AuthFlow() {
                             boxShadow: active ? "var(--shadow-card)" : "none",
                           }}
                         >
-                          {r === "talent" ? "Performer / Creator" : "Client / Employer"}
+                          {r === "talent" ? "Performer" : "Client"}
                         </button>
                       );
                     })}

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
+**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 32. Onboarding test helper single-step transition failure after separating personal details and craft
+- **Severity:** Medium / Test Suite
+- **What happened:** In `CreatorOnboarding.test.tsx`, the `goToUploadStep` helper clicked "Continue" only once expecting to reach "Upload your showcase reel" (Step 2 in the old design).
+- **Root Cause:** By dedicating Step 1 to Performer Personal Details and Step 2 to Craft Selection, the reel upload moved from Step 2 to Step 3. A single click on "Continue" advanced only to Step 2 ("What best describes your craft?"), causing Step 3 element queries to time out.
+- **Resolution:** Added the second `fireEvent.click(await screen.findByText("Continue"))` inside `goToUploadStep` to properly traverse Step 1 (Personal details) and Step 2 (Craft), restoring 100% green status across all 24 web test files and 97 tests.
+
+---
 
 ### 31. Out-of-sync test assertions and label selectors following talent-to-performer copy change
 - **Severity:** Low / Cosmetic

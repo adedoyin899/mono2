@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
+**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 82 (2026-10-08) — Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining
+
+**Goal:** Separate performer onboarding personal details into a dedicated Step 1 ("Tell us about yourself" / "Enter your basic details to personalize your profile."), move craft selection to Step 2 ("What best describes your craft?" / "Select your primary craft to personalize your profile."), constrain gender to strictly "Female" and "Male", streamline Date of Birth to a calendar picker without the redundant age badge, simplify Location to a clean search input with a state-aware filtered city dropdown (removing state labels, "Select" badges, and hub chips), and streamline sign-in / registration role switcher copy to strictly "Performer" and "Client" with no slashes or alternate titles.
+
+### Architecture & Changes Made
+1. **Onboarding Stepper Restructure (`CreatorOnboarding.tsx`):**
+   - **Step 1: Personal Details:** Dedicated first step adopting the platform typography style:
+     - Headline: `Tell us about yourself`
+     - Subtext: `Enter your basic details to personalize your profile.`
+     - **Gender:** Reduced options strictly to `Female` and `Male` in a high-contrast 2-button grid.
+     - **Date of Birth:** Stripped out the redundant age badge (`{age} Years Old`) and calculation display. Retained calendar picker input and interactive popover.
+     - **Location:** Removed `NIGERIA`, `Verified Hub`, and `Popular Entertainment Hubs` labels. Styled clean input titled `Location` with placeholder `Search location...` and dropdown rendering only clean city names (e.g., `Ikeja`, `Lekki`, `Abuja`, `Port Harcourt`) without states or `Select` badges, with state-aware auto-filtering matching both city and state queries.
+   - **Step 2: Craft Selection:** Dedicated craft step featuring the 6 primary categories (Actors, Public speakers, Comperes, Comedians, Artists, Creators) under headline `What best describes your craft?` and subtext `Select your primary craft to personalize your profile.`.
+   - **Step Progression & Indicator:** Adjusted multi-step progression: Step 1 (Personal Details), Step 2 (Craft), Step 3 (Reel Upload & Anti-AI), Step 4 (Analysis Polling), Step 5 (AI Summary & Style Tags), Step 6 (Rate Cards). Top progress bar synchronized across all 5 content steps (`[1, 2, 3, 5, 6]`).
+2. **Auth Role Switcher Copy Streamlining (`AuthFlow.tsx`):**
+   - Updated segmented role toggle pills on top of the auth modal from `Performer / Creator` and `Client / Employer` to strictly `Performer` and `Client`.
+   - Updated registration role selection buttons from `Performer / Creator` and `Client / Employer` to strictly `Performer` and `Client` (no slashes, no alternate titles).
+3. **Test Suite Alignment (`CreatorOnboarding.test.tsx`):**
+   - Updated `goToUploadStep` test helper to advance through both Step 1 (Personal Details) and Step 2 (Craft) before testing Step 3 ("Upload your showcase reel").
+4. **Verification:**
+   - Typecheck: 0 errors across `@monologg/web` (`corepack pnpm --filter @monologg/web typecheck`).
+   - Vitest suite: 24/24 files, 97/97 tests green (100%).
+
+**Files Touched:**
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.test.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

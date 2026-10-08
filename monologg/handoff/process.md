@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-08 (Session 81: Performer Onboarding Overhaul & Storefront-to-Profile Modernization)
+**Last updated:** 2026-10-08 (Session 82: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -203,6 +203,16 @@ Modernized the performer onboarding stepper and standardized platform terminolog
 - **AI Performance Summary & Deletable Suggestions:** Provided an editable Thespian AI summary textarea on Step 4 along with direct tag deletion (`X`) and individual dismissal/deletion of suggested tags.
 - **Rate Cards Overhaul:** Retitled to "Set your rate cards", enforced an Alpha limit of 2 rate cards with visual counter (`1/2`), added "Refine with Thespian AI" to service descriptions, locked base pricing to Naira (`₦ NGN`), and updated CTA to "Preview My Profile".
 - **Global Profile Nomenclature:** Replaced all user-visible instances of "storefront" with "profile" across the client and performer dashboards and landing pages.
+
+### Step 44: Onboarding Stepper Step 1 Restructuring, Clean Location/DOB & Auth Role Copy Streamlining (Session 82)
+
+Refined the performer onboarding stepper and authentication entry point:
+- **Dedicated Step 1 (Personal Details):** Separated performer personal details into its own dedicated initial step titled "Tell us about yourself" / "Enter your basic details to personalize your profile."
+- **Strict Binary Gender:** Restricted gender choices strictly to `Female` and `Male` in a high-contrast 2-button selection grid.
+- **Calendar-Only Date of Birth:** Preserved the interactive calendar input and popover while removing the redundant age calculation badge.
+- **Streamlined Location Search:** Simplified the location field to a clean input labeled "Location" with placeholder "Search location...", removing regional chips, "Verified Hub" badges, and "Select" labels. Options display clean city names while intelligently matching both cities and states during keystroke filtering.
+- **Dedicated Step 2 (Craft):** Retained craft selection on Step 2 with the 6 core categories under the title "What best describes your craft?" / "Select your primary craft to personalize your profile."
+- **Auth Role Switcher Copy:** Streamlined role toggles on `/auth` from "Performer / Creator" and "Client / Employer" to strictly "Performer" and "Client".
 
 ---
 

@@ -43,38 +43,43 @@ const NICHE_CATEGORIES = [
   { id: "creators", legacyId: "creator", label: "Creators", icon: Video },
 ];
 
-const GENDER_OPTIONS = ["Female", "Male", "Non-Binary", "Prefer not to say"];
+const GENDER_OPTIONS = ["Female", "Male"];
 
-// Nigerian Major Entertainment & Cultural Hubs
-const NIGERIAN_LOCATIONS = [
-  "Lagos (Ikeja)",
-  "Lagos (Lekki / Victoria Island)",
-  "Lagos (Yaba / Surulere)",
-  "Lagos (Ajah / Sangotedo)",
-  "Lagos (Maryland / Anthony)",
-  "Abuja (Central Area)",
-  "Abuja (Maitama)",
-  "Abuja (Wuse 2)",
-  "Abuja (Gwarinpa)",
-  "Port Harcourt (GRA, Rivers)",
-  "Port Harcourt (Trans-Amadi)",
-  "Ibadan (Bodija, Oyo)",
-  "Ibadan (Oluyole, Oyo)",
-  "Benin City (Edo)",
-  "Enugu (Independence Layout)",
-  "Asaba (Delta)",
-  "Warri (Delta)",
-  "Calabar (Cross River)",
-  "Kano (Kano Municipal)",
-  "Uyo (Akwa Ibom)",
-  "Abeokuta (Ogun)",
-  "Jos (Plateau)",
-  "Owerri (Imo)",
-  "Ilorin (Kwara)",
-  "Akure (Ondo)",
-  "Osogbo (Osun)",
-  "Awka (Anambra)",
-  "Onitsha (Anambra)",
+// Nigerian Locations — clean city names with state associations for intelligent filtering
+interface LocationItem {
+  city: string;
+  state: string;
+}
+
+const NIGERIAN_LOCATIONS: LocationItem[] = [
+  { city: "Ikeja", state: "Lagos" },
+  { city: "Lekki", state: "Lagos" },
+  { city: "Victoria Island", state: "Lagos" },
+  { city: "Yaba", state: "Lagos" },
+  { city: "Surulere", state: "Lagos" },
+  { city: "Ajah", state: "Lagos" },
+  { city: "Maryland", state: "Lagos" },
+  { city: "Abuja", state: "Federal Capital Territory FCT" },
+  { city: "Maitama", state: "Abuja FCT" },
+  { city: "Wuse 2", state: "Abuja FCT" },
+  { city: "Gwarinpa", state: "Abuja FCT" },
+  { city: "Port Harcourt", state: "Rivers" },
+  { city: "Ibadan", state: "Oyo" },
+  { city: "Benin City", state: "Edo" },
+  { city: "Enugu", state: "Enugu" },
+  { city: "Asaba", state: "Delta" },
+  { city: "Warri", state: "Delta" },
+  { city: "Calabar", state: "Cross River" },
+  { city: "Kano", state: "Kano" },
+  { city: "Uyo", state: "Akwa Ibom" },
+  { city: "Abeokuta", state: "Ogun" },
+  { city: "Jos", state: "Plateau" },
+  { city: "Owerri", state: "Imo" },
+  { city: "Ilorin", state: "Kwara" },
+  { city: "Akure", state: "Ondo" },
+  { city: "Osogbo", state: "Osun" },
+  { city: "Awka", state: "Anambra" },
+  { city: "Onitsha", state: "Anambra" },
 ];
 
 const DEFAULT_SUMMARIES: Record<string, string> = {
@@ -100,40 +105,34 @@ interface RateCardItem {
   delivery: string;
 }
 
-function calculateAge(dobString: string): number {
-  if (!dobString) return 24;
-  const birthDate = new Date(dobString);
-  if (isNaN(birthDate.getTime())) return 24;
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age >= 0 ? age : 0;
-}
-
 export function CreatorOnboarding() {
+  // Step 1: Personal Details (Gender, DOB, Location)
+  // Step 2: Craft (6 Categories)
+  // Step 3: Reel Upload (Anti-AI)
+  // Step 4: Analysing
+  // Step 5: Tags & AI Summary
+  // Step 6: Rate Cards
   const [step, setStep] = useState(1);
-  const [selectedNiche, setSelectedNiche] = useState<string | null>("actors");
 
-  // Performer Personal Details
+  // Step 1: Personal Details
   const [gender, setGender] = useState("Female");
   const [dob, setDob] = useState("2000-05-15");
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarViewYear, setCalendarViewYear] = useState(2000);
   const [calendarViewMonth, setCalendarViewMonth] = useState(4); // May (0-indexed)
 
-  // Nigerian Location State
-  const [location, setLocation] = useState("Lagos (Ikeja), Nigeria");
-  const [locationInput, setLocationInput] = useState("Lagos (Ikeja), Nigeria");
+  const [location, setLocation] = useState("Ikeja");
+  const [locationInput, setLocationInput] = useState("Ikeja");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
-  // Showcase Reel Upload State
+  // Step 2: Craft Selection
+  const [selectedNiche, setSelectedNiche] = useState<string | null>("actors");
+
+  // Step 3: Showcase Reel Upload
   const [file, setFile] = useState<File | null>(null);
   const [antiAiCertified, setAntiAiCertified] = useState(true);
 
-  // Step 4: AI Summary & Style Tags
+  // Step 5: AI Summary & Style Tags
   const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([
     "Warm Texture",
@@ -152,7 +151,7 @@ export function CreatorOnboarding() {
   const [aiSummary, setAiSummary] = useState(DEFAULT_SUMMARIES.actors);
   const [isRefiningSummary, setIsRefiningSummary] = useState(false);
 
-  // Step 5: Rate Cards State (Alpha max: 2 rate cards)
+  // Step 6: Rate Cards State (Alpha limit: max 2 rate cards)
   const [rateCards, setRateCards] = useState<RateCardItem[]>([
     {
       id: "card-1",
@@ -169,7 +168,7 @@ export function CreatorOnboarding() {
   const mediaAssetIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
 
-  // Keep AI summary synced with selected craft if not modified
+  // Sync AI summary when niche changes
   useEffect(() => {
     const key = selectedNiche || "actors";
     const mapped = DEFAULT_SUMMARIES[key] || DEFAULT_SUMMARIES.actors;
@@ -259,7 +258,7 @@ export function CreatorOnboarding() {
   async function handleUploadAndAnalyse() {
     if (!file) return;
     setTaggingFailed(false);
-    setStep(3);
+    setStep(4);
 
     if (apiClient.mode !== "live") return;
 
@@ -273,10 +272,10 @@ export function CreatorOnboarding() {
   }
 
   useEffect(() => {
-    if (step !== 3 || taggingFailed) return;
+    if (step !== 4 || taggingFailed) return;
 
     if (apiClient.mode !== "live") {
-      const timer = setTimeout(() => setStep(4), 3000);
+      const timer = setTimeout(() => setStep(5), 3000);
       return () => clearTimeout(timer);
     }
 
@@ -291,7 +290,7 @@ export function CreatorOnboarding() {
         const profile = await apiClient.getCreatorProfile();
         if (cancelled) return;
         setTags(profile.styleTags.length > 0 ? profile.styleTags : DEFAULT_STYLE_TAGS);
-        setStep(4);
+        setStep(5);
       } else if (taggingStatus === "FAILED") {
         setTaggingFailed(true);
       }
@@ -305,11 +304,13 @@ export function CreatorOnboarding() {
     };
   }, [step, taggingFailed]);
 
-  // Filtered Nigerian locations for auto-suggest
-  const filteredLocations = useMemo(() => {
+  // Intelligent Location Filtering: user types city or state, system matches and presents clean city names
+  const filteredCities = useMemo(() => {
     const q = locationInput.trim().toLowerCase();
     if (!q) return NIGERIAN_LOCATIONS.slice(0, 8);
-    return NIGERIAN_LOCATIONS.filter((loc) => loc.toLowerCase().includes(q));
+    return NIGERIAN_LOCATIONS.filter(
+      (item) => item.city.toLowerCase().includes(q) || item.state.toLowerCase().includes(q),
+    );
   }, [locationInput]);
 
   // Calendar Helpers
@@ -333,8 +334,6 @@ export function CreatorOnboarding() {
     setShowCalendar(false);
   };
 
-  const calculatedAge = useMemo(() => calculateAge(dob), [dob]);
-
   const rise = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
@@ -344,8 +343,8 @@ export function CreatorOnboarding() {
 
   return (
     <div className="role-talent min-h-screen bg-[var(--color-bg-canvas)] flex flex-col w-full max-w-[480px] mx-auto relative overflow-hidden">
-      {/* Top Progress Bar - Steps 1, 2, 4, 5 */}
-      {step !== 3 && (
+      {/* Top Progress Bar - 5 Content Steps: 1, 2, 3, 5, 6 */}
+      {step !== 4 && (
         <div className="px-5 pt-6 pb-3 flex items-center gap-3">
           <button
             aria-label="Go back"
@@ -355,8 +354,8 @@ export function CreatorOnboarding() {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 flex items-center gap-1.5">
-            {[1, 2, 4, 5].map((s) => {
-              const done = s < step && step !== 3;
+            {[1, 2, 3, 5, 6].map((s) => {
+              const done = s < step && step !== 4;
               const active = s === step;
               return (
                 <div key={s} className="flex-1 h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] overflow-hidden">
@@ -375,81 +374,25 @@ export function CreatorOnboarding() {
       )}
 
       <AnimatePresence mode="wait">
-        {/* ── STEP 1: Craft (6 Categories) + Gender + Age Calendar + Nigerian Location ── */}
+        {/* ── STEP 1: Personal Details (Gender, Date of Birth, Location) ── */}
         {step === 1 && (
-          <motion.div key="pwa-02" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+          <motion.div key="step-personal" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-6">
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[var(--color-accent)] block mb-1">
-                You Belong Here
-              </span>
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
-                What best describes your craft?
+                Tell us about yourself
               </h2>
               <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
-                Select your primary craft to personalize your profile.
+                Enter your basic details to personalize your profile.
               </p>
             </div>
 
-            {/* 6 Craft Categories Grid */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {NICHE_CATEGORIES.map((niche) => {
-                const selected =
-                  selectedNiche === niche.id ||
-                  selectedNiche === niche.legacyId ||
-                  (selectedNiche === "actor" && niche.id === "actors");
-                return (
-                  <motion.button
-                    key={niche.id}
-                    onClick={() => setSelectedNiche(niche.id)}
-                    whileTap={{ scale: 0.97 }}
-                    className={`relative p-4 rounded-[var(--radius-lg)] border flex flex-col items-center justify-center text-center gap-2.5 min-h-[104px] transition-colors duration-[var(--duration-fast)] ${
-                      selected
-                        ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
-                        : "border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:border-[var(--color-border-strong)]"
-                    }`}
-                  >
-                    <niche.icon
-                      className={`w-6 h-6 transition-colors ${
-                        selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"
-                      }`}
-                    />
-                    <span
-                      className={`font-body text-[length:var(--font-size-sm)] font-semibold ${
-                        selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"
-                      }`}
-                    >
-                      {niche.label}
-                    </span>
-                    {selected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                        className="absolute top-2.5 right-2.5 w-5 h-5 bg-[var(--color-accent)] rounded-[var(--radius-full)] flex items-center justify-center"
-                      >
-                        <Check className="w-3 h-3 text-[var(--color-accent-on)]" strokeWidth={3} />
-                      </motion.div>
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {/* ── Performer Personal Details Card: Gender, Age (Calendar), Location ── */}
             <div className="rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5 mb-6 space-y-5">
-              <div className="flex items-center gap-2 border-b border-[var(--color-hairline)] pb-3">
-                <User className="w-4 h-4 text-[var(--color-accent)]" />
-                <h3 className="font-body text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">
-                  Performer Essentials
-                </h3>
-              </div>
-
-              {/* 1. Gender */}
+              {/* 1. Gender: Female and Male only */}
               <div>
-                <label className="font-body text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
+                <label className="font-body text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                   Gender
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {GENDER_OPTIONS.map((g) => {
                     const isSelected = gender === g;
                     return (
@@ -457,10 +400,10 @@ export function CreatorOnboarding() {
                         key={g}
                         type="button"
                         onClick={() => setGender(g)}
-                        className={`h-10 px-3 rounded-[var(--radius-md)] font-body text-xs font-medium border text-center transition-all ${
+                        className={`h-11 px-4 rounded-[var(--radius-lg)] font-body text-sm font-semibold border text-center transition-all ${
                           isSelected
-                            ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-semibold"
-                            : "border-[var(--color-hairline)] bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-default)]"
+                            ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"
+                            : "border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-active)]"
                         }`}
                       >
                         {g}
@@ -470,31 +413,24 @@ export function CreatorOnboarding() {
                 </div>
               </div>
 
-              {/* 2. Age & Date of Birth with Calendar Picker */}
+              {/* 2. Date of Birth: calendar input only (no age display) */}
               <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-body text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-                    Date of Birth &amp; Age
-                  </label>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[var(--radius-full)] bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-mono text-xs font-semibold">
-                    {calculatedAge} Years Old
-                  </span>
-                </div>
-
+                <label className="font-body text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
+                  Date of Birth
+                </label>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setShowCalendar(!showCalendar)}
-                    className="flex-1 h-[50px] px-3.5 rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] flex items-center justify-between font-body text-sm text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors"
+                    className="flex-1 h-[52px] px-4 rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] flex items-center justify-between font-body text-sm text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <CalendarIcon className="w-4 h-4 text-[var(--color-accent)]" />
                       <span>{dob || "Select your birth date"}</span>
                     </div>
-                    <span className="text-xs text-[var(--color-accent)] font-medium">Pick Date</span>
+                    <span className="text-xs text-[var(--color-accent)] font-medium">Calendar</span>
                   </button>
 
-                  {/* Native Date Input Sync for touch devices */}
                   <input
                     type="date"
                     value={dob}
@@ -508,7 +444,7 @@ export function CreatorOnboarding() {
                         }
                       }
                     }}
-                    className="w-12 h-[50px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] text-center text-xs opacity-80 cursor-pointer"
+                    className="w-12 h-[52px] rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface-2)] text-center text-xs opacity-80 cursor-pointer"
                     title="Open native date picker"
                   />
                 </div>
@@ -570,7 +506,6 @@ export function CreatorOnboarding() {
                       </button>
                     </div>
 
-                    {/* Day-of-week headers */}
                     <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-[var(--color-text-tertiary)] mb-1">
                       {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                         <div key={d} className="py-1">
@@ -579,7 +514,6 @@ export function CreatorOnboarding() {
                       ))}
                     </div>
 
-                    {/* Day grid */}
                     <div className="grid grid-cols-7 gap-1">
                       {Array.from({ length: firstDayOfMonth }).map((_, i) => (
                         <div key={`empty-${i}`} />
@@ -610,21 +544,16 @@ export function CreatorOnboarding() {
                 )}
               </div>
 
-              {/* 3. Location with Nigerian Auto-Suggest API / Data Picker */}
+              {/* 3. Location: clean dropdown list filtering across states with placeholder "Search location..." */}
               <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-body text-[11px] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-                    Location (Nigeria)
-                  </label>
-                  <span className="font-body text-[11px] text-[var(--color-text-tertiary)] flex items-center gap-1">
-                    🇳🇬 Verified Hub
-                  </span>
-                </div>
+                <label className="font-body text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
+                  Location
+                </label>
 
                 <div className="relative">
                   <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)]" />
                   <Input
-                    className="pl-9 pr-8 h-[50px] text-sm"
+                    className="pl-9 pr-8 h-[52px] text-sm"
                     value={locationInput}
                     onFocus={() => setShowLocationDropdown(true)}
                     onChange={(e) => {
@@ -632,7 +561,7 @@ export function CreatorOnboarding() {
                       setLocation(e.target.value);
                       setShowLocationDropdown(true);
                     }}
-                    placeholder="Search Nigerian state or city (e.g. Lagos, Abuja)..."
+                    placeholder="Search location..."
                   />
                   {locationInput && (
                     <button
@@ -648,30 +577,94 @@ export function CreatorOnboarding() {
                   )}
                 </div>
 
-                {/* Suggestions Dropdown */}
+                {/* Simple dropdown list (no state displayed in option, no 'select' text beside) */}
                 {showLocationDropdown && (
-                  <div className="mt-1.5 p-2 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] max-h-48 overflow-y-auto space-y-1 z-20 relative">
-                    <div className="px-2 py-1 text-[10px] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                      Popular Entertainment Hubs
-                    </div>
-                    {filteredLocations.map((loc) => (
+                  <div className="mt-1.5 p-1 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-elevated)] max-h-48 overflow-y-auto space-y-0.5 z-20 relative">
+                    {filteredCities.map((item) => (
                       <button
-                        key={loc}
+                        key={item.city}
                         type="button"
                         onClick={() => {
-                          setLocationInput(`${loc}, Nigeria`);
-                          setLocation(`${loc}, Nigeria`);
+                          setLocationInput(item.city);
+                          setLocation(item.city);
                           setShowLocationDropdown(false);
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-[var(--radius-md)] text-xs font-body hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] flex items-center justify-between"
+                        className="w-full text-left px-3 py-2 rounded-[var(--radius-md)] text-sm font-body hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] transition-colors"
                       >
-                        <span>{loc}</span>
-                        <span className="text-[10px] text-[var(--color-accent)] font-medium">Select</span>
+                        {item.city}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
+            </div>
+
+            <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
+              <Button onClick={handleNext} className="w-full">
+                Continue
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 2: Craft Selection (The 6 Core Categories) ── */}
+        {step === 2 && (
+          <motion.div key="step-craft" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+            <div className="mt-4 mb-6">
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[var(--color-accent)] block mb-1">
+                You Belong Here
+              </span>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
+                What best describes your craft?
+              </h2>
+              <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
+                Select your primary craft to personalize your profile.
+              </p>
+            </div>
+
+            {/* 6 Craft Categories Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {NICHE_CATEGORIES.map((niche) => {
+                const selected =
+                  selectedNiche === niche.id ||
+                  selectedNiche === niche.legacyId ||
+                  (selectedNiche === "actor" && niche.id === "actors");
+                return (
+                  <motion.button
+                    key={niche.id}
+                    onClick={() => setSelectedNiche(niche.id)}
+                    whileTap={{ scale: 0.97 }}
+                    className={`relative p-4 rounded-[var(--radius-lg)] border flex flex-col items-center justify-center text-center gap-2.5 min-h-[104px] transition-colors duration-[var(--duration-fast)] ${
+                      selected
+                        ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                        : "border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:border-[var(--color-border-strong)]"
+                    }`}
+                  >
+                    <niche.icon
+                      className={`w-6 h-6 transition-colors ${
+                        selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"
+                      }`}
+                    />
+                    <span
+                      className={`font-body text-[length:var(--font-size-sm)] font-semibold ${
+                        selected ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"
+                      }`}
+                    >
+                      {niche.label}
+                    </span>
+                    {selected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                        className="absolute top-2.5 right-2.5 w-5 h-5 bg-[var(--color-accent)] rounded-[var(--radius-full)] flex items-center justify-center"
+                      >
+                        <Check className="w-3 h-3 text-[var(--color-accent-on)]" strokeWidth={3} />
+                      </motion.div>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
 
             <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
@@ -682,9 +675,9 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 2: Upload Showcase Reel + Anti-AI Policy ── */}
-        {step === 2 && (
-          <motion.div key="pwa-03" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+        {/* ── STEP 3: Upload Showcase Reel + Anti-AI Policy ── */}
+        {step === 3 && (
+          <motion.div key="step-reel" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-4">
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
                 Upload your showcase reel
@@ -785,10 +778,10 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 3: Job Polling Simulation & Animation ── */}
-        {step === 3 && (
+        {/* ── STEP 4: Job Polling Simulation & Animation ── */}
+        {step === 4 && (
           <motion.div
-            key="pwa-04"
+            key="step-analysing"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -833,7 +826,7 @@ export function CreatorOnboarding() {
                 <p className="font-body text-[length:var(--font-size-sm)] text-[var(--color-text-secondary)] mb-6 max-w-[300px]">
                   Your reel is saved — we just couldn&apos;t generate tags this time. You can try again.
                 </p>
-                <Button onClick={() => setStep(2)} className="w-full max-w-[220px]">
+                <Button onClick={() => setStep(3)} className="w-full max-w-[220px]">
                   Try again
                 </Button>
               </>
@@ -841,10 +834,10 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 4: AI Summary & Editable Style Tags + Deletable Suggestions ── */}
-        {step === 4 && (
+        {/* ── STEP 5: AI Summary & Editable Style Tags + Deletable Suggestions ── */}
+        {step === 5 && (
           <motion.div
-            key="pwa-05"
+            key="step-tags"
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, y: -8 }}
@@ -1053,16 +1046,16 @@ export function CreatorOnboarding() {
               <Button onClick={handleNext} className="w-full">
                 Looks great, continue
               </Button>
-              <Button variant="ghost" className="w-full" onClick={() => setStep(2)}>
+              <Button variant="ghost" className="w-full" onClick={() => setStep(3)}>
                 Re-upload my reel
               </Button>
             </div>
           </motion.div>
         )}
 
-        {/* ── STEP 5: Set your Rate Cards (Max 2 for Alpha with 1/2 indicator) ── */}
-        {step === 5 && (
-          <motion.div key="pwa-06" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+        {/* ── STEP 6: Set your Rate Cards (Max 2 for Alpha with 1/2 indicator) ── */}
+        {step === 6 && (
+          <motion.div key="step-rates" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-4">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[var(--color-accent)]">
