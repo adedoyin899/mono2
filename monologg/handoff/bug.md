@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
+**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 47. Bulky accordion bank picker, invisible monthly growth chart bars, and lack of completed order rating system
+- **Severity:** Low / UX Polish & Feedback Completeness
+- **What happened:** In `TalentDashboard.tsx`, the destination bank input was wrapped in an expandable box accordion that felt heavy and clunky compared to a standard native input with subscript text. In the Analytics tab, the Monthly Booking Growth chart bars collapsed to zero height because of unconstrained flex-col sizing, and revenue was split across 3 generic niches instead of the performer's 2 real rate cards. In `OrderRoom.tsx`, once an order concluded (`phase === "complete"`), the action dock became empty with no reciprocal rating or review capability for clients and talents.
+- **Root Cause:** Custom accordion introduced excessive DOM chrome; chart bars lacked explicit flex container heights; rate cards were hardcoded to 3 items rather than slicing active services (`effectiveServices.slice(0, 2)`); completed order phase lacked an interactive review feedback loop.
+- **Resolution:** Replaced bank accordion with a clean `<select>` listing added accounts, showing account details and a green checkmark as minimal subscript text only. Restored initial receipt modal layout with a subtle 3.5% opacity Monologg watermark. Standardized 4 analytics cards (`Profile view`, `Project completed`, `Average rating`, `Total earnings`), restricted category earnings to the 2 available rate cards, and fixed chart bar rendering. Implemented reciprocal 1–5 star rating with prefilled tags and note textarea in `OrderRoom.tsx`, and connected the "Average rating" analytics card to a dedicated Client Ratings & Reviews modal linking directly to project order rooms.
+
+---
 
 ### 46. Redundant dual bank select layout, awkward stretched passcode placeholder, and unbranded receipt
 - **Severity:** Low / UX Flow & Brand Polish

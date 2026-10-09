@@ -13,7 +13,7 @@ import {
   Lock, FileText, Download, AlertTriangle,
   UploadCloud, X, MapPin,
   RefreshCw, FastForward, Check,
-  Copy, KeyRound
+  Copy, KeyRound, Star
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -44,6 +44,25 @@ const PHASES: { id: Phase; label: string; description: string }[] = [
 // Client-provided arrival PIN for onsite performance verification (only visible to client)
 const CLIENT_GENERATED_PIN = "4821";
 
+// Reciprocal Rating Pre-filled Choices Options
+const CLIENT_RATING_TAGS = [
+  "Exceptional delivery",
+  "Great communication",
+  "Fast turnaround",
+  "Creative & professional",
+  "Exceeded expectations",
+  "Would book again",
+];
+
+const TALENT_RATING_TAGS = [
+  "Clear brief & requirements",
+  "Prompt milestone release",
+  "Courteous & professional",
+  "Responsive communication",
+  "Great collaborator",
+  "Smooth experience",
+];
+
 /* ─── Component ─────────────────────────────────────────────── */
 export function OrderRoom() {
   const [phase, setPhase] = useState<Phase>("deliverables");
@@ -59,6 +78,14 @@ export function OrderRoom() {
   const [showRevisionModal, setShowRevisionModal] = useState(false);
   const [showOrderInfoModal, setShowOrderInfoModal] = useState(false);
   const [paymentReleased, setPaymentReleased] = useState(false);
+
+  // Reciprocal rating system
+  const [ratingStars, setRatingStars] = useState<number>(5);
+  const [hoverRatingStars, setHoverRatingStars] = useState<number>(0);
+  const [selectedRatingTag, setSelectedRatingTag] = useState<string>("");
+  const [ratingNote, setRatingNote] = useState<string>("");
+  const [ratingEditing, setRatingEditing] = useState<boolean>(false);
+  const [savedReview, setSavedReview] = useState<{ stars: number; tag: string; note: string; date: string } | null>(null);
 
   // Submit modal — file deliverable
   const [deliverableTab, setDeliverableTab] = useState<"online" | "onsite">("online");
@@ -78,6 +105,29 @@ export function OrderRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { id: orderId } = useParams();
+
+  /* ── Sync saved review for current role ── */
+  useEffect(() => {
+    try {
+      const curId = orderId || "ORD-001";
+      const key = `monologg_order_review_${curId}_${role}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setSavedReview(parsed);
+        setRatingStars(parsed.stars || 5);
+        setSelectedRatingTag(parsed.tag || "");
+        setRatingNote(parsed.note || "");
+      } else {
+        setSavedReview(null);
+        setRatingStars(5);
+        setSelectedRatingTag("");
+        setRatingNote("");
+      }
+    } catch {
+      setSavedReview(null);
+    }
+  }, [orderId, role]);
 
   /* ── Data loading ── */
   useEffect(() => {
@@ -113,10 +163,58 @@ export function OrderRoom() {
   const phaseIndex = PHASES.findIndex(p => p.id === phase);
   const talentName = appStateSync.getTalentProfile().name;
   const clientOrg = appStateSync.getClientProfile().orgName || "FilmCraft Studios";
+  const clientName = appStateSync.getClientProfile().name || "Sarah Jenkins";
   const talentInitials = talentName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]).join("");
 
   const orderTitle = gigType === "onsite" ? "Comedy Night, Eko Hotel" : "Nike Campaign VO";
   const isOnsite = gigType === "onsite";
+
+  /* ── Rating Submit Handler ── */
+  const handleSubmitRating = () => {
+    if (ratingStars <= 0) return;
+    const effectiveTag = selectedRatingTag || (role === "client" ? "Exceptional delivery" : "Clear brief & requirements");
+    const reviewData = {
+      stars: ratingStars,
+      tag: effectiveTag,
+      note: ratingNote.trim(),
+      date: "Just now",
+      reviewerRole: role,
+    };
+
+    const curOrderId = orderId || "ORD-001";
+    try {
+      localStorage.setItem(`monologg_order_review_${curOrderId}_${role}`, JSON.stringify(reviewData));
+      if (role === "client") {
+        const existing = JSON.parse(localStorage.getItem("monologg_performer_reviews") || "[]");
+        const newReview = {
+          id: `rev-${Date.now()}`,
+          clientName: `${clientName} (${clientOrg})`,
+          projectName: orderTitle,
+          orderId: curOrderId,
+          stars: ratingStars,
+          tag: effectiveTag,
+          note: ratingNote.trim() || "Exceptional performance and delivery. Highly recommended!",
+          date: "Just now",
+        };
+        localStorage.setItem("monologg_performer_reviews", JSON.stringify([newReview, ...existing]));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    setSavedReview(reviewData);
+    setRatingEditing(false);
+
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-rating-${Date.now()}`,
+        from: "system" as const,
+        text: `★ ${role === "client" ? clientName : talentName} submitted a ${ratingStars}-star rating: "${effectiveTag}".`,
+        time: "Just now",
+      },
+    ]);
+  };
 
   /* ── Actions ── */
   const handleCopyPin = () => {
@@ -252,7 +350,163 @@ export function OrderRoom() {
 
   /* ─── Context-Aware Action Dock ─── */
   const renderActionDock = () => {
-    if (paymentReleased) return null;
+    // Completed Phase & Rating System — Available to both client and talent when order is complete or payment is released
+    if (phase === "complete" || paymentReleased) {
+      const targetName = role === "client" ? talentName : clientOrg;
+      const tagOptions = role === "client" ? CLIENT_RATING_TAGS : TALENT_RATING_TAGS;
+
+      if (savedReview && !ratingEditing) {
+        return (
+          <div className="px-4 pb-3 pt-1">
+            <div className="p-4 rounded-2xl border bg-white shadow-2xs space-y-2.5" style={{ borderColor: "var(--color-hairline)" }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-zinc-900 font-body">
+                      Your Rating for {targetName}
+                    </div>
+                    <div className="text-[11px] text-zinc-400">Verified &amp; Recorded on Monologg</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setRatingEditing(true)}
+                  className="text-xs font-medium text-zinc-500 hover:text-zinc-800 underline transition-colors"
+                >
+                  Edit Review
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center text-amber-400">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${i < savedReview.stars ? "fill-amber-400 text-amber-400" : "text-zinc-200"}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs font-bold font-mono text-zinc-800">{savedReview.stars}.0</span>
+                {savedReview.tag && (
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700">
+                    {savedReview.tag}
+                  </span>
+                )}
+              </div>
+
+              {savedReview.note && (
+                <p className="text-xs text-zinc-600 font-body bg-zinc-50 p-2.5 rounded-xl border border-zinc-100">
+                  &ldquo;{savedReview.note}&rdquo;
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="px-4 pb-3 pt-1">
+          <div className="p-4 rounded-2xl border bg-white shadow-2xs space-y-3" style={{ borderColor: "var(--color-hairline)" }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs font-semibold text-zinc-900 font-body">
+                  Rate your experience with {targetName}
+                </div>
+                <div className="text-[11px] text-zinc-500">
+                  Select stars and a prefilled description
+                </div>
+              </div>
+              {/* Star Rating */}
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const isFilled = (hoverRatingStars || ratingStars) >= star;
+                  return (
+                    <button
+                      key={star}
+                      type="button"
+                      onMouseEnter={() => setHoverRatingStars(star)}
+                      onMouseLeave={() => setHoverRatingStars(0)}
+                      onClick={() => setRatingStars(star)}
+                      className="p-1 transition-transform active:scale-110"
+                      title={`${star} Star${star > 1 ? "s" : ""}`}
+                    >
+                      <Star
+                        className={`w-5 h-5 transition-colors ${
+                          isFilled ? "fill-amber-400 text-amber-400" : "text-zinc-300 hover:text-amber-300"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Prefilled Choices */}
+            <div>
+              <div className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+                Description (Prefilled Options)
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {tagOptions.map((tag) => {
+                  const isSelected = selectedRatingTag === tag;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setSelectedRatingTag(isSelected ? "" : tag)}
+                      className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                        isSelected
+                          ? role === "client"
+                            ? "bg-purple-600 text-white border-purple-600 shadow-2xs font-medium"
+                            : "bg-red-600 text-white border-red-600 shadow-2xs font-medium"
+                          : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Option to write note */}
+            <div>
+              <textarea
+                value={ratingNote}
+                onChange={(e) => setRatingNote(e.target.value)}
+                rows={2}
+                placeholder={`Write an optional note or review for ${targetName}…`}
+                className="w-full p-2.5 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 text-zinc-900 resize-none focus:outline-none focus:bg-white focus:border-zinc-400 transition-colors"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2 pt-0.5">
+              {savedReview && (
+                <button
+                  type="button"
+                  onClick={() => setRatingEditing(false)}
+                  className="px-3 h-9 rounded-xl text-xs font-medium text-zinc-500 hover:bg-zinc-100 transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSubmitRating}
+                disabled={ratingStars === 0}
+                className="px-4 h-9 rounded-xl text-xs font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs hover:opacity-95"
+                style={{ background: role === "client" ? "var(--color-purple)" : "var(--color-red)" }}
+              >
+                Submit Rating &amp; Review
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Briefing Phase — Client
     if (phase === "briefing" && role === "client") {

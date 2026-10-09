@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
+**Last updated:** 2026-10-09 (Session 99: Subscript Bank Input, 3-5% Watermark Receipt, 4 Analytics Cards with 2 Gigs, & Reciprocal Order Rating System)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -370,6 +370,17 @@ Overhauled the performer withdrawal experience in `TalentDashboard.tsx`:
 - **Standardized Passcode Convention & Clean Copy:** Set step 2 title to "Enter your passcode", removed the shield icon and redundant "Authorize Payout" header, and updated copy to `"Enter your 4-digit passcode to withdraw ₦{withdrawAmount} to {bankName}."`. Formatted the 4-digit input to standard fintech conventions (`h-12`, `••••`, `font-mono tracking-[0.4em]`) and updated CTA to "Withdraw Funds".
 - **Monologg Branded Payout Receipt:** Upgraded receipt dialog with Monologg header brand mark (`LogoMark`), wordmark, and official receipt badge. Added a subtle centered Monologg logo watermark (`opacity-[0.03]`, scaling to `print:opacity-15` during print/download), an inner watermark in the amount card, and an official Escrow Protocol Guarantee stamp.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined fresh bundle into `monologg/monologg-app.html` (1.35MB).
+
+---
+
+### Step 60: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards with 2 Gigs, & Reciprocal Order Rating System (Session 99)
+
+Addressed performer wallet ergonomics, analytics card accuracy, and bilateral completed order reviews:
+- **Destination Bank Input with Subscript Details:** Replaced the bulky accordion selector with a clean select input populated with added accounts (`ADDED_BANK_ACCOUNTS`). When a bank is selected, the input displays the bank name directly, with masked account number (`•••• 2211`) and account name (`EMEKA JOHNSON`) formatted cleanly as subscript helper text accompanied by a green checkmark.
+- **Payout Receipt 3–5% Opacity Watermark:** Restored the initial clean receipt modal layout (green check circle, amount card, detail rows, actions) and calibrated the background Monologg watermark to strictly 3.5% opacity (`opacity-[0.035] print:opacity-[0.04]`).
+- **Analytics Cards & 2-Gig Category Breakdown:** Standardized the 4 analytics cards to exact user specifications (`Profile view`: 1,420; `Project completed`: 28; `Average rating`: 4.9 ★; `Total earnings`: ₦1,240,000). Filtered the "Earnings by Category" chart to strictly show the 2 available performer rate cards/gigs ("Feature Film Audition" 68% / ₦843,200 and "Commercial Voice-Over" 32% / ₦396,800) with visual progress bars. Fixed zero-height collapse in the Monthly Booking Growth chart bars.
+- **Reciprocal Order Rating System:** Implemented a full rating system in `OrderRoom.tsx` for completed orders (`phase === "complete"` or payment released) where both client and talent rate each other with 1–5 stars, prefilled descriptive chips (`CLIENT_RATING_TAGS` / `TALENT_RATING_TAGS`), and a personalized note textarea. Persists reviews to localStorage. Linked the "Average rating" card in `TalentDashboard.tsx` to open the Client Ratings & Reviews modal with direct navigation links back to the respective Order Room (`/order/:id`).
+- **Standalone Distribution Inlining:** Built and inlined the updated standalone bundle into `monologg/monologg-app.html` (1.37MB).
 
 ---
 

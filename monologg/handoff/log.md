@@ -1,11 +1,69 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
+**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 99 (2026-10-09) — Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System
+
+**Goal:** Implement four user-requested refinements across `TalentDashboard.tsx` and `OrderRoom.tsx`:
+1. Streamline the destination bank account input in the Withdraw Funds modal to use the clean `<select>` listing added bank accounts, and display the account name and account number with a green checkmark as minimal subscript text only underneath.
+2. Restore the initial clean layout for the Payout Receipt modal, maintaining clean design tokens, while setting the Monologg logo watermark to strictly 3–5% opacity (`opacity-[0.035] print:opacity-[0.04]`).
+3. Standardize the Analytics Tab to 4 specific metric cards (`Profile view`, `Project completed`, `Average rating`, `Total earnings`), render the Earnings by Category chart showing *only the 2 available rate cards/gigs*, and ensure the Monthly Booking Growth chart bars render visibly with explicit flex alignment.
+4. Build a smooth reciprocal rating system in `OrderRoom.tsx` for completed orders (`phase === "complete"` or payment released) where both client and talent can submit interactive 1–5 star ratings, choose from prefilled description chips, and write optional notes. In `TalentDashboard.tsx`, clicking the "Average rating" card opens the Client Ratings & Reviews modal linking directly back to each associated project order room (`/order/:id`).
+
+### Changes Made
+
+1. **Destination Bank Input with Subscript Text Only (`TalentDashboard.tsx`):**
+   - Reverted from the custom dropdown accordion box back to a clean native `<select>` input listing added bank accounts (`ADDED_BANK_ACCOUNTS`).
+   - When an account is selected, the bank name is cleanly selected in the input.
+   - Positioned directly underneath as subscript text only: green checkmark (`CheckCircle2 text-emerald-600`), masked account number (`•••• {last4}`), and account holder name (`{accountName}`).
+
+2. **Payout Receipt Modal Restored with 3–5% Watermark (`TalentDashboard.tsx`):**
+   - Restored initial clean receipt modal structure: green circle checkmark icon, "Payout Receipt" title, reference number, transferred amount card, details breakdown table rows, and action buttons.
+   - Centered Monologg logo watermark (`LogoMark`) strictly at 3.5% opacity (`opacity-[0.035] print:opacity-[0.04]`), providing elegant branding without obscuring text.
+
+3. **Analytics Tab 4 Cards & 2-Gig Category Chart (`TalentDashboard.tsx`):**
+   - Configured the top 4 metric cards strictly as requested:
+     1. `Profile view`: 1,420 (↑ +18% this month)
+     2. `Project completed`: 28 (100% on-time delivery)
+     3. `Average rating`: 4.9 ★ (Based on client reviews, clickable to view reviews modal)
+     4. `Total earnings`: ₦1,240,000 (↑ +₦240,000 this month)
+   - Replaced the 3-category revenue breakdown with "Earnings by Category", showing strictly the 2 available rate cards/gigs (`effectiveServices.slice(0, 2)`: "Feature Film Audition" 68% / ₦843,200 and "Commercial Voice-Over" 32% / ₦396,800) with visual progress bars.
+   - Fixed the Monthly Booking Growth chart: added explicit flex container height constraints so growth bars render with high-contrast dual-tone columns comparing the 2 rate cards.
+
+4. **Reciprocal Order Rating System (`OrderRoom.tsx`):**
+   - In `OrderRoom.tsx`, when an order is completed (`phase === "complete"` or payment released), the action dock displays the reciprocal rating interface.
+   - Interactive 1–5 star rating with hover states and selection.
+   - Quick prefilled description choices:
+     - Client rating performer: `"Exceptional delivery"`, `"Great communication"`, `"Fast turnaround"`, `"Creative & professional"`, `"Exceeded expectations"`, `"Would book again"`.
+     - Performer rating client: `"Clear brief & requirements"`, `"Prompt milestone release"`, `"Courteous & professional"`, `"Responsive communication"`, `"Great collaborator"`, `"Smooth experience"`.
+   - Optional note textarea for testimonials or custom feedback.
+   - Submit action persists review to `localStorage` under `monologg_order_review_${orderId}_${role}` and appends client reviews to `monologg_performer_reviews`.
+   - Injects verification message into order chat thread and displays the recorded review summary with an "Edit Review" toggle.
+
+5. **Client Ratings & Reviews Modal with Direct Project Links (`TalentDashboard.tsx`):**
+   - Made the "Average rating" analytics card interactive; clicking it opens the Client Ratings & Reviews modal (`showReviewsModal`).
+   - Displays performer reputation score (`4.9★`, `100% Recommended`), client reviews list, star breakdown, prefilled tags, and testimonial notes.
+   - Each review item includes an associated project label and a clickable `View Order Room →` link that navigates to `/order/${rev.orderId}`.
+
+6. **Standalone HTML Distribution Rebuilt (`monologg-app.html`):**
+   - Rebuilt standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.37MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

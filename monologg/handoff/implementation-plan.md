@@ -1,11 +1,32 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul + Session 98 Withdrawal Flow UX Streamlining & Monologg Watermarked Receipt.
+**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul + Session 98 Withdrawal Flow UX Streamlining + Session 99 Bank Input Subscript Polish, Receipt Watermark, 4 Analytics Cards & 2-Gig Chart, and Reciprocal Order Rating System.
 
 ---
 
 ## ✅ Done
+
+### Session 99 — Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System
+- [x] **Destination Bank Input Subscript Polish**:
+  - Replaced custom accordion card with native `<select>` dropdown listing added accounts (`ADDED_BANK_ACCOUNTS`).
+  - Added clean subscript text only: green checkmark (`CheckCircle2`), masked account number (`•••• {last4}`), and account holder name.
+- [x] **Payout Receipt Modal Restored with 3–5% Watermark**:
+  - Restored initial clean receipt modal layout (green checkmark, amount card, table breakdown).
+  - Centered Monologg logo watermark (`LogoMark`) at 3.5% opacity (`opacity-[0.035] print:opacity-[0.04]`).
+- [x] **Analytics Tab 4 Cards & 2-Gig Breakdown**:
+  - Four top cards strictly configured: `Profile view`, `Project completed`, `Average rating`, `Total earnings`.
+  - Earnings by Category chart updated to show only the 2 available rate cards/gigs with progress bars.
+  - Fixed Monthly Booking Growth chart bar heights with explicit flex constraints.
+- [x] **Reciprocal Rating System for Completed Orders**:
+  - Built interactive 1–5 star rating in `OrderRoom.tsx` for `phase === "complete"`.
+  - Added prefilled description chips (`CLIENT_RATING_TAGS` / `TALENT_RATING_TAGS`) and optional note textarea.
+  - Stored reviews in `localStorage` under `monologg_order_review_${orderId}_${role}` and synced client reviews to `monologg_performer_reviews`.
+- [x] **Client Ratings & Reviews Modal with Direct Project Navigation**:
+  - Made "Average rating" analytics card clickable to open the Client Ratings & Reviews modal.
+  - Displayed ratings, tags, notes, and direct `View Order Room →` links navigating to `/order/:id`.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt `monologg/monologg-app.html` (1.37MB).
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 98 — Withdrawal Flow Polish: "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt
 - [x] **Withdraw Funds Modal & Added Accounts Selector**:

@@ -35,6 +35,60 @@ export const ADDED_BANK_ACCOUNTS = [
   { bankName: "Zenith Bank Plc", accountNumber: "5544332211", accountName: "EMEKA JOHNSON" },
 ];
 
+export interface ClientReviewItem {
+  id: string;
+  clientName: string;
+  projectName: string;
+  orderId: string;
+  stars: number;
+  tag: string;
+  note: string;
+  date: string;
+}
+
+export const DEFAULT_CLIENT_REVIEWS: ClientReviewItem[] = [
+  {
+    id: "rev-1",
+    clientName: "FilmCraft Lagos",
+    projectName: "Nollywood Drama Lead Monologue",
+    orderId: "ORD-001",
+    stars: 5,
+    tag: "Exceptional delivery",
+    note: "Emeka delivered an extraordinary, authentic performance. The dramatic timing and vocal delivery were pitch-perfect. Highly recommended!",
+    date: "Oct 8, 2026",
+  },
+  {
+    id: "rev-2",
+    clientName: "Zenith Media Brands",
+    projectName: "Fintech Commercial Voice-Over",
+    orderId: "ORD-002",
+    stars: 5,
+    tag: "Fast turnaround",
+    note: "Received clean studio-grade master files in under 24 hours. Flawless audio fidelity and followed the brief to the letter.",
+    date: "Sep 28, 2026",
+  },
+  {
+    id: "rev-3",
+    clientName: "Pulse Africa Studios",
+    projectName: "Brand Campaign Monologue & VO",
+    orderId: "ORD-003",
+    stars: 5,
+    tag: "Creative & professional",
+    note: "Remarkable depth and vocal range. A true professional who took minimal direction to hit the exact emotional tone we needed.",
+    date: "Sep 15, 2026",
+  },
+  {
+    id: "rev-4",
+    clientName: "EventPro Abuja",
+    projectName: "Live Stage Hosting & Monologue",
+    orderId: "ORD-004",
+    stars: 4.8,
+    tag: "Great collaborator",
+    note: "Commanded the room with immense charisma. On-time arrival and kept the audience fully engaged throughout the night.",
+    date: "Aug 30, 2026",
+  },
+];
+
 const RECUR_RULE_OPTIONS = [
   { value: "WEEKDAYS", label: "Every weekday (Mon–Fri)" },
   { value: "WEEKLY:MON", label: "Every Monday" },
@@ -292,6 +346,26 @@ export function TalentDashboard() {
     { id: "p3", from: "Brand Agency NG", service: "Compere Booking", amount: "₦45,000", numericAmount: 45000, date: "Dec 6, 2024", time: "16:45", status: "Pending", ref: "PAY-2024-65129", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
   ]);
   const [selectedPayout, setSelectedPayout] = useState<typeof payouts[0] | null>(null);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+
+  const allClientReviews = React.useMemo(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("monologg_performer_reviews") || "[]");
+      const mapped = stored.map((s: any, idx: number) => ({
+        id: `stored-${idx}`,
+        clientName: s.clientName || "Verified Client",
+        projectName: s.projectTitle || "Nollywood Drama Lead Monologue",
+        orderId: s.orderId || "ORD-001",
+        stars: s.stars || 5,
+        tag: s.tag || "Exceptional delivery",
+        note: s.note || "",
+        date: s.createdAt || "Just now",
+      }));
+      return [...mapped, ...DEFAULT_CLIENT_REVIEWS];
+    } catch {
+      return DEFAULT_CLIENT_REVIEWS;
+    }
+  }, [showReviewsModal]);
 
   const [stats, setStats] = useState<StatMetric[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
@@ -3850,85 +3924,141 @@ export function TalentDashboard() {
                   <>
                     {/* Metric Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile Views</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Booking Conversion</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>8.4%</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>12 bookings from 142 clicks</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Average Rating</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>4.9 ★</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>Based on 24 client reviews</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Avg Response Time</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>15 mins</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>Fast responder badge</div>
-                  </div>
-                </div>
+                      {/* Card 1: Profile view */}
+                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile view</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
+                      </div>
 
-                {/* Detailed Analytics Charts & Breakdown */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Niche & Rate Card Revenue Breakdown */}
-                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Revenue by Service Niche</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Voice-Over &amp; Commercial Ads</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>65% (₦292,500)</span>
+                      {/* Card 2: Project completed */}
+                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Project completed</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>28</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
+                      </div>
+
+                      {/* Card 3: Average rating (Clickable) */}
+                      <div
+                        onClick={() => setShowReviewsModal(true)}
+                        role="button"
+                        tabIndex={0}
+                        className="p-4 rounded-[var(--radius-xl)] cursor-pointer transition-all hover:scale-[1.01] hover:border-[var(--color-accent)] group"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs font-body font-medium uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
+                          <span className="text-[10px] font-medium text-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-opacity">Reviews →</span>
                         </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "65%", background: "var(--color-accent)" }} />
+                        <div className="font-display text-2xl font-bold tnum flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
+                          <span>4.9</span>
+                          <span className="text-amber-500 text-xl">★</span>
+                        </div>
+                        <div className="text-xs font-body mt-1 group-hover:text-[var(--color-accent)] transition-colors" style={{ color: "var(--color-text-tertiary)" }}>
+                          Based on {allClientReviews.length} client reviews
                         </div>
                       </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Dramatic Screen &amp; Stage</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>25% (₦112,500)</span>
+
+                      {/* Card 4: Total earnings */}
+                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦1,240,000</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Analytics Charts & Breakdown */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Earning by Category (Showing only the 2 gigs/rate cards available) */}
+                      <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>Earnings by Category</h3>
+                            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Revenue across your 2 available rate cards</p>
+                          </div>
+                          <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700">2 Gigs Active</span>
                         </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "25%", background: "var(--color-accent)" }} />
+
+                        {/* Visual graph / horizontal distribution bar */}
+                        <div className="mb-4">
+                          <div className="w-full h-3 rounded-full overflow-hidden flex bg-zinc-100">
+                            <div className="h-full bg-red-600 transition-all" style={{ width: "68%" }} title={`${effectiveServices[0]?.title || "Feature Film Audition"}: 68%`} />
+                            <div className="h-full bg-amber-500 transition-all" style={{ width: "32%" }} title={`${effectiveServices[1]?.title || "Commercial Voice-Over"}: 32%`} />
+                          </div>
+                          <div className="flex justify-between items-center text-[11px] font-body mt-1.5 text-zinc-400">
+                            <span>Total Earnings: ₦1,240,000</span>
+                            <span>100%</span>
+                          </div>
+                        </div>
+
+                        {/* Only 2 Gigs/Rate Cards available */}
+                        <div className="space-y-4 pt-1">
+                          {/* Gig 1 */}
+                          <div>
+                            <div className="flex justify-between text-xs font-body mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
+                                <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                  {effectiveServices[0]?.title || "Feature Film Audition"}
+                                </span>
+                              </div>
+                              <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>68% (₦843,200)</span>
+                            </div>
+                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                              <div className="h-full rounded-full bg-red-600" style={{ width: "68%" }} />
+                            </div>
+                          </div>
+
+                          {/* Gig 2 */}
+                          <div>
+                            <div className="flex justify-between text-xs font-body mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                                <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                  {effectiveServices[1]?.title || "Commercial Voice-Over"}
+                                </span>
+                              </div>
+                              <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>32% (₦396,800)</span>
+                            </div>
+                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
+                              <div className="h-full rounded-full bg-amber-500" style={{ width: "32%" }} />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Live Host &amp; Compere</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>10% (₦45,000)</span>
+
+                      {/* Monthly Growth Velocity Chart */}
+                      <div className="p-5 rounded-[var(--radius-xl)] flex flex-col justify-between" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>Monthly Booking Growth</h3>
+                          <div className="flex items-center gap-3 text-[11px] font-body text-zinc-400">
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-600" /> {effectiveServices[0]?.title?.split(" ")[0] || "Film"}</span>
+                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> {effectiveServices[1]?.title?.split(" ")[0] || "Voice"}</span>
+                          </div>
                         </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "10%", background: "var(--color-accent)" }} />
+
+                        {/* Definite Rendered Bar Chart Area */}
+                        <div className="h-40 flex items-end justify-between gap-3 pt-4 pb-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                          {[
+                            { month: "Mar", hMain: 36, hSub: 18, amount: "₦180k" },
+                            { month: "Apr", hMain: 52, hSub: 26, amount: "₦250k" },
+                            { month: "May", hMain: 68, hSub: 34, amount: "₦320k" },
+                            { month: "Jun", hMain: 60, hSub: 30, amount: "₦290k" },
+                            { month: "Jul", hMain: 84, hSub: 42, amount: "₦410k" },
+                            { month: "Aug", hMain: 100, hSub: 48, amount: "₦450k" },
+                          ].map((bar) => (
+                            <div key={bar.month} className="flex-1 h-full flex flex-col justify-end items-center gap-1 group">
+                              <span className="text-[10px] font-mono text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{bar.amount}</span>
+                              <div className="w-full flex items-end justify-center gap-1">
+                                <div className="w-1/2 rounded-t-md bg-red-600 transition-all group-hover:brightness-110" style={{ height: `${bar.hMain}px` }} />
+                                <div className="w-1/2 rounded-t-md bg-amber-500 transition-all group-hover:brightness-110" style={{ height: `${bar.hSub}px` }} />
+                              </div>
+                              <span className="text-xs font-body text-zinc-400 mt-1">{bar.month}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Monthly Growth Velocity */}
-                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Monthly Booking Growth</h3>
-                    <div className="flex items-end justify-between h-36 gap-3 pt-4 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      {[
-                        { month: "Mar", height: "40%", amount: "₦180k" },
-                        { month: "Apr", height: "55%", amount: "₦250k" },
-                        { month: "May", height: "70%", amount: "₦320k" },
-                        { month: "Jun", height: "60%", amount: "₦290k" },
-                        { month: "Jul", height: "85%", amount: "₦410k" },
-                        { month: "Aug", height: "100%", amount: "₦450k" },
-                      ].map((bar) => (
-                        <div key={bar.month} className="flex-1 flex flex-col items-center gap-1 group">
-                          <span className="text-[10px] font-mono opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--color-text-secondary)" }}>{bar.amount}</span>
-                          <div className="w-full rounded-t-md transition-all group-hover:brightness-110" style={{ height: bar.height, background: "var(--color-accent)" }} />
-                          <span className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{bar.month}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
                 </>
                 )}
               </motion.div>
@@ -4001,81 +4131,46 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      {/* Input 2: Destination Bank Account Selector (Select from added accounts) */}
-                      <div className="mb-6 relative">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-xs font-medium uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
-                            Destination Bank Account
-                          </label>
-                          <span className="text-[11px] font-medium text-zinc-400">
-                            Select from added accounts
-                          </span>
-                        </div>
-
-                        {/* Selected Account Input Trigger: Bank name primary, subtext with account details & number, plus check */}
-                        <button
-                          type="button"
-                          onClick={() => setShowAccountPicker(prev => !prev)}
-                          className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between cursor-pointer transition-all ${
-                            showAccountPicker
-                              ? "bg-white border-red-500 ring-2 ring-red-100 shadow-sm"
-                              : "bg-zinc-50 hover:bg-zinc-100/80 border-zinc-200 shadow-2xs"
-                          }`}
+                      {/* Input 2: Destination Bank Account Selector */}
+                      <div className="mb-6">
+                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          Destination Bank Account
+                        </label>
+                        <select
+                          value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}
+                          onChange={(e) => {
+                            const [bName, aNum] = e.target.value.split("|");
+                            const matched = ADDED_BANK_ACCOUNTS.find(a => a.bankName === bName && a.accountNumber === aNum);
+                            if (matched) {
+                              appStateSync.updateBankDetails(matched);
+                            } else {
+                              appStateSync.updateBankDetails({
+                                bankName: bName || "GTBank (Guaranty Trust Bank)",
+                                accountNumber: aNum || "0123456789",
+                                accountName: appStateSync.getBankDetails().accountName,
+                              });
+                            }
+                          }}
+                          className="w-full h-11 px-3.5 rounded-xl border font-body text-sm cursor-pointer focus:outline-none transition-all"
+                          style={{
+                            background: "var(--color-bg-surface-2, #fafafa)",
+                            borderColor: "var(--color-border-default, #e4e4e7)",
+                            color: "var(--color-text-primary, #18181b)",
+                          }}
                         >
-                          <div className="min-w-0 pr-2">
-                            <div className="text-sm font-semibold text-zinc-900 font-body truncate">
-                              {appStateSync.getBankDetails().bankName}
-                            </div>
-                            <div className="text-xs text-zinc-500 font-mono mt-0.5 truncate">
-                              •••• {appStateSync.getBankDetails().accountNumber.slice(-4)} · {appStateSync.getBankDetails().accountName}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                            <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${showAccountPicker ? "rotate-180 text-red-500" : ""}`} />
-                          </div>
-                        </button>
-
-                        {/* Dropdown list of added accounts */}
-                        {showAccountPicker && (
-                          <div className="mt-2 space-y-1.5 p-2 rounded-xl bg-white border border-zinc-200 shadow-lg max-h-56 overflow-y-auto">
-                            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-                              Added Accounts
-                            </div>
-                            {ADDED_BANK_ACCOUNTS.map((acc, idx) => {
-                              const isSelected =
-                                appStateSync.getBankDetails().bankName === acc.bankName &&
-                                appStateSync.getBankDetails().accountNumber === acc.accountNumber;
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  onClick={() => {
-                                    appStateSync.updateBankDetails(acc);
-                                    setShowAccountPicker(false);
-                                  }}
-                                  className={`w-full p-2.5 rounded-lg text-left flex items-center justify-between transition-all ${
-                                    isSelected
-                                      ? "bg-red-50/70 border border-red-200"
-                                      : "hover:bg-zinc-50 border border-transparent"
-                                  }`}
-                                >
-                                  <div className="min-w-0 pr-2">
-                                    <div className="text-xs font-semibold text-zinc-900 font-body truncate">{acc.bankName}</div>
-                                    <div className="text-[11px] text-zinc-500 font-mono mt-0.5 truncate">
-                                      •••• {acc.accountNumber.slice(-4)} · {acc.accountName}
-                                    </div>
-                                  </div>
-                                  {isSelected ? (
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                                  ) : (
-                                    <span className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600">Select</span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
+                          {ADDED_BANK_ACCOUNTS.map((acc, idx) => (
+                            <option key={idx} value={`${acc.bankName}|${acc.accountNumber}`}>
+                              {acc.bankName}
+                            </option>
+                          ))}
+                        </select>
+                        {/* Subscript text only showing account name and account no */}
+                        <div className="mt-1.5 px-0.5 flex items-center gap-1.5 text-xs text-zinc-500 font-body">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="font-mono text-zinc-600">•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}</span>
+                          <span>·</span>
+                          <span className="font-medium text-zinc-700">{appStateSync.getBankDetails().accountName}</span>
+                        </div>
                       </div>
 
                       <Button
@@ -4195,34 +4290,29 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Payout Receipt Modal with Monologg Branding & Watermark */}
+          {/* Payout Receipt Modal */}
           <AnimatePresence>
             {selectedPayout && (
               <Modal onClose={() => setSelectedPayout(null)}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-md rounded-2xl p-6 relative overflow-hidden bg-white border border-zinc-200 shadow-xl"
+                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6 relative overflow-hidden bg-white"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
                   onClick={e => e.stopPropagation()}
                 >
-                  {/* Subtle Monologg Watermark Background */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none text-zinc-900 print:opacity-15">
+                  {/* Subtle Monologg watermark at 3-5% opacity */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] pointer-events-none select-none text-zinc-900 print:opacity-[0.04]">
                     <LogoMark className="w-64 h-64" />
                   </div>
 
-                  {/* Header with Monologg branding */}
-                  <div className="flex items-center justify-between mb-4 border-b pb-3 border-zinc-100 relative z-10">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-2xs">
-                        <LogoMark className="w-5 h-5 text-red-500" />
+                  <div className="flex items-center justify-between mb-4 border-b pb-3 relative z-10" style={{ borderColor: "var(--color-border-default)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-success-bg)" }}>
+                        <CheckCircle2 className="w-5 h-5" style={{ color: "var(--color-success)" }} />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-display text-sm font-bold tracking-tight text-zinc-900">MONOLOGG</span>
-                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold bg-zinc-100 text-zinc-600">
-                            Payout Receipt
-                          </span>
-                        </div>
-                        <div className="text-xs font-mono text-zinc-400 mt-0.5">{selectedPayout.ref}</div>
+                        <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Payout Receipt</h3>
+                        <p className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{selectedPayout.ref}</p>
                       </div>
                     </div>
                     <button
@@ -4233,58 +4323,155 @@ export function TalentDashboard() {
                     </button>
                   </div>
 
-                  {/* Hero Transferred Amount Card with Inner Watermark */}
-                  <div className="relative overflow-hidden text-center py-5 mb-4 rounded-2xl bg-zinc-50 border border-zinc-200 shadow-2xs z-10">
-                    <div className="absolute right-2 -bottom-3 w-28 h-28 opacity-[0.05] pointer-events-none text-red-600">
-                      <LogoMark className="w-full h-full" />
-                    </div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Transferred Amount</div>
-                    <div className="font-display text-3xl font-bold font-mono text-red-600 tracking-tight">{selectedPayout.amount}</div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{selectedPayout.status}</span>
-                    </div>
+                  <div className="text-center py-4 mb-4 rounded-xl relative z-10" style={{ background: "var(--color-bg-elevated)" }}>
+                    <div className="text-xs font-body font-medium" style={{ color: "var(--color-text-tertiary)" }}>Transferred Amount</div>
+                    <div className="font-display text-2xl font-bold font-mono" style={{ color: "var(--color-accent)" }}>{selectedPayout.amount}</div>
+                    <Badge tone="success" size="sm" className="mt-1">{selectedPayout.status}</Badge>
                   </div>
 
-                  {/* Details Breakdown */}
-                  <div className="space-y-3 mb-5 text-xs font-body relative z-10">
-                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
-                      <span className="text-zinc-400">Source / Client</span>
-                      <span className="font-semibold text-zinc-900">{selectedPayout.from}</span>
+                  <div className="space-y-3 mb-6 text-xs font-body relative z-10">
+                    <div className="flex justify-between py-1.5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Source / Client</span>
+                      <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.from}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
-                      <span className="text-zinc-400">Service Description</span>
-                      <span className="font-medium text-zinc-700">{selectedPayout.service}</span>
+                    <div className="flex justify-between py-1.5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Service Description</span>
+                      <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.service}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
-                      <span className="text-zinc-400">Destination Account</span>
-                      <span className="font-mono font-medium text-zinc-900">{selectedPayout.bankAccount}</span>
+                    <div className="flex justify-between py-1.5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Destination Account</span>
+                      <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.bankAccount}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
-                      <span className="text-zinc-400">Date & Time</span>
-                      <span className="text-zinc-600">{selectedPayout.date} · {selectedPayout.time}</span>
+                    <div className="flex justify-between py-1.5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Date &amp; Time</span>
+                      <span style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.date} · {selectedPayout.time}</span>
                     </div>
                     <div className="flex justify-between py-1.5">
-                      <span className="text-zinc-400">Platform Transfer Fee</span>
-                      <span className="font-mono font-medium text-emerald-600">₦0 (Free)</span>
+                      <span style={{ color: "var(--color-text-tertiary)" }}>Platform Transfer Fee</span>
+                      <span className="font-mono font-medium" style={{ color: "var(--color-success)" }}>₦0 (Free)</span>
                     </div>
                   </div>
 
-                  {/* Official Protocol Stamp */}
-                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/70 mb-5 flex items-center justify-between text-[11px] text-zinc-500 relative z-10">
-                    <div className="flex items-center gap-1.5 font-medium">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span>Monologg Escrow Protocol Guarantee</span>
-                    </div>
-                    <span className="font-mono text-[10px] text-zinc-400">#ESC-9082 · Verified</span>
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="flex gap-2.5 relative z-10">
-                    <Button variant="secondary" className="flex-1 h-10 text-xs font-semibold" onClick={() => window.print()}>
+                  <div className="flex gap-2 relative z-10">
+                    <Button variant="secondary" className="flex-1 text-xs" onClick={() => window.print()}>
                       Save / Print Receipt
                     </Button>
-                    <Button className="flex-1 h-10 text-xs font-semibold" onClick={() => setSelectedPayout(null)}>
+                    <Button className="flex-1 text-xs" onClick={() => setSelectedPayout(null)}>
+                      Close
+                    </Button>
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
+          {/* Client Reviews & Ratings Modal */}
+          <AnimatePresence>
+            {showReviewsModal && (
+              <Modal onClose={() => setShowReviewsModal(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-xl rounded-2xl p-6 relative max-h-[85vh] flex flex-col bg-white border border-zinc-200 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-100 shrink-0">
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-zinc-900 flex items-center gap-2">
+                        <span>Client Ratings &amp; Reviews</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Verified
+                        </span>
+                      </h3>
+                      <p className="text-xs text-zinc-500 font-body mt-0.5">
+                        Authentic feedback from casting directors &amp; production studios
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowReviewsModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Summary Rating Banner */}
+                  <div className="my-4 p-4 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 text-xl font-bold font-mono">
+                        4.9★
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-zinc-900">Performer Reputation Score</div>
+                        <div className="text-xs text-zinc-500">Based on {allClientReviews.length} client reviews across completed orders</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-semibold text-emerald-700">100% Recommended</div>
+                      <div className="text-[11px] text-zinc-400">Zero disputes filed</div>
+                    </div>
+                  </div>
+
+                  {/* Scrollable Reviews List */}
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+                    {allClientReviews.map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="p-4 rounded-xl border border-zinc-100 bg-white hover:border-zinc-200 transition-all space-y-2 shadow-2xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="text-sm font-semibold text-zinc-900 font-body">{rev.clientName}</div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <div className="flex items-center text-amber-400 text-xs">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <span key={i} className={i < Math.floor(rev.stars) ? "text-amber-400" : "text-zinc-200"}>★</span>
+                                ))}
+                              </div>
+                              <span className="text-xs font-mono font-medium text-zinc-700">{rev.stars}</span>
+                              <span className="text-zinc-300">·</span>
+                              <span className="text-xs text-zinc-400">{rev.date}</span>
+                            </div>
+                          </div>
+                          {rev.tag && (
+                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0">
+                              {rev.tag}
+                            </span>
+                          )}
+                        </div>
+
+                        {rev.note && (
+                          <p className="text-xs text-zinc-600 font-body leading-relaxed bg-zinc-50/60 p-2.5 rounded-lg border border-zinc-100">
+                            &ldquo;{rev.note}&rdquo;
+                          </p>
+                        )}
+
+                        {/* Associated Project with direct link button */}
+                        <div className="pt-1 flex items-center justify-between text-xs border-t border-zinc-100">
+                          <span className="text-zinc-500 font-medium truncate max-w-[260px]">
+                            Project: <strong className="text-zinc-800">{rev.projectName}</strong>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowReviewsModal(false);
+                              navigate(`/order/${rev.orderId}`);
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 hover:underline shrink-0"
+                          >
+                            <span>View Order Room</span>
+                            <span>→</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="pt-3 mt-3 border-t border-zinc-100 flex justify-end shrink-0">
+                    <Button variant="secondary" className="h-9 text-xs" onClick={() => setShowReviewsModal(false)}>
                       Close
                     </Button>
                   </div>

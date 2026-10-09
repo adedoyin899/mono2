@@ -24,3 +24,4 @@ monologg/**/.env.*
 .vercel
 .env*
 .gstack/
+node_modules/
