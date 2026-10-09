@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
+**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 46. Redundant dual bank select layout, awkward stretched passcode placeholder, and unbranded receipt
+- **Severity:** Low / UX Flow & Brand Polish
+- **What happened:** In `TalentDashboard.tsx`, the withdrawal authorization modal presented a redundant dual layout: an unstyled `<select>` dropdown stacked right above a standalone destination account card. On the passcode step, a redundant shield icon and "Authorize Payout" sub-header were shown, and the placeholder `"Enter 4-digit PIN"` was stretched across wide tracking (`tracking-[0.4em]`), creating an awkward visual bug (`E n t e r   4 - d i g i t`). Furthermore, the generated Payout Receipt lacked Monologg brand identity and watermark when saved or printed.
+- **Root Cause:** Legacy MVP modal components combined `<select>` elements with display preview cards without consolidating them into an interactive selector; the text placeholder was styled with numeric tracking; receipt modal omitted brand mark and watermark tokens.
+- **Resolution:** Re-titled modal to "Withdraw Funds" and unified destination account selection into an interactive card displaying the bank name as primary, subtext with masked account number & account name, and a green verification checkmark with an expandable added accounts dropdown. Standardized PIN input to standard conventions (`h-12`, `font-mono text-xl tracking-[0.4em]`, `placeholder="••••"`), titled "Enter your passcode" with "Withdraw Funds" CTA. Overhauled Payout Receipt with Monologg header brand mark, centered subtle logo watermark (`LogoMark`), and escrow protocol verification stamp with print contrast.
+
+---
 
 ### 45. Inappropriate "Request Revision" action on concluded onsite gigs and cluttered jagged header title
 - **Severity:** Low / UX Logic & Visual Polish

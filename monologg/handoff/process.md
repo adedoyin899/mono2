@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
+**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -362,6 +362,14 @@ Refined client review ergonomics and navbar visual calm in the Order Room:
   - Styled Confirm button in the Release Payment modal with solid brand purple.
 - **Clean Minimal Header Title:** Removed the crowded stacked pills (`[ORD-001]`, `[Phase 3: Review]`, `· 🔒 ₦120,000 in escrow · 📍 Onsite`) from the navbar, replacing with a clean 2-line title and counterparty subtitle. Full project metadata remains accessible via the adjacent `Order Info` button.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined updated assets into `monologg/monologg-app.html`.
+
+### Step 59: Withdrawal Flow UX Streamlining & Monologg Branded Watermark Receipt (Session 98)
+
+Overhauled the performer withdrawal experience in `TalentDashboard.tsx`:
+- **"Withdraw Funds" Modal & Unified Account Selector:** Re-titled modal from "Withdrawal Authorization" to "Withdraw Funds". Eliminated the redundant dual dropdown and preview box by introducing an interactive account selector card that displays the bank name as primary, subtext with masked account number & name, and a green verification checkmark. Tapping it expands an added accounts list (`ADDED_BANK_ACCOUNTS`) to pick between Access Bank, GTBank, and Zenith Bank with instant store sync.
+- **Standardized Passcode Convention & Clean Copy:** Set step 2 title to "Enter your passcode", removed the shield icon and redundant "Authorize Payout" header, and updated copy to `"Enter your 4-digit passcode to withdraw ₦{withdrawAmount} to {bankName}."`. Formatted the 4-digit input to standard fintech conventions (`h-12`, `••••`, `font-mono tracking-[0.4em]`) and updated CTA to "Withdraw Funds".
+- **Monologg Branded Payout Receipt:** Upgraded receipt dialog with Monologg header brand mark (`LogoMark`), wordmark, and official receipt badge. Added a subtle centered Monologg logo watermark (`opacity-[0.03]`, scaling to `print:opacity-15` during print/download), an inner watermark in the amount card, and an official Escrow Protocol Guarantee stamp.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined fresh bundle into `monologg/monologg-app.html` (1.35MB).
 
 ---
 

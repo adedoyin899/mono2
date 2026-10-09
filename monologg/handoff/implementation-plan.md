@@ -1,11 +1,32 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul.
+**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul + Session 98 Withdrawal Flow UX Streamlining & Monologg Watermarked Receipt.
 
 ---
 
 ## ✅ Done
+
+### Session 98 — Withdrawal Flow Polish: "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt
+- [x] **Withdraw Funds Modal & Added Accounts Selector**:
+  - Set Step 1 modal title to `"Withdraw Funds"`.
+  - Replaced redundant dual `<select>` and static preview card with a unified destination bank account selector.
+  - Selected account input card displays bank name as primary, subtext with masked account number & name, and green checkmark.
+  - Clicking selector expands dropdown list to pick from added accounts (`Access Bank Plc`, `GTBank`, `Zenith Bank Plc`) with instant state synchronization.
+- [x] **Standardized 4-Digit Passcode Input & Clean Copy**:
+  - Modal title set to `"Enter your passcode"`.
+  - Removed shield icon and `"Authorize Payout"` header.
+  - Cleaned copy: `"Enter your 4-digit passcode to withdraw ₦{withdrawAmount} to {bankName}."`
+  - Applied standard PIN input convention: `h-12`, `font-mono text-xl tracking-[0.4em]`, `placeholder="••••"`, centered text, `maxLength={4}`, `inputMode="numeric"`.
+  - Primary CTA set to `"Withdraw Funds"`.
+  - Direct transition to receipt modal upon passcode entry without browser alerts.
+- [x] **Monologg Branded Receipt with Watermark**:
+  - Official header with Monologg brand mark (`LogoMark`), `"MONOLOGG"` wordmark, `"Official Receipt"` badge, and reference code.
+  - Centered subtle Monologg logo watermark (`LogoMark`) behind receipt body and amount card with high-contrast print support (`print:opacity-15`).
+  - Added official Monologg Escrow Protocol Guarantee verification stamp.
+  - Save / Print receipt action via `window.print()`.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt `monologg/monologg-app.html` (1.35MB) with freshly inlined bundle.
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 97 — Order Room UX Polish: Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title
 - [x] **Conditional Revision Gate**: Gated "Request Revision" so it only renders for digital file submissions (`!isOnsite`) and is hidden for verified live onsite appearances (`isOnsite`).

@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
+**Last updated:** 2026-10-09 (Session 98: Withdrawal Flow Polish — "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 98 (2026-10-09) — Withdrawal Flow Polish: "Withdraw Funds" Modal, Added Accounts Selector, Standard Passcode Convention, and Monologg Watermarked Receipt
+
+**Goal:** Streamline the withdrawal and payout experience in `TalentDashboard.tsx`:
+1. Change modal title to "Withdraw Funds" and replace the redundant dual bank selector layout with an intuitive, unified destination account selector that displays the bank name as primary, subtext with masked account number & holder name, and a green checkmark, while allowing selection from added accounts (`Access Bank Plc`, `GTBank`, `Zenith Bank Plc`).
+2. Standardize the 4-digit security passcode step: title `"Enter your passcode"`, remove shield icon and `"Authorize Payout"` heading, clean copy to match (`"Enter your 4-digit passcode to withdraw ₦{withdrawAmount} to {bankName}."`), apply standard input sizing (`h-12`) with `••••` placeholder and centered tracking, and set primary CTA to `"Withdraw Funds"`.
+3. Add prominent Monologg branding to the Payout Receipt modal so downloads and prints feature official Monologg identity, including an official receipt header badge, centered subtle Monologg logo watermark (`LogoMark`), inner amount card watermark, and Escrow Protocol Guarantee stamp.
+
+### Changes Made
+
+1. **Withdraw Funds Modal & Added Accounts Selector (`TalentDashboard.tsx`):**
+   - Modal title updated to `"Withdraw Funds"` (Step 1).
+   - Replaced redundant dual `<select>` and standalone preview box with an interactive account selector card. The active account card displays the bank name (`font-semibold text-zinc-900`), subtext with account details (`•••• {last4} · {accountName}`), and a green verification checkmark (`CheckCircle2 text-emerald-600`) plus dropdown chevron.
+   - Clicking the selector toggles a clean dropdown of added accounts (`ADDED_BANK_ACCOUNTS`), allowing one-click selection that immediately synchronizes state via `appStateSync.updateBankDetails(acc)`.
+
+2. **Standardized 4-Digit Passcode Input & Clean Copy (`TalentDashboard.tsx`):**
+   - Step 2 modal title updated to `"Enter your passcode"`.
+   - Removed the shield icon and the redundant `"Authorize Payout"` heading.
+   - Cleaned explanatory copy: `"Enter your 4-digit passcode to withdraw ₦{withdrawAmount} to {bankName}."`
+   - Replaced awkward wide-spaced text with standard fintech PIN convention: `h-12`, `font-mono text-xl tracking-[0.4em]`, `placeholder="••••"`, centered text, `maxLength={4}`, and `inputMode="numeric"`.
+   - Primary CTA renamed to `"Withdraw Funds"`.
+   - On passcode completion, directly loads the newly created receipt modal without jarring browser alerts.
+
+3. **Monologg Branded Receipt with Watermark (`TalentDashboard.tsx`):**
+   - Header updated with Monologg brand mark container (`LogoMark`), bold `"MONOLOGG"` wordmark, `"Official Receipt"` badge, and reference code.
+   - Integrated a centered subtle Monologg logo watermark (`opacity-[0.03]`, increasing to `print:opacity-15` on print/download) behind the receipt modal body.
+   - Added a secondary subtle watermark inside the hero Transferred Amount card.
+   - Added official `Monologg Escrow Protocol Guarantee` verification seal at the bottom with `#ESC-9082 · Verified`.
+   - Supported direct print/save via `window.print()` with print-friendly contrast.
+
+4. **Standalone Distribution Rebuilt (`monologg-app.html`):**
+   - Built standalone Vite bundle (`build:standalone`) and inlined freshly compiled CSS and JavaScript directly into `monologg/monologg-app.html` (1.35MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

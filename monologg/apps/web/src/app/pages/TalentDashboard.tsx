@@ -16,7 +16,7 @@ import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Proj
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight, ChevronLeft, ArrowLeft, Clock, MapPin, Info,
-  MessageSquare, DollarSign, CheckCircle2, X, ExternalLink,
+  MessageSquare, DollarSign, CheckCircle2, X, ExternalLink, ChevronDown,
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic
@@ -28,6 +28,12 @@ import { LogoMark } from "../components/ui/Logo";
 type Tab = "home" | "storefront" | "rates" | "calendar" | "orders" | "earnings" | "projects" | "activity" | "analytics";
 
 const VIBE_TAGS = ["Dramatic", "Deep Texture", "British Accent", "Authoritative", "Warm"];
+
+export const ADDED_BANK_ACCOUNTS = [
+  { bankName: "Access Bank Plc", accountNumber: "9876543210", accountName: "EMEKA JOHNSON" },
+  { bankName: "GTBank (Guaranty Trust Bank)", accountNumber: "0123456789", accountName: "EMEKA JOHNSON" },
+  { bankName: "Zenith Bank Plc", accountNumber: "5544332211", accountName: "EMEKA JOHNSON" },
+];
 
 const RECUR_RULE_OPTIONS = [
   { value: "WEEKDAYS", label: "Every weekday (Mon–Fri)" },
@@ -318,7 +324,8 @@ export function TalentDashboard() {
   const [withdrawPasscodeError, setWithdrawPasscodeError] = useState<string | null>(null);
   const [rateCardCurrency, setRateCardCurrency] = useState("₦");
   // Phase 12C: Withdrawal OTP state
-  const [withdrawStep, setWithdrawStep] = useState<"input" | "otp">("input");
+  const [withdrawStep, setWithdrawStep] = useState<"input" | "passcode">("input");
+  const [showAccountPicker, setShowAccountPicker] = useState(false);
   const [activeWithdrawalRequestId, setActiveWithdrawalRequestId] = useState<string | null>(null);
   const [withdrawOtpCode, setWithdrawOtpCode] = useState("");
   const [withdrawOtpCooldown, setWithdrawOtpCooldown] = useState(0);
@@ -3934,6 +3941,7 @@ export function TalentDashboard() {
               <Modal onClose={() => {
                 setShowWithdraw(false);
                 setWithdrawStep("input");
+                setShowAccountPicker(false);
                 setActiveWithdrawalRequestId(null);
                 setWithdrawOtpCode("");
                 setWithdrawPasscodeError(null);
@@ -3946,12 +3954,13 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                      {withdrawStep === "input" ? "Withdrawal Authorization" : "Security Passcode Verification"}
+                      {withdrawStep === "input" ? "Withdraw Funds" : "Enter your passcode"}
                     </h3>
                     <button
                       onClick={() => {
                         setShowWithdraw(false);
                         setWithdrawStep("input");
+                        setShowAccountPicker(false);
                         setActiveWithdrawalRequestId(null);
                         setWithdrawOtpCode("");
                         setWithdrawPasscodeError(null);
@@ -3992,42 +4001,81 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      {/* Input 2: Destination Bank Account Selector */}
-                      <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>Destination Bank Account</label>
-                        <div className="space-y-2">
-                          <select
-                            value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}
-                            onChange={(e) => {
-                              const [bName, aNum] = e.target.value.split("|");
-                              appStateSync.updateBankDetails({
-                                bankName: bName || "GTBank (Guaranty Trust Bank)",
-                                accountNumber: aNum || "0123456789",
-                                accountName: appStateSync.getBankDetails().accountName,
-                              });
-                            }}
-                            className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base mb-2"
-                            style={{ background: "var(--color-bg-surface-2)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                          >
-                            <option value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}>
-                              {appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)} ({appStateSync.getBankDetails().accountName})
-                            </option>
-                            <option value="Access Bank Plc|9876543210">
-                              Access Bank Plc ···· 3210 (EMEKA JOHNSON)
-                            </option>
-                            <option value="Zenith Bank Plc|5544332211">
-                              Zenith Bank Plc ···· 2211 (EMEKA JOHNSON)
-                            </option>
-                          </select>
-
-                          <div className="p-3.5 rounded-[var(--radius-md)] flex items-center justify-between border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                            <div>
-                              <div className="text-sm font-semibold font-body">{appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}</div>
-                              <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{appStateSync.getBankDetails().accountName}</div>
-                            </div>
-                            <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: "var(--color-success)" }} />
-                          </div>
+                      {/* Input 2: Destination Bank Account Selector (Select from added accounts) */}
+                      <div className="mb-6 relative">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-medium uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Destination Bank Account
+                          </label>
+                          <span className="text-[11px] font-medium text-zinc-400">
+                            Select from added accounts
+                          </span>
                         </div>
+
+                        {/* Selected Account Input Trigger: Bank name primary, subtext with account details & number, plus check */}
+                        <button
+                          type="button"
+                          onClick={() => setShowAccountPicker(prev => !prev)}
+                          className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between cursor-pointer transition-all ${
+                            showAccountPicker
+                              ? "bg-white border-red-500 ring-2 ring-red-100 shadow-sm"
+                              : "bg-zinc-50 hover:bg-zinc-100/80 border-zinc-200 shadow-2xs"
+                          }`}
+                        >
+                          <div className="min-w-0 pr-2">
+                            <div className="text-sm font-semibold text-zinc-900 font-body truncate">
+                              {appStateSync.getBankDetails().bankName}
+                            </div>
+                            <div className="text-xs text-zinc-500 font-mono mt-0.5 truncate">
+                              •••• {appStateSync.getBankDetails().accountNumber.slice(-4)} · {appStateSync.getBankDetails().accountName}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                            <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${showAccountPicker ? "rotate-180 text-red-500" : ""}`} />
+                          </div>
+                        </button>
+
+                        {/* Dropdown list of added accounts */}
+                        {showAccountPicker && (
+                          <div className="mt-2 space-y-1.5 p-2 rounded-xl bg-white border border-zinc-200 shadow-lg max-h-56 overflow-y-auto">
+                            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                              Added Accounts
+                            </div>
+                            {ADDED_BANK_ACCOUNTS.map((acc, idx) => {
+                              const isSelected =
+                                appStateSync.getBankDetails().bankName === acc.bankName &&
+                                appStateSync.getBankDetails().accountNumber === acc.accountNumber;
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => {
+                                    appStateSync.updateBankDetails(acc);
+                                    setShowAccountPicker(false);
+                                  }}
+                                  className={`w-full p-2.5 rounded-lg text-left flex items-center justify-between transition-all ${
+                                    isSelected
+                                      ? "bg-red-50/70 border border-red-200"
+                                      : "hover:bg-zinc-50 border border-transparent"
+                                  }`}
+                                >
+                                  <div className="min-w-0 pr-2">
+                                    <div className="text-xs font-semibold text-zinc-900 font-body truncate">{acc.bankName}</div>
+                                    <div className="text-[11px] text-zinc-500 font-mono mt-0.5 truncate">
+                                      •••• {acc.accountNumber.slice(-4)} · {acc.accountName}
+                                    </div>
+                                  </div>
+                                  {isSelected ? (
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                                  ) : (
+                                    <span className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600">Select</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
 
                       <Button
@@ -4047,7 +4095,7 @@ export function TalentDashboard() {
                           }
 
                           setWithdrawPasscodeError(null);
-                          setWithdrawStep("passcode" as any);
+                          setWithdrawStep("passcode");
                         }}
                       >
                         Continue to Security Passcode
@@ -4055,28 +4103,26 @@ export function TalentDashboard() {
                     </>
                   ) : (
                     <>
-                      <div className="flex flex-col items-center text-center mb-5">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: "var(--color-accent-soft)" }}>
-                          <Shield className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
-                        </div>
-                        <h4 className="font-display text-base font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>Authorize Payout</h4>
-                        <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          Enter your 4-digit security passcode to transfer <strong>₦{withdrawAmount}</strong> to <strong>{appStateSync.getBankDetails().bankName}</strong>.
-                        </p>
-                      </div>
+                      {/* Clean copy without shield icon or "Authorize Payout" header */}
+                      <p className="text-xs text-zinc-500 mb-5 leading-relaxed text-center font-body">
+                        Enter your 4-digit passcode to withdraw <strong className="text-zinc-900">₦{withdrawAmount}</strong> to <strong className="text-zinc-900">{appStateSync.getBankDetails().bankName}</strong>.
+                      </p>
 
                       <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body text-center" style={{ color: "var(--color-text-secondary)" }}>4-Digit Security Passcode</label>
-                        <Input
+                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body text-center" style={{ color: "var(--color-text-secondary)" }}>
+                          4-Digit Security Passcode
+                        </label>
+                        <input
                           type="password"
+                          inputMode="numeric"
                           maxLength={4}
-                          placeholder="Enter 4-digit PIN (default 1234)"
+                          placeholder="••••"
                           value={withdrawPasscode}
                           onChange={(e) => {
                             setWithdrawPasscodeError(null);
                             setWithdrawPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
                           }}
-                          className="text-center tracking-[0.4em] text-2xl font-mono"
+                          className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-900 text-center font-mono font-bold text-xl tracking-[0.4em] focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
                           autoFocus
                         />
                         <div className="text-[11px] font-body mt-2 text-center text-[var(--color-text-tertiary)]">
@@ -4084,12 +4130,12 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
-                        <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => setWithdrawStep("input")}>
+                      <div className="flex gap-2.5">
+                        <Button variant="secondary" className="flex-1 h-11 text-xs font-semibold" onClick={() => setWithdrawStep("input")}>
                           Back
                         </Button>
                         <Button
-                          className="flex-[2] h-11 text-xs"
+                          className="flex-[2] h-11 text-sm font-semibold"
                           disabled={withdrawPasscode.length !== 4 || withdrawSubmitting}
                           onClick={() => {
                             const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
@@ -4130,15 +4176,16 @@ export function TalentDashboard() {
                               ...prev,
                             ]);
 
-                            alert(`Withdrawal Authorized & Funds Released! Transferred ₦${amt.toLocaleString()} to ${bank.bankName}.`);
+                            setSelectedPayout(newPayoutItem);
                             setShowWithdraw(false);
                             setWithdrawStep("input");
+                            setShowAccountPicker(false);
                             setWithdrawAmount("");
                             setWithdrawPasscode("");
                             setWithdrawSubmitting(false);
                           }}
                         >
-                          {withdrawSubmitting ? "Transferring…" : "Confirm & Release Funds"}
+                          {withdrawSubmitting ? "Withdrawing…" : "Withdraw Funds"}
                         </Button>
                       </div>
                     </>
@@ -4148,67 +4195,96 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Payout Receipt Modal */}
+          {/* Payout Receipt Modal with Monologg Branding & Watermark */}
           <AnimatePresence>
             {selectedPayout && (
               <Modal onClose={() => setSelectedPayout(null)}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
+                  className="w-full max-w-md rounded-2xl p-6 relative overflow-hidden bg-white border border-zinc-200 shadow-xl"
                   onClick={e => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between mb-4 border-b pb-3" style={{ borderColor: "var(--color-border-default)" }}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-success-bg)" }}>
-                        <CheckCircle2 className="w-5 h-5" style={{ color: "var(--color-success)" }} />
+                  {/* Subtle Monologg Watermark Background */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none text-zinc-900 print:opacity-15">
+                    <LogoMark className="w-64 h-64" />
+                  </div>
+
+                  {/* Header with Monologg branding */}
+                  <div className="flex items-center justify-between mb-4 border-b pb-3 border-zinc-100 relative z-10">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-zinc-900 flex items-center justify-center text-white shrink-0 shadow-2xs">
+                        <LogoMark className="w-5 h-5 text-red-500" />
                       </div>
                       <div>
-                        <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Payout Receipt</h3>
-                        <div className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{selectedPayout.ref}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-display text-sm font-bold tracking-tight text-zinc-900">MONOLOGG</span>
+                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold bg-zinc-100 text-zinc-600">
+                            Payout Receipt
+                          </span>
+                        </div>
+                        <div className="text-xs font-mono text-zinc-400 mt-0.5">{selectedPayout.ref}</div>
                       </div>
                     </div>
-                    <button onClick={() => setSelectedPayout(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                    <button
+                      onClick={() => setSelectedPayout(null)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                    >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="text-center py-4 mb-4 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
-                    <div className="text-xs font-body uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Transferred Amount</div>
-                    <div className="font-display text-3xl tnum font-semibold" style={{ color: "var(--color-accent)" }}>{selectedPayout.amount}</div>
-                    <Badge tone={selectedPayout.status === "Paid" ? "success" : "accent"} size="sm" className="mt-2">
-                      {selectedPayout.status}
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-3 mb-6 text-xs font-body">
-                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Source / Client</span>
-                      <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.from}</span>
+                  {/* Hero Transferred Amount Card with Inner Watermark */}
+                  <div className="relative overflow-hidden text-center py-5 mb-4 rounded-2xl bg-zinc-50 border border-zinc-200 shadow-2xs z-10">
+                    <div className="absolute right-2 -bottom-3 w-28 h-28 opacity-[0.05] pointer-events-none text-red-600">
+                      <LogoMark className="w-full h-full" />
                     </div>
-                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Service Description</span>
-                      <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.service}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Destination Account</span>
-                      <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedPayout.bankAccount}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Date & Time</span>
-                      <span style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.date} {selectedPayout.time}</span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Platform Transfer Fee</span>
-                      <span className="font-mono" style={{ color: "var(--color-success)" }}>₦0 (Free)</span>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Transferred Amount</div>
+                    <div className="font-display text-3xl font-bold font-mono text-red-600 tracking-tight">{selectedPayout.amount}</div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{selectedPayout.status}</span>
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => window.print()}>
+                  {/* Details Breakdown */}
+                  <div className="space-y-3 mb-5 text-xs font-body relative z-10">
+                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
+                      <span className="text-zinc-400">Source / Client</span>
+                      <span className="font-semibold text-zinc-900">{selectedPayout.from}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
+                      <span className="text-zinc-400">Service Description</span>
+                      <span className="font-medium text-zinc-700">{selectedPayout.service}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
+                      <span className="text-zinc-400">Destination Account</span>
+                      <span className="font-mono font-medium text-zinc-900">{selectedPayout.bankAccount}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-zinc-100">
+                      <span className="text-zinc-400">Date & Time</span>
+                      <span className="text-zinc-600">{selectedPayout.date} · {selectedPayout.time}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-zinc-400">Platform Transfer Fee</span>
+                      <span className="font-mono font-medium text-emerald-600">₦0 (Free)</span>
+                    </div>
+                  </div>
+
+                  {/* Official Protocol Stamp */}
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/70 mb-5 flex items-center justify-between text-[11px] text-zinc-500 relative z-10">
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>Monologg Escrow Protocol Guarantee</span>
+                    </div>
+                    <span className="font-mono text-[10px] text-zinc-400">#ESC-9082 · Verified</span>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-2.5 relative z-10">
+                    <Button variant="secondary" className="flex-1 h-10 text-xs font-semibold" onClick={() => window.print()}>
                       Save / Print Receipt
                     </Button>
-                    <Button className="flex-1 h-10 text-xs" onClick={() => setSelectedPayout(null)}>
+                    <Button className="flex-1 h-10 text-xs font-semibold" onClick={() => setSelectedPayout(null)}>
                       Close
                     </Button>
                   </div>
