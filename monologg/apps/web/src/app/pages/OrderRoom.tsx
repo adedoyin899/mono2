@@ -376,25 +376,33 @@ export function OrderRoom() {
           </div>
 
           {role === "client" ? (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowRevisionModal(true)}
-                className="flex-1 h-10 rounded-xl text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 transition-all"
-              >
-                Request Revision
-              </button>
+            <div className="flex items-center gap-2">
+              {/* Revision only applies to online / submitted creative deliverables, NOT live onsite appearances */}
+              {!isOnsite && (
+                <button
+                  onClick={() => setShowRevisionModal(true)}
+                  className="h-11 px-4 rounded-xl text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 transition-all shrink-0"
+                >
+                  Request Revision
+                </button>
+              )}
+              {/* Dispute button: secondary/subtle safety escape hatch */}
               <button
                 onClick={() => setShowDisputeModal(true)}
-                className="h-10 px-3.5 rounded-xl text-xs font-semibold bg-white hover:bg-zinc-50 text-zinc-500 border border-zinc-200 transition-all"
+                className={`h-11 rounded-xl text-xs font-medium text-zinc-500 hover:text-red-600 hover:bg-red-50/50 border border-zinc-200/80 transition-all shrink-0 ${
+                  isOnsite ? "px-5" : "px-3.5"
+                }`}
               >
                 Dispute
               </button>
+              {/* Primary Release CTA in solid brand purple */}
               <button
                 onClick={() => setShowReleaseModal(true)}
-                className="flex-1 h-10 rounded-xl text-xs font-semibold text-white transition-all active:scale-[0.98] shadow-sm hover:opacity-95"
-                style={{ background: "var(--color-success)" }}
+                className="flex-1 h-11 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all active:scale-[0.98] shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5"
+                style={{ background: "var(--color-purple)" }}
               >
-                Release ₦120,000
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Release ₦120,000</span>
               </button>
             </div>
           ) : (
@@ -435,38 +443,12 @@ export function OrderRoom() {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-sm font-semibold text-zinc-900 truncate font-display">{orderTitle}</span>
-              <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 shrink-0">ORD-001</span>
-              <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize shrink-0"
-                style={{
-                  background: phase === "complete" ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
-                  color: phase === "complete" ? "var(--color-success)" : "var(--color-text-secondary)",
-                }}
-              >
-                Phase {phaseIndex + 1}: {phase}
-              </span>
-            </div>
-            <div className="text-[11px] text-zinc-500 truncate mt-0.5 flex items-center gap-1.5">
-              <span>{clientOrg}</span>
-              <span>·</span>
-              <span
-                className="font-semibold font-mono flex items-center gap-1"
-                style={{ color: role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)" }}
-              >
-                <Lock className="w-3 h-3" />
-                ₦120,000 in escrow
-              </span>
-              {isOnsite && (
-                <>
-                  <span>·</span>
-                  <span className="text-emerald-700 font-medium flex items-center gap-0.5">
-                    <MapPin className="w-2.5 h-2.5 inline" /> Onsite
-                  </span>
-                </>
-              )}
-            </div>
+            <h1 className="text-sm font-semibold text-zinc-900 truncate font-display">
+              {orderTitle}
+            </h1>
+            <p className="text-xs text-zinc-500 truncate mt-0.5">
+              {role === "talent" ? clientOrg : talentName} · ORD-001
+            </p>
           </div>
         </div>
 
@@ -981,7 +963,13 @@ export function OrderRoom() {
               </div>
               <div className="flex gap-2.5">
                 <Button variant="secondary" className="flex-1 h-10 text-sm" onClick={() => setShowReleaseModal(false)}>Cancel</Button>
-                <Button className="flex-1 h-10 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleAutoRelease}>Confirm</Button>
+                <button
+                  className="flex-1 h-10 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-95 shadow-sm active:scale-[0.98]"
+                  style={{ background: "var(--color-purple)" }}
+                  onClick={handleAutoRelease}
+                >
+                  Confirm Release
+                </button>
               </div>
             </motion.div>
           </Modal>

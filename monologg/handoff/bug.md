@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
+**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 45. Inappropriate "Request Revision" action on concluded onsite gigs and cluttered jagged header title
+- **Severity:** Low / UX Logic & Visual Polish
+- **What happened:** In `OrderRoom.tsx`, clients reviewing an onsite live performance (e.g. Comedy Night at Eko Hotel) were presented with a "Request Revision" button. Physical live event performances that have concluded cannot be revised; only digital deliverables can be re-cut or re-recorded. In addition, the header title was cluttered with stacked status pills, order IDs, and escrow chips that wrapped awkwardly, looking jagged and complex.
+- **Root Cause:** Review action buttons lacked conditional branching on `isOnsite`, and header navbar rendered multiple metadata chips simultaneously rather than deferring detailed information to the dedicated Order Details modal.
+- **Resolution:** Gated `Request Revision` to `!isOnsite`, showing only `Dispute` and brand-purple `Release ₦120,000` for onsite gigs (2 CTAs), while retaining `Request Revision` for digital submissions (3 CTAs). Simplified header title into a crisp, clean 2-line title and subtitle for both roles.
+
+---
 
 ### 44. Arrival verification handshake PIN visible to performer in Order Details and multi-box input layout breakage
 - **Severity:** Medium / Security & Handshake Integrity

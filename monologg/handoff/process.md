@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
+**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -349,6 +349,19 @@ Streamlined the onsite verification workflow and polished modal experiences in t
 - **Consolidated Payment Summary:** Eliminated repetitive budget figures, replacing them with a single clean payment breakdown.
 - **Client-Only Handshake Code:** Security-gated the onsite arrival code so it is displayed strictly to the client (`role === "client"`), preventing the performer from viewing the handshake code in their own details view.
 - **Standalone Distribution Inlining:** Rebuilt standalone bundle and inlined updated assets into `monologg/monologg-app.html`.
+
+---
+
+### Step 58: Review Dock Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, & Minimal Header Title (Session 97)
+
+Refined client review ergonomics and navbar visual calm in the Order Room:
+- **Conditional Revision Gate:** Gated "Request Revision" strictly to remote/online deliverables (`!isOnsite`). For verified live onsite events (`isOnsite`), revision is hidden since in-person stage performances cannot be edited post-event.
+- **3/2 CTA Hierarchy in Brand Color:**
+  - For Onsite Gigs: Displayed exactly 2 actions (subtle outline `Dispute` + prominent primary `Release ₦120,000` in client brand purple `var(--color-purple)`).
+  - For Online Gigs: Displayed all 3 actions with clear visual hierarchy (secondary neutral `Request Revision` + tertiary outline `Dispute` + prominent primary `Release ₦120,000` in client brand purple).
+  - Styled Confirm button in the Release Payment modal with solid brand purple.
+- **Clean Minimal Header Title:** Removed the crowded stacked pills (`[ORD-001]`, `[Phase 3: Review]`, `· 🔒 ₦120,000 in escrow · 📍 Onsite`) from the navbar, replacing with a clean 2-line title and counterparty subtitle. Full project metadata remains accessible via the adjacent `Order Info` button.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined updated assets into `monologg/monologg-app.html`.
 
 ---
 

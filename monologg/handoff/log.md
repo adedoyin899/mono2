@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
+**Last updated:** 2026-10-09 (Session 97: Order Room UX Polish — Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 97 (2026-10-09) — Order Room UX Polish: Conditional Revisions Gate, 3/2 CTA Hierarchy in Brand Color, and Clean Minimal Header Title
+
+**Goal:** Execute precise UX optimizations in the Order Room (`OrderRoom.tsx`):
+1. On the client side, gate "Request Revision" so it only applies to digital file submissions (online / offsite deliverables) and is hidden for onsite live performances where in-person presence has concluded.
+2. Establish a clear visual hierarchy for the 3 (online) or 2 (onsite) review action buttons, using the client brand color (`var(--color-purple)`) for the primary "Release ₦120,000" CTA.
+3. Clean up the jaggy and cluttered header title into a simple, elegant title and subtitle for both performer and client since full context is available in the Order Details modal.
+
+### Changes Made
+
+1. **Conditional Revision Gate & 3/2 CTA Hierarchy (`OrderRoom.tsx`):**
+   - **Onsite Gig (2 CTAs):** For verified live event performances (`isOnsite`), "Request Revision" is hidden since physical performances cannot be revised post-event. Rendered exactly 2 actions: subtle outline `Dispute` button and the prominent primary `Release ₦120,000` button in solid brand purple (`var(--color-purple)`).
+   - **Online Gig (3 CTAs):** For digital file deliverables (`!isOnsite`), rendered all 3 actions with clear hierarchy: secondary `Request Revision` in neutral fill (`bg-zinc-100 hover:bg-zinc-200 text-zinc-800`), tertiary outline `Dispute`, and prominent primary `Release ₦120,000` in solid brand purple (`var(--color-purple)`).
+   - **Release Modal Confirmation Button:** Updated confirm action in the release payment modal to solid brand purple (`var(--color-purple)`).
+
+2. **Clean Minimal Header Title (`OrderRoom.tsx`):**
+   - Stripped away the cluttered stacked chips (`[ORD-001]`, `[Phase 3: Review]`) and redundant escrow and location badges (`· 🔒 ₦120,000 in escrow · 📍 Onsite`) from the navbar.
+   - Replaced with a clean, modern 2-line layout:
+     - Line 1: Order Title (`{orderTitle}`) in bold, uncluttered typography.
+     - Line 2: Counterparty name and order identifier (`{role === "talent" ? clientOrg : talentName} · ORD-001`).
+   - Detailed status, phase milestones, and financial breakdown remain cleanly accessible via the adjacent `Order Info` button.
+
+3. **Standalone Distribution Rebuilt (`monologg-app.html`):**
+   - Re-compiled standalone bundle (`npm run build:standalone`) and inlined updated assets into `monologg/monologg-app.html` (1.4MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 
