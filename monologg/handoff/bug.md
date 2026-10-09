@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 101: UI/UX Overhaul of Analytics & Client Reviews: Card Hierarchy, Colored Rating Badges, Brand Complementary Graph, and Clutter Removal)
+**Last updated:** 2026-10-09 (Session 102: Reviews Modal Analytics Pillar Overhaul, Redundant Copy Cleanup, Settings Header Verified Pill, and Onboarding-Aligned Profile Editor)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 50. Redundant reviews modal header copy, missing rating distribution bars, and disjointed Settings profile editing
+- **Severity:** Low / UI Redundancy & Settings Synchronization
+- **What happened:** In `TalentDashboard.tsx`, the Reviews modal header repeatedly showed the same words across multiple elements ("Client Ratings & Reviews" title, "100% Verified" badge, "8 verified client reviews", and "100% Recommended" subtitle). It also lacked the standard marketplace rating distribution breakdown (5★ to 1★ bar charts) shown in the user's reference designs. In `Settings.tsx`, the user header card featured a redundant `Edit` pill on the right while the `Verified` badge sat below the email; additionally, clicking "Profile & Storefront" opened an incomplete editor that did not allow editing stage title, craft category, craft tags, or social handles collected during onboarding.
+- **Root Cause:** Repetitive microcopy in reviews modal header; missing 3-column stats structure from PRD/references; obsolete "Storefront" nomenclature in settings; lack of synchronization between onboarding profile fields, Settings state, and `getPublicStorefront`.
+- **Resolution:** Replaced the cluttered Reviews modal header with a clean, single-phrase title ("Reviews") and subtitle, accompanied by 3 clear statistical pillars: Total Reviews with verification status, Average Rating with 5 gold stars, and 5-to-1 star horizontal breakdown bars matching actual review scores. In `Settings.tsx`, replaced the top-right `Edit` pill with a prominent `✓ Verified` badge, renamed "Profile & Storefront" to "Profile", added a public profile preview card with link, and provided full editing of all onboarding-collected attributes (Full Name, Stage Title, Craft Category dropdown, Location, Bio, Style Tags, and Social Handles) synchronized with `appStateSync.getTalentProfile()` and public profile views.
+
+---
 
 ### 49. Visual clutter from nested cards, double-icon duplication in review list, and mismatched graph palette
 - **Severity:** Low / Visual Hierarchy & Brand Identity

@@ -16,7 +16,7 @@ async function renderSettingsOnProfileSection() {
       <Settings />
     </MemoryRouter>,
   );
-  fireEvent.click(screen.getByText("Profile & Storefront"));
+  fireEvent.click(screen.getByText("Profile"));
   await screen.findByText("Edit Profile");
 }
 

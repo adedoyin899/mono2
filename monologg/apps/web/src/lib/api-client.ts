@@ -774,7 +774,18 @@ export const apiClient = {
   // same forward-reference apps/api's routes/mediaKit.ts already documents
   // for its own public creator sub-resource).
   async getPublicStorefront(handle: string): Promise<PublicStorefront> {
-    if (API_MODE !== "live") return mocks.PUBLIC_STOREFRONT;
+    if (API_MODE !== "live") {
+      const tState = appStateSync.getTalentProfile();
+      return {
+        ...mocks.PUBLIC_STOREFRONT,
+        name: tState.name || mocks.PUBLIC_STOREFRONT.name,
+        bio: tState.bio || mocks.PUBLIC_STOREFRONT.bio,
+        location: tState.location || mocks.PUBLIC_STOREFRONT.location,
+        nicheLabel: tState.stageTitle || mocks.PUBLIC_STOREFRONT.nicheLabel,
+        styleTags: tState.tags && tState.tags.length > 0 ? tState.tags : mocks.PUBLIC_STOREFRONT.styleTags,
+        verified: tState.verified !== undefined ? tState.verified : mocks.PUBLIC_STOREFRONT.verified,
+      };
+    }
     return request(`/creators/${handle}/public`);
   },
   /** A real, name-derived image (not a data: URI, not a fabricated stock

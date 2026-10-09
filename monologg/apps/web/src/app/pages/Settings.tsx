@@ -61,8 +61,19 @@ export function Settings() {
   // Talent fields
   const [name, setName] = useState("Emeka Johnson");
   const [email, setEmail] = useState("emeka@example.com");
+  const [stageTitle, setStageTitle] = useState("Actor & Voice Artist");
+  const [niche, setNiche] = useState("actors");
   const [bio, setBio] = useState("Specializing in intense dramatic monologues, voice-overs, and Nollywood screen roles.");
   const [location, setLocation] = useState("Lagos, Nigeria");
+  const [tags, setTags] = useState<string[]>(["Dramatic", "Voice-Over", "Commercial", "Nollywood", "Authoritative"]);
+  const [newTag, setNewTag] = useState("");
+  const [socialLinks, setSocialLinks] = useState({
+    instagram: "emekajohnson",
+    youtube: "emekaofficial",
+    twitter: "emekaj",
+    tiktok: "emekaacts",
+    linkedin: "emeka-johnson",
+  });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Client fields
@@ -162,8 +173,12 @@ export function Settings() {
         const tState = appStateSync.getTalentProfile();
         setName(tState.name);
         setEmail(tState.email);
+        if (tState.stageTitle) setStageTitle(tState.stageTitle);
+        if (tState.niche) setNiche(tState.niche.toLowerCase());
         setBio(tState.bio);
         setLocation(tState.location);
+        if (tState.tags) setTags(tState.tags);
+        if (tState.socialLinks) setSocialLinks((prev) => ({ ...prev, ...tState.socialLinks }));
         if (tState.avatarUrl !== undefined) setAvatarUrl(tState.avatarUrl);
       }
       const bState = appStateSync.getBankDetails();
@@ -228,7 +243,17 @@ export function Settings() {
         setName(updated.name);
         setBio(updated.bio ?? "");
         setLocation(updated.location ?? "");
-        appStateSync.updateTalentProfile({ name: updated.name, bio: updated.bio ?? "", location: updated.location ?? "" });
+        appStateSync.updateTalentProfile({
+          name: updated.name,
+          email,
+          stageTitle,
+          niche,
+          bio: updated.bio ?? "",
+          location: updated.location ?? "",
+          tags,
+          socialLinks,
+          avatarUrl,
+        });
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -334,7 +359,14 @@ export function Settings() {
           {section === "main" && (
             <motion.div key="main" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: DURATION_MED, ease: EASE_OUT }} exit={{ opacity: 0 }}>
               {/* Profile summary */}
-              <div className="p-4 rounded-[var(--radius-xl)] flex items-center gap-4 mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
+              <div
+                className="p-4 rounded-[var(--radius-xl)] flex items-center gap-4 mb-6 cursor-pointer hover:border-zinc-300 transition-all"
+                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                onClick={() => setSection("profile")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSection("profile"); } }}
+              >
                 <div className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center font-semibold text-xl font-body shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -349,13 +381,19 @@ export function Settings() {
                   <div className="text-sm font-body truncate" style={s.secondary}>
                     {isClient ? clientEmail : email}
                   </div>
-                  <div className="text-xs font-body mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-full)]" style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}>
-                    <Shield className="w-3 h-3" /> {isClient ? "Verified Studio" : "Verified"}
-                  </div>
                 </div>
-                <Button variant="secondary" className="h-9 px-4 text-xs shrink-0" onClick={() => setSection("profile")}>
-                  Edit
-                </Button>
+                {/* Verified badge placed prominently on the right where Edit was */}
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0"
+                  style={{
+                    background: "var(--color-success-bg)",
+                    color: "var(--color-success)",
+                    border: "1px solid color-mix(in srgb, var(--color-success) 25%, transparent)",
+                  }}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>{isClient ? "Verified Studio" : "Verified"}</span>
+                </div>
               </div>
 
               {/* Settings sections */}
@@ -372,7 +410,7 @@ export function Settings() {
                   </>
                 ) : (
                   <>
-                    <ListItem label="Profile & Storefront" icon={User} onClick={() => setSection("profile")} />
+                    <ListItem label="Profile" icon={User} onClick={() => setSection("profile")} />
                     <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
                     <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
@@ -479,26 +517,161 @@ export function Settings() {
                 </>
               ) : (
                 <>
+                  {/* Public Profile Link Preview Card */}
+                  <div
+                    className="p-3.5 rounded-xl border flex items-center justify-between gap-3"
+                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                  >
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold font-body" style={s.text}>Public Marketplace Profile</div>
+                      <div className="text-xs font-mono truncate" style={s.secondary}>monologg.co/emeka-johnson</div>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      className="h-8 px-3 text-xs shrink-0"
+                      onClick={() => navigate("/storefront/emeka")}
+                    >
+                      View Profile
+                    </Button>
+                  </div>
+
                   <FormField label="Full Name">
                     <Input value={name} onChange={e => setName(e.target.value)} />
                   </FormField>
+
+                  <FormField label="Stage / Craft Title">
+                    <Input
+                      value={stageTitle}
+                      onChange={e => setStageTitle(e.target.value)}
+                      placeholder="e.g. Actor & Voice Artist"
+                    />
+                  </FormField>
+
+                  <FormField label="Craft Category">
+                    <select
+                      value={niche}
+                      onChange={e => setNiche(e.target.value)}
+                      className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
+                      style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                    >
+                      <option value="actors">Actors</option>
+                      <option value="public_speakers">Public speakers</option>
+                      <option value="comperes">Comperes</option>
+                      <option value="comedians">Comedians</option>
+                      <option value="artists">Artists</option>
+                      <option value="creators">Creators</option>
+                    </select>
+                  </FormField>
+
                   <FormField label="Email Address">
                     <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
                   </FormField>
-                  <FormField label="Niche / Role">
-                    <Input defaultValue="Actor & Voice Artist" />
-                  </FormField>
+
                   <FormField label="Location">
-                    <Input value={location} onChange={e => setLocation(e.target.value)} />
+                    <Input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Lagos, Nigeria" />
                   </FormField>
-                  <FormField label="Bio">
+
+                  <FormField label="Bio / Performer Statement">
                     <textarea
                       className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
                       rows={4}
                       value={bio}
                       onChange={e => setBio(e.target.value)}
+                      placeholder="Share your experience, specialties, and performance background..."
                       style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                     />
+                  </FormField>
+
+                  {/* Craft & Style Tags */}
+                  <FormField label="Craft & Style Tags">
+                    <div className="space-y-2.5">
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
+                            style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                          >
+                            <span>{tag}</span>
+                            <button
+                              type="button"
+                              onClick={() => setTags(tags.filter(t => t !== tag))}
+                              className="w-3.5 h-3.5 rounded-full flex items-center justify-center hover:opacity-70 text-zinc-400"
+                              aria-label={`Remove tag ${tag}`}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add craft tag (e.g. British Accent)"
+                          value={newTag}
+                          onChange={e => setNewTag(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              if (newTag.trim() && !tags.includes(newTag.trim())) {
+                                setTags([...tags, newTag.trim()]);
+                                setNewTag("");
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          variant="secondary"
+                          className="h-[54px] px-4 text-xs shrink-0"
+                          onClick={() => {
+                            if (newTag.trim() && !tags.includes(newTag.trim())) {
+                              setTags([...tags, newTag.trim()]);
+                              setNewTag("");
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </FormField>
+
+                  {/* Social Handles */}
+                  <FormField label="Social Handles">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">@</span>
+                        <input
+                          type="text"
+                          placeholder="Instagram handle"
+                          value={socialLinks.instagram}
+                          onChange={e => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))}
+                          className="w-full h-11 pl-8 pr-3 text-xs rounded-xl border font-body"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                        />
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">@</span>
+                        <input
+                          type="text"
+                          placeholder="YouTube channel handle"
+                          value={socialLinks.youtube}
+                          onChange={e => setSocialLinks(prev => ({ ...prev, youtube: e.target.value }))}
+                          className="w-full h-11 pl-8 pr-3 text-xs rounded-xl border font-body"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                        />
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">@</span>
+                        <input
+                          type="text"
+                          placeholder="Twitter / X handle"
+                          value={socialLinks.twitter}
+                          onChange={e => setSocialLinks(prev => ({ ...prev, twitter: e.target.value }))}
+                          className="w-full h-11 pl-8 pr-3 text-xs rounded-xl border font-body"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                        />
+                      </div>
+                    </div>
                   </FormField>
                 </>
               )}

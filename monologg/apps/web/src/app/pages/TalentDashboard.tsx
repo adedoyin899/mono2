@@ -4748,16 +4748,11 @@ export function TalentDashboard() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Modal Header */}
-                  <div className="flex items-start justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                  <div className="flex items-start justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                          Client Ratings &amp; Reviews
-                        </h3>
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                          100% Verified
-                        </span>
-                      </div>
+                      <h3 className="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                        Reviews
+                      </h3>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 font-body mt-0.5">
                         Authentic feedback from casting directors, producers &amp; studio agencies
                       </p>
@@ -4765,45 +4760,87 @@ export function TalentDashboard() {
                     <button
                       onClick={() => setShowReviewsModal(false)}
                       className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                      aria-label="Close reviews modal"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  {/* Overhead Rating Summary (Clean typographic strip — NO nested card box) */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0 text-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-baseline gap-1">
-                        <span className="font-display text-2xl font-bold text-zinc-900 dark:text-zinc-100">4.9</span>
-                        <span className="text-amber-500 text-lg">★</span>
+                  {/* Reviews Analytics Overview (3 Statistical Pillars matching Reference Images 3 & 4) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    {/* Pillar 1: Total Reviews */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">
+                        Total Reviews
+                      </span>
+                      <div className="my-1.5 flex items-baseline gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          {allClientReviews.length}
+                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          ✓ 100% Verified
+                        </span>
                       </div>
-                      <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700" />
-                      <div className="text-zinc-600 dark:text-zinc-300 font-medium">
-                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">{allClientReviews.length}</span> verified client reviews
-                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Zero disputes filed
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs">
-                      <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        100% Recommended
+                    {/* Pillar 2: Average Rating */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">
+                        Average Rating
                       </span>
-                      <span>·</span>
-                      <span>Zero disputes filed</span>
+                      <div className="my-1.5 flex items-center gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          4.9
+                        </span>
+                        <div className="flex items-center text-amber-500 text-sm tracking-tight" aria-label="5 stars">
+                          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Across completed orders
+                      </span>
+                    </div>
+
+                    {/* Pillar 3: Rating Distribution Bars (5 to 1 Stars) */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-center space-y-1">
+                      {[
+                        { stars: 5, count: 5, pct: 62.5, barColor: "bg-teal-500 dark:bg-teal-400" },
+                        { stars: 4, count: 3, pct: 37.5, barColor: "bg-amber-500 dark:bg-amber-400" },
+                        { stars: 3, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                        { stars: 2, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                        { stars: 1, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                      ].map((item) => (
+                        <div key={item.stars} className="flex items-center gap-1.5 text-[10px]">
+                          <span className="w-5 text-zinc-600 dark:text-zinc-400 font-mono text-right flex items-center justify-end gap-0.5">
+                            {item.stars}<span className="text-amber-500 text-[9px]">★</span>
+                          </span>
+                          <div className="flex-1 h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-700 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${item.barColor} transition-all duration-300`}
+                              style={{ width: `${item.pct}%` }}
+                            />
+                          </div>
+                          <span className="w-4 text-zinc-400 font-mono text-right text-[10px]">
+                            {item.count}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Search and Filters Bar (Streamlined into 2 clean rows) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-3 pb-2 shrink-0">
-                    {/* Search input (6 cols) */}
-                    <div className="relative sm:col-span-6">
+                  {/* Clean Search & Filter Controls */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-3 pb-2 shrink-0">
+                    <div className="relative flex-1">
                       <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         value={reviewSearch}
                         onChange={(e) => setReviewSearch(e.target.value)}
-                        placeholder="Search reviews or projects..."
-                        className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white dark:focus:bg-zinc-850"
+                        placeholder="Search reviews, clients, projects..."
+                        className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
                       />
                       {reviewSearch && (
                         <button
@@ -4816,46 +4853,45 @@ export function TalentDashboard() {
                       )}
                     </div>
 
-                    {/* Rating filter (3 cols) */}
-                    <div className="relative sm:col-span-3">
-                      <select
-                        value={reviewRatingFilter}
-                        onChange={(e) => setReviewRatingFilter(e.target.value as any)}
-                        className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
-                      >
-                        <option value="all">All Ratings</option>
-                        <option value="5">★ 5.0 (Exceptional)</option>
-                        <option value="4.9">★ 4.9</option>
-                        <option value="4.8">★ 4.8</option>
-                      </select>
-                      <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="relative">
+                        <select
+                          value={reviewRatingFilter}
+                          onChange={(e) => setReviewRatingFilter(e.target.value as any)}
+                          className="appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                        >
+                          <option value="all">All Ratings</option>
+                          <option value="5">★ 5.0 (5 reviews)</option>
+                          <option value="4.9">★ 4.9 (1 review)</option>
+                          <option value="4.8">★ 4.8 (2 reviews)</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
 
-                    {/* Sort filter (3 cols) */}
-                    <div className="relative sm:col-span-3">
-                      <select
-                        value={reviewSortOrder}
-                        onChange={(e) => setReviewSortOrder(e.target.value as any)}
-                        className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
-                      >
-                        <option value="newest">Sort: Newest First</option>
-                        <option value="oldest">Sort: Oldest First</option>
-                        <option value="highest">Sort: Highest Rating</option>
-                        <option value="lowest">Sort: Lowest Rating</option>
-                      </select>
-                      <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="relative">
+                        <select
+                          value={reviewSortOrder}
+                          onChange={(e) => setReviewSortOrder(e.target.value as any)}
+                          className="appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                        >
+                          <option value="newest">Sort: Newest First</option>
+                          <option value="highest">Sort: Highest Rating</option>
+                          <option value="oldest">Sort: Oldest First</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Filter Tag Chips & Count Row */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0 text-xs">
+                  {/* Filter Tag Pills & Status Count */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0 text-xs">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => setReviewTagFilter("all")}
-                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-colors cursor-pointer ${
                           reviewTagFilter === "all"
-                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                            ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                             : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                         }`}
                       >
@@ -4866,7 +4902,7 @@ export function TalentDashboard() {
                           key={tag}
                           type="button"
                           onClick={() => setReviewTagFilter(tag)}
-                          className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-colors cursor-pointer ${
                             reviewTagFilter === tag
                               ? "bg-red-600 text-white"
                               : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
@@ -4907,35 +4943,44 @@ export function TalentDashboard() {
                     ) : (
                       filteredAndSortedReviews.map((rev) => {
                         const badgeStyle = getRatingBadgeStyle(rev.stars);
+                        const clientInitials = rev.clientName
+                          .split(" ")
+                          .slice(0, 2)
+                          .map((w: string) => w[0])
+                          .join("");
                         return (
                           <div
                             key={rev.id}
-                            className="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs space-y-2.5"
+                            className="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs space-y-3"
                           >
-                            {/* Card Top: Client & Project on Left, Colored Rating Badge & Date on Right */}
+                            {/* Card Top: Client Avatar & Project on Left, Rating Badge & Date on Right */}
                             <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <div className="flex items-center gap-2">
+                              <div className="flex items-start gap-3">
+                                <div className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-xs flex items-center justify-center shrink-0 border border-zinc-200/80 dark:border-zinc-700/80 font-display">
+                                  {clientInitials}
+                                </div>
+                                <div>
                                   <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-display">
                                     {rev.clientName}
                                   </h4>
-                                  <span className="text-[11px] text-zinc-400 font-body">· {rev.date}</span>
+                                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-0.5">
+                                    Project: {rev.projectName}
+                                  </p>
                                 </div>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-0.5">
-                                  Project: {rev.projectName}
-                                </p>
                               </div>
 
-                              {/* Rating Badge with distinctive background color and single star icon */}
-                              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold font-mono border ${badgeStyle} shrink-0`}>
-                                <span className="text-amber-500">★</span>
-                                <span>{rev.stars.toFixed(1)}</span>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold font-mono border ${badgeStyle}`}>
+                                  <span className="text-amber-500">★</span>
+                                  <span>{rev.stars.toFixed(1)}</span>
+                                </div>
+                                <span className="text-[11px] text-zinc-400 font-body">{rev.date}</span>
                               </div>
                             </div>
 
-                            {/* Review Quote (Clean quote with subtle left accent line — NO nested card box!) */}
+                            {/* Review Quote (Clean quote with subtle left accent line) */}
                             {rev.note && (
-                              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-body leading-relaxed pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 italic my-2">
+                              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-body leading-relaxed pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 italic my-1.5">
                                 &ldquo;{rev.note}&rdquo;
                               </p>
                             )}
