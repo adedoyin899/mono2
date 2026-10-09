@@ -1,11 +1,23 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer.
+**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-96 Order Room FAANG UX Overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 96 — Order Room UX Refinement: Single-Box 4-Digit Verification, "Verify" CTA, Streamlined Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code
+- [x] **Verify Live Appearance Modal Streamlined**:
+  - Replaced inner venue location and arrival time cards with a single presence auto-verification chip: `"Presence auto-verified: Your venue location and arrival timestamp are automatically recorded for proof of attendance."`
+  - Replaced split/multi-digit inputs with a single 4-digit input box with `maxLength={4}`, `inputMode="numeric"`, `placeholder="••••"`, monospace styling, and centered letter tracking.
+  - Set primary modal CTA button strictly to `"Verify"`.
+- [x] **Order Details Modal Overhaul**:
+  - Redesigned Project Phases into responsive, standalone cards with phase number/checkmark pill, clear phase title, status chip (`Completed`, `In Progress` / countdown, `Upcoming`), and concise descriptions.
+  - Consolidated redundant budget rows into an uncluttered Payment Summary block.
+  - **Handshake Security Gate:** Gated arrival handshake code to `{isOnsite && role === "client" && ...}`, ensuring the performer never sees the code in their details view.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt `monologg/monologg-app.html` (1.4MB).
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 92 — Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal (Online vs. Onsite), Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer
 - [x] **Dual Deliverables Submission Modal**: Introduced segmented tabs for `Online Digital Files` (with drag & drop and staged file card) and `Onsite Live Appearance` proof.

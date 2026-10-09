@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
+**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 44. Arrival verification handshake PIN visible to performer in Order Details and multi-box input layout breakage
+- **Severity:** Medium / Security & Handshake Integrity
+- **What happened:** In `OrderRoom.tsx`, the arrival handshake code (`4821`) was rendered inside the Order Details modal regardless of role (`role === "talent"` or `role === "client"`). This allowed the performer to inspect the handshake code directly from their own details dialog, defeating the verification requirement of asking the client in person upon arrival. Furthermore, the PIN input in the Verify Live Appearance modal was split into multiple boxes that wrapped and stretched unevenly on mobile screens, appearing as two mismatched boxes.
+- **Root Cause:** Missing role gate `{role === "client"}` on the arrival code container in the Order Details modal, and split input box styling without rigid container width controls.
+- **Resolution:** Gated the arrival code block strictly to `{isOnsite && role === "client" && ...}`, hiding it completely from the performer. Replaced the multi-input PIN element with a single full-width numeric input box with centered letter tracking (`tracking-[0.4em]`), `maxLength={4}`, and real-time validation against the client's code.
+
+---
 
 ### 43. Missing deliverable evidence workflow for onsite/live performers and lack of 48-hour inspection countdown guardrail
 - **Severity:** Medium / UX & Product Integrity

@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
+**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 96 (2026-10-09) — Order Room UX Refinement: Single-Box 4-Digit Verification, "Verify" CTA, Streamlined Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code
+
+**Goal:** Execute targeted UX and visual simplifications in the Order Room (`OrderRoom.tsx`):
+1. In the Verify Live Appearance modal: remove the bulky 2-column inner card boxes (`VENUE LOCATION` and `ARRIVAL TIME`), replacing them with a concise presence auto-verification banner; replace multiple/split input boxes with a single 4-digit input box; and streamline the primary CTA to `"Verify"`.
+2. In the Order Details modal: redesign the project lifecycle phases into clean, scannable, mobile-responsive cards with cohesive copy, chips, and states; eliminate redundant financial figures by consolidating into a clean Payment Summary; and ensure the performer never sees the onsite handshake code (making it strictly client-only).
+
+### Changes Made
+
+1. **Verify Live Appearance Modal Simplification (`OrderRoom.tsx`):**
+   - **Compact Auto-Presence Notice:** Removed the bulky inner venue location and arrival time cards. Replaced with a sleek, single emerald banner: `"Presence auto-verified: Your venue location and arrival timestamp are automatically recorded for proof of attendance."` with a live green indicator.
+   - **Single PIN Input Box:** Replaced separate digit inputs with a single, responsive input box supporting `maxLength={4}`, `inputMode="numeric"`, `placeholder="••••"`, monospace styling, and wide letter spacing (`tracking-[0.4em]`). Automatically validates against `CLIENT_GENERATED_PIN` (`4821`) with real-time feedback.
+   - **Direct CTA Label:** Renamed primary submit action from `"Verify & Submit Proof →"` to concise `"Verify"`.
+
+2. **Order Details Modal Overhaul (`OrderRoom.tsx`):**
+   - **Mobile-Responsive Phase Cards:** Transformed the project phases list into distinct, high-contrast cards. Each card displays an index or checkmark badge (emerald for completed, brand color for current, zinc for upcoming), clear phase label, cohesive status chip (`Completed`, `In Progress` / countdown, `Upcoming`), and concise, readable descriptions (`Scope and requirements agreed.`, `Live performance & onsite check-in.`, `48-hour client review window.`, `Escrow payout released to wallet balance.`).
+   - **Redundant Information Removal:** Consolidated repetitive ₦120,000 lines into an uncluttered, single `Payment Summary` block with clear escrow funding, free protection fee, and guaranteed net payout.
+   - **Client-Only Handshake Code Gating:** Strictly gated the onsite arrival code block with `{isOnsite && role === "client" && ...}`. The performer never sees the code in their Order Details view, preserving security and the authentic in-person handshake flow where the talent requests the PIN from the client upon arrival.
+
+3. **Standalone Distribution Rebuilt (`monologg-app.html`):**
+   - Built standalone bundle (`npx pnpm --filter @monologg/web build:standalone`) and inlined updated CSS and JS into `monologg/monologg-app.html` (1.4MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
+**Last updated:** 2026-10-09 (Session 96: Order Room UX Refinement — Single-Box 4-Digit Verification, "Verify" CTA, Auto-Presence Banner, Responsive Order Details Phases, and Client-Only Handshake Code)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -336,6 +336,19 @@ Fine-tuned the visual styling of the Order Room to match user preference:
 - **Consistent Soft Brand Hues for Outgoing:** Styled performer outgoing messages with a soft red hue (`var(--color-red-soft)` / `#FFF1F2`) and subtle red border; reversed for client (outgoing messages use soft purple hue `var(--color-purple-soft)` / `#FAF5FF` and subtle purple border).
 - **Solid Main Brand CTAs Across Platforms:** Kept primary call-to-action buttons in bold, solid brand colors (`var(--color-red)` for performer actions; `var(--color-purple)` for client actions).
 - **Standalone Distribution Inlining:** Rebuilt and inlined updated assets into `monologg/monologg-app.html`.
+
+---
+
+### Step 57: Order Room UX Refinement & Handshake Security (Session 96)
+
+Streamlined the onsite verification workflow and polished modal experiences in the Order Room:
+- **Clean Presence Auto-Verification Notice:** Removed the clunky inner two-column venue location and arrival time cards in the Verify Live Appearance modal, replacing them with a sleek presence auto-verified status banner (`"Presence auto-verified: Your venue location and arrival timestamp are automatically recorded for proof of attendance."`).
+- **Single 4-Digit PIN Input:** Replaced split/multi-box input controls with a single, responsive input box with centered letter tracking (`tracking-[0.4em]`), `maxLength={4}`, and real-time client PIN validation.
+- **Direct Modal CTA:** Updated the primary verification button from `"Verify & Submit Proof →"` to concise `"Verify"`.
+- **Responsive Order Details Phase Cards:** Re-engineered the project phases in the Order Details modal into individual, responsive cards with clean index/checkmark indicators, cohesive status chips (`Completed`, `In Progress` / countdown, `Upcoming`), and concise readable descriptions.
+- **Consolidated Payment Summary:** Eliminated repetitive budget figures, replacing them with a single clean payment breakdown.
+- **Client-Only Handshake Code:** Security-gated the onsite arrival code so it is displayed strictly to the client (`role === "client"`), preventing the performer from viewing the handshake code in their own details view.
+- **Standalone Distribution Inlining:** Rebuilt standalone bundle and inlined updated assets into `monologg/monologg-app.html`.
 
 ---
 

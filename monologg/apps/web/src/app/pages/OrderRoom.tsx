@@ -11,8 +11,8 @@ import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle,
-  UploadCloud, X, MapPin, Clock,
-  RefreshCw, FastForward, Check, ChevronRight,
+  UploadCloud, X, MapPin,
+  RefreshCw, FastForward, Check,
   Copy, KeyRound
 } from "lucide-react";
 
@@ -41,7 +41,7 @@ const PHASES: { id: Phase; label: string; description: string }[] = [
   { id: "complete", label: "Complete & Payout", description: "Escrow released to performer and order finalized." },
 ];
 
-// Client-provided arrival PIN for onsite performance verification
+// Client-provided arrival PIN for onsite performance verification (only visible to client)
 const CLIENT_GENERATED_PIN = "4821";
 
 /* ─── Component ─────────────────────────────────────────────── */
@@ -66,7 +66,7 @@ export function OrderRoom() {
   const [onlineNotes, setOnlineNotes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Submit modal — onsite PIN handshake
+  // Submit modal — onsite PIN verification
   const [onsiteNotes, setOnsiteNotes] = useState("");
   const [pinEntry, setPinEntry] = useState("");
   const [copiedPin, setCopiedPin] = useState(false);
@@ -198,14 +198,14 @@ export function OrderRoom() {
       {
         id: `local-${prev.length + 1}`,
         from: "talent" as const,
-        text: onsiteNotes.trim() || "Live performance completed. Onsite verification submitted.",
+        text: onsiteNotes.trim() || "Live performance completed. Onsite presence verified.",
         time: "Just now",
         onsiteEvidence: evidence,
       },
       {
         id: `local-${prev.length + 2}`,
         from: "system" as const,
-        text: "Onsite presence verified with client code 4821. 48-hour inspection window started.",
+        text: "Onsite presence verified. 48-hour inspection window started.",
         time: "Just now",
       },
     ]);
@@ -333,7 +333,7 @@ export function OrderRoom() {
             style={{ background: "var(--color-red)" }}
           >
             <KeyRound className="w-4 h-4" />
-            Enter Code & Submit Appearance Proof
+            Enter Code & Verify
           </button>
         </div>
       );
@@ -540,7 +540,6 @@ export function OrderRoom() {
             const isTalent = msg.from === "talent";
 
             // Chat bubble colors matching user requirement:
-            // "pls use this color for the chat and a similar but consistent hue for the performer ( reverse for the client)"
             // 1. Incoming messages from the other party (!isMe):
             //    Crisp white card (#ffffff) with subtle neutral border (border-zinc-200/80)
             //    and dark neutral text (#18181b), exactly matching the user screenshot.
@@ -852,89 +851,58 @@ export function OrderRoom() {
                   </>
                 )}
 
-                {/* ── TAB: Onsite Gig (Clean PIN Code + Cool Auto Location/Timestamp Verification) ── */}
+                {/* ── TAB: Onsite Gig (Streamlined auto-verified chip + Single 4-digit code input) ── */}
                 {deliverableTab === "onsite" && (
                   <>
-                    {/* Cool Auto Location & Arrival Tracking Banner */}
-                    <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/90 border border-emerald-200/80">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                          </span>
-                          <span className="text-xs font-semibold text-emerald-950">Live Presence Auto-Verified</span>
-                        </div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">GPS Active</span>
+                    {/* Clean compact auto-verified banner without inner card boxes */}
+                    <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/70 flex items-start gap-2.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />
+                      <div className="text-xs text-emerald-950 leading-relaxed">
+                        <span className="font-semibold">Presence auto-verified: </span>
+                        <span>Your venue location and arrival timestamp are automatically recorded for proof of attendance.</span>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2.5 rounded-xl bg-white/85 border border-emerald-100/90 shadow-2xs">
-                          <div className="text-[10px] text-zinc-400 uppercase tracking-wide font-medium">Venue Location</div>
-                          <div className="font-semibold text-zinc-800 truncate mt-0.5">Comedy Night, Eko Hotel</div>
-                          <div className="text-[10px] text-zinc-500 font-mono mt-0.5">6.5244° N, 3.3792° E</div>
-                        </div>
-                        <div className="p-2.5 rounded-xl bg-white/85 border border-emerald-100/90 shadow-2xs">
-                          <div className="text-[10px] text-zinc-400 uppercase tracking-wide font-medium">Arrival Time</div>
-                          <div className="font-semibold text-zinc-800 mt-0.5">7:52 PM (Today)</div>
-                          <div className="text-[10px] text-emerald-600 font-medium mt-0.5">✓ On-schedule</div>
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-emerald-900/80 mt-2 flex items-center gap-1.5">
-                        <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        Your venue location and arrival timestamp are automatically recorded for proof of attendance.
-                      </p>
                     </div>
 
-                    {/* PIN Code Verification Alone */}
-                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
-                      <div className="flex items-center justify-between mb-1.5">
+                    {/* Single 4-digit code input */}
+                    <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
+                      <div className="flex items-center justify-between mb-1">
                         <label className="text-xs font-semibold text-zinc-900">Client Verification Code</label>
-                        <span className="text-[10px] font-medium text-zinc-500">4-digit code</span>
+                        <span className="text-[10px] text-zinc-400 font-medium">4 digits</span>
                       </div>
-                      <p className="text-xs text-zinc-600 mb-3 leading-relaxed">
-                        Ask <strong>FilmCraft Studios</strong> for their 4-digit code once you arrive to confirm your check-in.
+                      <p className="text-xs text-zinc-500 mb-3 leading-relaxed">
+                        Ask <strong>{clientOrg}</strong> for their 4-digit code upon arrival to confirm your check-in.
                       </p>
 
-                      {/* 4 PIN inputs */}
-                      <div className="flex items-center gap-2 mb-2">
-                        {[0, 1, 2, 3].map(i => (
-                          <input
-                            key={i}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={1}
-                            value={pinEntry[i] ?? ""}
-                            onChange={e => {
-                              const v = e.target.value.replace(/\D/g, "").slice(-1);
-                              const arr = (pinEntry + "    ").split("").slice(0, 4);
-                              arr[i] = v;
-                              setPinEntry(arr.join("").trim());
-                              if (v && i < 3) {
-                                const next = e.currentTarget.parentElement?.children[i + 1] as HTMLInputElement;
-                                next?.focus();
-                              }
-                            }}
-                            className={`flex-1 h-12 rounded-xl border text-center font-mono font-bold text-lg transition-all focus:outline-none ${
-                              pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN
-                                ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                                : "border-zinc-200 bg-white text-zinc-900 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                            }`}
-                          />
-                        ))}
-                      </div>
+                      {/* Single input box for all 4 digits */}
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={4}
+                        value={pinEntry}
+                        onChange={e => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                          setPinEntry(v);
+                        }}
+                        placeholder="••••"
+                        className={`w-full h-12 px-4 rounded-xl border text-center font-mono font-bold text-xl tracking-[0.4em] transition-all focus:outline-none ${
+                          pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN
+                            ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                            : "border-zinc-200 bg-white text-zinc-900 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                        }`}
+                      />
 
                       {pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN ? (
-                        <div className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 pt-1">
+                        <div className="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1.5 pt-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          Code verified with FilmCraft Studios
+                          Code verified with {clientOrg}
                         </div>
                       ) : pinEntry.length === 4 ? (
-                        <div className="text-xs text-red-600 font-medium pt-1">
-                          Incorrect code. Please ask the client to confirm their 4-digit code.
+                        <div className="text-xs text-red-600 font-medium text-center pt-2">
+                          Incorrect code. Please ask the client to confirm.
                         </div>
                       ) : (
-                        <div className="text-[11px] text-zinc-400 pt-1">
-                          The client can find this code in their Order Room view.
+                        <div className="text-[11px] text-zinc-400 text-center pt-2">
+                          The client can find this 4-digit code in their Order Room.
                         </div>
                       )}
                     </div>
@@ -958,7 +926,7 @@ export function OrderRoom() {
                   <span>Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, ₦120,000 auto-releases to your balance.</span>
                 </div>
 
-                {/* Modal action buttons with main brand RED CTA */}
+                {/* Modal action buttons with primary CTA "Verify" */}
                 <div className="flex gap-2.5 pt-1">
                   <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => setShowSubmitModal(false)}>
                     Cancel
@@ -969,7 +937,7 @@ export function OrderRoom() {
                     onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
                     disabled={deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN}
                   >
-                    {deliverableTab === "onsite" ? "Verify & Submit Proof" : "Submit Deliverable"} →
+                    Verify
                   </button>
                 </div>
               </div>
@@ -1090,7 +1058,7 @@ export function OrderRoom() {
         )}
       </AnimatePresence>
 
-      {/* ── Order Info Modal (Full Project Phases Lifecycle & Detailed Financial Breakdown) ── */}
+      {/* ── Order Details Modal (Clean, responsive, performer doesn't see handshake code) ── */}
       <AnimatePresence>
         {showOrderInfoModal && (
           <Modal onClose={() => setShowOrderInfoModal(false)}>
@@ -1104,7 +1072,7 @@ export function OrderRoom() {
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 shrink-0">
                 <div>
-                  <h3 className="font-display text-base font-semibold text-zinc-900">Order Details & Lifecycle</h3>
+                  <h3 className="font-display text-base font-semibold text-zinc-900">Order Details</h3>
                   <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · ORD-001</p>
                 </div>
                 <button
@@ -1116,18 +1084,18 @@ export function OrderRoom() {
               </div>
 
               {/* Scrollable Body */}
-              <div className="px-6 py-5 space-y-5 overflow-y-auto">
+              <div className="px-6 py-5 space-y-4 overflow-y-auto">
 
                 {/* Escrow Hero Balance Card */}
                 <div
-                  className="p-4 rounded-2xl"
+                  className="p-4 rounded-xl"
                   style={{
                     background: paymentReleased ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
                     border: `1px solid ${paymentReleased ? "var(--color-success)" : "var(--color-hairline)"}`,
                   }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Escrow Balance</span>
+                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Escrow Protected</span>
                     <span
                       className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
                       style={{
@@ -1136,56 +1104,69 @@ export function OrderRoom() {
                       }}
                     >
                       <Shield className="w-3 h-3 text-emerald-600" />
-                      {paymentReleased ? "Released to Talent" : "100% Protected"}
+                      {paymentReleased ? "Released" : "100% Secured"}
                     </span>
                   </div>
-                  <div className="text-3xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
+                  <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
                     {paymentReleased
-                      ? `Transferred to ${talentName}'s wallet balance.`
-                      : "Funds held securely by Monologg Escrow. Auto-releases 48h after deliverable or on client approval."}
+                      ? `Transferred to ${talentName}.`
+                      : "Auto-releases to performer 48 hours after delivery or upon client approval."}
                   </p>
                 </div>
 
-                {/* Project Lifecycle Phases (Complete Lifecycle View) */}
+                {/* Project Lifecycle Phases (Clean, cohesive, responsive cards) */}
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Project Phases</div>
-                  <div className="space-y-3 relative pl-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-zinc-200">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">Project Phases</div>
+                  <div className="space-y-2">
                     {PHASES.map((p, idx) => {
                       const isPast = idx < phaseIndex;
                       const isCurrent = p.id === phase;
                       return (
-                        <div key={p.id} className="relative">
-                          <span
-                            className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                              isPast
-                                ? "bg-emerald-600 text-white"
-                                : isCurrent
-                                  ? (role === "talent" ? "bg-red-600 text-white ring-4 ring-red-100" : "bg-purple-600 text-white ring-4 ring-purple-100")
-                                  : "bg-zinc-200 text-zinc-500"
-                            }`}
-                          >
-                            {isPast ? "✓" : idx + 1}
-                          </span>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-xs font-semibold ${isCurrent ? "text-zinc-900" : isPast ? "text-zinc-700" : "text-zinc-400"}`}>
-                              Phase {idx + 1}: {p.label}
-                            </span>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                              isPast
-                                ? "bg-emerald-50 text-emerald-700"
-                                : isCurrent
-                                  ? "bg-amber-50 text-amber-700 font-semibold"
-                                  : "bg-zinc-100 text-zinc-400"
-                            }`}>
+                        <div
+                          key={p.id}
+                          className={`p-3 rounded-xl border transition-all ${
+                            isCurrent
+                              ? "bg-zinc-50/90 border-zinc-300 shadow-2xs"
+                              : isPast
+                                ? "bg-white border-zinc-100"
+                                : "bg-white border-zinc-100/70 opacity-60"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                                  isPast
+                                    ? "bg-emerald-600 text-white"
+                                    : isCurrent
+                                      ? (role === "talent" ? "bg-red-600 text-white" : "bg-purple-600 text-white")
+                                      : "bg-zinc-200 text-zinc-500"
+                                }`}
+                              >
+                                {isPast ? "✓" : idx + 1}
+                              </span>
+                              <span className={`text-xs font-semibold truncate ${isCurrent ? "text-zinc-900" : "text-zinc-700"}`}>
+                                {p.label}
+                              </span>
+                            </div>
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${
+                                isPast
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : isCurrent
+                                    ? "bg-amber-50 text-amber-700 font-semibold"
+                                    : "bg-zinc-100 text-zinc-400"
+                              }`}
+                            >
                               {isPast ? "Completed" : isCurrent ? (phase === "review" ? formatCountdown(timerSeconds) : "In Progress") : "Upcoming"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-500 mt-0.5">
-                            {p.id === "briefing" && "Requirements, script & deliverables agreed upon."}
-                            {p.id === "deliverables" && (isOnsite ? "Performer onsite arrival verified via 4-digit client code & GPS." : "Deliverable audio/video files submitted.")}
-                            {p.id === "review" && "48-hour inspection window. Client reviews or escrow auto-releases."}
-                            {p.id === "complete" && "Payment released to performer wallet and feedback exchanged."}
+                          <p className="text-[11px] text-zinc-500 mt-1 pl-7 leading-relaxed">
+                            {p.id === "briefing" && "Scope and requirements agreed."}
+                            {p.id === "deliverables" && (isOnsite ? "Live performance & onsite check-in." : "Deliverable submission & files staged.")}
+                            {p.id === "review" && "48-hour client review window."}
+                            {p.id === "complete" && "Escrow payout released to wallet balance."}
                           </p>
                         </div>
                       );
@@ -1193,57 +1174,52 @@ export function OrderRoom() {
                   </div>
                 </div>
 
-                {/* Onsite Handshake Code Details (if Onsite Gig) */}
-                {isOnsite && (
-                  <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2">
+                {/* Onsite Arrival Code: VISIBLE TO CLIENT ONLY (performer must not see this) */}
+                {isOnsite && role === "client" && (
+                  <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200/80 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
+                      <span className="text-xs font-semibold text-purple-950 flex items-center gap-1.5">
                         <KeyRound className="w-3.5 h-3.5 text-purple-600" />
-                        Onsite Handshake Code
+                        Arrival Verification Code
                       </span>
                       <span className="font-mono text-sm font-bold tracking-widest px-2.5 py-0.5 rounded-lg bg-white border border-purple-200 text-purple-900 shadow-2xs">
                         {CLIENT_GENERATED_PIN}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-500">
-                      {role === "client"
-                        ? `Share this 4-digit code with ${talentName} when they arrive at the venue.`
-                        : `Ask ${clientOrg} for this 4-digit code upon arrival to verify attendance.`}
+                    <p className="text-xs text-purple-800/80">
+                      Share this 4-digit code with {talentName} upon arrival to verify attendance.
                     </p>
                   </div>
                 )}
 
-                {/* Financial Breakdown ("Also how much") */}
-                <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Financial Breakdown</div>
+                {/* Streamlined Payment Summary */}
+                <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-xs">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Payment Summary</div>
                   <div className="flex justify-between items-center text-zinc-600">
-                    <span>Agreed Project Budget</span>
+                    <span>Project Escrow (Funded)</span>
                     <span className="font-mono font-medium text-zinc-900">₦120,000</span>
                   </div>
                   <div className="flex justify-between items-center text-zinc-600">
-                    <span>Escrow Protection Fee</span>
-                    <span className="font-mono font-medium text-emerald-600">Free (₦0)</span>
+                    <span>Protection Fee</span>
+                    <span className="font-mono text-emerald-600 font-medium">Free (₦0)</span>
                   </div>
-                  <div className="h-px bg-zinc-200" />
+                  <div className="h-px bg-zinc-200 my-1" />
                   <div className="flex justify-between items-center font-semibold text-zinc-900">
-                    <span>Performer Guaranteed Payout</span>
+                    <span>{role === "talent" ? "Your Net Payout" : "Performer Payout"}</span>
                     <span className="font-mono text-emerald-600 text-sm">₦120,000</span>
-                  </div>
-                  <div className="text-[10px] text-zinc-400 pt-0.5">
-                    Protected by Monologg Escrow Guarantee #ESC-9082
                   </div>
                 </div>
 
                 {/* Participants */}
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-wider mb-2 text-zinc-400">Participants</div>
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {[
                       { name: talentName, role: "Performer", initials: talentInitials, color: "var(--color-mono-red)", bg: "var(--color-red-soft)" },
                       { name: clientOrg, role: "Client", initials: "FS", color: "var(--color-mono-purple)", bg: "var(--color-purple-soft)" },
                     ].map((p, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <Avatar size="sm" className="w-8 h-8 text-xs font-semibold shrink-0" background={p.bg} color={p.color}>
+                        <Avatar size="sm" className="w-7 h-7 text-xs font-semibold shrink-0" background={p.bg} color={p.color}>
                           {p.initials}
                         </Avatar>
                         <div>
