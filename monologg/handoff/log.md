@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
+**Last updated:** 2026-10-09 (Session 100: Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 100 (2026-10-09) — Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal
+
+**Goal:** Address user feedback regarding analytics and client reviews:
+1. Replace the dual-card analytics split with a single full-width spline area graph card ("Earnings by Category") directly underneath the 4 metric cards, styled after the provided Room Engagement reference chart.
+2. Build an advanced Client Ratings & Reviews modal featuring multi-dimensional filtering (by client, rating, date/sort order, and feedback tags), real-time search, rating distribution breakdown, and direct navigation links to each project's Order Room (`/order/:id`).
+3. Position a dedicated Client Reviews & Studio Ratings reputation bar directly underneath the graph displaying the 4.9★ rating badge, quick-filter tag buttons (`All`, `5 Stars`, `Exceptional delivery`), and a launcher for the review modal.
+
+### Changes Made
+
+1. **Single Full-Width Earnings by Category Spline Area Graph (`TalentDashboard.tsx`):**
+   - Implemented Catmull-Rom to Cubic Bézier spline interpolation (`getSplinePath`, `getAreaPath`) to generate smooth flowing area paths without sharp angles or clipping.
+   - Dual-curve visualization representing the 2 active gigs/rate cards:
+     - Blue curve (`#0284c7`, `splineGig1Gradient`): Feature Film Audition (68% / ₦843,200).
+     - Lavender/Purple curve (`#c084fc`, `splineGig2Gradient`): Commercial Voice-Over (32% / ₦396,800).
+   - Added subtle dashed horizontal grid lines (`strokeDasharray="4 4"`), numeric Y-axis tick labels (`₦0` to `₦400k`), vertical Y-axis label (`Earnings (₦)`), and X-axis month ticks (`Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`).
+   - Built interactive mouse-tracking hover states with a vertical dashed guide line, data point highlight circles, and a floating tooltip displaying month breakdown and combined totals.
+   - Added a timeframe selector dropdown in the card header (`Last 6 months`, `Last 3 months`, `Past year`) backed by `CATEGORY_CHART_TIMEFRAMES`.
+   - Included a centered bottom legend with colored indicator dots and rate card performance shares.
+
+2. **Client Reviews & Studio Ratings Reputation Bar (`TalentDashboard.tsx`):**
+   - Placed a sleek summary bar directly below the single graph card featuring the 4.9★ reputation score, verified review count (`Based on {count} reviews · Zero disputes filed`), and quick-filter tag chips.
+   - Clicking any tag chip opens the Client Reviews modal with that filter preset.
+
+3. **Searchable & Filterable Client Reviews Modal (`TalentDashboard.tsx`):**
+   - Expanded mock reviews dataset (`DEFAULT_CLIENT_REVIEWS`) to 8 diverse reviews across varying dates (Jun–Oct 2026), studios (FilmCraft, Zenith Media, Pulse Africa, EventPro, EbonyLife, Silverbird, Mainframe, Ovation), ratings (5.0, 4.9, 4.8), and feedback tags.
+   - Added real-time search input with clear button (`reviewSearch`) searching across client names, project titles, note content, and tags.
+   - Added Rating filter dropdown (`All Star Ratings`, `5 Stars Only`, `4 Stars`).
+   - Added Client filter dropdown (`All Clients` + dynamic list of studio clients).
+   - Added Date & Rating sort dropdown (`Newest First`, `Oldest First`, `Highest Rating`, `Lowest Rating`).
+   - Added quick compliment tag filter pills (`All`, `Exceptional delivery`, `Fast turnaround`, `Creative & professional`, `Great collaborator`).
+   - Added live result counter with a one-click "Clear all filters" reset button.
+   - Enhanced review cards with client initials avatar, verified checkmark, gold star rating, feedback quote, and interactive `View Order Room →` link navigating to `/order/:orderId`.
+   - Created clean empty state with reset button when no reviews match filters.
+
+4. **Standalone Bundle Inlining (`monologg-app.html`):**
+   - Re-compiled standalone distribution (`npx pnpm --filter @monologg/web build:standalone`).
+   - Inlined updated standalone CSS and JS bundle into `monologg/monologg-app.html` (1.38 MB).
 
 ---
 

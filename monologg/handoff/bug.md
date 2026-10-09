@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
+**Last updated:** 2026-10-09 (Session 100: Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 48. Fragmented dual analytics cards and lack of search/filter in client reviews modal
+- **Severity:** Low / Information Density & Review Explorer Usability
+- **What happened:** The analytics tab used a side-by-side 2-card layout (horizontal progress bars for categories and a separate bar chart) which felt fragmented and cramped compared to an expansive, smooth spline area curve showing category trends. Additionally, client reviews were shown as an un-filterable static list with no ability to search by client name, project, or keyword, nor filter by rating, date, or studio.
+- **Root Cause:** Earnings by category was split across multiple smaller cards rather than taking advantage of full-width spline area charting; the reviews modal lacked a search input, filter selects, and sort state handlers.
+- **Resolution:** Replaced the two-card split with a single full-width spline area chart ("Earnings by Category") utilizing Catmull-Rom cubic Bézier curve paths with dual gradient fills for the 2 active gigs/rate cards, interactive mouse-tracking tooltips, and a timeframe selector. Placed a dedicated Client Reviews & Studio Ratings reputation bar directly underneath the graph. Upgraded the Client Reviews modal with real-time search, multi-dimensional filters (rating, client, date/sort, tags), reputation breakdown, and direct `View Order Room →` navigation links.
+
+---
 
 ### 47. Bulky accordion bank picker, invisible monthly growth chart bars, and lack of completed order rating system
 - **Severity:** Low / UX Polish & Feedback Completeness

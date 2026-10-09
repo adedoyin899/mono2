@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 99: Subscript Bank Input, 3-5% Watermark Receipt, 4 Analytics Cards with 2 Gigs, & Reciprocal Order Rating System)
+**Last updated:** 2026-10-09 (Session 100: Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -381,6 +381,16 @@ Addressed performer wallet ergonomics, analytics card accuracy, and bilateral co
 - **Analytics Cards & 2-Gig Category Breakdown:** Standardized the 4 analytics cards to exact user specifications (`Profile view`: 1,420; `Project completed`: 28; `Average rating`: 4.9 ★; `Total earnings`: ₦1,240,000). Filtered the "Earnings by Category" chart to strictly show the 2 available performer rate cards/gigs ("Feature Film Audition" 68% / ₦843,200 and "Commercial Voice-Over" 32% / ₦396,800) with visual progress bars. Fixed zero-height collapse in the Monthly Booking Growth chart bars.
 - **Reciprocal Order Rating System:** Implemented a full rating system in `OrderRoom.tsx` for completed orders (`phase === "complete"` or payment released) where both client and talent rate each other with 1–5 stars, prefilled descriptive chips (`CLIENT_RATING_TAGS` / `TALENT_RATING_TAGS`), and a personalized note textarea. Persists reviews to localStorage. Linked the "Average rating" card in `TalentDashboard.tsx` to open the Client Ratings & Reviews modal with direct navigation links back to the respective Order Room (`/order/:id`).
 - **Standalone Distribution Inlining:** Built and inlined the updated standalone bundle into `monologg/monologg-app.html` (1.37MB).
+
+---
+
+### Step 61: Single Full-Width Spline Area Graph, Reputation Tag Bar, and Searchable/Filterable Reviews Modal (Session 100)
+
+Rethought category analytics into a unified, expansive graph and supercharged client review discovery:
+- **Unified Category Spline Area Chart:** Replaced the two-card split with one responsive cubic Bézier spline area chart modeled after the Room Engagement reference. Tracks the 2 active gigs/rate cards (Feature Film Audition 68% and Commercial Voice-Over 32%) across multiple selectable timeframes (`Last 6 months`, `Last 3 months`, `Past year`), complete with subtle dashed horizontal gridlines, numeric Y-axis amounts (`₦0` to `₦400k`), vertical label (`Earnings (₦)`), interactive mouse-tracking tooltips, and bottom center legend.
+- **Client Reviews & Studio Ratings Reputation Bar:** Positioned directly underneath the single graph card, displaying the 4.9★ rating badge, verified client count, and quick filter tag buttons (`All`, `5 Stars`, `Exceptional delivery`).
+- **Advanced Searchable & Filterable Reviews Modal:** Upgraded the Client Reviews modal with real-time keyword search, multi-dimensional filters (rating, client, date/sort order, compliment tags), live results counter, quick reset button, client initials avatars, gold stars, review quotes, and direct `View Order Room →` navigation.
+- **Standalone Distribution Inlining:** Built and inlined the updated standalone bundle into `monologg/monologg-app.html` (1.38MB).
 
 ---
 

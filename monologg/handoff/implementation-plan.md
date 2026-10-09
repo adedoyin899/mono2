@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-09 (Session 99: Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul + Session 98 Withdrawal Flow UX Streamlining + Session 99 Bank Input Subscript Polish, Receipt Watermark, 4 Analytics Cards & 2-Gig Chart, and Reciprocal Order Rating System.
+**Last updated:** 2026-10-09 (Session 100: Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer + Sessions 93-97 Order Room FAANG UX Overhaul + Session 98 Withdrawal Flow UX Streamlining + Session 99 Bank Input Subscript Polish, Receipt Watermark, 4 Analytics Cards & 2-Gig Chart, and Reciprocal Order Rating System + Session 100 Single Spline Area Graph, Reputation Bar & Advanced Filterable Reviews Modal.
 
 ---
 
 ## ✅ Done
+
+### Session 100 — Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal
+- [x] **Single Full-Width Spline Area Graph ("Earnings by Category")**:
+  - Replaced the two-card split with one unified, responsive cubic Bézier spline area chart modeled after the Room Engagement reference.
+  - Placed directly underneath the 4 metric cards (`Profile view`, `Project completed`, `Average rating`, `Total earnings`).
+  - Displays the 2 active gigs/rate cards: Feature Film Audition (Blue `#0284c7`, 68%) and Commercial Voice-Over (Purple `#c084fc`, 32%).
+  - Integrated interactive mouse-tracking hover states with vertical guide lines, highlight circles, and a floating data tooltip.
+  - Added timeframe dropdown (`Last 6 months`, `Last 3 months`, `Past year`) and horizontal dashed grid lines with Y/X-axis ticks.
+- [x] **Client Reviews & Studio Ratings Reputation Bar**:
+  - Positioned directly underneath the single graph card.
+  - Displays the 4.9★ rating badge, verified client count, and quick filter tag buttons (`All`, `5 Stars`, `Exceptional delivery`).
+  - Directly launches the Client Reviews modal with preset filters on click.
+- [x] **Searchable & Filterable Client Reviews Explorer Modal**:
+  - Upgraded modal layout with reputation score overview (4.9★, 100% Recommended, Zero Disputes).
+  - Real-time search input (`reviewSearch`) across client name, project, review note, and tags.
+  - Multi-dimensional filters: Rating dropdown (`All`, `5 Stars`, `4 Stars`), Client dropdown (`All Clients` + dynamic list), and Date/Rating sort (`Newest First`, `Oldest First`, `Highest Rating`, `Lowest Rating`).
+  - Compliment tag pills (`All`, `Exceptional delivery`, `Fast turnaround`, `Creative & professional`, `Great collaborator`).
+  - Dynamic result counter and "Clear all filters" button.
+  - Clean review cards with avatar initials, verified badge, gold stars, review quote, and direct `View Order Room →` navigation.
+  - Clean empty state with "Reset All Filters" CTA.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt and inlined into `monologg/monologg-app.html` (1.38MB).
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 99 — Bank Input Subscript Polish, 3-5% Receipt Watermark, 4 Analytics Cards & 2-Gig Breakdown, and Reciprocal Order Rating System
 - [x] **Destination Bank Input Subscript Polish**:

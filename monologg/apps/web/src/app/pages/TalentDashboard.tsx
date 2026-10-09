@@ -19,7 +19,8 @@ import {
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink, ChevronDown,
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
-  SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic
+  SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
+  Filter, ArrowRight
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -87,7 +88,125 @@ export const DEFAULT_CLIENT_REVIEWS: ClientReviewItem[] = [
     note: "Commanded the room with immense charisma. On-time arrival and kept the audience fully engaged throughout the night.",
     date: "Aug 30, 2026",
   },
+  {
+    id: "rev-5",
+    clientName: "EbonyLife Creative",
+    projectName: "Period Drama Feature Audition",
+    orderId: "ORD-005",
+    stars: 5,
+    tag: "Exceptional delivery",
+    note: "Immaculate dialect work and character preparation. Stood out immediately during the executive producer review round.",
+    date: "Aug 12, 2026",
+  },
+  {
+    id: "rev-6",
+    clientName: "Silverbird Communications",
+    projectName: "Radio Station Promo Jingles & Drops",
+    orderId: "ORD-006",
+    stars: 4.9,
+    tag: "Fast turnaround",
+    note: "Super punchy voice-over with great energy. Mastered files arrived ahead of schedule with zero retakes needed.",
+    date: "Jul 24, 2026",
+  },
+  {
+    id: "rev-7",
+    clientName: "Mainframe Film & TV",
+    projectName: "Cultural Epic Supporting Character",
+    orderId: "ORD-007",
+    stars: 5,
+    tag: "Creative & professional",
+    note: "Deep emotional gravitas. Emeka brought real nuance to the monologue and hit every subtle emotional cue.",
+    date: "Jul 10, 2026",
+  },
+  {
+    id: "rev-8",
+    clientName: "Ovation Red Carpet Media",
+    projectName: "Corporate Gala Master of Ceremony",
+    orderId: "ORD-008",
+    stars: 4.8,
+    tag: "Great collaborator",
+    note: "Exuded elegance and warmth. Fluid stage command and great synchronization with the stage director.",
+    date: "Jun 28, 2026",
+  },
 ];
+
+export function getSplinePath(points: { x: number; y: number }[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i === 0 ? 0 : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return path;
+}
+
+export function getAreaPath(points: { x: number; y: number }[], baselineY: number): string {
+  if (points.length === 0) return "";
+  const spline = getSplinePath(points);
+  const first = points[0];
+  const last = points[points.length - 1];
+  return `${spline} L ${last.x.toFixed(1)} ${baselineY} L ${first.x.toFixed(1)} ${baselineY} Z`;
+}
+
+export const CATEGORY_CHART_TIMEFRAMES: Record<
+  "6m" | "3m" | "1y",
+  {
+    labels: string[];
+    gig1: number[];
+    gig2: number[];
+    maxVal: number;
+    ticks: { label: string; val: number }[];
+  }
+> = {
+  "6m": {
+    labels: ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+    gig1: [60000, 110000, 190000, 140000, 290000, 240000, 340000],
+    gig2: [35000, 60000, 110000, 85000, 120000, 150000, 175000],
+    maxVal: 400000,
+    ticks: [
+      { label: "400k", val: 400000 },
+      { label: "300k", val: 300000 },
+      { label: "200k", val: 200000 },
+      { label: "100k", val: 100000 },
+      { label: "0", val: 0 },
+    ],
+  },
+  "3m": {
+    labels: ["Jul", "Aug", "Sep"],
+    gig1: [290000, 240000, 340000],
+    gig2: [120000, 150000, 175000],
+    maxVal: 400000,
+    ticks: [
+      { label: "400k", val: 400000 },
+      { label: "300k", val: 300000 },
+      { label: "200k", val: 200000 },
+      { label: "100k", val: 100000 },
+      { label: "0", val: 0 },
+    ],
+  },
+  "1y": {
+    labels: ["Nov '25", "Jan '26", "Mar '26", "May '26", "Jul '26", "Aug '26", "Sep '26"],
+    gig1: [45000, 70000, 120000, 190000, 290000, 240000, 340000],
+    gig2: [25000, 40000, 75000, 110000, 120000, 150000, 175000],
+    maxVal: 400000,
+    ticks: [
+      { label: "400k", val: 400000 },
+      { label: "300k", val: 300000 },
+      { label: "200k", val: 200000 },
+      { label: "100k", val: 100000 },
+      { label: "0", val: 0 },
+    ],
+  },
+};
+
 
 const RECUR_RULE_OPTIONS = [
   { value: "WEEKDAYS", label: "Every weekday (Mon–Fri)" },
@@ -366,6 +485,71 @@ export function TalentDashboard() {
       return DEFAULT_CLIENT_REVIEWS;
     }
   }, [showReviewsModal]);
+
+  const [chartTimeframe, setChartTimeframe] = useState<"6m" | "3m" | "1y">("6m");
+  const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null);
+
+  const [reviewSearch, setReviewSearch] = useState("");
+  const [reviewRatingFilter, setReviewRatingFilter] = useState<"all" | "5" | "4">("all");
+  const [reviewClientFilter, setReviewClientFilter] = useState("all");
+  const [reviewSortOrder, setReviewSortOrder] = useState<"newest" | "oldest" | "highest" | "lowest">("newest");
+  const [reviewTagFilter, setReviewTagFilter] = useState("all");
+
+  const handleResetReviewFilters = () => {
+    setReviewSearch("");
+    setReviewRatingFilter("all");
+    setReviewClientFilter("all");
+    setReviewSortOrder("newest");
+    setReviewTagFilter("all");
+  };
+
+  const uniqueReviewClients = React.useMemo(() => {
+    return Array.from(new Set(allClientReviews.map((r) => r.clientName)));
+  }, [allClientReviews]);
+
+  const uniqueReviewTags = React.useMemo(() => {
+    return Array.from(new Set(allClientReviews.map((r) => r.tag).filter(Boolean)));
+  }, [allClientReviews]);
+
+  const filteredAndSortedReviews = React.useMemo(() => {
+    return allClientReviews
+      .filter((rev) => {
+        if (reviewSearch.trim()) {
+          const q = reviewSearch.toLowerCase().trim();
+          const matchesClient = rev.clientName.toLowerCase().includes(q);
+          const matchesProject = rev.projectName.toLowerCase().includes(q);
+          const matchesNote = rev.note.toLowerCase().includes(q);
+          const matchesTag = rev.tag.toLowerCase().includes(q);
+          if (!matchesClient && !matchesProject && !matchesNote && !matchesTag) {
+            return false;
+          }
+        }
+        if (reviewRatingFilter === "5" && rev.stars < 4.95) return false;
+        if (reviewRatingFilter === "4" && (rev.stars < 3.95 || rev.stars >= 4.95)) return false;
+        if (reviewClientFilter !== "all" && rev.clientName !== reviewClientFilter) return false;
+        if (reviewTagFilter !== "all" && rev.tag !== reviewTagFilter) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (reviewSortOrder === "newest") {
+          const timeA = Date.parse(a.date) || Date.now();
+          const timeB = Date.parse(b.date) || Date.now();
+          return timeB - timeA;
+        }
+        if (reviewSortOrder === "oldest") {
+          const timeA = Date.parse(a.date) || Date.now();
+          const timeB = Date.parse(b.date) || Date.now();
+          return timeA - timeB;
+        }
+        if (reviewSortOrder === "highest") {
+          return b.stars - a.stars;
+        }
+        if (reviewSortOrder === "lowest") {
+          return a.stars - b.stars;
+        }
+        return 0;
+      });
+  }, [allClientReviews, reviewSearch, reviewRatingFilter, reviewClientFilter, reviewSortOrder, reviewTagFilter]);
 
   const [stats, setStats] = useState<StatMetric[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
@@ -3967,96 +4151,345 @@ export function TalentDashboard() {
                       </div>
                     </div>
 
-                    {/* Detailed Analytics Charts & Breakdown */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Earning by Category (Showing only the 2 gigs/rate cards available) */}
-                      <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>Earnings by Category</h3>
-                            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Revenue across your 2 available rate cards</p>
-                          </div>
-                          <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700">2 Gigs Active</span>
-                        </div>
+                    {/* Single Full-Width Category Earnings Spline Area Graph (Matches Room Engagement reference) */}
+                    {(() => {
+                      const activeChartData = CATEGORY_CHART_TIMEFRAMES[chartTimeframe];
+                      const n = activeChartData.labels.length;
+                      const paddingLeft = 55;
+                      const paddingRight = 30;
+                      const paddingTop = 25;
+                      const paddingBottom = 40;
+                      const plotWidth = 760 - paddingLeft - paddingRight;
+                      const plotHeight = 260 - paddingTop - paddingBottom;
+                      const baselineY = paddingTop + plotHeight;
 
-                        {/* Visual graph / horizontal distribution bar */}
-                        <div className="mb-4">
-                          <div className="w-full h-3 rounded-full overflow-hidden flex bg-zinc-100">
-                            <div className="h-full bg-red-600 transition-all" style={{ width: "68%" }} title={`${effectiveServices[0]?.title || "Feature Film Audition"}: 68%`} />
-                            <div className="h-full bg-amber-500 transition-all" style={{ width: "32%" }} title={`${effectiveServices[1]?.title || "Commercial Voice-Over"}: 32%`} />
-                          </div>
-                          <div className="flex justify-between items-center text-[11px] font-body mt-1.5 text-zinc-400">
-                            <span>Total Earnings: ₦1,240,000</span>
-                            <span>100%</span>
-                          </div>
-                        </div>
+                      const gig1Points = activeChartData.gig1.map((val, i) => ({
+                        x: paddingLeft + (i / (n - 1)) * plotWidth,
+                        y: baselineY - (val / activeChartData.maxVal) * plotHeight,
+                      }));
 
-                        {/* Only 2 Gigs/Rate Cards available */}
-                        <div className="space-y-4 pt-1">
-                          {/* Gig 1 */}
-                          <div>
-                            <div className="flex justify-between text-xs font-body mb-1.5">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
-                                <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>
-                                  {effectiveServices[0]?.title || "Feature Film Audition"}
-                                </span>
+                      const gig2Points = activeChartData.gig2.map((val, i) => ({
+                        x: paddingLeft + (i / (n - 1)) * plotWidth,
+                        y: baselineY - (val / activeChartData.maxVal) * plotHeight,
+                      }));
+
+                      const spline1 = getSplinePath(gig1Points);
+                      const area1 = getAreaPath(gig1Points, baselineY);
+                      const spline2 = getSplinePath(gig2Points);
+                      const area2 = getAreaPath(gig2Points, baselineY);
+
+                      const gig1Title = effectiveServices[0]?.title || "Feature Film Audition";
+                      const gig2Title = effectiveServices[1]?.title || "Commercial Voice-Over";
+
+                      return (
+                        <div
+                          className="p-6 md:p-7 rounded-[var(--radius-xl)] relative"
+                          style={{
+                            background: "var(--color-bg-surface)",
+                            border: "1px solid var(--color-border-default)",
+                            boxShadow: "var(--shadow-card)",
+                          }}
+                        >
+                          {/* Header */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                            <div>
+                              <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                                Earnings by Category
+                              </h3>
+                              <p className="text-xs text-zinc-500 font-body mt-0.5">
+                                Overview of monthly revenue trajectory for your 2 active rate cards
+                              </p>
+                            </div>
+
+                            {/* Timeframe Selector Dropdown */}
+                            <div className="relative shrink-0">
+                              <select
+                                value={chartTimeframe}
+                                onChange={(e) => {
+                                  setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
+                                  setHoveredChartIndex(null);
+                                }}
+                                className="appearance-none text-xs font-semibold px-3 py-1.5 pr-8 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
+                              >
+                                <option value="6m">Last 6 months</option>
+                                <option value="3m">Last 3 months</option>
+                                <option value="1y">Past year</option>
+                              </select>
+                              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            </div>
+                          </div>
+
+                          {/* Interactive Hover Tooltip Float */}
+                          {hoveredChartIndex !== null && hoveredChartIndex < n && (
+                            <div
+                              className="absolute top-16 right-6 md:right-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-xl rounded-xl p-3 text-xs pointer-events-none transition-all z-20 min-w-[200px]"
+                            >
+                              <div className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1.5 pb-1 border-b border-zinc-100 dark:border-zinc-800 flex justify-between">
+                                <span>{activeChartData.labels[hoveredChartIndex]}</span>
+                                <span className="text-[10px] text-zinc-400 font-mono">Performance</span>
                               </div>
-                              <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>68% (₦843,200)</span>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
+                                    <span className="w-2 h-2 rounded-full bg-[#0284c7] shrink-0" />
+                                    <span className="truncate max-w-[110px]">{gig1Title}</span>
+                                  </span>
+                                  <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+                                    ₦{activeChartData.gig1[hoveredChartIndex].toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
+                                    <span className="w-2 h-2 rounded-full bg-[#c084fc] shrink-0" />
+                                    <span className="truncate max-w-[110px]">{gig2Title}</span>
+                                  </span>
+                                  <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+                                    ₦{activeChartData.gig2[hoveredChartIndex].toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-3 pt-1 border-t border-zinc-100 dark:border-zinc-800 font-bold text-zinc-900 dark:text-white">
+                                  <span>Total:</span>
+                                  <span className="font-mono text-[var(--color-accent)]">
+                                    ₦{(activeChartData.gig1[hoveredChartIndex] + activeChartData.gig2[hoveredChartIndex]).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                              <div className="h-full rounded-full bg-red-600" style={{ width: "68%" }} />
-                            </div>
+                          )}
+
+                          {/* Chart SVG Canvas */}
+                          <div className="w-full overflow-hidden">
+                            <svg
+                              viewBox="0 0 760 260"
+                              className="w-full h-56 sm:h-64 md:h-72 select-none"
+                              preserveAspectRatio="none"
+                              onMouseMove={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const clientX = e.clientX - rect.left;
+                                const scaleX = rect.width / 760;
+                                const svgX = clientX / scaleX;
+                                const relX = svgX - paddingLeft;
+                                const clampedRatio = Math.max(0, Math.min(1, relX / plotWidth));
+                                const idx = Math.round(clampedRatio * (n - 1));
+                                setHoveredChartIndex(idx);
+                              }}
+                              onMouseLeave={() => setHoveredChartIndex(null)}
+                            >
+                              <defs>
+                                <linearGradient id="splineGig1Gradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#0284c7" stopOpacity="0.28" />
+                                  <stop offset="100%" stopColor="#0284c7" stopOpacity="0.01" />
+                                </linearGradient>
+                                <linearGradient id="splineGig2Gradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#c084fc" stopOpacity="0.24" />
+                                  <stop offset="100%" stopColor="#c084fc" stopOpacity="0.01" />
+                                </linearGradient>
+                              </defs>
+
+                              {/* Y-Axis Label Rotated */}
+                              <text
+                                transform="rotate(-90)"
+                                x={-((paddingTop + baselineY) / 2)}
+                                y="16"
+                                textAnchor="middle"
+                                className="text-[11px] font-body fill-zinc-400 font-medium"
+                              >
+                                Earnings (₦)
+                              </text>
+
+                              {/* Horizontal Dashed Grid Lines & Y Ticks */}
+                              {activeChartData.ticks.map((tick) => {
+                                const tickY = baselineY - (tick.val / activeChartData.maxVal) * plotHeight;
+                                return (
+                                  <g key={tick.label}>
+                                    <line
+                                      x1={paddingLeft}
+                                      y1={tickY}
+                                      x2={paddingLeft + plotWidth}
+                                      y2={tickY}
+                                      stroke="currentColor"
+                                      strokeDasharray="4 4"
+                                      className="text-zinc-200 dark:text-zinc-800"
+                                      strokeWidth="1"
+                                    />
+                                    <text
+                                      x={paddingLeft - 8}
+                                      y={tickY + 4}
+                                      textAnchor="end"
+                                      className="text-[11px] font-mono fill-zinc-400 dark:fill-zinc-500"
+                                    >
+                                      {tick.label}
+                                    </text>
+                                  </g>
+                                );
+                              })}
+
+                              {/* Area Fills */}
+                              <path d={area1} fill="url(#splineGig1Gradient)" />
+                              <path d={area2} fill="url(#splineGig2Gradient)" />
+
+                              {/* Spline Lines */}
+                              <path
+                                d={spline1}
+                                fill="none"
+                                stroke="#0284c7"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d={spline2}
+                                fill="none"
+                                stroke="#c084fc"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+
+                              {/* Hover Indicator Vertical Line & Circles */}
+                              {hoveredChartIndex !== null && hoveredChartIndex < n && (
+                                <g>
+                                  <line
+                                    x1={gig1Points[hoveredChartIndex].x}
+                                    y1={paddingTop}
+                                    x2={gig1Points[hoveredChartIndex].x}
+                                    y2={baselineY}
+                                    stroke="#94a3b8"
+                                    strokeDasharray="3 3"
+                                    strokeWidth="1.5"
+                                  />
+                                  <circle
+                                    cx={gig1Points[hoveredChartIndex].x}
+                                    cy={gig1Points[hoveredChartIndex].y}
+                                    r="5.5"
+                                    fill="#0284c7"
+                                    stroke="white"
+                                    strokeWidth="2.5"
+                                  />
+                                  <circle
+                                    cx={gig2Points[hoveredChartIndex].x}
+                                    cy={gig2Points[hoveredChartIndex].y}
+                                    r="5.5"
+                                    fill="#c084fc"
+                                    stroke="white"
+                                    strokeWidth="2.5"
+                                  />
+                                </g>
+                              )}
+
+                              {/* X-Axis Tick Labels */}
+                              {activeChartData.labels.map((label, i) => {
+                                const x = paddingLeft + (i / (n - 1)) * plotWidth;
+                                return (
+                                  <text
+                                    key={label}
+                                    x={x}
+                                    y={baselineY + 22}
+                                    textAnchor="middle"
+                                    className="text-[12px] font-body fill-zinc-500 dark:fill-zinc-400 font-medium"
+                                  >
+                                    {label}
+                                  </text>
+                                );
+                              })}
+                            </svg>
                           </div>
 
-                          {/* Gig 2 */}
-                          <div>
-                            <div className="flex justify-between text-xs font-body mb-1.5">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
-                                <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>
-                                  {effectiveServices[1]?.title || "Commercial Voice-Over"}
-                                </span>
-                              </div>
-                              <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>32% (₦396,800)</span>
+                          {/* Legend Row at Bottom Center */}
+                          <div className="flex flex-wrap items-center justify-center gap-6 pt-4 mt-2 border-t border-[var(--color-hairline)] text-xs font-body">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#0284c7] inline-block shadow-2xs" />
+                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                {gig1Title}
+                              </span>
+                              <span className="font-mono text-zinc-400 text-[11px]">(68% · ₦843,200)</span>
                             </div>
-                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                              <div className="h-full rounded-full bg-amber-500" style={{ width: "32%" }} />
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc] inline-block shadow-2xs" />
+                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                {gig2Title}
+                              </span>
+                              <span className="font-mono text-zinc-400 text-[11px]">(32% · ₦396,800)</span>
                             </div>
                           </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Client Reviews Reputation Bar (Tag Row & Modal Launcher underneath the bar) */}
+                    <div
+                      className="p-5 rounded-[var(--radius-xl)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                      style={{
+                        background: "var(--color-bg-surface)",
+                        border: "1px solid var(--color-border-default)",
+                        boxShadow: "var(--shadow-card)",
+                      }}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 text-lg font-bold shrink-0">
+                          4.9★
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-display text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                              Client Reviews &amp; Studio Ratings
+                            </h4>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              100% Verified
+                            </span>
+                          </div>
+                          <p className="text-xs text-zinc-500 font-body mt-0.5">
+                            Based on {allClientReviews.length} client reviews across completed orders · Zero disputes filed
+                          </p>
                         </div>
                       </div>
 
-                      {/* Monthly Growth Velocity Chart */}
-                      <div className="p-5 rounded-[var(--radius-xl)] flex flex-col justify-between" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>Monthly Booking Growth</h3>
-                          <div className="flex items-center gap-3 text-[11px] font-body text-zinc-400">
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-600" /> {effectiveServices[0]?.title?.split(" ")[0] || "Film"}</span>
-                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> {effectiveServices[1]?.title?.split(" ")[0] || "Voice"}</span>
-                          </div>
-                        </div>
-
-                        {/* Definite Rendered Bar Chart Area */}
-                        <div className="h-40 flex items-end justify-between gap-3 pt-4 pb-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                          {[
-                            { month: "Mar", hMain: 36, hSub: 18, amount: "₦180k" },
-                            { month: "Apr", hMain: 52, hSub: 26, amount: "₦250k" },
-                            { month: "May", hMain: 68, hSub: 34, amount: "₦320k" },
-                            { month: "Jun", hMain: 60, hSub: 30, amount: "₦290k" },
-                            { month: "Jul", hMain: 84, hSub: 42, amount: "₦410k" },
-                            { month: "Aug", hMain: 100, hSub: 48, amount: "₦450k" },
-                          ].map((bar) => (
-                            <div key={bar.month} className="flex-1 h-full flex flex-col justify-end items-center gap-1 group">
-                              <span className="text-[10px] font-mono text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{bar.amount}</span>
-                              <div className="w-full flex items-end justify-center gap-1">
-                                <div className="w-1/2 rounded-t-md bg-red-600 transition-all group-hover:brightness-110" style={{ height: `${bar.hMain}px` }} />
-                                <div className="w-1/2 rounded-t-md bg-amber-500 transition-all group-hover:brightness-110" style={{ height: `${bar.hSub}px` }} />
-                              </div>
-                              <span className="text-xs font-body text-zinc-400 mt-1">{bar.month}</span>
-                            </div>
-                          ))}
-                        </div>
+                      {/* Filter Tag Chips & Launcher */}
+                      <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleResetReviewFilters();
+                            setShowReviewsModal(true);
+                          }}
+                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                        >
+                          All ({allClientReviews.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleResetReviewFilters();
+                            setReviewRatingFilter("5");
+                            setShowReviewsModal(true);
+                          }}
+                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>5 Stars</span>
+                          <span className="text-[10px] text-amber-500 font-mono">★</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleResetReviewFilters();
+                            setReviewTagFilter("Exceptional delivery");
+                            setShowReviewsModal(true);
+                          }}
+                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 transition-colors cursor-pointer"
+                        >
+                          Exceptional delivery
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleResetReviewFilters();
+                            setShowReviewsModal(true);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shrink-0 ml-auto md:ml-1 cursor-pointer"
+                        >
+                          <Search className="w-3.5 h-3.5" />
+                          <span>Search &amp; Filter Reviews →</span>
+                        </button>
                       </div>
                     </div>
                 </>
@@ -4365,7 +4798,7 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Client Reviews & Ratings Modal */}
+          {/* Client Reviews & Ratings Modal (Searchable, Filterable by client, date, rating, tags) */}
           <AnimatePresence>
             {showReviewsModal && (
               <Modal onClose={() => setShowReviewsModal(false)}>
@@ -4373,104 +4806,258 @@ export function TalentDashboard() {
                   initial={{ y: 20, scale: 0.95 }}
                   animate={{ y: 0, scale: 1 }}
                   exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-xl rounded-2xl p-6 relative max-h-[85vh] flex flex-col bg-white border border-zinc-200 shadow-2xl"
+                  className="w-full max-w-2xl rounded-2xl p-6 relative max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Modal Header */}
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-100 shrink-0">
+                  <div className="flex items-center justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-zinc-900 flex items-center gap-2">
+                      <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                         <span>Client Ratings &amp; Reviews</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Verified
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          100% Verified
                         </span>
                       </h3>
                       <p className="text-xs text-zinc-500 font-body mt-0.5">
-                        Authentic feedback from casting directors &amp; production studios
+                        Authentic feedback from casting directors, producers &amp; studio agencies
                       </p>
                     </div>
                     <button
                       onClick={() => setShowReviewsModal(false)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Summary Rating Banner */}
-                  <div className="my-4 p-4 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between shrink-0">
+                  <div className="my-3.5 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 text-xl font-bold font-mono">
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-500 text-xl font-bold font-mono">
                         4.9★
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-zinc-900">Performer Reputation Score</div>
-                        <div className="text-xs text-zinc-500">Based on {allClientReviews.length} client reviews across completed orders</div>
+                        <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Performer Reputation Score</div>
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Based on {allClientReviews.length} client reviews across completed orders
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs font-semibold text-emerald-700">100% Recommended</div>
-                      <div className="text-[11px] text-zinc-400">Zero disputes filed</div>
+                    <div className="flex items-center gap-3 sm:text-right">
+                      <div>
+                        <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">100% Recommended</div>
+                        <div className="text-[11px] text-zinc-400">Zero disputes filed</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Search and Filters Bar */}
+                  <div className="space-y-2.5 pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={reviewSearch}
+                        onChange={(e) => setReviewSearch(e.target.value)}
+                        placeholder="Search reviews by client, project title, or keyword..."
+                        className="w-full h-9 pl-9 pr-8 text-xs rounded-xl border bg-white dark:bg-zinc-800/80 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
+                      />
+                      {reviewSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setReviewSearch("")}
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Filter Selects Row: Rating, Client, Date/Sort */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {/* Rating Filter */}
+                      <div className="relative">
+                        <select
+                          value={reviewRatingFilter}
+                          onChange={(e) => setReviewRatingFilter(e.target.value as "all" | "5" | "4")}
+                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                        >
+                          <option value="all">All Star Ratings</option>
+                          <option value="5">5 Stars Only (★ 5.0)</option>
+                          <option value="4">4 Stars (★ 4.0 - 4.9)</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+
+                      {/* Client Filter */}
+                      <div className="relative">
+                        <select
+                          value={reviewClientFilter}
+                          onChange={(e) => setReviewClientFilter(e.target.value)}
+                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none truncate cursor-pointer"
+                        >
+                          <option value="all">All Clients</option>
+                          {uniqueReviewClients.map((client) => (
+                            <option key={client} value={client}>{client}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+
+                      {/* Date/Sort Filter */}
+                      <div className="relative">
+                        <select
+                          value={reviewSortOrder}
+                          onChange={(e) => setReviewSortOrder(e.target.value as any)}
+                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                        >
+                          <option value="newest">Sort: Newest First</option>
+                          <option value="oldest">Sort: Oldest First</option>
+                          <option value="highest">Sort: Highest Rating</option>
+                          <option value="lowest">Sort: Lowest Rating</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Quick Tag Filter Pills */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                      <span className="text-[11px] text-zinc-400 font-medium mr-1">Tags:</span>
+                      <button
+                        type="button"
+                        onClick={() => setReviewTagFilter("all")}
+                        className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                          reviewTagFilter === "all"
+                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                            : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200"
+                        }`}
+                      >
+                        All
+                      </button>
+                      {uniqueReviewTags.map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setReviewTagFilter(tag)}
+                          className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                            reviewTagFilter === tag
+                              ? "bg-red-600 text-white"
+                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200"
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Results Feedback & Reset Button */}
+                    <div className="flex items-center justify-between text-xs pt-1 text-zinc-500">
+                      <span>
+                        Showing <strong>{filteredAndSortedReviews.length}</strong> of {allClientReviews.length} reviews
+                      </span>
+                      {(reviewSearch || reviewRatingFilter !== "all" || reviewClientFilter !== "all" || reviewTagFilter !== "all" || reviewSortOrder !== "newest") && (
+                        <button
+                          type="button"
+                          onClick={handleResetReviewFilters}
+                          className="text-xs text-red-600 hover:underline font-medium cursor-pointer"
+                        >
+                          Clear all filters
+                        </button>
+                      )}
                     </div>
                   </div>
 
                   {/* Scrollable Reviews List */}
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
-                    {allClientReviews.map((rev) => (
-                      <div
-                        key={rev.id}
-                        className="p-4 rounded-xl border border-zinc-100 bg-white hover:border-zinc-200 transition-all space-y-2 shadow-2xs"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="text-sm font-semibold text-zinc-900 font-body">{rev.clientName}</div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <div className="flex items-center text-amber-400 text-xs">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <span key={i} className={i < Math.floor(rev.stars) ? "text-amber-400" : "text-zinc-200"}>★</span>
-                                ))}
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 py-3 min-h-[160px]">
+                    {filteredAndSortedReviews.length === 0 ? (
+                      <div className="py-12 text-center flex flex-col items-center">
+                        <Search className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mb-2" />
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">No reviews found</p>
+                        <p className="text-xs text-zinc-500 max-w-xs mt-1 mb-3">
+                          No client reviews match your current search or filter combination.
+                        </p>
+                        <Button variant="secondary" size="sm" onClick={handleResetReviewFilters} className="text-xs">
+                          Reset All Filters
+                        </Button>
+                      </div>
+                    ) : (
+                      filteredAndSortedReviews.map((rev) => {
+                        const clientInitials = rev.clientName
+                          .split(" ")
+                          .map((w: string) => w[0])
+                          .slice(0, 2)
+                          .join("")
+                          .toUpperCase();
+
+                        return (
+                          <div
+                            key={rev.id}
+                            className="p-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/40 hover:border-zinc-200 dark:hover:border-zinc-700 transition-all space-y-2 shadow-2xs"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center text-xs font-bold font-mono">
+                                  {clientInitials}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-body flex items-center gap-1.5">
+                                    <span>{rev.clientName}</span>
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                  </div>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <div className="flex items-center text-amber-400 text-xs">
+                                      {Array.from({ length: 5 }).map((_, i) => (
+                                        <span key={i} className={i < Math.floor(rev.stars) ? "text-amber-400" : "text-zinc-200 dark:text-zinc-700"}>★</span>
+                                      ))}
+                                    </div>
+                                    <span className="text-xs font-mono font-medium text-zinc-700 dark:text-zinc-300">{rev.stars}</span>
+                                    <span className="text-zinc-300 dark:text-zinc-600">·</span>
+                                    <span className="text-xs text-zinc-400">{rev.date}</span>
+                                  </div>
+                                </div>
                               </div>
-                              <span className="text-xs font-mono font-medium text-zinc-700">{rev.stars}</span>
-                              <span className="text-zinc-300">·</span>
-                              <span className="text-xs text-zinc-400">{rev.date}</span>
+                              {rev.tag && (
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 shrink-0">
+                                  {rev.tag}
+                                </span>
+                              )}
+                            </div>
+
+                            {rev.note && (
+                              <p className="text-xs text-zinc-600 dark:text-zinc-300 font-body leading-relaxed bg-zinc-50/60 dark:bg-zinc-800/80 p-2.5 rounded-lg border border-zinc-100 dark:border-zinc-700/60">
+                                &ldquo;{rev.note}&rdquo;
+                              </p>
+                            )}
+
+                            {/* Associated Project with direct link button */}
+                            <div className="pt-1 flex items-center justify-between text-xs border-t border-zinc-100 dark:border-zinc-800">
+                              <span className="text-zinc-500 font-medium truncate max-w-[260px] sm:max-w-md">
+                                Project: <strong className="text-zinc-800 dark:text-zinc-200">{rev.projectName}</strong>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowReviewsModal(false);
+                                  navigate(`/order/${rev.orderId}`);
+                                }}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 hover:underline shrink-0 cursor-pointer"
+                              >
+                                <span>View Order Room</span>
+                                <span>→</span>
+                              </button>
                             </div>
                           </div>
-                          {rev.tag && (
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0">
-                              {rev.tag}
-                            </span>
-                          )}
-                        </div>
-
-                        {rev.note && (
-                          <p className="text-xs text-zinc-600 font-body leading-relaxed bg-zinc-50/60 p-2.5 rounded-lg border border-zinc-100">
-                            &ldquo;{rev.note}&rdquo;
-                          </p>
-                        )}
-
-                        {/* Associated Project with direct link button */}
-                        <div className="pt-1 flex items-center justify-between text-xs border-t border-zinc-100">
-                          <span className="text-zinc-500 font-medium truncate max-w-[260px]">
-                            Project: <strong className="text-zinc-800">{rev.projectName}</strong>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowReviewsModal(false);
-                              navigate(`/order/${rev.orderId}`);
-                            }}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 hover:underline shrink-0"
-                          >
-                            <span>View Order Room</span>
-                            <span>→</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      })
+                    )}
                   </div>
 
                   {/* Modal Footer */}
-                  <div className="pt-3 mt-3 border-t border-zinc-100 flex justify-end shrink-0">
+                  <div className="pt-3 mt-1 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
+                    <span className="text-xs text-zinc-400">
+                      All reviews are verified and cannot be edited by performers.
+                    </span>
                     <Button variant="secondary" className="h-9 text-xs" onClick={() => setShowReviewsModal(false)}>
                       Close
                     </Button>
