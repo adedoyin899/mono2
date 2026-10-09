@@ -1,11 +1,53 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 94: Order Room FAANG UX Simplification — Stepper Removal, Full Project Phases & Financial Breakdown in Order Info, PIN Code Handshake with Cool Auto-Presence Verification, and Two-Sided Client/Performer Sync)
+**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 95 (2026-10-09) — Order Room Chat Palette Perfection: Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms
+
+**Goal:** Refine the chat bubble color scheme to match the user's reference screenshot: (1) use a clean white card for incoming messages with subtle border and crisp dark typography; (2) use a similar but consistent soft red hue for performer outgoing messages (`bg-red-50/90` with subtle red border and dark text); (3) reverse for the client (client outgoing messages use a consistent soft purple hue `bg-purple-50/90` with subtle purple border, while performer incoming messages are clean white); (4) keep primary CTA buttons in solid main brand colors across both platforms (brand red for performer actions, brand purple for client actions).
+
+### Changes Made
+
+1. **Crisp White Incoming Chat Bubbles (`OrderRoom.tsx`):**
+   - For all incoming messages (`!isMe`), applied pure white background (`#ffffff`), subtle border (`1px solid rgba(0, 0, 0, 0.08)`), soft `shadow-2xs`, and high-contrast dark text (`#18181b`), precisely matching the user's screenshot.
+   - Attachments inside incoming bubbles use neutral `var(--color-bg-canvas)` card with subtle border and dark text.
+
+2. **Role-Specific Soft Brand Hues for Outgoing Messages (`OrderRoom.tsx`):**
+   - **Performer View (`role === "talent"`):** Outgoing messages use a soft, elegant red hue (`var(--color-red-soft)` / `#FFF1F2`), subtle red border (`1px solid rgba(225, 29, 72, 0.22)`), and dark text (`#18181b`). Eliminates harsh neon red blocks while preserving clear brand identity.
+   - **Client View (`role === "client"`):** Outgoing messages use a soft, elegant purple hue (`var(--color-purple-soft)` / `#FAF5FF`), subtle purple border (`1px solid rgba(124, 58, 237, 0.22)`), and dark text (`#18181b`).
+   - Inner evidence cards and attachments in outgoing bubbles use clean translucent white cards (`bg-white/85` or `bg-white/95`) with role-tinted borders and high contrast.
+
+3. **Solid Main Brand Colors for CTAs Across Platforms (`OrderRoom.tsx`):**
+   - **Performer Platform:**
+     - Send Message button: Solid brand red (`var(--color-red)` / `#E11D48`) with white icon.
+     - "Submit Deliverable" and "Enter Code & Submit Appearance Proof" Action Dock buttons: Solid brand red (`var(--color-red)`).
+     - Modal "Verify & Submit Proof" button: Solid brand red (`var(--color-red)`).
+     - Header Order Info button: Red outline pill with red text and soft red background matching screenshot.
+     - Header escrow lock indicator: Red lock with red mono amount.
+   - **Client Platform:**
+     - Send Message button: Solid brand purple (`var(--color-purple)` / `#7C3AED`) with white icon.
+     - "Confirm Brief" Action Dock button: Solid brand purple (`var(--color-purple)`).
+     - Header Order Info button: Purple outline pill with purple text and soft purple background.
+     - Header escrow lock indicator: Purple lock with purple mono amount.
+
+4. **Standalone Distribution Rebuilt (`monologg-app.html`):**
+   - Re-compiled Vite standalone bundle (`npm run build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.36MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

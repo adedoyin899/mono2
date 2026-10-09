@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 94: Order Room FAANG UX Simplification — Stepper Removal, Full Project Phases & Financial Breakdown in Order Info, PIN Code Handshake with Cool Auto-Presence Verification, and Two-Sided Client/Performer Sync)
+**Last updated:** 2026-10-09 (Session 95: Order Room Chat Palette Perfection — Crisp White Incoming Bubbles, Role-Specific Soft Brand Hues for Outgoing, and Solid Brand CTAs Across Platforms)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -326,6 +326,16 @@ Further streamlined the Order Room to maximize elegance, focus, and transparency
 - **PIN Code Alone Handshake:** Focused onsite delivery verification solely on a 4-digit PIN code with auto-focusing inputs and real-time validation against the booking code (`4821`).
 - **Two-Sided Synchronization:** In the client view, the Action Dock displays the 4-digit code (`4 8 2 1`) with a one-tap copy button and instructions to share it with the performer upon arrival. In the performer view, the Action Dock prompts the performer to request the code from the client.
 - **Standalone Distribution Inlining:** Rebuilt standalone bundle and inlined updated assets into `monologg/monologg-app.html`.
+
+---
+
+### Step 56: Chat Palette Perfection & Solid Brand CTAs (Session 95)
+
+Fine-tuned the visual styling of the Order Room to match user preference:
+- **Crisp White Incoming Bubbles:** Styled incoming messages as clean white cards (`#ffffff`) with subtle hairline borders, soft shadow, and crisp dark typography matching the reference screenshot.
+- **Consistent Soft Brand Hues for Outgoing:** Styled performer outgoing messages with a soft red hue (`var(--color-red-soft)` / `#FFF1F2`) and subtle red border; reversed for client (outgoing messages use soft purple hue `var(--color-purple-soft)` / `#FAF5FF` and subtle purple border).
+- **Solid Main Brand CTAs Across Platforms:** Kept primary call-to-action buttons in bold, solid brand colors (`var(--color-red)` for performer actions; `var(--color-purple)` for client actions).
+- **Standalone Distribution Inlining:** Rebuilt and inlined updated assets into `monologg/monologg-app.html`.
 
 ---
 

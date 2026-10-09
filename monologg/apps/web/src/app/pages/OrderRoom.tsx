@@ -254,14 +254,14 @@ export function OrderRoom() {
   const renderActionDock = () => {
     if (paymentReleased) return null;
 
-    // Briefing Phase
+    // Briefing Phase — Client
     if (phase === "briefing" && role === "client") {
       return (
         <div className="px-4 pb-3 pt-1">
           <button
             onClick={() => advancePhase("deliverables")}
-            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-            style={{ background: "var(--color-accent)", color: "#fff" }}
+            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white"
+            style={{ background: "var(--color-purple)" }}
           >
             <Check className="w-4 h-4" />
             Confirm Brief & Advance to Deliverables
@@ -282,7 +282,7 @@ export function OrderRoom() {
               </div>
               <button
                 onClick={handleCopyPin}
-                className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-purple-200 shadow-xs hover:bg-purple-50 transition-colors"
+                className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-purple-200 shadow-2xs hover:bg-purple-50 transition-colors"
               >
                 {copiedPin ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                 {copiedPin ? "Copied" : "Copy Code"}
@@ -296,7 +296,7 @@ export function OrderRoom() {
                 {CLIENT_GENERATED_PIN.split("").map((digit, idx) => (
                   <span
                     key={idx}
-                    className="w-10 h-10 rounded-xl bg-white border border-purple-200 flex items-center justify-center font-mono font-bold text-lg text-purple-950 shadow-xs"
+                    className="w-10 h-10 rounded-xl bg-white border border-purple-200 flex items-center justify-center font-mono font-bold text-lg text-purple-950 shadow-2xs"
                   >
                     {digit}
                   </span>
@@ -329,8 +329,8 @@ export function OrderRoom() {
               setDeliverableTab("onsite");
               setShowSubmitModal(true);
             }}
-            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-            style={{ background: "var(--color-accent)", color: "#fff" }}
+            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white"
+            style={{ background: "var(--color-red)" }}
           >
             <KeyRound className="w-4 h-4" />
             Enter Code & Submit Appearance Proof
@@ -348,8 +348,8 @@ export function OrderRoom() {
               setDeliverableTab("online");
               setShowSubmitModal(true);
             }}
-            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-            style={{ background: "var(--color-accent)", color: "#fff" }}
+            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white"
+            style={{ background: "var(--color-red)" }}
           >
             <UploadCloud className="w-4 h-4" />
             Submit Deliverable
@@ -391,7 +391,7 @@ export function OrderRoom() {
               </button>
               <button
                 onClick={() => setShowReleaseModal(true)}
-                className="flex-1 h-10 rounded-xl text-xs font-semibold text-white transition-all active:scale-[0.98]"
+                className="flex-1 h-10 rounded-xl text-xs font-semibold text-white transition-all active:scale-[0.98] shadow-sm hover:opacity-95"
                 style={{ background: "var(--color-success)" }}
               >
                 Release ₦120,000
@@ -451,7 +451,11 @@ export function OrderRoom() {
             <div className="text-[11px] text-zinc-500 truncate mt-0.5 flex items-center gap-1.5">
               <span>{clientOrg}</span>
               <span>·</span>
-              <span className="font-semibold font-mono" style={{ color: "var(--color-success)" }}>
+              <span
+                className="font-semibold font-mono flex items-center gap-1"
+                style={{ color: role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)" }}
+              >
+                <Lock className="w-3 h-3" />
                 ₦120,000 in escrow
               </span>
               {isOnsite && (
@@ -466,14 +470,14 @@ export function OrderRoom() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Demo: gig type switcher */}
           <div className="hidden sm:flex items-center p-0.5 rounded-full bg-zinc-100 text-[11px]">
             {(["remote", "onsite"] as GigType[]).map(g => (
               <button
                 key={g}
                 onClick={() => { setGigType(g); setDeliverableTab(g === "remote" ? "online" : "onsite"); }}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${gigType === g ? "bg-white text-zinc-900 shadow-xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${gigType === g ? "bg-white text-zinc-900 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
               >
                 {g}
               </button>
@@ -486,21 +490,27 @@ export function OrderRoom() {
               <button
                 key={r}
                 onClick={() => setRole(r)}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${role === r ? "bg-white text-zinc-900 shadow-xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${role === r ? "bg-white text-zinc-900 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
               >
                 {r === "talent" ? "Performer" : "Client"}
               </button>
             ))}
           </div>
 
-          {/* Order Info button */}
+          {/* Order Info pill button matching screenshot aesthetic */}
           <button
             onClick={() => setShowOrderInfoModal(true)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-500 transition-all border border-zinc-200/60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shadow-2xs active:scale-95"
+            style={{
+              border: role === "talent" ? "1px solid rgba(225, 29, 72, 0.25)" : "1px solid rgba(124, 58, 237, 0.25)",
+              background: role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)",
+              color: role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)",
+            }}
             aria-label="Order Info"
             title="View Project Phases & Escrow Details"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-3.5 h-3.5" />
+            <span>Order Info</span>
           </button>
         </div>
       </header>
@@ -529,16 +539,29 @@ export function OrderRoom() {
             const isMe = msg.from === role;
             const isTalent = msg.from === "talent";
 
-            // Color scheme matching img 1 & 3:
-            // Performer (Talent): Solid brand red when sender, soft red when receiver
-            // Client: Solid purple when sender, soft purple tint when receiver
-            const meBubbleBg = isTalent ? "var(--color-red)" : "var(--color-purple)";
-            const themBubbleBg = isTalent ? "var(--color-red-soft)" : "var(--color-purple-soft)";
-            const meBubbleColor = "#ffffff";
-            const themBubbleColor = isTalent ? "var(--color-mono-red)" : "var(--color-mono-purple)";
+            // Chat bubble colors matching user requirement:
+            // "pls use this color for the chat and a similar but consistent hue for the performer ( reverse for the client)"
+            // 1. Incoming messages from the other party (!isMe):
+            //    Crisp white card (#ffffff) with subtle neutral border (border-zinc-200/80)
+            //    and dark neutral text (#18181b), exactly matching the user screenshot.
+            // 2. Outgoing messages from current role (isMe):
+            //    - Performer (role === "talent"): consistent soft red hue (#FFF1F2) with subtle red border.
+            //    - Client (role === "client"): consistent soft purple hue (#FAF5FF) with subtle purple border.
+            let bubbleBg: string;
+            let bubbleBorder: string;
 
-            const bubbleBg = isMe ? meBubbleBg : themBubbleBg;
-            const bubbleColor = isMe ? meBubbleColor : themBubbleColor;
+            if (!isMe) {
+              bubbleBg = "#ffffff";
+              bubbleBorder = "1px solid rgba(0, 0, 0, 0.08)";
+            } else {
+              if (role === "talent") {
+                bubbleBg = "var(--color-red-soft)";
+                bubbleBorder = "1px solid rgba(225, 29, 72, 0.22)";
+              } else {
+                bubbleBg = "var(--color-purple-soft)";
+                bubbleBorder = "1px solid rgba(124, 58, 237, 0.22)";
+              }
+            }
 
             return (
               <motion.div
@@ -559,10 +582,10 @@ export function OrderRoom() {
 
                 <div className={`max-w-[80%] sm:max-w-[72%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
                   <div
-                    className="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed"
+                    className="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs text-zinc-900"
                     style={{
                       background: bubbleBg,
-                      color: bubbleColor,
+                      border: bubbleBorder,
                       borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
                     }}
                   >
@@ -571,23 +594,28 @@ export function OrderRoom() {
                     {/* File attachment */}
                     {msg.attachment && (
                       <div
-                        className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border"
+                        className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors"
                         style={{
-                          background: isMe ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.8)",
-                          borderColor: isMe ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)",
+                          background: !isMe ? "var(--color-bg-canvas)" : "rgba(255, 255, 255, 0.85)",
+                          borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(225, 29, 72, 0.18)" : "rgba(124, 58, 237, 0.18)"),
                         }}
                       >
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: isMe ? "rgba(255,255,255,0.2)" : "var(--color-bg-elevated)" }}>
-                          <FileText className="w-4 h-4" style={{ color: isMe ? "#fff" : "var(--color-text-secondary)" }} />
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                          style={{ background: !isMe ? "rgba(0, 0, 0, 0.06)" : (role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)") }}
+                        >
+                          <FileText
+                            className="w-4 h-4"
+                            style={{ color: !isMe ? "var(--color-text-secondary)" : (role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)") }}
+                          />
                         </div>
                         <div className="flex-1 min-w-0 text-xs">
-                          <div className="font-medium truncate" style={{ color: isMe ? "#fff" : "var(--color-text-primary)" }}>{msg.attachment.name}</div>
-                          <div style={{ color: isMe ? "rgba(255,255,255,0.7)" : "var(--color-text-tertiary)" }}>{msg.attachment.size}</div>
+                          <div className="font-medium truncate text-zinc-900">{msg.attachment.name}</div>
+                          <div className="text-zinc-500">{msg.attachment.size}</div>
                         </div>
                         <button
                           type="button"
-                          className="p-1.5 rounded-lg transition-colors"
-                          style={{ color: isMe ? "rgba(255,255,255,0.8)" : "var(--color-text-secondary)" }}
+                          className="p-1.5 rounded-lg transition-colors text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
                           title="Download"
                         >
                           <Download className="w-3.5 h-3.5" />
@@ -598,30 +626,32 @@ export function OrderRoom() {
                     {/* Onsite evidence card inside performer bubble */}
                     {msg.onsiteEvidence && (
                       <div
-                        className="mt-2.5 p-3 rounded-xl border text-xs"
+                        className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs"
                         style={{
-                          background: isMe ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.9)",
-                          borderColor: isMe ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)",
-                          color: isMe ? "#fff" : "var(--color-text-primary)",
+                          background: "rgba(255, 255, 255, 0.95)",
+                          borderColor: isMe && role === "talent" ? "rgba(225, 29, 72, 0.25)" : "rgba(0, 0, 0, 0.08)",
+                          color: "#18181b",
                         }}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5 font-semibold">
-                            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                          <div className="flex items-center gap-1.5 font-semibold text-zinc-900">
+                            <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                             Onsite Appearance Verified
                           </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/20 text-emerald-300">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">
                             Verified
                           </span>
                         </div>
-                        <div className="space-y-1" style={{ color: isMe ? "rgba(255,255,255,0.9)" : "var(--color-text-secondary)" }}>
-                          <div className="font-semibold" style={{ color: isMe ? "#fff" : "var(--color-text-primary)" }}>{msg.onsiteEvidence.venue}</div>
+                        <div className="space-y-1 text-zinc-600">
+                          <div className="font-semibold text-zinc-900">{msg.onsiteEvidence.venue}</div>
                           <div>📍 {msg.onsiteEvidence.coords}</div>
                           <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
                           {msg.onsiteEvidence.pinCode && (
-                            <div className="mt-1.5 flex items-center gap-1.5 font-mono">
+                            <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800">
                               <span>Client code confirmed:</span>
-                              <span className="font-bold tracking-widest text-emerald-300">{msg.onsiteEvidence.pinCode}</span>
+                              <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                {msg.onsiteEvidence.pinCode}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -683,12 +713,13 @@ export function OrderRoom() {
               onKeyDown={handleKeyDown}
             />
 
+            {/* Send CTA in main brand colors: red for performer, purple for client */}
             <button
               aria-label="Send"
               onClick={sendMessage}
               disabled={!inputText.trim()}
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40"
-              style={{ background: "var(--color-accent)", color: "#fff" }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40 text-white shadow-2xs hover:opacity-95"
+              style={{ background: role === "talent" ? "var(--color-red)" : "var(--color-purple)" }}
             >
               <Send className="w-4 h-4" />
             </button>
@@ -746,14 +777,14 @@ export function OrderRoom() {
                 <div className="flex items-center p-1 rounded-xl gap-1" style={{ background: "var(--color-bg-elevated)" }}>
                   <button
                     onClick={() => setDeliverableTab("online")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white text-zinc-900 shadow-2xs" : "text-zinc-500 hover:text-zinc-800"}`}
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Digital Files
                   </button>
                   <button
                     onClick={() => setDeliverableTab("onsite")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white text-zinc-900 shadow-2xs" : "text-zinc-500 hover:text-zinc-800"}`}
                   >
                     <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                     Onsite Gig
@@ -792,7 +823,7 @@ export function OrderRoom() {
                         onClick={() => fileInputRef.current ? fileInputRef.current.click() : setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" })}
                         className="border-2 border-dashed border-zinc-200 hover:border-zinc-300 rounded-2xl flex flex-col items-center py-8 cursor-pointer bg-zinc-50/50 hover:bg-zinc-50 transition-all text-center"
                       >
-                        <div className="w-11 h-11 rounded-full bg-white shadow-xs border border-zinc-200 flex items-center justify-center mb-2.5">
+                        <div className="w-11 h-11 rounded-full bg-white shadow-2xs border border-zinc-200 flex items-center justify-center mb-2.5">
                           <UploadCloud className="w-5 h-5 text-zinc-600" />
                         </div>
                         <p className="text-sm font-semibold text-zinc-800">Drop file or <span className="underline underline-offset-2">browse</span></p>
@@ -922,23 +953,24 @@ export function OrderRoom() {
                 )}
 
                 {/* Escrow Guarantee note */}
-                <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl text-xs" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+                <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl text-xs" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
                   <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                   <span>Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, ₦120,000 auto-releases to your balance.</span>
                 </div>
 
-                {/* Modal action buttons */}
+                {/* Modal action buttons with main brand RED CTA */}
                 <div className="flex gap-2.5 pt-1">
                   <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => setShowSubmitModal(false)}>
                     Cancel
                   </Button>
-                  <Button
-                    className="flex-1 h-11 text-sm font-semibold"
+                  <button
+                    className="flex-1 h-11 rounded-2xl text-sm font-semibold transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white disabled:opacity-40"
+                    style={{ background: "var(--color-red)" }}
                     onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
                     disabled={deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN}
                   >
                     {deliverableTab === "onsite" ? "Verify & Submit Proof" : "Submit Deliverable"} →
-                  </Button>
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -1129,7 +1161,7 @@ export function OrderRoom() {
                               isPast
                                 ? "bg-emerald-600 text-white"
                                 : isCurrent
-                                  ? "bg-red-600 text-white ring-4 ring-red-100"
+                                  ? (role === "talent" ? "bg-red-600 text-white ring-4 ring-red-100" : "bg-purple-600 text-white ring-4 ring-purple-100")
                                   : "bg-zinc-200 text-zinc-500"
                             }`}
                           >
