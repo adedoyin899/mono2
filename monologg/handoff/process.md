@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 103: Full Performer Profile Storefront Duplicate in Editable Format for Settings Profile Page)
+**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,17 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 44: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo & Performer Saved Cards Removal (Session 104)
+
+Overhauled the Payment Methods section in `Settings.tsx` into a streamlined Payment details flow:
+- **Labeling Alignment:** Renamed the sidebar menu item and top bar header title from `"Payment Methods"` to `"Payment details"`.
+- **Card Simplification:** Cleaned up the header copy to `Payout Bank Account` and `Direct earnings withdrawal destination for your completed orders.`, eliminating the `Verified` badge.
+- **One Payout Bank Rule:** Added explicit operational notices both before and after saving explaining that Monologg only routes earnings withdrawals to a single verified bank account.
+- **48-Hour Security Memo:** Integrated security callouts both before and after saving detailing that bank details changes lock further modifications for 48 hours to protect funds.
+- **Removed Performer Saved Cards:** Gated billing cards exclusively to clients (`isClient`), completely removing saved cards and duplicate bottom bank cards from performer profiles.
 
 ---
 

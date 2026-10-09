@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 103: Full Performer Profile Storefront Duplicate in Editable Format for Settings Profile Page)
+**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 52. Disjointed Payment Methods UX, duplicate payout bank cards, and improper saved cards exposure on Performer profiles
+- **Severity:** Low / UX Consistency & Role Boundary
+- **What happened:** In `Settings.tsx`, performers navigating to Payment Methods were presented with duplicate Payout Bank Account cards (an open edit form card at the top with a redundant "Verified" badge, and another bank card at the bottom of the page with an "Edit" button). Furthermore, client billing cards ("SAVED CARDS (OPTIONAL BACKUP)", "+ Add Card", and "+ Add Payment Method") were shown to performers who only receive payouts to a Nigerian bank account, creating visual clutter and operational ambiguity.
+- **Root Cause:** Accidental duplication of bank card templates during early iterations; lack of role gating (`!isClient`) around billing card sections; missing operational copy explaining Monologg's single-bank payout model and 48-hour security locking rule.
+- **Resolution:** Unified the performer payment section into a single, cohesive Payout Bank Account card. Relabeled the menu item and header to `"Payment details"`, removed the `Verified` badge and client saved card blocks for performers, explicitly stated the one-payout-bank policy both before and after saving, and integrated a 48-hour security memo warning.
+
 
 ### 51. Duplicate "Save Changes" button label collisions and vertical form questionnaire replacing authentic performer storefront in Settings
 - **Severity:** Low / Test Ambiguity & UX Consistency

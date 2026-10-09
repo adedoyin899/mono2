@@ -206,3 +206,53 @@ describe("Settings — physical attributes section", () => {
     expect(screen.queryByText("Physical Attributes")).not.toBeInTheDocument();
   });
 });
+
+describe("Settings — payment details section", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("talent mode: menu item is Payment details, displays single payout bank rule, 48hr memo, and no saved cards", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    // Menu label is "Payment details"
+    const paymentMenu = screen.getByText("Payment details");
+    expect(paymentMenu).toBeInTheDocument();
+    fireEvent.click(paymentMenu);
+
+    // Section header and content render
+    await screen.findByText("Payout Bank Account");
+    expect(screen.getByText("Direct earnings withdrawal destination for your completed orders.")).toBeInTheDocument();
+
+    // No "Verified" badge tag in the payout card
+    expect(screen.queryByText("Verified")).not.toBeInTheDocument();
+
+    // Single payout bank policy is stated
+    expect(screen.getByText(/You can only have one payout bank. This is how Monologg operates/i)).toBeInTheDocument();
+
+    // 48-hour memo is stated
+    expect(screen.getByText(/You can change your bank account after 48hrs/i)).toBeInTheDocument();
+
+    // Saved cards / backup cards / + Add Payment Method are NOT rendered for performers
+    expect(screen.queryByText("Saved Cards (Optional Backup)")).not.toBeInTheDocument();
+    expect(screen.queryByText("+ Add Card")).not.toBeInTheDocument();
+    expect(screen.queryByText("Add Payment Method")).not.toBeInTheDocument();
+
+    // Clicking "Change Bank Account" switches to edit form
+    const changeBtn = screen.getByText("Change Bank Account");
+    expect(changeBtn).toBeInTheDocument();
+    fireEvent.click(changeBtn);
+
+    // Form inputs and policy/memo visible before saving
+    expect(screen.getByText(/You can only have one payout bank. This is how Monologg operates/i)).toBeInTheDocument();
+    expect(screen.getByText(/You can change your bank account after 48hrs/i)).toBeInTheDocument();
+    expect(screen.getByText("Save Payout Bank Account")).toBeInTheDocument();
+  });
+});

@@ -1,11 +1,47 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 103: Full Performer Profile Storefront Duplicate in Editable Format for Settings Profile Page)
+**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 104 (2026-10-09) — Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal
+
+**Goal:** Overhaul the Settings Payment experience based on design review and user markup:
+1. **Menu Label & Header Title Alignment:**
+   - Renamed menu item in Account list from `"Payment Methods"` to `"Payment details"`.
+   - Updated header title from `"Payment Methods"` to `"Payment details"` when viewing performer settings.
+2. **Simplified Payout Bank Account Header:**
+   - Heading: `Payout Bank Account`
+   - Subtitle: `Direct earnings withdrawal destination for your completed orders.`
+   - Removed the `Verified` tag/badge from the card header for cleaner visual simplicity.
+3. **Single Payout Bank Account Rule (Before & After):**
+   - Explicitly informed talent both in edit/configuration mode ("before" saving) and active view mode ("after" saving) that:
+     *"You can only have one payout bank. This is how Monologg operates — all earnings withdrawals from your completed orders and milestones are routed directly to this single verified account."*
+4. **48-Hour Security Memo (Before & After):**
+   - Displayed prominent security callout:
+     *"Security Memo: You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds."*
+5. **Performer Profile Saved Cards Removal:**
+   - Completely removed `"SAVED CARDS (OPTIONAL BACKUP)"`, card list, and `+ Add Payment Method` for performer profiles (`!isClient`).
+   - Removed the duplicate second Payout Bank Account card at the bottom of the page, unifying the performer payout workflow into a single clean view/edit toggle.
+   - Retained corporate billing cards and `+ Add Corporate Billing Card` for client profiles (`isClient`).
+6. **Test & Build Validation:**
+   - Added automated tests in `Settings.test.tsx` verifying the "Payment details" label, header, single bank rule, 48-hr memo, and complete omission of saved cards for performers.
+   - Verified 98/98 tests passing across 24 test files, clean typecheck, and rebuilt standalone distribution `monologg-app.html` (1.41MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

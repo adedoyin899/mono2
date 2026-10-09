@@ -14,7 +14,8 @@ import type { ServiceRateCard } from "@monologg/types";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X,
-  MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music
+  MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
+  Building2, Info
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -350,6 +351,7 @@ export function Settings() {
 
   const handleSaveBank = () => {
     appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
+    setBankDetails({ bankName, accountNumber, accountName });
     setEditingBank(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -419,7 +421,7 @@ export function Settings() {
           <div className="text-sm font-semibold font-display" style={s.text}>
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
             {section === "profile" && (isClient ? "Organization Profile" : "Edit Profile")}
-            {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment Methods")}
+            {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment details")}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
             {section === "attributes" && "Physical Attributes"}
@@ -498,7 +500,7 @@ export function Settings() {
                   <>
                     <ListItem label="Profile" icon={User} onClick={() => setSection("profile")} />
                     <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
-                    <ListItem label="Payment Methods" icon={CreditCard} onClick={() => setSection("payment")} />
+                    <ListItem label="Payment details" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
                     <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
                     <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
@@ -1372,216 +1374,287 @@ export function Settings() {
           {/* ── Payment / Billing Methods ── */}
           {section === "payment" && (
             <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-6">
-              {/* Payout Bank Account (Talent Only) */}
+              {/* Payout Bank Account (Performer Only) */}
               {!isClient && (
                 <div className="p-5 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-display text-base font-semibold" style={s.text}>Payout Bank Account</h3>
-                      <p className="text-xs font-body" style={s.tertiary}>Direct earnings withdrawal destination for your completed orders.</p>
-                    </div>
-                    <Badge tone="success" size="md">Verified</Badge>
+                  <div>
+                    <h3 className="font-display text-base font-semibold" style={s.text}>Payout Bank Account</h3>
+                    <p className="text-xs font-body mt-0.5" style={s.tertiary}>Direct earnings withdrawal destination for your completed orders.</p>
                   </div>
 
-                  <div className="space-y-3 pt-1">
-                    <FormField label="Bank Name">
-                      <select
-                        value={bankName}
-                        onChange={(e) => setBankName(e.target.value)}
-                        className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
-                        style={{ ...s.elevated, color: "var(--color-text-primary)" }}
-                      >
-                        <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
-                        <option value="Access Bank Plc">Access Bank Plc</option>
-                        <option value="Zenith Bank Plc">Zenith Bank Plc</option>
-                        <option value="First Bank of Nigeria">First Bank of Nigeria</option>
-                        <option value="United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
-                        <option value="Kuda Bank">Kuda Bank</option>
-                        <option value="Moniepoint Microfinance Bank">Moniepoint Microfinance Bank</option>
-                        <option value="OPay">OPay</option>
-                      </select>
-                    </FormField>
-
-                    <FormField label="Account Number">
-                      <Input
-                        value={accountNumber}
-                        maxLength={10}
-                        onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        className="font-mono tnum"
-                        placeholder="0123456789"
-                      />
-                    </FormField>
-
-                    <FormField label="Account Name">
-                      <Input
-                        value={accountName}
-                        onChange={(e) => setAccountName(e.target.value)}
-                        placeholder="EMEKA JOHNSON"
-                      />
-                    </FormField>
-
-                    <Button
-                      className="w-full h-11 text-xs"
-                      onClick={() => {
-                        appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
-                        setSaved(true);
-                        setTimeout(() => setSaved(false), 2000);
-                      }}
-                    >
-                      {saved ? "Bank Details Saved! ✓" : "Save Payout Bank Account"}
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Saved Cards / Billing Methods */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <div className="text-xs font-medium uppercase tracking-wider font-body" style={s.tertiary}>
-                    {isClient ? "Saved Billing Cards" : "Saved Cards (Optional Backup)"}
-                  </div>
-                  <Button
-                    variant="secondary"
-                    className="h-8 px-3 text-xs"
-                    onClick={() => {
-                      const newCard = {
-                        id: `card-${Date.now()}`,
-                        type: "Visa",
-                        last4: String(Math.floor(1000 + Math.random() * 9000)),
-                        expiry: "12/28",
-                        isDefault: false,
-                      };
-                      setPaymentCards((prev) => [...prev, newCard]);
+                  {/* Operational Rule Notice (Visible both before and after) */}
+                  <div
+                    className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
+                    style={{
+                      background: "var(--color-bg-elevated)",
+                      border: "1px solid var(--color-border-subtle)",
+                      color: "var(--color-text-secondary)",
                     }}
                   >
-                    + Add Card
-                  </Button>
-                </div>
-
-                {paymentCards.map((card) => (
-                  <div key={card.id} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
-                      <CreditCard className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold font-body" style={s.text}>{card.type} ···· {card.last4}</div>
-                      <div className="text-xs font-body" style={s.tertiary}>Expires {card.expiry}</div>
-                    </div>
-                    {card.isDefault ? (
-                      <Badge tone="success" size="md">Default</Badge>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPaymentCards((prev) => prev.map((c) => ({ ...c, isDefault: c.id === card.id })));
-                        }}
-                        className="px-2.5 py-1 text-xs font-semibold rounded-[var(--radius-md)] border hover:border-[var(--color-accent)] transition-all font-body"
-                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
-                      >
-                        Set Default
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      aria-label={`Remove ${card.type} ending ${card.last4}`}
-                      onClick={() => setDeleteCardModal({ id: card.id, type: card.type, last4: card.last4 })}
-                      className="p-1 rounded hover:opacity-70 transition-opacity"
-                    >
-                      <Trash2 className="w-4 h-4" style={{ color: "var(--color-error)" }} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Delete Payment Method Confirmation Modal */}
-              {deleteCardModal && (
-                <Modal onClose={() => setDeleteCardModal(null)}>
-                  <div className="w-full max-w-sm rounded-[var(--radius-xl)] p-6" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }} onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Delete Payment Method</h3>
-                      <button onClick={() => setDeleteCardModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>
-                      Are you sure you want to remove <strong>{deleteCardModal.type} ending in {deleteCardModal.last4}</strong>? You will need to re-add this card for future transactions.
-                    </p>
-                    <div className="flex gap-3">
-                      <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => setDeleteCardModal(null)}>Cancel</Button>
-                      <Button
-                        className="flex-1 h-10 text-xs"
-                        style={{ background: "var(--color-error)", color: "#fff" }}
-                        onClick={() => {
-                          setPaymentCards((prev) => prev.filter((c) => c.id !== deleteCardModal.id));
-                          setDeleteCardModal(null);
-                        }}
-                      >
-                        Delete
-                      </Button>
+                    <Info className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-accent)" }} />
+                    <div>
+                      <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                        One Payout Bank Account
+                      </span>
+                      You can only have one payout bank. This is how Monologg operates — all earnings withdrawals from your completed orders and milestones are routed directly to this single verified account.
                     </div>
                   </div>
-                </Modal>
-              )}
 
-              <button
-                className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body hover:border-[var(--color-accent)] hover:opacity-100 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
-                style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-              >
-                <Plus className="w-4 h-4" /> {isClient ? "Add Corporate Billing Card" : "Add Payment Method"}
-              </button>
+                  {editingBank ? (
+                    /* BEFORE: Setup / Edit Form */
+                    <div className="space-y-3 pt-1">
+                      <FormField label="Bank Name">
+                        <select
+                          value={bankName}
+                          onChange={(e) => setBankName(e.target.value)}
+                          className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
+                          style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                        >
+                          <option value="Access Bank Plc">Access Bank Plc</option>
+                          <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
+                          <option value="Zenith Bank Plc">Zenith Bank Plc</option>
+                          <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                          <option value="United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
+                          <option value="Kuda Bank">Kuda Bank</option>
+                          <option value="Moniepoint Microfinance Bank">Moniepoint Microfinance Bank</option>
+                          <option value="OPay">OPay</option>
+                          <option value="Palmpay">Palmpay</option>
+                          <option value="Stanbic IBTC Bank">Stanbic IBTC Bank</option>
+                          <option value="Sterling Bank">Sterling Bank</option>
+                          <option value="Fidelity Bank">Fidelity Bank</option>
+                        </select>
+                      </FormField>
 
-              {/* Bank / Payout account */}
-              {!isClient && (
-                <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                  <div className="px-4 py-3.5">
-                    <div className="flex items-center justify-between mb-3 font-body">
-                      <div className="text-xs font-medium uppercase tracking-wider" style={s.tertiary}>Payout Bank Account</div>
-                      <Button variant="secondary" className="h-7 px-2.5 text-xs gap-1" onClick={() => setEditingBank(!editingBank)}>
-                        <Edit2 className="w-3 h-3" /> {editingBank ? "Cancel" : "Edit"}
-                      </Button>
-                    </div>
+                      <FormField label="Account Number (10 digits)">
+                        <Input
+                          value={accountNumber}
+                          maxLength={10}
+                          onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          className="font-mono tnum"
+                          placeholder="9876543210"
+                        />
+                      </FormField>
 
-                    {editingBank ? (
-                      <div className="space-y-3 pt-1">
-                        <FormField label="Bank Name">
-                          <select
-                            value={bankName}
-                            onChange={(e) => setBankName(e.target.value)}
-                            className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
-                            style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                      <FormField label="Account Name">
+                        <Input
+                          value={accountName}
+                          onChange={(e) => setAccountName(e.target.value)}
+                          placeholder="EMEKA JOHNSON"
+                        />
+                      </FormField>
+
+                      {/* Security Memo (Before save) */}
+                      <div
+                        className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
+                        style={{
+                          background: "color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-surface))",
+                          border: "1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        <Shield className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-accent)" }} />
+                        <div>
+                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-accent)" }}>
+                            Security Memo
+                          </span>
+                          You can change your bank account after 48hrs. Once updated, your payout destination is locked for 48 hours to protect your funds.
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        {bankDetails.accountNumber && (
+                          <Button
+                            variant="secondary"
+                            className="flex-1 h-11 text-xs"
+                            onClick={() => {
+                              setEditingBank(false);
+                              setBankName(bankDetails.bankName);
+                              setAccountNumber(bankDetails.accountNumber);
+                              setAccountName(bankDetails.accountName);
+                            }}
                           >
-                            <option value="GTBank">Guaranty Trust Bank (GTBank)</option>
-                            <option value="Zenith Bank">Zenith Bank</option>
-                            <option value="Access Bank">Access Bank</option>
-                            <option value="First Bank">First Bank Nigeria</option>
-                            <option value="Kuda Bank">Kuda Microfinance Bank</option>
-                            <option value="OPay">OPay Digital Bank</option>
-                            <option value="Palmpay">Palmpay</option>
-                          </select>
-                        </FormField>
-                        <FormField label="Account Number (10 digits)">
-                          <Input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} maxLength={10} />
-                        </FormField>
-                        <FormField label="Account Name">
-                          <Input value={accountName} onChange={(e) => setAccountName(e.target.value)} />
-                        </FormField>
-                        <Button className="w-full h-10 text-xs mt-2" onClick={handleSaveBank}>
-                          Save Bank Account
+                            Cancel
+                          </Button>
+                        )}
+                        <Button
+                          className={`${bankDetails.accountNumber ? "flex-1" : "w-full"} h-11 text-xs`}
+                          disabled={accountNumber.length !== 10 || !accountName.trim()}
+                          onClick={() => {
+                            appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
+                            setBankDetails({ bankName, accountNumber, accountName });
+                            setEditingBank(false);
+                            setSaved(true);
+                            setTimeout(() => setSaved(false), 2000);
+                          }}
+                        >
+                          {saved ? "Bank Details Saved! ✓" : "Save Payout Bank Account"}
                         </Button>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
-                          <Smartphone className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold font-body" style={s.text}>{bankDetails.bankName} ···· {bankDetails.accountNumber.slice(-4)}</div>
-                          <div className="text-xs font-body" style={s.tertiary}>{bankDetails.accountName}</div>
+                    </div>
+                  ) : (
+                    /* AFTER: Saved / Active State */
+                    <div className="space-y-4 pt-1">
+                      <div
+                        className="p-4 rounded-[var(--radius-lg)] flex items-center justify-between gap-3"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          border: "1px solid var(--color-border-subtle)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ background: "var(--color-accent-soft)" }}
+                          >
+                            <Building2 className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold font-body truncate" style={s.text}>
+                              {bankDetails.bankName} ···· {bankDetails.accountNumber.slice(-4)}
+                            </div>
+                            <div className="text-xs font-body font-medium truncate" style={s.secondary}>
+                              {bankDetails.accountName || "Account Holder"}
+                            </div>
+                            <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
+                              Account Number: {bankDetails.accountNumber}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Security Memo (After save) */}
+                      <div
+                        className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
+                        style={{
+                          background: "color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-surface))",
+                          border: "1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        <Shield className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-accent)" }} />
+                        <div>
+                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-accent)" }}>
+                            Security Memo
+                          </span>
+                          You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds.
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="secondary"
+                        className="w-full h-11 text-xs font-medium gap-2"
+                        onClick={() => {
+                          setEditingBank(true);
+                          setBankName(bankDetails.bankName || "Access Bank Plc");
+                          setAccountNumber(bankDetails.accountNumber || "");
+                          setAccountName(bankDetails.accountName || "");
+                        }}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" /> Change Bank Account
+                      </Button>
+                    </div>
+                  )}
                 </div>
+              )}
+
+              {/* Saved Cards / Billing Methods (Clients Only) */}
+              {isClient && (
+                <>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between px-1">
+                      <div className="text-xs font-medium uppercase tracking-wider font-body" style={s.tertiary}>
+                        Saved Billing Cards
+                      </div>
+                      <Button
+                        variant="secondary"
+                        className="h-8 px-3 text-xs"
+                        onClick={() => {
+                          const newCard = {
+                            id: `card-${Date.now()}`,
+                            type: "Visa",
+                            last4: String(Math.floor(1000 + Math.random() * 9000)),
+                            expiry: "12/28",
+                            isDefault: false,
+                          };
+                          setPaymentCards((prev) => [...prev, newCard]);
+                        }}
+                      >
+                        + Add Card
+                      </Button>
+                    </div>
+
+                    {paymentCards.map((card) => (
+                      <div key={card.id} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
+                          <CreditCard className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold font-body" style={s.text}>{card.type} ···· {card.last4}</div>
+                          <div className="text-xs font-body" style={s.tertiary}>Expires {card.expiry}</div>
+                        </div>
+                        {card.isDefault ? (
+                          <Badge tone="success" size="md">Default</Badge>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPaymentCards((prev) => prev.map((c) => ({ ...c, isDefault: c.id === card.id })));
+                            }}
+                            className="px-2.5 py-1 text-xs font-semibold rounded-[var(--radius-md)] border hover:border-[var(--color-accent)] transition-all font-body"
+                            style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                          >
+                            Set Default
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${card.type} ending ${card.last4}`}
+                          onClick={() => setDeleteCardModal({ id: card.id, type: card.type, last4: card.last4 })}
+                          className="p-1 rounded hover:opacity-70 transition-opacity"
+                        >
+                          <Trash2 className="w-4 h-4" style={{ color: "var(--color-error)" }} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Delete Payment Method Confirmation Modal */}
+                  {deleteCardModal && (
+                    <Modal onClose={() => setDeleteCardModal(null)}>
+                      <div className="w-full max-w-sm rounded-[var(--radius-xl)] p-6" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }} onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>Delete Payment Method</h3>
+                          <button onClick={() => setDeleteCardModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>
+                          Are you sure you want to remove <strong>{deleteCardModal.type} ending in {deleteCardModal.last4}</strong>? You will need to re-add this card for future transactions.
+                        </p>
+                        <div className="flex gap-3">
+                          <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => setDeleteCardModal(null)}>Cancel</Button>
+                          <Button
+                            className="flex-1 h-10 text-xs"
+                            style={{ background: "var(--color-error)", color: "#fff" }}
+                            onClick={() => {
+                              setPaymentCards((prev) => prev.filter((c) => c.id !== deleteCardModal.id));
+                              setDeleteCardModal(null);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </Modal>
+                  )}
+
+                  <button
+                    className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body hover:border-[var(--color-accent)] hover:opacity-100 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                    style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
+                  >
+                    <Plus className="w-4 h-4" /> Add Corporate Billing Card
+                  </button>
+                </>
               )}
             </motion.div>
           )}
