@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
+**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 42. Eye-straining bright red sender chat bubbles, intrusive simulation banner, and clunky deliverable modal
+- **Severity:** Low / UX & Visual Design
+- **What happened:** In `OrderRoom.tsx`, performer chat messages were rendered in a searing solid red (`#F13030`) background that clashed with conversational legibility. In addition, an intrusive "Simulate Role" banner spanned the entire chat width, and the "Submit Deliverable" modal lacked interactive file selection and staged file previews.
+- **Root Cause:** Chat bubbles used raw brand accent color instead of conversational neutral hierarchy, and developer simulation controls were positioned inside the primary message view.
+- **Resolution:** Upgraded sender message bubbles to a sophisticated obsidian (`#18181B`) background with white typography; moved role simulator to a compact segmented toggle in the header; added a clean 4-step phase progress strip; and rebuilt the Submit Deliverable modal with real drag-and-drop file staging and preview.
+
+---
 
 ### 41. Over-cluttered project detail modal with AI slop/gradient cards and redundant search category pills strip
 - **Severity:** Low / UX & Visual Design

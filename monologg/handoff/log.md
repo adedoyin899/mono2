@@ -1,11 +1,66 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
+**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 91 (2026-10-09) — Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul
+
+**Goal:** Simplify the Order Room screen into a calm, uncluttered workspace (replacing eye-straining bright red sender message bubbles with sophisticated obsidian dark bubbles; removing the intrusive full-width "Simulate Role" banner; adding a clear 4-step phase milestone stepper; and upgrading the Submit Deliverable modal with interactive drag & drop, file staging preview, and escrow reassurance).
+
+### Changes Made
+
+1. **Clean Navigation Bar & Header Controls (`OrderRoom.tsx`):**
+   - Transformed the header into a clean white navbar with subtle border and crisp typography.
+   - Displayed project title (`Nike Campaign VO`), order ID tag (`ORD-001`), client name (`FilmCraft Studios`), and quiet escrow pill (`🔒 ₦120,000 in escrow`).
+   - Replaced the large full-width "Simulate Role" stripe across the top of the chat with a discreet, compact segmented toggle (`Performer` / `Client`) in the header next to the `Order Info` button.
+
+2. **Phase Milestones Stepper (`OrderRoom.tsx`):**
+   - Added a compact, horizontal 4-step phase tracker directly below the header:
+     - `1. Briefing` (Completed checkmark)
+     - `2. Deliverables` (Active highlighted step)
+     - `3. Review` (Upcoming)
+     - `4. Complete` (Upcoming)
+   - Gives performers and clients immediate visual orientation on the order lifecycle without modal popups.
+
+3. **Executive Chat Bubbles & Calm Typography (`OrderRoom.tsx`):**
+   - **Sender Messages (Performer):** Replaced harsh neon red background with modern executive obsidian (`#18181B`) bubbles featuring clean white typography, refined borders, and soft shadows (`rounded-2xl rounded-br-sm`).
+   - **Receiver Messages (Client):** Crisp surface bubbles (`#FFFFFF` with subtle border and `rounded-2xl rounded-bl-sm`).
+   - **File Attachments:** Replaced raw dark blocks with structured document cards featuring file type badges, sizes, and a dedicated download/view action button.
+   - **System Messages:** Clean, subtle centered pills with emerald checkmarks.
+
+4. **Upgraded Deliverables Action Strip (`OrderRoom.tsx`):**
+   - Replaced the alarming pink/red warning card with an elegant white card dock:
+     - Icon badge, title ("Deliverables Phase Active · Step 2 of 4"), description, and primary "Submit Deliverable" CTA.
+     - Clean emerald review card for clients when in the review phase.
+     - Emerald celebration banner when escrow payment has been released.
+
+5. **Modernized "Submit Deliverable" Modal (`OrderRoom.tsx`):**
+   - Clean dialog header with order context subtitle.
+   - Hidden `<input type="file" />` hooked up for real file picking.
+   - **Interactive Dropzone & File Preview:**
+     - When a file is selected (or via the quick demo deliverable loader), renders a rich File Preview Card showing file name, file size, "Ready for review" checkmark, and a remove button.
+     - Clean drag & drop zone with supported format badges (MP3, MP4, WAV, PDF, ZIP — Max 500MB).
+   - Delivery notes textarea with clean placeholders.
+   - Escrow security reassurance notice.
+   - Submitting seamlessly inserts the deliverable attachment into the chat thread and advances the project phase to `Review`.
+
+6. **Standalone Distribution Regeneration (`monologg-app.html`):**
+   - Rebuilt standalone bundle via `npm run build:standalone` and re-inlined into `monologg/monologg-app.html` (1.40MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

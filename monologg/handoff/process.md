@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 90: Dedicated Fresh Page for Project Details, Clean Editorial Hierarchy, Search Filter Modal with Sliders & Clickable Craft Pills)
+**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -279,6 +279,17 @@ Overhauled the project inspection and search experience to eliminate visual clut
 - **Filter Modal Dialog:** Moved project filtering out of an inline accordion into a dedicated modal dialog triggered by the `Filters` button (with active count badge). Incorporated continuous range sliders for budget (`₦0` to `₦600k+`) and client rating (`0.0 ★` to `5.0 ★`), clickable craft category pills, location and status chips, reset action, and submit action.
 - **Dedicated Fresh Page for Project Details:** Replaced cramped modal overlays with a clean in-page layout when viewing a project. Hidden the standard dashboard header to provide an editorial reading experience. Organized content into structured sections: Creative Brief & Synopsis, Role Requirements, Audition Sides (with one-click "Copy Script" and feedback), Deliverables & Schedule, and verified Casting Client profile with 100% escrow protection notice. Maintained a sticky right action sidebar with escrow compensation, capacity progress, and status-driven CTAs (applied pitch with withdraw, selected status with Order Room routing, and open pitch submission).
 - **Standalone Artifact Regeneration:** Rebuilt `monologg-app.html` with newly inlined production bundle.
+
+---
+
+### Step 52: Order Room Visual Simplification & Deliverables Submission Overhaul (Session 91)
+
+Overhauled the Order Room workspace to eliminate harsh high-contrast styling and unnecessary banners:
+- **Calm, High-Legibility Chat Bubbles:** Switched performer/sender speech bubbles from blazing neon red (`#F13030`) to an executive obsidian (`#18181B`) with crisp typography and subtle borders. Retained clean elevated surface bubbles for client messages and structured document preview cards for attachments.
+- **Header Refinement & Compact Role Switcher:** Replaced the intrusive full-width "Simulate Role" stripe across the chat view with an elegant segmented switch directly in the navbar beside the Order Info action. Displayed clear breadcrumbs, project title, order identifier (`ORD-001`), client name, and escrow status.
+- **Phase Milestones Stepper:** Added a clean 4-step progress tracker (`1. Briefing` → `2. Deliverables` → `3. Review` → `4. Complete`) above the chat thread for immediate project status orientation.
+- **Interactive Submit Deliverable Modal:** Upgraded the delivery modal with interactive file dropzone supporting drag-and-drop or browsing, rich file staging preview card with status badges, delivery notes textarea, and 100% escrow protection reassurance.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined assets into `monologg/monologg-app.html`.
 
 ---
 
