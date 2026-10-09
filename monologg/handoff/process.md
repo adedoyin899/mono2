@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 102: Reviews Modal Analytics Pillar Overhaul, Redundant Copy Cleanup, Settings Header Verified Pill, and Onboarding-Aligned Profile Editor)
+**Last updated:** 2026-10-09 (Session 103: Full Performer Profile Storefront Duplicate in Editable Format for Settings Profile Page)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,15 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 43: Full Performer Profile Storefront Duplicate in Editable Format for Settings (Session 103)
+
+Duplicated the rich Performer Profile storefront card directly inside `Settings.tsx` when navigating to the Profile sub-page (`section === "profile"`):
+- **Storefront Parity:** Replicated Hero Cover banner (with gradient presets and custom upload trigger), Avatar circle with camera button, Verified Performer badge, live availability indicator (Available vs Booked), social badges row, bio display, performance reel preview card, and rate cards list.
+- **In-Place Editor:** Included full inline editing controls for name, stage title, location, availability status, bio statement, style tags (with add/remove chips), 6 social media URLs, and theme preset picker.
+- **No Onboarding Questionnaire Redundancy:** Omitted raw craft category dropdown and email inputs, maintaining clean account details in the Settings header card.
 
 ---
 

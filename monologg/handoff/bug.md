@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 102: Reviews Modal Analytics Pillar Overhaul, Redundant Copy Cleanup, Settings Header Verified Pill, and Onboarding-Aligned Profile Editor)
+**Last updated:** 2026-10-09 (Session 103: Full Performer Profile Storefront Duplicate in Editable Format for Settings Profile Page)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 51. Duplicate "Save Changes" button label collisions and vertical form questionnaire replacing authentic performer storefront in Settings
+- **Severity:** Low / Test Ambiguity & UX Consistency
+- **What happened:** In `Settings.tsx`, rendering a simple vertical form with onboarding questions (craft category dropdown, raw email input) duplicated account identification data already presented in the main Settings header card, while lacking the rich Performer Profile aesthetics (Hero banner presets, avatar camera overlay, video reel preview, rate cards, and social links). Furthermore, rendering multiple identical `"Save Changes"` buttons across the top bar, in-page edit form, and page bottom caused test query ambiguity (`getByText("Save Changes")`).
+- **Root Cause:** Duplication of onboarding inputs on the profile sub-page; lack of distinct action labeling (`Save Profile` for inline forms vs `Save Changes` for the primary submit action).
+- **Resolution:** Refactored `section === "profile"` in `Settings.tsx` to replicate the full Performer Profile storefront card from `TalentDashboard.tsx` in an interactive, editable format. Relabeled the in-page form action to `Save Profile` and kept `Save Changes` as the unique primary page action, restoring clean test assertions and delivering a unified performer experience.
+
+---
 
 ### 50. Redundant reviews modal header copy, missing rating distribution bars, and disjointed Settings profile editing
 - **Severity:** Low / UI Redundancy & Settings Synchronization
