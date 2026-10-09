@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
+**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 54. Unprotected Delete Account card without confirmation/payout transparency, unmanaged password inputs with prematurely enabled CTA, and extraneous passcode subtext
+- **Severity:** Low / UX Risk & State Management
+- **What happened:** In `Settings.tsx`, clicking the Delete Account card did nothing (unbound `<button>` element with no confirmation modal or operational copy), creating confusion over what happens to a performer's profile, data, and unsettled escrow earnings. In addition, the Change Password form used uncontrolled `<Input>` components with an unconditionally active `Update Password` CTA that could be clicked without entering any credentials. Finally, the Change Passcode card included a redundant subtext that broke visual symmetry with the clean Change Password card.
+- **Root Cause:** Placeholder delete button without confirmation modal; unmanaged input state in the password card; subtext asymmetry.
+- **Resolution:** Built a comprehensive Delete Account confirmation modal with permanent data loss notice, under-72-hour earnings transfer guarantee to the user's verified bank account, and double-confirmation security gate (typing "DELETE"). Controlled all 3 password inputs in local state and disabled `Update Password` until all 3 fields contain text. Removed the subtext from Change Passcode for clean visual symmetry.
 
 ### 53. Cluttered Security & Privacy section, unverified single-input passcode without confirmation/current PIN validation, and non-functional 2FA/Sessions cards
 - **Severity:** Low / UX Clutter & Security Validation Gap

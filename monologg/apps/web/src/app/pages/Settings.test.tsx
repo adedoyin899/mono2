@@ -277,21 +277,29 @@ describe("Settings — security section", () => {
     expect(securityMenu).toBeInTheDocument();
     fireEvent.click(securityMenu);
 
-    // Password card
+    // Password card CTA is disabled until user types in all fields
     await screen.findByText("Change Password");
-    expect(screen.getByPlaceholderText("Current Password")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("New Password")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Confirm New Password")).toBeInTheDocument();
-    expect(screen.getByText("Update Password")).toBeInTheDocument();
+    const currentPwd = screen.getByPlaceholderText("Current Password");
+    const newPwd = screen.getByPlaceholderText("New Password");
+    const confirmPwd = screen.getByPlaceholderText("Confirm New Password");
+    const updatePwdBtn = screen.getByText("Update Password");
+
+    expect(updatePwdBtn).toBeDisabled();
+    fireEvent.change(currentPwd, { target: { value: "oldpassword123" } });
+    expect(updatePwdBtn).toBeDisabled();
+    fireEvent.change(newPwd, { target: { value: "newpassword123" } });
+    expect(updatePwdBtn).toBeDisabled();
+    fireEvent.change(confirmPwd, { target: { value: "newpassword123" } });
+    expect(updatePwdBtn).not.toBeDisabled();
 
     // 2FA and Active Sessions are removed
     expect(screen.queryByText("Two-Factor Authentication")).not.toBeInTheDocument();
     expect(screen.queryByText("Active Sessions")).not.toBeInTheDocument();
     expect(screen.queryByText("2 devices logged in")).not.toBeInTheDocument();
 
-    // Change Passcode card
+    // Change Passcode card - subtext removed as requested
     expect(screen.getByText("Change Passcode")).toBeInTheDocument();
-    expect(screen.getByText("4-digit PIN required to authorise earnings withdrawals")).toBeInTheDocument();
+    expect(screen.queryByText("4-digit PIN required to authorise earnings withdrawals")).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText("Current Passcode")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("New Passcode")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Confirm New Passcode")).toBeInTheDocument();
@@ -340,5 +348,42 @@ describe("Settings — security section", () => {
     fireEvent.click(updateBtn);
     expect(localStorage.getItem("monologg_withdrawal_passcode")).toBe("5678");
     expect(screen.getByText("Passcode Updated! ✓")).toBeInTheDocument();
+  });
+
+  it("opens Delete Account flow, displays data loss warning and 72-hr payout guarantees, and completes deletion", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByText("Security & Privacy"));
+    await screen.findByText("Delete Account");
+
+    // Click Delete Account button
+    fireEvent.click(screen.getByText("Permanently delete your account and all data"));
+
+    // Modal opens with information loss and 72-hr payout guarantees
+    await screen.findByText("Permanent Loss of All Information");
+    expect(screen.getByText(/You will permanently lose all your information, profile storefront, media reels/i)).toBeInTheDocument();
+    expect(screen.getByText(/Earnings Payout Guarantee \(Under 72 Hours\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/All your remaining earnings and eligible escrow balances will be automatically transferred to your verified bank account under 72 hours/i)).toBeInTheDocument();
+
+    const deleteBtn = screen.getByText("Delete My Account");
+    expect(deleteBtn).toBeDisabled();
+
+    // Typing DELETE enables button
+    const confirmInput = screen.getByPlaceholderText("Type DELETE to confirm");
+    fireEvent.change(confirmInput, { target: { value: "DELETE" } });
+    expect(deleteBtn).not.toBeDisabled();
+
+    // Confirm deletion
+    fireEvent.click(deleteBtn);
+
+    // Confirmation scheduled screen renders
+    await screen.findByText("Account Scheduled for Deletion");
+    expect(screen.getByText(/Payout window: Under 72 hours to/i)).toBeInTheDocument();
+    expect(screen.getByText("Sign Out & Return to Home")).toBeInTheDocument();
   });
 });

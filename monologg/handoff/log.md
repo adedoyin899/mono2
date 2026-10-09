@@ -1,11 +1,47 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
+**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 106 (2026-10-09) — Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal
+
+**Goal:** Implement full account deletion confirmation flow with transparent data-loss warnings and 72-hour payout guarantees, enforce disabled Change Password button state until all fields have input, and remove redundant subtext from Change Passcode:
+1. **Interactive Delete Account Flow:**
+   - Wired the red `Delete Account` card in `Settings.tsx` to open a dedicated modal (`showDeleteAccountModal`).
+   - **Clear Data & Information Loss Warning:** Warns the user that they will permanently lose all their account information, public profile, audition reels, portfolio assets, client reviews, order room chat history, and platform data.
+   - **Under 72-Hour Earnings Payout Guarantee:** Guarantees that all remaining wallet balances, milestone earnings, and eligible escrow funds will be automatically liquidated and transferred to their verified payout bank account under 72 hours.
+   - **Bank Account Destination Confirmation:** Displays their verified payout bank account (`bankDetails.bankName •••• ${bankDetails.accountNumber.slice(-4)}`) so the user knows exactly where funds are being routed.
+   - **Safety Confirmation Gate:** Requires typing `"DELETE"` into a dedicated text input before the destructive `Delete My Account` button is enabled.
+   - **Post-Confirmation / Scheduled Screen:** Renders an informational success state confirming that the account is deactivated and earnings are scheduled for transfer within 72 hours, with a `Sign Out & Return to Home` button routing to `/auth`.
+2. **Disabled Change Password CTA:**
+   - Tied `Current Password`, `New Password`, and `Confirm New Password` inputs to local React state (`currentPassword`, `newPassword`, `confirmPassword`).
+   - Enforced `disabled={!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()}` on the `Update Password` button, keeping it disabled until the user starts typing in all three fields.
+   - Added validation handling (minimum 8 characters, password match check) and success feedback.
+3. **Change Passcode Header Cleanliness:**
+   - Removed the subtext `4-digit PIN required to authorise earnings withdrawals` from the Change Passcode card as requested, establishing visual symmetry between Change Password and Change Passcode.
+4. **Testing & Distribution Validation:**
+   - Updated `Settings.test.tsx` verifying:
+     - `Update Password` CTA remains disabled until text is typed into all 3 password fields.
+     - `Change Passcode` card subtext is completely omitted.
+     - `Delete Account` button triggers modal with permanent data loss notice and 72-hr payout guarantees.
+     - Typing `DELETE` enables the button, and confirming shows the scheduled deletion status with 72-hr bank payout window.
+   - Verified 101/101 tests passing across 24 test suites, clean typecheck, and rebuilt standalone bundle in `monologg-app.html` (1.37MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

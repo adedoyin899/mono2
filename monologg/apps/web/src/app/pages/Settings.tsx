@@ -15,7 +15,7 @@ import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X,
   MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
-  Building2, Info
+  Building2, Info, AlertTriangle, Clock
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -118,11 +118,20 @@ export function Settings() {
   const [deleteCardModal, setDeleteCardModal] = useState<{ id: string; type: string; last4: string } | null>(null);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSaved, setPasswordSaved] = useState(false);
   const [currentPasscode, setCurrentPasscode] = useState("");
   const [newPasscode, setNewPasscode] = useState("");
   const [confirmPasscode, setConfirmPasscode] = useState("");
   const [passcodeError, setPasscodeError] = useState<string | null>(null);
   const [passcodeSaved, setPasscodeSaved] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteScheduled, setDeleteScheduled] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -358,6 +367,46 @@ export function Settings() {
     setEditingBank(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleUpdatePassword = () => {
+    if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New passwords do not match.");
+      return;
+    }
+    setPasswordError(null);
+    setPasswordSaved(true);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setSaved(true);
+    setTimeout(() => {
+      setPasswordSaved(false);
+      setSaved(false);
+    }, 2500);
+  };
+
+  const handleDeleteAccount = () => {
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") return;
+    setDeletingAccount(true);
+    setTimeout(() => {
+      setDeletingAccount(false);
+      setDeleteScheduled(true);
+    }, 800);
+  };
+
+  const handleFinishDeletion = () => {
+    setShowDeleteAccountModal(false);
+    setDeleteScheduled(false);
+    setDeleteConfirmText("");
+    navigate("/auth");
   };
 
   const handleUpdatePasscode = () => {
@@ -1729,21 +1778,54 @@ export function Settings() {
                 <div className="px-4 py-3.5">
                   <div className="text-sm font-semibold font-body mb-3" style={s.text}>Change Password</div>
                   <div className="space-y-3">
-                    <Input type="password" placeholder="Current Password" />
-                    <Input type="password" placeholder="New Password" />
-                    <Input type="password" placeholder="Confirm New Password" />
+                    <Input
+                      type="password"
+                      placeholder="Current Password"
+                      value={currentPassword}
+                      onChange={(e) => {
+                        setCurrentPassword(e.target.value);
+                        setPasswordError(null);
+                      }}
+                    />
+                    <Input
+                      type="password"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        setPasswordError(null);
+                      }}
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Confirm New Password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setPasswordError(null);
+                      }}
+                    />
                   </div>
-                  <Button className="w-full h-11 mt-3 text-sm" onClick={handleSave}>Update Password</Button>
+                  {passwordError && (
+                    <div className="text-xs text-[var(--color-error)] font-body mt-2">{passwordError}</div>
+                  )}
+                  {passwordSaved && (
+                    <div className="text-xs text-[var(--color-success)] font-body mt-2">Password updated successfully. ✓</div>
+                  )}
+                  <Button
+                    className="w-full h-11 mt-3 text-sm"
+                    disabled={!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()}
+                    onClick={handleUpdatePassword}
+                  >
+                    {passwordSaved ? "Password Updated! ✓" : "Update Password"}
+                  </Button>
                 </div>
               </div>
 
               {/* Change Passcode */}
               <div className="rounded-2xl overflow-hidden" style={s.surface}>
                 <div className="px-4 py-3.5">
-                  <div className="mb-3">
-                    <div className="text-sm font-semibold font-body" style={s.text}>Change Passcode</div>
-                    <div className="text-xs font-body mt-0.5" style={s.tertiary}>4-digit PIN required to authorise earnings withdrawals</div>
-                  </div>
+                  <div className="text-sm font-semibold font-body mb-3" style={s.text}>Change Passcode</div>
                   <div className="space-y-3">
                     <Input
                       type="password"
@@ -1793,7 +1875,15 @@ export function Settings() {
               </div>
 
               <div className="rounded-2xl overflow-hidden" style={{ background: "var(--color-error-bg)", border: "1px solid var(--color-error)" }}>
-                <button className="w-full px-4 py-3.5 text-left">
+                <button
+                  type="button"
+                  className="w-full px-4 py-3.5 text-left transition-opacity hover:opacity-90 active:scale-[0.99]"
+                  onClick={() => {
+                    setShowDeleteAccountModal(true);
+                    setDeleteConfirmText("");
+                    setDeleteScheduled(false);
+                  }}
+                >
                   <div className="text-sm font-semibold font-body" style={{ color: "var(--color-error)" }}>Delete Account</div>
                   <div className="text-xs font-body mt-0.5" style={{ color: "var(--color-error)", opacity: 0.7 }}>Permanently delete your account and all data</div>
                 </button>
@@ -1859,6 +1949,141 @@ export function Settings() {
                 <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + "/storefront/emeka")}`)}>Twitter</Button>
                 <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + "/storefront/emeka")}`)}>LinkedIn</Button>
               </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Account Modal */}
+      <AnimatePresence>
+        {showDeleteAccountModal && (
+          <Modal onClose={() => !deletingAccount && setShowDeleteAccountModal(false)}>
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {!deleteScheduled ? (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                        style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}
+                      >
+                        <AlertTriangle className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                          Delete Account
+                        </h3>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Permanent action · Cannot be undone
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowDeleteAccountModal(false)}
+                      disabled={deletingAccount}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 mb-5">
+                    {/* Information loss warning */}
+                    <div
+                      className="p-3.5 rounded-xl border flex items-start gap-3"
+                      style={{ background: "var(--color-error-bg)", borderColor: "var(--color-error)" }}
+                    >
+                      <Trash2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-error)" }} />
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
+                        <strong className="block font-semibold mb-0.5" style={{ color: "var(--color-error)" }}>
+                          Permanent Loss of All Information
+                        </strong>
+                        You will permanently lose all your information, profile storefront, media reels, portfolio assets, client reviews, messages, and account history.
+                      </div>
+                    </div>
+
+                    {/* 72-hour earnings transfer guarantee */}
+                    <div
+                      className="p-3.5 rounded-xl border flex items-start gap-3"
+                      style={{ background: "var(--color-accent-soft)", borderColor: "var(--color-accent)" }}
+                    >
+                      <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
+                        <strong className="block font-semibold mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                          Earnings Payout Guarantee (Under 72 Hours)
+                        </strong>
+                        All your remaining earnings and eligible escrow balances will be automatically transferred to your verified bank account under 72 hours.
+                        <div className="mt-2 font-mono text-[11px] px-2 py-1 rounded bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] inline-block">
+                          Destination: {bankDetails.bankName || "Verified Bank"} (•••• {bankDetails.accountNumber.slice(-4) || "••••"})
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-5">
+                    <label className="block text-xs font-medium font-body mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                      To confirm deletion, type <span className="font-mono font-bold text-[var(--color-error)]">DELETE</span> below:
+                    </label>
+                    <Input
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="Type DELETE to confirm"
+                      className="font-mono tracking-wider text-sm"
+                    />
+                  </div>
+
+                  <div className="flex gap-2.5">
+                    <Button
+                      variant="secondary"
+                      className="flex-1 h-11 text-xs font-semibold"
+                      disabled={deletingAccount}
+                      onClick={() => setShowDeleteAccountModal(false)}
+                    >
+                      Keep Account
+                    </Button>
+                    <Button
+                      className="flex-1 h-11 text-xs font-semibold"
+                      style={{ background: "var(--color-error)", color: "#fff" }}
+                      disabled={deleteConfirmText.trim().toUpperCase() !== "DELETE" || deletingAccount}
+                      onClick={handleDeleteAccount}
+                    >
+                      {deletingAccount ? "Deleting Account…" : "Delete My Account"}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+                    style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                  >
+                    <Clock className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-display text-lg font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
+                    Account Scheduled for Deletion
+                  </h3>
+                  <p className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
+                    Your account has been deactivated. You have lost access to your profile and data. All your remaining earnings are being liquidated and transferred to your account under 72 hours.
+                  </p>
+                  <div className="p-3 rounded-xl mb-5 text-xs font-mono" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)" }}>
+                    Payout window: Under 72 hours to {bankDetails.bankName || "Verified Bank"} (•••• {bankDetails.accountNumber.slice(-4) || "••••"})
+                  </div>
+                  <Button
+                    className="w-full h-11 text-xs font-semibold"
+                    onClick={handleFinishDeletion}
+                  >
+                    Sign Out & Return to Home
+                  </Button>
+                </div>
+              )}
             </motion.div>
           </Modal>
         )}

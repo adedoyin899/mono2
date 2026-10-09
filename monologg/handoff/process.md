@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
+**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,18 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 46: Settings Delete Account Flow (72-Hour Earnings Guarantee & Data Loss Notices), Disabled Password CTA, and Passcode Subtext Removal (Session 106)
+
+Engineered an interactive account deletion safeguard flow and refined credential update UX in `Settings.tsx`:
+- **Delete Account Confirmation Flow:** Built a comprehensive modal triggered from the Delete Account card with two critical notices:
+  1. Permanent loss of all account data, storefront, portfolio reels, reviews, and messaging history.
+  2. Guarantee that all remaining earnings and escrow balances will be automatically liquidated and transferred to the verified bank account under 72 hours (displaying bank name and last 4 digits).
+  3. Safety gate requiring typing `"DELETE"` to enable the destructive button, transitioning to a scheduled deletion notice before signing the user out.
+- **Disabled Password CTA:** Connected `Current Password`, `New Password`, and `Confirm New Password` to state and kept the `Update Password` button disabled until all 3 inputs have entered text.
+- **Passcode Subtext Removal:** Removed the withdrawal explanation subtext from Change Passcode for clean visual symmetry with Change Password.
 
 ---
 
