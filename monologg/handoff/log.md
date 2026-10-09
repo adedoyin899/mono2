@@ -1,11 +1,65 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 92: Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal, Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer)
+**Last updated:** 2026-10-09 (Session 93: Order Room FAANG-Level UX Rethink — Brand-Tinted Chat Bubbles, Ride-Hailing PIN, Reduced Redundancy & Cohesive Flow)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 93 (2026-10-09) — Order Room FAANG-Level UX Rethink: Brand-Tinted Chat Bubbles, Ride-Hailing PIN, Reduced Redundancy & Cohesive Flow
+
+**Goal:** Complete UX overhaul of `OrderRoom.tsx` based on user feedback: replace jarring black chat bubbles with brand-tinted bubbles (red for performer, purple for client); redesign the onsite PIN flow as a ride-hailing-style code (client has code, performer asks on arrival); strip redundant information repeated across banner, stepper, footer, and modal; consolidate into one clean context-aware action dock; and rewrite the entire component to under 1,150 lines without losing functionality.
+
+### Changes Made
+
+1. **Brand-Tinted Chat Bubbles (`OrderRoom.tsx`):**
+   - Performer (talent) bubbles: solid `var(--color-red)` background with white text when sender; soft `var(--color-red-soft)` with red text when receiver.
+   - Client bubbles: solid `var(--color-purple)` background with white text when sender; soft `var(--color-purple-soft)` with purple text when receiver.
+   - Avatar initials also use brand tints matching the participant's role (red-soft bg + mono-red text for talent; purple-soft bg + mono-purple text for client).
+   - Removed black (`#18181B`) sender bubbles entirely — they clashed with the brand palette.
+
+2. **Ride-Hailing PIN Flow Redesign (`OrderRoom.tsx`):**
+   - **Old UX:** Performer was shown a static 4-digit code and told to show it to client. Confusing and passive.
+   - **New UX:** Client generates a booking PIN in their app (like a ride-hailing verification code). Performer sees a clear explanation ("Ask for it when you arrive onsite") and enters it into 4 auto-advancing digit inputs. Live validation: ✓ if correct, error message if wrong. Only valid PIN allows submission.
+   - Added a `Smartphone` icon + instructional text block explaining the flow clearly.
+
+3. **Redundancy Reduction & Information Hierarchy (`OrderRoom.tsx`):**
+   - Removed duplicate escrow amount display (was shown in: header badge, stepper, action banner, footer, modal, order info modal = 6 places). Now shown in 2 precise places: navbar subtitle and Order Info modal.
+   - Removed "Step 2 of 4" badge inside the deliverable banner (stepper shows this).
+   - Removed always-visible footer escrow text (now only shown once in the input footer, concisely).
+   - Removed the separate `renderActionDock` banner from above the message input when there's no active phase action.
+
+4. **Consolidated Action Dock (`OrderRoom.tsx`):**
+   - Single `renderActionDock()` function renders phase-appropriate CTAs directly above the input bar.
+   - Briefing (client): one "Confirm Brief" button in brand accent.
+   - Deliverables (performer): one "Submit Deliverable" or "Submit Appearance Proof" button in brand accent.
+   - Review: amber timer strip + client action row (Request Revision / Dispute / Release Payment) or performer auto-release notice.
+   - Complete: no dock shown.
+
+5. **Phase Stepper Simplified (`OrderRoom.tsx`):**
+   - Slimmed from two separate stepper strips to a single compact inline row using `ChevronRight` separators.
+   - Active indicator uses `var(--color-accent)` for role-adaptive colour.
+
+6. **Modals Tightened (`OrderRoom.tsx`):**
+   - Submit Deliverable modal: max-w-lg, no overlong escrow reassurance repeated in both banner and footer; single shield note at bottom.
+   - Release Payment modal: cleaner financial breakdown, removed redundant "This action concludes the order" copy.
+   - Revision modal: simplified header layout.
+   - Order Info modal: tighter, only 3 financial rows instead of 5.
+
+7. **Standalone HTML Rebuilt (`monologg-app.html`):**
+   - Re-compiled `build:standalone` and inlined fresh 1.35 MB bundle.
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 
