@@ -130,6 +130,19 @@ export const DEFAULT_CLIENT_REVIEWS: ClientReviewItem[] = [
   },
 ];
 
+export const getRatingBadgeStyle = (stars: number) => {
+  if (stars >= 5.0) {
+    return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
+  }
+  if (stars >= 4.9) {
+    return "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800";
+  }
+  if (stars >= 4.7) {
+    return "bg-orange-50 text-orange-800 border-orange-200 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-800";
+  }
+  return "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700";
+};
+
 export function getSplinePath(points: { x: number; y: number }[]): string {
   if (points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -490,7 +503,7 @@ export function TalentDashboard() {
   const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null);
 
   const [reviewSearch, setReviewSearch] = useState("");
-  const [reviewRatingFilter, setReviewRatingFilter] = useState<"all" | "5" | "4">("all");
+  const [reviewRatingFilter, setReviewRatingFilter] = useState<"all" | "5" | "4.9" | "4.8" | "4">("all");
   const [reviewClientFilter, setReviewClientFilter] = useState("all");
   const [reviewSortOrder, setReviewSortOrder] = useState<"newest" | "oldest" | "highest" | "lowest">("newest");
   const [reviewTagFilter, setReviewTagFilter] = useState("all");
@@ -525,6 +538,8 @@ export function TalentDashboard() {
           }
         }
         if (reviewRatingFilter === "5" && rev.stars < 4.95) return false;
+        if (reviewRatingFilter === "4.9" && (rev.stars < 4.85 || rev.stars >= 4.95)) return false;
+        if (reviewRatingFilter === "4.8" && (rev.stars < 4.75 || rev.stars >= 4.85)) return false;
         if (reviewRatingFilter === "4" && (rev.stars < 3.95 || rev.stars >= 4.95)) return false;
         if (reviewClientFilter !== "all" && rev.clientName !== reviewClientFilter) return false;
         if (reviewTagFilter !== "all" && rev.tag !== reviewTagFilter) return false;
@@ -4109,49 +4124,51 @@ export function TalentDashboard() {
                     {/* Metric Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Card 1: Profile view */}
-                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                         <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile view</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
                       </div>
 
                       {/* Card 2: Project completed */}
-                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                         <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Project completed</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>28</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
                       </div>
 
-                      {/* Card 3: Average rating (Clickable) */}
+                      {/* Card 3: Average rating (Clickable to open Reviews Modal) */}
                       <div
                         onClick={() => setShowReviewsModal(true)}
                         role="button"
                         tabIndex={0}
-                        className="p-4 rounded-[var(--radius-xl)] cursor-pointer transition-all hover:scale-[1.01] hover:border-[var(--color-accent)] group"
+                        className="p-4 sm:p-5 rounded-[var(--radius-xl)] cursor-pointer transition-all hover:border-[var(--color-accent)] hover:shadow-md group"
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <div className="text-xs font-body font-medium uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
-                          <span className="text-[10px] font-medium text-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-opacity">Reviews →</span>
+                          <span className="text-[11px] font-semibold text-[var(--color-accent)] opacity-80 group-hover:opacity-100 group-hover:underline transition-all">
+                            Reviews →
+                          </span>
                         </div>
                         <div className="font-display text-2xl font-bold tnum flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
                           <span>4.9</span>
                           <span className="text-amber-500 text-xl">★</span>
                         </div>
-                        <div className="text-xs font-body mt-1 group-hover:text-[var(--color-accent)] transition-colors" style={{ color: "var(--color-text-tertiary)" }}>
+                        <div className="text-xs font-body mt-1 text-zinc-500 dark:text-zinc-400 group-hover:text-[var(--color-accent)] transition-colors">
                           Based on {allClientReviews.length} client reviews
                         </div>
                       </div>
 
                       {/* Card 4: Total earnings */}
-                      <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
                         <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦1,240,000</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
                       </div>
                     </div>
 
-                    {/* Single Full-Width Category Earnings Spline Area Graph (Matches Room Engagement reference) */}
+                    {/* Single Full-Width Category Earnings Spline Area Graph */}
                     {(() => {
                       const activeChartData = CATEGORY_CHART_TIMEFRAMES[chartTimeframe];
                       const n = activeChartData.labels.length;
@@ -4190,8 +4207,8 @@ export function TalentDashboard() {
                             boxShadow: "var(--shadow-card)",
                           }}
                         >
-                          {/* Header */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                          {/* Header with Title and Legends above the Chart */}
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 mb-5">
                             <div>
                               <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">
                                 Earnings by Category
@@ -4201,21 +4218,37 @@ export function TalentDashboard() {
                               </p>
                             </div>
 
-                            {/* Timeframe Selector Dropdown */}
-                            <div className="relative shrink-0">
-                              <select
-                                value={chartTimeframe}
-                                onChange={(e) => {
-                                  setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
-                                  setHoveredChartIndex(null);
-                                }}
-                                className="appearance-none text-xs font-semibold px-3 py-1.5 pr-8 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
-                              >
-                                <option value="6m">Last 6 months</option>
-                                <option value="3m">Last 3 months</option>
-                                <option value="1y">Past year</option>
-                              </select>
-                              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            {/* Legends & Timeframe in a clean single row above the chart */}
+                            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                              <div className="flex items-center gap-4 text-xs font-body">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-[#E50914] inline-block shrink-0 shadow-2xs" />
+                                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{gig1Title}</span>
+                                  <span className="text-[11px] text-zinc-400 font-mono">(68%)</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] inline-block shrink-0 shadow-2xs" />
+                                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{gig2Title}</span>
+                                  <span className="text-[11px] text-zinc-400 font-mono">(32%)</span>
+                                </div>
+                              </div>
+
+                              {/* Timeframe Selector Dropdown */}
+                              <div className="relative shrink-0">
+                                <select
+                                  value={chartTimeframe}
+                                  onChange={(e) => {
+                                    setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
+                                    setHoveredChartIndex(null);
+                                  }}
+                                  className="appearance-none text-xs font-semibold px-3 py-1.5 pr-8 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
+                                >
+                                  <option value="6m">Last 6 months</option>
+                                  <option value="3m">Last 3 months</option>
+                                  <option value="1y">Past year</option>
+                                </select>
+                                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              </div>
                             </div>
                           </div>
 
@@ -4231,7 +4264,7 @@ export function TalentDashboard() {
                               <div className="space-y-1">
                                 <div className="flex items-center justify-between gap-3">
                                   <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
-                                    <span className="w-2 h-2 rounded-full bg-[#0284c7] shrink-0" />
+                                    <span className="w-2 h-2 rounded-full bg-[#E50914] shrink-0" />
                                     <span className="truncate max-w-[110px]">{gig1Title}</span>
                                   </span>
                                   <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
@@ -4240,7 +4273,7 @@ export function TalentDashboard() {
                                 </div>
                                 <div className="flex items-center justify-between gap-3">
                                   <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
-                                    <span className="w-2 h-2 rounded-full bg-[#c084fc] shrink-0" />
+                                    <span className="w-2 h-2 rounded-full bg-[#7C3AED] shrink-0" />
                                     <span className="truncate max-w-[110px]">{gig2Title}</span>
                                   </span>
                                   <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
@@ -4277,12 +4310,12 @@ export function TalentDashboard() {
                             >
                               <defs>
                                 <linearGradient id="splineGig1Gradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#0284c7" stopOpacity="0.28" />
-                                  <stop offset="100%" stopColor="#0284c7" stopOpacity="0.01" />
+                                  <stop offset="0%" stopColor="#E50914" stopOpacity="0.22" />
+                                  <stop offset="100%" stopColor="#E50914" stopOpacity="0.01" />
                                 </linearGradient>
                                 <linearGradient id="splineGig2Gradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#c084fc" stopOpacity="0.24" />
-                                  <stop offset="100%" stopColor="#c084fc" stopOpacity="0.01" />
+                                  <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.18" />
+                                  <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.01" />
                                 </linearGradient>
                               </defs>
 
@@ -4332,7 +4365,7 @@ export function TalentDashboard() {
                               <path
                                 d={spline1}
                                 fill="none"
-                                stroke="#0284c7"
+                                stroke="#E50914"
                                 strokeWidth="2.5"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -4340,7 +4373,7 @@ export function TalentDashboard() {
                               <path
                                 d={spline2}
                                 fill="none"
-                                stroke="#c084fc"
+                                stroke="#7C3AED"
                                 strokeWidth="2.5"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -4362,7 +4395,7 @@ export function TalentDashboard() {
                                     cx={gig1Points[hoveredChartIndex].x}
                                     cy={gig1Points[hoveredChartIndex].y}
                                     r="5.5"
-                                    fill="#0284c7"
+                                    fill="#E50914"
                                     stroke="white"
                                     strokeWidth="2.5"
                                   />
@@ -4370,7 +4403,7 @@ export function TalentDashboard() {
                                     cx={gig2Points[hoveredChartIndex].x}
                                     cy={gig2Points[hoveredChartIndex].y}
                                     r="5.5"
-                                    fill="#c084fc"
+                                    fill="#7C3AED"
                                     stroke="white"
                                     strokeWidth="2.5"
                                   />
@@ -4394,104 +4427,9 @@ export function TalentDashboard() {
                               })}
                             </svg>
                           </div>
-
-                          {/* Legend Row at Bottom Center */}
-                          <div className="flex flex-wrap items-center justify-center gap-6 pt-4 mt-2 border-t border-[var(--color-hairline)] text-xs font-body">
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-[#0284c7] inline-block shadow-2xs" />
-                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                {gig1Title}
-                              </span>
-                              <span className="font-mono text-zinc-400 text-[11px]">(68% · ₦843,200)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc] inline-block shadow-2xs" />
-                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                {gig2Title}
-                              </span>
-                              <span className="font-mono text-zinc-400 text-[11px]">(32% · ₦396,800)</span>
-                            </div>
-                          </div>
                         </div>
                       );
                     })()}
-
-                    {/* Client Reviews Reputation Bar (Tag Row & Modal Launcher underneath the bar) */}
-                    <div
-                      className="p-5 rounded-[var(--radius-xl)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-                      style={{
-                        background: "var(--color-bg-surface)",
-                        border: "1px solid var(--color-border-default)",
-                        boxShadow: "var(--shadow-card)",
-                      }}
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 text-lg font-bold shrink-0">
-                          4.9★
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-display text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                              Client Reviews &amp; Studio Ratings
-                            </h4>
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              100% Verified
-                            </span>
-                          </div>
-                          <p className="text-xs text-zinc-500 font-body mt-0.5">
-                            Based on {allClientReviews.length} client reviews across completed orders · Zero disputes filed
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Filter Tag Chips & Launcher */}
-                      <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleResetReviewFilters();
-                            setShowReviewsModal(true);
-                          }}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
-                        >
-                          All ({allClientReviews.length})
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleResetReviewFilters();
-                            setReviewRatingFilter("5");
-                            setShowReviewsModal(true);
-                          }}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>5 Stars</span>
-                          <span className="text-[10px] text-amber-500 font-mono">★</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleResetReviewFilters();
-                            setReviewTagFilter("Exceptional delivery");
-                            setShowReviewsModal(true);
-                          }}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 transition-colors cursor-pointer"
-                        >
-                          Exceptional delivery
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleResetReviewFilters();
-                            setShowReviewsModal(true);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shrink-0 ml-auto md:ml-1 cursor-pointer"
-                        >
-                          <Search className="w-3.5 h-3.5" />
-                          <span>Search &amp; Filter Reviews →</span>
-                        </button>
-                      </div>
-                    </div>
                 </>
                 )}
               </motion.div>
@@ -4798,7 +4736,7 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
-          {/* Client Reviews & Ratings Modal (Searchable, Filterable by client, date, rating, tags) */}
+          {/* Client Reviews & Ratings Modal (Clean, high-hierarchy, colored rating badges, no nested overhead card) */}
           <AnimatePresence>
             {showReviewsModal && (
               <Modal onClose={() => setShowReviewsModal(false)}>
@@ -4810,127 +4748,115 @@ export function TalentDashboard() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Modal Header */}
-                  <div className="flex items-center justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                  <div className="flex items-start justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                        <span>Client Ratings &amp; Reviews</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                          Client Ratings &amp; Reviews
+                        </h3>
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                           100% Verified
                         </span>
-                      </h3>
-                      <p className="text-xs text-zinc-500 font-body mt-0.5">
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-body mt-0.5">
                         Authentic feedback from casting directors, producers &amp; studio agencies
                       </p>
                     </div>
                     <button
                       onClick={() => setShowReviewsModal(false)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  {/* Summary Rating Banner */}
-                  <div className="my-3.5 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                  {/* Overhead Rating Summary (Clean typographic strip — NO nested card box) */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0 text-xs">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-500 text-xl font-bold font-mono">
-                        4.9★
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-display text-2xl font-bold text-zinc-900 dark:text-zinc-100">4.9</span>
+                        <span className="text-amber-500 text-lg">★</span>
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Performer Reputation Score</div>
-                        <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Based on {allClientReviews.length} client reviews across completed orders
-                        </div>
+                      <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700" />
+                      <div className="text-zinc-600 dark:text-zinc-300 font-medium">
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">{allClientReviews.length}</span> verified client reviews
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 sm:text-right">
-                      <div>
-                        <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">100% Recommended</div>
-                        <div className="text-[11px] text-zinc-400">Zero disputes filed</div>
-                      </div>
+
+                    <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-xs">
+                      <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        100% Recommended
+                      </span>
+                      <span>·</span>
+                      <span>Zero disputes filed</span>
                     </div>
                   </div>
 
-                  {/* Search and Filters Bar */}
-                  <div className="space-y-2.5 pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-                    {/* Search Input */}
-                    <div className="relative">
-                      <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  {/* Search and Filters Bar (Streamlined into 2 clean rows) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-3 pb-2 shrink-0">
+                    {/* Search input (6 cols) */}
+                    <div className="relative sm:col-span-6">
+                      <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         value={reviewSearch}
                         onChange={(e) => setReviewSearch(e.target.value)}
-                        placeholder="Search reviews by client, project title, or keyword..."
-                        className="w-full h-9 pl-9 pr-8 text-xs rounded-xl border bg-white dark:bg-zinc-800/80 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
+                        placeholder="Search reviews or projects..."
+                        className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white dark:focus:bg-zinc-850"
                       />
                       {reviewSearch && (
                         <button
                           type="button"
                           onClick={() => setReviewSearch("")}
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer"
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
                         >
-                          <X className="w-3.5 h-3.5" />
+                          <X className="w-3 h-3" />
                         </button>
                       )}
                     </div>
 
-                    {/* Filter Selects Row: Rating, Client, Date/Sort */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      {/* Rating Filter */}
-                      <div className="relative">
-                        <select
-                          value={reviewRatingFilter}
-                          onChange={(e) => setReviewRatingFilter(e.target.value as "all" | "5" | "4")}
-                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
-                        >
-                          <option value="all">All Star Ratings</option>
-                          <option value="5">5 Stars Only (★ 5.0)</option>
-                          <option value="4">4 Stars (★ 4.0 - 4.9)</option>
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-
-                      {/* Client Filter */}
-                      <div className="relative">
-                        <select
-                          value={reviewClientFilter}
-                          onChange={(e) => setReviewClientFilter(e.target.value)}
-                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none truncate cursor-pointer"
-                        >
-                          <option value="all">All Clients</option>
-                          {uniqueReviewClients.map((client) => (
-                            <option key={client} value={client}>{client}</option>
-                          ))}
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-
-                      {/* Date/Sort Filter */}
-                      <div className="relative">
-                        <select
-                          value={reviewSortOrder}
-                          onChange={(e) => setReviewSortOrder(e.target.value as any)}
-                          className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
-                        >
-                          <option value="newest">Sort: Newest First</option>
-                          <option value="oldest">Sort: Oldest First</option>
-                          <option value="highest">Sort: Highest Rating</option>
-                          <option value="lowest">Sort: Lowest Rating</option>
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
+                    {/* Rating filter (3 cols) */}
+                    <div className="relative sm:col-span-3">
+                      <select
+                        value={reviewRatingFilter}
+                        onChange={(e) => setReviewRatingFilter(e.target.value as any)}
+                        className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                      >
+                        <option value="all">All Ratings</option>
+                        <option value="5">★ 5.0 (Exceptional)</option>
+                        <option value="4.9">★ 4.9</option>
+                        <option value="4.8">★ 4.8</option>
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
-                    {/* Quick Tag Filter Pills */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      <span className="text-[11px] text-zinc-400 font-medium mr-1">Tags:</span>
+                    {/* Sort filter (3 cols) */}
+                    <div className="relative sm:col-span-3">
+                      <select
+                        value={reviewSortOrder}
+                        onChange={(e) => setReviewSortOrder(e.target.value as any)}
+                        className="w-full appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                      >
+                        <option value="newest">Sort: Newest First</option>
+                        <option value="oldest">Sort: Oldest First</option>
+                        <option value="highest">Sort: Highest Rating</option>
+                        <option value="lowest">Sort: Lowest Rating</option>
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Filter Tag Chips & Count Row */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0 text-xs">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => setReviewTagFilter("all")}
                         className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                           reviewTagFilter === "all"
                             ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                            : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200"
+                            : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                         }`}
                       >
                         All
@@ -4943,7 +4869,7 @@ export function TalentDashboard() {
                           className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                             reviewTagFilter === tag
                               ? "bg-red-600 text-white"
-                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200"
+                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                           }`}
                         >
                           {tag}
@@ -4951,25 +4877,22 @@ export function TalentDashboard() {
                       ))}
                     </div>
 
-                    {/* Results Feedback & Reset Button */}
-                    <div className="flex items-center justify-between text-xs pt-1 text-zinc-500">
-                      <span>
-                        Showing <strong>{filteredAndSortedReviews.length}</strong> of {allClientReviews.length} reviews
-                      </span>
-                      {(reviewSearch || reviewRatingFilter !== "all" || reviewClientFilter !== "all" || reviewTagFilter !== "all" || reviewSortOrder !== "newest") && (
+                    <div className="flex items-center gap-2 text-[11px] text-zinc-400 ml-auto">
+                      <span>Showing <strong>{filteredAndSortedReviews.length}</strong> of {allClientReviews.length}</span>
+                      {(reviewSearch || reviewRatingFilter !== "all" || reviewTagFilter !== "all" || reviewSortOrder !== "newest") && (
                         <button
                           type="button"
                           onClick={handleResetReviewFilters}
-                          className="text-xs text-red-600 hover:underline font-medium cursor-pointer"
+                          className="text-red-600 hover:underline font-medium cursor-pointer ml-1"
                         >
-                          Clear all filters
+                          Reset
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Scrollable Reviews List */}
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 py-3 min-h-[160px]">
+                  {/* Scrollable Reviews List with High-Hierarchy Cards */}
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-1 py-3 min-h-[160px]">
                     {filteredAndSortedReviews.length === 0 ? (
                       <div className="py-12 text-center flex flex-col items-center">
                         <Search className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mb-2" />
@@ -4983,68 +4906,57 @@ export function TalentDashboard() {
                       </div>
                     ) : (
                       filteredAndSortedReviews.map((rev) => {
-                        const clientInitials = rev.clientName
-                          .split(" ")
-                          .map((w: string) => w[0])
-                          .slice(0, 2)
-                          .join("")
-                          .toUpperCase();
-
+                        const badgeStyle = getRatingBadgeStyle(rev.stars);
                         return (
                           <div
                             key={rev.id}
-                            className="p-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/40 hover:border-zinc-200 dark:hover:border-zinc-700 transition-all space-y-2 shadow-2xs"
+                            className="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs space-y-2.5"
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center text-xs font-bold font-mono">
-                                  {clientInitials}
+                            {/* Card Top: Client & Project on Left, Colored Rating Badge & Date on Right */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-display">
+                                    {rev.clientName}
+                                  </h4>
+                                  <span className="text-[11px] text-zinc-400 font-body">· {rev.date}</span>
                                 </div>
-                                <div>
-                                  <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-body flex items-center gap-1.5">
-                                    <span>{rev.clientName}</span>
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                  </div>
-                                  <div className="flex items-center gap-1.5 mt-0.5">
-                                    <div className="flex items-center text-amber-400 text-xs">
-                                      {Array.from({ length: 5 }).map((_, i) => (
-                                        <span key={i} className={i < Math.floor(rev.stars) ? "text-amber-400" : "text-zinc-200 dark:text-zinc-700"}>★</span>
-                                      ))}
-                                    </div>
-                                    <span className="text-xs font-mono font-medium text-zinc-700 dark:text-zinc-300">{rev.stars}</span>
-                                    <span className="text-zinc-300 dark:text-zinc-600">·</span>
-                                    <span className="text-xs text-zinc-400">{rev.date}</span>
-                                  </div>
-                                </div>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-0.5">
+                                  Project: {rev.projectName}
+                                </p>
                               </div>
-                              {rev.tag && (
-                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 shrink-0">
-                                  {rev.tag}
-                                </span>
-                              )}
+
+                              {/* Rating Badge with distinctive background color and single star icon */}
+                              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold font-mono border ${badgeStyle} shrink-0`}>
+                                <span className="text-amber-500">★</span>
+                                <span>{rev.stars.toFixed(1)}</span>
+                              </div>
                             </div>
 
+                            {/* Review Quote (Clean quote with subtle left accent line — NO nested card box!) */}
                             {rev.note && (
-                              <p className="text-xs text-zinc-600 dark:text-zinc-300 font-body leading-relaxed bg-zinc-50/60 dark:bg-zinc-800/80 p-2.5 rounded-lg border border-zinc-100 dark:border-zinc-700/60">
+                              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-body leading-relaxed pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 italic my-2">
                                 &ldquo;{rev.note}&rdquo;
                               </p>
                             )}
 
-                            {/* Associated Project with direct link button */}
-                            <div className="pt-1 flex items-center justify-between text-xs border-t border-zinc-100 dark:border-zinc-800">
-                              <span className="text-zinc-500 font-medium truncate max-w-[260px] sm:max-w-md">
-                                Project: <strong className="text-zinc-800 dark:text-zinc-200">{rev.projectName}</strong>
-                              </span>
+                            {/* Card Bottom: Compliment Tag and Direct Link */}
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-xs">
+                              {rev.tag ? (
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                                  {rev.tag}
+                                </span>
+                              ) : <span />}
                               <button
                                 type="button"
                                 onClick={() => {
                                   setShowReviewsModal(false);
                                   navigate(`/order/${rev.orderId}`);
                                 }}
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700 hover:underline shrink-0 cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors cursor-pointer group"
                               >
                                 <span>View Order Room</span>
-                                <span>→</span>
+                                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                               </button>
                             </div>
                           </div>
@@ -5058,7 +4970,7 @@ export function TalentDashboard() {
                     <span className="text-xs text-zinc-400">
                       All reviews are verified and cannot be edited by performers.
                     </span>
-                    <Button variant="secondary" className="h-9 text-xs" onClick={() => setShowReviewsModal(false)}>
+                    <Button variant="secondary" className="h-8 text-xs px-4" onClick={() => setShowReviewsModal(false)}>
                       Close
                     </Button>
                   </div>

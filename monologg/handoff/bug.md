@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 100: Single Category Spline Area Graph, Client Reviews Reputation Bar, and Searchable/Filterable Reviews Modal)
+**Last updated:** 2026-10-09 (Session 101: UI/UX Overhaul of Analytics & Client Reviews: Card Hierarchy, Colored Rating Badges, Brand Complementary Graph, and Clutter Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 49. Visual clutter from nested cards, double-icon duplication in review list, and mismatched graph palette
+- **Severity:** Low / Visual Hierarchy & Brand Identity
+- **What happened:** In `TalentDashboard.tsx`, the review cards suffered from heavy nested-card clutter (an overhead card inside the modal, plus nested gray quote boxes inside each review card) and icon duplication (displaying 5 star icons adjacent to the numeric rating, alongside client initials avatars and verification checkmarks). All ratings looked uniform without colored backgrounds to distinguish scores at a glance. In the Analytics tab, the category spline graph used generic electric cyan and pastel lavender that clashed with Monologg's crimson/violet design language, legends sat at the bottom of the card, and an out-of-place summary reputation bar was positioned below the chart.
+- **Root Cause:** Over-nesting of card containers; lack of distinct rating badge styling; hardcoded cyan/lavender hex codes rather than platform brand tokens; placement of legends below chart rather than in the header.
+- **Resolution:** Excised the out-of-place bottom rating bar. Removed the nested overhead 4.9 card container in the modal in favor of an integrated horizontal typographic summary strip. Replaced the 5-star row with a single, background-tinted rating badge (`★ 5.0` in emerald, `★ 4.9` in amber, `★ 4.8` in warm orange) and replaced nested gray quote boxes with clean italic text indented by a subtle left border (`border-l-2`). Overhauled chart palette to Monologg Performer Red (`#E50914`) and Client Violet (`#7C3AED`), and repositioned legends above the chart alongside the timeframe selector.
+
+---
 
 ### 48. Fragmented dual analytics cards and lack of search/filter in client reviews modal
 - **Severity:** Low / Information Density & Review Explorer Usability
