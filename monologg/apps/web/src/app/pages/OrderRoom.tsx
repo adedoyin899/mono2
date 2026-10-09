@@ -11,48 +11,106 @@ import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle,
-  UploadCloud, X, DollarSign
+  UploadCloud, X, DollarSign, MapPin, Clock, Camera,
+  KeyRound, RefreshCw, FastForward, Check, ExternalLink
 } from "lucide-react";
 
 type Phase = "briefing" | "deliverables" | "review" | "complete";
 type UserRole = "talent" | "client";
+type GigType = "remote" | "onsite";
 
-type Message = OrderMessage;
+export type OnsiteEvidence = {
+  venue: string;
+  coords: string;
+  arrivalTime: string;
+  checkoutTime?: string;
+  hasPhoto?: boolean;
+  method: "checkin" | "pin";
+  pinCode?: string;
+  notes?: string;
+};
+
+export type ExtendedOrderMessage = OrderMessage & {
+  onsiteEvidence?: OnsiteEvidence;
+};
 
 const PHASES: { id: Phase; label: string; desc: string }[] = [
   { id: "briefing", label: "Briefing", desc: "Review and confirm project brief" },
-  { id: "deliverables", label: "Deliverables", desc: "Submit and review recordings" },
-  { id: "review", label: "Review", desc: "Client approves submitted files" },
+  { id: "deliverables", label: "Deliverables", desc: "Submit files or onsite proof" },
+  { id: "review", label: "Review", desc: "Client 48h inspection window" },
   { id: "complete", label: "Complete", desc: "Escrow released to performer" },
 ];
 
 export function OrderRoom() {
   const [phase, setPhase] = useState<Phase>("deliverables");
   const [role, setRole] = useState<UserRole>("talent");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [gigType, setGigType] = useState<GigType>("remote");
+  const [messages, setMessages] = useState<ExtendedOrderMessage[]>([]);
   const [inputText, setInputText] = useState("");
+
+  // Modals state
   const [showReleaseModal, setShowReleaseModal] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [paymentReleased, setPaymentReleased] = useState(false);
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
   const [showOrderInfoModal, setShowOrderInfoModal] = useState(false);
+  const [paymentReleased, setPaymentReleased] = useState(false);
 
-  // Deliverable modal staging state
+  // Deliverables submission state (Tabs: Online vs Onsite)
+  const [deliverableTab, setDeliverableTab] = useState<"online" | "onsite">("online");
   const [stagedFile, setStagedFile] = useState<{ name: string; size: string; type: "file" | "image" } | null>(null);
-  const [submissionNotes, setSubmissionNotes] = useState("");
+  const [onlineNotes, setOnlineNotes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Onsite evidence state (Check-in/Check-out vs PIN handshake)
+  const [onsiteMethod, setOnsiteMethod] = useState<"checkin" | "pin">("checkin");
+  const [isCheckedOut, setIsCheckedOut] = useState(true);
+  const [hasAttachedPhoto, setHasAttachedPhoto] = useState(false);
+  const [onsiteNotes, setOnsiteNotes] = useState("");
+  const [clientPinInput, setClientPinInput] = useState("");
+
+  // 48-Hour Inspection Timer (Seconds countdown)
+  const [timerSeconds, setTimerSeconds] = useState(47 * 3600 + 58 * 60 + 20); // 47h 58m 20s
+  const [revisionNotes, setRevisionNotes] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { id: orderId } = useParams();
 
+  // Load initial order messages
   useEffect(() => {
-    apiClient.getOrderMessages(orderId ?? "unknown").then(setMessages);
+    apiClient.getOrderMessages(orderId ?? "unknown").then((msgs) => {
+      setMessages(msgs as ExtendedOrderMessage[]);
+    });
   }, [orderId]);
 
+  // Auto-scroll on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Live 48h countdown interval during Review phase
+  useEffect(() => {
+    if (phase !== "review" || paymentReleased) return;
+    const interval = setInterval(() => {
+      setTimerSeconds(prev => {
+        if (prev <= 1) {
+          // Timer reached 0: Auto-release payment!
+          handleAutoRelease();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [phase, paymentReleased]);
+
+  const formatCountdown = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hours}h ${mins.toString().padStart(2, "0")}m ${secs.toString().padStart(2, "0")}s`;
+  };
 
   const sendMessage = async () => {
     const text = inputText.trim();
@@ -60,7 +118,7 @@ export function OrderRoom() {
     setInputText("");
 
     const sent = orderId ? await apiClient.sendOrderMessage(orderId, text) : null;
-    const newMsg: Message = sent ?? {
+    const newMsg: ExtendedOrderMessage = sent ?? {
       id: `local-${messages.length + 1}`,
       from: role,
       text,
@@ -78,21 +136,19 @@ export function OrderRoom() {
 
   const phaseIndex = PHASES.findIndex(p => p.id === phase);
 
-  const advancePhase = () => {
-    const nextIndex = phaseIndex + 1;
-    if (nextIndex < PHASES.length) {
-      const nextPhase = PHASES[nextIndex].id;
-      setPhase(nextPhase);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `local-${prev.length + 1}`,
-          from: "system",
-          text: `Phase advanced to ${PHASES[nextIndex].label}.`,
-          time: "Just now",
-        },
-      ]);
-    }
+  const advancePhase = (targetPhase?: Phase) => {
+    const nextPhase = targetPhase ?? (phaseIndex + 1 < PHASES.length ? PHASES[phaseIndex + 1].id : phase);
+    setPhase(nextPhase);
+    const label = PHASES.find(p => p.id === nextPhase)?.label ?? nextPhase;
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${prev.length + 1}`,
+        from: "system",
+        text: `Phase advanced to ${label}.`,
+        time: "Just now",
+      },
+    ]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +162,106 @@ export function OrderRoom() {
         type: isImg ? "image" : "file",
       });
     }
+  };
+
+  // Submit Digital Deliverables (Files)
+  const handleSubmitOnlineDeliverable = () => {
+    const finalFile = stagedFile ?? { name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" };
+    setShowSubmitModal(false);
+    advancePhase("review");
+    setTimerSeconds(48 * 3600); // 48h window starts
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${prev.length + 1}`,
+        from: "talent",
+        text: onlineNotes.trim() || "I've submitted the final voice-over recording. Please review within the 48-hour inspection window.",
+        time: "Just now",
+        attachment: finalFile,
+      },
+      {
+        id: `local-${prev.length + 2}`,
+        from: "system",
+        text: "48-Hour Inspection Timer started. Escrow will auto-release in 48 hours unless client requests revision or opens dispute.",
+        time: "Just now",
+      },
+    ]);
+    setStagedFile(null);
+    setOnlineNotes("");
+  };
+
+  // Submit Onsite Evidence (Live Appearance Proof)
+  const handleSubmitOnsiteEvidence = () => {
+    setShowSubmitModal(false);
+    advancePhase("review");
+    setTimerSeconds(48 * 3600); // 48h window starts
+    const evidence: OnsiteEvidence = {
+      venue: gigType === "onsite" ? "Comedy night, Eko Hotel" : "Live Event, Victoria Island",
+      coords: "6.5244° N, 3.3792° E · Lagos",
+      arrivalTime: "7:52 PM, Today",
+      checkoutTime: isCheckedOut ? "10:15 PM, Today" : undefined,
+      hasPhoto: hasAttachedPhoto,
+      method: onsiteMethod,
+      pinCode: "4821",
+      notes: onsiteNotes.trim() || "Completed live performance as scheduled.",
+    };
+
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${prev.length + 1}`,
+        from: "talent",
+        text: onsiteNotes.trim() || "I've submitted verified onsite appearance proof for the live performance. Review window is now open.",
+        time: "Just now",
+        onsiteEvidence: evidence,
+      },
+      {
+        id: `local-${prev.length + 2}`,
+        from: "system",
+        text: "Onsite presence verified. 48-Hour Inspection Timer started. Escrow will auto-release in 48 hours if uncontested.",
+        time: "Just now",
+      },
+    ]);
+    setOnsiteNotes("");
+  };
+
+  // Fast-forward or trigger 48h auto-release
+  const handleAutoRelease = () => {
+    setShowReleaseModal(false);
+    setPaymentReleased(true);
+    setPhase("complete");
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${prev.length + 1}`,
+        from: "system",
+        text: `48-hour inspection window concluded. ₦120,000 has been automatically released from escrow to ${appStateSync.getTalentProfile().name}. Order complete!`,
+        time: "Just now",
+      },
+    ]);
+  };
+
+  // Client requests revision
+  const handleRequestRevision = () => {
+    if (!revisionNotes.trim()) return;
+    setShowRevisionModal(false);
+    setPhase("deliverables");
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${prev.length + 1}`,
+        from: "client",
+        text: `Revision Requested: ${revisionNotes.trim()}`,
+        time: "Just now",
+      },
+      {
+        id: `local-${prev.length + 2}`,
+        from: "system",
+        text: "Client requested revisions. 48-hour inspection timer paused. Phase returned to Deliverables.",
+        time: "Just now",
+      },
+    ]);
+    setRevisionNotes("");
   };
 
   const renderOrderInfoContent = () => (
@@ -143,9 +299,25 @@ export function OrderRoom() {
         <div className="text-xs text-zinc-500 mt-1">
           {paymentReleased
             ? `Transferred to ${appStateSync.getTalentProfile().name}`
-            : "Held securely in Monologg Escrow until deliverable approval"}
+            : "Held securely in Monologg Escrow with 48-Hour Inspection Guarantee"}
         </div>
       </motion.div>
+
+      {/* Booking Mode Context */}
+      <div className="mb-5 p-3 rounded-xl bg-zinc-50 border border-zinc-200/80">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-zinc-500">Service Category</span>
+          <span className="font-semibold text-zinc-900 capitalize">
+            {gigType === "onsite" ? "Live Standup (Onsite Appearance)" : "Voice-Over (Remote Digital)"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between text-xs mt-2">
+          <span className="text-zinc-500">Location Protocol</span>
+          <span className="font-semibold text-zinc-900">
+            {gigType === "onsite" ? "Eko Hotel & Suites, Victoria Island" : "Remote Home Studio"}
+          </span>
+        </div>
+      </div>
 
       {/* Phase progress */}
       <div className="mb-5">
@@ -217,7 +389,7 @@ export function OrderRoom() {
         </div>
       </div>
 
-      {/* Order details */}
+      {/* Financial Details */}
       <div>
         <div className="text-xs font-semibold uppercase tracking-wider mb-2.5 text-zinc-400">
           Financial Breakdown
@@ -225,10 +397,10 @@ export function OrderRoom() {
         <div className="space-y-2 p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/60 text-xs">
           {[
             { label: "Order ID", value: "ORD-001" },
-            { label: "Service", value: "Commercial Voice-Over" },
-            { label: "Total Escrow", value: "₦120,000" },
+            { label: "Base Escrow Deposit", value: "₦120,000" },
             { label: "Platform Fee (0% Talent)", value: "₦0" },
-            { label: "Deadline", value: "Dec 18, 2024" },
+            { label: "Inspection Window", value: "48 Hours (Auto-Release)" },
+            { label: "Performer Payout", value: "₦120,000" },
           ].map((item, i) => (
             <div key={i} className="flex justify-between items-center">
               <span className="text-zinc-500">{item.label}</span>
@@ -242,7 +414,7 @@ export function OrderRoom() {
 
   return (
     <div className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col bg-zinc-50`}>
-      {/* Clean Modern Header */}
+      {/* Clean Executive Navbar */}
       <header className="h-16 flex items-center justify-between gap-3 px-4 sm:px-6 sticky top-0 z-40 bg-white border-b border-[var(--color-hairline)] shadow-2xs">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
@@ -255,14 +427,17 @@ export function OrderRoom() {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm sm:text-base font-semibold text-zinc-900 truncate font-display">
-                Nike Campaign VO
+                {gigType === "onsite" ? "Comedy Night, Eko Hotel" : "Nike Campaign VO"}
               </span>
               <span className="text-[10px] font-mono uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 shrink-0">
                 ORD-001
               </span>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${gigType === "onsite" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"}`}>
+                {gigType === "onsite" ? "📍 Onsite Event" : "🎧 Remote Deliverable"}
+              </span>
             </div>
             <div className="text-xs text-zinc-500 flex items-center gap-1.5 mt-0.5 truncate">
-              <span>FilmCraft Studios</span>
+              <span>{appStateSync.getClientProfile().orgName || "FilmCraft Studios"}</span>
               <span>·</span>
               <span className="flex items-center gap-1 text-emerald-700 font-medium">
                 <Lock className="w-3 h-3 text-emerald-600 shrink-0" />
@@ -272,9 +447,39 @@ export function OrderRoom() {
           </div>
         </div>
 
-        {/* Right Header Actions */}
+        {/* Right Header Controls */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Subtle Role Simulator Switcher */}
+          {/* Gig Type Toggle Demo (Remote vs Onsite) */}
+          <div className="hidden md:flex items-center p-0.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-xs">
+            <button
+              onClick={() => {
+                setGigType("remote");
+                setDeliverableTab("online");
+              }}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                gigType === "remote"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-500 hover:text-zinc-800"
+              }`}
+            >
+              Remote
+            </button>
+            <button
+              onClick={() => {
+                setGigType("onsite");
+                setDeliverableTab("onsite");
+              }}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                gigType === "onsite"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-500 hover:text-zinc-800"
+              }`}
+            >
+              Onsite Gig
+            </button>
+          </div>
+
+          {/* Role Simulator Switcher */}
           <div className="flex items-center p-0.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-xs">
             <button
               onClick={() => setRole("talent")}
@@ -309,7 +514,7 @@ export function OrderRoom() {
         </div>
       </header>
 
-      {/* Clean Phase Progress Stepper */}
+      {/* Phase Milestones Stepper */}
       <div className="bg-white border-b border-[var(--color-hairline)] px-4 sm:px-6 py-2.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between overflow-x-auto">
           <div className="flex items-center gap-3 sm:gap-6 min-w-max text-xs">
@@ -347,6 +552,17 @@ export function OrderRoom() {
               );
             })}
           </div>
+
+          {/* 48h Inspection Window Indicator when active */}
+          {phase === "review" && !paymentReleased && (
+            <div className="flex items-center gap-2 pl-4 border-l border-zinc-200 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-xs font-semibold text-amber-900 flex items-center gap-1 font-mono">
+                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                {formatCountdown(timerSeconds)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -359,7 +575,7 @@ export function OrderRoom() {
               if (msg.from === "system") {
                 return (
                   <div key={msg.id} className="flex justify-center my-2">
-                    <div className="px-3.5 py-1.5 rounded-full text-xs font-body flex items-center gap-1.5 bg-zinc-100 text-zinc-600 border border-zinc-200/80 shadow-2xs">
+                    <div className="px-3.5 py-1.5 rounded-full text-xs font-body flex items-center gap-1.5 bg-zinc-100 text-zinc-600 border border-zinc-200/80 shadow-2xs text-center max-w-md">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>{msg.text}</span>
                     </div>
@@ -385,7 +601,7 @@ export function OrderRoom() {
                       ? appStateSync.getTalentProfile().name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("")
                       : "BN"}
                   </Avatar>
-                  <div className={`max-w-[80%] sm:max-w-[70%] ${isMe ? "items-end" : "items-start"}`}>
+                  <div className={`max-w-[85%] sm:max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
                     <div
                       className={`p-3.5 rounded-2xl text-sm font-body leading-relaxed shadow-2xs ${
                         isMe
@@ -394,6 +610,8 @@ export function OrderRoom() {
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                      {/* Digital File Attachment */}
                       {msg.attachment && (
                         <div
                           className={`mt-2.5 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors ${
@@ -415,13 +633,58 @@ export function OrderRoom() {
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
-                              /* mock download */
                             }}
                             className={`p-1.5 rounded-lg transition-colors ${isMe ? "hover:bg-white/20 text-white" : "hover:bg-zinc-200 text-zinc-600"}`}
                             title="Download file"
                           >
                             <Download className="w-4 h-4 shrink-0" />
                           </button>
+                        </div>
+                      )}
+
+                      {/* Onsite Evidence Card in Chat Thread */}
+                      {msg.onsiteEvidence && (
+                        <div className={`mt-3 p-3.5 rounded-xl border ${isMe ? "bg-white/10 border-white/20 text-white" : "bg-zinc-50 border-zinc-200 text-zinc-900"}`}>
+                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold">
+                              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Onsite Live Appearance Proof</span>
+                            </div>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/20 text-emerald-300">
+                              Verified
+                            </span>
+                          </div>
+
+                          <div className="space-y-1.5 text-xs">
+                            <div className="font-semibold text-sm">{msg.onsiteEvidence.venue}</div>
+                            <div className="flex items-center gap-2 text-[11px] opacity-80">
+                              <span>📍 {msg.onsiteEvidence.coords}</span>
+                            </div>
+                            <div className="flex items-center gap-3 pt-1 text-[11px]">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-emerald-400" /> Arrived: {msg.onsiteEvidence.arrivalTime}
+                              </span>
+                              {msg.onsiteEvidence.checkoutTime && (
+                                <span className="flex items-center gap-1">
+                                  ✓ Checked out: {msg.onsiteEvidence.checkoutTime}
+                                </span>
+                              )}
+                            </div>
+                            {msg.onsiteEvidence.method === "pin" && (
+                              <div className="mt-2 p-2 rounded-lg bg-black/20 text-xs flex items-center justify-between">
+                                <span className="opacity-80">PIN Handshake Verified</span>
+                                <span className="font-mono font-bold tracking-widest text-emerald-400">
+                                  {msg.onsiteEvidence.pinCode}
+                                </span>
+                              </div>
+                            )}
+                            {msg.onsiteEvidence.hasPhoto && (
+                              <div className="mt-2.5 p-2 rounded-lg bg-black/20 flex items-center gap-2 text-xs">
+                                <Camera className="w-4 h-4 text-emerald-400" />
+                                <span>Stage & Backstage Appearance Photo Attached</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -439,7 +702,7 @@ export function OrderRoom() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Interactive Phase Action Banner (Clean & High Hierarchy) */}
+          {/* Phase 1: Briefing Confirmation Banner */}
           {phase === "briefing" && role === "client" && (
             <div className="p-4 mx-4 mb-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200 shadow-2xs">
               <div className="flex items-start gap-3">
@@ -448,15 +711,16 @@ export function OrderRoom() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-zinc-900">Confirm Project Brief</div>
-                  <div className="text-xs text-zinc-500 mt-0.5">Confirm the scope and instructions so the performer can begin recording</div>
+                  <div className="text-xs text-zinc-500 mt-0.5">Confirm the requirements so the performer can begin recording or prepare for the live event</div>
                 </div>
               </div>
-              <Button className="h-9 px-4 text-xs font-semibold shrink-0" onClick={advancePhase}>
+              <Button className="h-9 px-4 text-xs font-semibold shrink-0" onClick={() => advancePhase("deliverables")}>
                 Confirm Brief
               </Button>
             </div>
           )}
 
+          {/* Phase 2: Deliverables Ready for Submission Banner */}
           {phase === "deliverables" && role === "talent" && (
             <div className="p-4 mx-4 mb-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-zinc-200 shadow-2xs">
               <div className="flex items-start gap-3">
@@ -465,13 +729,15 @@ export function OrderRoom() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
-                    Deliverables Phase Active
+                    Submit Project Deliverables
                     <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
                       Step 2 of 4
                     </span>
                   </div>
                   <div className="text-xs text-zinc-500 mt-0.5">
-                    Upload your finished audio or media deliverables to submit for client review
+                    {gigType === "onsite"
+                      ? "Submit your live appearance evidence (GPS check-in/out or PIN handshake)"
+                      : "Upload your completed audio or media deliverables to begin the 48-hour client review window"}
                   </div>
                 </div>
               </div>
@@ -485,50 +751,86 @@ export function OrderRoom() {
             </div>
           )}
 
-          {phase === "review" && role === "client" && !paymentReleased && (
-            <div className="p-4 mx-4 mb-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50/80 border border-emerald-200 shadow-2xs">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-emerald-100 text-emerald-800">
-                  <DollarSign className="w-5 h-5" />
+          {/* Phase 3: 48-Hour Inspection Window Banner (For Client & Performer) */}
+          {phase === "review" && !paymentReleased && (
+            <div className="p-4 mx-4 mb-3 rounded-2xl bg-gradient-to-r from-amber-50/90 to-amber-100/60 border border-amber-200 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-500 text-white shadow-2xs">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-amber-950 flex items-center gap-2">
+                      <span>48-Hour Inspection Window Active</span>
+                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
+                        ⏱ {formatCountdown(timerSeconds)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                      {role === "client"
+                        ? "Review the submitted deliverables or live appearance proof. ₦120,000 will automatically release to the performer upon timer expiry unless contested."
+                        : "Your deliverables are under 48-hour client review. If uncontested, ₦120,000 will automatically transfer to your account upon timer expiry."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-emerald-950 flex items-center gap-2">
-                    Review & Release Payment
-                    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                      Files Delivered
-                    </span>
-                  </div>
-                  <div className="text-xs text-emerald-700 mt-0.5">
-                    The performer has submitted final work. Review files and release ₦120,000 from escrow
-                  </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                  {role === "client" ? (
+                    <>
+                      <button
+                        onClick={() => setShowRevisionModal(true)}
+                        className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200 transition-all"
+                      >
+                        Request Revision
+                      </button>
+                      <Button
+                        className="h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                        onClick={() => setShowReleaseModal(true)}
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Release ₦120,000</span>
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {/* Demo tool to fast-forward countdown */}
+                      <button
+                        onClick={handleAutoRelease}
+                        title="Simulate 48h timer expiry for demo"
+                        className="px-3 py-1.5 rounded-xl text-[11px] font-semibold bg-amber-200/80 hover:bg-amber-300 text-amber-900 transition-colors flex items-center gap-1"
+                      >
+                        <FastForward className="w-3 h-3" />
+                        <span>Test Auto-Release</span>
+                      </button>
+                      <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
+                        100% Escrow Secured
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-              <Button
-                className="h-10 px-5 text-xs font-semibold shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => setShowReleaseModal(true)}
-              >
-                Release ₦120,000
-              </Button>
             </div>
           )}
 
+          {/* Phase 4: Payment Released Confirmation */}
           {paymentReleased && (
             <div className="p-4 mx-4 mb-3 rounded-2xl text-center bg-emerald-50 border border-emerald-200 shadow-2xs">
               <div className="text-sm font-semibold text-emerald-800 flex items-center justify-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Payment Released!</span>
+                <span>Payment Released Successfully!</span>
               </div>
               <p className="text-xs text-emerald-700 mt-0.5">
-                ₦108,000 has been transferred to {appStateSync.getTalentProfile().name}. Order completed successfully.
+                ₦120,000 has been transferred from escrow to {appStateSync.getTalentProfile().name}. Both parties have completed all requirements.
               </p>
             </div>
           )}
 
-          {/* Clean Message Input Dock */}
+          {/* Message Input Dock */}
           <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-[var(--color-hairline)]">
             <div className="flex items-center gap-2">
               <button
-                aria-label="Attach file"
+                aria-label="Attach file or onsite evidence"
                 onClick={() => {
                   if (role === "talent") {
                     setShowSubmitModal(true);
@@ -537,7 +839,7 @@ export function OrderRoom() {
                   }
                 }}
                 className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 transition-all border border-zinc-200/60"
-                title="Attach deliverable file"
+                title="Submit deliverable or attach proof"
               >
                 <Paperclip className="w-4 h-4" />
               </button>
@@ -562,11 +864,11 @@ export function OrderRoom() {
               </Button>
             </div>
 
-            {/* Footer Information */}
+            {/* Footer Metadata & Guardrail */}
             <div className="flex items-center justify-between mt-2.5 px-1">
               <p className="text-xs text-zinc-400 flex items-center gap-1.5">
                 <Shield className="w-3 h-3 text-emerald-600 shrink-0" />
-                <span>Auto-release in 5 days if no action taken</span>
+                <span>Auto-releases in 48h if uncontested · 100% Escrow Protected</span>
               </p>
               <button
                 className="text-xs text-zinc-400 hover:text-red-600 flex items-center gap-1 transition-colors"
@@ -580,7 +882,7 @@ export function OrderRoom() {
         </div>
       </div>
 
-      {/* Release Payment Modal */}
+      {/* Release Payment Modal (Client Approval) */}
       <AnimatePresence>
         {showReleaseModal && (
           <Modal onClose={() => setShowReleaseModal(false)} strength="strong">
@@ -595,10 +897,10 @@ export function OrderRoom() {
                 <DollarSign className="w-7 h-7" />
               </div>
               <h3 className="font-display text-xl font-semibold text-center mb-1.5 text-zinc-900">
-                Release Payment?
+                Release Escrow Payment?
               </h3>
               <p className="text-sm font-body text-center mb-5 text-zinc-500">
-                This will release <strong>₦120,000</strong> from Monologg Escrow to {appStateSync.getTalentProfile().name}. This action cannot be undone.
+                This will release <strong>₦120,000</strong> from Monologg Escrow to {appStateSync.getTalentProfile().name}. This action concludes the order.
               </p>
               <div className="p-4 rounded-xl mb-5 bg-zinc-50 border border-zinc-200/80 text-xs">
                 <div className="flex justify-between font-body text-zinc-600">
@@ -621,20 +923,7 @@ export function OrderRoom() {
                 </Button>
                 <Button
                   className="flex-1 h-11 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
-                  onClick={() => {
-                    setShowReleaseModal(false);
-                    setPaymentReleased(true);
-                    setPhase("complete");
-                    setMessages(prev => [
-                      ...prev,
-                      {
-                        id: `local-${prev.length + 1}`,
-                        from: "system",
-                        text: `Payment of ₦120,000 has been released to ${appStateSync.getTalentProfile().name}. Order complete!`,
-                        time: "Just now",
-                      },
-                    ]);
-                  }}
+                  onClick={handleAutoRelease}
                 >
                   Confirm Release
                 </Button>
@@ -644,7 +933,7 @@ export function OrderRoom() {
         )}
       </AnimatePresence>
 
-      {/* Redesigned Submit Deliverable Modal */}
+      {/* Redesigned Submit Deliverables & Onsite Evidence Modal */}
       <AnimatePresence>
         {showSubmitModal && (
           <Modal onClose={() => setShowSubmitModal(false)} strength="strong">
@@ -652,13 +941,20 @@ export function OrderRoom() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
+              className="w-full max-w-xl rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between pb-4 border-b border-zinc-100 mb-5">
+              {/* Header with Title and Mode Switcher */}
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 mb-4">
                 <div>
-                  <h3 className="font-display text-lg font-semibold text-zinc-900">Submit Deliverable</h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">Deliverable 1 of 1 · Nike Campaign VO</p>
+                  <h3 className="font-display text-lg font-semibold text-zinc-900">
+                    {deliverableTab === "onsite" ? "Submit Onsite Evidence" : "Submit Deliverables"}
+                  </h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {deliverableTab === "onsite"
+                      ? "Proof of your live appearance. Auto-releases in 48h if uncontested."
+                      : "Upload final files for client review. Auto-releases in 48h if uncontested."}
+                  </p>
                 </div>
                 <button
                   aria-label="Close modal"
@@ -669,95 +965,262 @@ export function OrderRoom() {
                 </button>
               </div>
 
-              {/* Hidden real file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                accept=".mp3,.mp4,.wav,.pdf,.zip,audio/*,video/*,application/pdf"
-                onChange={handleFileChange}
-              />
+              {/* Segmented Deliverables Mode Switcher */}
+              <div className="p-1 rounded-xl bg-zinc-100 flex items-center gap-1 mb-5">
+                <button
+                  onClick={() => setDeliverableTab("online")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    deliverableTab === "online"
+                      ? "bg-white text-zinc-900 shadow-2xs"
+                      : "text-zinc-500 hover:text-zinc-900"
+                  }`}
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>Online / Digital Files</span>
+                </button>
+                <button
+                  onClick={() => setDeliverableTab("onsite")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                    deliverableTab === "onsite"
+                      ? "bg-white text-zinc-900 shadow-2xs"
+                      : "text-zinc-500 hover:text-zinc-900"
+                  }`}
+                >
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <span>Onsite Live Appearance</span>
+                </button>
+              </div>
 
-              {/* Upload Dropzone or Selected File Preview */}
-              {stagedFile ? (
-                <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50 mb-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-zinc-900 text-white flex items-center justify-center shrink-0">
-                      <FileText className="w-5 h-5" />
+              {/* TAB 1: Online Digital Files */}
+              {deliverableTab === "online" && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".mp3,.mp4,.wav,.pdf,.zip,audio/*,video/*,application/pdf"
+                    onChange={handleFileChange}
+                  />
+
+                  {stagedFile ? (
+                    <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50 mb-4 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-900 text-white flex items-center justify-center shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium text-zinc-900 truncate">{stagedFile.name}</div>
+                          <div className="text-xs text-zinc-500 flex items-center gap-2 mt-0.5">
+                            <span>{stagedFile.size}</span>
+                            <span>•</span>
+                            <span className="text-emerald-600 font-medium">Ready for review</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setStagedFile(null)}
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200/50 transition-colors shrink-0"
+                        title="Remove file"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-zinc-900 truncate">{stagedFile.name}</div>
-                      <div className="text-xs text-zinc-500 flex items-center gap-2 mt-0.5">
-                        <span>{stagedFile.size}</span>
-                        <span>•</span>
-                        <span className="text-emerald-600 font-medium">Ready for review</span>
+                  ) : (
+                    <div
+                      onClick={() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        } else {
+                          setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" });
+                        }
+                      }}
+                      className="border-2 border-dashed border-zinc-200 hover:border-zinc-400 rounded-2xl flex flex-col items-center justify-center p-8 mb-4 cursor-pointer bg-zinc-50/60 hover:bg-zinc-50 transition-all text-center group"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-white shadow-2xs border border-zinc-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                        <UploadCloud className="w-6 h-6 text-zinc-700" />
+                      </div>
+                      <p className="text-sm font-semibold text-zinc-800">
+                        Drag & drop your files, or <span className="text-zinc-900 underline underline-offset-2">browse</span>
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        MP3, MP4, WAV, PDF, ZIP — Max 500MB
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" });
+                        }}
+                        className="mt-3 text-[11px] font-medium text-zinc-500 hover:text-zinc-900 underline"
+                      >
+                        Or load demo deliverable (Nike_VO_Final_v1.mp3)
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
+                      Submission Notes (Optional)
+                    </label>
+                    <textarea
+                      className="w-full px-3.5 py-2.5 rounded-xl text-sm font-body border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 resize-none"
+                      rows={3}
+                      value={onlineNotes}
+                      onChange={e => setOnlineNotes(e.target.value)}
+                      placeholder="Add notes about your submission (e.g. revision notes, take variations, delivery format)..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* TAB 2: Onsite Live Appearance Proof */}
+              {deliverableTab === "onsite" && (
+                <div>
+                  {/* Real-time GPS and Timestamp Badges (from design) */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>6.5244° N, 3.3792° E · Lagos</span>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-800 text-xs font-semibold flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-blue-600" />
+                      <span>7:52 PM, Today</span>
+                    </div>
+                  </div>
+
+                  {/* Two Onsite Verification Option Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    {/* Option 1: Check-in and check-out (Recommended) */}
+                    <div
+                      onClick={() => setOnsiteMethod("checkin")}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                        onsiteMethod === "checkin"
+                          ? "border-blue-500 bg-blue-50/20 ring-2 ring-blue-500/20"
+                          : "border-zinc-200 bg-white hover:border-zinc-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                          Recommended
+                        </span>
+                      </div>
+                      <div className="text-sm font-bold text-zinc-900 mb-1">Check-in & Check-out</div>
+                      <div className="text-xs text-zinc-500 mb-3">
+                        <div className="font-semibold text-zinc-800">Comedy night, Eko Hotel</div>
+                        <div>Sat, 8:00 PM</div>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-1.5 mb-2.5">
+                        <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Arrived 7:52 PM, location verified</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsCheckedOut(!isCheckedOut);
+                        }}
+                        className={`w-full py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
+                          isCheckedOut
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-white text-zinc-800 border-zinc-300 hover:bg-zinc-50"
+                        }`}
+                      >
+                        {isCheckedOut ? "✓ Checked out 10:15 PM" : "Check out"}
+                      </button>
+
+                      <div className="mt-2.5 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setHasAttachedPhoto(!hasAttachedPhoto);
+                          }}
+                          className={`text-xs flex items-center gap-1 transition-colors ${
+                            hasAttachedPhoto ? "text-emerald-700 font-semibold" : "text-zinc-500 hover:text-zinc-800"
+                          }`}
+                        >
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>{hasAttachedPhoto ? "✓ Photo attached" : "Add stage photo (optional)"}</span>
+                        </button>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-zinc-100 text-[10px] text-zinc-400 space-y-0.5">
+                        <div>Talent effort: two taps</div>
+                        <div>Proof: strong, automatic</div>
+                      </div>
+                    </div>
+
+                    {/* Option 2: PIN Handshake (High-value bookings) */}
+                    <div
+                      onClick={() => setOnsiteMethod("pin")}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                        onsiteMethod === "pin"
+                          ? "border-amber-500 bg-amber-50/20 ring-2 ring-amber-500/20"
+                          : "border-zinc-200 bg-white hover:border-zinc-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                          High-value bookings
+                        </span>
+                      </div>
+                      <div className="text-sm font-bold text-zinc-900 mb-1">PIN Handshake</div>
+                      <div className="text-xs text-zinc-500 mb-2">Your start code</div>
+
+                      {/* 4-digit PIN code boxes */}
+                      <div className="flex items-center gap-2 mb-3">
+                        {["4", "8", "2", "1"].map((digit, i) => (
+                          <div
+                            key={i}
+                            className="flex-1 h-12 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center font-mono font-bold text-lg text-zinc-900 shadow-2xs"
+                          >
+                            {digit}
+                          </div>
+                        ))}
+                      </div>
+
+                      <p className="text-[11px] text-zinc-500 leading-tight mb-2.5">
+                        Your client contact enters this on site to confirm you've arrived and performed.
+                      </p>
+
+                      <div className="p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Ready for client handshake</span>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-zinc-100 text-[10px] text-zinc-400 space-y-0.5">
+                        <div>Talent effort: one ask on site</div>
+                        <div>Proof: strongest, needs client</div>
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setStagedFile(null)}
-                    className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200/50 transition-colors shrink-0"
-                    title="Remove file"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.click();
-                    } else {
-                      setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" });
-                    }
-                  }}
-                  className="border-2 border-dashed border-zinc-200 hover:border-zinc-400 rounded-2xl flex flex-col items-center justify-center p-8 mb-4 cursor-pointer bg-zinc-50/60 hover:bg-zinc-50 transition-all text-center group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-white shadow-2xs border border-zinc-200 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                    <UploadCloud className="w-6 h-6 text-zinc-700" />
+
+                  <div className="mb-4">
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
+                      Performance Summary & Set Notes
+                    </label>
+                    <textarea
+                      className="w-full px-3.5 py-2.5 rounded-xl text-sm font-body border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 resize-none"
+                      rows={2}
+                      value={onsiteNotes}
+                      onChange={e => setOnsiteNotes(e.target.value)}
+                      placeholder="e.g. Delivered 45-minute headline comedy set as contracted. Full venue audience."
+                    />
                   </div>
-                  <p className="text-sm font-semibold text-zinc-800">
-                    Drag & drop your file, or <span className="text-zinc-900 underline underline-offset-2">click to browse</span>
-                  </p>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    MP3, MP4, WAV, PDF, ZIP — Max 500MB
-                  </p>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" });
-                    }}
-                    className="mt-3 text-[11px] font-medium text-zinc-500 hover:text-zinc-900 underline"
-                  >
-                    Or load demo deliverable (Nike_VO_Final_v1.mp3)
-                  </button>
                 </div>
               )}
 
-              {/* Delivery Notes */}
-              <div className="mb-4">
-                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
-                  Submission Notes (Optional)
-                </label>
-                <textarea
-                  className="w-full px-3.5 py-2.5 rounded-xl text-sm font-body border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 resize-none"
-                  rows={3}
-                  value={submissionNotes}
-                  onChange={e => setSubmissionNotes(e.target.value)}
-                  placeholder="Add notes about your submission (e.g. revision notes, take variations, delivery format)..."
-                />
-              </div>
-
-              {/* Escrow Reassurance */}
+              {/* Escrow 48h Auto-Release Reassurance */}
               <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200/80 mb-5 flex items-start gap-2.5 text-xs text-zinc-600">
                 <Shield className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong>100% Escrow Protection:</strong> Submitting logs this file in the order room and notifies the client to review within 5 days.
+                  <strong>48-Hour Auto-Release Guarantee:</strong> Submitting evidence begins the 48-hour client review timer. Funds auto-release to your bank if uncontested.
                 </span>
               </div>
 
-              {/* Buttons */}
+              {/* Modal Buttons */}
               <div className="flex gap-3">
                 <Button
                   variant="secondary"
@@ -768,25 +1231,62 @@ export function OrderRoom() {
                 </Button>
                 <Button
                   className="flex-1 h-11 text-sm font-semibold"
-                  onClick={() => {
-                    const finalFile = stagedFile ?? { name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" };
-                    setShowSubmitModal(false);
-                    advancePhase();
-                    setMessages(prev => [
-                      ...prev,
-                      {
-                        id: `local-${prev.length + 1}`,
-                        from: "talent",
-                        text: submissionNotes.trim() || "I've submitted the final voice-over recording. Please review and let me know if any revisions are needed.",
-                        time: "Just now",
-                        attachment: finalFile,
-                      },
-                    ]);
-                    setStagedFile(null);
-                    setSubmissionNotes("");
-                  }}
+                  onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
                 >
-                  Submit Deliverable
+                  {deliverableTab === "onsite" ? "Submit Onsite Proof →" : "Submit Deliverables →"}
+                </Button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* Client Request Revisions Modal */}
+      <AnimatePresence>
+        {showRevisionModal && (
+          <Modal onClose={() => setShowRevisionModal(false)} strength="strong">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 mb-4">
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5 text-amber-600" />
+                  <h3 className="font-display text-lg font-semibold text-zinc-900">Request Revisions</h3>
+                </div>
+                <button
+                  onClick={() => setShowRevisionModal(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-500"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <p className="text-xs text-zinc-500 mb-4">
+                Requesting revisions pauses the 48-hour auto-release timer and returns the order to the performer for adjustments.
+              </p>
+
+              <textarea
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm font-body border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 resize-none mb-5"
+                rows={4}
+                value={revisionNotes}
+                onChange={e => setRevisionNotes(e.target.value)}
+                placeholder="Specify the adjustments needed (e.g. please re-record line 4 with more enthusiasm, or provide additional event photo)..."
+              />
+
+              <div className="flex gap-3">
+                <Button variant="secondary" className="flex-1 h-11 text-sm font-medium" onClick={() => setShowRevisionModal(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 h-11 text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white"
+                  onClick={handleRequestRevision}
+                  disabled={!revisionNotes.trim()}
+                >
+                  Send Revision Request
                 </Button>
               </div>
             </motion.div>
@@ -844,7 +1344,9 @@ export function OrderRoom() {
               <div className="flex items-center justify-between pb-4 border-b border-zinc-100 mb-5">
                 <div>
                   <h3 className="font-display text-lg font-semibold text-zinc-900">Order Information</h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">Nike Campaign VO · ORD-001</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {gigType === "onsite" ? "Comedy Night, Eko Hotel" : "Nike Campaign VO"} · ORD-001
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowOrderInfoModal(false)}

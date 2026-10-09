@@ -1,11 +1,64 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
+**Last updated:** 2026-10-09 (Session 92: Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal, Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 92 (2026-10-09) — Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal (Online vs. Onsite), Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer
+
+**Goal:** Overhaul the Order Room UX with Upwork/Airbnb-grade guardrails for both remote and onsite gigs: allow live performers (standup comedians, stage actors, event hosts, runway models) to submit verified onsite appearance proof; integrate a dual-mode Deliverables submission modal (`Online Digital Files` vs `Onsite Live Appearance`); provide GPS check-in/out and PIN handshake verification options; and activate a live 48-hour inspection countdown timer with auto-release protection upon expiry.
+
+### Changes Made
+
+1. **Dual-Mode Deliverables Modal (`Online Files` vs `Onsite Appearance`) (`OrderRoom.tsx`):**
+   - Added a segmented mode toggle at the top of the Submit Deliverable modal.
+   - **Online Files Tab:** Drag-and-drop dropzone, hidden file picker, staged file preview card (`Nike_VO_Final_v1.mp3`, `8.4 MB`), and submission notes.
+   - **Onsite Live Appearance Tab (Matching Design References):**
+     - Live geolocation chip (`📍 6.5244° N, 3.3792° E · Lagos`) and timestamp chip (`⏱ 7:52 PM, Today`).
+     - **Card 1: Check-in and check-out (Recommended):**
+       - Venue context: `Comedy night, Eko Hotel` · `Sat, 8:00 PM`.
+       - GPS arrival verification badge: `📍 Arrived 7:52 PM, location verified`.
+       - Interactive Check-out button (`✓ Checked out 10:15 PM`).
+       - Optional appearance/stage photo attachment with preview toggle (`📷 Add stage photo`).
+       - Effort/proof metadata: *Talent effort: two taps · Proof: strong, automatic*.
+     - **Card 2: PIN handshake (High-value bookings):**
+       - 4-digit start PIN display (`[ 4 ] [ 8 ] [ 2 ] [ 1 ]`).
+       - Client entry instruction & status badge (`⏱ Ready for client handshake`).
+       - Effort/proof metadata: *Talent effort: one ask on site · Proof: strongest, needs client*.
+     - Performance summary notes textarea.
+
+2. **Onsite Appearance Certificate in Message Thread (`OrderRoom.tsx`):**
+   - When onsite evidence is submitted, inserts a dedicated **Onsite Live Appearance Proof Card** directly into the chat thread:
+     - Verified venue, GPS coordinates, arrival & checkout timestamps, PIN handshake confirmation, and stage photo indicator.
+     - System announcement confirming live appearance verification and activation of the 48-hour review window.
+
+3. **48-Hour Inspection Auto-Release Timer (`OrderRoom.tsx`):**
+   - Activated upon deliverable submission during the `Review` phase.
+   - Real-time countdown timer (`⏱ 47h 58m 20s remaining`) ticking down each second, visible in both the header and the review action dock.
+   - **Client View:** Review notice explaining that ₦120,000 will auto-release to the performer upon timer expiry unless contested; action buttons to `Approve & Release Payment (₦120,000)`, `Request Revision`, or `Raise Dispute`.
+   - **Performer View:** Escrow reassurance note explaining that funds will transfer automatically upon timer expiry if uncontested.
+   - **Client Revision Workflow:** Added a dedicated modal to submit revision notes; requesting revisions pauses the timer, posts the revision request to chat, and returns the phase to `Deliverables`.
+   - **Demo Fast-Forward Button:** Added a `⚡ Test Auto-Release` button so testers and stakeholders can simulate timer expiration instantly without waiting 48 hours.
+
+4. **Booking Protocol Switcher (`OrderRoom.tsx`):**
+   - Added a compact header toggle allowing reviewers to switch between `Remote (Nike Campaign VO)` and `Onsite Gig (Comedy Night, Eko Hotel)` to test both workflows in-place.
+
+5. **Standalone HTML Distribution Updated (`monologg-app.html`):**
+   - Re-compiled standalone bundle (`npm run build:standalone`) and inlined fresh bundle into `monologg/monologg-app.html` (1.42MB).
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

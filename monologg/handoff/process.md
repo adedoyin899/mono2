@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
+**Last updated:** 2026-10-09 (Session 92: Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal, Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -290,6 +290,18 @@ Overhauled the Order Room workspace to eliminate harsh high-contrast styling and
 - **Phase Milestones Stepper:** Added a clean 4-step progress tracker (`1. Briefing` → `2. Deliverables` → `3. Review` → `4. Complete`) above the chat thread for immediate project status orientation.
 - **Interactive Submit Deliverable Modal:** Upgraded the delivery modal with interactive file dropzone supporting drag-and-drop or browsing, rich file staging preview card with status badges, delivery notes textarea, and 100% escrow protection reassurance.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined assets into `monologg/monologg-app.html`.
+
+---
+
+### Step 53: Onsite Live Gig Evidence Guardrail & 48-Hour Inspection Auto-Release Timer (Session 92)
+
+Engineered Upwork/Airbnb-grade guardrails for both remote creative gigs and physical onsite performances (standup comedians, stage actors, emcees, runway models):
+- **Dual-Mode Deliverables Modal:** Added a segmented switch to toggle between `Online Files` (digital file upload with dropzone and file preview) and `Onsite Appearance` (verified live event proof).
+- **Onsite Appearance Verification Options:** Integrated GPS location chip (`6.5244° N, 3.3792° E · Lagos`), timestamp chips (`7:52 PM, Today`), Check-in/Check-out workflow with venue details (`Comedy night, Eko Hotel`), arrival verification badge, interactive check-out stamp, stage photo toggle, and high-value PIN handshake option with 4-digit code (`4821`).
+- **Onsite Live Appearance Certificate:** Appended a structured appearance certificate card directly into the chat thread upon submission, establishing clear evidentiary proof of service completion.
+- **48-Hour Inspection Auto-Release Countdown Timer:** Implemented a real-time countdown timer (`48:00:00`) that starts when the deliverable is submitted in the `Review` phase. Client can `Approve & Release Payment`, `Request Revision` (which pauses the timer and transitions back to deliverables), or `Raise Dispute`. If no action is taken within 48 hours, escrow automatically releases to the performer. Included a performer reassurance banner and a `⚡ Test Auto-Release` button for fast-forward testing.
+- **Order Switcher:** Added a segmented switch in the header to preview and test either `Remote (Nike Campaign VO)` or `Onsite Gig (Comedy Night, Eko Hotel)` on demand.
+- **Standalone Artifact Regeneration:** Re-compiled standalone bundle and inlined fresh bundle into `monologg/monologg-app.html`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
+**Last updated:** 2026-10-09 (Session 92: Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal, Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,14 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 43. Missing deliverable evidence workflow for onsite/live performers and lack of 48-hour inspection countdown guardrail
+- **Severity:** Medium / UX & Product Integrity
+- **What happened:** In `OrderRoom.tsx`, deliverable submission was limited exclusively to digital file uploads (MP3, WAV, PDF, ZIP). Live performers (such as standup comedians at Eko Hotel, stage actors, emcees, or runway models) had no formal way to submit on-site appearance evidence, GPS check-in/out stamps, or PIN handshake verifications. Additionally, there was no inspection countdown timer protecting performers from indefinite review delays.
+- **Root Cause:** The early prototype assumed purely remote digital creative deliverables and lacked guardrails for physical on-site gigs and an escrow auto-release inspection window.
+- **Resolution:** Added dual-mode Deliverable submission (`Online Files` vs `Onsite Appearance`) featuring GPS coordinates chip (`6.5244° N, 3.3792° E · Lagos`), timestamp chips, two verified proof methods (Check-in/Check-out with stage photo, and PIN handshake with 4-digit code `4821`), a dedicated Onsite Appearance Certificate in chat, and an active 48-hour inspection countdown timer with automated escrow release upon timer expiry if uncontested.
+
+---
 
 ### 42. Eye-straining bright red sender chat bubbles, intrusive simulation banner, and clunky deliverable modal
 - **Severity:** Low / UX & Visual Design

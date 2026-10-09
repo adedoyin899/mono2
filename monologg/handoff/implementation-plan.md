@@ -1,11 +1,27 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-09 (Session 91: Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification & Submit Deliverables Modal Overhaul.
+**Last updated:** 2026-10-09 (Session 92: Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal, Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Session 39 & 40 Stress Test + Session 51–60 Visual Overhauls & Design Fixes + Sessions 61–72 Auth, Avatar Sync, bg.svg Pattern, OAuth Stress Testing, Non-Technical Tools Guide, Vercel Integration, Supabase RLS Enablement, Talent Availability Page UI Overhaul & Universal Select Dropdown Chevron & Inset Right Padding Fix + Session 80 Platform-Wide Copy Standardization + Session 81 Performer Onboarding Overhaul + Session 82 Onboarding Stepper Step 1 Restructuring + Session 83 Onboarding Polish + Session 84 Creator Profile Overhaul + Session 85 Reel Player & Rate Cards Polish + Session 86 Availability Cleanup & Projects Search Consistency + Session 87 Inline 5-Dimension Filters & Airbnb Project Detail + Session 88 Standalone HTML Regeneration + Session 89 Airbnb Category Quick Pills & Multi-Status Polish + Session 90 Dedicated Fresh Page for Project Details & Filter Modal with Sliders + Session 91 Order Room Visual Simplification + Session 92 Onsite Live Gig Evidence & 48-Hour Inspection Auto-Release Timer.
 
 ---
 
 ## ✅ Done
+
+### Session 92 — Onsite Live Gig Evidence Guardrail, Dual Deliverables Modal (Online vs. Onsite), Check-In & PIN Handshake Proof, and 48-Hour Inspection Auto-Release Timer
+- [x] **Dual Deliverables Submission Modal**: Introduced segmented tabs for `Online Digital Files` (with drag & drop and staged file card) and `Onsite Live Appearance` proof.
+- [x] **Onsite Live Appearance Verification**:
+  - Live GPS coordinates chip (`6.5244° N, 3.3792° E · Lagos`) and arrival timestamp badge (`7:52 PM, Today`).
+  - **Check-in & Check-out Method (Recommended):** GPS verified presence, arrival badge, interactive check-out toggle, and stage photo attachment option.
+  - **PIN Handshake Method (High-Value):** 4-digit code display (`[ 4 ] [ 8 ] [ 2 ] [ 1 ]`) for client contact entry on site.
+- [x] **Onsite Appearance Certificate in Chat**: Inserts a rich verified live performance certificate into the message thread upon submission.
+- [x] **Live 48-Hour Inspection Auto-Release Countdown Timer**:
+  - Activated during `Review` phase with live ticking countdown (`⏱ 47h 58m 20s`).
+  - Automatically transfers escrow funds to performer upon timer expiry if uncontested.
+  - Client actions to approve & release early, request revisions, or raise dispute.
+  - Fast-forward button for instant demo evaluation.
+- [x] **Client Revision Workflow**: Modal for client to submit adjustment notes, automatically pausing review timer and returning phase to Deliverables.
+- [x] **Standalone HTML Distribution Updated**: Rebuilt `monologg/monologg-app.html` (1.42MB).
+- [x] **Verification**: All 24 test files passing (97/97 tests), monorepo typecheck clean (0 errors), build clean.
 
 ### Session 91 — Order Room Visual Simplification, Executive Dark Chat Bubbles, Phase Milestones Stepper, and Interactive Submit Deliverable Modal Overhaul
 - [x] **Executive Chat Bubbles & Calm Contrast**: Replaced eye-straining solid red sender bubbles with modern executive obsidian (`#18181B`) bubbles with clean white typography and soft shadows; client bubbles rendered as crisp elevated surface cards with subtle borders.
