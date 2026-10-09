@@ -163,7 +163,10 @@ class StateSyncBus {
     this.balance = this.load(STORAGE_KEYS.BALANCE, DEFAULT_BALANCE);
     this.services = this.load(STORAGE_KEYS.SERVICES, SERVICES);
     this.projects = this.load(STORAGE_KEYS.PROJECTS, PROJECTS);
-    this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
+    const savedTxns = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
+    const existingTxIds = new Set(savedTxns.map((t) => t.id));
+    const missingTxns = TRANSACTIONS.filter((t) => !existingTxIds.has(t.id));
+    this.transactions = missingTxns.length > 0 ? [...savedTxns, ...missingTxns] : savedTxns;
     this.supportTickets = this.load(STORAGE_KEYS.SUPPORT_TICKETS, SUPPORT_TICKETS);
     this.applicants = this.load(STORAGE_KEYS.APPLICANTS, DEFAULT_APPLICANTS);
 
@@ -200,7 +203,10 @@ class StateSyncBus {
     this.balance = this.load(STORAGE_KEYS.BALANCE, DEFAULT_BALANCE);
     this.services = this.load(STORAGE_KEYS.SERVICES, SERVICES);
     this.projects = this.load(STORAGE_KEYS.PROJECTS, PROJECTS);
-    this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
+    const reloadedTxns = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
+    const reloadedIds = new Set(reloadedTxns.map((t) => t.id));
+    const missingReloaded = TRANSACTIONS.filter((t) => !reloadedIds.has(t.id));
+    this.transactions = missingReloaded.length > 0 ? [...reloadedTxns, ...missingReloaded] : reloadedTxns;
     this.supportTickets = this.load(STORAGE_KEYS.SUPPORT_TICKETS, SUPPORT_TICKETS);
     this.applicants = this.load(STORAGE_KEYS.APPLICANTS, DEFAULT_APPLICANTS);
   }

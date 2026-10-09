@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
+**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -466,6 +466,19 @@ Addressed user feedback targeting the Client Reviews modal layout and Settings p
 - **Renamed "Profile & Storefront" to "Profile":** Updated Account menu item and test selectors to "Profile".
 - **Onboarding Profile Data Synchronization:** Provided complete editing of all onboarding-collected attributes in Settings (Full Name, Stage Title, Craft Category dropdown with 6 categories, Location, Bio, Style Tags with interactive add/remove, and Social Handles) synchronized with `appStateSync.getTalentProfile()` and public profile views, plus a public profile preview card (`monologg.co/emeka-johnson`).
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined updated bundle into `monologg/monologg-app.html` (1.38MB).
+
+### Step 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX (Session 107)
+
+- **Removed Payout Withdrawal CTA from History:** Taken off `<Button variant="red">Request Payout Withdrawal</Button>` from the earnings history card, reserving financial withdrawals exclusively for the performer's wallet modal on `TalentDashboard.tsx`.
+- **4-Status Filter Taxonomy (`All`, `Payout`, `Escrow`, `Dispute`):** Introduced a 4-chip taxonomy matching standard marketplace operations:
+  - `All`: Cumulative platform transactions across all states.
+  - `Payout`: Completed releases paid out to performer bank accounts.
+  - `Escrow`: Active milestone holdings locked safely in the escrow vault.
+  - `Dispute`: Disputed transactions undergoing mediation or settled via client refund.
+- **Dynamic Filter-Reflective Balance Card:** Converted the hero black card from a static string into a dynamic metric that re-computes its title, big ₦ balance, and contract count in real time whenever the user clicks any category chip.
+- **FAANG Dispute & Refund Ledger Clarity:** Established clear directional accounting for disputes (`In Review` = pending arbitration with frozen escrow; `Refunded to Client` = ₦0 net earnings to performer with `↩` directional indicator; `Released` = awarded in talent's favor with `+` indicator), supported by transparency banners in the invoice modal.
+- **Seed Fixtures & Data Sync:** Enriched `TRANSACTIONS` with 8 completed payouts totaling exactly ₦1,420,000, plus active escrow holdings and dispute cases; merged seed items into `state-sync.ts`.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and updated single-file executable `monologg-app.html` (1.49 MB).
 
 ---
 

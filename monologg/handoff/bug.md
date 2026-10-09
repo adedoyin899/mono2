@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
+**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 55. Static hardcoded balance card, redundant withdrawal CTA on performer history, and ambiguous dispute accounting
+- **Severity:** Medium / Financial Ledger UX & Telemetry Accuracy
+- **What happened:** In `TransactionHistory.tsx`, the top black summary card showed a static hardcoded `₦1,420,000` balance and `8 Completed Escrow Contracts` that failed to update when switching status filter pills. In addition, the card featured a redundant `Request Payout Withdrawal` CTA that conflicted with performer wallet actions on `TalentDashboard.tsx`. Furthermore, disputed transactions were generically labeled as "Payment · Refunded" without clarifying whether funds were returned to the client or received by the performer, causing ambiguity over available balances.
+- **Root Cause:** Hardcoded strings in the summary hero card; lack of dynamic category aggregation logic; missing dispute taxonomy distinguishing `In Review` mediation from `Refunded to Client` settlements.
+- **Resolution:** Removed the withdrawal CTA button; implemented a 4-chip taxonomy (`All`, `Payout`, `Escrow`, `Dispute`); connected the hero card to dynamically compute and display the active category's total amount, title, and contract count; and introduced clear directional dispute badging (`↩ Refunded to Client`, `⏳ In Review`, `• Escrow refunded to client · Net performer earnings: ₦0`) with contextual resolution banners in the detail invoice modal.
 
 ### 54. Unprotected Delete Account card without confirmation/payout transparency, unmanaged password inputs with prematurely enabled CTA, and extraneous passcode subtext
 - **Severity:** Low / UX Risk & State Management

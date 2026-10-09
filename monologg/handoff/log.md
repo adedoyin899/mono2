@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 106: Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal)
+**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,48 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 106 (2026-10-09) — Delete Account Flow with 72-Hour Earnings Guarantee & Data Loss Notice, Disabled Password CTA, and Passcode Subtext Removal
+## Session 107 (2026-10-10) — Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX
+
+**Goal:** Remove the redundant `Request Payout Withdrawal` button from the performer's transaction history card; reimagine dispute status handling across mediation, client refunds, and performer payouts; implement a 4-chip status taxonomy (`All`, `Payout`, `Escrow`, `Dispute`); and make the hero black earnings card dynamically reflect the exact balance and contract metrics of the active filter chip.
+
+1. **Removed Request Payout Withdrawal Button (`TransactionHistory.tsx`):**
+   - Removed `<Button variant="red">Request Payout Withdrawal</Button>` from the top hero summary card in `TransactionHistory.tsx` as performer withdrawals are initiated through the dedicated wallet modal on `TalentDashboard.tsx`.
+   - Balanced the hero card layout with an ambient lighting glow and a reassuring `Monologg Escrow Verified · Automated Ledger Settlement` telemetry badge on the right side.
+
+2. **Reimagined FAANG Dispute & Refund UX Architecture:**
+   - Addressed the user's architectural questions regarding dispute accounting for talent vs. client:
+     - **Active Dispute / `In Review` (`REFUNDING`):** Funds are quarantined and held in the Monologg escrow vault. The performer has neither won nor lost them yet. Status is displayed as `In Review` (amber tone), directional indicator shows `⏳`, and card subtext clarifies `• Arbitration in progress · Funds frozen in escrow`.
+     - **Dispute Settled — Refunded to Client (`REFUNDED`):** When arbitration determines non-delivery or mutual cancellation, escrow funds are returned to the client's original payment method via Paystack. For the performer, net earnings are `₦0`. Status is explicitly badged as `Refunded to Client` (rose tone), directional indicator displays `↩`, and card note states `• Escrow refunded to client · Net performer earnings: ₦0`.
+     - **Dispute Settled — Awarded to Performer (`RELEASED`):** When arbitration resolves in the performer's favor, escrow funds are released into payouts. Status is badged as `Released` with `+` directional indicator.
+   - Enhanced the **Transaction Invoice / Detail Modal**:
+     - Automatically renders contextual dispute resolution outcome banners when inspecting disputed transactions, explaining why funds were refunded or why mediation is active.
+
+3. **4-Status Chip Filter Taxonomy (`TransactionHistory.tsx`):**
+   - Replaced flat status list with the 4 high-level categories:
+     - **`All`** (`All 3`): Aggregates all contracts across Payouts, Escrow, and Disputes.
+     - **`Payout`** (`Success`): Filters strictly for completed, released platform payouts (`state === "RELEASED"`).
+     - **`Escrow`** (`Pending`): Filters for active contract funds locked in escrow (`state === "ESCROW_HELD" | "AUTHORIZED"`).
+     - **`Dispute`** (`Settled / In Review`): Displays dispute cases under active mediation or settled via client refund.
+   - Active pills illuminate in `#F13030` red with crisp white typography and a translucent sub-badge.
+
+4. **Dynamic Filter-Reflective Hero Balance Card:**
+   - Made the hero card title, big Naira amount, and subtext dynamically re-compute in real time based on `activeCategory`:
+     - **On `Payout`:** Displays `TOTAL COMPLETED PAYOUTS`, `₦1,420,000` (or sum of payouts), and `8 Completed Escrow Contracts Paid Out`.
+     - **On `Escrow`:** Displays `FUNDS HELD IN ESCROW`, active escrow holdings amount, and `${count} Active Contracts Pending Delivery & Approval`.
+     - **On `Dispute`:** Displays `TOTAL DISPUTED & SETTLED FUNDS`, total disputed amount, and `${inReviewCount} In Review (Pending) · ${settledCount} Settled (Refunded to Client)`.
+     - **On `All`:** Displays `TOTAL PLATFORM VOLUME`, cumulative sum across all states, and `${count} Total Contracts across Payouts, Escrow & Disputes`.
+
+5. **Realistic Seed Fixtures & State Synchronization (`mocks/transactions.ts`, `state-sync.ts`):**
+   - Seeded `TRANSACTIONS` with 8 completed payouts totaling exactly ₦1,420,000 matching the user's reference mockup, plus active escrow holdings (`ORD-002`) and dispute cases (`ORD-003` settled refund, `ORD-004` in review).
+   - Updated `state-sync.ts` to merge missing seed transactions into stored local storage so existing sessions receive the full contract roster.
+
+6. **Automated Testing & Distribution:**
+   - Extended `TransactionHistory.test.tsx` with unit tests verifying:
+     - Removal of the Request Payout Withdrawal button.
+     - Dynamic hero balance and subtext recalculation when toggling Payout, Escrow, and Dispute chips.
+     - Dispute badging and sub-ledger indicators.
+   - All 5/5 tests in `TransactionHistory.test.tsx` and 103/103 tests in the web suite passing; TypeScript check 100% clean.
+   - Rebuilt standalone bundle and updated single-file executable `monologg-app.html` (1.49 MB).
 
 **Goal:** Implement full account deletion confirmation flow with transparent data-loss warnings and 72-hour payout guarantees, enforce disabled Change Password button state until all fields have input, and remove redundant subtext from Change Passcode:
 1. **Interactive Delete Account Flow:**

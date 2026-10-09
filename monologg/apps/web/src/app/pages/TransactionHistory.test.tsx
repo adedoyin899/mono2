@@ -88,4 +88,39 @@ describe("TransactionHistory", () => {
       expect(lastCallUrl).toContain("state=REFUNDED");
     });
   });
+
+  it("removes the Request Payout Withdrawal button from the performer history view", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+    await screen.findByText("Earnings & Transaction History");
+    expect(screen.queryByRole("button", { name: /request payout withdrawal/i })).not.toBeInTheDocument();
+  });
+
+  it("dynamically changes the hero balance when toggling Payout, Escrow, and Dispute chips", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+
+    // Default view shows Total Platform Volume
+    await screen.findByText("TOTAL PLATFORM VOLUME");
+
+    // Click Payout chip -> reflects Total Completed Payouts
+    const payoutChip = screen.getByRole("button", { name: /payout/i });
+    fireEvent.click(payoutChip);
+    await screen.findByText("TOTAL COMPLETED PAYOUTS");
+    expect(screen.getByText("₦1,420,000")).toBeInTheDocument();
+    expect(screen.getByText(/8 Completed Escrow Contracts Paid Out/i)).toBeInTheDocument();
+
+    // Click Escrow chip -> reflects Funds Held in Escrow
+    const escrowChip = screen.getByRole("button", { name: /escrow/i });
+    fireEvent.click(escrowChip);
+    await screen.findByText("FUNDS HELD IN ESCROW");
+    expect(screen.getByText(/Active Contracts Pending Delivery/i)).toBeInTheDocument();
+
+    // Click Dispute chip -> reflects Total Disputed & Settled Funds
+    const disputeChip = screen.getByRole("button", { name: /dispute/i });
+    fireEvent.click(disputeChip);
+    await screen.findByText("TOTAL DISPUTED & SETTLED FUNDS");
+    expect(screen.getAllByText(/Refunded to Client/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/1 In Review \(Pending\) · 1 Settled/i)).toBeInTheDocument();
+  });
 });
