@@ -1,11 +1,57 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
+**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 105 (2026-10-09) — Security & Privacy Simplification: 2FA & Active Sessions Removal, Change Passcode Card Overhaul
+
+**Goal:** Clean up and standardize the Security & Privacy section (`section === "security"`) in `Settings.tsx` based on user feedback and reference screenshots:
+1. **Removed Two-Factor Authentication:**
+   - Removed the "Two-Factor Authentication / Add an extra layer of security / Enable" row from the bottom of the Change Password card.
+   - Removed the separating divider border, leaving the Change Password card cleanly dedicated to password updates.
+2. **Removed Active Sessions:**
+   - Completely deleted the "Active Sessions / 2 devices logged in / Manage" card, removing non-functional device management clutter.
+3. **Overhauled Security Withdrawal Passcode into "Change Passcode" Card:**
+   - Redesigned the card to be a direct visual mirror of the Change Password card.
+   - Card Title: `Change Passcode`
+   - Simple Subtext: `4-digit PIN required to authorise earnings withdrawals`
+   - 3 Dedicated 4-Digit Password Inputs:
+     - `Current Passcode` (placeholder: "Current Passcode")
+     - `New Passcode` (placeholder: "New Passcode")
+     - `Confirm New Passcode` (placeholder: "Confirm New Passcode")
+     - Numeric-only sanitization (`replace(/\D/g, "")`) and 4-character length limit.
+   - Full-Width Action Button: `Update Passcode` (disabled until all three fields contain exactly 4 digits; displays success feedback `Passcode Updated! ✓` upon submission).
+4. **Validation & State Architecture:**
+   - Implemented `handleUpdatePasscode` in `Settings.tsx`:
+     - Checks `currentPasscode` against existing saved passcode in `localStorage.getItem("monologg_withdrawal_passcode") || "1234"` (matching `TalentDashboard.tsx` withdrawal gate).
+     - Validates that `newPasscode` is exactly 4 digits.
+     - Confirms `newPasscode === confirmPasscode`.
+     - Displays inline error messages if validation fails; resets inputs and displays green confirmation upon success.
+5. **Testing & Distribution Validation:**
+   - Added automated unit tests in `Settings.test.tsx` verifying:
+     - Navigation to Security & Privacy section.
+     - Presence of Change Password inputs and button.
+     - Absence of Two-Factor Authentication and Active Sessions cards.
+     - Presence of Change Passcode title, subtext, 3 inputs, and Update Passcode button.
+     - Validation errors for incorrect current passcode and mismatching confirmation.
+     - Successful update saving to `localStorage` and button success state.
+   - Verified 100/100 tests passing across all 24 test suites (`pnpm --filter @monologg/web test`), clean TypeScript typecheck (`tsc --noEmit`), and regenerated standalone distribution in `monologg/monologg-app.html`.
+
+### Files Touched
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

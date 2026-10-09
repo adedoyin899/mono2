@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
+**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -22,6 +22,19 @@ The starting point was a folder with four zip files, two logo images, and a hand
 **Why this step matters:** you can't fix or run something until you know what it actually is. This was pure detective work — opening each zip, reading what's inside, figuring out which parts are the real product and which are leftover tooling.
 
 ### Step 2: Unpack everything and identify the real source code
+
+---
+
+### Step 45: Settings Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul (Session 105)
+
+Streamlined the Security & Privacy section in `Settings.tsx` to eliminate non-functional elements and provide a consistent credential update experience:
+- **2FA Removal:** Removed the Two-Factor Authentication toggle row and bottom hairline divider from the Change Password card, leaving it purely focused on password changes.
+- **Active Sessions Removal:** Deleted the non-functional Active Sessions card (2 devices logged in).
+- **Change Passcode Card Overhaul:** Re-architected the withdrawal passcode card to match the visual layout and interaction pattern of the Change Password card:
+  - Header: `Change Passcode` with clear subtext `4-digit PIN required to authorise earnings withdrawals`.
+  - 3 Inputs: `Current Passcode`, `New Passcode`, and `Confirm New Passcode` with 4-digit numeric constraints.
+  - Action Button: `Update Passcode` (disabled until all three fields are 4 digits).
+  - Validation: Authenticates against the saved passcode in `localStorage.getItem("monologg_withdrawal_passcode") || "1234"` (matching the withdrawal gate in `TalentDashboard.tsx`), verifies confirmation match, and provides instant visual success feedback.
 
 ---
 

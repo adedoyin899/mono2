@@ -118,7 +118,10 @@ export function Settings() {
   const [deleteCardModal, setDeleteCardModal] = useState<{ id: string; type: string; last4: string } | null>(null);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
-  const [securityPasscode, setSecurityPasscode] = useState(() => localStorage.getItem("monologg_withdrawal_passcode") || "1234");
+  const [currentPasscode, setCurrentPasscode] = useState("");
+  const [newPasscode, setNewPasscode] = useState("");
+  const [confirmPasscode, setConfirmPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState<string | null>(null);
   const [passcodeSaved, setPasscodeSaved] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -355,6 +358,33 @@ export function Settings() {
     setEditingBank(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleUpdatePasscode = () => {
+    const savedCode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
+    if (currentPasscode !== savedCode) {
+      setPasscodeError("Current passcode is incorrect.");
+      return;
+    }
+    if (newPasscode.length !== 4) {
+      setPasscodeError("New passcode must be exactly 4 digits.");
+      return;
+    }
+    if (newPasscode !== confirmPasscode) {
+      setPasscodeError("New passcodes do not match.");
+      return;
+    }
+    localStorage.setItem("monologg_withdrawal_passcode", newPasscode);
+    setCurrentPasscode("");
+    setNewPasscode("");
+    setConfirmPasscode("");
+    setPasscodeError(null);
+    setPasscodeSaved(true);
+    setSaved(true);
+    setTimeout(() => {
+      setPasscodeSaved(false);
+      setSaved(false);
+    }, 2500);
   };
 
   const sectionBack = () => setSection("main");
@@ -1696,7 +1726,7 @@ export function Settings() {
           {section === "security" && (
             <motion.div key="security" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-4">
               <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                <div className="px-4 py-3.5" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
+                <div className="px-4 py-3.5">
                   <div className="text-sm font-semibold font-body mb-3" style={s.text}>Change Password</div>
                   <div className="space-y-3">
                     <Input type="password" placeholder="Current Password" />
@@ -1705,61 +1735,60 @@ export function Settings() {
                   </div>
                   <Button className="w-full h-11 mt-3 text-sm" onClick={handleSave}>Update Password</Button>
                 </div>
-
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-semibold font-body" style={s.text}>Two-Factor Authentication</div>
-                    <div className="text-xs font-body" style={s.tertiary}>Add an extra layer of security</div>
-                  </div>
-                  <Button variant="secondary" className="h-8 px-3 text-xs">Enable</Button>
-                </div>
               </div>
 
-              {/* Security Withdrawal Passcode */}
+              {/* Change Passcode */}
               <div className="rounded-2xl overflow-hidden" style={s.surface}>
                 <div className="px-4 py-3.5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <div className="text-sm font-semibold font-body" style={s.text}>Security Withdrawal Passcode</div>
-                      <div className="text-xs font-body" style={s.tertiary}>4-digit PIN required to authorise earnings withdrawals (separate from password)</div>
-                    </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-semibold font-body" style={s.text}>Change Passcode</div>
+                    <div className="text-xs font-body mt-0.5" style={s.tertiary}>4-digit PIN required to authorise earnings withdrawals</div>
                   </div>
-                  <div className="flex gap-2 mt-3">
+                  <div className="space-y-3">
                     <Input
                       type="password"
                       maxLength={4}
-                      placeholder="e.g. 1234"
-                      className="w-36 font-mono text-center tracking-widest text-lg"
-                      value={securityPasscode}
-                      onChange={(e) => setSecurityPasscode(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="h-11 px-4 text-xs font-semibold"
-                      disabled={securityPasscode.length !== 4}
-                      onClick={() => {
-                        localStorage.setItem("monologg_withdrawal_passcode", securityPasscode);
-                        setPasscodeSaved(true);
-                        setTimeout(() => setPasscodeSaved(false), 3000);
+                      placeholder="Current Passcode"
+                      value={currentPasscode}
+                      onChange={(e) => {
+                        setCurrentPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                        setPasscodeError(null);
                       }}
-                    >
-                      {passcodeSaved ? "Passcode Saved ✓" : "Save Passcode"}
-                    </Button>
+                    />
+                    <Input
+                      type="password"
+                      maxLength={4}
+                      placeholder="New Passcode"
+                      value={newPasscode}
+                      onChange={(e) => {
+                        setNewPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                        setPasscodeError(null);
+                      }}
+                    />
+                    <Input
+                      type="password"
+                      maxLength={4}
+                      placeholder="Confirm New Passcode"
+                      value={confirmPasscode}
+                      onChange={(e) => {
+                        setConfirmPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                        setPasscodeError(null);
+                      }}
+                    />
                   </div>
-                  {passcodeSaved && (
-                    <div className="text-xs text-[var(--color-success)] font-body mt-2">Withdrawal security passcode updated successfully.</div>
+                  {passcodeError && (
+                    <div className="text-xs text-[var(--color-error)] font-body mt-2">{passcodeError}</div>
                   )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                <div className="px-4 py-3.5 flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-semibold font-body" style={s.text}>Active Sessions</div>
-                    <div className="text-xs font-body" style={s.tertiary}>2 devices logged in</div>
-                  </div>
-                  <Button variant="secondary" className="h-8 px-3 text-xs">Manage</Button>
+                  {passcodeSaved && (
+                    <div className="text-xs text-[var(--color-success)] font-body mt-2">Withdrawal security passcode updated successfully. ✓</div>
+                  )}
+                  <Button
+                    className="w-full h-11 mt-3 text-sm"
+                    disabled={currentPasscode.length !== 4 || newPasscode.length !== 4 || confirmPasscode.length !== 4}
+                    onClick={handleUpdatePasscode}
+                  >
+                    {passcodeSaved ? "Passcode Updated! ✓" : "Update Passcode"}
+                  </Button>
                 </div>
               </div>
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-09 (Session 104: Settings Payment Details Overhaul, Single Payout Bank Enforcement, 48-Hour Security Memo, and Performer Saved Cards Removal)
+**Last updated:** 2026-10-09 (Session 105: Security & Privacy Simplification — 2FA & Active Sessions Removal, Change Passcode Card Overhaul)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 53. Cluttered Security & Privacy section, unverified single-input passcode without confirmation/current PIN validation, and non-functional 2FA/Sessions cards
+- **Severity:** Low / UX Clutter & Security Validation Gap
+- **What happened:** In `Settings.tsx`, the Security & Privacy section displayed non-functional placeholder cards for "Two-Factor Authentication" and "Active Sessions (2 devices logged in)" that created clutter without user utility. In addition, the withdrawal passcode card only showed a single raw input with "Save Passcode" that did not authenticate the user's current PIN nor require a confirmation PIN, and referenced an undeclared `securityPasscode` state variable that bypassed full input lifecycle checks.
+- **Root Cause:** Placeholder security mockup elements from early templates; withdrawal passcode card not adhering to the standard 3-field credential change pattern (Current, New, Confirm New).
+- **Resolution:** Removed the Two-Factor Authentication row and Active Sessions card. Reworked the withdrawal passcode card into a full "Change Passcode" card mirroring the Password card: subtext `4-digit PIN required to authorise earnings withdrawals`, 3 inputs (`Current Passcode`, `New Passcode`, `Confirm New Passcode`), full-width `Update Passcode` button, and robust validation enforcing the current passcode (`1234` default or previous code), 4-digit constraints, and matching confirmation before writing to `localStorage`.
 
 ### 52. Disjointed Payment Methods UX, duplicate payout bank cards, and improper saved cards exposure on Performer profiles
 - **Severity:** Low / UX Consistency & Role Boundary

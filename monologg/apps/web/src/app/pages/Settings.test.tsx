@@ -256,3 +256,89 @@ describe("Settings — payment details section", () => {
     expect(screen.getByText("Save Payout Bank Account")).toBeInTheDocument();
   });
 });
+
+describe("Settings — security section", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+    localStorage.clear();
+  });
+
+  it("renders Change Password and Change Passcode cards, omits 2FA and Active Sessions", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    const securityMenu = screen.getByText("Security & Privacy");
+    expect(securityMenu).toBeInTheDocument();
+    fireEvent.click(securityMenu);
+
+    // Password card
+    await screen.findByText("Change Password");
+    expect(screen.getByPlaceholderText("Current Password")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("New Password")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Confirm New Password")).toBeInTheDocument();
+    expect(screen.getByText("Update Password")).toBeInTheDocument();
+
+    // 2FA and Active Sessions are removed
+    expect(screen.queryByText("Two-Factor Authentication")).not.toBeInTheDocument();
+    expect(screen.queryByText("Active Sessions")).not.toBeInTheDocument();
+    expect(screen.queryByText("2 devices logged in")).not.toBeInTheDocument();
+
+    // Change Passcode card
+    expect(screen.getByText("Change Passcode")).toBeInTheDocument();
+    expect(screen.getByText("4-digit PIN required to authorise earnings withdrawals")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Current Passcode")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("New Passcode")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Confirm New Passcode")).toBeInTheDocument();
+    expect(screen.getByText("Update Passcode")).toBeInTheDocument();
+
+    // Delete Account remains
+    expect(screen.getByText("Delete Account")).toBeInTheDocument();
+  });
+
+  it("handles passcode validation and updates localStorage passcode", async () => {
+    localStorage.setItem("monologg_withdrawal_passcode", "1234");
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByText("Security & Privacy"));
+    await screen.findByText("Change Passcode");
+
+    const currentInput = screen.getByPlaceholderText("Current Passcode");
+    const newInput = screen.getByPlaceholderText("New Passcode");
+    const confirmInput = screen.getByPlaceholderText("Confirm New Passcode");
+    const updateBtn = screen.getByText("Update Passcode");
+
+    // Initially disabled until all 3 inputs are 4 digits
+    expect(updateBtn).toBeDisabled();
+
+    // Wrong current passcode
+    fireEvent.change(currentInput, { target: { value: "9999" } });
+    fireEvent.change(newInput, { target: { value: "5678" } });
+    fireEvent.change(confirmInput, { target: { value: "5678" } });
+    expect(updateBtn).not.toBeDisabled();
+    fireEvent.click(updateBtn);
+    expect(screen.getByText("Current passcode is incorrect.")).toBeInTheDocument();
+
+    // Correct current passcode but mismatched confirmation
+    fireEvent.change(currentInput, { target: { value: "1234" } });
+    fireEvent.change(confirmInput, { target: { value: "0000" } });
+    fireEvent.click(updateBtn);
+    expect(screen.getByText("New passcodes do not match.")).toBeInTheDocument();
+
+    // Successful update
+    fireEvent.change(confirmInput, { target: { value: "5678" } });
+    fireEvent.click(updateBtn);
+    expect(localStorage.getItem("monologg_withdrawal_passcode")).toBe("5678");
+    expect(screen.getByText("Passcode Updated! ✓")).toBeInTheDocument();
+  });
+});
