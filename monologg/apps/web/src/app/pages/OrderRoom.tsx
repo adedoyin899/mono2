@@ -11,25 +11,21 @@ import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle,
-  UploadCloud, X, MapPin, Clock, Camera,
+  UploadCloud, X, MapPin, Clock,
   RefreshCw, FastForward, Check, ChevronRight,
-  Smartphone
+  Copy, KeyRound
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────── */
 type Phase = "briefing" | "deliverables" | "review" | "complete";
 type UserRole = "talent" | "client";
 type GigType = "remote" | "onsite";
-type OnsiteMethod = "checkin" | "pin";
 
 export type OnsiteEvidence = {
   venue: string;
   coords: string;
   arrivalTime: string;
-  checkoutTime?: string;
-  hasPhoto?: boolean;
-  method: OnsiteMethod;
-  pinCode?: string;
+  pinCode: string;
   notes?: string;
 };
 
@@ -38,14 +34,14 @@ export type ExtendedOrderMessage = OrderMessage & {
 };
 
 /* ─── Constants ─────────────────────────────────────────────── */
-const PHASES: { id: Phase; label: string }[] = [
-  { id: "briefing", label: "Briefing" },
-  { id: "deliverables", label: "Deliverables" },
-  { id: "review", label: "Review" },
-  { id: "complete", label: "Complete" },
+const PHASES: { id: Phase; label: string; description: string }[] = [
+  { id: "briefing", label: "Briefing", description: "Script, requirements & expectations confirmed." },
+  { id: "deliverables", label: "Deliverables", description: "Digital assets or verified live event performance." },
+  { id: "review", label: "Review & Inspection", description: "48-hour client review window with auto-release protection." },
+  { id: "complete", label: "Complete & Payout", description: "Escrow released to performer and order finalized." },
 ];
 
-// Ride-hailing-style client PIN (client generates, performer enters on arrival)
+// Client-provided arrival PIN for onsite performance verification
 const CLIENT_GENERATED_PIN = "4821";
 
 /* ─── Component ─────────────────────────────────────────────── */
@@ -70,14 +66,12 @@ export function OrderRoom() {
   const [onlineNotes, setOnlineNotes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Submit modal — onsite
-  const [onsiteMethod, setOnsiteMethod] = useState<OnsiteMethod>("checkin");
-  const [isCheckedOut, setIsCheckedOut] = useState(false);
-  const [hasAttachedPhoto, setHasAttachedPhoto] = useState(false);
+  // Submit modal — onsite PIN handshake
   const [onsiteNotes, setOnsiteNotes] = useState("");
   const [pinEntry, setPinEntry] = useState("");
+  const [copiedPin, setCopiedPin] = useState(false);
 
-  // Review phase timer
+  // Review phase 48-hour countdown timer
   const [timerSeconds, setTimerSeconds] = useState(48 * 3600);
   const [revisionNotes, setRevisionNotes] = useState("");
 
@@ -125,6 +119,12 @@ export function OrderRoom() {
   const isOnsite = gigType === "onsite";
 
   /* ── Actions ── */
+  const handleCopyPin = () => {
+    navigator.clipboard.writeText(CLIENT_GENERATED_PIN);
+    setCopiedPin(true);
+    setTimeout(() => setCopiedPin(false), 2000);
+  };
+
   const sendMessage = async () => {
     const text = inputText.trim();
     if (!text) return;
@@ -174,7 +174,7 @@ export function OrderRoom() {
       {
         id: `local-${prev.length + 2}`,
         from: "system" as const,
-        text: "48-hour review window started. Escrow auto-releases if uncontested.",
+        text: "48-hour inspection window started. Escrow auto-releases if uncontested.",
         time: "Just now",
       },
     ]);
@@ -190,10 +190,7 @@ export function OrderRoom() {
       venue: "Comedy Night, Eko Hotel",
       coords: "6.5244° N, 3.3792° E · Lagos",
       arrivalTime: "7:52 PM",
-      checkoutTime: isCheckedOut ? "10:15 PM" : undefined,
-      hasPhoto: hasAttachedPhoto,
-      method: onsiteMethod,
-      pinCode: onsiteMethod === "pin" ? CLIENT_GENERATED_PIN : undefined,
+      pinCode: CLIENT_GENERATED_PIN,
       notes: onsiteNotes.trim() || "Live performance completed as scheduled.",
     };
     setMessages(prev => [
@@ -208,11 +205,12 @@ export function OrderRoom() {
       {
         id: `local-${prev.length + 2}`,
         from: "system" as const,
-        text: "Onsite presence verified. 48-hour review window started.",
+        text: "Onsite presence verified with client code 4821. 48-hour inspection window started.",
         time: "Just now",
       },
     ]);
     setOnsiteNotes("");
+    setPinEntry("");
   };
 
   const handleAutoRelease = () => {
@@ -245,17 +243,18 @@ export function OrderRoom() {
       {
         id: `local-${prev.length + 2}`,
         from: "system" as const,
-        text: "Revision requested. Timer paused. Phase returned to Deliverables.",
+        text: "Revision requested. Inspection timer paused. Phase returned to Deliverables.",
         time: "Just now",
       },
     ]);
     setRevisionNotes("");
   };
 
-  /* ─── Action dock — rendered below chat ─── */
+  /* ─── Context-Aware Action Dock ─── */
   const renderActionDock = () => {
     if (paymentReleased) return null;
 
+    // Briefing Phase
     if (phase === "briefing" && role === "client") {
       return (
         <div className="px-4 pb-3 pt-1">
@@ -265,39 +264,110 @@ export function OrderRoom() {
             style={{ background: "var(--color-accent)", color: "#fff" }}
           >
             <Check className="w-4 h-4" />
-            Confirm Brief
+            Confirm Brief & Advance to Deliverables
           </button>
         </div>
       );
     }
 
-    if (phase === "deliverables" && role === "talent") {
+    // Deliverables Phase — Client view for Onsite Gig: Display arrival code
+    if (phase === "deliverables" && role === "client" && isOnsite) {
+      return (
+        <div className="px-4 pb-3 pt-1">
+          <div className="p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200/80">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-950">
+                <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                Onsite Arrival Code
+              </div>
+              <button
+                onClick={handleCopyPin}
+                className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-purple-200 shadow-xs hover:bg-purple-50 transition-colors"
+              >
+                {copiedPin ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                {copiedPin ? "Copied" : "Copy Code"}
+              </button>
+            </div>
+            <p className="text-xs text-purple-900/80 mb-2.5 leading-relaxed">
+              Share this 4-digit code with <strong>{talentName}</strong> when they arrive at <strong>Comedy Night, Eko Hotel</strong> to confirm their live attendance:
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                {CLIENT_GENERATED_PIN.split("").map((digit, idx) => (
+                  <span
+                    key={idx}
+                    className="w-10 h-10 rounded-xl bg-white border border-purple-200 flex items-center justify-center font-mono font-bold text-lg text-purple-950 shadow-xs"
+                  >
+                    {digit}
+                  </span>
+                ))}
+              </div>
+              <span className="text-[11px] text-purple-700 font-medium ml-1">
+                Performer will ask for this upon arrival
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Deliverables Phase — Performer view for Onsite Gig: Ask client for code prompt
+    if (phase === "deliverables" && role === "talent" && isOnsite) {
+      return (
+        <div className="px-4 pb-3 pt-1 space-y-2">
+          <div className="px-3.5 py-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/70 flex items-center justify-between text-xs text-emerald-900">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>Arrived at venue? Ask client for their <strong>4-digit arrival code</strong>.</span>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setDeliverableTab("onsite");
+              setShowSubmitModal(true);
+            }}
+            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            style={{ background: "var(--color-accent)", color: "#fff" }}
+          >
+            <KeyRound className="w-4 h-4" />
+            Enter Code & Submit Appearance Proof
+          </button>
+        </div>
+      );
+    }
+
+    // Deliverables Phase — Performer view for Remote Gig
+    if (phase === "deliverables" && role === "talent" && !isOnsite) {
       return (
         <div className="px-4 pb-3 pt-1">
           <button
             onClick={() => {
-              setDeliverableTab(isOnsite ? "onsite" : "online");
+              setDeliverableTab("online");
               setShowSubmitModal(true);
             }}
             className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             style={{ background: "var(--color-accent)", color: "#fff" }}
           >
             <UploadCloud className="w-4 h-4" />
-            {isOnsite ? "Submit Appearance Proof" : "Submit Deliverable"}
+            Submit Deliverable
           </button>
         </div>
       );
     }
 
+    // Review Phase
     if (phase === "review") {
       return (
         <div className="px-4 pb-3 pt-1 space-y-2">
-          {/* Timer bar */}
+          {/* 48h Inspection Timer Bar */}
           <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200/70">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
               <span className="text-xs text-amber-800 font-medium">
-                {role === "client" ? "Review window" : "Escrow secured"}
+                {role === "client" ? "Inspection window active" : "Escrow secured · 48h auto-release"}
               </span>
             </div>
             <span className="text-xs font-mono font-bold text-amber-900">
@@ -328,8 +398,8 @@ export function OrderRoom() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-zinc-500">Funds auto-release on timer expiry</span>
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs text-zinc-500">Funds auto-release to your wallet on timer expiry</span>
               <button
                 onClick={handleAutoRelease}
                 className="text-xs font-medium text-zinc-400 hover:text-zinc-600 flex items-center gap-1 transition-colors"
@@ -365,15 +435,33 @@ export function OrderRoom() {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-sm font-semibold text-zinc-900 truncate font-display">{orderTitle}</span>
               <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 shrink-0">ORD-001</span>
+              <span
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize shrink-0"
+                style={{
+                  background: phase === "complete" ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
+                  color: phase === "complete" ? "var(--color-success)" : "var(--color-text-secondary)",
+                }}
+              >
+                Phase {phaseIndex + 1}: {phase}
+              </span>
             </div>
-            <div className="text-[11px] text-zinc-500 truncate mt-px">
-              {clientOrg} ·&nbsp;
-              <span className="font-medium" style={{ color: "var(--color-success)" }}>
+            <div className="text-[11px] text-zinc-500 truncate mt-0.5 flex items-center gap-1.5">
+              <span>{clientOrg}</span>
+              <span>·</span>
+              <span className="font-semibold font-mono" style={{ color: "var(--color-success)" }}>
                 ₦120,000 in escrow
               </span>
+              {isOnsite && (
+                <>
+                  <span>·</span>
+                  <span className="text-emerald-700 font-medium flex items-center gap-0.5">
+                    <MapPin className="w-2.5 h-2.5 inline" /> Onsite
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -385,7 +473,7 @@ export function OrderRoom() {
               <button
                 key={g}
                 onClick={() => { setGigType(g); setDeliverableTab(g === "remote" ? "online" : "onsite"); }}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${gigType === g ? "bg-white text-zinc-900 shadow-sm font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${gigType === g ? "bg-white text-zinc-900 shadow-xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
               >
                 {g}
               </button>
@@ -398,61 +486,26 @@ export function OrderRoom() {
               <button
                 key={r}
                 onClick={() => setRole(r)}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${role === r ? "bg-white text-zinc-900 shadow-sm font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${role === r ? "bg-white text-zinc-900 shadow-xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
               >
                 {r === "talent" ? "Performer" : "Client"}
               </button>
             ))}
           </div>
 
-          {/* Order Info */}
+          {/* Order Info button */}
           <button
             onClick={() => setShowOrderInfoModal(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-500 transition-all border border-zinc-200/60"
             aria-label="Order Info"
+            title="View Project Phases & Escrow Details"
           >
             <FileText className="w-4 h-4" />
           </button>
         </div>
       </header>
 
-      {/* ── Phase stepper (slim) ── */}
-      <div className="border-b px-4 sm:px-5 py-2" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-        <div className="max-w-2xl mx-auto flex items-center gap-1.5 text-xs">
-          {PHASES.map((p, idx) => {
-            const isDone = idx < phaseIndex;
-            const isActive = p.id === phase;
-            return (
-              <React.Fragment key={p.id}>
-                <div className="flex items-center gap-1">
-                  <span
-                    className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
-                    style={{
-                      background: isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-bg-elevated)",
-                      color: isActive || isDone ? "#fff" : "var(--color-text-tertiary)",
-                    }}
-                  >
-                    {isDone ? "✓" : idx + 1}
-                  </span>
-                  <span
-                    className="font-medium"
-                    style={{
-                      color: isActive ? "var(--color-text-primary)" : isDone ? "var(--color-text-secondary)" : "var(--color-text-tertiary)",
-                    }}
-                  >
-                    {p.label}
-                  </span>
-                </div>
-                {idx < PHASES.length - 1 && (
-                  <ChevronRight className="w-3 h-3 shrink-0 text-zinc-300" />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Chat + Action area ── */}
+      {/* ── Chat Feed + Action Area (No stepper bar taking vertical space) ── */}
       <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full min-h-0">
 
         {/* Messages */}
@@ -463,10 +516,10 @@ export function OrderRoom() {
               return (
                 <div key={msg.id} className="flex justify-center">
                   <div
-                    className="px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-xs text-center"
+                    className="px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-sm text-center shadow-2xs"
                     style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
                   >
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>{msg.text}</span>
                   </div>
                 </div>
@@ -476,15 +529,16 @@ export function OrderRoom() {
             const isMe = msg.from === role;
             const isTalent = msg.from === "talent";
 
-            // Brand tint: performer = red-tinted, client = purple-tinted
-            // "me" bubble is solid brand accent; "them" bubble is soft tint
+            // Color scheme matching img 1 & 3:
+            // Performer (Talent): Solid brand red when sender, soft red when receiver
+            // Client: Solid purple when sender, soft purple tint when receiver
             const meBubbleBg = isTalent ? "var(--color-red)" : "var(--color-purple)";
             const themBubbleBg = isTalent ? "var(--color-red-soft)" : "var(--color-purple-soft)";
             const meBubbleColor = "#ffffff";
-            const themBubbleColor = isTalent ? "var(--color-red-press)" : "var(--color-purple-press)";
+            const themBubbleColor = isTalent ? "var(--color-mono-red)" : "var(--color-mono-purple)";
 
             const bubbleBg = isMe ? meBubbleBg : themBubbleBg;
-            const bubbleColor = isMe ? meBubbleColor : (isTalent ? "var(--color-mono-red)" : "var(--color-mono-purple)");
+            const bubbleColor = isMe ? meBubbleColor : themBubbleColor;
 
             return (
               <motion.div
@@ -541,38 +595,33 @@ export function OrderRoom() {
                       </div>
                     )}
 
-                    {/* Onsite evidence card */}
+                    {/* Onsite evidence card inside performer bubble */}
                     {msg.onsiteEvidence && (
                       <div
-                        className="mt-2.5 p-3 rounded-xl border"
+                        className="mt-2.5 p-3 rounded-xl border text-xs"
                         style={{
-                          background: isMe ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.85)",
-                          borderColor: isMe ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.07)",
+                          background: isMe ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.9)",
+                          borderColor: isMe ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)",
+                          color: isMe ? "#fff" : "var(--color-text-primary)",
                         }}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: isMe ? "#fff" : "var(--color-text-primary)" }}>
-                            <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+                          <div className="flex items-center gap-1.5 font-semibold">
+                            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                             Onsite Appearance Verified
                           </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/20 text-emerald-600">Verified</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/20 text-emerald-300">
+                            Verified
+                          </span>
                         </div>
-                        <div className="space-y-1 text-xs" style={{ color: isMe ? "rgba(255,255,255,0.85)" : "var(--color-text-secondary)" }}>
+                        <div className="space-y-1" style={{ color: isMe ? "rgba(255,255,255,0.9)" : "var(--color-text-secondary)" }}>
                           <div className="font-semibold" style={{ color: isMe ? "#fff" : "var(--color-text-primary)" }}>{msg.onsiteEvidence.venue}</div>
                           <div>📍 {msg.onsiteEvidence.coords}</div>
-                          <div className="flex items-center gap-3">
-                            <span>Arrived {msg.onsiteEvidence.arrivalTime}</span>
-                            {msg.onsiteEvidence.checkoutTime && (
-                              <span className="flex items-center gap-1">
-                                <Check className="w-3 h-3 text-emerald-500" />
-                                Checked out {msg.onsiteEvidence.checkoutTime}
-                              </span>
-                            )}
-                          </div>
+                          <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
                           {msg.onsiteEvidence.pinCode && (
-                            <div className="mt-1.5 flex items-center gap-2">
-                              <span>PIN confirmed:</span>
-                              <span className="font-mono font-bold tracking-widest text-emerald-500">{msg.onsiteEvidence.pinCode}</span>
+                            <div className="mt-1.5 flex items-center gap-1.5 font-mono">
+                              <span>Client code confirmed:</span>
+                              <span className="font-bold tracking-widest text-emerald-300">{msg.onsiteEvidence.pinCode}</span>
                             </div>
                           )}
                         </div>
@@ -587,7 +636,7 @@ export function OrderRoom() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Action Dock — context-aware CTA above input */}
+        {/* Context-aware Action Dock */}
         {renderActionDock()}
 
         {/* Payment Released Banner */}
@@ -665,7 +714,7 @@ export function OrderRoom() {
 
       {/* ════════ MODALS ════════ */}
 
-      {/* Submit Deliverable Modal */}
+      {/* Submit Deliverable Modal (Dual Mode: Digital Files vs Onsite PIN Handshake) */}
       <AnimatePresence>
         {showSubmitModal && (
           <Modal onClose={() => setShowSubmitModal(false)} strength="strong">
@@ -680,7 +729,7 @@ export function OrderRoom() {
               <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
                 <div>
                   <h3 className="font-display text-base font-semibold text-zinc-900">
-                    {deliverableTab === "onsite" ? "Submit Appearance Proof" : "Submit Deliverable"}
+                    {deliverableTab === "onsite" ? "Verify Live Appearance" : "Submit Deliverable"}
                   </h3>
                   <p className="text-xs text-zinc-500 mt-0.5">Starts the 48-hour client review window</p>
                 </div>
@@ -697,14 +746,14 @@ export function OrderRoom() {
                 <div className="flex items-center p-1 rounded-xl gap-1" style={{ background: "var(--color-bg-elevated)" }}>
                   <button
                     onClick={() => setDeliverableTab("online")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"}`}
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Digital Files
                   </button>
                   <button
                     onClick={() => setDeliverableTab("onsite")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-500 hover:text-zinc-800"}`}
                   >
                     <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                     Onsite Gig
@@ -743,7 +792,7 @@ export function OrderRoom() {
                         onClick={() => fileInputRef.current ? fileInputRef.current.click() : setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" })}
                         className="border-2 border-dashed border-zinc-200 hover:border-zinc-300 rounded-2xl flex flex-col items-center py-8 cursor-pointer bg-zinc-50/50 hover:bg-zinc-50 transition-all text-center"
                       >
-                        <div className="w-11 h-11 rounded-full bg-white shadow-sm border border-zinc-200 flex items-center justify-center mb-2.5">
+                        <div className="w-11 h-11 rounded-full bg-white shadow-xs border border-zinc-200 flex items-center justify-center mb-2.5">
                           <UploadCloud className="w-5 h-5 text-zinc-600" />
                         </div>
                         <p className="text-sm font-semibold text-zinc-800">Drop file or <span className="underline underline-offset-2">browse</span></p>
@@ -766,123 +815,97 @@ export function OrderRoom() {
                         rows={2}
                         value={onlineNotes}
                         onChange={e => setOnlineNotes(e.target.value)}
-                        placeholder="Any notes for the client…"
+                        placeholder="Any delivery notes for the client…"
                       />
                     </div>
                   </>
                 )}
 
-                {/* ── TAB: Onsite Gig ── */}
+                {/* ── TAB: Onsite Gig (Clean PIN Code + Cool Auto Location/Timestamp Verification) ── */}
                 {deliverableTab === "onsite" && (
                   <>
-                    {/* Location + time context */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 border border-emerald-200/70 text-emerald-800">
-                        <MapPin className="w-3 h-3 text-emerald-600" />
-                        6.5244° N, 3.3792° E · Lagos
+                    {/* Cool Auto Location & Arrival Tracking Banner */}
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/90 border border-emerald-200/80">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                          </span>
+                          <span className="text-xs font-semibold text-emerald-950">Live Presence Auto-Verified</span>
+                        </div>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">GPS Active</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 border border-blue-200/70 text-blue-800">
-                        <Clock className="w-3 h-3 text-blue-600" />
-                        7:52 PM, Today
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="p-2.5 rounded-xl bg-white/85 border border-emerald-100/90 shadow-2xs">
+                          <div className="text-[10px] text-zinc-400 uppercase tracking-wide font-medium">Venue Location</div>
+                          <div className="font-semibold text-zinc-800 truncate mt-0.5">Comedy Night, Eko Hotel</div>
+                          <div className="text-[10px] text-zinc-500 font-mono mt-0.5">6.5244° N, 3.3792° E</div>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-white/85 border border-emerald-100/90 shadow-2xs">
+                          <div className="text-[10px] text-zinc-400 uppercase tracking-wide font-medium">Arrival Time</div>
+                          <div className="font-semibold text-zinc-800 mt-0.5">7:52 PM (Today)</div>
+                          <div className="text-[10px] text-emerald-600 font-medium mt-0.5">✓ On-schedule</div>
+                        </div>
                       </div>
+                      <p className="text-[11px] text-emerald-900/80 mt-2 flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        Your venue location and arrival timestamp are automatically recorded for proof of attendance.
+                      </p>
                     </div>
 
-                    {/* Verification method selector */}
-                    <div className="space-y-2.5">
-                      {/* Option A: Check-in / Check-out */}
-                      <div
-                        onClick={() => setOnsiteMethod("checkin")}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all ${onsiteMethod === "checkin" ? "border-blue-400 bg-blue-50/30 ring-1 ring-blue-400/30" : "border-zinc-200 bg-white hover:border-zinc-300"}`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="text-sm font-semibold text-zinc-900">Check-in & Check-out</div>
-                            <div className="text-xs text-zinc-500 mt-0.5">Comedy Night, Eko Hotel · Sat, 8:00 PM</div>
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 shrink-0 ml-2">Recommended</span>
-                        </div>
+                    {/* PIN Code Verification Alone */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-zinc-900">Client Verification Code</label>
+                        <span className="text-[10px] font-medium text-zinc-500">4-digit code</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 mb-3 leading-relaxed">
+                        Ask <strong>FilmCraft Studios</strong> for their 4-digit code once you arrive to confirm your check-in.
+                      </p>
 
-                        <div className="mt-3 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center gap-2 text-xs text-emerald-800">
-                          <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
-                          Arrived 7:52 PM · Location verified
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); setIsCheckedOut(!isCheckedOut); }}
-                          className={`w-full mt-2.5 py-2 px-3 rounded-lg text-xs font-semibold border transition-all ${isCheckedOut ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"}`}
-                        >
-                          {isCheckedOut ? "✓ Checked out 10:15 PM" : "Tap to check out"}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); setHasAttachedPhoto(!hasAttachedPhoto); }}
-                          className={`mt-2 flex items-center gap-1.5 text-xs transition-colors ${hasAttachedPhoto ? "text-emerald-700 font-medium" : "text-zinc-400 hover:text-zinc-700"}`}
-                        >
-                          <Camera className="w-3.5 h-3.5" />
-                          {hasAttachedPhoto ? "✓ Stage photo attached" : "Add stage photo (optional)"}
-                        </button>
+                      {/* 4 PIN inputs */}
+                      <div className="flex items-center gap-2 mb-2">
+                        {[0, 1, 2, 3].map(i => (
+                          <input
+                            key={i}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={pinEntry[i] ?? ""}
+                            onChange={e => {
+                              const v = e.target.value.replace(/\D/g, "").slice(-1);
+                              const arr = (pinEntry + "    ").split("").slice(0, 4);
+                              arr[i] = v;
+                              setPinEntry(arr.join("").trim());
+                              if (v && i < 3) {
+                                const next = e.currentTarget.parentElement?.children[i + 1] as HTMLInputElement;
+                                next?.focus();
+                              }
+                            }}
+                            className={`flex-1 h-12 rounded-xl border text-center font-mono font-bold text-lg transition-all focus:outline-none ${
+                              pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN
+                                ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                                : "border-zinc-200 bg-white text-zinc-900 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                            }`}
+                          />
+                        ))}
                       </div>
 
-                      {/* Option B: PIN Handshake */}
-                      <div
-                        onClick={() => setOnsiteMethod("pin")}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all ${onsiteMethod === "pin" ? "border-amber-400 bg-amber-50/30 ring-1 ring-amber-400/30" : "border-zinc-200 bg-white hover:border-zinc-300"}`}
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <div className="text-sm font-semibold text-zinc-900">PIN Code Handshake</div>
-                            <div className="text-xs text-zinc-500 mt-0.5">For high-value or formal bookings</div>
-                          </div>
-                          <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 shrink-0 ml-2">High-value</span>
+                      {pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN ? (
+                        <div className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 pt-1">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          Code verified with FilmCraft Studios
                         </div>
-
-                        {/* Ride-hailing style explanation */}
-                        <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-zinc-50 border border-zinc-200/60 mb-3">
-                          <Smartphone className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
-                          <p className="text-xs text-zinc-600 leading-relaxed">
-                            Your client already has a <strong>4-digit booking PIN</strong> in their app — like a ride-hailing code.
-                            Ask them for it when you arrive onsite.
-                          </p>
+                      ) : pinEntry.length === 4 ? (
+                        <div className="text-xs text-red-600 font-medium pt-1">
+                          Incorrect code. Please ask the client to confirm their 4-digit code.
                         </div>
-
-                        {/* PIN entry for performer */}
-                        <label className="block text-xs font-semibold text-zinc-700 mb-2">
-                          Enter the PIN your client shared:
-                        </label>
-                        <div className="flex items-center gap-2 mb-2">
-                          {[0, 1, 2, 3].map(i => (
-                            <input
-                              key={i}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={pinEntry[i] ?? ""}
-                              onClick={e => e.stopPropagation()}
-                              onChange={e => {
-                                const v = e.target.value.replace(/\D/g, "").slice(-1);
-                                const arr = (pinEntry + "    ").split("").slice(0, 4);
-                                arr[i] = v;
-                                setPinEntry(arr.join("").trim());
-                                // auto-advance focus
-                                if (v && i < 3) {
-                                  const next = e.currentTarget.parentElement?.children[i + 1] as HTMLInputElement;
-                                  next?.focus();
-                                }
-                              }}
-                              className="flex-1 h-12 rounded-xl border border-zinc-200 bg-white text-center font-mono font-bold text-lg text-zinc-900 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 transition-all"
-                            />
-                          ))}
+                      ) : (
+                        <div className="text-[11px] text-zinc-400 pt-1">
+                          The client can find this code in their Order Room view.
                         </div>
-                        {pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN ? (
-                          <div className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
-                            <Check className="w-3.5 h-3.5" /> PIN verified ✓
-                          </div>
-                        ) : pinEntry.length === 4 ? (
-                          <div className="text-xs text-red-600 font-medium">Incorrect PIN. Ask client to confirm.</div>
-                        ) : null}
-                      </div>
+                      )}
                     </div>
 
                     <div>
@@ -892,19 +915,19 @@ export function OrderRoom() {
                         rows={2}
                         value={onsiteNotes}
                         onChange={e => setOnsiteNotes(e.target.value)}
-                        placeholder="e.g. Delivered 45-min headline set, full venue."
+                        placeholder="e.g. Delivered 45-min headline set, full audience."
                       />
                     </div>
                   </>
                 )}
 
-                {/* Escrow note */}
+                {/* Escrow Guarantee note */}
                 <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl text-xs" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
                   <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Submitting starts the <strong>48-hour review window</strong>. Escrow auto-releases if client doesn't respond.</span>
+                  <span>Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, ₦120,000 auto-releases to your balance.</span>
                 </div>
 
-                {/* Modal buttons */}
+                {/* Modal action buttons */}
                 <div className="flex gap-2.5 pt-1">
                   <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => setShowSubmitModal(false)}>
                     Cancel
@@ -912,9 +935,9 @@ export function OrderRoom() {
                   <Button
                     className="flex-1 h-11 text-sm font-semibold"
                     onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
-                    disabled={deliverableTab === "onsite" && onsiteMethod === "pin" && pinEntry !== CLIENT_GENERATED_PIN && pinEntry.length === 4}
+                    disabled={deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN}
                   >
-                    {deliverableTab === "onsite" ? "Submit Proof" : "Submit"} →
+                    {deliverableTab === "onsite" ? "Verify & Submit Proof" : "Submit Deliverable"} →
                   </Button>
                 </div>
               </div>
@@ -980,13 +1003,13 @@ export function OrderRoom() {
                 <RefreshCw className="w-4 h-4 text-amber-600" />
                 <h3 className="font-display text-base font-semibold text-zinc-900">Request Revision</h3>
               </div>
-              <p className="text-xs text-zinc-500 mb-4">The timer pauses and the order returns to the performer.</p>
+              <p className="text-xs text-zinc-500 mb-4">The inspection timer pauses and the order returns to the performer.</p>
               <textarea
                 className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none resize-none mb-4"
                 rows={4}
                 value={revisionNotes}
                 onChange={e => setRevisionNotes(e.target.value)}
-                placeholder="What needs to change?"
+                placeholder="What revisions are needed?"
               />
               <div className="flex gap-2.5">
                 <Button variant="secondary" className="flex-1 h-10 text-sm" onClick={() => setShowRevisionModal(false)}>Cancel</Button>
@@ -1019,7 +1042,7 @@ export function OrderRoom() {
               </div>
               <h3 className="font-display text-lg font-semibold text-center mb-1 text-zinc-900">Raise a Dispute</h3>
               <p className="text-sm text-center text-zinc-500 mb-4">
-                Our team will mediate. Escrow stays locked until resolved.
+                Our mediation team will review order evidence. Escrow stays locked until resolved.
               </p>
               <textarea
                 className="w-full px-4 py-3 rounded-xl text-sm border border-zinc-200 bg-zinc-50 mb-4 resize-none focus:outline-none"
@@ -1035,7 +1058,7 @@ export function OrderRoom() {
         )}
       </AnimatePresence>
 
-      {/* Order Info Modal */}
+      {/* ── Order Info Modal (Full Project Phases Lifecycle & Detailed Financial Breakdown) ── */}
       <AnimatePresence>
         {showOrderInfoModal && (
           <Modal onClose={() => setShowOrderInfoModal(false)}>
@@ -1043,44 +1066,145 @@ export function OrderRoom() {
               initial={{ y: 16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 16, opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl bg-white border border-zinc-200 shadow-xl overflow-hidden"
+              className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-xl overflow-hidden max-h-[90vh] flex flex-col"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 shrink-0">
                 <div>
-                  <h3 className="font-display text-base font-semibold text-zinc-900">Order Info</h3>
+                  <h3 className="font-display text-base font-semibold text-zinc-900">Order Details & Lifecycle</h3>
                   <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · ORD-001</p>
                 </div>
-                <button onClick={() => setShowOrderInfoModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors">
+                <button
+                  onClick={() => setShowOrderInfoModal(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="px-5 py-4 space-y-4">
-                {/* Escrow */}
+              {/* Scrollable Body */}
+              <div className="px-6 py-5 space-y-5 overflow-y-auto">
+
+                {/* Escrow Hero Balance Card */}
                 <div
-                  className="p-4 rounded-xl"
+                  className="p-4 rounded-2xl"
                   style={{
                     background: paymentReleased ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
                     border: `1px solid ${paymentReleased ? "var(--color-success)" : "var(--color-hairline)"}`,
                   }}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: paymentReleased ? "var(--color-success)" : "var(--color-text-secondary)" }}>
-                      {paymentReleased ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                      {paymentReleased ? "Released" : "Escrow Locked"}
-                    </div>
-                    <span className="text-[10px] font-mono text-zinc-400">ORD-001</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Escrow Balance</span>
+                    <span
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
+                      style={{
+                        background: paymentReleased ? "var(--color-success-bg)" : "rgba(16,185,129,0.12)",
+                        color: "var(--color-success)",
+                      }}
+                    >
+                      <Shield className="w-3 h-3 text-emerald-600" />
+                      {paymentReleased ? "Released to Talent" : "100% Protected"}
+                    </span>
                   </div>
-                  <div className="text-2xl font-semibold font-mono text-zinc-900">₦120,000</div>
-                  <div className="text-xs mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-                    {paymentReleased ? `Transferred to ${talentName}` : "100% secured · auto-releases in 48h"}
+                  <div className="text-3xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    {paymentReleased
+                      ? `Transferred to ${talentName}'s wallet balance.`
+                      : "Funds held securely by Monologg Escrow. Auto-releases 48h after deliverable or on client approval."}
+                  </p>
+                </div>
+
+                {/* Project Lifecycle Phases (Complete Lifecycle View) */}
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Project Phases</div>
+                  <div className="space-y-3 relative pl-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-zinc-200">
+                    {PHASES.map((p, idx) => {
+                      const isPast = idx < phaseIndex;
+                      const isCurrent = p.id === phase;
+                      return (
+                        <div key={p.id} className="relative">
+                          <span
+                            className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                              isPast
+                                ? "bg-emerald-600 text-white"
+                                : isCurrent
+                                  ? "bg-red-600 text-white ring-4 ring-red-100"
+                                  : "bg-zinc-200 text-zinc-500"
+                            }`}
+                          >
+                            {isPast ? "✓" : idx + 1}
+                          </span>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-xs font-semibold ${isCurrent ? "text-zinc-900" : isPast ? "text-zinc-700" : "text-zinc-400"}`}>
+                              Phase {idx + 1}: {p.label}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                              isPast
+                                ? "bg-emerald-50 text-emerald-700"
+                                : isCurrent
+                                  ? "bg-amber-50 text-amber-700 font-semibold"
+                                  : "bg-zinc-100 text-zinc-400"
+                            }`}>
+                              {isPast ? "Completed" : isCurrent ? (phase === "review" ? formatCountdown(timerSeconds) : "In Progress") : "Upcoming"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-500 mt-0.5">
+                            {p.id === "briefing" && "Requirements, script & deliverables agreed upon."}
+                            {p.id === "deliverables" && (isOnsite ? "Performer onsite arrival verified via 4-digit client code & GPS." : "Deliverable audio/video files submitted.")}
+                            {p.id === "review" && "48-hour inspection window. Client reviews or escrow auto-releases."}
+                            {p.id === "complete" && "Payment released to performer wallet and feedback exchanged."}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Onsite Handshake Code Details (if Onsite Gig) */}
+                {isOnsite && (
+                  <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                        Onsite Handshake Code
+                      </span>
+                      <span className="font-mono text-sm font-bold tracking-widest px-2.5 py-0.5 rounded-lg bg-white border border-purple-200 text-purple-900 shadow-2xs">
+                        {CLIENT_GENERATED_PIN}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500">
+                      {role === "client"
+                        ? `Share this 4-digit code with ${talentName} when they arrive at the venue.`
+                        : `Ask ${clientOrg} for this 4-digit code upon arrival to verify attendance.`}
+                    </p>
+                  </div>
+                )}
+
+                {/* Financial Breakdown ("Also how much") */}
+                <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Financial Breakdown</div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Agreed Project Budget</span>
+                    <span className="font-mono font-medium text-zinc-900">₦120,000</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Escrow Protection Fee</span>
+                    <span className="font-mono font-medium text-emerald-600">Free (₦0)</span>
+                  </div>
+                  <div className="h-px bg-zinc-200" />
+                  <div className="flex justify-between items-center font-semibold text-zinc-900">
+                    <span>Performer Guaranteed Payout</span>
+                    <span className="font-mono text-emerald-600 text-sm">₦120,000</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 pt-0.5">
+                    Protected by Monologg Escrow Guarantee #ESC-9082
                   </div>
                 </div>
 
                 {/* Participants */}
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>Participants</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider mb-2 text-zinc-400">Participants</div>
                   <div className="space-y-2.5">
                     {[
                       { name: talentName, role: "Performer", initials: talentInitials, color: "var(--color-mono-red)", bg: "var(--color-red-soft)" },
@@ -1095,46 +1219,13 @@ export function OrderRoom() {
                             {p.name}
                             <Shield className="w-3 h-3 text-emerald-600" />
                           </div>
-                          <div className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>{p.role}</div>
+                          <div className="text-[11px] text-zinc-400">{p.role}</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Phase */}
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>Status</div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: phase === "complete" ? "var(--color-success)" : "var(--color-accent)" }}
-                    />
-                    <span className="text-sm font-medium text-zinc-900 capitalize">{phase}</span>
-                    {phase === "review" && !paymentReleased && (
-                      <span className="text-xs font-mono text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                        {formatCountdown(timerSeconds)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Financials */}
-                <div
-                  className="p-3.5 rounded-xl space-y-1.5 text-xs"
-                  style={{ background: "var(--color-bg-elevated)" }}
-                >
-                  {[
-                    ["Service", isOnsite ? "Live Standup (Onsite)" : "Voice-Over (Remote)"],
-                    ["Inspection Window", "48 Hours"],
-                    ["Performer Payout", "₦120,000"],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex justify-between items-center">
-                      <span style={{ color: "var(--color-text-secondary)" }}>{label}</span>
-                      <span className="font-mono font-medium text-zinc-900">{value}</span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </motion.div>
           </Modal>
