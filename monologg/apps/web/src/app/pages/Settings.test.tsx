@@ -365,10 +365,10 @@ describe("Settings — security section", () => {
     fireEvent.click(screen.getByText("Permanently delete your account and all data"));
 
     // Modal opens with information loss and 72-hr payout guarantees
-    await screen.findByText("Permanent Loss of All Information");
-    expect(screen.getByText(/You will permanently lose all your information, profile storefront, media reels/i)).toBeInTheDocument();
-    expect(screen.getByText(/Earnings Payout Guarantee \(Under 72 Hours\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/All your remaining earnings and eligible escrow balances will be automatically transferred to your verified bank account under 72 hours/i)).toBeInTheDocument();
+    await screen.findByText("Profile & Content Removed");
+    expect(screen.getByText(/Your profile, videos, client reviews, and messages will be permanently deleted/i)).toBeInTheDocument();
+    expect(screen.getByText("Remaining Balance Sent to Bank")).toBeInTheDocument();
+    expect(screen.getByText(/Any remaining balance will be automatically transferred to your bank within 72 hours/i)).toBeInTheDocument();
 
     const deleteBtn = screen.getByText("Delete My Account");
     expect(deleteBtn).toBeDisabled();
@@ -388,8 +388,8 @@ describe("Settings — security section", () => {
   });
 });
 
-describe("Settings — personal & craft details section and profile button cleanup", () => {
-  it("renders Personal & Craft Details option and displays clean read-only info by default", async () => {
+describe("Settings — personal details section and profile button cleanup", () => {
+  it("renders Personal Details option and displays clean read-only info by default", async () => {
     const { Settings } = await import("./Settings");
     render(
       <MemoryRouter>
@@ -397,13 +397,13 @@ describe("Settings — personal & craft details section and profile button clean
       </MemoryRouter>,
     );
 
-    // Open Personal & Craft Details
-    const craftItem = screen.getByText("Personal & Craft Details");
+    // Open Personal Details
+    const craftItem = screen.getByText("Personal Details");
     expect(craftItem).toBeInTheDocument();
     fireEvent.click(craftItem);
 
     // Verify Read-Only Mode contents
-    await screen.findByText("Personal & Craft Persona");
+    await screen.findByText("Your basic details, craft category, and voice & performance style tags.");
     expect(screen.getByText("Basic Information")).toBeInTheDocument();
     expect(screen.getByText("Female")).toBeInTheDocument();
     expect(screen.getByText("2000-05-15")).toBeInTheDocument();
@@ -427,7 +427,7 @@ describe("Settings — personal & craft details section and profile button clean
     fireEvent.click(saveBtns[0]);
 
     // Returns to read-only view with updated gender
-    await screen.findByText("Personal & Craft Persona");
+    await screen.findByText("Your basic details, craft category, and voice & performance style tags.");
     expect(screen.getByText("Male")).toBeInTheDocument();
   });
 

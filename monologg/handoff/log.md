@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-10 (Session 110: Dedicated Settings Option for Personal & Craft Details [Read-Only Default with Interactive Edit Mode] and Redundant Profile Action Buttons Removal)
+**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 111 (2026-10-10) — Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign
+
+**Goal:** Simplify the section label to "Personal Details", rework introductory copy into clean, plain English without buzzwords or jargon, and redesign the Delete Account modal from overwhelming red warning boxes into a calm, structured FAANG modal (Apple / Airbnb style) that clearly communicates profile removal and 72-hour payout guarantees without intimidating users.
+
+1. **Section Naming Simplification (`Settings.tsx`):**
+   - Renamed Settings Account menu item and top navigation bar label from `Personal & Craft Details` to **`Personal Details`** (clean 2-word name matching user request).
+   - Updated section sub-actions from `Edit Personal & Craft Details` to **`Edit Personal Details`**.
+
+2. **Jargon-Free Intro Copy Rework (`Settings.tsx`):**
+   - Reworked introductory card title from `Personal & Craft Persona` to **`Personal Details`**.
+   - Replaced verbose jargon ("Your verified legal identity, primary performance craft discipline, and Thespian AI voice and style analysis.") with simple, plain English:
+     - **`Your basic details, craft category, and voice & performance style tags.`**
+
+3. **FAANG Delete Account Modal Redesign (`Settings.tsx`):**
+   - Replaced two alarming, heavy red-bordered boxes with a single elevated card (`var(--color-bg-elevated)`) featuring subtle hairline borders and clear visual separation:
+     - **Item 1 (Profile & Content):** Soft red circle icon with `Trash2`, clear headline **`Profile & Content Removed`**, and simple copy: *"Your profile, videos, client reviews, and messages will be permanently deleted and cannot be recovered."*
+     - **Hairline Divider:** Clean horizontal separation.
+     - **Item 2 (Remaining Funds):** Soft emerald circle icon with `Clock`, clear headline **`Remaining Balance Sent to Bank`**, and reassuring copy: *"Any remaining balance will be automatically transferred to your bank within 72 hours."* paired with clean destination chip (`Payout to: GTBank •••• 6789`).
+   - Clean confirmation input with `DELETE` verification and refined high-contrast destructive action.
+   - Simplified post-confirmation copy on the scheduled deletion screen.
+
+4. **Test Suite, Standalone Build & Distribution:**
+   - Updated `Settings.test.tsx` assertions to match the streamlined section label and simplified copy across all 13 test cases.
+   - Verified 100% test pass (13/13 tests in `Settings.test.tsx`, 0 TypeScript errors).
+   - Rebuilt standalone distribution bundle (`build:standalone`) and regenerated `monologg/monologg-app.html` (1.44 MB).
 
 ---
 

@@ -575,7 +575,7 @@ export function Settings() {
           <div className="text-sm font-semibold font-display" style={s.text}>
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
             {section === "profile" && (isClient ? "Organization Profile" : "Edit Profile")}
-            {section === "craft_details" && "Personal & Craft Details"}
+            {section === "craft_details" && "Personal Details"}
             {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment details")}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
@@ -696,7 +696,7 @@ export function Settings() {
                 ) : (
                   <>
                     <ListItem label="Profile" icon={User} onClick={() => setSection("profile")} />
-                    <ListItem label="Personal & Craft Details" icon={Sparkles} onClick={() => setSection("craft_details")} />
+                    <ListItem label="Personal Details" icon={Sparkles} onClick={() => setSection("craft_details")} />
                     <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
                     <ListItem label="Payment details" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
@@ -1472,10 +1472,10 @@ export function Settings() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold font-display" style={s.text}>
-                    Personal & Craft Persona
+                    Personal Details
                   </div>
                   <p className="text-xs font-body mt-0.5 leading-relaxed" style={s.secondary}>
-                    Your verified legal identity, primary performance craft discipline, and Thespian AI voice and style analysis.
+                    Your basic details, craft category, and voice & performance style tags.
                   </p>
                 </div>
                 {!isEditingCraftDetails ? (
@@ -1643,7 +1643,7 @@ export function Settings() {
                     className="w-full h-11 text-xs font-semibold gap-2 border"
                     onClick={() => setIsEditingCraftDetails(true)}
                   >
-                    <Edit2 className="w-3.5 h-3.5" /> Edit Personal & Craft Details
+                    <Edit2 className="w-3.5 h-3.5" /> Edit Personal Details
                   </Button>
                 </div>
               ) : (
@@ -2563,34 +2563,48 @@ export function Settings() {
                     </button>
                   </div>
 
-                  <div className="space-y-3 mb-5">
-                    {/* Information loss warning */}
-                    <div
-                      className="p-3.5 rounded-xl border flex items-start gap-3"
-                      style={{ background: "var(--color-error-bg)", borderColor: "var(--color-error)" }}
-                    >
-                      <Trash2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-error)" }} />
-                      <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
-                        <strong className="block font-semibold mb-0.5" style={{ color: "var(--color-error)" }}>
-                          Permanent Loss of All Information
+                  <div
+                    className="p-4 rounded-2xl border space-y-3.5 mb-5"
+                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                  >
+                    {/* Information loss item */}
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs font-body flex-1">
+                        <strong className="block font-semibold mb-0.5 text-sm" style={{ color: "var(--color-text-primary)" }}>
+                          Profile & Content Removed
                         </strong>
-                        You will permanently lose all your information, profile storefront, media reels, portfolio assets, client reviews, messages, and account history.
+                        <p className="leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          Your profile, videos, client reviews, and messages will be permanently deleted and cannot be recovered.
+                        </p>
                       </div>
                     </div>
 
+                    <div className="h-[1px] bg-[var(--color-hairline)]" />
+
                     {/* 72-hour earnings transfer guarantee */}
-                    <div
-                      className="p-3.5 rounded-xl border flex items-start gap-3"
-                      style={{ background: "var(--color-accent-soft)", borderColor: "var(--color-accent)" }}
-                    >
-                      <Clock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--color-accent)" }} />
-                      <div className="text-xs font-body" style={{ color: "var(--color-text-primary)" }}>
-                        <strong className="block font-semibold mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                          Earnings Payout Guarantee (Under 72 Hours)
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: "rgba(16, 185, 129, 0.1)", color: "#10b981" }}
+                      >
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs font-body flex-1">
+                        <strong className="block font-semibold mb-0.5 text-sm" style={{ color: "var(--color-text-primary)" }}>
+                          Remaining Balance Sent to Bank
                         </strong>
-                        All your remaining earnings and eligible escrow balances will be automatically transferred to your verified bank account under 72 hours.
-                        <div className="mt-2 font-mono text-[11px] px-2 py-1 rounded bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] inline-block">
-                          Destination: {bankDetails.bankName || "Verified Bank"} (•••• {bankDetails.accountNumber.slice(-4) || "••••"})
+                        <p className="leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          Any remaining balance will be automatically transferred to your bank within 72 hours.
+                        </p>
+                        <div className="mt-2 font-mono text-[11px] px-2.5 py-1 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] inline-flex items-center gap-1.5 text-[var(--color-text-primary)]">
+                          <span style={{ color: "var(--color-text-tertiary)" }}>Payout to:</span>
+                          <span className="font-semibold">{bankDetails.bankName || "Verified Bank"} (•••• {bankDetails.accountNumber.slice(-4) || "••••"})</span>
                         </div>
                       </div>
                     </div>
@@ -2618,8 +2632,12 @@ export function Settings() {
                       Keep Account
                     </Button>
                     <Button
-                      className="flex-1 h-11 text-xs font-semibold"
-                      style={{ background: "var(--color-error)", color: "#fff" }}
+                      className="flex-1 h-11 text-xs font-semibold transition-colors"
+                      style={{
+                        background: deleteConfirmText.trim().toUpperCase() === "DELETE" ? "var(--color-error)" : "var(--color-bg-elevated)",
+                        color: deleteConfirmText.trim().toUpperCase() === "DELETE" ? "#fff" : "var(--color-text-tertiary)",
+                        border: "1px solid var(--color-hairline)",
+                      }}
                       disabled={deleteConfirmText.trim().toUpperCase() !== "DELETE" || deletingAccount}
                       onClick={handleDeleteAccount}
                     >
@@ -2638,8 +2656,8 @@ export function Settings() {
                   <h3 className="font-display text-lg font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
                     Account Scheduled for Deletion
                   </h3>
-                  <p className="text-xs font-body mb-4" style={{ color: "var(--color-text-secondary)" }}>
-                    Your account has been deactivated. You have lost access to your profile and data. All your remaining earnings are being liquidated and transferred to your account under 72 hours.
+                  <p className="text-xs font-body mb-4 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                    Your account is deactivated. Any remaining balance will be transferred to your bank within 72 hours.
                   </p>
                   <div className="p-3 rounded-xl mb-5 text-xs font-mono" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)" }}>
                     Payout window: Under 72 hours to {bankDetails.bankName || "Verified Bank"} (•••• {bankDetails.accountNumber.slice(-4) || "••••"})

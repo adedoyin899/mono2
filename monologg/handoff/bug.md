@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-10 (Session 110: Dedicated Settings Option for Personal & Craft Details [Read-Only Default with Interactive Edit Mode] and Redundant Profile Action Buttons Removal)
+**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 59. Overwhelming dual red alert boxes in Delete Account modal and overly dense settings copy
+- **Severity:** Low / Visual Overload & UX Polish
+- **What happened:** In `Settings.tsx`, the Delete Account confirmation modal presented two saturated, red-bordered boxes stacked consecutively with dense legalistic text ("Permanent Loss of All Information", "Earnings Payout Guarantee (Under 72 Hours)"), creating an alarming, visually aggressive experience that overwhelmed users. Additionally, the personal details section used wordy, artificial phrasing ("Personal & Craft Persona", "Your verified legal identity, primary performance craft discipline, and Thespian AI voice and style analysis.").
+- **Root Cause:** Attempting to convey both data loss and payout guarantees using high-alert crisis styling rather than calm, structured, consumer-grade dialog layout.
+- **Resolution:** Replaced the two aggressive red alert boxes with a single elevated surface card (`var(--color-bg-elevated)`) with hairline borders and subtle, calm icons: Item 1 (`Profile & Content Removed` with soft red circle) and Item 2 (`Remaining Balance Sent to Bank` with soft green circle and clean destination chip). Simplified section header to `Personal Details` and rewritten copy into clean, plain English without buzzwords.
 
 ### 58. Missing dedicated settings section for onboarding personal & craft details and redundant buttons bar hovering above edit profile
 - **Severity:** Low / Information Architecture & UX Redundancy

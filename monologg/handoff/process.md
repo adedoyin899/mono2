@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-10 (Session 110: Dedicated Personal & Craft Details Section in Settings and Profile Header Button Removal)
+**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -525,6 +525,19 @@ Addressed performer settings architecture and profile editing UX by decoupling r
   - Contextual storefront controls (`Preview/Edit`, `Share`, `View Public Storefront`) live directly on the profile card header next to the avatar circle.
 - **Onboarding & State Synchronization:** Updated `CreatorOnboarding.tsx` to sync gender, DOB, craft, AI performance summary, and tags into `appStateSync`, and updated `TalentProfileState` types.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined fresh bundle into `monologg/monologg-app.html` (1.50 MB).
+
+---
+
+### Step 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign (Session 111)
+
+Refined the UX copy, naming conventions, and deletion dialog in `Settings.tsx` based on user feedback:
+- **Clean 2-Word Nomenclature:** Renamed `Personal & Craft Details` across the Settings Account list, top bar header, and edit CTAs to **`Personal Details`**, matching everyday consumer tech simplicity.
+- **Plain-English Intro Copy:** Rewrote the verbose intro block from *"Your verified legal identity, primary performance craft discipline, and Thespian AI voice and style analysis"* to clean, accessible English: *"Your basic details, craft category, and voice & performance style tags."*
+- **FAANG-Standard Delete Account Modal:** Replaced the two aggressive, red-bordered alert boxes that visually overwhelmed users with a calm, elevated surface card (`var(--color-bg-elevated)`) with subtle hairline borders and clear visual separation:
+  - *Profile & Content:* Soft red badge with `Trash2`, clear title **`Profile & Content Removed`**, and reassuring copy that profile, reels, reviews, and messages will be permanently deleted and cannot be recovered.
+  - *Hairline Separation Divider.*
+  - *Remaining Funds Guarantee:* Soft green badge with `Clock`, clear title **`Remaining Balance Sent to Bank`**, confirming remaining balance will transfer to bank (`Payout to: GTBank •••• 6789`) within 72 hours.
+- **Updated Verification & Artifacts:** Updated test suite in `Settings.test.tsx` (13/13 passing), re-compiled standalone distribution bundle, and inlined into `monologg/monologg-app.html` (1.44 MB).
 
 ---
 
