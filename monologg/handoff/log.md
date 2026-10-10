@@ -1,11 +1,37 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
+**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 109 (2026-10-10) — Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards
+
+**Goal:** Clean up the transaction ledger interface by removing secondary sub-badge bubbles from the filter chips to retain only the clean main status titles (`All`, `Payout`, `Escrow`, `Dispute`), and eliminating the secondary breakdown row (`Paid to ... Base ... Fee ... Ref: ...`) from the transaction cards so users can scan feed items effortlessly and inspect detailed fee breakdowns upon tapping the card.
+
+1. **Minimalist Filter Tabs (`TransactionHistory.tsx`):**
+   - Removed the nested sub-badge bubbles (`All 3`, `Success`, `Pending`, `Settled / In Review`) from the category filter pills.
+   - Filter chips now render strictly as clean, uncluttered buttons displaying only the main title: **`All`**, **`Payout`**, **`Escrow`**, and **`Dispute`**.
+   - Removed secondary status text from the black hero card header so the title cleanly displays `TOTAL PLATFORM VOLUME`, `TOTAL COMPLETED PAYOUTS`, `FUNDS HELD IN ESCROW`, and `TOTAL DISPUTED & SETTLED FUNDS`.
+
+2. **Clutter-Free Transaction Feed Cards (`TransactionHistory.tsx`):**
+   - Removed the secondary bottom strip (`Paid to Access Bank Plc`, `Base ₦10,000 • Fee ₦0 • Ref: ...`) from all transaction cards in the feed.
+   - Preserved maximum visual focus on the primary line:
+     - Left: 40px rounded status state icon + Booking ID (`Booking ORD-001`) + Type and relative time (`Payout • 36m ago`).
+     - Right: Bold amount with directional prefix (`+₦10,000`, `↩ ₦51,750`, `⏳ ₦35,000`) and the clean status chip (`Success`, `Pending`, `Settled`, `In Review`).
+   - Cards are now compact, fast to scan, and direct users naturally to tap the card to open the modal for the complete fee breakdown.
+
+3. **Detailed Breakdown in Modal (`TransactionHistory.tsx`):**
+   - Full breakdown remains preserved in the Transaction Details Modal: Gig Price, Platform Fee, You Receive (`₦0` for refunded disputes, total amount for releases), Destination / Reference Bank, Date, and plain-English status sentence.
+
+4. **Testing, Build, and Distribution:**
+   - Updated `TransactionHistory.test.tsx` to verify clean feed cards without inline base fees and modal inspection on click.
+   - Verified 100% clean TypeScript typecheck (`tsc --noEmit`) and all 24 web test suites passing (105/105 tests).
+   - Re-compiled standalone bundle via `pnpm --filter @monologg/web build:standalone` and re-inlined into `monologg/monologg-app.html` (1.49 MB).
 
 ---
 

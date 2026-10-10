@@ -14,15 +14,14 @@ export type CategoryFilter = "ALL" | "PAYOUT" | "ESCROW" | "DISPUTE";
 interface CategoryTab {
   id: CategoryFilter;
   label: string;
-  badge: string;
   description: string;
 }
 
 const CATEGORY_TABS: CategoryTab[] = [
-  { id: "ALL", label: "All", badge: "All 3", description: "All platform transactions across every status" },
-  { id: "PAYOUT", label: "Payout", badge: "Success", description: "Completed payouts transferred to your bank" },
-  { id: "ESCROW", label: "Escrow", badge: "Pending", description: "Funds locked safely in Monologg escrow" },
-  { id: "DISPUTE", label: "Dispute", badge: "Settled / In Review", description: "Contracts under mediation or settled via dispute resolution" },
+  { id: "ALL", label: "All", description: "All platform transactions across every status" },
+  { id: "PAYOUT", label: "Payout", description: "Completed payouts transferred to your bank" },
+  { id: "ESCROW", label: "Escrow", description: "Funds locked safely in Monologg escrow" },
+  { id: "DISPUTE", label: "Dispute", description: "Contracts under mediation or settled via dispute resolution" },
 ];
 
 // Clean, human-friendly status taxonomy:
@@ -161,18 +160,8 @@ export function TransactionHistory() {
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#F13030]/10 blur-3xl pointer-events-none" />
 
           <div className="space-y-1 z-10">
-            <div className="text-xs font-mono text-[#F13030] uppercase tracking-wider font-bold flex items-center gap-2">
+            <div className="text-xs font-mono text-[#F13030] uppercase tracking-wider font-bold">
               <span>{heroTitle}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F13030]" />
-              <span className="text-[10px] text-white/50 uppercase tracking-normal">
-                {activeCategory === "ALL"
-                  ? "All 3 Categories"
-                  : activeCategory === "PAYOUT"
-                  ? "Success"
-                  : activeCategory === "ESCROW"
-                  ? "Pending"
-                  : "Settled / In Review"}
-              </span>
             </div>
             <div className="text-3xl sm:text-4xl font-bold font-mono text-[#F5F5F0] tracking-tight">
               ₦{Math.round(heroAmount).toLocaleString()}
@@ -216,7 +205,7 @@ export function TransactionHistory() {
           <option value="FAILED">Failed</option>
         </select>
 
-        {/* 4-Chip Filter Taxonomy: ALL (All 3) | Payout (Success) | Escrow (Pending) | Dispute (Settled / In Review) */}
+        {/* 4-Chip Filter Taxonomy: All | Payout | Escrow | Dispute */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {CATEGORY_TABS.map((tab) => {
             const isSelected = activeCategory === tab.id && !stateFilter;
@@ -227,22 +216,13 @@ export function TransactionHistory() {
                   setActiveCategory(tab.id);
                   setStateFilter("");
                 }}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 active:scale-95 ${
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex items-center active:scale-95 ${
                   isSelected
                     ? "bg-[#F13030] text-white border-[#F13030] shadow-sm shadow-[#F13030]/20"
                     : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
                 }`}
               >
                 <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] font-normal px-1.5 py-0.5 rounded-full ${
-                    isSelected
-                      ? "bg-white/20 text-white"
-                      : "bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)]"
-                  }`}
-                >
-                  {tab.badge}
-                </span>
               </button>
             );
           })}
@@ -290,24 +270,11 @@ export function TransactionHistory() {
               amountColor = "text-amber-500 font-semibold";
             }
 
-            // Simple, plain-English status note (ZERO bogus language)
-            let simpleNote = "Paid to bank account";
-            if (txn.providerRef?.startsWith("bank-")) {
-              simpleNote = `Paid to ${txn.providerRef.replace("bank-", "")}`;
-            }
-            if (isEscrow) {
-              simpleNote = "Held in escrow • Paid when work is approved";
-            } else if (isInReview) {
-              simpleNote = "Under review • Resolves within 48 hours";
-            } else if (isSettledRefund) {
-              simpleNote = "Refunded to client • You received ₦0";
-            }
-
             return (
               <div
                 key={txn.id}
                 onClick={() => setSelectedTxn(txn)}
-                className="rounded-[20px] p-4.5 cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:shadow-md group space-y-3"
+                className="rounded-[20px] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:shadow-md group"
                 style={{ boxShadow: "var(--shadow-card)" }}
               >
                 {/* Primary Row: Left (Icon + Booking + Category) | Right (Amount + Status Badge) */}
@@ -353,22 +320,6 @@ export function TransactionHistory() {
                         {badgeLabel}
                       </Badge>
                     </div>
-                  </div>
-                </div>
-
-                {/* Secondary Row: Clear Simple Status Strip + Fee Breakdown */}
-                <div className="pt-2.5 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
-                  <span className="truncate">{simpleNote}</span>
-                  <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] shrink-0 ml-2 flex items-center gap-2">
-                    <span>Base {txn.baseAmountFormatted}</span>
-                    <span>•</span>
-                    <span>Fee {txn.feeAmountFormatted}</span>
-                    {txn.providerRef && (
-                      <>
-                        <span>•</span>
-                        <span>Ref: {txn.providerRef}</span>
-                      </>
-                    )}
                   </div>
                 </div>
               </div>

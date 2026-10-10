@@ -69,8 +69,16 @@ describe("TransactionHistory", () => {
     await renderPage();
 
     expect((await screen.findAllByText("₦11,500")).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Base ₦10,000/)).toBeInTheDocument();
-    expect(screen.getByText("Ref: ref-live-1")).toBeInTheDocument();
+    // Feed cards are clean without secondary breakdown
+    expect(screen.queryByText(/Base ₦10,000/)).not.toBeInTheDocument();
+
+    // Clicking card opens modal where detailed breakdown is presented
+    const card = (await screen.findByText("Booking b1")).closest("div[class*='cursor-pointer']")!;
+    fireEvent.click(card);
+    expect(screen.getByText("Gig Price")).toBeInTheDocument();
+    expect(screen.getByText("₦10,000")).toBeInTheDocument();
+    expect(screen.getByText("-₦1,500")).toBeInTheDocument();
+    expect(screen.getByText("ref-live-1")).toBeInTheDocument();
   });
 
   it("live mode: changing the status filter re-fetches with the state query param", async () => {

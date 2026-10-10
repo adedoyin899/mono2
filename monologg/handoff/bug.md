@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
+**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 57. Redundant sub-badges on filter tabs and duplicate fee breakdown row on feed cards
+- **Severity:** Low / Visual Clutter & Information Architecture
+- **What happened:** In `TransactionHistory.tsx`, filter chips displayed dual nested labels (e.g., `Payout Success`, `Escrow Pending`, `Dispute Settled / In Review`), which created visual noise and redundant text. Additionally, every transaction card rendered a secondary bottom row with verbose fee and account breakdowns (`Paid to ... Base ... Fee ... Ref: ...`) that duplicated the information already surfaced cleanly in the detail modal upon tapping the card.
+- **Root Cause:** Attempting to surface secondary telemetry both at the filter level and at the card preview level rather than strictly in the detail view.
+- **Resolution:** Stripped sub-badge bubbles from the filter tabs to keep only the clean primary titles (`All`, `Payout`, `Escrow`, `Dispute`). Removed the secondary breakdown footer row from the transaction cards, leaving clean, compact, scannable cards with all detailed breakdown fields safely housed inside the detail modal.
 
 ### 56. Complex legalistic jargon in modal, status badge terminology mismatch, and text-dense ledger cards
 - **Severity:** Low / Visual Hierarchy & Readability Polish

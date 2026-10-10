@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
+**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -496,6 +496,16 @@ Refined the visual hierarchy, microcopy, and status taxonomy of `TransactionHist
   - *Tier 2 (Context Strip):* Bottom section contains a single-line, jargon-free summary (`Paid to Access Bank Plc`, `Refunded to client • You received ₦0`, `Held in escrow • Paid when work is approved`) and clean base/fee/provider-ref metrics.
 - **Jargon-Free Detail Modal:** Replaced complex arbitration jargon with direct, 1-sentence explanations and focused the details breakdown strictly on required figures: Booking, Type, Gig Price, Platform Fee, You Receive (`₦0` for refunded disputes), Reference/Bank, and Date.
 - **Standalone Distribution Inlining:** Built standalone bundle and re-inlined into `monologg/monologg-app.html` (1.49 MB).
+
+---
+
+### Step 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards (Session 109)
+
+Refined `TransactionHistory.tsx` for optimal scannability and minimal visual noise:
+- **Clean Filter Tabs:** Removed secondary sub-badges (`All 3`, `Success`, `Pending`, `Settled / In Review`) from filter pills. Filter tabs now cleanly display only their primary titles: `All`, `Payout`, `Escrow`, and `Dispute`.
+- **Clutter-Free Ledger Feed Cards:** Removed the secondary breakdown footer row (`Paid to ... Base ... Fee ... Ref: ...`) from all feed cards. Cards now feature a streamlined single-tier layout focused on the core transaction identifiers (State Icon, Booking ID, Category/Time, Amount, and Status Badge).
+- **Consolidated Modal Details:** Kept the complete breakdown (Gig Price, Platform Fee, You Receive, Destination/Bank, Date, and plain-English explanation) inside the transaction detail modal, accessed by tapping any card.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined updated assets into `monologg/monologg-app.html` (1.49 MB).
 
 ---
 
