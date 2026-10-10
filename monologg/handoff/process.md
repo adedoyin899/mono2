@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
+**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Sole CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -550,6 +550,18 @@ Overhauled the client onboarding flow (`ClientOnboarding.tsx`) to eliminate fric
 - **6-Craft Performer Multi-Select Grid on Step 2:** Replaced the single-field layout with an interactive multi-select grid covering all 6 core performer categories (`Actors`, `Public speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`) with selected count and checkmarks, alongside a single-select hiring frequency list (*"How often will you be hiring?"*).
 - **Elimination of Step 3 (Premature Payment Form):** Completely removed the credit-card setup step during onboarding. Clients complete onboarding in 2 fast steps and route directly to the Client Dashboard with the `Get Started` action.
 - **State Synchronization & Testing:** Updated `ClientProfileState` and `state-sync.ts` with `targetCategories` and `hiringFrequency`, authored `ClientOnboarding.test.tsx` (2/2 passing), and regenerated `monologg/monologg-app.html` (1.44 MB).
+
+---
+
+### Step 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Sole CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up (Session 113)
+
+Implemented targeted UI/UX cleanups across Client Onboarding, Client Dashboard, and Project Brief builder:
+- **Clean Single-Line Performer Categories & Sleek Badge:** In `ClientOnboarding.tsx`, renamed the category field label to `"Performer Categories"` (single line, preventing multiline text wrapping) and replaced the clumsy 2-line selection counter (`2 \n selected`) with a sleek inline pill badge (`"{selectedCategories.length} selected"`).
+- **Client Dashboard Wallet Balance & Sole Card CTA:** In `ClientDashboard.tsx`, renamed the hero card title from "Total Spend" to **`Wallet Balance`**, displaying `{isNewUser ? "₦0" : "₦" + walletBalance.toLocaleString()}`. Stripped duplicate "Post a project" and "Find performers" buttons, establishing **`Fund Wallet`** (`<Plus /> Fund Wallet`) as the sole CTA on the card. Created an interactive `FundWalletModal` (preset amounts ₦50k, ₦100k, ₦250k, ₦500k, custom input, instant Paystack escrow simulation) integrated with `appStateSync.fundWallet`.
+- **Project Brief 6 Performer Categories & Interactive Location Picker:** In `ProjectBrief.tsx`, aligned Step 2 with the platform's standard 6 performer categories (`Actors`, `Public speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`) with Lucide icons. Standardized user copy from "talent" to "performer". Replaced the static text input for Location with an interactive searchable dropdown containing 28 Nigerian entertainment hubs (`NIGERIAN_LOCATIONS`), matching performer onboarding with instant filter, click-to-select, and clear controls.
+- **Assets Step Nomenclature:** Renamed Step 3 in `ProjectBrief.tsx` from "Scripts & Assets" to **`Assets`** across the stepper navigation, heading, and summary metadata.
+- **Budget Streamlining & Maximum Applicants Copy:** In Step 4 of `ProjectBrief.tsx`, removed fields 1 & 2 (`BUDGET CURRENCY *` switcher and `BUDGET PRESETS`), locking the interface to clean NGN input and range slider. Standardized applicant cap copy to **`Maximum applicants`** across form labels, placeholder, helper copy, and review summaries.
+- **Testing & Standalone Distribution Inlining:** Updated unit tests in `ProjectBrief.test.tsx` (all 109 tests passing across 25 suites), verified `tsc --noEmit` clean, and re-compiled standalone production bundle into `monologg/monologg-app.html` (1.44 MB).
 
 ---
 

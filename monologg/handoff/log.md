@@ -1,11 +1,56 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
+**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Single CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 113 (2026-10-11) — UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Single CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up
+
+**Goal:** Execute 5 key UI and UX simplifications across Client Onboarding, Client Dashboard, and Project Brief builder based on visual review:
+1. Clean up performer categories selector in `ClientOnboarding.tsx` (single-line label, eliminate 2-line wrap, sleek inline pill counter).
+2. Modernize Client Dashboard hero card to **`Wallet Balance`** with a single **`Fund Wallet`** CTA and remove redundant duplicate buttons.
+3. Align Project Brief Step 2 with the platform's standard 6 performer categories, universal "performer" copy, and upgrade location to an interactive searchable Nigerian hub dropdown matching performer onboarding.
+4. Rename Step 3 from "Script & Assets" to **`Assets`**.
+5. Remove currency selector pills and preset pills from Step 4, lock to clean NGN input + range slider, rename applicant cap to **`Maximum applicants`**, and update summary card.
+
+1. **Client Onboarding Performer Categories Header Clean-up (`ClientOnboarding.tsx`):**
+   - Replaced verbose uppercase question with concise, single-line uppercase title: **`Performer Categories`**.
+   - Replaced awkward wrapping counter (`2 \n selected`) with a sleek inline pill badge (`px-2.5 py-0.5 rounded-full`) styled with soft accent background and accent color (`{selectedCategories.length} selected`), guaranteed not to line-wrap (`whitespace-nowrap`).
+
+2. **Client Dashboard Wallet Balance Card & Sole CTA (`ClientDashboard.tsx`, `state-sync.ts`):**
+   - Updated hero card title from `TOTAL SPENT · 2024` to **`Wallet Balance`** (`WALLET BALANCE` in tracking-wider mono).
+   - Displayed dynamic balance (`₦850,000` / `₦0`), syncing with persistent wallet state.
+   - Enforced single CTA button on card: **`Fund Wallet`** (`<Plus /> Fund Wallet`).
+   - Removed redundant "Post a project" and "Find performers" buttons from the hero card (both already accessible in the quick-action row below).
+   - Added interactive `FundWalletModal` allowing clients to fund their wallet via Paystack instant escrow deposit presets (₦50k, ₦100k, ₦250k, ₦500k) or custom amount, instantly incrementing balance and logging transaction via `appStateSync.fundWallet`.
+
+3. **6 Performer Categories Parity & Interactive Location Picker (`ProjectBrief.tsx`):**
+   - Replaced legacy 7-niche list with the platform's standard 6 performer craft disciplines: `Actors` (Drama), `Public speakers` (AudioLines), `Comperes` (Mic), `Comedians` (Laugh), `Artists` (Headphones), `Creators` (Video).
+   - Updated `NICHE_TO_ENUM` to support both the 6 category IDs and legacy keys for 100% backend API compatibility.
+   - Standardized all client-facing brief copy from "talent" to "performer".
+   - Upgraded Location input to an interactive searchable dropdown containing the platform's 28 Nigerian entertainment hubs (`Ikeja`, `Lekki`, `Victoria Island`, `Abuja`, etc.) matching performer onboarding behavior, supporting instant filter, clear button, click-to-select, and custom text.
+
+4. **Assets Step Renaming (`ProjectBrief.tsx`):**
+   - Renamed Step 3 in `STEPS` array from `Assets & Script` to **`Assets`**.
+   - Updated Step 3 screen header from `Script & Assets` to **`Assets`** with subtitle *"Upload any scripts, briefs, or reference materials. (Optional)"*.
+
+5. **Budget & Publish Simplification (`ProjectBrief.tsx`):**
+   - Removed Field 1: `BUDGET CURRENCY *` (currency switcher pill grid). Locked budget to Nigerian Naira (₦).
+   - Removed Field 2: `BUDGET PRESETS` (preset pill buttons).
+   - Retained clean manual budget input with `₦` prefix and client purple (`#7B00FE`) range slider.
+   - Renamed `Applicant cap (optional)` to **`Maximum applicants (optional)`** with placeholder `e.g. 10 — leave blank for unlimited`.
+   - Updated Project Summary card labels: `Applicant cap` → **`Maximum applicants`**, `Niches` → **`Categories`**.
+
+6. **Testing, Build & Standalone Distribution:**
+   - Updated `ProjectBrief.test.tsx` to click `Actors`, await `Assets` header, and verify default budget.
+   - Validated all 109 unit tests across 25 test suites passing (100% pass rate).
+   - Verified 100% clean TypeScript typecheck (`tsc --noEmit`).
+   - Re-compiled standalone distribution bundle (`build:standalone`) and inlined into `monologg/monologg-app.html` (1.44 MB).
 
 ---
 

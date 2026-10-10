@@ -15,7 +15,8 @@ import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talen
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
   Plus, Star, Shield, Filter, Users,
-  ChevronRight, Play, X, Check, AlertCircle, TrendingUp
+  ChevronRight, Play, X, Check, AlertCircle, TrendingUp,
+  CreditCard
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -126,6 +127,14 @@ export function ClientDashboard() {
     if (stored !== null) return stored === "true";
     return currentUser ? (currentUser.isNewUser ?? false) : false;
   });
+  const [walletBalance, setWalletBalance] = useState(() => {
+    const bal = appStateSync.getBalance().available;
+    return bal > 0 ? bal : 850000;
+  });
+  const [showFundWalletModal, setShowFundWalletModal] = useState(false);
+  const [fundAmountInput, setFundAmountInput] = useState("50,000");
+  const [isFunding, setIsFunding] = useState(false);
+  const [fundingSuccess, setFundingSuccess] = useState(false);
 
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;
@@ -479,16 +488,20 @@ export function ClientDashboard() {
                 >
                   <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
                   <div className="relative space-y-2">
-                    <div className="text-xs font-mono uppercase tracking-wider text-[#F1E9FF] font-semibold">Total spent · 2024</div>
+                    <div className="text-xs font-mono uppercase tracking-wider text-[#F1E9FF] font-semibold">Wallet Balance</div>
                     <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
-                      {isNewUser ? "₦0" : "₦850,000"}
+                      {isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`}
                     </div>
                     <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#F1E9FF]/90">
                       <Briefcase className="w-4 h-4 text-[#F1E9FF]" /> {isNewUser ? "0 active projects · 0 performers hired" : "4 active projects · 12 performers hired"}
                     </div>
-                    <div className="flex gap-2.5 pt-3">
-                      <button onClick={() => navigate("/brief")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90">Post a project</button>
-                      <button onClick={() => setActiveTab("discover")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">Find performers</button>
+                    <div className="pt-3">
+                      <button
+                        onClick={() => setShowFundWalletModal(true)}
+                        className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90 inline-flex items-center gap-1.5"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Fund Wallet
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -1611,6 +1624,121 @@ export function ClientDashboard() {
                     <Button className="flex-1 h-11 text-xs" onClick={() => setShowMoreFiltersModal(false)}>Apply Filters</Button>
                   </div>
                 </motion.div>
+              </Modal>
+            )}
+
+            {/* ── Fund Wallet Modal ── */}
+            {showFundWalletModal && (
+              <Modal onClose={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}>
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                    <div>
+                      <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Fund Client Wallet</h3>
+                      <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                        Add funds via Paystack instant escrow deposit for booking performers
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {fundingSuccess ? (
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-6 text-center space-y-3">
+                      <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        <Check className="w-7 h-7" />
+                      </div>
+                      <h4 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Wallet Funded Successfully!</h4>
+                      <p className="text-xs font-body max-w-xs mx-auto" style={{ color: "var(--color-text-secondary)" }}>
+                        Your balance has been updated. You can now fund escrow and hire performers immediately.
+                      </p>
+                      <Button
+                        className="mt-2 w-full h-11"
+                        onClick={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}
+                      >
+                        Done
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Quick Amount Presets
+                        </label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[50000, 100000, 250000, 500000].map(amt => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setFundAmountInput(amt.toLocaleString())}
+                              className="py-2 px-1 text-xs font-mono font-medium rounded-xl border transition-all text-center"
+                              style={{
+                                background: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                                borderColor: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-hairline)",
+                                color: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-text-secondary)",
+                              }}
+                            >
+                              ₦{(amt / 1000)}k
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Amount to Fund (NGN)
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-sm pointer-events-none" style={{ color: "var(--color-text-secondary)" }}>
+                            ₦
+                          </span>
+                          <Input
+                            className="pl-8 text-base font-mono font-bold h-12"
+                            value={fundAmountInput}
+                            onChange={e => {
+                              const raw = e.target.value.replace(/\D/g, "");
+                              const num = parseInt(raw, 10);
+                              setFundAmountInput(isNaN(num) ? "" : num.toLocaleString());
+                            }}
+                            placeholder="e.g. 100,000"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl border flex items-center justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                        <div className="flex items-center gap-2.5">
+                          <CreditCard className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                          <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Paystack Instant Escrow</span>
+                        </div>
+                        <span className="text-[11px] font-mono font-medium text-emerald-500">Secured 256-bit</span>
+                      </div>
+
+                      <div className="pt-2">
+                        <Button
+                          className="w-full h-12 text-sm font-bold shadow-md"
+                          disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0}
+                          onClick={() => {
+                            const amt = parseInt(fundAmountInput.replace(/\D/g, ""), 10) || 0;
+                            if (amt <= 0) return;
+                            setIsFunding(true);
+                            setTimeout(() => {
+                              appStateSync.fundWallet(amt);
+                              setWalletBalance(prev => prev + amt);
+                              setIsFunding(false);
+                              setFundingSuccess(true);
+                            }, 500);
+                          }}
+                        >
+                          {isFunding ? "Processing Payment..." : `Fund Wallet ₦${fundAmountInput || "0"}`}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </Modal>
             )}
           </AnimatePresence>

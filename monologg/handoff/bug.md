@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
+**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Single CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 61. Multi-line header and counter wrapping in client onboarding, duplicate hero buttons on client dashboard, mismatched brief niches, static location input, and legacy currency/preset pills
+- **Severity:** Low / UI Polish & Cross-Flow Consistency
+- **What happened:** In `ClientOnboarding.tsx`, the performer category question was long and wrapped into 2 lines, pushing the selection counter to wrap awkwardly into two stacked words (`2 \n selected`). In `ClientDashboard.tsx`, the hero card was titled "Total spent · 2024" and displayed duplicate action buttons ("Post a project", "Find performers") that were already mirrored directly below. In `ProjectBrief.tsx`, Step 2 still used an old 7-niche list rather than the standard 6 performer categories, and Location was a bare text input rather than the interactive 28-hub dropdown used in performer onboarding. Step 3 was called "Script & Assets", and Step 4 contained obsolete foreign currency pills and preset amount buttons.
+- **Root Cause:** Incomplete synchronization between newly standardized onboarding models and legacy brief builder screens; lack of mobile label width constraints causing awkward wrapping.
+- **Resolution:** Cleaned category header in `ClientOnboarding.tsx` to single-line `Performer Categories` with a sleek inline pill badge (`whitespace-nowrap`). Updated Client Dashboard hero card to `Wallet Balance` with a single `Fund Wallet` CTA (with interactive funding modal). Upgraded `ProjectBrief.tsx` to the standard 6 performer categories, added interactive 28-hub Nigerian locations dropdown, renamed Step 3 to `Assets`, and removed currency/preset pills in Step 4 while renaming applicant cap to `Maximum applicants`.
 
 ### 60. Premature payment collection in client onboarding, missing performer category multi-select, and slash clutter in organization types
 - **Severity:** Low / UX Flow Friction & Taxonomy Alignment

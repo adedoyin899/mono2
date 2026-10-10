@@ -11,24 +11,30 @@ import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL, getRandomLimitError, Limit
 import { Modal } from "../components/ui/Modal";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
-  Check, Mic, User, Star, Video, Music, AlertTriangle
+  Check, Mic, Video, AlertTriangle,
+  Drama, AudioLines, Laugh, Headphones, MapPin, X
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
 
 const NICHES = [
-  { id: "actor", label: "Actor", icon: User },
-  { id: "vo", label: "Voice-Over", icon: Mic },
-  { id: "comedian", label: "Comedian", icon: Star },
-  { id: "compere", label: "Compere / Host", icon: Video },
-  { id: "speaker", label: "Speaker", icon: User },
-  { id: "musician", label: "Musician", icon: Music },
-  { id: "creator", label: "Content Creator", icon: Video },
+  { id: "actors", label: "Actors", icon: Drama },
+  { id: "public_speakers", label: "Public speakers", icon: AudioLines },
+  { id: "comperes", label: "Comperes", icon: Mic },
+  { id: "comedians", label: "Comedians", icon: Laugh },
+  { id: "artists", label: "Artists", icon: Headphones },
+  { id: "creators", label: "Creators", icon: Video },
 ];
 
 // Maps this form's local niche ids to the real Niche enum (features.md Phase 2/5) —
-// used only when actually publishing to the live API.
+// supports both the standard 6 performer categories and legacy identifiers.
 const NICHE_TO_ENUM: Record<string, string> = {
+  actors: "ACTOR",
+  public_speakers: "SPEAKER_PASTOR",
+  comperes: "COMPERE",
+  comedians: "COMEDIAN",
+  artists: "MUSICIAN",
+  creators: "CONTENT_CREATOR",
   actor: "ACTOR",
   vo: "VO_ARTIST",
   comedian: "COMEDIAN",
@@ -37,6 +43,42 @@ const NICHE_TO_ENUM: Record<string, string> = {
   musician: "MUSICIAN",
   creator: "CONTENT_CREATOR",
 };
+
+interface LocationItem {
+  city: string;
+  state: string;
+}
+
+const NIGERIAN_LOCATIONS: LocationItem[] = [
+  { city: "Ikeja", state: "Lagos" },
+  { city: "Lekki", state: "Lagos" },
+  { city: "Victoria Island", state: "Lagos" },
+  { city: "Yaba", state: "Lagos" },
+  { city: "Surulere", state: "Lagos" },
+  { city: "Ajah", state: "Lagos" },
+  { city: "Maryland", state: "Lagos" },
+  { city: "Abuja", state: "Federal Capital Territory FCT" },
+  { city: "Maitama", state: "Abuja FCT" },
+  { city: "Wuse 2", state: "Abuja FCT" },
+  { city: "Gwarinpa", state: "Abuja FCT" },
+  { city: "Port Harcourt", state: "Rivers" },
+  { city: "Ibadan", state: "Oyo" },
+  { city: "Benin City", state: "Edo" },
+  { city: "Enugu", state: "Enugu" },
+  { city: "Asaba", state: "Delta" },
+  { city: "Warri", state: "Delta" },
+  { city: "Calabar", state: "Cross River" },
+  { city: "Kano", state: "Kano" },
+  { city: "Uyo", state: "Akwa Ibom" },
+  { city: "Abeokuta", state: "Ogun" },
+  { city: "Jos", state: "Plateau" },
+  { city: "Owerri", state: "Imo" },
+  { city: "Ilorin", state: "Kwara" },
+  { city: "Akure", state: "Ondo" },
+  { city: "Osogbo", state: "Osun" },
+  { city: "Awka", state: "Anambra" },
+  { city: "Onitsha", state: "Anambra" },
+];
 
 const PROJECT_TYPES = [
   "Commercial / Ad Campaign",
@@ -49,34 +91,10 @@ const PROJECT_TYPES = [
   "Other",
 ];
 
-const NGN_PRESETS = [
-  { min: 0, max: 50000 },
-  { min: 50000, max: 150000 },
-  { min: 150000, max: 500000 },
-  { min: 500000, max: 1000000 },
-  { min: 1000000, max: null },
-];
-
-const getFormattedPresetLabel = (min: number, max: number | null, symbol: string) => {
-  const formatValue = (v: number) => {
-    if (v >= 1000000) return `${(v / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-    if (v >= 1000) return `${(v / 1000).toFixed(1).replace(/\.0$/, "")}K`;
-    return v.toString();
-  };
-
-  if (min === 0 && max !== null) {
-    return `Under ${symbol}${formatValue(max)}`;
-  }
-  if (max === null) {
-    return `${symbol}${formatValue(min)}+`;
-  }
-  return `${symbol}${formatValue(min)} – ${symbol}${formatValue(max)}`;
-};
-
 const STEPS = [
   { num: 1 as Step, label: "Project Details", icon: FileText },
   { num: 2 as Step, label: "Requirements", icon: Users },
-  { num: 3 as Step, label: "Assets & Script", icon: UploadCloud },
+  { num: 3 as Step, label: "Assets", icon: UploadCloud },
   { num: 4 as Step, label: "Budget & Publish", icon: DollarSign },
 ];
 
@@ -88,6 +106,19 @@ export function ProjectBrief() {
   const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
   const [timeline, setTimeline] = useState("");
   const [location, setLocation] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+
+  const filteredLocations = React.useMemo(() => {
+    const q = locationInput.trim().toLowerCase();
+    if (!q) return NIGERIAN_LOCATIONS.slice(0, 8);
+    return NIGERIAN_LOCATIONS.filter(
+      (item) =>
+        item.city.toLowerCase().includes(q) ||
+        item.state.toLowerCase().includes(q)
+    );
+  }, [locationInput]);
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("NGN");
@@ -129,16 +160,7 @@ export function ProjectBrief() {
     return false;
   };
 
-  const handleCurrencyChange = (newCode: string) => {
-    const converted = convertCurrency(budgetAmount, selectedCurrency, newCode);
-    const roundedConverted = Math.round(converted);
-    setBudgetAmount(roundedConverted);
-    const active = CURRENCIES.find(c => c.code === newCode);
-    if (active) {
-      setSliderMax(Math.max(active.max, roundedConverted));
-    }
-    setSelectedCurrency(newCode);
-  };
+  const symbol = "₦";
 
   const handleBudgetInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
@@ -173,31 +195,6 @@ export function ProjectBrief() {
     if (val >= sliderMax * 0.95) {
       setSliderMax(prev => Math.round(prev * 1.5));
     }
-  };
-
-  const symbol = CODE_TO_SYMBOL[selectedCurrency] || "$";
-  const presets = NGN_PRESETS.map(preset => {
-    const minVal = Math.round(convertCurrency(preset.min, "NGN", selectedCurrency));
-    const maxVal = preset.max !== null ? Math.round(convertCurrency(preset.max, "NGN", selectedCurrency)) : null;
-    return {
-      label: getFormattedPresetLabel(minVal, maxVal, symbol),
-      min: minVal,
-      max: maxVal
-    };
-  });
-
-  const handlePresetSelect = (preset: { min: number, max: number | null }) => {
-    const val = preset.min === 0 && preset.max !== null ? preset.max : preset.min;
-    setBudgetAmount(val);
-    setBudgetInputStr(val.toLocaleString("en-US"));
-    if (val > sliderMax) {
-      setSliderMax(val);
-    }
-  };
-
-  const isPresetActive = (preset: { min: number, max: number | null }) => {
-    const targetVal = preset.min === 0 && preset.max !== null ? preset.max : preset.min;
-    return budgetAmount === targetVal;
   };
 
   const handleNext = async () => {
@@ -438,13 +435,65 @@ export function ProjectBrief() {
                     <option>Flexible</option>
                   </select>
                 </FormField>
-                <FormField label="Location">
-                  <Input
-                    placeholder="e.g., Lagos or Remote"
-                    value={location}
-                    onChange={e => setLocation(e.target.value)}
-                  />
-                </FormField>
+                <div className="relative">
+                  <label className="block text-xs font-semibold uppercase tracking-wider font-body mb-2" style={{ color: "var(--color-text-secondary)" }}>
+                    Location
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-accent)" }} />
+                    <Input
+                      className="pl-9 pr-8 h-[54px] text-sm"
+                      placeholder="e.g., Lagos or Remote"
+                      value={locationInput}
+                      onFocus={() => setShowLocationDropdown(true)}
+                      onChange={e => {
+                        setLocationInput(e.target.value);
+                        setLocation(e.target.value);
+                        setShowLocationDropdown(true);
+                      }}
+                    />
+                    {locationInput && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLocationInput("");
+                          setLocation("");
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Location interactive dropdown */}
+                  {showLocationDropdown && filteredLocations.length > 0 && (
+                    <div
+                      className="absolute left-0 right-0 top-full mt-1.5 p-1 rounded-xl shadow-xl max-h-48 overflow-y-auto space-y-0.5 z-50"
+                      style={{
+                        background: "var(--color-bg-surface)",
+                        border: "1px solid var(--color-hairline)",
+                      }}
+                    >
+                      {filteredLocations.map(item => (
+                        <button
+                          key={item.city}
+                          type="button"
+                          onMouseDown={e => {
+                            e.preventDefault();
+                            setLocationInput(item.city);
+                            setLocation(item.city);
+                            setShowLocationDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors flex items-baseline justify-between gap-3"
+                        >
+                          <span className="text-sm font-body font-medium" style={{ color: "var(--color-text-primary)" }}>{item.city}</span>
+                          <span className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>{item.state}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -459,7 +508,7 @@ export function ProjectBrief() {
               className="space-y-5"
             >
               <div>
-                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Script & Assets</h2>
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Assets</h2>
                 <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Upload any scripts, briefs, or reference materials. (Optional)</p>
               </div>
 
@@ -531,63 +580,11 @@ export function ProjectBrief() {
                 <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right performers.</p>
               </div>
 
-              <FormField label="Budget Currency *">
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {[
-                    { code: "NGN", flag: "🇳🇬", label: "NGN (₦)" },
-                    { code: "USD", flag: "🇺🇸", label: "USD ($)" },
-                    { code: "GBP", flag: "🇬🇧", label: "GBP (£)" },
-                    { code: "EUR", flag: "🇪🇺", label: "EUR (€)" },
-                    { code: "GHS", flag: "🇬🇭", label: "GHS (GH₵)" },
-                    { code: "KES", flag: "🇰🇪", label: "KES (KSh)" },
-                    { code: "ZAR", flag: "🇿🇦", label: "ZAR (R)" },
-                  ].map(curr => (
-                    <button
-                      type="button"
-                      key={curr.code}
-                      onClick={() => handleCurrencyChange(curr.code)}
-                      className="flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-bold font-mono transition-all"
-                      style={{
-                        background: selectedCurrency === curr.code ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                        border: `1px solid ${selectedCurrency === curr.code ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                        color: selectedCurrency === curr.code ? "var(--color-accent)" : "var(--color-text-secondary)",
-                      }}
-                    >
-                      <span>{curr.flag}</span>
-                      <span>{curr.code}</span>
-                    </button>
-                  ))}
-                </div>
-              </FormField>
-
-              <FormField label={`Budget Presets (${selectedCurrency})`}>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {presets.map((preset, index) => {
-                    const isActive = isPresetActive(preset);
-                    return (
-                      <button
-                        type="button"
-                        key={index}
-                        onClick={() => handlePresetSelect(preset)}
-                        className="flex items-center justify-center p-2.5 rounded-xl text-xs font-semibold font-body transition-all"
-                        style={{
-                          background: isActive ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                          border: `1px solid ${isActive ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                          color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
-                        }}
-                      >
-                        {preset.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </FormField>
-
-              <FormField label={`Budget Amount (${selectedCurrency}) *`}>
+              <FormField label="Budget Amount (NGN) *">
                 <div className="space-y-4">
                   <div className="relative flex items-center">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
-                      {symbol}
+                      ₦
                     </span>
                     <Input
                       className="pl-8 pr-4 font-mono tnum w-full"
@@ -599,17 +596,17 @@ export function ProjectBrief() {
                   </div>
                   <input
                     type="range"
-                    min={activeCurr.min}
+                    min={5000}
                     max={sliderMax}
-                    step={activeCurr.step}
+                    step={5000}
                     value={budgetAmount}
                     onChange={handleSliderChange}
-                    className="w-full accent-[#F13030] cursor-pointer"
+                    className="w-full accent-[#7B00FE] cursor-pointer"
                   />
                 </div>
               </FormField>
 
-              <FormField label="Applicant cap (optional)">
+              <FormField label="Maximum applicants (optional)">
                 <Input
                   type="number"
                   min={1}
@@ -631,10 +628,10 @@ export function ProjectBrief() {
                   {[
                     { label: "Name", value: projectName || "—" },
                     { label: "Type", value: projectType || "—" },
-                    { label: "Niches", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
+                    { label: "Categories", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
                     { label: "Timeline", value: timeline || "Flexible" },
-                    { label: "Budget", value: `${symbol}${budgetAmount.toLocaleString()}` },
-                    { label: "Applicant cap", value: applicantCap || "Unlimited" },
+                    { label: "Budget", value: `₦${budgetAmount.toLocaleString()}` },
+                    { label: "Maximum applicants", value: applicantCap || "Unlimited" },
                   ].map((item, i) => (
                     <div key={i} className="flex justify-between gap-4">
                       <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>

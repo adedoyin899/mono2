@@ -302,6 +302,33 @@ class StateSyncBus {
     return true;
   }
 
+  fundWallet(amountNaira: number): boolean {
+    if (amountNaira <= 0) return false;
+    this.balance.available += amountNaira;
+
+    const newTx: Transaction = {
+      id: `tx-${Date.now()}`,
+      bookingId: `bk-fund-${Date.now()}`,
+      direction: "payment",
+      state: "RELEASED",
+      currency: "NGN",
+      baseAmount: amountNaira * 100,
+      baseAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      feeAmount: 0,
+      feeAmountFormatted: "₦0",
+      totalAmount: amountNaira * 100,
+      totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      providerRef: "paystack-card",
+      createdAt: new Date().toISOString(),
+    };
+
+    this.transactions = [newTx, ...this.transactions];
+    this.save(STORAGE_KEYS.BALANCE, this.balance);
+    this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    this.notify();
+    return true;
+  }
+
   // Services / Rate Cards
   getServices(): ServiceRateCard[] {
     return [...this.services];

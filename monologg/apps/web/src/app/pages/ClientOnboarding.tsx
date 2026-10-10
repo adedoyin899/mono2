@@ -251,14 +251,17 @@ export function ClientOnboarding() {
               <div className="space-y-6">
                 {/* 1. Multi-select performer categories */}
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 gap-2">
                     <label
-                      className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider font-body"
+                      className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider font-body truncate"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
-                      What category of performers are you looking for?
+                      Performer Categories
                     </label>
-                    <span className="text-[11px] font-mono font-medium text-[var(--color-text-tertiary)]">
+                    <span
+                      className="shrink-0 text-[11px] font-body font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap"
+                      style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                    >
                       {selectedCategories.length} selected
                     </span>
                   </div>

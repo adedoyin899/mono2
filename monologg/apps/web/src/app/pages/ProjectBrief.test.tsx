@@ -24,17 +24,16 @@ async function renderAndFillProjectBrief() {
 
   // Step 2
   await screen.findByText("Performer Requirements");
-  fireEvent.click(screen.getByText("Voice-Over"));
+  fireEvent.click(screen.getByText("Actors"));
   fireEvent.click(screen.getByText("Continue"));
 
   // Step 3 — skip
-  await screen.findByText("Script & Assets");
+  await screen.findByRole("heading", { name: "Assets" });
   fireEvent.click(screen.getByText("Continue"));
 
   // Step 4 — "Budget & Publish" text is ambiguous (it's also the always-visible
   // top stepper's label), so wait for step-4-unique content instead.
   await screen.findByText("Set your project budget range to attract the right performers.");
-  fireEvent.click(screen.getByText("₦50K – ₦150K"));
 }
 
 describe("ProjectBrief", () => {
@@ -66,8 +65,8 @@ describe("ProjectBrief", () => {
       expect(body).toMatchObject({
         projectName: "Nike Q1 Campaign",
         projectType: "Commercial / Ad Campaign",
-        nicheReq: ["VO_ARTIST"],
-        budgetAmount: 5_000_000,
+        nicheReq: ["ACTOR"],
+        budgetAmount: 15_000_000,
         budgetCurrency: "NGN",
         // features.md Phase 14 regression: "Publish Project" must actually
         // publish (status ACTIVE) — the schema otherwise defaults new briefs
