@@ -15,12 +15,53 @@ import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X,
   MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
-  Building2, Info, AlertTriangle, Clock
+  Building2, Info, AlertTriangle, Clock, Sparkles, Drama, AudioLines, Laugh, Headphones, Video, Mic, Calendar as CalendarIcon, RotateCcw
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
-type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes";
+type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details";
+
+const CRAFT_CATEGORIES = [
+  { id: "actors", label: "Actors", icon: Drama, desc: "Screen, feature film, and stage drama roles" },
+  { id: "public_speakers", label: "Public speakers", icon: AudioLines, desc: "Keynotes, panel discussions, and conferences" },
+  { id: "comperes", label: "Comperes", icon: Mic, desc: "Event hosting, MC, and ceremonies" },
+  { id: "comedians", label: "Comedians", icon: Laugh, desc: "Stand-up, improv, and comedic sketches" },
+  { id: "artists", label: "Artists", icon: Headphones, desc: "Musical performances, vocal tracks, and studio voice" },
+  { id: "creators", label: "Creators", icon: Video, desc: "Digital storytelling, UGC, and commercial brand content" },
+];
+
+const CRAFT_DEFAULT_SUMMARIES: Record<string, string> = {
+  actors:
+    "Dynamic and expressive screen actor with commanding emotional range, natural comedic timing, and resonant vocal presence. Well-suited for dramatic feature films, commercial voice-overs, and stage productions.",
+  public_speakers:
+    "Charismatic keynote speaker with articulate vocal projection, authoritative cadence, and deep narrative resonance. Inspires and commands diverse live and virtual audiences with structured storytelling.",
+  comperes:
+    "Vibrant master of ceremonies and compere with high crowd engagement, spontaneous wit, and seamless stage transition mastery across corporate galas and entertainment shows.",
+  comedians:
+    "Sharp observational comedy performer with relatable punchlines, physical comedic delivery, and quick improvisational crowd timing.",
+  artists:
+    "Versatile sonic artist with soulful vocal texture, distinctive lyrical phrasing, and emotive delivery across acoustic and studio productions.",
+  creators:
+    "Engaging digital creator with rapid visual storytelling, infectious on-camera energy, and high audience retention hooks for modern campaigns.",
+};
+
+const CRAFT_SUGGESTED_TAGS = [
+  "Conversational",
+  "Expressive",
+  "High Energy",
+  "Deep Voice",
+  "Commanding",
+  "Narrative",
+  "Character",
+  "Nuanced",
+  "Vibrant",
+];
+
+const CRAFT_NIGERIAN_CITIES = [
+  "Ikeja", "Lekki", "Victoria Island", "Yaba", "Surulere", "Ajah", "Maryland",
+  "Abuja FCT", "Port Harcourt", "Ibadan", "Benin City", "Enugu", "Asaba", "Calabar", "Uyo"
+];
 
 const ATTRIBUTE_FIELDS: Array<{ key: keyof UpdateAttributesInput; label: string; options: string[] }> = [
   { key: "heightRange", label: "Height", options: ["UNDER_150CM", "CM_150_160", "CM_160_170", "CM_170_180", "CM_180_190", "OVER_190CM"] },
@@ -95,6 +136,40 @@ export function Settings() {
   const [showShare, setShowShare] = useState(false);
   const [showUploadReelModal, setShowUploadReelModal] = useState(false);
   const [showWatchReelModal, setShowWatchReelModal] = useState(false);
+
+  // Personal & Craft Details fields (simple read-only by default with edit toggle)
+  const [gender, setGender] = useState<string>(() => appStateSync.getTalentProfile().gender || "Female");
+  const [dob, setDob] = useState<string>(() => appStateSync.getTalentProfile().dob || "2000-05-15");
+  const [craftLocation, setCraftLocation] = useState<string>(() => {
+    const loc = appStateSync.getTalentProfile().location;
+    if (loc && loc.includes("Ikeja")) return "Ikeja";
+    if (loc && loc !== "Lagos, Nigeria") return loc.replace(/, Nigeria$/, "");
+    return "Ikeja";
+  });
+  const [selectedCraft, setSelectedCraft] = useState<string>(() => appStateSync.getTalentProfile().craft || "actors");
+  const [performanceSummary, setPerformanceSummary] = useState<string>(
+    () => appStateSync.getTalentProfile().performanceSummary || CRAFT_DEFAULT_SUMMARIES.actors
+  );
+  const [craftTags, setCraftTags] = useState<string[]>(
+    () => appStateSync.getTalentProfile().craftTags || ["Warm Texture", "Conversational", "Expressive", "High Energy"]
+  );
+  const [isEditingCraftDetails, setIsEditingCraftDetails] = useState(false);
+  const [newCraftTagInput, setNewCraftTagInput] = useState("");
+
+  const handleSaveCraftDetails = () => {
+    appStateSync.updateTalentProfile({
+      gender,
+      dob,
+      craft: selectedCraft,
+      performanceSummary,
+      craftTags,
+      location: craftLocation ? `${craftLocation}, Nigeria` : location,
+    });
+    setLocation(craftLocation ? `${craftLocation}, Nigeria` : location);
+    setIsEditingCraftDetails(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   // Client fields
   const [clientName, setClientName] = useState("Sarah Jenkins");
@@ -500,12 +575,55 @@ export function Settings() {
           <div className="text-sm font-semibold font-display" style={s.text}>
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
             {section === "profile" && (isClient ? "Organization Profile" : "Edit Profile")}
+            {section === "craft_details" && "Personal & Craft Details"}
             {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment details")}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
             {section === "attributes" && "Physical Attributes"}
           </div>
         </div>
+        {section === "craft_details" && (
+          <div className="flex items-center gap-2">
+            {isEditingCraftDetails ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingCraftDetails(false)}
+                  className="text-xs font-semibold px-2.5 py-1.5 rounded-full hover:bg-[var(--color-bg-elevated)] transition-colors"
+                  style={s.secondary}
+                >
+                  Cancel
+                </button>
+                <Button
+                  size="sm"
+                  className="h-8 px-3 text-xs gap-1 font-semibold"
+                  onClick={handleSaveCraftDetails}
+                >
+                  <Check className="w-3.5 h-3.5" /> Save
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 px-3 text-xs gap-1.5 font-semibold"
+                onClick={() => setIsEditingCraftDetails(true)}
+              >
+                <Edit2 className="w-3 h-3" /> Edit
+              </Button>
+            )}
+          </div>
+        )}
+        {section === "profile" && (
+          <Button
+            size="sm"
+            className="h-8 px-3 text-xs gap-1.5 font-semibold"
+            onClick={handleSaveProfile}
+            disabled={savingProfile}
+          >
+            <Check className="w-3.5 h-3.5" /> {savingProfile ? "Saving…" : "Save"}
+          </Button>
+        )}
         {section !== "main" && (
           <AnimatePresence>
             {saved && (
@@ -578,6 +696,7 @@ export function Settings() {
                 ) : (
                   <>
                     <ListItem label="Profile" icon={User} onClick={() => setSection("profile")} />
+                    <ListItem label="Personal & Craft Details" icon={Sparkles} onClick={() => setSection("craft_details")} />
                     <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
                     <ListItem label="Payment details" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
@@ -688,45 +807,6 @@ export function Settings() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Top Action & Mode Bar */}
-                  <div
-                    className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border"
-                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        variant={isEditingProfile ? "primary" : "secondary"}
-                        className="h-9 px-3.5 text-xs gap-2 font-semibold"
-                        onClick={() => setIsEditingProfile(!isEditingProfile)}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        {isEditingProfile ? "Preview Mode" : "Edit Profile"}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="h-9 px-3.5 text-xs gap-2 font-semibold"
-                        onClick={() => setShowShare(true)}
-                      >
-                        <Share2 className="w-3.5 h-3.5" /> Share Profile
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="h-9 px-3.5 text-xs gap-2 font-semibold hidden sm:inline-flex"
-                        onClick={() => navigate("/storefront/emeka")}
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" /> View Public Storefront
-                      </Button>
-                    </div>
-                    <Button
-                      className="h-9 px-4 text-xs gap-1.5 font-semibold"
-                      onClick={handleSaveProfile}
-                      disabled={savingProfile}
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      {savingProfile ? "Saving…" : "Save Profile"}
-                    </Button>
-                  </div>
-
                   {/* ── Rich Performer Profile Card ── */}
                   <div
                     className="rounded-[28px] overflow-hidden border shadow-sm transition-all"
@@ -812,6 +892,14 @@ export function Settings() {
                             onClick={() => setShowShare(true)}
                           >
                             <Share2 className="w-3.5 h-3.5" /> Share
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="gap-2 text-xs h-9 hidden sm:inline-flex"
+                            onClick={() => navigate("/storefront/emeka")}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" /> Public Storefront
                           </Button>
                         </div>
                       </div>
@@ -1357,6 +1445,486 @@ export function Settings() {
                   >
                     {savingProfile ? "Saving…" : "Save Changes"}
                   </Button>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ── Personal & Craft Details (Talent Only) ── */}
+          {section === "craft_details" && !isClient && (
+            <motion.div
+              key="craft_details"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              {/* Introduction Card */}
+              <div
+                className="p-4 rounded-[var(--radius-xl)] flex items-start gap-3.5 border"
+                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold font-display" style={s.text}>
+                    Personal & Craft Persona
+                  </div>
+                  <p className="text-xs font-body mt-0.5 leading-relaxed" style={s.secondary}>
+                    Your verified legal identity, primary performance craft discipline, and Thespian AI voice and style analysis.
+                  </p>
+                </div>
+                {!isEditingCraftDetails ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 px-3 text-xs gap-1.5 shrink-0 font-semibold"
+                    onClick={() => setIsEditingCraftDetails(true)}
+                  >
+                    <Edit2 className="w-3 h-3" /> Edit Details
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="h-8 px-3 text-xs gap-1.5 shrink-0 font-semibold"
+                    onClick={handleSaveCraftDetails}
+                  >
+                    <Check className="w-3.5 h-3.5" /> Save Changes
+                  </Button>
+                )}
+              </div>
+
+              {!isEditingCraftDetails ? (
+                /* ── Read-Only State (Simple, Clean, FAANG UX) ── */
+                <div className="space-y-5">
+                  {/* Card 1: Basic Information */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-4"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
+                        Basic Information
+                      </span>
+                      <span className="text-[11px] font-semibold text-[var(--color-success)] flex items-center gap-1 font-body">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified Identity
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                      <div>
+                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
+                          Gender
+                        </div>
+                        <div className="text-sm font-semibold font-body" style={s.text}>
+                          {gender}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
+                          Date of Birth
+                        </div>
+                        <div className="text-sm font-semibold font-mono tnum flex items-center gap-1.5" style={s.text}>
+                          <CalendarIcon className="w-3.5 h-3.5 text-[var(--color-text-tertiary)]" />
+                          <span>{dob}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
+                          Location
+                        </div>
+                        <div className="text-sm font-semibold font-body flex items-center gap-1.5" style={s.text}>
+                          <MapPin className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                          <span>{craftLocation ? `${craftLocation}, Nigeria` : "Lagos, Nigeria"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Primary Craft */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-3"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
+                        Primary Craft
+                      </span>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-body">
+                        Core Discipline
+                      </span>
+                    </div>
+
+                    {(() => {
+                      const craftItem = CRAFT_CATEGORIES.find((c) => c.id === selectedCraft) || CRAFT_CATEGORIES[0];
+                      const CraftIcon = craftItem.icon;
+                      return (
+                        <div className="flex items-center gap-3.5 pt-1">
+                          <div
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border"
+                            style={{
+                              background: "var(--color-accent-soft)",
+                              borderColor: "var(--color-hairline)",
+                              color: "var(--color-accent)",
+                            }}
+                          >
+                            <CraftIcon className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <div className="text-base font-bold font-display" style={s.text}>
+                              {craftItem.label}
+                            </div>
+                            <div className="text-xs font-body" style={s.secondary}>
+                              {craftItem.desc}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Card 3: Performance Persona & Style Tags */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-4"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
+                        Thespian AI Performance Summary
+                      </span>
+                      <span className="text-[11px] font-semibold text-[var(--color-text-tertiary)] flex items-center gap-1 font-body">
+                        <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" /> AI Extracted
+                      </span>
+                    </div>
+
+                    <div
+                      className="p-4 rounded-xl text-xs font-body leading-relaxed border italic"
+                      style={{
+                        background: "var(--color-bg-elevated)",
+                        borderColor: "var(--color-hairline)",
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      &ldquo;{performanceSummary}&rdquo;
+                    </div>
+
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] mb-2.5">
+                        Style & Profile Tags ({craftTags.length})
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {craftTags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-3 py-1 rounded-full text-xs font-semibold font-body border"
+                            style={{
+                              background: "var(--color-accent-soft)",
+                              borderColor: "var(--color-accent)",
+                              color: "var(--color-accent)",
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Edit Action */}
+                  <Button
+                    variant="secondary"
+                    className="w-full h-11 text-xs font-semibold gap-2 border"
+                    onClick={() => setIsEditingCraftDetails(true)}
+                  >
+                    <Edit2 className="w-3.5 h-3.5" /> Edit Personal & Craft Details
+                  </Button>
+                </div>
+              ) : (
+                /* ── Edit State (Matching Screenshots 1, 2, 3) ── */
+                <div className="space-y-6">
+                  {/* 1. Basic Details (Gender, DOB, Location) */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-4"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div>
+                      <h3 className="font-display text-lg font-bold" style={s.text}>
+                        Tell us about yourself
+                      </h3>
+                      <p className="text-xs font-body mt-0.5" style={s.secondary}>
+                        Enter your basic details to personalize your profile.
+                      </p>
+                    </div>
+
+                    {/* Gender Segmented Pill Buttons */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] block mb-2">
+                        Gender
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {["Female", "Male"].map((opt) => {
+                          const isSel = gender.toLowerCase() === opt.toLowerCase();
+                          return (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setGender(opt)}
+                              className={`h-12 rounded-[16px] text-sm font-semibold transition-all border ${
+                                isSel
+                                  ? "border-[#F13030] bg-[#F13030]/10 text-[#F13030] shadow-sm"
+                                  : "border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                              }`}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Date of Birth */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] block mb-2">
+                        Date of Birth
+                      </label>
+                      <div className="relative">
+                        <CalendarIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)] pointer-events-none" />
+                        <Input
+                          type="date"
+                          value={dob}
+                          onChange={(e) => setDob(e.target.value)}
+                          className="pl-10 h-12 text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Location */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] block mb-2">
+                        Location
+                      </label>
+                      <div className="relative">
+                        <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)] pointer-events-none" />
+                        <select
+                          value={craftLocation}
+                          onChange={(e) => setCraftLocation(e.target.value)}
+                          className="w-full h-12 pl-10 pr-4 rounded-[var(--radius-lg)] border text-sm font-body outline-none appearance-none cursor-pointer"
+                          style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                        >
+                          {CRAFT_NIGERIAN_CITIES.map((city) => (
+                            <option key={city} value={city}>
+                              {city}, Nigeria
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Craft Selection (What best describes your craft?) */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-4"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div>
+                      <h3 className="font-display text-lg font-bold" style={s.text}>
+                        What best describes your craft?
+                      </h3>
+                      <p className="text-xs font-body mt-0.5" style={s.secondary}>
+                        Select your primary craft to personalize your profile and casting filters.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {CRAFT_CATEGORIES.map((craft) => {
+                        const isSel = selectedCraft.toLowerCase() === craft.id.toLowerCase();
+                        const CraftIcon = craft.icon;
+                        return (
+                          <button
+                            key={craft.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCraft(craft.id);
+                              if (CRAFT_DEFAULT_SUMMARIES[craft.id]) {
+                                setPerformanceSummary(CRAFT_DEFAULT_SUMMARIES[craft.id]);
+                              }
+                            }}
+                            className={`p-4 rounded-[20px] text-center flex flex-col items-center justify-center gap-2.5 transition-all relative border min-h-[110px] ${
+                              isSel
+                                ? "border-[#F13030] bg-[#F13030]/10 text-[#F13030] shadow-sm shadow-[#F13030]/10"
+                                : "border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-zinc-300"
+                            }`}
+                          >
+                            {isSel && (
+                              <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#F13030] text-white flex items-center justify-center">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                              </div>
+                            )}
+                            <CraftIcon className={`w-7 h-7 ${isSel ? "text-[#F13030]" : "opacity-75"}`} />
+                            <span className="text-xs font-bold font-body">{craft.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 3. Performance Summary & Style Tags */}
+                  <div
+                    className="rounded-[var(--radius-xl)] p-5 border space-y-4"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div>
+                      <h3 className="font-display text-lg font-bold" style={s.text}>
+                        Your style tags are ready.
+                      </h3>
+                      <p className="text-xs font-body mt-0.5" style={s.secondary}>
+                        Based on your upload, Thespian AI has extracted your performance summary and style tags.
+                      </p>
+                    </div>
+
+                    {/* Performance Summary Textarea */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
+                          Performance Summary
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const summary = CRAFT_DEFAULT_SUMMARIES[selectedCraft] || CRAFT_DEFAULT_SUMMARIES.actors;
+                            setPerformanceSummary(summary);
+                          }}
+                          className="text-[11px] text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] flex items-center gap-1 font-body transition-colors"
+                        >
+                          <RotateCcw className="w-3 h-3" /> Reset
+                        </button>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={performanceSummary}
+                        onChange={(e) => setPerformanceSummary(e.target.value)}
+                        className="w-full text-xs font-body leading-relaxed p-3 rounded-[var(--radius-md)] border outline-none resize-none"
+                        style={{ ...s.elevated, color: "var(--color-text-primary)", borderColor: "var(--color-hairline)" }}
+                        placeholder="Edit your performance summary..."
+                      />
+                    </div>
+
+                    {/* Active Style Tags */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] block mb-2">
+                        Profile Tags ({craftTags.length}/7)
+                      </label>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {craftTags.map((tag, idx) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold font-body border"
+                            style={{
+                              background: "var(--color-accent-soft)",
+                              borderColor: "var(--color-accent)",
+                              color: "var(--color-accent)",
+                            }}
+                          >
+                            <span>{tag}</span>
+                            <button
+                              type="button"
+                              onClick={() => setCraftTags(craftTags.filter((_, i) => i !== idx))}
+                              className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+                              aria-label={`Remove tag ${tag}`}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Suggested Tags */}
+                      <div className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] mb-2">
+                        Suggested
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {CRAFT_SUGGESTED_TAGS.filter((t) => !craftTags.includes(t)).map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => {
+                              if (craftTags.length < 7) {
+                                setCraftTags([...craftTags, suggestion]);
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-full text-xs font-body border hover:border-[var(--color-accent)] transition-all flex items-center gap-1"
+                            style={{
+                              background: "var(--color-bg-elevated)",
+                              borderColor: "var(--color-hairline)",
+                              color: "var(--color-text-secondary)",
+                            }}
+                          >
+                            <Plus className="w-3 h-3 text-[var(--color-text-tertiary)]" /> {suggestion}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Custom Tag Input */}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newCraftTagInput}
+                          onChange={(e) => setNewCraftTagInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const val = newCraftTagInput.trim();
+                              if (val && craftTags.length < 7 && !craftTags.includes(val)) {
+                                setCraftTags([...craftTags, val]);
+                                setNewCraftTagInput("");
+                              }
+                            }
+                          }}
+                          placeholder="Add a custom tag..."
+                          className="h-10 text-xs flex-1"
+                        />
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="h-10 px-3 text-xs gap-1 shrink-0 font-semibold"
+                          onClick={() => {
+                            const val = newCraftTagInput.trim();
+                            if (val && craftTags.length < 7 && !craftTags.includes(val)) {
+                              setCraftTags([...craftTags, val]);
+                              setNewCraftTagInput("");
+                            }
+                          }}
+                          disabled={!newCraftTagInput.trim() || craftTags.length >= 7}
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <Button
+                      variant="secondary"
+                      className="flex-1 h-12 text-sm font-semibold"
+                      onClick={() => setIsEditingCraftDetails(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="flex-1 h-12 text-sm font-semibold gap-1.5"
+                      onClick={handleSaveCraftDetails}
+                    >
+                      <Check className="w-4 h-4" /> Save Changes
+                    </Button>
+                  </div>
                 </div>
               )}
             </motion.div>

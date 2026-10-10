@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
+**Last updated:** 2026-10-10 (Session 110: Dedicated Settings Option for Personal & Craft Details [Read-Only Default with Interactive Edit Mode] and Redundant Profile Action Buttons Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 110 (2026-10-10) — Dedicated Settings Option for Personal & Craft Details (Read-Only Default with Interactive Edit Mode) and Redundant Profile Action Buttons Removal
+
+**Goal:** Provide a dedicated option under Settings called **Personal & Craft Details** to store onboarding information (Gender, Date of Birth, Location, Primary Craft, Thespian AI Performance Summary, Style/Profile Tags) distinct from the storefront Profile, designed with clean FAANG read-only simplicity by default and an interactive edit mode; and eliminate the redundant floating button bar on top of the profile editor.
+
+1. **Dedicated Settings Section — "Personal & Craft Details" (`Settings.tsx`):**
+   - Added `Personal & Craft Details` with `Sparkles` icon under the `Account` section in Settings.
+   - Preserves a clean separation of concerns:
+     - **Profile**: Public storefront showcase editor (banner, headline, rate cards, audition reels, photo gallery, client reviews).
+     - **Personal & Craft Details**: Performer identity & craft persona configured during onboarding (Basic details, Primary craft, AI Performance Summary, Style tags).
+     - **Physical Attributes**: Specialized physical traits for casting (Height, Weight, Build, Complexion, etc.).
+   - **Read-Only Mode by Default (FAANG UX Simplicity):**
+     - Opens in clean, calm, read-only layout displaying 3 grouped cards:
+       1. **Basic Information**: Gender (`Female` / `Male`), Date of Birth (`2000-05-15`), Location (`Ikeja, Lagos, Nigeria`) with verified identity indicator.
+       2. **Primary Craft**: Core discipline with category icon (Drama mask, AudioLines, Mic, Laugh, Headphones, Video) and description.
+       3. **Performance Persona (Thespian AI)**: Stylized quote block with AI summary and active style tag pills (`Warm Texture`, `Conversational`, `Expressive`, `High Energy`).
+     - Includes a top/bottom "Edit Details" action button to toggle into edit mode.
+   - **Interactive Edit Mode:**
+     - Allows updating Gender (Female / Male segmented pills matching Screenshot 1).
+     - Allows picking Date of Birth with calendar icon input.
+     - Allows selecting Nigerian location / city.
+     - Allows selecting Primary Craft from interactive 6-category grid (Actors, Public speakers, Comperes, Comedians, Artists, Creators) matching Screenshot 2.
+     - Allows editing Performance Summary with "Reset to AI Default" button matching Screenshot 3.
+     - Allows managing Profile Tags (remove with `×`, click suggested tags with `+`, add custom tags) matching Screenshot 3.
+     - Cancel and Save Changes actions, syncing updates directly to `appStateSync.updateTalentProfile(...)`.
+
+2. **Removal of Redundant Profile Buttons on Top (`Settings.tsx`):**
+   - Completely removed the redundant floating action bar (`[Edit Profile] [Share Profile] [View Public Storefront] [Save Profile]`) that hovered awkwardly above the profile hero cover banner.
+   - Re-architected actions like a senior FAANG UX designer:
+     - The profile cover banner now starts cleanly and immediately at the top of the content area.
+     - Actions are unified on the profile card header opposite the avatar: `[Preview Profile / Edit Profile]`, `[Share]`, and `[Public Storefront]`.
+     - The persistent sticky header at the top right now provides the direct, always-accessible `[Save]` CTA.
+
+3. **State Sync & Persistence (`state-sync.ts`, `CreatorOnboarding.tsx`):**
+   - Extended `TalentProfileState` and `DEFAULT_TALENT_PROFILE` to persist `gender`, `dob`, `craft`, `performanceSummary`, and `craftTags`.
+   - Updated `CreatorOnboarding.tsx` finish handler to sync all 5 personal & craft attributes into `appStateSync.updateTalentProfile`.
+
+4. **Testing, Build, and Distribution:**
+   - Added unit test suite in `Settings.test.tsx` verifying Personal & Craft Details navigation, default read-only display, edit mode updates, and verification that redundant buttons are removed.
+   - Verified 100% clean TypeScript check (`tsc --noEmit`) and all 24 web test suites passing (107/107 tests).
+   - Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.50 MB).
 
 ---
 

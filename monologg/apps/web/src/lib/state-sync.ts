@@ -4,6 +4,11 @@ import type { Project, ServiceRateCard, Transaction, SupportTicket, Applicant } 
 export interface TalentProfileState {
   name: string;
   email: string;
+  gender?: string;
+  dob?: string;
+  craft?: string;
+  performanceSummary?: string;
+  craftTags?: string[];
   stageTitle?: string;
   bio: string;
   location: string;
@@ -76,6 +81,11 @@ const STORAGE_KEYS = {
 const DEFAULT_TALENT_PROFILE: TalentProfileState = {
   name: "Emeka Johnson",
   email: "emeka@example.com",
+  gender: "Female",
+  dob: "2000-05-15",
+  craft: "actors",
+  performanceSummary: "Dynamic and expressive screen actor with commanding emotional range, natural comedic timing, and resonant vocal presence. Well-suited for dramatic feature films, commercial voice-overs, and stage productions.",
+  craftTags: ["Warm Texture", "Conversational", "Expressive", "High Energy"],
   stageTitle: "Actor & Voice Artist",
   bio: "Specializing in intense dramatic monologues, voice-overs, and Nollywood screen roles. 10+ years stage and screen experience in Lagos.",
   location: "Lagos, Nigeria",

@@ -387,3 +387,69 @@ describe("Settings — security section", () => {
     expect(screen.getByText("Sign Out & Return to Home")).toBeInTheDocument();
   });
 });
+
+describe("Settings — personal & craft details section and profile button cleanup", () => {
+  it("renders Personal & Craft Details option and displays clean read-only info by default", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    // Open Personal & Craft Details
+    const craftItem = screen.getByText("Personal & Craft Details");
+    expect(craftItem).toBeInTheDocument();
+    fireEvent.click(craftItem);
+
+    // Verify Read-Only Mode contents
+    await screen.findByText("Personal & Craft Persona");
+    expect(screen.getByText("Basic Information")).toBeInTheDocument();
+    expect(screen.getByText("Female")).toBeInTheDocument();
+    expect(screen.getByText("2000-05-15")).toBeInTheDocument();
+    expect(screen.getByText(/Ikeja/i)).toBeInTheDocument();
+    expect(screen.getByText("Primary Craft")).toBeInTheDocument();
+    expect(screen.getByText("Actors")).toBeInTheDocument();
+    expect(screen.getByText("Thespian AI Performance Summary")).toBeInTheDocument();
+    expect(screen.getByText("Edit Details")).toBeInTheDocument();
+
+    // Toggle to edit mode
+    fireEvent.click(screen.getByText("Edit Details"));
+    await screen.findByText("Tell us about yourself");
+    expect(screen.getByText("What best describes your craft?")).toBeInTheDocument();
+    expect(screen.getByText("Your style tags are ready.")).toBeInTheDocument();
+
+    // Switch gender to Male
+    fireEvent.click(screen.getByRole("button", { name: "Male" }));
+
+    // Click Save Changes
+    const saveBtns = screen.getAllByRole("button", { name: /Save Changes/i });
+    fireEvent.click(saveBtns[0]);
+
+    // Returns to read-only view with updated gender
+    await screen.findByText("Personal & Craft Persona");
+    expect(screen.getByText("Male")).toBeInTheDocument();
+  });
+
+  it("edit profile: top of profile has no redundant buttons bar", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    // Open Profile
+    fireEvent.click(screen.getByText("Profile"));
+    await screen.findByText("Share");
+
+    // The redundant top action bar with "Preview Mode" and "Share Profile" was removed
+    expect(screen.queryByText("Preview Mode")).not.toBeInTheDocument();
+    expect(screen.queryByText("Share Profile")).not.toBeInTheDocument();
+
+    // The card action cluster has clean "Preview Profile" and "Share"
+    expect(screen.getByText("Preview Profile")).toBeInTheDocument();
+    expect(screen.getByText("Share")).toBeInTheDocument();
+  });
+});
+

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
+**Last updated:** 2026-10-10 (Session 110: Dedicated Settings Option for Personal & Craft Details [Read-Only Default with Interactive Edit Mode] and Redundant Profile Action Buttons Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 58. Missing dedicated settings section for onboarding personal & craft details and redundant buttons bar hovering above edit profile
+- **Severity:** Low / Information Architecture & UX Redundancy
+- **What happened:** In `Settings.tsx`, basic onboarding details (Gender, Date of Birth, Location, Primary Craft, Thespian AI Performance Summary, and Style Tags) had no dedicated destination in Settings where performers could inspect them in a simple read-only manner. Performers only had the public storefront editor under "Profile". In addition, the Edit Profile screen featured a floating button bar (`[Edit Profile] [Share Profile] [View Public Storefront] [Save Profile]`) directly above the profile banner that duplicated the actions situated immediately below on the profile header itself.
+- **Root Cause:** Conflation of public storefront showcase with personal performer persona; redundant duplication of header action buttons in an auxiliary container.
+- **Resolution:** Added a dedicated **Personal & Craft Details** section in Settings with a clean read-only view by default (Basic details, Primary craft with icon, AI summary quotation block, and style tag pills) alongside an interactive Edit Mode. Removed the redundant top action bar above the profile cover banner, harmonizing action controls beside the performer avatar and placing the Save CTA directly in the sticky top navbar.
 
 ### 57. Redundant sub-badges on filter tabs and duplicate fee breakdown row on feed cards
 - **Severity:** Low / Visual Clutter & Information Architecture

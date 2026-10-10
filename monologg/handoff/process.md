@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-10 (Session 109: Minimalist Filter Taxonomy Chips & Clutter-Free Ledger Feed Cards)
+**Last updated:** 2026-10-10 (Session 110: Dedicated Personal & Craft Details Section in Settings and Profile Header Button Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -506,6 +506,25 @@ Refined `TransactionHistory.tsx` for optimal scannability and minimal visual noi
 - **Clutter-Free Ledger Feed Cards:** Removed the secondary breakdown footer row (`Paid to ... Base ... Fee ... Ref: ...`) from all feed cards. Cards now feature a streamlined single-tier layout focused on the core transaction identifiers (State Icon, Booking ID, Category/Time, Amount, and Status Badge).
 - **Consolidated Modal Details:** Kept the complete breakdown (Gig Price, Platform Fee, You Receive, Destination/Bank, Date, and plain-English explanation) inside the transaction detail modal, accessed by tapping any card.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined updated assets into `monologg/monologg-app.html` (1.49 MB).
+
+---
+
+### Step 110: Dedicated Personal & Craft Details Section in Settings and Profile Header Button Removal (Session 110)
+
+Addressed performer settings architecture and profile editing UX by decoupling raw onboarding performer credentials from the public storefront and eliminating redundant floating profile controls:
+- **Separation of Profile vs Personal Identity:** Performers have two distinct mental models: their public storefront showcase (`Profile`: media kit, rate cards, audition reels, bio, client reviews) and their performer legal identity & AI profile (`Personal & Craft Details`: gender, date of birth, location, primary discipline, Thespian AI performance summary, style tags).
+- **Personal & Craft Details Section:** Created a dedicated section in `Settings.tsx` (accessible under the Account menu with a `Sparkles` icon):
+  - *Read-Only Mode (Default):* Displays three curated cards with clean typography:
+    1. **Basic Information:** Gender pill (`Female` / `Male`), Date of Birth (`2000-05-15`), Location (`Ikeja, Lagos, Nigeria`) with verified identity indicator and edit pencil action.
+    2. **Primary Craft:** Selected discipline card featuring craft iconography (Drama mask, AudioLines, Mic, Laugh, Headphones, Video), title, and discipline badge.
+    3. **Performance Persona:** Editorial quote block containing the Thespian AI summary alongside active style tag pills (`Warm Texture`, `Conversational`, `Expressive`, `High Energy`).
+    4. *Full-width footer CTA:* `Edit Personal & Craft Details` button to switch into edit mode with one click.
+  - *Interactive Edit Mode:* Allows quick inline updates to binary gender pills, birthdate picker, location selector with Nigerian cities dropdown, 6-craft visual selection grid, AI summary textarea with reset button, and interactive tag manager (add custom, pick suggestions, remove with `×`). Persists updates via `appStateSync.updateTalentProfile()`.
+- **FAANG UX Profile Header Cleanup:** Removed the redundant floating button bar (`[Edit Profile] [Share Profile] [View Public Storefront] [Save Profile]`) positioned awkwardly above the cover photo banner on the Edit Profile page. Consolidated all controls into standard consumer tech patterns (Instagram / Twitter / Apple Settings):
+  - Primary `Save Changes` action lives persistently in the top sticky navbar.
+  - Contextual storefront controls (`Preview/Edit`, `Share`, `View Public Storefront`) live directly on the profile card header next to the avatar circle.
+- **Onboarding & State Synchronization:** Updated `CreatorOnboarding.tsx` to sync gender, DOB, craft, AI performance summary, and tags into `appStateSync`, and updated `TalentProfileState` types.
+- **Standalone Distribution Inlining:** Re-compiled standalone bundle and inlined fresh bundle into `monologg/monologg-app.html` (1.50 MB).
 
 ---
 

@@ -1177,6 +1177,11 @@ export function CreatorOnboarding() {
                     location: location ? `${location}, Nigeria` : "Lagos, Nigeria",
                     bio: aiSummary || undefined,
                     tags: tags.length > 0 ? tags : undefined,
+                    gender,
+                    dob,
+                    craft: selectedNiche || "actors",
+                    performanceSummary: aiSummary || undefined,
+                    craftTags: tags.length > 0 ? tags : undefined,
                   });
                   navigate("/dashboard");
                 }}
