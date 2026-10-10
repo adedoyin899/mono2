@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
+**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 56. Complex legalistic jargon in modal, status badge terminology mismatch, and text-dense ledger cards
+- **Severity:** Low / Visual Hierarchy & Readability Polish
+- **What happened:** In `TransactionHistory.tsx`, status badges on transaction cards used legacy terms like "Released" and "In Escrow" instead of the user's explicit simplified terminology (`Success` for payouts, `Pending` for escrow, and `Settled` or `In Review` for disputes). Furthermore, the transaction cards lacked quick scannability with no dedicated state icons, and the detail invoice modal used dense legalistic phrases ("arbitration concluded", "automated ledger settlement", "milestone deliverables incomplete") rather than simple, transparent everyday language.
+- **Root Cause:** Legacy badge terminology mapping and verbose copy in earlier iteration templates.
+- **Resolution:** Updated `STATE_META` to map `RELEASED` to `Success`, escrow states to `Pending`, `REFUNDED` to `Settled`, and `REFUNDING` to `In Review`. Redesigned cards with 40px rounded state icons (`CheckCircle2`, `Clock`, `AlertCircle`, `RotateCcw`), bold left-right hierarchy, and a clean secondary context footer. Rewrote the detail modal copy into direct, human 1-sentence explanations (e.g., *"Booking was cancelled. Money was refunded to the client. You received ₦0."*) focusing strictly on essential figures.
 
 ### 55. Static hardcoded balance card, redundant withdrawal CTA on performer history, and ambiguous dispute accounting
 - **Severity:** Medium / Financial Ledger UX & Telemetry Accuracy

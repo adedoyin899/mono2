@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
+**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -479,6 +479,23 @@ Addressed user feedback targeting the Client Reviews modal layout and Settings p
 - **FAANG Dispute & Refund Ledger Clarity:** Established clear directional accounting for disputes (`In Review` = pending arbitration with frozen escrow; `Refunded to Client` = ₦0 net earnings to performer with `↩` directional indicator; `Released` = awarded in talent's favor with `+` indicator), supported by transparency banners in the invoice modal.
 - **Seed Fixtures & Data Sync:** Enriched `TRANSACTIONS` with 8 completed payouts totaling exactly ₦1,420,000, plus active escrow holdings and dispute cases; merged seed items into `state-sync.ts`.
 - **Standalone Distribution Inlining:** Re-compiled standalone bundle and updated single-file executable `monologg-app.html` (1.49 MB).
+
+---
+
+### Step 108: Status Taxonomy Simplification, Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal (Session 108)
+
+Refined the visual hierarchy, microcopy, and status taxonomy of `TransactionHistory.tsx` to align with clear, jargon-free marketplace conventions:
+- **Simplified Status Taxonomy:** Standardized card status chips to match user-specified conventions:
+  - Payout transactions (`RELEASED`) badge as **`Success`** (emerald).
+  - Escrow holdings (`ESCROW_HELD`, `AUTHORIZED`, `INITIATED`) badge as **`Pending`** (amber).
+  - Settled refunds (`REFUNDED`) badge as **`Settled`** (red).
+  - Disputes under arbitration (`REFUNDING`) badge as **`In Review`** (purple).
+  - Maintained 1:1 visual parity with filter pill sub-labels (`All 3`, `Success`, `Pending`, `Settled / In Review`).
+- **Scannable Card Information Hierarchy:** Restructured transaction cards into two distinct visual tiers:
+  - *Tier 1 (Instant Scan):* Left side features a 40px rounded, color-coded icon (`CheckCircle2`, `Clock`, `AlertCircle`, `RotateCcw`) paired with bold Booking ID and relative time; right side displays prominent bold amount (`+₦100,000`, `↩ ₦45,000`, `⏳ ₦35,000`) and the status badge.
+  - *Tier 2 (Context Strip):* Bottom section contains a single-line, jargon-free summary (`Paid to Access Bank Plc`, `Refunded to client • You received ₦0`, `Held in escrow • Paid when work is approved`) and clean base/fee/provider-ref metrics.
+- **Jargon-Free Detail Modal:** Replaced complex arbitration jargon with direct, 1-sentence explanations and focused the details breakdown strictly on required figures: Booking, Type, Gig Price, Platform Fee, You Receive (`₦0` for refunded disputes), Reference/Bank, and Date.
+- **Standalone Distribution Inlining:** Built standalone bundle and re-inlined into `monologg/monologg-app.html` (1.49 MB).
 
 ---
 

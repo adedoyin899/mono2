@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronLeft, Receipt, X, Download, CheckCircle2, ShieldCheck, AlertCircle, Clock } from "lucide-react";
+import { ChevronLeft, Receipt, X, Download, CheckCircle2, ShieldCheck, AlertCircle, Clock, RotateCcw } from "lucide-react";
 import { apiClient } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
 import { Badge } from "../components/ui/Badge";
@@ -20,19 +20,23 @@ interface CategoryTab {
 
 const CATEGORY_TABS: CategoryTab[] = [
   { id: "ALL", label: "All", badge: "All 3", description: "All platform transactions across every status" },
-  { id: "PAYOUT", label: "Payout", badge: "Success", description: "Successfully released payouts transferred to your bank" },
-  { id: "ESCROW", label: "Escrow", badge: "Pending", description: "Active contract funds locked safely in Monologg escrow" },
+  { id: "PAYOUT", label: "Payout", badge: "Success", description: "Completed payouts transferred to your bank" },
+  { id: "ESCROW", label: "Escrow", badge: "Pending", description: "Funds locked safely in Monologg escrow" },
   { id: "DISPUTE", label: "Dispute", badge: "Settled / In Review", description: "Contracts under mediation or settled via dispute resolution" },
 ];
 
+// Clean, human-friendly status taxonomy:
+// - Payout: "Success"
+// - Escrow: "Pending"
+// - Dispute: "Settled" (or "In Review")
 const STATE_META: Record<Transaction["state"], { label: string; tone: "success" | "accent" | "error" | "warning" | "neutral" }> = {
-  INITIATED: { label: "Initiated", tone: "neutral" },
-  AUTHORIZED: { label: "Authorized", tone: "accent" },
-  ESCROW_HELD: { label: "In Escrow", tone: "accent" },
-  RELEASING: { label: "Releasing", tone: "warning" },
-  RELEASED: { label: "Released", tone: "success" },
+  INITIATED: { label: "Pending", tone: "warning" },
+  AUTHORIZED: { label: "Pending", tone: "warning" },
+  ESCROW_HELD: { label: "Pending", tone: "warning" },
+  RELEASING: { label: "Processing", tone: "warning" },
+  RELEASED: { label: "Success", tone: "success" },
   REFUNDING: { label: "In Review", tone: "warning" },
-  REFUNDED: { label: "Refunded to Client", tone: "error" },
+  REFUNDED: { label: "Settled", tone: "error" },
   FAILED: { label: "Failed", tone: "error" },
 };
 
@@ -68,10 +72,10 @@ export function TransactionHistory() {
   // Source pool for metrics and category filtering
   const sourcePool = allTransactions.length > 0 ? allTransactions : transactions;
 
-  // Filter pools by FAANG Escrow Taxonomy:
-  // - Payout: Successful, released earnings disbursed to performer
-  // - Escrow: Pending funds locked in vault awaiting completion
-  // - Dispute: Disputed contracts undergoing arbitration (In Review) or settled (Refunded)
+  // Filter pools by Category Taxonomy:
+  // - Payout: Success (Released payouts)
+  // - Escrow: Pending (Escrow held funds)
+  // - Dispute: Settled or In Review
   const payoutTxns = sourcePool.filter(
     (t) => t.direction === "payout" && (t.state === "RELEASED" || t.state === "RELEASING")
   );
@@ -151,7 +155,7 @@ export function TransactionHistory() {
       </div>
 
       <div className="flex-1 px-4 sm:px-6 py-8 max-w-3xl mx-auto w-full space-y-6">
-        {/* Dynamic Financial Summary Card (Payout withdrawal CTA removed for performer) */}
+        {/* Dynamic Financial Summary Card */}
         <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
           {/* Subtle ambient lighting accent */}
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#F13030]/10 blur-3xl pointer-events-none" />
@@ -205,9 +209,9 @@ export function TransactionHistory() {
           className="sr-only"
         >
           <option value="">All statuses</option>
-          <option value="ESCROW_HELD">In Escrow</option>
-          <option value="RELEASED">Released</option>
-          <option value="REFUNDED">Refunded</option>
+          <option value="ESCROW_HELD">Pending</option>
+          <option value="RELEASED">Success</option>
+          <option value="REFUNDED">Settled</option>
           <option value="REFUNDING">In Review</option>
           <option value="FAILED">Failed</option>
         </select>
@@ -251,203 +255,250 @@ export function TransactionHistory() {
           </div>
         )}
 
-        {/* Transaction History Ledger Feed */}
+        {/* High-Hierarchy, Easy-to-Scan Transaction Ledger Feed */}
         <div className="space-y-3">
           {displayedTransactions.map((txn) => {
             const isSettledRefund = txn.state === "REFUNDED";
             const isInReview = txn.state === "REFUNDING";
-            const isEscrow = txn.state === "ESCROW_HELD" || txn.state === "AUTHORIZED";
+            const isEscrow = txn.state === "ESCROW_HELD" || txn.state === "AUTHORIZED" || txn.state === "INITIATED";
             const isReleased = txn.state === "RELEASED";
 
-            // Card heading label
-            let typeHeading = txn.direction === "payout" ? "Payout" : "Payment";
-            if (isSettledRefund) typeHeading = "Dispute · Refund to Client";
-            else if (isInReview) typeHeading = "Dispute · Under Review";
-            else if (isEscrow) typeHeading = "Escrow Contract";
+            // Clean, simple category label
+            let typeLabel = "Payout";
+            if (isSettledRefund || isInReview) typeLabel = "Dispute";
+            else if (isEscrow) typeLabel = "Escrow";
 
-            // Status Badge metadata
-            let badgeLabel = STATE_META[txn.state]?.label ?? txn.state;
+            // Status Badge metadata:
+            // Payout -> Success
+            // Escrow -> Pending
+            // Dispute -> Settled or In Review
+            let badgeLabel = STATE_META[txn.state]?.label ?? "Pending";
             let badgeTone: "success" | "accent" | "error" | "warning" | "neutral" =
               STATE_META[txn.state]?.tone ?? "neutral";
 
-            if (isSettledRefund) {
-              badgeLabel = "Refunded to Client";
-              badgeTone = "error";
+            // Directional prefix and text color
+            let amountPrefix = "";
+            let amountColor = "text-[var(--color-text-primary)]";
+            if (isReleased) {
+              amountPrefix = "+";
+              amountColor = "text-emerald-500 font-semibold";
+            } else if (isSettledRefund) {
+              amountPrefix = "↩ ";
+              amountColor = "text-zinc-400";
             } else if (isInReview) {
-              badgeLabel = "In Review";
-              badgeTone = "warning";
-            } else if (isEscrow) {
-              badgeLabel = "In Escrow";
-              badgeTone = "accent";
-            } else if (isReleased) {
-              badgeLabel = "Released";
-              badgeTone = "success";
+              amountPrefix = "⏳ ";
+              amountColor = "text-amber-500 font-semibold";
             }
 
-            // Directional amount indicator
-            let amountPrefix = "";
-            if (isReleased) amountPrefix = "+";
-            else if (isSettledRefund) amountPrefix = "↩ ";
-            else if (isEscrow || isInReview) amountPrefix = "⏳ ";
+            // Simple, plain-English status note (ZERO bogus language)
+            let simpleNote = "Paid to bank account";
+            if (txn.providerRef?.startsWith("bank-")) {
+              simpleNote = `Paid to ${txn.providerRef.replace("bank-", "")}`;
+            }
+            if (isEscrow) {
+              simpleNote = "Held in escrow • Paid when work is approved";
+            } else if (isInReview) {
+              simpleNote = "Under review • Resolves within 48 hours";
+            } else if (isSettledRefund) {
+              simpleNote = "Refunded to client • You received ₦0";
+            }
 
             return (
               <div
                 key={txn.id}
                 onClick={() => setSelectedTxn(txn)}
-                className="rounded-[var(--radius-xl)] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-all"
-                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                className="rounded-[20px] p-4.5 cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:shadow-md group space-y-3"
+                style={{ boxShadow: "var(--shadow-card)" }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold font-body" style={s.text}>
-                    {typeHeading}
-                  </span>
-                  <Badge tone={badgeTone}>{badgeLabel}</Badge>
-                </div>
-                <div className="flex items-baseline justify-between mb-1">
-                  <span className="text-xs font-body" style={s.tertiary}>Booking {txn.bookingId}</span>
-                  <span className="text-lg font-display tnum font-semibold" style={s.text}>
-                    {amountPrefix}{txn.totalAmountFormatted}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-body tnum" style={s.tertiary}>
-                  <span>Base {txn.baseAmountFormatted} · Fee {txn.feeAmountFormatted}</span>
-                  <span>{formatRelativeTime(txn.createdAt)}</span>
-                </div>
-                {/* Descriptive sub-ledger indicators for disputes */}
-                {isSettledRefund && (
-                  <div className="text-[11px] text-red-500/80 mt-1.5 flex items-center gap-1 font-body">
-                    <span>• Escrow refunded to client · Net performer earnings: ₦0</span>
+                {/* Primary Row: Left (Icon + Booking + Category) | Right (Amount + Status Badge) */}
+                <div className="flex items-center justify-between gap-3">
+                  {/* Left Column */}
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                        isReleased
+                          ? "bg-emerald-500/15 text-emerald-500"
+                          : isEscrow
+                          ? "bg-amber-500/15 text-amber-500"
+                          : isInReview
+                          ? "bg-purple-500/15 text-purple-400"
+                          : "bg-red-500/15 text-red-500"
+                      }`}
+                    >
+                      {isReleased && <CheckCircle2 className="w-5 h-5" />}
+                      {isEscrow && <Clock className="w-5 h-5" />}
+                      {isInReview && <AlertCircle className="w-5 h-5" />}
+                      {isSettledRefund && <RotateCcw className="w-5 h-5" />}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-[var(--color-text-primary)] font-display truncate">
+                        Booking {txn.bookingId}
+                      </div>
+                      <div className="text-xs text-[var(--color-text-tertiary)] flex items-center gap-1.5 mt-0.5">
+                        <span className="font-medium text-[var(--color-text-secondary)]">{typeLabel}</span>
+                        <span>•</span>
+                        <span>{formatRelativeTime(txn.createdAt)}</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-                {isInReview && (
-                  <div className="text-[11px] text-amber-500/80 mt-1.5 flex items-center gap-1 font-body">
-                    <span>• Arbitration in progress · Funds frozen in escrow</span>
+
+                  {/* Right Column: Amount + Status Chip */}
+                  <div className="text-right shrink-0">
+                    <div className={`text-base sm:text-lg font-mono tracking-tight ${amountColor}`}>
+                      {amountPrefix}{txn.totalAmountFormatted}
+                    </div>
+                    <div className="mt-1 flex justify-end">
+                      <Badge tone={badgeTone} size="sm">
+                        {badgeLabel}
+                      </Badge>
+                    </div>
                   </div>
-                )}
-                {txn.providerRef && (
-                  <div className="text-xs font-mono mt-2 truncate" style={s.tertiary}>Ref: {txn.providerRef}</div>
-                )}
+                </div>
+
+                {/* Secondary Row: Clear Simple Status Strip + Fee Breakdown */}
+                <div className="pt-2.5 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+                  <span className="truncate">{simpleNote}</span>
+                  <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] shrink-0 ml-2 flex items-center gap-2">
+                    <span>Base {txn.baseAmountFormatted}</span>
+                    <span>•</span>
+                    <span>Fee {txn.feeAmountFormatted}</span>
+                    {txn.providerRef && (
+                      <>
+                        <span>•</span>
+                        <span>Ref: {txn.providerRef}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Transaction Details & Dispute Resolution Modal */}
+      {/* Transaction Details Modal (Simple, Jargon-Free Language) */}
       <AnimatePresence>
         {selectedTxn && (
           <Modal onClose={() => setSelectedTxn(null)}>
             <motion.div
-              initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-              className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
-              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-elevated)" }}
-              onClick={e => e.stopPropagation()}
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[24px] p-6 text-[var(--color-text-primary)]"
+              style={{
+                background: "var(--color-bg-surface)",
+                border: "1px solid var(--color-hairline)",
+                boxShadow: "var(--shadow-elevated)",
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-4 border-b pb-3" style={{ borderColor: "var(--color-hairline)" }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent-glow)" }}>
-                    <CheckCircle2 className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-[var(--color-hairline)] mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      selectedTxn.state === "RELEASED"
+                        ? "bg-emerald-500/15 text-emerald-500"
+                        : selectedTxn.state === "ESCROW_HELD" || selectedTxn.state === "AUTHORIZED"
+                        ? "bg-amber-500/15 text-amber-500"
+                        : selectedTxn.state === "REFUNDING"
+                        ? "bg-purple-500/15 text-purple-400"
+                        : "bg-red-500/15 text-red-500"
+                    }`}
+                  >
+                    {selectedTxn.state === "RELEASED" && <CheckCircle2 className="w-4 h-4" />}
+                    {(selectedTxn.state === "ESCROW_HELD" || selectedTxn.state === "AUTHORIZED" || selectedTxn.state === "INITIATED") && (
+                      <Clock className="w-4 h-4" />
+                    )}
+                    {selectedTxn.state === "REFUNDING" && <AlertCircle className="w-4 h-4" />}
+                    {selectedTxn.state === "REFUNDED" && <RotateCcw className="w-4 h-4" />}
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                      {selectedTxn.state === "REFUNDED" || selectedTxn.state === "REFUNDING"
-                        ? "Dispute Resolution Invoice"
-                        : "Transaction Invoice"}
-                    </h3>
-                    <div className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{selectedTxn.id}</div>
+                    <h3 className="font-display text-base font-bold">Transaction Details</h3>
+                    <div className="text-[11px] font-mono text-[var(--color-text-tertiary)]">{selectedTxn.id}</div>
                   </div>
                 </div>
-                <button onClick={() => setSelectedTxn(null)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                <button
+                  onClick={() => setSelectedTxn(null)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--color-bg-elevated)] hover:bg-[var(--color-hairline)] transition-colors"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="text-center py-4 mb-4 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
-                <div className="text-xs font-body uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Amount</div>
-                <div className="font-display text-3xl tnum font-semibold" style={{ color: "var(--color-accent)" }}>{selectedTxn.totalAmountFormatted}</div>
-                <Badge tone={STATE_META[selectedTxn.state]?.tone ?? "neutral"} size="sm" className="mt-2">
-                  {selectedTxn.state === "REFUNDED"
-                    ? "Refunded to Client"
-                    : selectedTxn.state === "REFUNDING"
-                    ? "In Review"
-                    : STATE_META[selectedTxn.state]?.label ?? selectedTxn.state}
-                </Badge>
+              {/* Hero Amount & Simple Status Notice */}
+              <div className="text-center py-4 px-4 mb-4 rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] space-y-2">
+                <div className="text-xs uppercase tracking-wider text-[var(--color-text-tertiary)] font-medium">
+                  Total Amount
+                </div>
+                <div className="font-display text-3xl font-bold font-mono text-[var(--color-text-primary)]">
+                  {selectedTxn.totalAmountFormatted}
+                </div>
+                <div className="flex justify-center">
+                  <Badge tone={STATE_META[selectedTxn.state]?.tone ?? "neutral"} size="sm">
+                    {STATE_META[selectedTxn.state]?.label ?? "Pending"}
+                  </Badge>
+                </div>
+                {/* Plain-English summary: direct and easy to understand */}
+                <p className="text-xs text-[var(--color-text-secondary)] pt-1 max-w-xs mx-auto leading-relaxed">
+                  {selectedTxn.state === "RELEASED" && "Money sent to your bank account."}
+                  {(selectedTxn.state === "ESCROW_HELD" ||
+                    selectedTxn.state === "AUTHORIZED" ||
+                    selectedTxn.state === "INITIATED") &&
+                    "Money is held safely in escrow. You will be paid once the client approves your work."}
+                  {selectedTxn.state === "REFUNDING" &&
+                    "This booking is under dispute review. Our team will resolve it within 48 hours."}
+                  {selectedTxn.state === "REFUNDED" &&
+                    "Booking was cancelled. Money was refunded to the client. You received ₦0."}
+                </p>
               </div>
 
-              {/* Contextual Dispute / Escrow Transparency Banner */}
-              {selectedTxn.state === "REFUNDED" && (
-                <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs">
-                  <div className="font-semibold flex items-center gap-1.5 text-red-400 mb-1">
-                    <AlertCircle className="w-4 h-4" /> Dispute Settled: Refunded to Client
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    Arbitration concluded that contract milestones were incomplete or cancelled. Full escrow funds have been refunded to the client's original payment method via Paystack. Net earnings to performer: ₦0.
-                  </p>
+              {/* Simple, Clear Breakdown List */}
+              <div className="space-y-2.5 mb-6 text-xs">
+                <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Booking</span>
+                  <span className="font-semibold text-[var(--color-text-primary)] font-mono">{selectedTxn.bookingId}</span>
                 </div>
-              )}
-
-              {selectedTxn.state === "REFUNDING" && (
-                <div className="p-3 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
-                  <div className="font-semibold flex items-center gap-1.5 text-amber-400 mb-1">
-                    <Clock className="w-4 h-4" /> Dispute Case Under Review
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    This booking is actively being mediated by Monologg Escrow Arbitration. Contract funds remain frozen securely until review is completed (expected within 48h).
-                  </p>
+                <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Type</span>
+                  <span className="font-medium text-[var(--color-text-primary)] capitalize">
+                    {selectedTxn.state === "REFUNDED" || selectedTxn.state === "REFUNDING"
+                      ? "Dispute"
+                      : selectedTxn.state === "ESCROW_HELD" || selectedTxn.state === "AUTHORIZED"
+                      ? "Escrow"
+                      : "Payout"}
+                  </span>
                 </div>
-              )}
-
-              {selectedTxn.state === "ESCROW_HELD" && (
-                <div className="p-3 mb-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs">
-                  <div className="font-semibold flex items-center gap-1.5 text-indigo-400 mb-1">
-                    <ShieldCheck className="w-4 h-4" /> Monologg Escrow Vault Secured
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    Funds are deposited and safely locked in the Monologg escrow vault. Payout will be automatically released to your bank upon milestone delivery and client approval.
-                  </p>
+                <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Gig Price</span>
+                  <span className="font-mono text-[var(--color-text-primary)]">{selectedTxn.baseAmountFormatted}</span>
                 </div>
-              )}
-
-              {selectedTxn.state === "RELEASED" && (
-                <div className="p-3 mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
-                  <div className="font-semibold flex items-center gap-1.5 text-emerald-400 mb-1">
-                    <CheckCircle2 className="w-4 h-4" /> Completed Escrow Payout
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    Contract milestones were approved and escrow funds have been released to your registered bank account.
-                  </p>
+                <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Platform Fee</span>
+                  <span className="font-mono text-[var(--color-text-secondary)]">-{selectedTxn.feeAmountFormatted}</span>
                 </div>
-              )}
-
-              <div className="space-y-3 mb-6 text-xs font-body">
-                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                  <span style={{ color: "var(--color-text-tertiary)" }}>Transaction Type</span>
-                  <span className="font-semibold capitalize" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.direction}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                  <span style={{ color: "var(--color-text-tertiary)" }}>Booking Reference</span>
-                  <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.bookingId}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                  <span style={{ color: "var(--color-text-tertiary)" }}>Base Amount</span>
-                  <span className="font-mono" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.baseAmountFormatted}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                  <span style={{ color: "var(--color-text-tertiary)" }}>Platform Fee</span>
-                  <span className="font-mono" style={{ color: "var(--color-text-secondary)" }}>{selectedTxn.feeAmountFormatted}</span>
+                <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)] font-semibold">
+                  <span className="text-[var(--color-text-primary)]">You Receive</span>
+                  <span className="font-mono text-[var(--color-text-primary)]">
+                    {selectedTxn.state === "REFUNDED" ? "₦0" : selectedTxn.totalAmountFormatted}
+                  </span>
                 </div>
                 {selectedTxn.providerRef && (
-                  <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                    <span style={{ color: "var(--color-text-tertiary)" }}>Provider Ref</span>
-                    <span className="font-mono truncate max-w-[200px]" style={{ color: "var(--color-text-primary)" }}>{selectedTxn.providerRef}</span>
+                  <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)]">
+                    <span className="text-[var(--color-text-tertiary)]">Reference / Destination</span>
+                    <span className="font-mono text-[var(--color-text-primary)] truncate max-w-[200px]">
+                      {selectedTxn.providerRef.replace("bank-", "")}
+                    </span>
                   </div>
                 )}
-                <div className="flex justify-between py-1">
-                  <span style={{ color: "var(--color-text-tertiary)" }}>Date & Time</span>
-                  <span style={{ color: "var(--color-text-secondary)" }}>{formatRelativeTime(selectedTxn.createdAt)}</span>
+                <div className="flex justify-between py-1.5">
+                  <span className="text-[var(--color-text-tertiary)]">Date</span>
+                  <span className="text-[var(--color-text-secondary)]">{formatRelativeTime(selectedTxn.createdAt)}</span>
                 </div>
               </div>
 
+              {/* Modal Actions */}
               <div className="flex gap-3">
                 <Button variant="secondary" className="flex-1 h-10 text-xs gap-1.5" onClick={() => window.print()}>
                   <Download className="w-4 h-4" /> Download Receipt
@@ -463,5 +514,6 @@ export function TransactionHistory() {
     </div>
   );
 }
+
 
 

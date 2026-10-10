@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-10 (Session 107: Performer Payout Withdrawal CTA Removal, Dynamic Filter-Reflective Balance Card, and FAANG Dispute & Escrow Status UX)
+**Last updated:** 2026-10-10 (Session 108: Status Taxonomy Simplification [Success / Pending / Settled / In Review], Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 108 (2026-10-10) — Status Taxonomy Simplification (Success / Pending / Settled / In Review), Scannable Card Hierarchy, and Jargon-Free Transaction Details Modal
+
+**Goal:** Simplify financial status badge terminology across the ledger to match user specifications (`Success` for Payout, `Pending` for Escrow, `Settled` or `In Review` for Dispute); re-architect transaction cards with clean visual hierarchy for effortless scanning; and rewrite the transaction detail modal in simple, human, jargon-free plain English focusing strictly on essential information.
+
+1. **Status Taxonomy Alignment (`TransactionHistory.tsx`):**
+   - Standardized status badging:
+     - **Payout:** Displays **`Success`** badge (`RELEASED`), replacing legacy "Received" or "Released" labels.
+     - **Escrow:** Displays **`Pending`** badge (`ESCROW_HELD`, `AUTHORIZED`, `INITIATED`), replacing "In Escrow".
+     - **Dispute:** Displays **`Settled`** badge (`REFUNDED`) for completed disputes where funds were returned to the client, or **`In Review`** (`REFUNDING`) for active mediation.
+   - Preserved filter chip sub-badges (`Payout: Success`, `Escrow: Pending`, `Dispute: Settled / In Review`) to maintain complete 1:1 cognitive alignment between filter pills and displayed card status chips.
+
+2. **Scannable Card Information Hierarchy (`TransactionHistory.tsx`):**
+   - Redesigned transaction feed cards with a clean two-tier layout optimized for rapid visual scanning:
+     - **Row 1 (Primary Scan Line):**
+       - **Left:** 40px rounded, color-coded status icon (`CheckCircle2` in emerald for Success, `Clock` in amber for Pending, `AlertCircle` in purple for In Review, `RotateCcw` in red for Settled) paired with prominent bold Booking ID (`Booking ORD-001`) and category/time subtext (`Payout • 36m ago`).
+       - **Right:** High-contrast bold amount with directional prefix (`+₦100,000`, `↩ ₦45,000`, `⏳ ₦35,000`) and the clean status chip (`Success`, `Pending`, `Settled`, `In Review`).
+     - **Row 2 (Secondary Context Strip):**
+       - Bottom divider separates a clear 1-line plain-English explanation on the left (`Paid to Access Bank Plc`, `Held in escrow • Paid when work is approved`, `Under review • Resolves within 48 hours`, `Refunded to client • You received ₦0`) from the fee and reference telemetry on the right (`Base ₦120,000 • Fee ₦13,200 • Ref: ...`).
+
+3. **Jargon-Free Transaction Details Modal (`TransactionHistory.tsx`):**
+   - Stripped all verbose legalistic phrases ("arbitration concluded", "automated ledger settlement", "milestone deliverables incomplete").
+   - Added direct, human, 1-sentence explanations:
+     - Success: *"Money sent to your bank account."*
+     - Pending Escrow: *"Money is held safely in escrow. You will be paid once the client approves your work."*
+     - In Review: *"This booking is under dispute review. Our team will resolve it within 48 hours."*
+     - Settled: *"Booking was cancelled. Money was refunded to the client. You received ₦0."*
+   - Streamlined key details table strictly to core required items: Booking reference, Type (`Payout` / `Escrow` / `Dispute`), Gig Price, Platform Fee, unambiguous **You Receive** figure (`₦0` for refunded disputes, full amount for releases), Destination/Bank, and Date.
+
+4. **Testing, Build, and Distribution:**
+   - Updated `TransactionHistory.test.tsx` with 7 robust unit tests verifying status badge labels (`Success`, `Pending`, `Settled`, `In Review`), jargon-free modal messaging, and ₦0 take-home amounts.
+   - Validated entire `@monologg/web` test suite (24/24 test files passing, 105/105 tests passing) and 100% clean typecheck (`tsc --noEmit`).
+   - Re-compiled standalone bundle via `pnpm --filter @monologg/web build:standalone` and re-inlined into `monologg/monologg-app.html` (1.49 MB).
 
 ---
 

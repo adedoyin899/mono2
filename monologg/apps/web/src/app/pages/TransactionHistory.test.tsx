@@ -68,7 +68,7 @@ describe("TransactionHistory", () => {
 
     await renderPage();
 
-    await screen.findByText("₦11,500");
+    expect((await screen.findAllByText("₦11,500")).length).toBeGreaterThan(0);
     expect(screen.getByText(/Base ₦10,000/)).toBeInTheDocument();
     expect(screen.getByText("Ref: ref-live-1")).toBeInTheDocument();
   });
@@ -122,5 +122,32 @@ describe("TransactionHistory", () => {
     await screen.findByText("TOTAL DISPUTED & SETTLED FUNDS");
     expect(screen.getAllByText(/Refunded to Client/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/1 In Review \(Pending\) · 1 Settled/i)).toBeInTheDocument();
+  });
+
+  it("renders human status badges: Success for Payout, Pending for Escrow, Settled/In Review for Dispute", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+
+    await screen.findByText("Booking ORD-001");
+    // Check that card badges render modern taxonomy: Success, Pending, Settled, In Review
+    expect(screen.getAllByText("Success").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Pending").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Settled").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("In Review").length).toBeGreaterThan(0);
+  });
+
+  it("modal displays plain-English breakdown and ₦0 take-home for refunded disputes", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+
+    // Find and click on the refunded transaction card
+    const refundedCard = (await screen.findByText("Booking ORD-003")).closest("div[class*='cursor-pointer']")!;
+    fireEvent.click(refundedCard);
+
+    // Modal opens with clear, jargon-free language
+    expect(screen.getByText("Transaction Details")).toBeInTheDocument();
+    expect(screen.getByText("Booking was cancelled. Money was refunded to the client. You received ₦0.")).toBeInTheDocument();
+    expect(screen.getByText("You Receive")).toBeInTheDocument();
+    expect(screen.getByText("₦0")).toBeInTheDocument();
   });
 });
