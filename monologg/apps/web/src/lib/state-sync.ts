@@ -41,6 +41,9 @@ export interface ClientProfileState {
   location: string;
   bio: string;
   avatarUrl?: string | null;
+  website?: string;
+  targetCategories?: string[];
+  hiringFrequency?: string;
 }
 
 export interface BankDetailsState {
@@ -113,10 +116,13 @@ const DEFAULT_CLIENT_PROFILE: ClientProfileState = {
   name: "Sarah Jenkins",
   email: "sarah@filmcraft.com",
   orgName: "FilmCraft Studios",
-  orgType: "STUDIO",
+  orgType: "Production Company",
   location: "Lagos, Nigeria",
   bio: "Independent film production studio specializing in feature films and commercial casting.",
   avatarUrl: null,
+  website: "https://filmcraft.com",
+  targetCategories: ["actors"],
+  hiringFrequency: "Monthly",
 };
 
 const DEFAULT_BANK_DETAILS: BankDetailsState = {

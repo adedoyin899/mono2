@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
+**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -538,6 +538,18 @@ Refined the UX copy, naming conventions, and deletion dialog in `Settings.tsx` b
   - *Hairline Separation Divider.*
   - *Remaining Funds Guarantee:* Soft green badge with `Clock`, clear title **`Remaining Balance Sent to Bank`**, confirming remaining balance will transfer to bank (`Payout to: GTBank •••• 6789`) within 72 hours.
 - **Updated Verification & Artifacts:** Updated test suite in `Settings.test.tsx` (13/13 passing), re-compiled standalone distribution bundle, and inlined into `monologg/monologg-app.html` (1.44 MB).
+
+---
+
+### Step 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels (Slashes Removed), 6 Performer Craft Multi-Select, and Payment Step Removal (Session 112)
+
+Overhauled the client onboarding flow (`ClientOnboarding.tsx`) to eliminate friction and align with the platform's core design system:
+- **Personalized & Welcoming Step 1:** Updated title and subtitle to *"Tell us about you"* / *"Help us personalize your performer discovery experience."*
+- **Clean Field Taxonomy:** Renamed fields to **`Brand Name`** (with guidance placeholder) and **`Category`**.
+- **Removed Slashes in Category Pills:** Removed all compound slashes (`Brand / Corporate` → **`Brand`**, `Individual / Freelancer` → **`Individual`**), while preserving clean choices for `Creative Agency`, `Production Company`, `Events Company`, and `Other`.
+- **6-Craft Performer Multi-Select Grid on Step 2:** Replaced the single-field layout with an interactive multi-select grid covering all 6 core performer categories (`Actors`, `Public speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`) with selected count and checkmarks, alongside a single-select hiring frequency list (*"How often will you be hiring?"*).
+- **Elimination of Step 3 (Premature Payment Form):** Completely removed the credit-card setup step during onboarding. Clients complete onboarding in 2 fast steps and route directly to the Client Dashboard with the `Get Started` action.
+- **State Synchronization & Testing:** Updated `ClientProfileState` and `state-sync.ts` with `targetCategories` and `hiringFrequency`, authored `ClientOnboarding.test.tsx` (2/2 passing), and regenerated `monologg/monologg-app.html` (1.44 MB).
 
 ---
 

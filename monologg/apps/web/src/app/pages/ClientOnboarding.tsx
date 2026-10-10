@@ -4,26 +4,81 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
-import { ChevronLeft, Building2, Check, Users, Briefcase, Globe, ShieldCheck } from "lucide-react";
+import {
+  ChevronLeft,
+  Building2,
+  Briefcase,
+  Globe,
+  Users,
+  Check,
+  Drama,
+  AudioLines,
+  Mic,
+  Laugh,
+  Headphones,
+  Video,
+} from "lucide-react";
+import { appStateSync } from "../../lib/state-sync";
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2;
 
-const COMPANY_TYPES = [
+// Client organization types — clean labels without slashes (Brand, Individual)
+const CLIENT_CATEGORIES = [
   { id: "agency", label: "Creative Agency", icon: Building2 },
-  { id: "brand", label: "Brand / Corporate", icon: Briefcase },
+  { id: "brand", label: "Brand", icon: Briefcase },
   { id: "production", label: "Production Company", icon: Globe },
   { id: "event", label: "Events Company", icon: Users },
-  { id: "individual", label: "Individual / Freelancer", icon: Users },
+  { id: "individual", label: "Individual", icon: Users },
   { id: "other", label: "Other", icon: Globe },
+];
+
+// The 6 Performer Craft Categories (matching performer onboarding)
+const PERFORMER_CATEGORIES = [
+  { id: "actors", label: "Actors", icon: Drama },
+  { id: "public_speakers", label: "Public speakers", icon: AudioLines },
+  { id: "comperes", label: "Comperes", icon: Mic },
+  { id: "comedians", label: "Comedians", icon: Laugh },
+  { id: "artists", label: "Artists", icon: Headphones },
+  { id: "creators", label: "Creators", icon: Video },
+];
+
+const HIRING_FREQUENCIES = [
+  "Once or twice a year",
+  "Monthly",
+  "Weekly",
+  "Multiple times per week",
+  "I'm exploring",
 ];
 
 export function ClientOnboarding() {
   const [step, setStep] = useState<Step>(1);
-  const [companyName, setCompanyName] = useState("");
-  const [companyType, setCompanyType] = useState("agency");
+  const [brandName, setBrandName] = useState("");
+  const [category, setCategory] = useState("agency");
   const [website, setWebsite] = useState("");
-  const [teamSize, setTeamSize] = useState("Monthly");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(["actors"]);
+  const [hiringFrequency, setHiringFrequency] = useState("Monthly");
   const navigate = useNavigate();
+
+  const toggleCategory = (id: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(id)
+        ? prev.length > 1
+          ? prev.filter((c) => c !== id)
+          : prev
+        : [...prev, id]
+    );
+  };
+
+  const handleFinishOnboarding = () => {
+    appStateSync.updateClientProfile({
+      orgName: brandName.trim(),
+      orgType: CLIENT_CATEGORIES.find((c) => c.id === category)?.label || category,
+      website: website.trim(),
+      targetCategories: selectedCategories,
+      hiringFrequency: hiringFrequency,
+    });
+    navigate("/client");
+  };
 
   const rise = {
     initial: { opacity: 0, y: 10 },
@@ -37,18 +92,21 @@ export function ClientOnboarding() {
       className="role-client min-h-screen flex flex-col w-full max-w-[480px] mx-auto"
       style={{ background: "var(--color-bg-canvas)" }}
     >
-      {/* Header */}
+      {/* Header & Progress Indicator */}
       <div className="px-5 pt-6 pb-3 flex items-center gap-3">
         <button
           aria-label="Go back"
-          onClick={() => step === 1 ? navigate("/auth") : setStep((step - 1) as Step)}
+          onClick={() => (step === 1 ? navigate("/auth") : setStep(1))}
           className="w-10 h-10 -ml-1 flex items-center justify-center rounded-[var(--radius-full)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.94] transition-all"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <div className="flex-1 flex items-center gap-1.5">
-          {[1, 2, 3].map(s => (
-            <div key={s} className="flex-1 h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] overflow-hidden">
+        <div className="flex-1 flex items-center gap-2">
+          {[1, 2].map((s) => (
+            <div
+              key={s}
+              className="flex-1 h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] overflow-hidden"
+            >
               <motion.div
                 className="h-full rounded-[var(--radius-full)] bg-[var(--color-accent)]"
                 initial={false}
@@ -63,46 +121,54 @@ export function ClientOnboarding() {
 
       <div className="flex-1 px-5 py-5 w-full flex flex-col">
         <AnimatePresence mode="wait">
-
-          {/* Step 1 — Company Info */}
+          {/* ── Step 1: Tell us about you ── */}
           {step === 1 && (
-            <motion.div
-              key="step1"
-              {...rise}
-              className="flex-1 flex flex-col"
-            >
+            <motion.div key="step1" {...rise} className="flex-1 flex flex-col">
               <div className="mb-7">
-                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
-                  Tell us about your company
+                <h2
+                  className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  Tell us about you
                 </h2>
-                <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                <p
+                  className="text-[15px] font-body leading-relaxed"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
                   Help us personalize your performer discovery experience.
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                    Company / Organization Name
+                  <label
+                    className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Brand Name
                   </label>
                   <Input
-                    placeholder="e.g., Brand Agency NG"
-                    value={companyName}
-                    onChange={e => setCompanyName(e.target.value)}
+                    placeholder="e.g., RedTV, Nike, or your name"
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                    Type of Organization
+                  <label
+                    className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Category
                   </label>
                   <div className="grid grid-cols-2 gap-2.5">
-                    {COMPANY_TYPES.map(type => {
-                      const selected = companyType === type.id;
+                    {CLIENT_CATEGORIES.map((type) => {
+                      const selected = category === type.id;
                       return (
                         <motion.button
                           key={type.id}
-                          onClick={() => setCompanyType(type.id)}
+                          type="button"
+                          onClick={() => setCategory(type.id)}
                           whileTap={{ scale: 0.97 }}
                           className="flex items-center gap-2.5 min-h-[52px] px-3.5 py-3 rounded-[var(--radius-lg)] text-left relative transition-colors duration-[var(--duration-fast)]"
                           style={{
@@ -110,8 +176,16 @@ export function ClientOnboarding() {
                             border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-hairline)"}`,
                           }}
                         >
-                          <type.icon className="w-4 h-4 shrink-0" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-tertiary)" }} />
-                          <span className="text-[length:var(--font-size-sm)] font-body font-medium" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-primary)" }}>{type.label}</span>
+                          <type.icon
+                            className="w-4 h-4 shrink-0"
+                            style={{ color: selected ? "var(--color-accent)" : "var(--color-text-tertiary)" }}
+                          />
+                          <span
+                            className="text-[length:var(--font-size-sm)] font-body font-medium"
+                            style={{ color: selected ? "var(--color-accent)" : "var(--color-text-primary)" }}
+                          >
+                            {type.label}
+                          </span>
                           {selected && (
                             <motion.div
                               initial={{ scale: 0 }}
@@ -130,13 +204,16 @@ export function ClientOnboarding() {
                 </div>
 
                 <div>
-                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  <label
+                    className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
                     Website (optional)
                   </label>
                   <Input
                     placeholder="https://yourwebsite.com"
                     value={website}
-                    onChange={e => setWebsite(e.target.value)}
+                    onChange={(e) => setWebsite(e.target.value)}
                   />
                 </div>
               </div>
@@ -144,7 +221,7 @@ export function ClientOnboarding() {
               <div className="mt-auto pt-8 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
                 <Button
                   className="w-full"
-                  disabled={!companyName || !companyType}
+                  disabled={!brandName.trim() || !category}
                   onClick={() => setStep(2)}
                 >
                   Continue
@@ -153,127 +230,134 @@ export function ClientOnboarding() {
             </motion.div>
           )}
 
-          {/* Step 2 — Hiring Preferences */}
+          {/* ── Step 2: What are you looking for? ── */}
           {step === 2 && (
-            <motion.div
-              key="step2"
-              {...rise}
-              className="flex-1 flex flex-col"
-            >
+            <motion.div key="step2" {...rise} className="flex-1 flex flex-col">
               <div className="mb-7">
-                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
+                <h2
+                  className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
                   What are you looking for?
                 </h2>
-                <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  Help us show you the most relevant performers.
+                <p
+                  className="text-[15px] font-body leading-relaxed"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Select the performers you want to discover and how often you hire.
                 </p>
               </div>
 
-              <div>
-                <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                  How often do you hire performers?
-                </label>
-                <div className="space-y-2.5">
-                  {[
-                    "Once or twice a year",
-                    "Monthly",
-                    "Weekly",
-                    "Multiple times per week",
-                    "I'm exploring",
-                  ].map(opt => {
-                    const selected = teamSize === opt;
-                    return (
-                      <motion.button
-                        key={opt}
-                        onClick={() => setTeamSize(opt)}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full flex items-center justify-between min-h-[52px] px-4 py-3 rounded-[var(--radius-lg)] text-[15px] font-body font-medium transition-colors duration-[var(--duration-fast)]"
-                        style={{
-                          background: selected ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
-                          border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                          color: selected ? "var(--color-accent)" : "var(--color-text-primary)",
-                        }}
-                      >
-                        {opt}
-                        {selected && (
-                          <span className="w-5 h-5 rounded-[var(--radius-full)] flex items-center justify-center shrink-0" style={{ background: "var(--color-accent)" }}>
-                            <Check className="w-3 h-3" strokeWidth={3} style={{ color: "var(--color-accent-on)" }} />
+              <div className="space-y-6">
+                {/* 1. Multi-select performer categories */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <label
+                      className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider font-body"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      What category of performers are you looking for?
+                    </label>
+                    <span className="text-[11px] font-mono font-medium text-[var(--color-text-tertiary)]">
+                      {selectedCategories.length} selected
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {PERFORMER_CATEGORIES.map((cat) => {
+                      const selected = selectedCategories.includes(cat.id);
+                      return (
+                        <motion.button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => toggleCategory(cat.id)}
+                          whileTap={{ scale: 0.97 }}
+                          className="flex items-center gap-2.5 min-h-[52px] px-3.5 py-3 rounded-[var(--radius-lg)] text-left relative transition-colors duration-[var(--duration-fast)]"
+                          style={{
+                            background: selected ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                            border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                          }}
+                        >
+                          <cat.icon
+                            className="w-4 h-4 shrink-0"
+                            style={{ color: selected ? "var(--color-accent)" : "var(--color-text-tertiary)" }}
+                          />
+                          <span
+                            className="text-[length:var(--font-size-sm)] font-body font-medium"
+                            style={{ color: selected ? "var(--color-accent)" : "var(--color-text-primary)" }}
+                          >
+                            {cat.label}
                           </span>
-                        )}
-                      </motion.button>
-                    );
-                  })}
+                          {selected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                              className="absolute top-2 right-2 w-4 h-4 rounded-[var(--radius-full)] flex items-center justify-center"
+                              style={{ background: "var(--color-accent)" }}
+                            >
+                              <Check className="w-2.5 h-2.5" strokeWidth={3} style={{ color: "var(--color-accent-on)" }} />
+                            </motion.div>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Hiring frequency */}
+                <div>
+                  <label
+                    className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-3 font-body"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    How often will you be hiring?
+                  </label>
+                  <div className="space-y-2">
+                    {HIRING_FREQUENCIES.map((opt) => {
+                      const selected = hiringFrequency === opt;
+                      return (
+                        <motion.button
+                          key={opt}
+                          type="button"
+                          onClick={() => setHiringFrequency(opt)}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex items-center justify-between min-h-[48px] px-4 py-2.5 rounded-[var(--radius-lg)] text-[14px] font-body font-medium transition-colors duration-[var(--duration-fast)]"
+                          style={{
+                            background: selected ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                            border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                            color: selected ? "var(--color-accent)" : "var(--color-text-primary)",
+                          }}
+                        >
+                          <span>{opt}</span>
+                          {selected && (
+                            <span
+                              className="w-4 h-4 rounded-[var(--radius-full)] flex items-center justify-center shrink-0"
+                              style={{ background: "var(--color-accent)" }}
+                            >
+                              <Check className="w-2.5 h-2.5" strokeWidth={3} style={{ color: "var(--color-accent-on)" }} />
+                            </span>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
               <div className="mt-auto pt-8 flex gap-3 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
-                <Button variant="secondary" className="flex-1" onClick={() => setStep(1)}>Back</Button>
-                <Button className="flex-[2]" onClick={() => setStep(3)}>Continue</Button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 3 — Add Payment Method */}
-          {step === 3 && (
-            <motion.div
-              key="step3"
-              {...rise}
-              className="flex-1 flex flex-col"
-            >
-              <div className="mb-6">
-                <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] mb-2" style={{ color: "var(--color-text-primary)" }}>
-                  Set up your payment
-                </h2>
-                <p className="text-[15px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  We'll use this to secure escrow for your bookings. You're only charged when you book performers.
-                </p>
-              </div>
-
-              <div
-                className="p-4 rounded-[var(--radius-lg)] flex items-start gap-3 mb-6"
-                style={{ background: "var(--color-success-bg)" }}
-              >
-                <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "var(--color-success)" }} />
-                <p className="text-[13px] font-body leading-relaxed" style={{ color: "var(--color-success)" }}>
-                  Your payment is protected by FINCRA escrow. Funds are only charged when you confirm a booking.
-                </p>
-              </div>
-
-              <div className="rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] p-5 space-y-4">
-                <div>
-                  <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Card Number</label>
-                  <Input className="font-mono tnum" placeholder="0000 0000 0000 0000" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Expiry</label>
-                    <Input className="font-mono tnum" placeholder="MM/YY" />
-                  </div>
-                  <div>
-                    <label className="block text-[length:var(--font-size-xs)] font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>CVV</label>
-                    <Input className="font-mono tnum" type="password" placeholder="•••" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-8 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
-                <div className="flex gap-3">
-                  <Button variant="secondary" className="flex-1" onClick={() => setStep(2)}>Back</Button>
-                  <Button className="flex-[2]" onClick={() => navigate("/client")}>
-                    Get Started
-                  </Button>
-                </div>
-                <button
-                  className="w-full text-[length:var(--font-size-sm)] font-body font-medium text-center mt-4 py-2"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                  onClick={() => navigate("/client")}
+                <Button variant="secondary" className="flex-1" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+                <Button
+                  className="flex-[2]"
+                  disabled={selectedCategories.length === 0}
+                  onClick={handleFinishOnboarding}
                 >
-                  Skip for now
-                </button>
+                  Get Started
+                </Button>
               </div>
             </motion.div>
           )}
-
         </AnimatePresence>
       </div>
     </div>

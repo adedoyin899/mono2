@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
+**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 60. Premature payment collection in client onboarding, missing performer category multi-select, and slash clutter in organization types
+- **Severity:** Low / UX Flow Friction & Taxonomy Alignment
+- **What happened:** In `ClientOnboarding.tsx`, new clients were confronted on Step 3 with a mandatory credit-card form before they had browsed any talent or initiated a booking, creating high onboarding drop-off. In addition, Step 1 labels used compound slash conventions (`Brand / Corporate`, `Individual / Freelancer`) and impersonal copy ("Tell us about your company"), while Step 2 lacked discovery preference collection for the 6 core performer categories.
+- **Root Cause:** Early prototype scaffolding carried over legacy payment-first onboarding step and lacked alignment with the 6-craft performer taxonomy established in Session 81.
+- **Resolution:** Removed Step 3 entirely, condensing client onboarding to 2 focused steps. Streamlined Step 1 copy to "Tell us about you", renamed fields to "Brand Name" and "Category", and stripped all slashes (`Brand`, `Individual`). Rebuilt Step 2 with an interactive multi-select grid of all 6 platform performer craft categories paired with hiring frequency, routing directly to the Client Dashboard upon completion.
 
 ### 59. Overwhelming dual red alert boxes in Delete Account modal and overly dense settings copy
 - **Severity:** Low / Visual Overload & UX Polish

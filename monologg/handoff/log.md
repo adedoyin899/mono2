@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-10 (Session 111: Personal Details Nomenclature Simplification, Intro Copy Rework, and FAANG Delete Account Modal Redesign)
+**Last updated:** 2026-10-11 (Session 112: Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels [Slashes Removed], 6 Performer Craft Multi-Select, and Payment Step Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 112 (2026-10-11) — Client Onboarding Modernization: 2-Step Stepper, Clean Brand & Category Labels (Slashes Removed), 6 Performer Craft Multi-Select, and Payment Step Removal
+
+**Goal:** Overhaul the client onboarding flow (`ClientOnboarding.tsx`) to match the user's UX vision: rewrite copy to personal and welcoming ("Tell us about you"), rename fields to "Brand Name" and "Category", remove all slashes from category options (keeping clean "Brand" and "Individual"), add a multi-select grid for the 6 core performer categories alongside hiring frequency on Step 2, completely eliminate Step 3 (premature credit card setup), and transition to a streamlined 2-step stepper.
+
+1. **Step 1 Polish — Personalization & Clean Labels (`ClientOnboarding.tsx`):**
+   - Replaced "Tell us about your company" with **`Tell us about you`** / *"Help us personalize your performer discovery experience."*
+   - Renamed fields to **`Brand Name`** (with placeholder `e.g., RedTV, Nike, or your name`) and **`Category`**.
+   - Removed slashes across category options:
+     - `Brand / Corporate` → **`Brand`**
+     - `Individual / Freelancer` → **`Individual`**
+     - Retained clean options for `Creative Agency`, `Production Company`, `Events Company`, and `Other`.
+   - Kept `Website (optional)` field.
+
+2. **Step 2 Overhaul — 6 Performer Categories Multi-Select & Hiring Frequency (`ClientOnboarding.tsx`):**
+   - Replaced the single-field layout with 2 cohesive discovery preference fields:
+     1. **What category of performers are you looking for?**
+        - Added multi-select interactive card grid covering all 6 platform performer disciplines: `Actors` (Drama), `Public speakers` (AudioLines), `Comperes` (Mic), `Comedians` (Laugh), `Artists` (Headphones), `Creators` (Video).
+        - Includes active count indicator (`{selectedCategories.length} selected`) and purple checkmark badge.
+     2. **How often will you be hiring?**
+        - Single-select list of 5 hiring frequencies: *"Once or twice a year"*, *"Monthly"*, *"Weekly"*, *"Multiple times per week"*, *"I'm exploring"*.
+   - Replaced navigation action with **`Get Started`**, syncing client profile state (`orgName`, `orgType`, `website`, `targetCategories`, `hiringFrequency`) directly to `appStateSync.updateClientProfile` and navigating straight to `/client`.
+
+3. **Step 3 Elimination (`ClientOnboarding.tsx`):**
+   - Completely deleted the premature payment/credit-card collection step (card number, expiry, CVV, and escrow notice) from the onboarding flow.
+   - Reduced stepper count from 3 steps to 2 (`type Step = 1 | 2;`).
+
+4. **Testing, Build, and Distribution:**
+   - Authored comprehensive test suite in `ClientOnboarding.test.tsx` verifying Step 1 copy, field labels, slash-free options, Continue gating, Step 2 multi-select performer categories, frequency selection, state sync, and direct navigation to `/client`.
+   - Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.44 MB).
 
 ---
 
