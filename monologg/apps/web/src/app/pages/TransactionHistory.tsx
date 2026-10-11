@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ChevronLeft, Receipt, X, Download, CheckCircle2, ShieldCheck, AlertCircle, Clock, RotateCcw,
@@ -46,6 +46,9 @@ const STATE_META: Record<Transaction["state"], { label: string; tone: "success" 
 
 export function TransactionHistory() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get("role");
+  const isClient = roleParam === "client";
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("ALL");
@@ -99,7 +102,9 @@ export function TransactionHistory() {
     appStateSync.withdrawClientFunds(amtNaira, {
       bankName: bankDetails.bankName || "GTBank",
       accountNumber: bankDetails.accountNumber || "0123456789",
-      accountName: bankDetails.accountName || "EMEKA JOHNSON",
+      accountName: isClient
+        ? (appStateSync.getClientProfile().orgName || appStateSync.getClientProfile().name || "FilmCraft Studios")
+        : (bankDetails.accountName || "EMEKA JOHNSON"),
     });
 
     const updated = appStateSync.getTransactions();
@@ -156,20 +161,26 @@ export function TransactionHistory() {
   const totalDisputeNaira = sumNaira(disputeTxns);
 
   // Determine dynamic balance card telemetry based on selected category chip
-  let heroTitle = "TOTAL PLATFORM VOLUME";
+  let heroTitle = isClient ? "TOTAL CLIENT ESCROW & SPEND" : "TOTAL PLATFORM VOLUME";
   let heroAmount = totalAllNaira;
-  let heroSubtitle = `${sourcePool.length} Total Contracts across Payouts, Escrow & Disputes`;
+  let heroSubtitle = isClient
+    ? `${sourcePool.length} Total Contracts across Payments, Escrow & Disputes`
+    : `${sourcePool.length} Total Contracts across Payouts, Escrow & Disputes`;
 
   if (activeCategory === "PAYOUT") {
-    heroTitle = "TOTAL COMPLETED PAYOUTS";
+    heroTitle = isClient ? "TOTAL RELEASED ESCROW" : "TOTAL COMPLETED PAYOUTS";
     heroAmount = totalPayoutNaira;
-    heroSubtitle = `${payoutTxns.length} Completed Escrow Contracts Paid Out`;
+    heroSubtitle = isClient
+      ? `${payoutTxns.length} Completed Escrow Releases to Performers`
+      : `${payoutTxns.length} Completed Escrow Contracts Paid Out`;
   } else if (activeCategory === "ESCROW") {
     heroTitle = "FUNDS HELD IN ESCROW";
     heroAmount = totalEscrowNaira;
-    heroSubtitle = `${escrowTxns.length} Active Contracts Pending Delivery & Approval`;
+    heroSubtitle = isClient
+      ? `${escrowTxns.length} Active Project Contracts in Monologg Escrow`
+      : `${escrowTxns.length} Active Contracts Pending Delivery & Approval`;
   } else if (activeCategory === "DISPUTE") {
-    heroTitle = "TOTAL DISPUTED & SETTLED FUNDS";
+    heroTitle = isClient ? "TOTAL DISPUTED & REFUNDED FUNDS" : "TOTAL DISPUTED & SETTLED FUNDS";
     heroAmount = totalDisputeNaira;
     const inReviewCount = disputeTxns.filter((t) => t.state === "REFUNDING" || t.state === "INITIATED").length;
     const settledCount = disputeTxns.filter((t) => t.state === "REFUNDED").length;
@@ -207,7 +218,7 @@ export function TransactionHistory() {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="text-base font-bold font-display text-[var(--color-text-primary)]">
-            Earnings &amp; Transaction History
+            {isClient ? "Client Transactions & Escrow" : "Earnings & Transaction History"}
           </div>
         </div>
 
@@ -232,24 +243,36 @@ export function TransactionHistory() {
             </div>
           </div>
 
-          {/* Right-side Action: Withdraw Funds (Replacing Escrow Protected & Automated Ledger) */}
-          <div className="flex flex-col sm:items-end z-10 shrink-0 gap-1.5 w-full sm:w-auto">
-            <Button
-              onClick={handleOpenWithdrawal}
-              className="h-10 px-5 text-xs font-bold font-mono tracking-wide rounded-full shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto text-white whitespace-nowrap"
-              style={{
-                background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
-                boxShadow: "0 4px 14px rgba(124, 58, 237, 0.35)",
-              }}
-            >
-              <ArrowDownToLine className="w-4 h-4 shrink-0" />
-              <span>Withdraw Funds</span>
-            </Button>
-            <div className="text-[11px] text-white/50 font-mono flex items-center justify-center sm:justify-end gap-1.5 whitespace-nowrap">
-              <Clock className="w-3 h-3 text-purple-400 shrink-0" />
-              <span>Direct 24hr settlement</span>
+          {/* Right-side Action: Role-specific action and telemetry */}
+          {isClient ? (
+            <div className="flex flex-col sm:items-end z-10 shrink-0 gap-1.5 w-full sm:w-auto">
+              <Button
+                onClick={handleOpenWithdrawal}
+                className="h-10 px-5 text-xs font-bold font-mono tracking-wide rounded-full shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto text-white whitespace-nowrap"
+                style={{
+                  background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
+                  boxShadow: "0 4px 14px rgba(124, 58, 237, 0.35)",
+                }}
+              >
+                <ArrowDownToLine className="w-4 h-4 shrink-0" />
+                <span>Withdraw Funds</span>
+              </Button>
+              <div className="text-[11px] text-white/50 font-mono flex items-center justify-center sm:justify-end gap-1.5 whitespace-nowrap">
+                <Clock className="w-3 h-3 text-purple-400 shrink-0" />
+                <span>Direct 24hr settlement</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="hidden sm:flex flex-col items-end text-right z-10 shrink-0">
+              <div className="flex items-center gap-1.5 bg-[#222228] px-3.5 py-1.5 rounded-full border border-[#32323C] text-xs font-mono text-zinc-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#F13030]" />
+                <span>Escrow Protected</span>
+              </div>
+              <div className="text-[11px] text-white/40 font-mono mt-1">
+                Automated Ledger Settlement
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Accessible select control keeping compatibility with automated tests & screen readers */}

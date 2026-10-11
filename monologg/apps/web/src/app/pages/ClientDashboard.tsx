@@ -1132,9 +1132,9 @@ export function ClientDashboard() {
                           if (item.type === "project" || item.type === "application") {
                             setActiveTab("projects");
                           } else if (item.type === "payment") {
-                            navigate("/transactions");
+                            navigate("/transactions?role=client");
                           } else {
-                            navigate("/order/ORD-001");
+                            navigate("/order/ORD-001?role=client");
                           }
                         }}
                       >
@@ -1203,9 +1203,9 @@ export function ClientDashboard() {
                           if (item.type === "project" || item.type === "application") {
                             setActiveTab("projects");
                           } else if (item.type === "payment") {
-                            navigate("/transactions");
+                            navigate("/transactions?role=client");
                           } else {
-                            navigate("/order/ORD-001");
+                            navigate("/order/ORD-001?role=client");
                           }
                         }}
                         className="p-4 rounded-[var(--radius-lg)] flex items-center justify-between cursor-pointer hover:border-[var(--color-accent)] transition-all"
@@ -2483,7 +2483,7 @@ export function ClientDashboard() {
 
                                       <Button
                                         className="h-9 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                        onClick={() => navigate("/order/ORD-001")}
+                                        onClick={() => navigate("/order/ORD-001?role=client")}
                                       >
                                         <span>Open Order Room</span>
                                         <ChevronRight className="w-4 h-4 ml-0.5 shrink-0" />
@@ -2510,7 +2510,7 @@ export function ClientDashboard() {
                                     </p>
                                     <Button
                                       className="h-8 px-3 text-xs font-semibold gap-1.5 mt-1 whitespace-nowrap"
-                                      onClick={() => navigate("/order/ORD-001")}
+                                      onClick={() => navigate("/order/ORD-001?role=client")}
                                     >
                                       <span>Inspect in Order Room</span>
                                       <ChevronRight className="w-3.5 h-3.5 shrink-0" />
@@ -2663,7 +2663,7 @@ export function ClientDashboard() {
                                                 {app.status === "SELECTED" ? (
                                                   <Button
                                                     className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
-                                                    onClick={() => navigate("/order/ORD-001")}
+                                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                                   >
                                                     <span>Open Order Room</span>
                                                     <ChevronRight className="w-3.5 h-3.5 shrink-0" />
@@ -2681,7 +2681,7 @@ export function ClientDashboard() {
                                               app.status === "SELECTED" ? (
                                                 <Button
                                                   className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
-                                                  onClick={() => navigate("/order/ORD-001")}
+                                                  onClick={() => navigate("/order/ORD-001?role=client")}
                                                 >
                                                   <span>Open Order Room</span>
                                                   <ChevronRight className="w-3.5 h-3.5 shrink-0" />
@@ -2914,7 +2914,7 @@ export function ClientDashboard() {
                                   </p>
                                   <Button
                                     className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                    onClick={() => navigate("/order/ORD-001")}
+                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                   >
                                     <span>Open Order Room</span>
                                     <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
@@ -2922,7 +2922,7 @@ export function ClientDashboard() {
                                   <Button
                                     variant="secondary"
                                     className="w-full h-9 text-xs whitespace-nowrap"
-                                    onClick={() => navigate("/order/ORD-001")}
+                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                   >
                                     Message Performer
                                   </Button>
@@ -2937,7 +2937,7 @@ export function ClientDashboard() {
                                   </p>
                                   <Button
                                     className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                    onClick={() => navigate("/order/ORD-001")}
+                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                   >
                                     <span>Inspect in Order Room</span>
                                     <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
@@ -2945,7 +2945,7 @@ export function ClientDashboard() {
                                   <Button
                                     variant="secondary"
                                     className="w-full h-9 text-xs whitespace-nowrap"
-                                    onClick={() => navigate("/order/ORD-001")}
+                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                   >
                                     Request Revision
                                   </Button>
@@ -2960,7 +2960,7 @@ export function ClientDashboard() {
                                   </p>
                                   <Button
                                     className="w-full h-10 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                    onClick={() => navigate("/order/ORD-001")}
+                                    onClick={() => navigate("/order/ORD-001?role=client")}
                                   >
                                     View Order Room
                                   </Button>
@@ -3120,7 +3120,7 @@ export function ClientDashboard() {
                       key={order.id}
                       className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
                       style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                      onClick={() => navigate(`/order/${order.id}`)}
+                      onClick={() => navigate(`/order/${order.id}?role=client`)}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -4535,7 +4535,7 @@ export function ClientDashboard() {
                                 className="h-8 text-xs"
                                 onClick={() => {
                                   setShowPublishEscrowModal(false);
-                                  navigate("/settings");
+                                  navigate("/settings?role=client&section=payment");
                                 }}
                               >
                                 Add Card in Billing &amp; Payments
@@ -4777,7 +4777,7 @@ export function ClientDashboard() {
                                     onClick={() => {
                                       setSelectedTalent(null);
                                       setSelectedApplicantForProfile(null);
-                                      navigate("/order/ORD-001");
+                                      navigate("/order/ORD-001?role=client");
                                     }}
                                   >
                                     <span>Open Order Room</span>
@@ -4801,7 +4801,7 @@ export function ClientDashboard() {
                                   onClick={() => {
                                     setSelectedTalent(null);
                                     setSelectedApplicantForProfile(null);
-                                    navigate("/order/ORD-001");
+                                    navigate("/order/ORD-001?role=client");
                                   }}
                                 >
                                   <span>Open Order Room</span>

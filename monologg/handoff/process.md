@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Polish, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
+**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -732,6 +732,34 @@ Overhauled the Client Analytics experience and streamlined client-facing setting
   - All 25 test suites passing with 124/124 tests (`npm test`).
   - 0 TypeScript compiler errors (`tsc --noEmit`).
   - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.57 MB).
+
+---
+
+### Step 121: Strict Role Isolation Audit, Cross-Contamination Elimination, and Parameter-Preserved Routing Across Shared Pages (Session 121)
+
+- **Comprehensive Historical Audit Across Sessions 112–120:**
+  - Conducted an in-depth audit of all changes made across the client webapp codebase since client work began in Session 112:
+    - *Session 112 (`ClientOnboarding.tsx`):* 2-step onboarding, Brand/Category labels, 6 craft multi-select, removed payment form. Scope confirmed: strictly client-side.
+    - *Session 113 (`ProjectBrief.tsx`, `ClientDashboard.tsx`):* 6 performer categories, interactive location picker, assets step renaming, maximum applicants, client wallet balance hero card with sole `Fund Wallet` CTA. Scope confirmed: strictly client-side.
+    - *Sessions 114–116 (`ClientDashboard.tsx`):* FAANG detailed project view with 6 states, inline editing, draft stepper, casting modal. Scope confirmed: strictly client-side.
+    - *Session 117 (`ClientDashboard.tsx`, `Settings.tsx`):* Client analytics spend spline area graph, brand types alignment, unified client profile, withdrawal passcode removal for clients. Scope confirmed: strictly client-side.
+    - *Sessions 118–119 (`Settings.tsx`, `Checkout.tsx`, `TransactionHistory.tsx`):* Billing & payments cards, direct debit for escrow, 24hr client withdrawal live projects safeguard flow, zero-draft settlement. Identified cross-contamination defect: client withdrawal button in `TransactionHistory.tsx` leaked to performers.
+    - *Session 120 (`ClientDashboard.tsx`, `TransactionHistory.tsx`):* Safeguard modal UX cleanup, Fund Client Wallet overhaul (Saved Card + Paystack checkout, insufficient funds error state). Scope confirmed: strictly client-side.
+- **Cross-Contamination Elimination in `TransactionHistory.tsx`:**
+  - Added role gating using `searchParams.get("role") === "client"`.
+  - When viewed by performers (`!isClient`), restored the clean Session 109 state: "Earnings & Transaction History", "Escrow Protected / Automated Ledger Settlement" badge, and 0 client withdrawal buttons. Payouts remain strictly managed from verified bank wallet modals on `TalentDashboard.tsx`.
+  - When viewed by clients (`isClient`), renders "Client Transactions & Escrow", dynamic client volume metrics, and the purple "Withdraw Funds" CTA wired to the 3-step live projects safeguard gate.
+  - Updated withdrawal recipient logic to resolve client profile organization/brand name dynamically from `appStateSync.getClientProfile()`.
+- **Parameter-Preserved Routing Across Shared Pages:**
+  - `ClientDashboard.tsx`: Deep-links to Settings updated to `/settings?role=client&section=payment`. Links to Transaction History updated to `/transactions?role=client`. All 14 Order Room links updated to append `?role=client`.
+  - `OrderRoom.tsx`: Initialized `role` state from `searchParams.get("role") === "client" ? "client" : "talent"`.
+  - `Settings.tsx`: Initialized active section from `searchParams.get("section")` for deep-linking. Separated transaction links in Account list (`/transactions?role=client` vs `/transactions?role=talent`).
+  - `LandingPage.tsx`: User menu links updated to preserve role parameters.
+- **Automated Testing & Standalone Distribution Rebuilding:**
+  - Updated `TransactionHistory.test.tsx` with initial route entries (9/9 passing).
+  - 124/124 tests passing across all 25 test suites (`npm test`).
+  - 0 TypeScript compiler errors (`npx tsc --noEmit`).
+  - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.65 MB).
 
 ---
 

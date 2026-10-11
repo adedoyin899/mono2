@@ -6,10 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // with a fee breakdown in live mode; mock mode uses local fixtures (new
 // screen, no prior UI to preserve, but same seam contract as every other page).
 
-async function renderPage() {
+async function renderPage(initialEntries = ["/transactions"]) {
   const { TransactionHistory } = await import("./TransactionHistory");
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <TransactionHistory />
     </MemoryRouter>,
   );
@@ -97,11 +97,14 @@ describe("TransactionHistory", () => {
     });
   });
 
-  it("removes the Request Payout Withdrawal button from the performer history view", async () => {
+  it("removes the Request Payout Withdrawal button and client safeguard CTA from the performer history view", async () => {
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
     await renderPage();
     await screen.findByText("Earnings & Transaction History");
     expect(screen.queryByRole("button", { name: /request payout withdrawal/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /withdraw funds/i })).not.toBeInTheDocument();
+    expect(screen.getByText("Escrow Protected")).toBeInTheDocument();
+    expect(screen.getByText("Automated Ledger Settlement")).toBeInTheDocument();
   });
 
   it("dynamically changes the hero balance when toggling Payout, Escrow, and Dispute chips", async () => {
@@ -159,9 +162,9 @@ describe("TransactionHistory", () => {
     expect(screen.getByText("₦0")).toBeInTheDocument();
   });
 
-  it("replaces static telemetry with Withdraw Funds button and enforces live projects safeguard gate", async () => {
+  it("client portal: renders Withdraw Funds button and enforces live projects safeguard gate", async () => {
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
-    await renderPage();
+    await renderPage(["/transactions?role=client"]);
 
     // 1. "Withdraw Funds" button and "Direct 24hr settlement" are rendered
     const withdrawBtn = await screen.findByRole("button", { name: /Withdraw Funds/i });
@@ -193,14 +196,14 @@ describe("TransactionHistory", () => {
     expect(screen.getByText(/View Draft Projects/i)).toBeInTheDocument();
   });
 
-  it("handles direct withdrawal cleanly when no active projects exist (does not show 0 projects moved or draft banner)", async () => {
+  it("client portal: handles direct withdrawal cleanly when no active projects exist (does not show 0 projects moved or draft banner)", async () => {
     const { appStateSync } = await import("../../lib/state-sync");
     // Move all projects to draft beforehand
     const projects = appStateSync.getClientProjects();
     appStateSync.moveProjectsToDraft(projects.map((p) => p.id));
 
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
-    await renderPage();
+    await renderPage(["/transactions?role=client"]);
 
     const withdrawBtn = await screen.findByRole("button", { name: /Withdraw Funds/i });
     fireEvent.click(withdrawBtn);

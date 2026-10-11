@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
@@ -65,8 +65,11 @@ const TALENT_RATING_TAGS = [
 
 /* ─── Component ─────────────────────────────────────────────── */
 export function OrderRoom() {
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get("role");
+  const initialRole: UserRole = roleParam === "client" ? "client" : "talent";
   const [phase, setPhase] = useState<Phase>("deliverables");
-  const [role, setRole] = useState<UserRole>("talent");
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [gigType, setGigType] = useState<GigType>("remote");
   const [messages, setMessages] = useState<ExtendedOrderMessage[]>([]);
   const [inputText, setInputText] = useState("");

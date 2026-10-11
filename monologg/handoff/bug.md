@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Cleanup, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
+**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 71. Cross-contamination of client safeguard withdrawal gate into performer transaction history & unparameterized navigation links causing role reset on shared pages
+- **Severity:** High / Role Boundary Integrity & Flow Isolation
+- **What happened:** In `TransactionHistory.tsx`, the "Withdraw Funds" button (triggering the 3-step Client Live Projects Safeguard modal) was rendered unconditionally on the hero card for both performers and clients alike. When performers navigated to `/transactions`, they saw the client withdrawal CTA. If clicked, it initiated a client-project draft liquidation warning and redirected them to `/client` upon completion. Furthermore, multiple links in `ClientDashboard.tsx` navigated to `/settings` or `/transactions` or `/order/:id` without `?role=client`, causing shared dual-sided pages to default back to performer views. In `OrderRoom.tsx`, the `role` state was hardcoded to default to `"talent"` even when entered from client projects.
+- **Root Cause:** Absence of role-gating (`useSearchParams`) on the withdrawal CTA in `TransactionHistory.tsx`, unparameterized navigation paths in `ClientDashboard.tsx` and `LandingPage.tsx`, and uninitialized role state in `OrderRoom.tsx`.
+- **Resolution:**
+  1. In `TransactionHistory.tsx`, gated the withdrawal hero CTA with `isClient = searchParams.get("role") === "client"`. Performers now see the clean Session 109 ledger view with "Escrow Protected / Automated Ledger Settlement" and zero client withdrawal CTAs. Clients see "Client Transactions & Escrow" and the 24hr safeguard withdrawal CTA. Updated recipient org name resolution to pull from `appStateSync.getClientProfile()`.
+  2. In `ClientDashboard.tsx`, appended `?role=client` to all outbound links to `/transactions`, `/settings` (with `section=payment`), and `/order/:id`.
+  3. In `OrderRoom.tsx`, initialized `role` from `searchParams.get("role") === "client" ? "client" : "talent"`.
+  4. In `Settings.tsx`, initialized active section from `searchParams.get("section")` and role-scoped transaction links (`/transactions?role=client` vs `/transactions?role=talent`).
+  5. In `LandingPage.tsx`, updated user menu transaction history links to pass role parameters.
+  6. Verified with 9/9 tests in `TransactionHistory.test.tsx` and 124/124 tests passing across all 25 suites.
 
 ### 70. Modal backdrop click-propagation causing accidental dismissal on inner clicks & missing insufficient funds error state in Fund Wallet
 - **Severity:** Medium / UX Stability & Payment Error Handling

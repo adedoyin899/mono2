@@ -1,11 +1,44 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Cleanup, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
+**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 121 (2026-10-11) — Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages
+
+**Goal:** Conduct an exhaustive historical audit across all changes made to the client webapp (Sessions 112–120), eliminate any cross-contamination where client-specific features, copy, or workflows leaked into performer-side screens (or vice versa), and enforce parameter-preserved routing (`?role=client` vs `?role=talent`) across all shared dual-sided pages (`TransactionHistory.tsx`, `Settings.tsx`, `OrderRoom.tsx`):
+1. **Historical Audit of Client vs. Performer Changes (Sessions 112–120):**
+   - *Session 112 (`ClientOnboarding.tsx`):* 2-step onboarding, Brand/Category labels, 6 craft multi-select, removed payment form. Scope confirmed: strictly client-side.
+   - *Session 113 (`ProjectBrief.tsx`, `ClientDashboard.tsx`):* 6 performer categories, interactive location picker, assets step renaming, maximum applicants, client wallet balance hero card with sole `Fund Wallet` CTA. Scope confirmed: strictly client-side.
+   - *Sessions 114–116 (`ClientDashboard.tsx`):* FAANG detailed project view with 6 states, inline editing, draft stepper, casting modal. Scope confirmed: strictly client-side.
+   - *Session 117 (`ClientDashboard.tsx`, `Settings.tsx`):* Client analytics spend spline area graph, brand types alignment, unified client profile, withdrawal passcode removal for clients. Scope confirmed: strictly client-side.
+   - *Sessions 118–119 (`Settings.tsx`, `Checkout.tsx`, `TransactionHistory.tsx`):* Billing & payments cards, direct debit for escrow, 24hr client withdrawal live projects safeguard flow, zero-draft settlement. Scope audit revealed defect: client withdrawal button in `TransactionHistory.tsx` leaked to performers.
+   - *Session 120 (`ClientDashboard.tsx`, `TransactionHistory.tsx`):* Safeguard modal UX cleanup, Fund Client Wallet overhaul (Saved Card + Paystack checkout, insufficient funds error state). Scope confirmed: strictly client-side.
+2. **Defect Identified & Fixed in `TransactionHistory.tsx`:**
+   - *Issue:* In Session 118, the "Withdraw Funds" button triggering the client-specific live projects safeguard flow was placed on the hero balance card without role scoping. Consequently, performers viewing their earnings ledger saw the purple "Withdraw Funds" CTA, which triggered client-project draft warnings and redirected them to `/client` on completion.
+   - *Resolution:* Added `useSearchParams` role detection (`isClient = searchParams.get("role") === "client"`). On the performer view (`!isClient`), restored the clean Session 109 state: "Earnings & Transaction History" title, "Escrow Protected / Automated Ledger Settlement" badge, and zero client withdrawal CTAs (performers initiate payouts strictly from their verified bank wallet modal on `TalentDashboard.tsx`). On the client view (`isClient`), renders "Client Transactions & Escrow", dynamic client volume metrics, and the purple "Withdraw Funds" CTA with the full 24hr settlement safeguard flow. Updated `executeWithdrawal` to resolve client organization/brand name from `appStateSync.getClientProfile()` rather than hardcoding "EMEKA JOHNSON".
+3. **Parameter-Preserved Routing Across Shared Pages:**
+   - *`ClientDashboard.tsx`:*
+     - Fixed line 4538: Link to `/settings` now routes to `/settings?role=client&section=payment`, landing clients directly on their Billing and Payments section rather than defaulting to performer profile settings.
+     - Fixed activity feed links (lines 1135, 1206): Updated `/transactions` to `/transactions?role=client`.
+     - Fixed Order Room links (lines 1137, 1208, 2486, 2513, 2666, 2676, 2917, 2925, 2940, 2948, 2963, 3123, 4780, 4804): Updated `/order/ORD-001` and `/order/${order.id}` to append `?role=client`.
+   - *`OrderRoom.tsx`:*
+     - Fixed initial `role` state: Initialized from `searchParams.get("role") === "client" ? "client" : "talent"` so clients entering an Order Room from `ClientDashboard` stay strictly in client role context with client CTAs and perspective.
+   - *`Settings.tsx`:*
+     - Integrated `searchParams.get("section")` initialization so deep-linking to `section=payment` from Client Dashboard works immediately.
+     - Role-isolated transaction history links in Account list: line 790 passes `role=client` (`/transactions?role=client`) and line 800 passes `role=talent` (`/transactions?role=talent`).
+   - *`LandingPage.tsx`:*
+     - In `userMenuItems`, client links to `/transactions?role=client`, talent links to `/transactions?role=talent`.
+4. **Test Suite & Standalone Distribution:**
+   - Updated `TransactionHistory.test.tsx` to support `initialEntries` (defaults to `/transactions` for performer tests, uses `/transactions?role=client` for client safeguard tests). All 9/9 tests passing.
+   - 124/124 tests passing across all 25 test suites (`npm test`).
+   - 0 TypeScript errors (`npx tsc --noEmit`).
+   - Re-compiled standalone Vite production bundle (`build:standalone`) and inlined into `monologg/monologg-app.html` (1.65 MB).
 
 ---
 

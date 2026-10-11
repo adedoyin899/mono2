@@ -790,13 +790,13 @@ export function LandingPage() {
     ? [
         { label: "Dashboard", icon: LayoutDashboard, path: "/client" },
         { label: "Post a Project", icon: FileText, path: "/brief" },
-        { label: "Transactions", icon: Receipt, path: "/transactions" },
+        { label: "Transactions", icon: Receipt, path: "/transactions?role=client" },
         { label: "Settings", icon: SettingsIcon, path: "/settings?role=client" },
       ]
     : [
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
         { label: "My Media Kit", icon: FileText, path: "/media-kit" },
-        { label: "Transactions", icon: Receipt, path: "/transactions" },
+        { label: "Transactions", icon: Receipt, path: "/transactions?role=talent" },
         { label: "Settings", icon: SettingsIcon, path: "/settings?role=talent" },
       ];
 

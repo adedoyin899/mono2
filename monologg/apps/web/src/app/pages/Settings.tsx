@@ -102,8 +102,14 @@ export function Settings() {
   // Role detection: query param ?role=client or fallback to client detection
   const roleParam = searchParams.get("role");
   const isClient = roleParam === "client";
+  const sectionParam = searchParams.get("section") as Section | null;
 
-  const [section, setSection] = useState<Section>("main");
+  const [section, setSection] = useState<Section>(() => {
+    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security"].includes(sectionParam)) {
+      return sectionParam;
+    }
+    return "main";
+  });
   
   // Talent fields
   const [name, setName] = useState("Emeka Johnson");
@@ -781,7 +787,7 @@ export function Settings() {
                   <>
                     <ListItem label="Profile" icon={Building} onClick={() => setSection("profile")} />
                     <ListItem label="Billing and Payments" icon={CreditCard} onClick={() => setSection("payment")} />
-                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
+                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions?role=client")} />
                     <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
                     <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
                   </>
@@ -791,7 +797,7 @@ export function Settings() {
                     <ListItem label="Personal Details" icon={Sparkles} onClick={() => setSection("craft_details")} />
                     <ListItem label="Physical Attributes" icon={Ruler} onClick={() => setSection("attributes")} />
                     <ListItem label="Payment details" icon={CreditCard} onClick={() => setSection("payment")} />
-                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
+                    <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions?role=talent")} />
                     <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
                     <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
                   </>
