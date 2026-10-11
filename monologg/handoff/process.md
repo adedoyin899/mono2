@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
+**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -760,6 +760,17 @@ Overhauled the Client Analytics experience and streamlined client-facing setting
   - 124/124 tests passing across all 25 test suites (`npm test`).
   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
   - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.65 MB).
+
+### Step 83: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish (Session 122)
+
+Following the rigorous role-isolation audit in Session 121, this session performed a visual and interaction overhaul strictly across the Performer web app:
+- **Root Cause & Removal of Double Chevrons:** Identified universal CSS in `tokens.css` that injects an SVG background chevron on all `<select>` tags. Removed conflicting manual `<ChevronDown />` icons from relative wrappers in `TalentDashboard.tsx`, restoring clean single-chevron dropdowns on the Reviews Modal and Earnings Category chart.
+- **Form Input Consistency:** Standardized form inputs across the performer profile and payout settings from disparate heights (54px vs 36px vs 12px text) to uniform `h-11 rounded-xl text-sm font-body px-3.5` with centered social media badges.
+- **Availability State Redesign:** Replaced error-like bright red button styling on the "Available" state with an emerald active pill with pulsing green indicator dot and amber active pill for "Booked".
+- **Purge of Duplicate Bio/Tags & Save Buttons:** Gated read-only tags and bio behind `!isEditingProfile &&` to prevent duplicate presentation during active editing in `Settings.tsx`, and pruned redundant Save button copies.
+- **Fintech Card Payout Destination:** Redesigned the performer's Payout Bank Account into a sleek card layout with masked account number and clear 48-hour security memo while preserving all test assertions.
+- **Projects Detail View & State Polish:** Cleaned script excerpt header artifacts and validated clear visual hierarchy across all 6 application statuses (`APPLIED`, `SHORTLISTED`, `SELECTED`, `REJECTED`, `WITHDRAWN`, pitch form) with role-parameterized Order Room routing (`?role=talent`).
+- **Full Verification:** All 124 unit tests passing, clean TypeScript check, and updated standalone `monologg/monologg-app.html` bundle.
 
 ---
 

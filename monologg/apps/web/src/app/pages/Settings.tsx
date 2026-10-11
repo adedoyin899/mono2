@@ -1144,11 +1144,6 @@ export function Settings() {
                                 Changes saved here automatically update your profile and sync with settings.
                               </p>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button size="sm" onClick={handleSaveProfile} disabled={savingProfile} className="gap-1.5">
-                                <Check className="w-3.5 h-3.5" /> Save Profile
-                              </Button>
-                            </div>
                           </div>
 
                           {/* Basic Info Fields */}
@@ -1161,6 +1156,7 @@ export function Settings() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Stage Name or Full Name"
+                                className="h-11 rounded-xl text-sm font-body px-3.5"
                               />
                             </div>
 
@@ -1172,6 +1168,7 @@ export function Settings() {
                                 value={stageTitle}
                                 onChange={(e) => setStageTitle(e.target.value)}
                                 placeholder="e.g. Actor & Voice Artist"
+                                className="h-11 rounded-xl text-sm font-body px-3.5"
                               />
                             </div>
 
@@ -1183,6 +1180,7 @@ export function Settings() {
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="City, Nigeria"
+                                className="h-11 rounded-xl text-sm font-body px-3.5"
                               />
                             </div>
 
@@ -1194,24 +1192,29 @@ export function Settings() {
                                 <button
                                   type="button"
                                   onClick={() => setIsAvailable(true)}
-                                  className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                  className={`flex-1 h-11 rounded-xl border text-xs font-semibold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
                                     isAvailable
-                                      ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                                      : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                      ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-400/20 shadow-2xs"
+                                      : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                                   }`}
                                 >
-                                  <span className="w-2 h-2 rounded-full bg-emerald-400" /> Available
+                                  <span className="relative flex h-2 w-2">
+                                    {isAvailable && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                  </span>
+                                  Available
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setIsAvailable(false)}
-                                  className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                  className={`flex-1 h-11 rounded-xl border text-xs font-semibold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
                                     !isAvailable
-                                      ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                                      : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                      ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 ring-1 ring-amber-400/20 shadow-2xs"
+                                      : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                                   }`}
                                 >
-                                  <span className="w-2 h-2 rounded-full bg-amber-400" /> Booked
+                                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                  Booked
                                 </button>
                               </div>
                             </div>
@@ -1227,7 +1230,7 @@ export function Settings() {
                               value={bio}
                               onChange={(e) => setBio(e.target.value)}
                               placeholder="Describe your training, performance styles, notable credits, and vocal qualities..."
-                              className="w-full px-4 py-3 rounded-[var(--radius-md)] text-sm font-body border resize-none outline-none focus:border-[var(--color-accent)]"
+                              className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none outline-none focus:border-[var(--color-accent)]"
                               style={{
                                 background: "var(--color-bg-surface)",
                                 borderColor: "var(--color-border-default)",
@@ -1245,25 +1248,25 @@ export function Settings() {
                               {tags.map((tag, idx) => (
                                 <span
                                   key={idx}
-                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-[var(--color-bg-surface)] border-[var(--color-border-default)]"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-[var(--color-bg-surface)] border-[var(--color-border-default)]"
                                 >
                                   <span>{tag}</span>
                                   <button
                                     type="button"
                                     onClick={() => setTags(tags.filter((_, i) => i !== idx))}
-                                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)]"
+                                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] cursor-pointer"
                                   >
                                     <X className="w-3 h-3" />
                                   </button>
                                 </span>
                               ))}
                             </div>
-                            <div className="flex gap-2 max-w-sm">
+                            <div className="flex gap-2 max-w-md">
                               <Input
                                 value={newTag}
                                 onChange={(e) => setNewTag(e.target.value)}
                                 placeholder="Add a new tag (e.g. Igbo Accent, Improvisation)"
-                                className="h-9 text-xs"
+                                className="h-11 rounded-xl text-sm font-body px-3.5"
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" && newTag.trim()) {
                                     e.preventDefault();
@@ -1277,8 +1280,7 @@ export function Settings() {
                               <Button
                                 type="button"
                                 variant="secondary"
-                                size="sm"
-                                className="h-9 text-xs"
+                                className="h-11 rounded-xl text-xs font-semibold px-4"
                                 onClick={() => {
                                   if (newTag.trim() && !tags.includes(newTag.trim())) {
                                     setTags([...tags, newTag.trim()]);
@@ -1298,57 +1300,57 @@ export function Settings() {
                             </label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#E1306C]">IG</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#E1306C]">IG</span>
                                 <Input
                                   value={socialLinks.instagram || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
                                   placeholder="Instagram handle (e.g. emeka_acts)"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#FF0000]">YT</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#FF0000]">YT</span>
                                 <Input
                                   value={socialLinks.youtube || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, youtube: e.target.value })}
                                   placeholder="YouTube channel handle"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--color-text-primary)]">TT</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[var(--color-text-primary)]">TT</span>
                                 <Input
                                   value={socialLinks.tiktok || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, tiktok: e.target.value })}
                                   placeholder="TikTok handle"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DA1F2]">X</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#1DA1F2]">X</span>
                                 <Input
                                   value={socialLinks.twitter || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, twitter: e.target.value })}
                                   placeholder="X (Twitter) handle"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#0A66C2]">IN</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#0A66C2]">IN</span>
                                 <Input
                                   value={socialLinks.linkedin || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, linkedin: e.target.value })}
                                   placeholder="LinkedIn profile slug"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DB954]">SP</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#1DB954]">SP</span>
                                 <Input
                                   value={socialLinks.spotify || ""}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, spotify: e.target.value })}
                                   placeholder="Spotify or audio artist URL"
-                                  className="pl-10 text-xs"
+                                  className="h-11 rounded-xl pl-11 text-sm font-body"
                                 />
                               </div>
                             </div>
@@ -1373,7 +1375,7 @@ export function Settings() {
                                     setCoverPreset(preset.id);
                                     setCoverUrl(null);
                                   }}
-                                  className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all ${
+                                  className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${
                                     coverPreset === preset.id && !coverUrl
                                       ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 text-[var(--color-text-primary)]"
                                       : "border-[var(--color-border-default)] text-[var(--color-text-secondary)]"
@@ -1386,7 +1388,7 @@ export function Settings() {
                               <button
                                 type="button"
                                 onClick={() => coverFileInputRef.current?.click()}
-                                className="px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-[var(--color-border-default)] hover:border-[var(--color-accent)] flex items-center gap-1.5"
+                                className="px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-[var(--color-border-default)] hover:border-[var(--color-accent)] flex items-center gap-1.5 cursor-pointer"
                               >
                                 <Camera className="w-3.5 h-3.5" /> Upload Custom Banner
                               </button>
@@ -1394,51 +1396,56 @@ export function Settings() {
                           </div>
 
                           <div className="flex justify-end gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                            <Button variant="secondary" onClick={() => setIsEditingProfile(false)}>
-                              Done Editing
+                            <Button variant="secondary" onClick={() => setIsEditingProfile(false)} className="h-11 px-5 text-xs font-semibold">
+                              Cancel
                             </Button>
-                            <Button onClick={handleSaveProfile} disabled={savingProfile} className="gap-2">
+                            <Button onClick={handleSaveProfile} disabled={savingProfile} className="gap-2 h-11 px-5 text-xs font-semibold">
                               <Check className="w-4 h-4" /> Save Profile
                             </Button>
                           </div>
                         </motion.div>
                       )}
 
-                      {/* Tags List */}
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {tags.map((tag) => (
-                          <Badge key={tag} tone="neutral" size="lg">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {/* Bio Section */}
-                      {bio && bio.trim() && !bio.toLowerCase().includes("no bio") ? (
-                        <div className="mb-8">
-                          <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
-                            About the Performer
-                          </h3>
-                          <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                            {bio}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-[var(--radius-lg)] mb-8 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
-                            <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                              Write a compelling summary of your craft, training, and vocal range to complete your profile.
-                            </p>
+                      {/* Tags & Bio (Shown in Profile View mode, omitted during active edit to prevent duplicate slop) */}
+                      {!isEditingProfile && (
+                        <>
+                          {/* Tags List */}
+                          <div className="flex flex-wrap gap-2 mb-6">
+                            {tags.map((tag) => (
+                              <Badge key={tag} tone="neutral" size="lg">
+                                {tag}
+                              </Badge>
+                            ))}
                           </div>
-                          <Button
-                            variant="secondary"
-                            className="h-8 text-xs shrink-0"
-                            onClick={() => setIsEditingProfile(true)}
-                          >
-                            Add Bio
-                          </Button>
-                        </div>
+
+                          {/* Bio Section */}
+                          {bio && bio.trim() && !bio.toLowerCase().includes("no bio") ? (
+                            <div className="mb-8">
+                              <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
+                                About the Performer
+                              </h3>
+                              <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                {bio}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-4 rounded-[var(--radius-lg)] mb-8 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
+                                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                                  Write a compelling summary of your craft, training, and vocal range to complete your profile.
+                                </p>
+                              </div>
+                              <Button
+                                variant="secondary"
+                                className="h-8 text-xs shrink-0"
+                                onClick={() => setIsEditingProfile(true)}
+                              >
+                                Add Bio
+                              </Button>
+                            </div>
+                          )}
+                        </>
                       )}
 
                       {/* Featured Performance Reel */}
@@ -2149,13 +2156,17 @@ export function Settings() {
 
                   {editingBank ? (
                     /* BEFORE: Setup / Edit Form */
-                    <div className="space-y-3 pt-1">
+                    <div className="space-y-4 pt-1">
                       <FormField label="Bank Name">
                         <select
                           value={bankName}
                           onChange={(e) => setBankName(e.target.value)}
-                          className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
-                          style={{ ...s.elevated, color: "var(--color-text-primary)" }}
+                          className="w-full h-11 rounded-xl border px-3.5 font-body text-sm outline-none transition-colors focus:border-[var(--color-accent)]"
+                          style={{
+                            background: "var(--color-bg-elevated)",
+                            borderColor: "var(--color-border-default)",
+                            color: "var(--color-text-primary)",
+                          }}
                         >
                           <option value="Access Bank Plc">Access Bank Plc</option>
                           <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
@@ -2177,7 +2188,7 @@ export function Settings() {
                           value={accountNumber}
                           maxLength={10}
                           onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                          className="font-mono tnum"
+                          className="h-11 rounded-xl text-sm font-mono tnum px-3.5"
                           placeholder="9876543210"
                         />
                       </FormField>
@@ -2186,33 +2197,29 @@ export function Settings() {
                         <Input
                           value={accountName}
                           onChange={(e) => setAccountName(e.target.value)}
+                          className="h-11 rounded-xl text-sm font-body px-3.5"
                           placeholder="EMEKA JOHNSON"
                         />
                       </FormField>
 
                       {/* Security Memo (Before save) */}
                       <div
-                        className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
-                        style={{
-                          background: "color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-surface))",
-                          border: "1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)",
-                          color: "var(--color-text-secondary)",
-                        }}
+                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-200/90"
                       >
-                        <Shield className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-accent)" }} />
+                        <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                         <div>
-                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-accent)" }}>
+                          <span className="font-semibold block mb-0.5 text-amber-950 dark:text-amber-200">
                             Security Memo
                           </span>
                           You can change your bank account after 48hrs. Once updated, your payout destination is locked for 48 hours to protect your funds.
                         </div>
                       </div>
 
-                      <div className="flex gap-2 pt-1">
+                      <div className="flex gap-2 pt-2">
                         {bankDetails.accountNumber && (
                           <Button
                             variant="secondary"
-                            className="flex-1 h-11 text-xs"
+                            className="flex-1 h-11 text-xs font-semibold rounded-xl"
                             onClick={() => {
                               setEditingBank(false);
                               setBankName(bankDetails.bankName);
@@ -2224,7 +2231,7 @@ export function Settings() {
                           </Button>
                         )}
                         <Button
-                          className={`${bankDetails.accountNumber ? "flex-1" : "w-full"} h-11 text-xs`}
+                          className={`${bankDetails.accountNumber ? "flex-1" : "w-full"} h-11 text-xs font-semibold rounded-xl`}
                           disabled={accountNumber.length !== 10 || !accountName.trim()}
                           onClick={() => {
                             appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
@@ -2242,24 +2249,32 @@ export function Settings() {
                     /* AFTER: Saved / Active State */
                     <div className="space-y-4 pt-1">
                       <div
-                        className="p-4 rounded-[var(--radius-lg)] flex items-center justify-between gap-3"
+                        className="p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border transition-all"
                         style={{
                           background: "var(--color-bg-elevated)",
-                          border: "1px solid var(--color-border-subtle)",
+                          borderColor: "var(--color-border-default)",
                         }}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0">
                           <div
-                            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                            style={{ background: "var(--color-accent-soft)" }}
+                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border"
+                            style={{
+                              background: "color-mix(in srgb, var(--color-accent) 10%, transparent)",
+                              borderColor: "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+                            }}
                           >
-                            <Building2 className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                            <Building2 className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold font-body truncate" style={s.text}>
-                              {bankDetails.bankName} ···· {bankDetails.accountNumber.slice(-4)}
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold font-body truncate" style={s.text}>
+                                {bankDetails.bankName}
+                              </span>
+                              <span className="text-xs font-mono font-medium text-[var(--color-text-secondary)]">
+                                ···· {bankDetails.accountNumber.slice(-4)}
+                              </span>
                             </div>
-                            <div className="text-xs font-body font-medium truncate" style={s.secondary}>
+                            <div className="text-xs font-body font-medium truncate mt-0.5" style={s.secondary}>
                               {bankDetails.accountName || "Account Holder"}
                             </div>
                             <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
@@ -2267,38 +2282,33 @@ export function Settings() {
                             </div>
                           </div>
                         </div>
+
+                        <Button
+                          variant="secondary"
+                          className="h-10 text-xs font-semibold gap-1.5 rounded-xl shrink-0 self-start sm:self-center"
+                          onClick={() => {
+                            setEditingBank(true);
+                            setBankName(bankDetails.bankName || "Access Bank Plc");
+                            setAccountNumber(bankDetails.accountNumber || "");
+                            setAccountName(bankDetails.accountName || "");
+                          }}
+                        >
+                          <Edit2 className="w-3.5 h-3.5" /> Change Bank Account
+                        </Button>
                       </div>
 
                       {/* Security Memo (After save) */}
                       <div
-                        className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
-                        style={{
-                          background: "color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-surface))",
-                          border: "1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)",
-                          color: "var(--color-text-secondary)",
-                        }}
+                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-200/90"
                       >
-                        <Shield className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-accent)" }} />
+                        <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                         <div>
-                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-accent)" }}>
+                          <span className="font-semibold block mb-0.5 text-amber-950 dark:text-amber-200">
                             Security Memo
                           </span>
                           You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds.
                         </div>
                       </div>
-
-                      <Button
-                        variant="secondary"
-                        className="w-full h-11 text-xs font-medium gap-2"
-                        onClick={() => {
-                          setEditingBank(true);
-                          setBankName(bankDetails.bankName || "Access Bank Plc");
-                          setAccountNumber(bankDetails.accountNumber || "");
-                          setAccountName(bankDetails.accountName || "");
-                        }}
-                      >
-                        <Edit2 className="w-3.5 h-3.5" /> Change Bank Account
-                      </Button>
                     </div>
                   )}
                 </div>

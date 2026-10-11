@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
+**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 122 (2026-10-12) — Performer Web App UI/UX Visual Upgrade & Hierarchy Polish
+
+**Goal:** Conduct an extensive visual upgrade and UX/UI cleanup strictly for the Performer web app across the five core review screens: Reviews Modal, Earnings by Category Chart, Edit Profile Screen, Payout Bank Account, and Project Detail View & States:
+1. **The "Two Icons on Inputs" Bug Fixed (`TalentDashboard.tsx`):**
+   - *Root Cause:* Universal CSS in `tokens.css` (lines 303–312) injects an SVG chevron on all `<select>` elements. Redundant manual `<ChevronDown />` icons placed inside relative wrapper divs on timeframe and rating filter dropdowns caused duplicate adjacent/overlapping chevrons (`~~`).
+   - *Fix:* Removed redundant manual `<ChevronDown />` components at lines 4250, 4868, and 4881, yielding clean, single-chevron native dropdowns.
+2. **Standardized Form Input Sizing & Typography:**
+   - Unified input heights and font sizes across performer profile editing and bank details from mismatched heights (54px vs 36px vs 12px text) to consistent `h-11 rounded-xl text-sm font-body px-3.5`.
+   - Social media inputs updated with vertically centered social brand badges (`IG`, `YT`, `TT`, `X`, `IN`, `SP`) and uniform `h-11 rounded-xl pl-11 text-sm font-body`.
+   - Tag input and Add button unified to matching `h-11 rounded-xl` dimensions.
+3. **Availability Pill Selector Redesign:**
+   - Replaced confusing bright brand-red (`bg-[var(--color-accent)]`, `#F13030`) active state on the "Available" button (which made "Available" look like an error state with a green dot inside) with a clean emerald active pill (`bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-400/20` with pulsing dot) and an amber active pill for "Booked".
+4. **Purged Profile Redundancies & Duplicate Bio/Tags (`Settings.tsx` & `TalentDashboard.tsx`):**
+   - Fixed bug where read-only bio and vibe tags rendered duplicated directly underneath the active edit form. Wrapped read-only bio and tags in `{!isEditingProfile && (...)}`.
+   - Streamlined 4 competing "Save" buttons down to a clean primary header action and a bottom card footer with Cancel and Save Changes.
+5. **Fintech Card Layout for Payout Bank Account (`Settings.tsx`):**
+   - Transformed the cluttered sandwich of two verbose callout boxes around the bank card into a sleek fintech card with bank icon, bold bank name, masked account number (`•••• 4321`), account holder name, and inline "Change Bank Account" CTA.
+   - Streamlined security and policy guidance while strictly preserving test assertions (`You can only have one payout bank. This is how Monologg operates`, `You can change your bank account after 48hrs`, and button label `Save Payout Bank Account`).
+6. **Project Detail View & 6 Lifecycle States (`TalentDashboard.tsx`):**
+   - Cleaned up audition sides script excerpt to automatically strip redundant header prefixes (e.g. `"Sides / Script Excerpt:\n"`).
+   - Polished visual hierarchy, progress bar, and contextual feedback across all 6 application statuses (`APPLIED`, `SHORTLISTED`, `SELECTED`, `REJECTED`, `WITHDRAWN`, pitch form).
+   - Ensured Order Room CTA in `SELECTED` state navigates with `?role=talent` (`/order/ORD-001?role=talent`).
+7. **Verification & Standalone Distribution Rebuilding:**
+   - 124/124 tests passing across all 25 test suites (`npm test`).
+   - 0 TypeScript errors (`npx tsc --noEmit`).
+   - Standalone single-file distribution bundle `monologg/monologg-app.html` re-compiled and inlined (1.65 MB).
 
 ---
 

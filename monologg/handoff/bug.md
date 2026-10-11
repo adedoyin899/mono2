@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 121: Strict Role Isolation Audit, Elimination of Client vs. Performer Webapp Cross-Contamination, and Parameter-Preserved Routing Across Shared Pages)
+**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,27 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 72. Double chevron on select dropdowns, disparate input heights, false error-red Availability active state, duplicate bio/tags during active editing, and cluttered bank payout callout layout
+- **Severity:** Medium / UI-UX Polish & Visual Hierarchy
+- **What happened:** 
+  1. Multiple dropdowns in `TalentDashboard.tsx` (reviews filter, earnings timeframe select) rendered two adjacent chevrons (`~~`).
+  2. Input heights across the performer profile form and payout bank settings were highly inconsistent (default 54px text-base vs 36px text-xs vs text-xs with 54px container).
+  3. The "Available" toggle button was styled with `bg-[var(--color-accent)]` (`#F13030`), rendering bright brand-red with a green dot inside, making availability look like a critical system error.
+  4. While editing the performer profile in `Settings.tsx`, read-only tags and bio rendered duplicated directly below the active edit form.
+  5. The Payout Bank Account section was cluttered with two competing bulky callout boxes around a small bank card.
+- **Root Cause:**
+  1. In `tokens.css` (lines 303–312), universal CSS assigns an SVG background chevron to all `<select>` elements. Redundant manual `<ChevronDown />` icons placed inside `<div className="relative">` wrappers produced duplicate icons.
+  2. Uncoordinated height classes across `<Input>` and `<select>` elements.
+  3. Semantic misuse of the primary brand accent red on an affirmative availability state.
+  4. Missing conditional gate `!isEditingProfile` around read-only tags and bio.
+- **Resolution:**
+  1. Removed redundant manual `<ChevronDown />` components in `TalentDashboard.tsx`.
+  2. Standardized all form inputs and selects to `h-11 rounded-xl text-sm font-body px-3.5` with clean badge positioning.
+  3. Replaced red button styling with a modern emerald green active pill for "Available" and an amber active pill for "Booked".
+  4. Gated read-only tags and bio behind `!isEditingProfile &&`.
+  5. Overhauled bank payout section into a clean fintech card layout with masked account number and streamlined 48hr security guidance.
+  6. All 124 unit tests passing, zero TypeScript errors.
 
 ### 71. Cross-contamination of client safeguard withdrawal gate into performer transaction history & unparameterized navigation links causing role reset on shared pages
 - **Severity:** High / Role Boundary Integrity & Flow Isolation

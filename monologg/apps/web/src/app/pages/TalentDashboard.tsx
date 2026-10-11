@@ -1639,16 +1639,8 @@ export function TalentDashboard() {
                               Edit Profile Details
                             </h3>
                             <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                              Changes saved here automatically update your profile and sync with settings.
+                              Changes saved here automatically update your public storefront and sync with settings.
                             </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button variant="secondary" size="sm" onClick={() => setIsEditingProfile(false)}>
-                              Cancel
-                            </Button>
-                            <Button size="sm" onClick={handleSaveProfile} className="gap-1.5">
-                              <Check className="w-3.5 h-3.5" /> Save Changes
-                            </Button>
                           </div>
                         </div>
 
@@ -1662,6 +1654,7 @@ export function TalentDashboard() {
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
                               placeholder="Stage Name or Full Name"
+                              className="h-11 rounded-xl text-sm font-body px-3.5"
                             />
                           </div>
 
@@ -1673,6 +1666,7 @@ export function TalentDashboard() {
                               value={editStageTitle}
                               onChange={(e) => setEditStageTitle(e.target.value)}
                               placeholder="e.g. Actor & Voice Artist"
+                              className="h-11 rounded-xl text-sm font-body px-3.5"
                             />
                           </div>
 
@@ -1684,6 +1678,7 @@ export function TalentDashboard() {
                               value={editLocation}
                               onChange={(e) => setEditLocation(e.target.value)}
                               placeholder="City, Nigeria"
+                              className="h-11 rounded-xl text-sm font-body px-3.5"
                             />
                           </div>
 
@@ -1695,24 +1690,29 @@ export function TalentDashboard() {
                               <button
                                 type="button"
                                 onClick={() => setEditIsAvailable(true)}
-                                className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                className={`flex-1 h-11 rounded-xl border text-xs font-semibold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
                                   editIsAvailable
-                                    ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-400/20 shadow-2xs"
+                                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                                 }`}
                               >
-                                <span className="w-2 h-2 rounded-full bg-emerald-400" /> Available
+                                <span className="relative flex h-2 w-2">
+                                  {editIsAvailable && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                Available
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setEditIsAvailable(false)}
-                                className={`flex-1 h-11 rounded-[var(--radius-md)] border text-xs font-semibold font-body flex items-center justify-center gap-1.5 transition-all ${
+                                className={`flex-1 h-11 rounded-xl border text-xs font-semibold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
                                   !editIsAvailable
-                                    ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-border-default)]"
+                                    ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 ring-1 ring-amber-400/20 shadow-2xs"
+                                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                                 }`}
                               >
-                                <span className="w-2 h-2 rounded-full bg-amber-400" /> Booked
+                                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                Booked
                               </button>
                             </div>
                           </div>
@@ -1728,7 +1728,7 @@ export function TalentDashboard() {
                             value={editBio}
                             onChange={(e) => setEditBio(e.target.value)}
                             placeholder="Describe your training, performance styles, notable credits, and vocal qualities..."
-                            className="w-full px-4 py-3 rounded-[var(--radius-md)] text-sm font-body border resize-none outline-none focus:border-[var(--color-accent)]"
+                            className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none outline-none focus:border-[var(--color-accent)]"
                             style={{
                               background: "var(--color-bg-surface)",
                               borderColor: "var(--color-border-default)",
@@ -1746,25 +1746,25 @@ export function TalentDashboard() {
                             {editTags.map((tag, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-[var(--color-bg-surface)] border-[var(--color-border-default)]"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-[var(--color-bg-surface)] border-[var(--color-border-default)]"
                               >
                                 <span>{tag}</span>
                                 <button
                                   type="button"
                                   onClick={() => setEditTags(editTags.filter((_, i) => i !== idx))}
-                                  className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)]"
+                                  className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] cursor-pointer"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
                               </span>
                             ))}
                           </div>
-                          <div className="flex gap-2 max-w-sm">
+                          <div className="flex gap-2 max-w-md">
                             <Input
                               value={newTagInput}
                               onChange={(e) => setNewTagInput(e.target.value)}
                               placeholder="Add a new tag (e.g. Igbo Accent, Improvisation)"
-                              className="h-9 text-xs"
+                              className="h-11 rounded-xl text-sm font-body px-3.5"
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" && newTagInput.trim()) {
                                   e.preventDefault();
@@ -1778,8 +1778,7 @@ export function TalentDashboard() {
                             <Button
                               type="button"
                               variant="secondary"
-                              size="sm"
-                              className="h-9 text-xs"
+                              className="h-11 rounded-xl text-xs font-semibold px-4"
                               onClick={() => {
                                 if (newTagInput.trim() && !editTags.includes(newTagInput.trim())) {
                                   setEditTags([...editTags, newTagInput.trim()]);
@@ -1799,57 +1798,57 @@ export function TalentDashboard() {
                           </label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#E1306C]">IG</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#E1306C]">IG</span>
                               <Input
                                 value={editSocials.instagram || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, instagram: e.target.value })}
                                 placeholder="Instagram handle (e.g. emeka_acts)"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#FF0000]">YT</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#FF0000]">YT</span>
                               <Input
                                 value={editSocials.youtube || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, youtube: e.target.value })}
                                 placeholder="YouTube channel handle"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--color-text-primary)]">TT</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[var(--color-text-primary)]">TT</span>
                               <Input
                                 value={editSocials.tiktok || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, tiktok: e.target.value })}
                                 placeholder="TikTok handle"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DA1F2]">X</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#1DA1F2]">X</span>
                               <Input
                                 value={editSocials.twitter || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, twitter: e.target.value })}
                                 placeholder="X (Twitter) handle"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#0A66C2]">IN</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#0A66C2]">IN</span>
                               <Input
                                 value={editSocials.linkedin || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, linkedin: e.target.value })}
                                 placeholder="LinkedIn profile slug"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#1DB954]">SP</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 text-center text-xs font-bold text-[#1DB954]">SP</span>
                               <Input
                                 value={editSocials.spotify || ""}
                                 onChange={(e) => setEditSocials({ ...editSocials, spotify: e.target.value })}
                                 placeholder="Spotify or audio artist URL"
-                                className="pl-10 text-xs"
+                                className="h-11 rounded-xl pl-11 text-sm font-body"
                               />
                             </div>
                           </div>
@@ -1874,7 +1873,7 @@ export function TalentDashboard() {
                                   setEditCoverPreset(preset.id);
                                   setEditCoverUrl(null);
                                 }}
-                                className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all ${
+                                className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${
                                   editCoverPreset === preset.id && !editCoverUrl
                                     ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 text-[var(--color-text-primary)]"
                                     : "border-[var(--color-border-default)] text-[var(--color-text-secondary)]"
@@ -1887,7 +1886,7 @@ export function TalentDashboard() {
                             <button
                               type="button"
                               onClick={() => coverFileInputRef.current?.click()}
-                              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-[var(--color-border-default)] hover:border-[var(--color-accent)] flex items-center gap-1.5"
+                              className="px-3 py-1.5 rounded-full text-xs font-semibold border border-dashed border-[var(--color-border-default)] hover:border-[var(--color-accent)] flex items-center gap-1.5 cursor-pointer"
                             >
                               <Camera className="w-3.5 h-3.5" /> Upload Custom Banner
                             </button>
@@ -1895,51 +1894,56 @@ export function TalentDashboard() {
                         </div>
 
                         <div className="flex justify-end gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                          <Button variant="secondary" onClick={() => setIsEditingProfile(false)}>
+                          <Button variant="secondary" onClick={() => setIsEditingProfile(false)} className="h-11 px-5 text-xs font-semibold">
                             Cancel
                           </Button>
-                          <Button onClick={handleSaveProfile} className="gap-2">
-                            <Check className="w-4 h-4" /> Save Profile
+                          <Button onClick={handleSaveProfile} className="gap-2 h-11 px-5 text-xs font-semibold">
+                            <Check className="w-4 h-4" /> Save Changes
                           </Button>
                         </div>
                       </motion.div>
                     ) : null}
 
-                    {/* Tags List */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {(talentProfile.tags || VIBE_TAGS).map((tag) => (
-                        <Badge key={tag} tone="neutral" size="lg">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Bio Section */}
-                    {talentProfile.bio && talentProfile.bio.trim() && !talentProfile.bio.toLowerCase().includes("no bio") ? (
-                      <div className="mb-8">
-                        <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
-                          About the Performer
-                        </h3>
-                        <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          {talentProfile.bio}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-4 rounded-[var(--radius-lg)] mb-8 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
-                          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                            Write a compelling summary of your craft, training, and vocal range to complete your profile.
-                          </p>
+                    {/* Tags & Bio (Shown in Profile View mode, omitted during active edit to prevent duplicate slop) */}
+                    {!isEditingProfile && (
+                      <>
+                        {/* Tags List */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {(talentProfile.tags || VIBE_TAGS).map((tag) => (
+                            <Badge key={tag} tone="neutral" size="lg">
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
-                        <Button
-                          variant="secondary"
-                          className="h-8 text-xs shrink-0"
-                          onClick={() => setIsEditingProfile(true)}
-                        >
-                          Add Bio
-                        </Button>
-                      </div>
+
+                        {/* Bio Section */}
+                        {talentProfile.bio && talentProfile.bio.trim() && !talentProfile.bio.toLowerCase().includes("no bio") ? (
+                          <div className="mb-8">
+                            <h3 className="text-sm font-semibold font-body mb-2" style={{ color: "var(--color-text-primary)" }}>
+                              About the Performer
+                            </h3>
+                            <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                              {talentProfile.bio}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="p-4 rounded-[var(--radius-lg)] mb-8 border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-[var(--color-text-primary)]">No Bio Added Yet</p>
+                              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                                Write a compelling summary of your craft, training, and vocal range to complete your profile.
+                              </p>
+                            </div>
+                            <Button
+                              variant="secondary"
+                              className="h-8 text-xs shrink-0"
+                              onClick={() => setIsEditingProfile(true)}
+                            >
+                              Add Bio
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {/* Featured Performance Reel (Airbnb / Upwork Portfolio style) */}
@@ -3117,67 +3121,75 @@ export function TalentDashboard() {
                       </div>
 
                       {/* 3. Audition Sides & Script Excerpt */}
-                      <div
-                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-                            <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                              Audition Sides &amp; Script Excerpt
-                            </h2>
-                          </div>
+                      {(() => {
+                        const rawScript =
+                          selectedProject.scriptSample ||
+                          "They told you impossible is a standard. We tell you it's a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.";
+                        const cleanScript = rawScript
+                          .replace(/^(Sides\s*\/\s*Script\s*Excerpt|Opening\s*Keynote\s*Excerpt|Model\s*Directives|Hook\s*Excerpt|Routine\s*Sample):\s*\n?/i, "")
+                          .replace(/^'([\s\S]*)'$/, "$1")
+                          .trim();
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const textToCopy =
-                                selectedProject.scriptSample ||
-                                "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'";
-                              navigator.clipboard.writeText(textToCopy);
-                              setCopiedScript(true);
-                              setTimeout(() => setCopiedScript(false), 2000);
-                            }}
-                            className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)]"
+                        return (
+                          <div
+                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
+                              background: "var(--color-bg-surface)",
                               borderColor: "var(--color-border-default)",
-                              color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
                             }}
                           >
-                            {copiedScript ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                <span className="text-emerald-500">Copied!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copy Script</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <Layers className="w-4 h-4 text-[var(--color-accent)]" />
+                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Audition Sides &amp; Script Excerpt
+                                </h2>
+                              </div>
 
-                        <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Use this excerpt for your audition take or pitch video recording:
-                        </p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(cleanScript);
+                                  setCopiedScript(true);
+                                  setTimeout(() => setCopiedScript(false), 2000);
+                                }}
+                                className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] cursor-pointer"
+                                style={{
+                                  borderColor: "var(--color-border-default)",
+                                  color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
+                                }}
+                              >
+                                {copiedScript ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                    <span className="text-emerald-500">Copied!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3.5 h-3.5" />
+                                    <span>Copy Script</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
 
-                        <div
-                          className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
-                          style={{
-                            background: "var(--color-bg-elevated)",
-                            borderColor: "var(--color-hairline)",
-                            color: "var(--color-text-primary)",
-                          }}
-                        >
-                          {selectedProject.scriptSample ||
-                            "Sides / Script Excerpt:\n'Every morning starts with a decision. You don't wait for greatness—you chase it down. When the whistle blows, the world listens. Just Do It.'"}
-                        </div>
-                      </div>
+                            <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                              Use this excerpt for your audition take or pitch video recording:
+                            </p>
+
+                            <div
+                              className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
+                              style={{
+                                background: "var(--color-bg-elevated)",
+                                borderColor: "var(--color-hairline)",
+                                color: "var(--color-text-primary)",
+                              }}
+                            >
+                              {cleanScript}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* 4. Deliverables & Production Timeline */}
                       <div
@@ -3291,11 +3303,11 @@ export function TalentDashboard() {
 
                         {/* Applicant spots */}
                         <div
-                          className="p-4 rounded-2xl border space-y-2"
+                          className="p-4 rounded-2xl border space-y-2.5"
                           style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                         >
                           <div className="flex items-center justify-between text-xs font-body">
-                            <span style={{ color: "var(--color-text-secondary)" }}>Applicant Spots</span>
+                            <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>Applicant Capacity</span>
                             <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>
                               {selectedProject.applicantCount} / {selectedProject.applicantCap || 10} filled
                             </span>
@@ -3324,7 +3336,7 @@ export function TalentDashboard() {
                         {/* State 1: Already Applied */}
                         {selectedProject.myApplication ? (
                           <div
-                            className="p-4 rounded-2xl border space-y-3"
+                            className="p-4 rounded-2xl border space-y-3.5"
                             style={{
                               background:
                                 selectedProject.myApplication.status === "SELECTED"
@@ -3363,33 +3375,36 @@ export function TalentDashboard() {
                                   color: "var(--color-text-secondary)",
                                 }}
                               >
-                                "{selectedProject.myApplication.pitch}"
+                                &ldquo;{selectedProject.myApplication.pitch}&rdquo;
                               </div>
                             )}
 
                             {selectedProject.myApplication.status === "SELECTED" ? (
                               <div className="space-y-3">
                                 <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-body flex items-start gap-2">
-                                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
                                   <span>
                                     Congratulations! {selectedProject.clientName} selected you. Escrow deposit is funded and your Order Room is active.
                                   </span>
                                 </div>
                                 <Button
-                                  className="w-full h-11 text-xs font-semibold"
+                                  className="w-full h-11 text-xs font-semibold gap-1.5"
                                   onClick={() => {
                                     setSelectedProject(null);
-                                    navigate("/order/ORD-001");
+                                    navigate("/order/ORD-001?role=talent");
                                   }}
                                 >
-                                  Open Order Room <ChevronRight className="w-4 h-4 ml-1.5" />
+                                  Open Order Room <ChevronRight className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
                               <div className="space-y-3">
-                                <p className="text-xs font-body text-amber-600 dark:text-amber-400">
-                                  ⭐ You're on the shortlist! The casting team is reviewing your profile and performance reel.
-                                </p>
+                                <div className="p-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-300/30 text-xs font-body flex items-start gap-2">
+                                  <Star className="w-4 h-4 shrink-0 fill-amber-400 text-amber-500 mt-0.5" />
+                                  <span>
+                                    You&apos;re on the shortlist! The casting team is reviewing your profile and performance reel.
+                                  </span>
+                                </div>
                                 <Button
                                   variant="secondary"
                                   className="w-full h-10 text-xs font-semibold"
@@ -3401,7 +3416,7 @@ export function TalentDashboard() {
                             ) : selectedProject.myApplication.status === "APPLIED" ? (
                               <div className="space-y-3">
                                 <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  Submitted to {selectedProject.clientName}. You'll be notified when the client reviews your pitch.
+                                  Submitted to {selectedProject.clientName}. You&apos;ll be notified when the client reviews your pitch.
                                 </p>
                                 <Button
                                   variant="secondary"
@@ -3412,13 +3427,31 @@ export function TalentDashboard() {
                                 </Button>
                               </div>
                             ) : selectedProject.myApplication.status === "REJECTED" ? (
-                              <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                The client chose another performer for this campaign. Keep pitching for upcoming roles!
-                              </p>
+                              <div className="space-y-3">
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  The client chose another performer for this campaign. Keep pitching for upcoming roles!
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  className="w-full h-10 text-xs font-semibold"
+                                  onClick={() => setSelectedProject(null)}
+                                >
+                                  Browse Other Projects
+                                </Button>
+                              </div>
                             ) : (
-                              <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                You withdrew your application for this project.
-                              </p>
+                              <div className="space-y-3">
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  You withdrew your application for this project.
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  className="w-full h-10 text-xs font-semibold"
+                                  onClick={() => setSelectedProject(null)}
+                                >
+                                  Browse Other Projects
+                                </Button>
+                              </div>
                             )}
                           </div>
                         ) : !selectedProject.applicationsOpen ? (
@@ -4172,7 +4205,7 @@ export function TalentDashboard() {
                     {(() => {
                       const activeChartData = CATEGORY_CHART_TIMEFRAMES[chartTimeframe];
                       const n = activeChartData.labels.length;
-                      const paddingLeft = 55;
+                      const paddingLeft = 64;
                       const paddingRight = 30;
                       const paddingTop = 25;
                       const paddingBottom = 40;
@@ -4241,13 +4274,12 @@ export function TalentDashboard() {
                                     setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
                                     setHoveredChartIndex(null);
                                   }}
-                                  className="appearance-none text-xs font-semibold px-3 py-1.5 pr-8 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
+                                  className="appearance-none text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
                                 >
                                   <option value="6m">Last 6 months</option>
                                   <option value="3m">Last 3 months</option>
                                   <option value="1y">Past year</option>
                                 </select>
-                                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                               </div>
                             </div>
                           </div>
@@ -4323,7 +4355,7 @@ export function TalentDashboard() {
                               <text
                                 transform="rotate(-90)"
                                 x={-((paddingTop + baselineY) / 2)}
-                                y="16"
+                                y="18"
                                 textAnchor="middle"
                                 className="text-[11px] font-body fill-zinc-400 font-medium"
                               >
@@ -4832,7 +4864,7 @@ export function TalentDashboard() {
                   </div>
 
                   {/* Clean Search & Filter Controls */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-3 pb-2 shrink-0">
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-3 pb-2 shrink-0">
                     <div className="relative flex-1">
                       <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
@@ -4840,13 +4872,13 @@ export function TalentDashboard() {
                         value={reviewSearch}
                         onChange={(e) => setReviewSearch(e.target.value)}
                         placeholder="Search reviews, clients, projects..."
-                        className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
+                        className="w-full h-9 pl-8 pr-7 text-xs rounded-xl border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
                       />
                       {reviewSearch && (
                         <button
                           type="button"
                           onClick={() => setReviewSearch("")}
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-600 absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -4858,27 +4890,25 @@ export function TalentDashboard() {
                         <select
                           value={reviewRatingFilter}
                           onChange={(e) => setReviewRatingFilter(e.target.value as any)}
-                          className="appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                          className="appearance-none h-9 px-3 rounded-xl border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer text-xs font-medium"
                         >
                           <option value="all">All Ratings</option>
                           <option value="5">★ 5.0 (5 reviews)</option>
                           <option value="4.9">★ 4.9 (1 review)</option>
                           <option value="4.8">★ 4.8 (2 reviews)</option>
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
 
                       <div className="relative">
                         <select
                           value={reviewSortOrder}
                           onChange={(e) => setReviewSortOrder(e.target.value as any)}
-                          className="appearance-none h-8 px-2.5 pr-7 text-xs rounded-lg border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                          className="appearance-none h-9 px-3 rounded-xl border bg-zinc-50/50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer text-xs font-medium"
                         >
                           <option value="newest">Sort: Newest First</option>
                           <option value="highest">Sort: Highest Rating</option>
                           <option value="oldest">Sort: Oldest First</option>
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                     </div>
                   </div>
@@ -4996,7 +5026,7 @@ export function TalentDashboard() {
                                 type="button"
                                 onClick={() => {
                                   setShowReviewsModal(false);
-                                  navigate(`/order/${rev.orderId}`);
+                                  navigate(`/order/${rev.orderId}?role=talent`);
                                 }}
                                 className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors cursor-pointer group"
                               >
