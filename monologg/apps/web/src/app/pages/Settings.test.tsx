@@ -200,10 +200,23 @@ describe("Settings — physical attributes section", () => {
     await waitFor(() => {
       expect(screen.getByText("Client Settings")).toBeInTheDocument();
     });
-    expect(screen.getByText("Verified Studio")).toBeInTheDocument();
-    expect(screen.getByText("Organization Profile")).toBeInTheDocument();
+    expect(screen.getByText("Verified Client")).toBeInTheDocument();
+    expect(screen.getByText("Profile")).toBeInTheDocument();
     // Physical attributes (talent-only) is omitted for client
     expect(screen.queryByText("Physical Attributes")).not.toBeInTheDocument();
+
+    // Verify navigating to Profile displays Brand Name and Brand Type
+    fireEvent.click(screen.getByText("Profile"));
+    await screen.findByText("Brand Name");
+    expect(screen.getByText("Brand Type")).toBeInTheDocument();
+
+    // Go back and open Security & Privacy - verify Change Passcode is omitted for clients
+    const backBtn = screen.getByRole("button", { name: /Back to settings/i });
+    fireEvent.click(backBtn);
+    const securityMenu = await screen.findByText("Security & Privacy");
+    fireEvent.click(securityMenu);
+    await screen.findByText("Change Password");
+    expect(screen.queryByText("Change Passcode")).not.toBeInTheDocument();
   });
 });
 

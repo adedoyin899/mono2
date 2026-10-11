@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
+**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 117 (2026-10-11) — Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal
+
+**Goal:** Overhaul the Client Analytics view and resolve client-side settings discrepancies per user visual specifications:
+1. **Client Analytics 4 Cards Metric Realignment (`ClientDashboard.tsx`):**
+   - Replaced previous escrow/applicant cards with requested 4 core metrics:
+     1. **`Total Spend Till date`**: Dynamic platform spend reflecting chosen period (`₦285,000` for 30d, `₦590,000` for 90d, `₦850,000` for This Year, `₦1,420,000` for All time, `₦0` for new users).
+     2. **`Total successful projects`**: Successful brief completions count (`2` for 30d, `3` for 90d, `4` for This Year, `6` for All time).
+     3. **`average rating`**: Performer reciprocal rating (`5.0 ★` / `4.9 ★`).
+     4. **`repeat talent rate`**: Talent retention percentage benchmark (`33%` / `28%` / `25%` / `30%`).
+2. **Interactive Date Range Dropdown:**
+   - Removed the static `Live Sync Active` badge chip from the analytics header.
+   - Replaced with an interactive date range selector (`Period: Last 30 days`, `Last 90 days`, `This Year`, `All time`) with calendar icon.
+   - Selecting a new range dynamically recalculates all 4 metrics and adjusts the spend graph axis, labels, and plot points in real time.
+3. **Campaign Spend Spline Area Graph:**
+   - Removed both `Performer Acquisition Funnel` and `Category Budget Allocation` cards.
+   - Engineered a responsive SVG `Spend Over Time` spline area graph (`viewBox="0 0 760 230"`) featuring smooth cubic bezier curves (`getSplinePath`), Monologg purple gradient fill (`#7C3AED` to transparent), dashed Y-axis grid lines with ₦ currency ticks, X-axis milestone labels, and interactive data point hover tooltips displaying point amounts.
+4. **Client Settings Profile & Brand Types Alignment (`Settings.tsx`):**
+   - Standardized the organization type dropdown to match Onboarding's **Brand Types** (`Creative Agency`, `Brand`, `Production Company`, `Events Company`, `Individual`, `Other`), eliminating the legacy `STUDIO / BRAND / EVENT / CHURCH` options.
+   - Renamed form labels from "Organization / Studio Name" to **`Brand Name`** and "Organization Type" to **`Brand Type`**.
+   - Unified profile nomenclature across the application so client settings renders simply **`Profile`** (in navigation lists and page headers) alongside **`Verified Client`**, establishing a clean, unified profile concept.
+   - Renamed dashboard action nudge from "Company Profile" to **`Profile`**.
+5. **Client Security & Passcode Removal (`Settings.tsx`):**
+   - Gated the `Change Passcode` card exclusively to performers (`!isClient`).
+   - Clients do not have or need a withdrawal passcode; the card is completely removed from the client view in Security & Privacy.
+6. **Testing & Standalone Distribution Rebuilding:**
+   - Updated `Settings.test.tsx` (13/13 passing) and expanded `ClientDashboard.test.tsx` (11/11 passing). All 117 web tests passing across all 25 suites.
+   - Verified 100% clean TypeScript compiler verification (`tsc --noEmit`).
+   - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.58 MB).
+
+### Files Touched:
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
+**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 67. Withdrawal passcode card erroneously exposed to client accounts & legacy organization types drifting from onboarding
+- **Severity:** Low / Domain Model Alignment & Security UX Clarity
+- **What happened:** In `Settings.tsx`, the `Change Passcode` card was rendered unconditionally across both performer and client accounts, even though clients neither earn funds nor execute bank withdrawals requiring a 4-digit PIN. Additionally, the client profile organization type dropdown retained legacy `STUDIO / BRAND / EVENT / CHURCH` values rather than matching the modern Brand Types established in onboarding (`Creative Agency`, `Brand`, `Production Company`, `Events Company`, `Individual`, `Other`), causing client accounts to display `Verified Studio` even when registered as brands or individuals.
+- **Root Cause:** Missing role-gate `!isClient` around the `Change Passcode` container in Security & Privacy, and un-migrated dropdown option items in the client profile editor.
+- **Resolution:** Gated `Change Passcode` exclusively to performers (`{!isClient && ...}`), aligned organization types to onboarding's 6 Brand Types, updated labels to `Brand Name` and `Brand Type`, and unified profile naming to `Profile` with `Verified Client` across client settings and dashboard navigation.
 
 ### 66. Rigid modal-only draft editing preventing modification of craft niches, deliverables, timeline, or reference assets
 - **Severity:** Medium / Feature Completeness & UX Friction

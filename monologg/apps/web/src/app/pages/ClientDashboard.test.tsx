@@ -306,4 +306,74 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
   });
 });
 
+describe("ClientDashboard — Analytics Tab", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("renders 4 updated metrics cards, date range dropdown, and spend graph while removing funnel and category allocation", async () => {
+    const { ClientDashboard } = await import("./ClientDashboard");
+    render(
+      <MemoryRouter initialEntries={["/client"]}>
+        <ClientDashboard />
+      </MemoryRouter>,
+    );
+
+    // Navigate to Analytics tab
+    const analyticsNav = screen.getByRole("button", { name: "Analytics" });
+    fireEvent.click(analyticsNav);
+
+    // Heading renders
+    await screen.findByText("Hiring & Budget Analytics");
+
+    // Live Sync chip is removed; Date Range dropdown is rendered
+    expect(screen.queryByText("Live Sync Active")).not.toBeInTheDocument();
+    const dateRangeSelect = screen.getByLabelText("Analytics date range");
+    expect(dateRangeSelect).toBeInTheDocument();
+
+    // 4 metric cards are rendered with initial This Year data
+    expect(screen.getByText("Total Spend Till date")).toBeInTheDocument();
+    expect(screen.getAllByText("₦850,000").length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getByText("Total successful projects")).toBeInTheDocument();
+    expect(screen.getByText("4")).toBeInTheDocument();
+
+    expect(screen.getByText("average rating")).toBeInTheDocument();
+    expect(screen.getByText("4.9 ★")).toBeInTheDocument();
+
+    expect(screen.getByText("repeat talent rate")).toBeInTheDocument();
+    expect(screen.getByText("25%")).toBeInTheDocument();
+
+    // Funnel and category budget allocation cards are removed
+    expect(screen.queryByText("Performer Acquisition Funnel")).not.toBeInTheDocument();
+    expect(screen.queryByText("Category Budget Allocation")).not.toBeInTheDocument();
+
+    // Spend Over Time spline chart is rendered
+    expect(screen.getByText("Spend Over Time")).toBeInTheDocument();
+
+    // Changing the date range dropdown updates the metrics and spend graph
+    fireEvent.change(dateRangeSelect, { target: { value: "30d" } });
+
+    expect(screen.getAllByText("₦285,000").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("5.0 ★")).toBeInTheDocument();
+    expect(screen.getByText("33%")).toBeInTheDocument();
+    expect(screen.getByText("Campaign spend across 4 weekly payout milestones")).toBeInTheDocument();
+
+    // Switching to 90d updates
+    fireEvent.change(dateRangeSelect, { target: { value: "90d" } });
+    expect(screen.getAllByText("₦590,000").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("28%")).toBeInTheDocument();
+
+    // Switching to All Time updates
+    fireEvent.change(dateRangeSelect, { target: { value: "all" } });
+    expect(screen.getAllByText("₦1,420,000").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("6")).toBeInTheDocument();
+    expect(screen.getByText("30%")).toBeInTheDocument();
+  });
+});
+
 

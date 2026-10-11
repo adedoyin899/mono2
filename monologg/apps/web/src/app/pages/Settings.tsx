@@ -174,7 +174,7 @@ export function Settings() {
   // Client fields
   const [clientName, setClientName] = useState("Sarah Jenkins");
   const [clientOrgName, setClientOrgName] = useState("FilmCraft Studios");
-  const [clientOrgType, setClientOrgType] = useState("STUDIO");
+  const [clientOrgType, setClientOrgType] = useState("Production Company");
   const [clientEmail, setClientEmail] = useState("sarah@filmcraft.com");
   const [clientLocation, setClientLocation] = useState("Lagos, Nigeria");
 
@@ -304,7 +304,15 @@ export function Settings() {
         const cState = appStateSync.getClientProfile();
         setClientName(cState.name);
         setClientOrgName(cState.orgName);
-        setClientOrgType(cState.orgType);
+        if (cState.orgType) {
+          const norm =
+            cState.orgType === "STUDIO" ? "Production Company" :
+            cState.orgType === "BRAND" ? "Brand" :
+            cState.orgType === "EVENT" ? "Events Company" :
+            cState.orgType === "CHURCH" ? "Other" :
+            cState.orgType;
+          setClientOrgType(norm);
+        }
         setClientEmail(cState.email);
         setClientLocation(cState.location);
         if (cState.avatarUrl !== undefined) setAvatarUrl(cState.avatarUrl);
@@ -342,7 +350,15 @@ export function Settings() {
       apiClient.getClientProfile().then((cp) => {
         setClientName(cp.name);
         if (cp.orgName) setClientOrgName(cp.orgName);
-        if (cp.orgType) setClientOrgType(cp.orgType);
+        if (cp.orgType) {
+          const norm =
+            cp.orgType === "STUDIO" ? "Production Company" :
+            cp.orgType === "BRAND" ? "Brand" :
+            cp.orgType === "EVENT" ? "Events Company" :
+            cp.orgType === "CHURCH" ? "Other" :
+            cp.orgType;
+          setClientOrgType(norm);
+        }
         if (cp.location) setClientLocation(cp.location);
         if (cp.avatarUrl) setAvatarUrl(cp.avatarUrl);
       }).catch(() => {});
@@ -374,10 +390,17 @@ export function Settings() {
     setSavingProfile(true);
     try {
       if (isClient) {
+        const apiOrgType =
+          clientOrgType === "Production Company" ? "STUDIO" :
+          clientOrgType === "Brand" ? "BRAND" :
+          clientOrgType === "Events Company" ? "EVENT" :
+          clientOrgType === "Creative Agency" ? "BRAND" :
+          clientOrgType === "Individual" ? "STUDIO" :
+          "CHURCH";
         const updated = await apiClient.updateClientProfile({
           name: clientName,
           orgName: clientOrgName,
-          orgType: clientOrgType as any,
+          orgType: apiOrgType as any,
           location: clientLocation,
         });
         setClientName(updated.name);
@@ -385,7 +408,7 @@ export function Settings() {
         appStateSync.updateClientProfile({
           name: updated.name,
           orgName: updated.orgName ?? undefined,
-          orgType: updated.orgType ?? undefined,
+          orgType: clientOrgType,
           location: updated.location ?? undefined,
         });
       } else {
@@ -574,7 +597,7 @@ export function Settings() {
         <div className="flex-1">
           <div className="text-sm font-semibold font-display" style={s.text}>
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
-            {section === "profile" && (isClient ? "Organization Profile" : "Edit Profile")}
+            {section === "profile" && (isClient ? "Profile" : "Edit Profile")}
             {section === "craft_details" && "Personal Details"}
             {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment details")}
             {section === "notifications" && "Notifications"}
@@ -677,7 +700,7 @@ export function Settings() {
                   }}
                 >
                   <Shield className="w-3.5 h-3.5" />
-                  <span>{isClient ? "Verified Studio" : "Verified"}</span>
+                  <span>{isClient ? "Verified Client" : "Verified"}</span>
                 </div>
               </div>
 
@@ -686,7 +709,7 @@ export function Settings() {
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 {isClient ? (
                   <>
-                    <ListItem label="Organization Profile" icon={Building} onClick={() => setSection("profile")} />
+                    <ListItem label="Profile" icon={Building} onClick={() => setSection("profile")} />
                     <ListItem label="Billing & Invoicing" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
                     <ListItem label="Project Briefs History" icon={Briefcase} onClick={() => navigate("/client")} />
@@ -775,23 +798,25 @@ export function Settings() {
                     </button>
                   </div>
 
-                  <FormField label="Organization / Studio Name">
-                    <Input value={clientOrgName} onChange={e => setClientOrgName(e.target.value)} />
+                  <FormField label="Brand Name">
+                    <Input value={clientOrgName} onChange={e => setClientOrgName(e.target.value)} placeholder="e.g., FilmCraft Studios or your brand name" />
                   </FormField>
                   <FormField label="Primary Contact Person">
                     <Input value={clientName} onChange={e => setClientName(e.target.value)} />
                   </FormField>
-                  <FormField label="Organization Type">
+                  <FormField label="Brand Type">
                     <select
                       value={clientOrgType}
                       onChange={e => setClientOrgType(e.target.value)}
                       className="w-full h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
                       style={{ ...s.elevated, color: "var(--color-text-primary)" }}
                     >
-                      <option value="STUDIO">Studio</option>
-                      <option value="BRAND">Brand Agency</option>
-                      <option value="EVENT">Event Production</option>
-                      <option value="CHURCH">Church / Non-Profit</option>
+                      <option value="Creative Agency">Creative Agency</option>
+                      <option value="Brand">Brand</option>
+                      <option value="Production Company">Production Company</option>
+                      <option value="Events Company">Events Company</option>
+                      <option value="Individual">Individual</option>
+                      <option value="Other">Other</option>
                     </select>
                   </FormField>
                   <FormField label="Email Address">
@@ -2390,57 +2415,59 @@ export function Settings() {
                 </div>
               </div>
 
-              {/* Change Passcode */}
-              <div className="rounded-2xl overflow-hidden" style={s.surface}>
-                <div className="px-4 py-3.5">
-                  <div className="text-sm font-semibold font-body mb-3" style={s.text}>Change Passcode</div>
-                  <div className="space-y-3">
-                    <Input
-                      type="password"
-                      maxLength={4}
-                      placeholder="Current Passcode"
-                      value={currentPasscode}
-                      onChange={(e) => {
-                        setCurrentPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
-                        setPasscodeError(null);
-                      }}
-                    />
-                    <Input
-                      type="password"
-                      maxLength={4}
-                      placeholder="New Passcode"
-                      value={newPasscode}
-                      onChange={(e) => {
-                        setNewPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
-                        setPasscodeError(null);
-                      }}
-                    />
-                    <Input
-                      type="password"
-                      maxLength={4}
-                      placeholder="Confirm New Passcode"
-                      value={confirmPasscode}
-                      onChange={(e) => {
-                        setConfirmPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
-                        setPasscodeError(null);
-                      }}
-                    />
+              {/* Change Passcode (Performers only - client accounts do not have a withdrawal passcode) */}
+              {!isClient && (
+                <div className="rounded-2xl overflow-hidden" style={s.surface}>
+                  <div className="px-4 py-3.5">
+                    <div className="text-sm font-semibold font-body mb-3" style={s.text}>Change Passcode</div>
+                    <div className="space-y-3">
+                      <Input
+                        type="password"
+                        maxLength={4}
+                        placeholder="Current Passcode"
+                        value={currentPasscode}
+                        onChange={(e) => {
+                          setCurrentPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                          setPasscodeError(null);
+                        }}
+                      />
+                      <Input
+                        type="password"
+                        maxLength={4}
+                        placeholder="New Passcode"
+                        value={newPasscode}
+                        onChange={(e) => {
+                          setNewPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                          setPasscodeError(null);
+                        }}
+                      />
+                      <Input
+                        type="password"
+                        maxLength={4}
+                        placeholder="Confirm New Passcode"
+                        value={confirmPasscode}
+                        onChange={(e) => {
+                          setConfirmPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
+                          setPasscodeError(null);
+                        }}
+                      />
+                    </div>
+                    {passcodeError && (
+                      <div className="text-xs text-[var(--color-error)] font-body mt-2">{passcodeError}</div>
+                    )}
+                    {passcodeSaved && (
+                      <div className="text-xs text-[var(--color-success)] font-body mt-2">Withdrawal security passcode updated successfully. ✓</div>
+                    )}
+                    <Button
+                      className="w-full h-11 mt-3 text-sm"
+                      disabled={currentPasscode.length !== 4 || newPasscode.length !== 4 || confirmPasscode.length !== 4}
+                      onClick={handleUpdatePasscode}
+                    >
+                      {passcodeSaved ? "Passcode Updated! ✓" : "Update Passcode"}
+                    </Button>
                   </div>
-                  {passcodeError && (
-                    <div className="text-xs text-[var(--color-error)] font-body mt-2">{passcodeError}</div>
-                  )}
-                  {passcodeSaved && (
-                    <div className="text-xs text-[var(--color-success)] font-body mt-2">Withdrawal security passcode updated successfully. ✓</div>
-                  )}
-                  <Button
-                    className="w-full h-11 mt-3 text-sm"
-                    disabled={currentPasscode.length !== 4 || newPasscode.length !== 4 || confirmPasscode.length !== 4}
-                    onClick={handleUpdatePasscode}
-                  >
-                    {passcodeSaved ? "Passcode Updated! ✓" : "Update Passcode"}
-                  </Button>
                 </div>
-              </div>
+              )}
 
               <div className="rounded-2xl overflow-hidden" style={{ background: "var(--color-error-bg)", border: "1px solid var(--color-error)" }}>
                 <button

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
+**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -628,6 +628,35 @@ Engineered an inline editable brief architecture and polished the client project
   - Added unit test coverage in `ClientDashboard.test.tsx` verifying Draft Stepper rendering, inline form transformations, overview saving, and deliverables list modifications (10/10 passing; 116/116 web tests passing).
   - Verified 100% clean TypeScript compiler verification (`tsc --noEmit`).
   - Re-compiled standalone single-file distribution bundle into `monologg/monologg-app.html` (1.50 MB).
+
+---
+
+### Step 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Realignment, Brand Types Alignment, Unified Profile & Client Passcode Removal (Session 117)
+
+Overhauled the Client Analytics experience and streamlined client-facing settings configuration:
+- **Client Analytics 4 Cards Realignment:**
+  - Replaced the previous escrow and applicant metrics with 4 user-specified core metrics:
+    1. `Total Spend Till date`: Period-adaptive platform spend (e.g. `₦285,000` for 30d, `₦590,000` for 90d, `₦850,000` for This Year, `₦1,420,000` for All time).
+    2. `Total successful projects`: Cumulative successful projects completed under escrow.
+    3. `average rating`: Overall talent-to-client reciprocal rating (`5.0 ★`).
+    4. `repeat talent rate`: Benchmark talent rehire rate (`33%` / `28%`).
+- **Interactive Date Range Dropdown:**
+  - Removed the static `Live Sync Active` badge chip.
+  - Introduced an interactive date range `<select>` (`Last 30 days`, `Last 90 days`, `This Year`, `All time`) with calendar icon.
+  - Dynamically updates metrics and triggers real-time graph re-plotting upon selection.
+- **Campaign Spend Spline Area Graph:**
+  - Removed both `Category Budget Allocation` and `Performer Acquisition Funnel` widgets.
+  - Engineered a responsive SVG cubic bezier spline graph (`viewBox="0 0 760 230"`) with a purple linear gradient fill, horizontal dashed value ticks, X-axis milestone markers, and interactive hover tooltips displaying data point totals.
+- **Brand Types & Unified Profile Nomenclature:**
+  - Standardized client profile settings dropdown to match Onboarding's Brand Types (`Creative Agency`, `Brand`, `Production Company`, `Events Company`, `Individual`, `Other`), retiring outdated enum options.
+  - Updated input labels to `Brand Name` and `Brand Type`.
+  - Unified profile naming so client settings renders clean `Profile` (instead of `Organization Profile` or `Company Profile`) alongside `Verified Client`.
+- **Client Passcode Removal:**
+  - Removed the `Change Passcode` card for client accounts (`isClient`), reserving it strictly for performers who use passcodes for withdrawal payouts.
+- **Automated Testing & Distribution Rebuilding:**
+  - Updated `Settings.test.tsx` (13/13 passing) and `ClientDashboard.test.tsx` (11/11 passing); all 117 tests passing across the workspace.
+  - 100% clean TypeScript typecheck (`tsc --noEmit`).
+  - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.58 MB).
 
 ---
 

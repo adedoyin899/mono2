@@ -50,6 +50,156 @@ function addMinutes(time: string, minutes: number): string {
   return toTimeStr(minutesOf(time) + minutes);
 }
 
+export function getSplinePath(points: { x: number; y: number }[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i === 0 ? 0 : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return path;
+}
+
+export function getAreaPath(points: { x: number; y: number }[], baselineY: number): string {
+  if (points.length === 0) return "";
+  const spline = getSplinePath(points);
+  const first = points[0];
+  const last = points[points.length - 1];
+  return `${spline} L ${last.x.toFixed(1)} ${baselineY} L ${first.x.toFixed(1)} ${baselineY} Z`;
+}
+
+export type ClientAnalyticsRange = "30d" | "90d" | "year" | "all";
+
+export const CLIENT_ANALYTICS_DATA: Record<
+  ClientAnalyticsRange,
+  {
+    rangeLabel: string;
+    totalSpend: string;
+    spendSubtext: string;
+    successfulProjects: string;
+    projectsSubtext: string;
+    avgRating: string;
+    ratingSubtext: string;
+    repeatRate: string;
+    repeatSubtext: string;
+    graphPeriodSubtitle: string;
+    graphPoints: { label: string; amount: number }[];
+    yTicks: { label: string; val: number }[];
+    maxVal: number;
+  }
+> = {
+  "30d": {
+    rangeLabel: "Last 30 days",
+    totalSpend: "₦285,000",
+    spendSubtext: "+18% vs previous month",
+    successfulProjects: "2",
+    projectsSubtext: "100% on-time milestone delivery",
+    avgRating: "5.0 ★",
+    ratingSubtext: "Across 2 verified performer reviews",
+    repeatRate: "33%",
+    repeatSubtext: "High talent retention rate",
+    graphPeriodSubtitle: "Campaign spend across 4 weekly payout milestones",
+    graphPoints: [
+      { label: "Wk 1", amount: 45000 },
+      { label: "Wk 2", amount: 80000 },
+      { label: "Wk 3", amount: 60000 },
+      { label: "Wk 4", amount: 100000 },
+    ],
+    yTicks: [
+      { label: "₦100k", val: 100000 },
+      { label: "₦75k", val: 75000 },
+      { label: "₦50k", val: 50000 },
+      { label: "₦25k", val: 25000 },
+      { label: "₦0", val: 0 },
+    ],
+    maxVal: 100000,
+  },
+  "90d": {
+    rangeLabel: "Last 90 days",
+    totalSpend: "₦590,000",
+    spendSubtext: "+24% quarterly growth",
+    successfulProjects: "3",
+    projectsSubtext: "3 productions wrapped & released",
+    avgRating: "4.9 ★",
+    ratingSubtext: "Across 3 verified performer reviews",
+    repeatRate: "28%",
+    repeatSubtext: "Optimal roster re-hire benchmark",
+    graphPeriodSubtitle: "Quarterly escrow commitment and disbursements",
+    graphPoints: [
+      { label: "Month 1", amount: 150000 },
+      { label: "Month 2", amount: 220000 },
+      { label: "Month 3", amount: 220000 },
+    ],
+    yTicks: [
+      { label: "₦250k", val: 250000 },
+      { label: "₦200k", val: 200000 },
+      { label: "₦150k", val: 150000 },
+      { label: "₦100k", val: 100000 },
+      { label: "₦0", val: 0 },
+    ],
+    maxVal: 250000,
+  },
+  "year": {
+    rangeLabel: "This Year",
+    totalSpend: "₦850,000",
+    spendSubtext: "Across 4 active & completed briefs",
+    successfulProjects: "4",
+    projectsSubtext: "100% dispute-free completions",
+    avgRating: "4.9 ★",
+    ratingSubtext: "Top 5% client rating on Monologg",
+    repeatRate: "25%",
+    repeatSubtext: "High performer satisfaction",
+    graphPeriodSubtitle: "Year-to-date production budgets locked in escrow",
+    graphPoints: [
+      { label: "Q1", amount: 180000 },
+      { label: "Q2", amount: 240000 },
+      { label: "Q3", amount: 280000 },
+      { label: "Q4", amount: 150000 },
+    ],
+    yTicks: [
+      { label: "₦300k", val: 300000 },
+      { label: "₦200k", val: 200000 },
+      { label: "₦100k", val: 100000 },
+      { label: "₦0", val: 0 },
+    ],
+    maxVal: 300000,
+  },
+  "all": {
+    rangeLabel: "All time",
+    totalSpend: "₦1,420,000",
+    spendSubtext: "Cumulative verified platform spend",
+    successfulProjects: "6",
+    projectsSubtext: "All escrow funds settled",
+    avgRating: "4.9 ★",
+    ratingSubtext: "Consistent 5-star reputation",
+    repeatRate: "30%",
+    repeatSubtext: "Trusted client partner tier",
+    graphPeriodSubtitle: "Historical platform spend across all completed cycles",
+    graphPoints: [
+      { label: "H1 2025", amount: 250000 },
+      { label: "H2 2025", amount: 320000 },
+      { label: "H1 2026", amount: 450000 },
+      { label: "H2 2026", amount: 400000 },
+    ],
+    yTicks: [
+      { label: "₦500k", val: 500000 },
+      { label: "₦375k", val: 375000 },
+      { label: "₦250k", val: 250000 },
+      { label: "₦125k", val: 125000 },
+      { label: "₦0", val: 0 },
+    ],
+    maxVal: 500000,
+  },
+};
+
 interface ProjectDetailedInfo {
   description: string;
   timeline: string;
@@ -254,6 +404,8 @@ interface ClientNotificationItem {
 export function ClientDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [clientProfile, setClientProfile] = useState(() => appStateSync.getClientProfile());
+  const [analyticsDateRange, setAnalyticsDateRange] = useState<ClientAnalyticsRange>("year");
+  const [hoveredSpendIndex, setHoveredSpendIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiche, setSelectedNiche] = useState("All");
   const [shortlist, setShortlist] = useState<string[]>([]);
@@ -681,7 +833,7 @@ export function ClientDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Company Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                          Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
                         <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Brand details</div>
                       </div>
@@ -2916,131 +3068,258 @@ export function ClientDashboard() {
             )}
 
             {/* ── Analytics Tab ── */}
-            {activeTab === "analytics" && (
-              <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Hiring &amp; Budget Analytics</h2>
-                    <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                      Overview of campaign spending, performer acquisition funnel, and escrow release metrics for {clientProfile.orgName || clientProfile.name}.
-                    </p>
-                  </div>
-                  <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
-                </div>
+            {activeTab === "analytics" && (() => {
+              const currentData = CLIENT_ANALYTICS_DATA[analyticsDateRange];
+              const plotWidth = 660;
+              const plotHeight = 170;
+              const paddingLeft = 70;
+              const paddingTop = 24;
+              const baselineY = paddingTop + plotHeight;
 
-                {isNewUser ? (
-                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
-                      <TrendingUp className="w-8 h-8" />
+              const splinePoints = currentData.graphPoints.map((pt, i, arr) => {
+                const x = paddingLeft + (arr.length > 1 ? (i / (arr.length - 1)) * plotWidth : plotWidth / 2);
+                const y = baselineY - (pt.amount / currentData.maxVal) * plotHeight;
+                return { x, y, ...pt };
+              });
+
+              const spline = getSplinePath(splinePoints);
+              const area = getAreaPath(splinePoints, baselineY);
+
+              return (
+                <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Hiring &amp; Budget Analytics</h2>
+                      <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                        Overview of campaign spending, successful projects, and talent retention metrics for {clientProfile.orgName || clientProfile.name}.
+                      </p>
                     </div>
-                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Hiring Analytics Pending</h3>
-                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      Metrics on performer engagement, application response rates, and total booking spend will be tracked here once you initiate hiring campaigns.
-                    </p>
-                    <Button onClick={() => setActiveTab("discover")} className="gap-2">
-                      <Search className="w-4 h-4" /> Discover Performers
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    {/* Metric Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Escrow Allocated</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>₦850,000</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>Across 4 active briefs</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Avg Cost Per Hire</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦70,833</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>Optimal ROI benchmark</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Applicants Received</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>32</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>12 shortlisted · 4 hired</div>
-                  </div>
-                  <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat Performer Rate</div>
-                    <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>25%</div>
-                    <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>High performer satisfaction</div>
-                  </div>
-                </div>
 
-                {/* Detailed Charts & Funnel */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Applicant Conversion Funnel */}
-                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Performer Acquisition Funnel</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Applications Received</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>32 (100%)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "100%", background: "var(--color-accent)" }} />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Shortlisted Candidates</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>12 (37.5%)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "37.5%", background: "var(--color-accent)" }} />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Hired &amp; Escrow Locked</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-success)" }}>4 (12.5%)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "12.5%", background: "var(--color-success)" }} />
-                        </div>
+                    {/* Date Range Dropdown (Replaces Live Sync Active chip) */}
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <div
+                        className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-lg)] border text-xs font-body shadow-sm"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          borderColor: "var(--color-border-default)",
+                          color: "var(--color-text-primary)",
+                        }}
+                      >
+                        <Calendar className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                        <span className="text-[var(--color-text-secondary)] font-medium">Period:</span>
+                        <select
+                          aria-label="Analytics date range"
+                          value={analyticsDateRange}
+                          onChange={(e) => setAnalyticsDateRange(e.target.value as ClientAnalyticsRange)}
+                          className="bg-transparent font-semibold cursor-pointer outline-none text-xs"
+                          style={{ color: "var(--color-text-primary)" }}
+                        >
+                          <option value="30d">Last 30 days</option>
+                          <option value="90d">Last 90 days</option>
+                          <option value="year">This Year</option>
+                          <option value="all">All time</option>
+                        </select>
                       </div>
                     </div>
                   </div>
 
-                  {/* Category Spend Distribution */}
-                  <div className="p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                    <h3 className="font-display text-base font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>Category Budget Allocation</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Actor / Screen Lead</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>40% (₦340,000)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "40%", background: "var(--color-accent)" }} />
-                        </div>
+                  {isNewUser ? (
+                    <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                        <TrendingUp className="w-8 h-8" />
                       </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Voice-Over &amp; Commercials</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>35% (₦297,500)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "35%", background: "var(--color-accent)" }} />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs font-body mb-1">
-                          <span style={{ color: "var(--color-text-primary)" }}>Event Compere &amp; Speaker</span>
-                          <span className="font-mono font-semibold" style={{ color: "var(--color-accent)" }}>25% (₦212,500)</span>
-                        </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-bg-elevated)" }}>
-                          <div className="h-full rounded-full" style={{ width: "25%", background: "var(--color-accent)" }} />
-                        </div>
-                      </div>
+                      <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Hiring Analytics Pending</h3>
+                      <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                        Metrics on campaign spending, successful projects, and talent retention will be tracked here once you initiate hiring campaigns.
+                      </p>
+                      <Button onClick={() => setActiveTab("discover")} className="gap-2">
+                        <Search className="w-4 h-4" /> Discover Performers
+                      </Button>
                     </div>
-                  </div>
-                </div>
-                </>
-                )}
-              </motion.div>
-            )}
+                  ) : (
+                    <>
+                      {/* 4 Metric Cards */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Spend Till date</div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.totalSpend}</div>
+                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.spendSubtext}</div>
+                        </div>
+                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total successful projects</div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>{currentData.successfulProjects}</div>
+                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>{currentData.projectsSubtext}</div>
+                        </div>
+                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>average rating</div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.avgRating}</div>
+                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{currentData.ratingSubtext}</div>
+                        </div>
+                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>repeat talent rate</div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.repeatRate}</div>
+                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.repeatSubtext}</div>
+                        </div>
+                      </div>
+
+                      {/* Spend Graph (Replaces Category Budget Allocation & Performer Acquisition Funnel) */}
+                      <div
+                        className="p-5 sm:p-6 rounded-[var(--radius-xl)]"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          border: "1px solid var(--color-border-default)",
+                          boxShadow: "var(--shadow-card)",
+                        }}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                          <div>
+                            <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                              Spend Over Time
+                            </h3>
+                            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+                              {currentData.graphPeriodSubtitle}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 text-xs font-body">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--color-accent)" }} />
+                              <span style={{ color: "var(--color-text-secondary)" }}>Escrow Spend (₦)</span>
+                            </div>
+                            <div
+                              className="px-2.5 py-1 rounded-full text-xs font-mono font-semibold"
+                              style={{
+                                background: "var(--color-accent-soft)",
+                                color: "var(--color-accent)",
+                              }}
+                            >
+                              {currentData.totalSpend}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Spline Area Chart */}
+                        <div className="w-full overflow-x-auto">
+                          <div className="min-w-[560px]">
+                            <svg
+                              viewBox="0 0 760 230"
+                              className="w-full h-auto overflow-visible select-none"
+                              onMouseLeave={() => setHoveredSpendIndex(null)}
+                            >
+                              <defs>
+                                <linearGradient id="clientSpendGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.25" />
+                                  <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.01" />
+                                </linearGradient>
+                              </defs>
+
+                              {/* Y-Axis Label Rotated */}
+                              <text
+                                transform="rotate(-90)"
+                                x={-((paddingTop + baselineY) / 2)}
+                                y="18"
+                                textAnchor="middle"
+                                className="text-[11px] font-body fill-zinc-400 font-medium"
+                              >
+                                Spend (₦)
+                              </text>
+
+                              {/* Horizontal Dashed Grid Lines & Y Ticks */}
+                              {currentData.yTicks.map((tick) => {
+                                const tickY = baselineY - (tick.val / currentData.maxVal) * plotHeight;
+                                return (
+                                  <g key={tick.label}>
+                                    <line
+                                      x1={paddingLeft}
+                                      y1={tickY}
+                                      x2={paddingLeft + plotWidth}
+                                      y2={tickY}
+                                      stroke="currentColor"
+                                      strokeDasharray="4 4"
+                                      className="text-zinc-200 dark:text-zinc-800"
+                                      strokeWidth="1"
+                                    />
+                                    <text
+                                      x={paddingLeft - 10}
+                                      y={tickY + 4}
+                                      textAnchor="end"
+                                      className="text-[11px] font-mono fill-zinc-400 dark:fill-zinc-500"
+                                    >
+                                      {tick.label}
+                                    </text>
+                                  </g>
+                                );
+                              })}
+
+                              {/* Area Fill */}
+                              <path d={area} fill="url(#clientSpendGradient)" />
+
+                              {/* Spline Line */}
+                              <path
+                                d={spline}
+                                fill="none"
+                                stroke="#7C3AED"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+
+                              {/* Data Points & Interactive Hover Area */}
+                              {splinePoints.map((pt, i) => (
+                                <g
+                                  key={pt.label}
+                                  onMouseEnter={() => setHoveredSpendIndex(i)}
+                                  className="cursor-pointer"
+                                >
+                                  <circle
+                                    cx={pt.x}
+                                    cy={pt.y}
+                                    r={hoveredSpendIndex === i ? 6 : 4}
+                                    fill="#7C3AED"
+                                    stroke="#ffffff"
+                                    strokeWidth="2"
+                                    className="transition-all duration-150"
+                                  />
+                                  {hoveredSpendIndex === i && (
+                                    <g>
+                                      <rect
+                                        x={pt.x - 48}
+                                        y={pt.y - 36}
+                                        width="96"
+                                        height="26"
+                                        rx="6"
+                                        fill="#18181B"
+                                        className="shadow-lg"
+                                      />
+                                      <text
+                                        x={pt.x}
+                                        y={pt.y - 19}
+                                        textAnchor="middle"
+                                        className="text-[11px] font-mono font-bold fill-white"
+                                      >
+                                        ₦{pt.amount.toLocaleString()}
+                                      </text>
+                                    </g>
+                                  )}
+                                  {/* X-Axis Tick Label */}
+                                  <text
+                                    x={pt.x}
+                                    y={baselineY + 20}
+                                    textAnchor="middle"
+                                    className="text-[11px] font-body font-medium fill-zinc-500 dark:fill-zinc-400"
+                                  >
+                                    {pt.label}
+                                  </text>
+                                </g>
+                              ))}
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              );
+            })()}
 
           </AnimatePresence>
 
