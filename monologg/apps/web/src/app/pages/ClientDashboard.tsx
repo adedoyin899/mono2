@@ -258,6 +258,7 @@ export function ClientDashboard() {
   const [selectedNiche, setSelectedNiche] = useState("All");
   const [shortlist, setShortlist] = useState<string[]>([]);
   const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
+  const [selectedApplicantForProfile, setSelectedApplicantForProfile] = useState<Applicant | null>(null);
   const [stats, setStats] = useState<StatMetric[]>([]);
   const [talents, setTalents] = useState<Talent[]>([]);
   const [projects, setProjects] = useState<ClientProject[]>([]);
@@ -368,7 +369,8 @@ export function ClientDashboard() {
     });
   };
 
-  const viewTalentProfile = (creator: Applicant["creator"]) => {
+  const viewTalentProfile = (creator: Applicant["creator"], applicant?: Applicant) => {
+    setSelectedApplicantForProfile(applicant || null);
     const match = talents.find((t) => t.id === creator.id || t.name === creator.name);
     if (match) {
       setSelectedTalent(match);
@@ -400,6 +402,7 @@ export function ClientDashboard() {
   const handleShortlist = async (applicationId: string) => {
     setApplicantActionError(null);
     setApplicants((prev) => prev.map((a) => a.applicationId === applicationId ? { ...a, status: "SHORTLISTED" } : a));
+    setSelectedApplicantForProfile((prev) => prev && prev.applicationId === applicationId ? { ...prev, status: "SHORTLISTED" } : prev);
     await apiClient.shortlistApplicant(applicationId);
     refreshApplicants();
   };
@@ -407,12 +410,14 @@ export function ClientDashboard() {
   const handleRejectApplicant = async (applicationId: string) => {
     setApplicantActionError(null);
     setApplicants((prev) => prev.map((a) => a.applicationId === applicationId ? { ...a, status: "REJECTED" } : a));
+    setSelectedApplicantForProfile((prev) => prev && prev.applicationId === applicationId ? { ...prev, status: "REJECTED" } : prev);
     await apiClient.rejectApplicant(applicationId);
     refreshApplicants();
   };
 
   const handleSelectAndHireApplicant = (applicant: Applicant) => {
     setApplicants((prev) => prev.map((a) => a.applicationId === applicant.applicationId ? { ...a, status: "SELECTED" } : a));
+    setSelectedApplicantForProfile((prev) => prev && prev.applicationId === applicant.applicationId ? { ...prev, status: "SELECTED" } : prev);
     if (selectedProjectDetail) {
       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "in_progress" }));
       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "in_progress" } : p));
@@ -1014,7 +1019,7 @@ export function ClientDashboard() {
                         key={talent.id}
                         className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                        onClick={() => setSelectedTalent(talent)}
+                        onClick={() => { setSelectedApplicantForProfile(null); setSelectedTalent(talent); }}
                       >
                         <div className="flex items-start gap-3 mb-3">
                           <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">
@@ -1063,90 +1068,6 @@ export function ClientDashboard() {
                     ))}
                   </div>
                 )}
-
-                {/* Talent profile modal */}
-                <AnimatePresence>
-                  {selectedTalent && (
-                    <Modal onClose={() => setSelectedTalent(null)} align="end">
-                      <motion.div
-                        initial={{ y: 40, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 40, opacity: 0 }}
-                        className="w-full max-w-md rounded-[var(--radius-lg)] overflow-hidden max-h-[90vh] overflow-y-auto"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {/* Modal header */}
-                        <div className="h-20" style={{ background: "linear-gradient(135deg, var(--color-accent-glow), var(--color-bg-elevated))" }} />
-                        <div className="px-5 pb-5">
-                          <div className="flex items-end gap-3 -mt-8 mb-3">
-                            <Avatar
-                              className="w-16 h-16 text-xl border-4 border-[var(--color-bg-surface)]"
-                              background="var(--color-accent-glow)"
-                              color="var(--color-accent)"
-                            >
-                              {selectedTalent.avatar}
-                            </Avatar>
-                            <button className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }} onClick={() => setSelectedTalent(null)}>
-                              <X className="w-4 h-4" style={{ color: "var(--color-text-secondary)" }} />
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>{selectedTalent.name}</h3>
-                            {selectedTalent.verified && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
-                          </div>
-                          <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>{selectedTalent.role} · {selectedTalent.location}</p>
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {selectedTalent.tags.map(tag => (
-                              <Badge key={tag} tone="neutral" size="md">{tag}</Badge>
-                            ))}
-                          </div>
-
-                          {/* Reel preview */}
-                          <div className="relative aspect-video rounded-[var(--radius-md)] overflow-hidden mb-4 cursor-pointer group" style={{ background: "var(--color-bg-elevated)" }}>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-12 h-12 rounded-full flex items-center justify-center pl-1" style={{ background: "var(--color-accent)" }}>
-                                <Play className="w-5 h-5" style={{ color: "var(--color-text-inverse)" }} />
-                              </div>
-                            </div>
-                            <div className="absolute bottom-2 right-2 px-2 py-1 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.6)" }}>02:30</div>
-                          </div>
-
-                          {/* Services */}
-                          <div className="space-y-2 mb-4">
-                            {["Standard Booking", "Rush Delivery"].map((svc, i) => (
-                              <div key={i} className="flex items-center justify-between p-3 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
-                                <span className="text-sm font-body" style={{ color: "var(--color-text-primary)" }}>{svc}</span>
-                                <span className="font-display text-sm tnum" style={{ color: "var(--color-accent)" }}>
-                                  {i === 0 ? selectedTalent.price : `₦${(parseInt(selectedTalent.price.replace(/[₦,]/g, "")) * 1.5).toLocaleString()}`}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button variant="secondary" className="flex-1 h-11 text-sm gap-1.5" onClick={() => { toggleShortlist(selectedTalent.id); }}>
-                              <Star className={`w-4 h-4 ${shortlist.includes(selectedTalent.id) ? "fill-current" : ""}`} /> {shortlist.includes(selectedTalent.id) ? "Saved" : "Save"}
-                            </Button>
-                            <Button
-                              className="flex-1 h-11 text-sm"
-                              onClick={() => {
-                                const talentId = selectedTalent.id;
-                                setSelectedTalent(null);
-                                // features.md Phase 13: real creatorId in state routes Checkout into
-                                // the live slot-aware booking flow; mock mode's demo entry (no id
-                                // wired anywhere yet) falls back to the prototype's static flow.
-                                navigate("/checkout", { state: { creatorId: talentId, creatorName: selectedTalent.name } });
-                              }}
-                            >
-                              Book Now →
-                            </Button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </Modal>
-                  )}
-                </AnimatePresence>
               </motion.div>
             )}
 
@@ -1161,8 +1082,8 @@ export function ClientDashboard() {
                   const effectiveDeliverables = projectDetails.deliverables;
                   const effectiveAssets = projectDetails.assets;
                   const applicantCapNumber = selectedProjectDetail.applicantCap || 10;
-                  const applicantCountNumber = applicants.length || selectedProjectDetail.applicants || 0;
-                  const capPercentage = Math.min(100, Math.round((applicantCountNumber / applicantCapNumber) * 100));
+                  const applicantCountNumber = currentStatus === "draft" ? 0 : (applicants.length || selectedProjectDetail.applicants || 0);
+                  const capPercentage = currentStatus === "draft" ? 0 : currentStatus === "in_progress" || currentStatus === "review" || currentStatus === "completed" ? 100 : Math.min(100, Math.round((applicantCountNumber / applicantCapNumber) * 100));
 
                   const filteredApplicants = applicants.filter((app) => {
                     if (applicantFilterTab === "shortlisted") return app.status === "SHORTLISTED";
@@ -1210,7 +1131,7 @@ export function ClientDashboard() {
                   return (
                     /* ── Dedicated Project Management & Details Page (Client POV) ── */
                     <div className="space-y-6">
-                      {/* Top Bar: Back link, State Switcher Preview, and Live Status Badge */}
+                      {/* Top Bar: Back link & State Switcher Preview */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b" style={{ borderColor: "var(--color-hairline)" }}>
                         <button
                           type="button"
@@ -1252,7 +1173,7 @@ export function ClientDashboard() {
                                     });
                                   }
                                 }}
-                                className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                                   currentStatus === st.id
                                     ? "bg-[#7C3AED] text-white shadow-sm"
                                     : "hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]"
@@ -1262,10 +1183,6 @@ export function ClientDashboard() {
                               </button>
                             ))}
                           </div>
-
-                          <Badge tone={statusTone} size="md">
-                            {statusLabel}
-                          </Badge>
                         </div>
                       </div>
 
@@ -1393,15 +1310,41 @@ export function ClientDashboard() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                            <span>{projectDetails.timeline}</span>
+                            <span>
+                              {currentStatus === "draft"
+                                ? "Opens upon publishing"
+                                : currentStatus === "in_progress"
+                                ? "Delivery due in 4 days"
+                                : currentStatus === "review"
+                                ? "48h review countdown"
+                                : currentStatus === "completed"
+                                ? "Delivery completed"
+                                : currentStatus === "closed"
+                                ? "Applications closed"
+                                : projectDetails.timeline}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Users className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                            <span>{applicantCountNumber} / {applicantCapNumber} applicants filled</span>
+                            <span>
+                              {currentStatus === "draft"
+                                ? `Target: ${applicantCapNumber} performers`
+                                : currentStatus === "in_progress"
+                                ? "1 performer contracted"
+                                : currentStatus === "review"
+                                ? "1 performer submitted"
+                                : currentStatus === "completed"
+                                ? "1 performer completed"
+                                : `${applicantCountNumber} / ${applicantCapNumber} applicants filled`}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                            <span>Posted {selectedProjectDetail.posted}</span>
+                            <span>
+                              {currentStatus === "draft"
+                                ? `Draft saved ${selectedProjectDetail.posted}`
+                                : `Posted ${selectedProjectDetail.posted}`}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1676,269 +1619,307 @@ export function ClientDashboard() {
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                               <div>
                                 <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Applicant Pipeline &amp; Casting ({applicants.length})
+                                  Applicant Pipeline &amp; Casting {currentStatus !== "draft" ? `(${applicants.length})` : ""}
                                 </h2>
                                 <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Review submissions, shortlist favorites, and hire performers with escrow protection.
+                                  {currentStatus === "draft"
+                                    ? "Casting submissions will appear here once this brief is published to performers."
+                                    : "Review submissions, shortlist favorites, and hire performers with escrow protection."}
                                 </p>
                               </div>
 
-                              {/* Search */}
-                              <div className="relative w-full sm:w-56">
-                                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
-                                <input
-                                  type="text"
-                                  value={applicantSearchQuery}
-                                  onChange={(e) => setApplicantSearchQuery(e.target.value)}
-                                  placeholder="Search applicants..."
-                                  className="w-full pl-8 pr-3 py-1.5 rounded-xl border text-xs font-body outline-none"
-                                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                />
-                              </div>
+                              {currentStatus !== "draft" && (
+                                <div className="relative w-full sm:w-56">
+                                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
+                                  <input
+                                    type="text"
+                                    value={applicantSearchQuery}
+                                    onChange={(e) => setApplicantSearchQuery(e.target.value)}
+                                    placeholder="Search applicants..."
+                                    className="w-full pl-8 pr-3 py-1.5 rounded-xl border text-xs font-body outline-none"
+                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                                  />
+                                </div>
+                              )}
                             </div>
 
-                            {/* State Specific Spotlight Banner */}
-                            {currentStatus === "in_progress" && selectedHiredPerformer && (
-                              <div
-                                className="p-4 sm:p-5 rounded-2xl border space-y-3"
-                                style={{ background: "rgba(124, 58, 237, 0.06)", borderColor: "rgba(124, 58, 237, 0.25)" }}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7C3AED]">
-                                    <Sparkles className="w-3.5 h-3.5" /> Hired Performer in Production
-                                  </span>
-                                  <Badge tone="accent" size="sm">Active Contract</Badge>
+                            {/* State Specific Spotlight Banner or Inactive Draft Mode */}
+                            {currentStatus === "draft" ? (
+                              <div className="text-center py-12 px-6 rounded-2xl border border-dashed" style={{ borderColor: "var(--color-border-default)", background: "var(--color-bg-elevated)" }}>
+                                <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-sm" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
+                                  <FileText className="w-6 h-6" />
                                 </div>
-                                <div className="flex items-center justify-between gap-3 flex-wrap">
-                                  <div className="flex items-center gap-3">
-                                    <Avatar className="w-10 h-10 text-sm" background="var(--color-accent-glow)" color="var(--color-accent)">
-                                      {selectedHiredPerformer.creator.avatar}
-                                    </Avatar>
-                                    <div>
-                                      <div className="flex items-center gap-1.5 font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-                                        <span>{selectedHiredPerformer.creator.name}</span>
-                                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                      </div>
-                                      <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
-                                        {selectedHiredPerformer.creator.role} · {selectedHiredPerformer.creator.location}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <Button
-                                    className="h-9 px-4 text-xs font-semibold gap-1.5"
-                                    onClick={() => navigate("/order/ORD-001")}
-                                  >
-                                    Open Order Room <ChevronRight className="w-4 h-4 ml-0.5" />
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {currentStatus === "review" && (
-                              <div
-                                className="p-4 sm:p-5 rounded-2xl border space-y-2"
-                                style={{ background: "rgba(245, 158, 11, 0.08)", borderColor: "rgba(245, 158, 11, 0.3)" }}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                                    <AlertCircle className="w-4 h-4" /> Deliverables Ready for Inspection
-                                  </span>
-                                  <span className="text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
-                                    ⏱️ 41h : 22m auto-release
-                                  </span>
-                                </div>
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  Final broadcast audio master WAV files were uploaded by the performer. Inspect files in the Order Room to release payment.
+                                <h3 className="text-base font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
+                                  Casting Pipeline Inactive
+                                </h3>
+                                <p className="text-xs sm:text-sm font-body text-[var(--color-text-secondary)] max-w-md mx-auto mt-1.5 mb-5 leading-relaxed">
+                                  This project brief is saved as a private draft and is not visible in performer discovery. Publish and fund escrow to start receiving audition pitches.
                                 </p>
                                 <Button
-                                  className="h-8 px-3 text-xs font-semibold gap-1.5 mt-1"
-                                  onClick={() => navigate("/order/ORD-001")}
-                                >
-                                  Inspect Files in Order Room <ChevronRight className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
-                            )}
-
-                            {currentStatus === "completed" && (
-                              <div
-                                className="p-4 sm:p-5 rounded-2xl border space-y-2"
-                                style={{ background: "rgba(16, 185, 129, 0.08)", borderColor: "rgba(16, 185, 129, 0.3)" }}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                                    <CheckCircle2 className="w-4 h-4" /> Collaboration Completed
-                                  </span>
-                                  <span className="text-xs font-semibold text-amber-500">★ 5.0 Rating</span>
-                                </div>
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  All milestones approved and escrow of {selectedProjectDetail.budget} disbursed. Order closed successfully.
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Filter Chips Bar */}
-                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                              {[
-                                { id: "all", label: `All (${applicants.length})` },
-                                { id: "shortlisted", label: `Shortlisted (${applicants.filter((a) => a.status === "SHORTLISTED").length})` },
-                                { id: "selected", label: `Selected (${applicants.filter((a) => a.status === "SELECTED").length})` },
-                                { id: "applied", label: `Applied (${applicants.filter((a) => a.status === "APPLIED").length})` },
-                                { id: "rejected", label: `Rejected (${applicants.filter((a) => a.status === "REJECTED").length})` },
-                              ].map((tab) => (
-                                <button
-                                  key={tab.id}
-                                  type="button"
-                                  onClick={() => setApplicantFilterTab(tab.id as any)}
-                                  className={`px-3 py-1 rounded-xl text-xs font-semibold font-body whitespace-nowrap transition-all ${
-                                    applicantFilterTab === tab.id
-                                      ? "bg-[#7C3AED] text-white shadow-sm"
-                                      : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]"
-                                  }`}
-                                  style={{
-                                    borderColor: applicantFilterTab === tab.id ? "transparent" : "var(--color-hairline)",
-                                  }}
-                                >
-                                  {tab.label}
-                                </button>
-                              ))}
-                            </div>
-
-                            {/* Applicants Feed */}
-                            {currentStatus === "draft" && applicants.length === 0 ? (
-                              <div className="text-center py-10 px-4 rounded-2xl border border-dashed" style={{ borderColor: "var(--color-border-default)" }}>
-                                <FileText className="w-8 h-8 mx-auto mb-2 text-[var(--color-text-tertiary)]" />
-                                <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                  Project Brief in Draft Mode
-                                </div>
-                                <p className="text-xs font-body text-[var(--color-text-secondary)] max-w-sm mx-auto mt-1 mb-4">
-                                  This brief is private and not yet visible in performer discovery. Publish and fund escrow to start receiving audition pitches.
-                                </p>
-                                <Button
-                                  className="h-9 px-4 text-xs font-semibold gap-1.5"
+                                  className="h-10 px-5 text-xs font-semibold gap-2 whitespace-nowrap shadow-sm mx-auto"
                                   onClick={() => {
                                     setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
                                     setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
                                     setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
+                                    if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
+                                      setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
+                                    }
                                   }}
                                 >
-                                  Publish Brief &amp; Fund Escrow
+                                  <Sparkles className="w-4 h-4 shrink-0" />
+                                  <span>Publish &amp; Fund Escrow</span>
                                 </Button>
                               </div>
-                            ) : loadingApplicants ? (
-                              <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                Loading applicants…
-                              </div>
-                            ) : filteredApplicants.length === 0 ? (
-                              <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                No candidates match the current filter.
-                              </div>
                             ) : (
-                              <div className="space-y-4">
-                                {filteredApplicants.map((app) => (
+                              <>
+                                {currentStatus === "in_progress" && selectedHiredPerformer && (
                                   <div
-                                    key={app.applicationId}
-                                    className="p-4 sm:p-5 rounded-2xl border transition-all"
-                                    style={{
-                                      background: "var(--color-bg-elevated)",
-                                      borderColor: app.status === "SELECTED" ? "rgba(124, 58, 237, 0.4)" : "var(--color-hairline)",
-                                    }}
+                                    className="p-4 sm:p-5 rounded-2xl border space-y-3"
+                                    style={{ background: "rgba(124, 58, 237, 0.06)", borderColor: "rgba(124, 58, 237, 0.25)" }}
                                   >
-                                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                                    <div className="flex items-center justify-between">
+                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7C3AED]">
+                                        <Sparkles className="w-3.5 h-3.5 shrink-0" /> Hired Performer in Production
+                                      </span>
+                                      <Badge tone="accent" size="sm">Active Contract</Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3 flex-wrap">
                                       <div className="flex items-center gap-3">
-                                        <Avatar className="w-11 h-11 text-sm shrink-0" background="var(--color-accent-glow)" color="var(--color-accent)">
-                                          {app.creator.avatar}
+                                        <Avatar className="w-10 h-10 text-sm" background="var(--color-accent-glow)" color="var(--color-accent)">
+                                          {selectedHiredPerformer.creator.avatar}
                                         </Avatar>
                                         <div>
-                                          <div className="flex items-center gap-1.5">
-                                            <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                              {app.creator.name}
-                                            </span>
-                                            {app.creator.verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />}
+                                          <div className="flex items-center gap-1.5 font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
+                                            <span>{selectedHiredPerformer.creator.name}</span>
+                                            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
                                           </div>
-                                          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                            {app.creator.role} · {app.creator.location}
-                                            {app.creator.price && ` · ${app.creator.price}`}
+                                          <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                                            {selectedHiredPerformer.creator.role} · {selectedHiredPerformer.creator.location}
                                           </div>
                                         </div>
                                       </div>
 
-                                      <Badge
-                                        tone={app.status === "SELECTED" ? "success" : app.status === "SHORTLISTED" ? "accent" : app.status === "REJECTED" ? "error" : "neutral"}
-                                        size="sm"
+                                      <Button
+                                        className="h-9 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap"
+                                        onClick={() => navigate("/order/ORD-001")}
                                       >
-                                        {APPLICANT_STATUS_LABEL[app.status] ?? app.status}
-                                      </Badge>
-                                    </div>
-
-                                    {app.pitch && (
-                                      <div
-                                        className="text-xs font-body italic my-3 p-3 rounded-xl border leading-relaxed"
-                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                                      >
-                                        "{app.pitch}"
-                                      </div>
-                                    )}
-
-                                    {/* Action Bar */}
-                                    <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                      <button
-                                        type="button"
-                                        onClick={() => viewTalentProfile(app.creator)}
-                                        className="text-xs font-semibold font-body hover:underline flex items-center gap-1 text-[var(--color-accent)]"
-                                      >
-                                        View Profile &amp; Reels →
-                                      </button>
-
-                                      <div className="flex items-center gap-2">
-                                        {app.status === "APPLIED" && (
-                                          <Button
-                                            variant="secondary"
-                                            className="h-8 px-3 text-xs"
-                                            onClick={() => handleShortlist(app.applicationId)}
-                                          >
-                                            Shortlist
-                                          </Button>
-                                        )}
-                                        {app.status === "REJECTED" ? (
-                                          <Button
-                                            variant="secondary"
-                                            className="h-8 px-3 text-xs"
-                                            onClick={() => handleShortlist(app.applicationId)}
-                                          >
-                                            Move to Shortlist
-                                          </Button>
-                                        ) : (
-                                          app.status !== "SELECTED" && (
-                                            <Button
-                                              variant="secondary"
-                                              className="h-8 px-3 text-xs"
-                                              onClick={() => handleRejectApplicant(app.applicationId)}
-                                            >
-                                              Reject
-                                            </Button>
-                                          )
-                                        )}
-                                        {app.status === "SELECTED" ? (
-                                          <Button
-                                            className="h-8 px-3 text-xs font-semibold gap-1"
-                                            onClick={() => navigate("/order/ORD-001")}
-                                          >
-                                            Open Order Room <ChevronRight className="w-3.5 h-3.5" />
-                                          </Button>
-                                        ) : (
-                                          <Button
-                                            className="h-8 px-3 text-xs font-semibold"
-                                            onClick={() => handleSelectAndHireApplicant(app)}
-                                          >
-                                            Select / Hire
-                                          </Button>
-                                        )}
-                                      </div>
+                                        <span>Open Order Room</span>
+                                        <ChevronRight className="w-4 h-4 ml-0.5 shrink-0" />
+                                      </Button>
                                     </div>
                                   </div>
-                                ))}
-                              </div>
+                                )}
+
+                                {currentStatus === "review" && (
+                                  <div
+                                    className="p-4 sm:p-5 rounded-2xl border space-y-2"
+                                    style={{ background: "rgba(245, 158, 11, 0.08)", borderColor: "rgba(245, 158, 11, 0.3)" }}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                        <AlertCircle className="w-4 h-4 shrink-0" /> Deliverables Ready for Inspection
+                                      </span>
+                                      <span className="text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
+                                        ⏱️ 41h : 22m auto-release
+                                      </span>
+                                    </div>
+                                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                      Final broadcast audio master WAV files were uploaded by the performer. Inspect files in the Order Room to release payment.
+                                    </p>
+                                    <Button
+                                      className="h-8 px-3 text-xs font-semibold gap-1.5 mt-1 whitespace-nowrap"
+                                      onClick={() => navigate("/order/ORD-001")}
+                                    >
+                                      <span>Inspect in Order Room</span>
+                                      <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                    </Button>
+                                  </div>
+                                )}
+
+                                {currentStatus === "completed" && (
+                                  <div
+                                    className="p-4 sm:p-5 rounded-2xl border space-y-2"
+                                    style={{ background: "rgba(16, 185, 129, 0.08)", borderColor: "rgba(16, 185, 129, 0.3)" }}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                        <CheckCircle2 className="w-4 h-4 shrink-0" /> Collaboration Completed
+                                      </span>
+                                      <span className="text-xs font-semibold text-amber-500">★ 5.0 Rating</span>
+                                    </div>
+                                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                      All milestones approved and escrow of {selectedProjectDetail.budget} disbursed. Order closed successfully.
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Filter Chips Bar */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                  {[
+                                    { id: "all", label: `All (${applicants.length})` },
+                                    { id: "shortlisted", label: `Shortlisted (${applicants.filter((a) => a.status === "SHORTLISTED").length})` },
+                                    { id: "selected", label: `Selected (${applicants.filter((a) => a.status === "SELECTED").length})` },
+                                    { id: "applied", label: `Applied (${applicants.filter((a) => a.status === "APPLIED").length})` },
+                                    { id: "rejected", label: `Rejected (${applicants.filter((a) => a.status === "REJECTED").length})` },
+                                  ].map((tab) => (
+                                    <button
+                                      key={tab.id}
+                                      type="button"
+                                      onClick={() => setApplicantFilterTab(tab.id as any)}
+                                      className={`px-3 py-1 rounded-xl text-xs font-semibold font-body whitespace-nowrap transition-all ${
+                                        applicantFilterTab === tab.id
+                                          ? "bg-[#7C3AED] text-white shadow-sm"
+                                          : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]"
+                                      }`}
+                                      style={{
+                                        borderColor: applicantFilterTab === tab.id ? "transparent" : "var(--color-hairline)",
+                                      }}
+                                    >
+                                      {tab.label}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                {/* Applicants Feed */}
+                                {loadingApplicants ? (
+                                  <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Loading applicants…
+                                  </div>
+                                ) : filteredApplicants.length === 0 ? (
+                                  <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                    No candidates match the current filter.
+                                  </div>
+                                ) : (
+                                  <div className="space-y-4">
+                                    {filteredApplicants.map((app) => (
+                                      <div
+                                        key={app.applicationId}
+                                        className="p-4 sm:p-5 rounded-2xl border transition-all"
+                                        style={{
+                                          background: "var(--color-bg-elevated)",
+                                          borderColor: app.status === "SELECTED" ? "rgba(124, 58, 237, 0.4)" : "var(--color-hairline)",
+                                        }}
+                                      >
+                                        <div className="flex items-start justify-between gap-3 mb-2.5">
+                                          <div className="flex items-center gap-3">
+                                            <Avatar className="w-11 h-11 text-sm shrink-0" background="var(--color-accent-glow)" color="var(--color-accent)">
+                                              {app.creator.avatar}
+                                            </Avatar>
+                                            <div>
+                                              <div className="flex items-center gap-1.5">
+                                                <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                                  {app.creator.name}
+                                                </span>
+                                                {app.creator.verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                                              </div>
+                                              <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                                {app.creator.role} · {app.creator.location}
+                                                {app.creator.price && ` · ${app.creator.price}`}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <Badge
+                                            tone={app.status === "SELECTED" ? "success" : app.status === "SHORTLISTED" ? "accent" : app.status === "REJECTED" ? "error" : "neutral"}
+                                            size="sm"
+                                          >
+                                            {APPLICANT_STATUS_LABEL[app.status] ?? app.status}
+                                          </Badge>
+                                        </div>
+
+                                        {app.pitch && (
+                                          <div
+                                            className="text-xs font-body italic my-3 p-3 rounded-xl border leading-relaxed"
+                                            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
+                                          >
+                                            "{app.pitch}"
+                                          </div>
+                                        )}
+
+                                        {/* Action Bar */}
+                                        <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                          <button
+                                            type="button"
+                                            onClick={() => viewTalentProfile(app.creator, app)}
+                                            className="text-xs font-semibold font-body hover:underline flex items-center gap-1 text-[var(--color-accent)] whitespace-nowrap"
+                                          >
+                                            <span>View Profile &amp; Reels</span>
+                                            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                          </button>
+
+                                          <div className="flex items-center gap-2">
+                                            {currentStatus === "active" ? (
+                                              <>
+                                                {app.status === "APPLIED" && (
+                                                  <Button
+                                                    variant="secondary"
+                                                    className="h-8 px-3 text-xs whitespace-nowrap"
+                                                    onClick={() => handleShortlist(app.applicationId)}
+                                                  >
+                                                    Shortlist
+                                                  </Button>
+                                                )}
+                                                {app.status === "REJECTED" ? (
+                                                  <Button
+                                                    variant="secondary"
+                                                    className="h-8 px-3 text-xs whitespace-nowrap"
+                                                    onClick={() => handleShortlist(app.applicationId)}
+                                                  >
+                                                    Move to Shortlist
+                                                  </Button>
+                                                ) : (
+                                                  app.status !== "SELECTED" && (
+                                                    <Button
+                                                      variant="secondary"
+                                                      className="h-8 px-3 text-xs text-rose-500 border-rose-500/20 hover:bg-rose-500/10 whitespace-nowrap"
+                                                      onClick={() => handleRejectApplicant(app.applicationId)}
+                                                    >
+                                                      Reject
+                                                    </Button>
+                                                  )
+                                                )}
+                                                {app.status === "SELECTED" ? (
+                                                  <Button
+                                                    className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
+                                                    onClick={() => navigate("/order/ORD-001")}
+                                                  >
+                                                    <span>Open Order Room</span>
+                                                    <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                  </Button>
+                                                ) : (
+                                                  <Button
+                                                    className="h-8 px-3 text-xs font-semibold whitespace-nowrap"
+                                                    onClick={() => handleSelectAndHireApplicant(app)}
+                                                  >
+                                                    Select / Hire
+                                                  </Button>
+                                                )}
+                                              </>
+                                            ) : (
+                                              app.status === "SELECTED" ? (
+                                                <Button
+                                                  className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
+                                                  onClick={() => navigate("/order/ORD-001")}
+                                                >
+                                                  <span>Open Order Room</span>
+                                                  <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                </Button>
+                                              ) : (
+                                                <span
+                                                  className="text-xs px-2.5 py-1 rounded-lg font-body"
+                                                  style={{ background: "var(--color-bg-surface)", color: "var(--color-text-tertiary)" }}
+                                                >
+                                                  Casting Concluded
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
@@ -1981,7 +1962,11 @@ export function ClientDashboard() {
                               <div className="flex items-center justify-between text-xs font-body">
                                 <span style={{ color: "var(--color-text-secondary)" }}>Casting Capacity</span>
                                 <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>
-                                  {applicantCountNumber} / {applicantCapNumber} filled
+                                  {currentStatus === "draft"
+                                    ? `Target: ${applicantCapNumber}`
+                                    : currentStatus === "in_progress" || currentStatus === "review" || currentStatus === "completed"
+                                    ? "1 / 1 filled"
+                                    : `${applicantCountNumber} / ${applicantCapNumber} filled`}
                                 </span>
                               </div>
                               <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
@@ -1989,13 +1974,25 @@ export function ClientDashboard() {
                                   className="h-full rounded-full transition-all"
                                   style={{
                                     width: `${capPercentage}%`,
-                                    background: currentStatus === "active" ? "var(--color-accent)" : "var(--color-text-tertiary)",
+                                    background: currentStatus === "active" || currentStatus === "in_progress" || currentStatus === "completed" ? "var(--color-accent)" : "var(--color-text-tertiary)",
                                   }}
                                 />
                               </div>
 
                               <div className="flex items-center justify-between pt-1 text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                <span>{currentStatus === "closed" ? "Submissions paused" : "Accepting pitches"}</span>
+                                <span>
+                                  {currentStatus === "draft"
+                                    ? "Submissions inactive (Draft)"
+                                    : currentStatus === "closed"
+                                    ? "Submissions paused"
+                                    : currentStatus === "in_progress"
+                                    ? "Contract active · In production"
+                                    : currentStatus === "review"
+                                    ? "Inspection countdown active"
+                                    : currentStatus === "completed"
+                                    ? "Project completed"
+                                    : "Accepting pitches"}
+                                </span>
                                 {currentStatus === "active" ? (
                                   <button
                                     type="button"
@@ -2003,7 +2000,7 @@ export function ClientDashboard() {
                                       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "closed" }));
                                       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "closed", applicationsOpen: false } : p));
                                     }}
-                                    className="font-semibold text-rose-500 hover:underline"
+                                    className="font-semibold text-rose-500 hover:underline whitespace-nowrap"
                                   >
                                     Pause Applications
                                   </button>
@@ -2014,7 +2011,7 @@ export function ClientDashboard() {
                                       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
                                       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
                                     }}
-                                    className="font-semibold text-emerald-500 hover:underline"
+                                    className="font-semibold text-emerald-500 hover:underline whitespace-nowrap"
                                   >
                                     Reopen
                                   </button>
@@ -2060,11 +2057,14 @@ export function ClientDashboard() {
                                     This brief is saved as a private draft. Publish it to Monologg discovery to notify verified performers.
                                   </p>
                                   <Button
-                                    className="w-full h-11 text-xs font-semibold gap-1.5"
+                                    className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
                                     onClick={() => {
                                       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
                                       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
                                       setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
+                                      if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
+                                        setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
+                                      }
                                       appStateSync.addNotification({
                                         id: `notif-${Date.now()}`,
                                         kind: "PROJECT_APPLICATION",
@@ -2073,11 +2073,12 @@ export function ClientDashboard() {
                                       });
                                     }}
                                   >
-                                    <Sparkles className="w-4 h-4" /> Publish Brief &amp; Fund Escrow
+                                    <Sparkles className="w-4 h-4 shrink-0" />
+                                    <span className="whitespace-nowrap">Publish &amp; Fund Escrow</span>
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
                                     onClick={() => setIsEditingProjectInfo(true)}
                                   >
                                     Edit Brief Info
@@ -2088,9 +2089,9 @@ export function ClientDashboard() {
                                       setProjects((prev) => prev.filter((p) => p.id !== selectedProjectDetail.id));
                                       setSelectedProjectDetail(null);
                                     }}
-                                    className="w-full text-center text-xs text-rose-500 hover:underline pt-1 font-body"
+                                    className="w-full text-center text-xs text-rose-500 hover:underline pt-1 font-body whitespace-nowrap"
                                   >
-                                    Delete Draft Brief
+                                    Delete Draft
                                   </button>
                                 </div>
                               )}
@@ -2102,7 +2103,7 @@ export function ClientDashboard() {
                                     Casting call is live! Review audition takes and pitches in the applicant pipeline to select your performer.
                                   </p>
                                   <Button
-                                    className="w-full h-10 text-xs font-semibold gap-1"
+                                    className="w-full h-10 text-xs font-semibold gap-1 whitespace-nowrap"
                                     onClick={() => {
                                       const el = document.getElementById("applicant-pipeline-section");
                                       el?.scrollIntoView({ behavior: "smooth" });
@@ -2112,14 +2113,14 @@ export function ClientDashboard() {
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
                                     onClick={() => {
                                       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "closed" }));
                                       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "closed", applicationsOpen: false } : p));
                                       setSelectedProjectDetail((prev) => prev ? { ...prev, status: "closed", applicationsOpen: false } : null);
                                     }}
                                   >
-                                    Pause / Close Applications
+                                    Pause Applications
                                   </Button>
                                   <button
                                     type="button"
@@ -2128,10 +2129,10 @@ export function ClientDashboard() {
                                       setCopiedShareLink(true);
                                       setTimeout(() => setCopiedShareLink(false), 2000);
                                     }}
-                                    className="w-full text-center text-xs text-[var(--color-accent)] hover:underline pt-1 font-body flex items-center justify-center gap-1.5"
+                                    className="w-full text-center text-xs text-[var(--color-accent)] hover:underline pt-1 font-body flex items-center justify-center gap-1.5 whitespace-nowrap"
                                   >
-                                    <Share2 className="w-3.5 h-3.5" />
-                                    <span>{copiedShareLink ? "Link Copied!" : "Copy Shareable Casting Link"}</span>
+                                    <Share2 className="w-3.5 h-3.5 shrink-0" />
+                                    <span>{copiedShareLink ? "Link Copied!" : "Copy Casting Link"}</span>
                                   </button>
                                 </div>
                               )}
@@ -2143,14 +2144,15 @@ export function ClientDashboard() {
                                     Performer contracted and production is underway. Chat in real-time, inspect files, and approve milestones in the Order Room.
                                   </p>
                                   <Button
-                                    className="w-full h-11 text-xs font-semibold gap-1.5"
+                                    className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
                                     onClick={() => navigate("/order/ORD-001")}
                                   >
-                                    Open Order Room <ChevronRight className="w-4 h-4 ml-1" />
+                                    <span>Open Order Room</span>
+                                    <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
                                     onClick={() => navigate("/order/ORD-001")}
                                   >
                                     Message Performer
@@ -2165,14 +2167,15 @@ export function ClientDashboard() {
                                     The performer has submitted the final project assets. Review the deliverables before the 48-hour inspection countdown expires.
                                   </p>
                                   <Button
-                                    className="w-full h-11 text-xs font-semibold gap-1.5"
+                                    className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
                                     onClick={() => navigate("/order/ORD-001")}
                                   >
-                                    Inspect in Order Room <ChevronRight className="w-4 h-4 ml-1" />
+                                    <span>Inspect in Order Room</span>
+                                    <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
                                     onClick={() => navigate("/order/ORD-001")}
                                   >
                                     Request Revision
@@ -2187,17 +2190,17 @@ export function ClientDashboard() {
                                     All milestones approved and escrow of {selectedProjectDetail.budget} disbursed. Project concluded with 5.0 ★ rating.
                                   </p>
                                   <Button
-                                    className="w-full h-10 text-xs font-semibold gap-1.5"
+                                    className="w-full h-10 text-xs font-semibold gap-1.5 whitespace-nowrap"
                                     onClick={() => navigate("/order/ORD-001")}
                                   >
-                                    View Completed Order Room
+                                    View Order Room
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
                                     onClick={() => navigate("/brief")}
                                   >
-                                    Post Similar Project Brief
+                                    Post Similar Brief
                                   </Button>
                                 </div>
                               )}
@@ -2206,10 +2209,10 @@ export function ClientDashboard() {
                               {currentStatus === "closed" && (
                                 <div className="space-y-3">
                                   <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                    Applications are paused. No new candidate pitches can be submitted.
+                                    Applications for this project are currently paused. You can reopen submissions at any time to receive further pitches.
                                   </p>
                                   <Button
-                                    className="w-full h-10 text-xs font-semibold gap-1.5"
+                                    className="w-full h-10 text-xs font-semibold gap-1.5 whitespace-nowrap"
                                     onClick={() => {
                                       setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
                                       setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
@@ -2217,6 +2220,13 @@ export function ClientDashboard() {
                                     }}
                                   >
                                     Reopen Applications
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    className="w-full h-9 text-xs whitespace-nowrap"
+                                    onClick={() => navigate("/brief")}
+                                  >
+                                    Post Similar Brief
                                   </Button>
                                 </div>
                               )}
@@ -2271,7 +2281,9 @@ export function ClientDashboard() {
                             <div>
                               <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{project.id}</div>
                               <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{project.name}</h3>
-                              <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{project.niche} · Posted {project.posted}</p>
+                              <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                {project.niche} · {project.status === "draft" ? `Draft saved ${project.posted}` : `Posted ${project.posted}`}
+                              </p>
                             </div>
                             <div className="text-right">
                               <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{project.budget}</div>
@@ -2284,8 +2296,9 @@ export function ClientDashboard() {
                             <div className="flex items-center gap-2">
                               <Users className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
                               <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                {project.applicants}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
-                                {!project.applicationsOpen && project.status === "active" && " · closed"}
+                                {project.status === "draft"
+                                  ? `Target: ${project.applicantCap || 10} performers · Inactive draft`
+                                  : `${project.applicants}${project.applicantCap ? `/${project.applicantCap}` : ""} applicants${!project.applicationsOpen && project.status === "active" ? " · closed" : ""}`}
                               </span>
                             </div>
                             <Button className="h-9 px-4 text-xs font-semibold" onClick={() => openProjectDetail(project)}>
@@ -2917,6 +2930,269 @@ export function ClientDashboard() {
                 </div>
               </Modal>
             )}
+
+            {/* ── Performer Storefront Profile & Casting Modal ── */}
+            {selectedTalent && (() => {
+              const isProjectActive = selectedProjectDetail
+                ? (projectStateOverrides[selectedProjectDetail.id] || selectedProjectDetail.status).toLowerCase() === "active"
+                : false;
+
+              return (
+                <Modal onClose={() => { setSelectedTalent(null); setSelectedApplicantForProfile(null); }}>
+                  <motion.div
+                    initial={{ scale: 0.96, opacity: 0, y: 16 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.96, opacity: 0, y: 16 }}
+                    transition={{ duration: 0.2, ease: EASE_OUT }}
+                    className="w-full max-w-lg rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                    style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-modal)" }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Header Banner */}
+                    <div className="h-28 relative" style={{ background: "linear-gradient(135deg, var(--color-accent-soft), var(--color-bg-elevated))" }}>
+                      <button
+                        onClick={() => { setSelectedTalent(null); setSelectedApplicantForProfile(null); }}
+                        className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity z-10"
+                        style={{ background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
+                        aria-label="Close talent profile"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="px-6 pb-6">
+                      {/* Creator Identity Bar */}
+                      <div className="flex items-end justify-between -mt-10 mb-4">
+                        <Avatar
+                          className="w-20 h-20 text-2xl border-4 border-[var(--color-bg-surface)] shadow-sm"
+                          background="var(--color-accent-glow)"
+                          color="var(--color-accent)"
+                        >
+                          {selectedTalent.avatar}
+                        </Avatar>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="secondary"
+                            className="h-9 px-3 text-xs gap-1.5 whitespace-nowrap"
+                            onClick={() => {
+                              setSelectedTalent(null);
+                              setSelectedApplicantForProfile(null);
+                              navigate(`/${selectedTalent.id}`);
+                            }}
+                          >
+                            <span>Open Public Storefront</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 mb-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            {selectedTalent.name}
+                          </h3>
+                          {selectedTalent.verified && (
+                            <span title="Verified Monologg Performer" className="text-emerald-500 flex items-center">
+                              <ShieldCheck className="w-4 h-4" />
+                            </span>
+                          )}
+                          <span className="text-xs font-mono font-medium flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                            <Star className="w-3 h-3 fill-amber-500" />
+                            <span>{selectedTalent.rating || 4.9}</span>
+                            <span className="text-[10px] text-[var(--color-text-tertiary)]">({selectedTalent.reviews || 18})</span>
+                          </span>
+                        </div>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          @{selectedTalent.id} · {selectedTalent.role} · {selectedTalent.location}
+                        </p>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 mb-5">
+                        {selectedTalent.tags?.map(tag => (
+                          <Badge key={tag} tone="neutral" size="sm">{tag}</Badge>
+                        ))}
+                      </div>
+
+                      {/* If viewing as an applicant for a project brief: Pitch & proposal callout */}
+                      {selectedApplicantForProfile && (
+                        <div
+                          className="p-4 rounded-xl border mb-5 space-y-2.5"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                        >
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold uppercase tracking-wider font-body flex items-center gap-1.5" style={{ color: "var(--color-accent)" }}>
+                              <Sparkles className="w-3.5 h-3.5" />
+                              Audition Pitch &amp; Proposal
+                            </span>
+                            <Badge tone={selectedApplicantForProfile.status === "SELECTED" ? "success" : selectedApplicantForProfile.status === "SHORTLISTED" ? "accent" : selectedApplicantForProfile.status === "REJECTED" ? "neutral" : "warning"} size="sm">
+                              {APPLICANT_STATUS_LABEL[selectedApplicantForProfile.status] || selectedApplicantForProfile.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs font-body italic leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                            "{selectedApplicantForProfile.pitch || "Experienced talent ready to bring full dynamic vocal range to your brief."}"
+                          </p>
+                          <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] flex items-center gap-1 pt-1 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                            <Clock className="w-3 h-3" />
+                            <span>Applied {selectedApplicantForProfile.appliedAt ? new Date(selectedApplicantForProfile.appliedAt).toLocaleDateString() : "recently"}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reel Preview Player */}
+                      <div className="mb-5">
+                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Featured Audio / Video Reel
+                        </label>
+                        <div
+                          className="relative aspect-video rounded-xl overflow-hidden cursor-pointer group border flex items-center justify-center"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                        >
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center pl-1 group-hover:scale-110 transition-transform shadow-lg" style={{ background: "var(--color-accent)", color: "var(--color-text-inverse)" }}>
+                            <Play className="w-5 h-5 fill-current" />
+                          </div>
+                          <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.7)" }}>
+                            02:30 · 48kHz HD
+                          </div>
+                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[11px] font-medium text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            Commercial &amp; Narration Showreel
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Storefront Rate Cards */}
+                      <div className="space-y-2 mb-6">
+                        <label className="text-xs font-semibold uppercase tracking-wider block font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Standard Storefront Rates
+                        </label>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <div className="p-3 rounded-xl border flex flex-col justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Standard Master</span>
+                            <span className="font-display text-sm font-bold mt-1" style={{ color: "var(--color-accent)" }}>
+                              {selectedTalent.price || "₦50,000"}
+                            </span>
+                          </div>
+                          <div className="p-3 rounded-xl border flex flex-col justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Rush 24h Turnaround</span>
+                            <span className="font-display text-sm font-bold mt-1" style={{ color: "var(--color-accent)" }}>
+                              ₦{((parseInt((selectedTalent.price || "50000").replace(/\D/g, ""), 10) || 50000) * 1.5).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Modal CTAs */}
+                      <div className="pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                        {selectedApplicantForProfile ? (
+                          <div className="flex items-center gap-2">
+                            {isProjectActive ? (
+                              <>
+                                {selectedApplicantForProfile.status === "REJECTED" ? (
+                                  <Button
+                                    variant="secondary"
+                                    className="flex-1 h-11 text-xs whitespace-nowrap"
+                                    onClick={() => handleShortlist(selectedApplicantForProfile.applicationId)}
+                                  >
+                                    Move to Shortlist
+                                  </Button>
+                                ) : (
+                                  selectedApplicantForProfile.status !== "SELECTED" && (
+                                    <Button
+                                      variant="secondary"
+                                      className="flex-1 h-11 text-xs text-rose-500 border-rose-500/20 hover:bg-rose-500/10 whitespace-nowrap"
+                                      onClick={() => handleRejectApplicant(selectedApplicantForProfile.applicationId)}
+                                    >
+                                      Reject
+                                    </Button>
+                                  )
+                                )}
+
+                                {selectedApplicantForProfile.status === "APPLIED" && (
+                                  <Button
+                                    variant="secondary"
+                                    className="flex-1 h-11 text-xs whitespace-nowrap"
+                                    onClick={() => handleShortlist(selectedApplicantForProfile.applicationId)}
+                                  >
+                                    Shortlist
+                                  </Button>
+                                )}
+
+                                {selectedApplicantForProfile.status === "SELECTED" ? (
+                                  <Button
+                                    className="flex-1 h-11 text-xs font-bold gap-1 whitespace-nowrap"
+                                    onClick={() => {
+                                      setSelectedTalent(null);
+                                      setSelectedApplicantForProfile(null);
+                                      navigate("/order/ORD-001");
+                                    }}
+                                  >
+                                    <span>Open Order Room</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    className="flex-1 h-11 text-xs font-bold whitespace-nowrap"
+                                    onClick={() => {
+                                      handleSelectAndHireApplicant(selectedApplicantForProfile);
+                                    }}
+                                  >
+                                    Accept / Hire Performer
+                                  </Button>
+                                )}
+                              </>
+                            ) : (
+                              selectedApplicantForProfile.status === "SELECTED" ? (
+                                <Button
+                                  className="w-full h-11 text-xs font-bold gap-1.5 whitespace-nowrap"
+                                  onClick={() => {
+                                    setSelectedTalent(null);
+                                    setSelectedApplicantForProfile(null);
+                                    navigate("/order/ORD-001");
+                                  }}
+                                >
+                                  <span>Open Order Room</span>
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </Button>
+                              ) : (
+                                <div
+                                  className="w-full py-2.5 px-4 rounded-xl text-center text-xs font-body border"
+                                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
+                                >
+                                  Casting Concluded for this project brief
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="secondary"
+                              className="flex-1 h-11 text-xs gap-1.5 whitespace-nowrap"
+                              onClick={() => toggleShortlist(selectedTalent.id)}
+                            >
+                              <Star className={`w-3.5 h-3.5 ${shortlist.includes(selectedTalent.id) ? "fill-current" : ""}`} />
+                              {shortlist.includes(selectedTalent.id) ? "Shortlisted" : "Save to Shortlist"}
+                            </Button>
+                            <Button
+                              className="flex-1 h-11 text-xs font-bold whitespace-nowrap"
+                              onClick={() => {
+                                const talentId = selectedTalent.id;
+                                const talentName = selectedTalent.name;
+                                setSelectedTalent(null);
+                                setSelectedApplicantForProfile(null);
+                                navigate("/checkout", { state: { creatorId: talentId, creatorName: talentName } });
+                              }}
+                            >
+                              Book Now →
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                </Modal>
+              );
+            })()}
           </AnimatePresence>
         </div>
       </main>

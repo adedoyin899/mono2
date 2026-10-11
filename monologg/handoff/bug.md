@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
+**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 65. Talent profile modal trapped in Discover tab scope failing to mount from Applicant pipeline cards
+- **Severity:** Medium / Feature Accessibility & Modal Scope
+- **What happened:** In `ClientDashboard.tsx`, the performer profile modal `{selectedTalent && <Modal ...>}` was nested inside `{activeTab === "discover" && (...) }`. When a client inspected an applicant in `activeTab === "projects"` and clicked "View Profile & Reels →", `selectedTalent` was populated in component state but the modal never mounted because `activeTab` was `"projects"`, leaving the user with an unresponsive click.
+- **Root Cause:** Placement of the modal inside the Discover view container rather than the dashboard's root-level `<AnimatePresence>` container.
+- **Resolution:** Lifted `{selectedTalent && <Modal ...>}` to the root `<AnimatePresence>` container alongside `showFundWalletModal`. Added `selectedApplicantForProfile` state so the modal dynamically equips audition proposal quotes, submission timestamps, and full casting decision CTAs (`Reject`, `Shortlist`, `Accept / Hire Performer`, `Open Order Room`).
+
+### 64. Multi-line button text wrapping on compact sidebars and narrow viewport widths
+- **Severity:** Low / Visual Polish & Typographic Hierarchy
+- **What happened:** Action buttons such as `Publish Brief & Fund Escrow` or contextual secondary triggers wrapped across two lines in the project detail sidebar (`Publish Brief & \n Fund Escrow`), violating senior FAANG UX standards and creating cluttered card layouts.
+- **Root Cause:** Missing `whitespace-nowrap` on shared button primitive (`Button.tsx`) and overly verbose action microcopy.
+- **Resolution:** Added `whitespace-nowrap` to `baseStyles` in `Button.tsx`. Streamlined button text to crisp, punchy microcopy (`Publish & Fund Escrow`, `Pause Applications`, `Copy Casting Link`, `View Order Room`, `Post Similar Brief`, `Delete Draft`).
+
+### 63. Inactive draft project briefs leaking live applicant cards, search filters, and progress counters
+- **Severity:** Low / Logical State Consistency & Information Hierarchy
+- **What happened:** When inspecting a project in `draft` status, the applicant pipeline displayed a list of fallback candidates, search inputs, filter chips, and capacity counters (`2 / 10 applicants filled`), which is logically contradictory because a draft brief has not been published or opened to talent.
+- **Root Cause:** Mock applicant state was unconditionally initialized with fallback data, and the pipeline section did not check `currentStatus === "draft"`.
+- **Resolution:** Updated pipeline rendering: when `currentStatus === "draft"`, candidate cards, filter chips, and search inputs are suppressed, and an editorial `Casting Pipeline Inactive` banner is rendered with a direct `Publish & Fund Escrow` action. Also updated the projects list view so drafts display `Draft saved {date}` and `Target: {cap} performers · Inactive draft`.
 
 ### 62. Legacy slide-over applicant modal simultaneously mounting during dedicated full-page project inspection
 - **Severity:** Low / UI Conflict & Modal Leakage

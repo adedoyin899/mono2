@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
+**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -580,6 +580,29 @@ Conducted an exhaustive FAANG-grade UX audit of the Client POV "My Projects" exp
 - **FAANG Applicant Pipeline & Casting Review:** Added 5 interactive status filter chips (`All`, `Shortlisted`, `Selected`, `Applied`, `Rejected`), instant text search input across names, roles, locations, and quotes, and rich applicant cards featuring avatar, verified badge, rate, italic pitch quote, in-dashboard talent modal trigger (`View Profile & Reels →`), and contextual actions (`Shortlist`, `Reject`, `Select / Hire`, `Open Order Room →`).
 - **Defect Resolution & Guarding:** Guarded the legacy slide-over applicant modal against mounting during full-page inspection and calmed the desktop header hierarchy by hiding the global page title when inspecting a project.
 - **Testing & Distribution Rebuilding:** Added comprehensive unit tests in `ClientDashboard.test.tsx` (all 7 tests passing; 113/113 tests passing across all 25 suites), verified clean typecheck (`tsc --noEmit`), and rebuilt the single-file distribution bundle in `monologg/monologg-app.html` (1.48 MB).
+
+---
+
+### Step 115: Senior FAANG UX Audit & Refinement — Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge, Inactive Draft Banner, and Performer Storefront Casting Modal (Session 115)
+
+Executed a comprehensive design and UX refinement across the Client Project Detailed View and Talent Profile Storefront Modal:
+- **Global Button Text Wrap Prevention:** Injected `whitespace-nowrap` into `baseStyles` in `Button.tsx` to eliminate two-line button text wrapping across the app. Concise microcopy was enforced across Action Center buttons (`Publish & Fund Escrow`, `Pause Applications`, `Copy Casting Link`, `View Order Room`, etc.).
+- **Per-State Redundancy Purge & Draft Inactive Pipeline:**
+  - Removed duplicate state badge in top navigation bar (`STATE: [Draft] ... [Draft]`).
+  - Replaced misleading applicant cards and counters in draft mode with an editorial `Casting Pipeline Inactive` banner with a direct `Publish & Fund Escrow` action.
+  - Updated the projects list view so draft projects display `Draft saved {date}` and `Target: {cap} performers · Inactive draft` rather than live applicant numbers.
+  - Dynamically formatted header metadata (location, timeline, spots, and posted date) for all 6 project lifecycle states.
+  - Suppressed active hiring buttons (`Select / Hire`, `Reject`) in concluded states (`in_progress`, `review`, `completed`, `closed`), displaying `Casting Concluded`.
+- **Universal Performer Storefront Profile & Casting Modal:**
+  - Unnested the talent modal from Discover tab to the dashboard root `<AnimatePresence>` container, ensuring clicking "View Profile & Reels →" from the projects tab reliably opens the modal.
+  - Equipped the modal with creator identity, verified badge, star rating (`★ 4.9`), role, location, style tags, and direct `Open Public Storefront` button linking to `/:handle`.
+  - Added audition pitch proposal callout card with submission timestamp and status pill.
+  - Added featured audio/video reel preview card and storefront rate cards.
+  - Implemented direct casting CTAs: `Reject` / `Move to Shortlist`, `Shortlist`, and `Accept / Hire Performer` (or `Open Order Room` when hired).
+- **Automated Testing & Distribution Rebuilding:**
+  - Updated and expanded `ClientDashboard.test.tsx` (all 9 tests passing; 115/115 tests passing across all 25 test suites).
+  - Verified 100% clean TypeScript compilation (`tsc --noEmit`).
+  - Re-compiled standalone Vite production bundle (`build:standalone`) and inlined updated assets into `monologg/monologg-app.html` (1.55 MB).
 
 ---
 

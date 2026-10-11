@@ -152,7 +152,7 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     // Click Draft state button
     fireEvent.click(screen.getByRole("button", { name: "Draft" }));
     expect(screen.getAllByText("Draft").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Publish Brief & Fund Escrow")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /publish & fund escrow/i }).length).toBeGreaterThanOrEqual(1);
 
     // Click In Progress state button
     fireEvent.click(screen.getByRole("button", { name: "In Progress" }));
@@ -170,6 +170,45 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Closed" }));
     expect(screen.getAllByText("Applications Closed").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Reopen Applications")).toBeInTheDocument();
+  });
+
+  it("draft state renders inactive casting banner and hides active candidate list", async () => {
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText("P-001");
+
+    // Click Draft state switcher
+    fireEvent.click(screen.getByRole("button", { name: "Draft" }));
+    expect(screen.getByText("Casting Pipeline Inactive")).toBeInTheDocument();
+    expect(screen.queryByText("Adaeze Obi")).not.toBeInTheDocument();
+    expect(screen.queryByText("Amara Diallo")).not.toBeInTheDocument();
+
+    // Re-publishing switches to active and restores candidates
+    fireEvent.click(screen.getAllByRole("button", { name: /publish & fund escrow/i })[0]!);
+    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+  });
+
+  it("view profile & reels opens performer storefront modal with casting CTAs", async () => {
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText("Adaeze Obi");
+
+    const viewProfileBtns = screen.getAllByRole("button", { name: /view profile & reels/i });
+    fireEvent.click(viewProfileBtns[0]!);
+
+    // Storefront modal mounts
+    expect(screen.getByText("Open Public Storefront")).toBeInTheDocument();
+    expect(screen.getByText(/Audition Pitch & Proposal/i)).toBeInTheDocument();
+    expect(screen.getByText("Accept / Hire Performer")).toBeInTheDocument();
+
+    // Clicking Shortlist in modal updates applicant status
+    const shortlistBtns = screen.getAllByRole("button", { name: "Shortlist" });
+    fireEvent.click(shortlistBtns[shortlistBtns.length - 1]!);
+
+    // Clicking Hire in modal triggers hire flow and transitions to in_progress
+    const hireModalBtn = screen.getByRole("button", { name: /accept \/ hire performer/i });
+    fireEvent.click(hireModalBtn);
+    expect(screen.getAllByRole("button", { name: /open order room/i }).length).toBeGreaterThanOrEqual(1);
   });
 
   it("copies audition script to clipboard and confirms copied state", async () => {

@@ -1,11 +1,65 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
+**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 115 (2026-10-11) — Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions
+
+**Goal:** Conduct an exhaustive, senior FAANG-tier UX audit and refinement of the Client Project Detailed View and Talent Profile Storefront Modal across all 6 project lifecycle states (`draft`, `active`, `in_progress`, `review`, `completed`, `closed`) in `ClientDashboard.tsx`:
+1. **Eliminate Multi-Line Button Text Wrapping:** Buttons like `Publish Brief & Fund Escrow` or action triggers broke awkwardly onto 2 lines on narrow sidebars or compact viewports. Enforce universal single-line typography, `whitespace-nowrap`, and crisp microcopy.
+2. **Purge Redundant & Illogical State Information:**
+   - In `draft`, prevent applicant cards, search filters, and counters (`2 / 10 applicants filled`) from rendering. Display a clean, focused inactive draft banner with `Publish & Fund Escrow` trigger.
+   - Clean up projects list view so drafts display `Draft saved {date}` and `Target: {cap} performers · Inactive draft` rather than misleading `Posted {date}` and `2/10 applicants`.
+   - Remove redundant duplicate status badge in the top navigation bar (`STATE: [Draft] ... [Draft]`).
+   - Suppress active hiring actions (`Select / Hire`, `Reject`) in non-active states (`in_progress`, `review`, `completed`, `closed`), displaying `Casting Concluded`.
+3. **Universal Performer Storefront Profile & Casting Modal:**
+   - Unnest the talent inspection modal from the discover tab to the root `<AnimatePresence>` container so clicking "View Profile & Reels →" from the projects tab opens the modal reliably.
+   - Embed creator identity (name, handle, verified badge, rating ★ 4.9, tags, bio).
+   - Add direct `Open Public Storefront` button linking to the creator's route `/:handle`.
+   - Embed audition pitch proposal callout with submission timestamp and status badge.
+   - Embed audio/video reel preview player and storefront rate cards.
+   - Provide direct casting decision CTAs: `Reject` / `Move to Shortlist`, `Shortlist`, and `Accept / Hire Performer` (or `Open Order Room` when hired).
+
+### Detailed Technical Implementations:
+
+1. **Global Button Text Wrap Prevention (`Button.tsx`):**
+   - Added `whitespace-nowrap` to `baseStyles` in `Button.tsx`. Guaranteed that buttons across the entire platform render in a crisp, single-line form without awkward multi-line breaks.
+   - Shortened action center button copy: `Publish & Fund Escrow`, `Pause Applications`, `Copy Casting Link`, `View Order Room`, `Inspect in Order Room`, `Post Similar Brief`, `Delete Draft`.
+
+2. **Project Detail State Redundancy Purge (`ClientDashboard.tsx`):**
+   - **Top Navigation Bar:** Removed duplicate status badge adjacent to the interactive state switcher.
+   - **Dynamic Header Metadata Row:** Formatted location, timeline, performers, and posted date dynamically for each lifecycle state.
+   - **Applicant Pipeline in Draft:** If `currentStatus === "draft"`, rendered `Casting Pipeline Inactive` banner with explanatory microcopy and `Publish & Fund Escrow` action, completely suppressing candidate cards, applicant search, and filter tabs.
+   - **Non-Active Concluded States:** In `in_progress`, `review`, `completed`, and `closed`, unselected applicants display `Casting Concluded` rather than active hire buttons.
+   - **Casting Capacity Tracker:** Displays `0%` progress in draft mode and `100%` in hired/review/completed states.
+   - **Projects List View:** Replaced misleading `Posted {date}` with `Draft saved {date}` and `Target: {cap} performers · Inactive draft` for draft briefs.
+
+3. **Universal Performer Storefront Profile & Casting Modal (`ClientDashboard.tsx`):**
+   - Lifted `selectedTalent` modal from inside `activeTab === "discover"` to the root `<AnimatePresence>` container.
+   - Added `selectedApplicantForProfile` state to track applicant audition context when viewing talent from a brief.
+   - Rendered cover banner, avatar with verified badge, star rating (`★ 4.9`), role, location, style tags.
+   - Added `Open Public Storefront` CTA with `ExternalLink` icon navigating directly to `/${selectedTalent.id}` (`/:handle`).
+   - If opened from an applicant card: Audition pitch proposal callout card, status pill, submission timestamp.
+   - Featured audio/video reel preview card with play trigger and duration timestamp.
+   - Standard storefront rates card (Standard Master and Rush 24h).
+   - Casting Action Bar:
+     - In active project: `Reject` (or `Move to Shortlist` if rejected), `Shortlist`, and `Accept / Hire Performer` (or `Open Order Room` if already hired).
+     - In concluded states: `Open Order Room` for the hired talent or `Casting Concluded for this project brief`.
+     - In discover mode: `Save to Shortlist` and `Book Now →`.
+
+4. **Automated Testing & Build Validation:**
+   - Updated `ClientDashboard.test.tsx` to assert new concise button copy (`Publish & Fund Escrow`).
+   - Added unit test verifying draft state renders `Casting Pipeline Inactive` and suppresses candidate cards.
+   - Added unit test verifying `View Profile & Reels →` mounts storefront modal with casting CTAs (Shortlist, Hire, Order Room transition).
+   - All 9 tests in `ClientDashboard.test.tsx` passing; 115/115 tests passing across all 25 test suites.
+   - TypeScript compilation 100% clean (`tsc --noEmit`).
+   - Re-compiled standalone bundle (`npm run build:standalone`) and inlined updated assets into `monologg/monologg-app.html` (1.55 MB).
 
 ---
 
