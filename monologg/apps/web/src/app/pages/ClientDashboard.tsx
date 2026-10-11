@@ -482,6 +482,109 @@ export function ClientDashboard() {
   const [isPublishingEscrow, setIsPublishingEscrow] = useState(false);
   const [publishEscrowSuccess, setPublishEscrowSuccess] = useState(false);
 
+  // Fund Wallet Enhanced Features: Card Add, Insufficient Funds Error, Paystack Checkout Modal, Success & Toasts
+  const [cardFundError, setCardFundError] = useState<string | null>(null);
+  const [showAddNewCardInline, setShowAddNewCardInline] = useState(false);
+  const [newCardNumber, setNewCardNumber] = useState("");
+  const [newCardExpiry, setNewCardExpiry] = useState("");
+  const [newCardCvv, setNewCardCvv] = useState("");
+  const [newCardName, setNewCardName] = useState("");
+  const [showPaystackModal, setShowPaystackModal] = useState(false);
+  const [paystackTab, setPaystackTab] = useState<"card" | "transfer" | "ussd">("card");
+  const [paystackProcessing, setPaystackProcessing] = useState(false);
+  const [paystackCopied, setPaystackCopied] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [fundingSuccessData, setFundingSuccessData] = useState<{
+    amount: number;
+    method: string;
+    newBalance: number;
+    ref: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const t = setTimeout(() => setToastMessage(null), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [toastMessage]);
+
+  function formatCardNumber(val: string): string {
+    const digits = val.replace(/\D/g, "").slice(0, 16);
+    return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+  }
+
+  function detectCardType(num: string): "Mastercard" | "Visa" | "Verve" {
+    const clean = num.replace(/\D/g, "");
+    if (clean.startsWith("4")) return "Visa";
+    if (clean.startsWith("506") || clean.startsWith("650") || clean.startsWith("507")) return "Verve";
+    return "Mastercard";
+  }
+
+  function executePaystackPayment() {
+    const amt = parseInt(fundAmountInput.replace(/\D/g, ""), 10) || 50000;
+    setPaystackProcessing(true);
+    setTimeout(() => {
+      appStateSync.fundWallet(amt);
+      const newBal = (walletBalance || 850000) + amt;
+      setWalletBalance(newBal);
+      appStateSync.addNotification({
+        id: `notif-${Date.now()}`,
+        kind: "WALLET_FUNDED",
+        createdAt: new Date().toISOString(),
+        payload: { clientName: `Wallet Credited: ₦${amt.toLocaleString()} via Paystack` },
+      });
+      setNotifications(appStateSync.getNotifications());
+      setToastMessage(`✓ Wallet credited with ₦${amt.toLocaleString()} via Paystack`);
+      setPaystackProcessing(false);
+      setShowPaystackModal(false);
+      setFundingSuccessData({
+        amount: amt,
+        method: "Paystack Instant Escrow",
+        newBalance: newBal,
+        ref: `ref_paystack_${Date.now().toString().slice(-6)}`,
+      });
+      setFundingSuccess(true);
+    }, 600);
+  }
+
+  function executeCardDebit() {
+    const amt = parseInt(fundAmountInput.replace(/\D/g, ""), 10) || 0;
+    if (amt <= 0) return;
+
+    setIsFunding(true);
+    setTimeout(() => {
+      // Simulate insufficient funds if amount >= 1,000,000 or error simulation is triggered
+      if (amt >= 1000000) {
+        setIsFunding(false);
+        setCardFundError("insufficient_funds");
+        return;
+      }
+
+      appStateSync.fundWallet(amt);
+      const newBal = (walletBalance || 850000) + amt;
+      setWalletBalance(newBal);
+      const selectedCard = savedCards.find(c => c.id === selectedEscrowCardId) || savedCards[0];
+      const cardLabel = selectedCard ? `${selectedCard.type} •••• ${selectedCard.last4}` : "Saved Card";
+
+      appStateSync.addNotification({
+        id: `notif-${Date.now()}`,
+        kind: "WALLET_FUNDED",
+        createdAt: new Date().toISOString(),
+        payload: { clientName: `Wallet Credited: ₦${amt.toLocaleString()} from ${cardLabel}` },
+      });
+      setNotifications(appStateSync.getNotifications());
+      setToastMessage(`✓ Wallet credited with ₦${amt.toLocaleString()} from ${cardLabel}`);
+      setIsFunding(false);
+      setFundingSuccessData({
+        amount: amt,
+        method: `${cardLabel} Direct Debit`,
+        newBalance: newBal,
+        ref: `card_tx_${Date.now().toString().slice(-6)}`,
+      });
+      setFundingSuccess(true);
+    }, 500);
+  }
+
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;
   const effectiveShortlist = isNewUser ? [] : shortlist;
@@ -3611,39 +3714,85 @@ export function ClientDashboard() {
 
             {/* ── Fund Wallet Modal ── */}
             {showFundWalletModal && (
-              <Modal onClose={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}>
-                <div className="p-6 space-y-5">
+              <Modal key="fund-wallet-modal" onClose={() => { setShowFundWalletModal(false); setFundingSuccess(false); setCardFundError(null); }}>
+                <div className="p-6 space-y-5 max-w-md w-full" onClick={e => e.stopPropagation()}>
                   <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
                     <div>
                       <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Fund Client Wallet</h3>
                       <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                        Add funds via Paystack instant escrow deposit for booking performers
+                        Add funds to book performers and fund project escrow
                       </p>
                     </div>
                     <button
-                      onClick={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}
+                      onClick={() => { setShowFundWalletModal(false); setFundingSuccess(false); setCardFundError(null); }}
                       className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
                       style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                      aria-label="Close modal"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   {fundingSuccess ? (
-                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-6 text-center space-y-3">
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-6 text-center space-y-4">
                       <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         <Check className="w-7 h-7" />
                       </div>
-                      <h4 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Wallet Funded Successfully!</h4>
-                      <p className="text-xs font-body max-w-xs mx-auto" style={{ color: "var(--color-text-secondary)" }}>
-                        Your balance has been updated. You can now fund escrow and hire performers immediately.
-                      </p>
-                      <Button
-                        className="mt-2 w-full h-11"
-                        onClick={() => { setShowFundWalletModal(false); setFundingSuccess(false); }}
-                      >
-                        Done
-                      </Button>
+                      <div>
+                        <h4 className="font-display text-xl font-bold text-[var(--color-text-primary)]">Wallet Funded Successfully!</h4>
+                        <div className="text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                          +₦{(fundingSuccessData?.amount || parseInt(fundAmountInput.replace(/\D/g, ""), 10) || 50000).toLocaleString()}
+                        </div>
+                        <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)]">
+                          Your balance is updated. You can fund escrow and hire performers immediately.
+                        </p>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-left text-xs space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[var(--color-text-tertiary)]">New Available Balance</span>
+                          <span className="font-mono font-bold text-[var(--color-text-primary)]">
+                            ₦{(fundingSuccessData?.newBalance || walletBalance).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[var(--color-text-tertiary)]">Payment Method</span>
+                          <span className="font-medium text-[var(--color-text-primary)]">
+                            {fundingSuccessData?.method || (walletFundMethod === "card" ? "Saved Card" : "Paystack Instant Escrow")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[var(--color-text-tertiary)]">Transaction Reference</span>
+                          <span className="font-mono text-[var(--color-text-secondary)]">
+                            {fundingSuccessData?.ref || "ref_paystack_018274"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2.5 pt-1">
+                        <Button
+                          variant="secondary"
+                          className="flex-1 h-11 text-xs font-semibold whitespace-nowrap"
+                          onClick={() => {
+                            setShowFundWalletModal(false);
+                            setFundingSuccess(false);
+                            setCardFundError(null);
+                          }}
+                        >
+                          Done
+                        </Button>
+                        <Button
+                          className="flex-1 h-11 text-xs font-bold shadow-md whitespace-nowrap"
+                          onClick={() => {
+                            setShowFundWalletModal(false);
+                            setFundingSuccess(false);
+                            setCardFundError(null);
+                            setActiveTab("projects");
+                          }}
+                        >
+                          View Projects
+                        </Button>
+                      </div>
                     </motion.div>
                   ) : (
                     <div className="space-y-4">
@@ -3656,7 +3805,10 @@ export function ClientDashboard() {
                             <button
                               key={amt}
                               type="button"
-                              onClick={() => setFundAmountInput(amt.toLocaleString())}
+                              onClick={() => {
+                                setFundAmountInput(amt.toLocaleString());
+                                setCardFundError(null);
+                              }}
                               className="py-2 px-1 text-xs font-mono font-medium rounded-xl border transition-all text-center"
                               style={{
                                 background: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
@@ -3685,8 +3837,9 @@ export function ClientDashboard() {
                               const raw = e.target.value.replace(/\D/g, "");
                               const num = parseInt(raw, 10);
                               setFundAmountInput(isNaN(num) ? "" : num.toLocaleString());
+                              setCardFundError(null);
                             }}
-                            placeholder="e.g. 100,000"
+                            placeholder="e.g. 50,000"
                           />
                         </div>
                       </div>
@@ -3699,7 +3852,10 @@ export function ClientDashboard() {
                         <div className="grid grid-cols-2 gap-2 mb-3">
                           <button
                             type="button"
-                            onClick={() => setWalletFundMethod("card")}
+                            onClick={() => {
+                              setWalletFundMethod("card");
+                              setCardFundError(null);
+                            }}
                             className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
                             style={{
                               background: walletFundMethod === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
@@ -3714,7 +3870,10 @@ export function ClientDashboard() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setWalletFundMethod("paystack")}
+                            onClick={() => {
+                              setWalletFundMethod("paystack");
+                              setCardFundError(null);
+                            }}
                             className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
                             style={{
                               background: walletFundMethod === "paystack" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
@@ -3723,102 +3882,450 @@ export function ClientDashboard() {
                           >
                             <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: walletFundMethod === "paystack" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
                             <div>
-                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Paystack Escrow</div>
-                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Bank / Transfer</div>
+                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
+                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
                             </div>
                           </button>
                         </div>
                       </div>
 
                       {walletFundMethod === "card" ? (
-                        savedCards.length > 0 ? (
-                          <div className="space-y-2">
-                            <div className="space-y-1.5">
-                              {savedCards.map(c => (
-                                <label
-                                  key={c.id}
-                                  className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all"
-                                  style={{
-                                    background: selectedEscrowCardId === c.id ? "rgba(124, 58, 237, 0.08)" : "var(--color-bg-elevated)",
-                                    borderColor: selectedEscrowCardId === c.id ? "#7C3AED" : "var(--color-hairline)",
-                                  }}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <input
-                                      type="radio"
-                                      name="fundWalletCard"
-                                      checked={selectedEscrowCardId === c.id}
-                                      onChange={() => setSelectedEscrowCardId(c.id)}
-                                      className="accent-[#7C3AED]"
-                                    />
-                                    <CreditCard className="w-4 h-4 text-[#7C3AED]" />
-                                    <div>
-                                      <div className="text-xs font-bold text-[var(--color-text-primary)]">
-                                        {c.type.toUpperCase()} •••• {c.last4}
-                                      </div>
-                                      <div className="text-[10px] text-[var(--color-text-tertiary)]">
-                                        Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                        <div className="space-y-3">
+                          {savedCards.length > 0 ? (
+                            <div className="space-y-2">
+                              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                                {savedCards.map(c => (
+                                  <label
+                                    key={c.id}
+                                    className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all"
+                                    style={{
+                                      background: selectedEscrowCardId === c.id ? "rgba(124, 58, 237, 0.08)" : "var(--color-bg-elevated)",
+                                      borderColor: selectedEscrowCardId === c.id ? "#7C3AED" : "var(--color-hairline)",
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <input
+                                        type="radio"
+                                        name="fundWalletCard"
+                                        checked={selectedEscrowCardId === c.id}
+                                        onChange={() => {
+                                          setSelectedEscrowCardId(c.id);
+                                          setCardFundError(null);
+                                        }}
+                                        className="accent-[#7C3AED]"
+                                      />
+                                      <CreditCard className="w-4 h-4 text-[#7C3AED]" />
+                                      <div>
+                                        <div className="text-xs font-bold text-[var(--color-text-primary)]">
+                                          {c.type.toUpperCase()} •••• {c.last4}
+                                        </div>
+                                        <div className="text-[10px] text-[var(--color-text-tertiary)]">
+                                          Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                  {c.isDefault && (
-                                    <Badge tone="accent" size="sm">Default</Badge>
-                                  )}
-                                </label>
-                              ))}
+                                    {c.isDefault && (
+                                      <Badge tone="accent" size="sm">Default</Badge>
+                                    )}
+                                  </label>
+                                ))}
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1">
+                                <div className="flex items-center gap-2">
+                                  <label className="text-xs font-medium text-[var(--color-text-secondary)] whitespace-nowrap">
+                                    CVV Code:
+                                  </label>
+                                  <Input
+                                    type="password"
+                                    maxLength={4}
+                                    value={cardCvv}
+                                    onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
+                                    className="w-20 text-center font-mono font-bold h-9"
+                                    placeholder="•••"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setCardFundError(cardFundError ? null : "insufficient_funds")}
+                                  className="text-[10px] text-[var(--color-text-tertiary)] hover:underline"
+                                >
+                                  {cardFundError ? "Clear test error" : "Test insufficient balance error"}
+                                </button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 pt-1">
-                              <label className="text-xs font-medium text-[var(--color-text-secondary)] whitespace-nowrap">
-                                CVV Security Code:
-                              </label>
-                              <Input
-                                type="password"
-                                maxLength={4}
-                                value={cardCvv}
-                                onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                                className="w-20 text-center font-mono font-bold h-9"
-                                placeholder="•••"
-                              />
-                              <span className="text-[10px] text-[var(--color-text-tertiary)]">3 digits on card back</span>
+                          ) : (
+                            <div className="p-3 rounded-xl border border-dashed text-xs text-[var(--color-text-secondary)]">
+                              No saved card found. Add a card below or pay via Paystack.
                             </div>
+                          )}
+
+                          {/* Inline Add Card Toggle & Form */}
+                          {!showAddNewCardInline ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowAddNewCardInline(true)}
+                              className="w-full py-2 px-3 rounded-xl border border-dashed border-[var(--color-border-default)] hover:border-[#7C3AED] text-xs font-semibold text-[#7C3AED] flex items-center justify-center gap-1.5 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Add New Card</span>
+                            </button>
+                          ) : (
+                            <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[var(--color-text-primary)]">Add New Card</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowAddNewCardInline(false)}
+                                  className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Card Number</label>
+                                <Input
+                                  placeholder="0000 0000 0000 0000"
+                                  value={newCardNumber}
+                                  maxLength={19}
+                                  onChange={e => setNewCardNumber(formatCardNumber(e.target.value))}
+                                  className="font-mono text-xs h-9"
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Expires</label>
+                                  <Input
+                                    placeholder="MM/YY"
+                                    value={newCardExpiry}
+                                    maxLength={5}
+                                    onChange={e => {
+                                      let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                                      if (v.length > 2) v = `${v.slice(0, 2)}/${v.slice(2)}`;
+                                      setNewCardExpiry(v);
+                                    }}
+                                    className="font-mono text-xs h-9"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">CVV</label>
+                                  <Input
+                                    type="password"
+                                    placeholder="•••"
+                                    value={newCardCvv}
+                                    maxLength={4}
+                                    onChange={e => setNewCardCvv(e.target.value.replace(/\D/g, ""))}
+                                    className="font-mono text-xs h-9 text-center"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Cardholder Name</label>
+                                <Input
+                                  placeholder="e.g. FilmCraft Studios"
+                                  value={newCardName}
+                                  onChange={e => setNewCardName(e.target.value)}
+                                  className="text-xs h-9"
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="w-full h-9 text-xs font-bold"
+                                disabled={newCardNumber.replace(/\D/g, "").length < 16 || newCardExpiry.length < 5 || newCardCvv.length < 3}
+                                onClick={() => {
+                                  const cleanNum = newCardNumber.replace(/\D/g, "");
+                                  const cardType = detectCardType(cleanNum);
+                                  const added = appStateSync.addBillingCard({
+                                    type: cardType,
+                                    last4: cleanNum.slice(-4),
+                                    expiry: newCardExpiry,
+                                    cardholderName: newCardName.trim() || undefined,
+                                    isDefault: false,
+                                  });
+                                  setSavedCards(appStateSync.getBillingCards());
+                                  setSelectedEscrowCardId(added.id);
+                                  setShowAddNewCardInline(false);
+                                  setNewCardNumber("");
+                                  setNewCardExpiry("");
+                                  setNewCardCvv("");
+                                  setNewCardName("");
+                                }}
+                              >
+                                Save &amp; Select Card
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Insufficient Funds Error State Alert */}
+                          {cardFundError === "insufficient_funds" && (
+                            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 space-y-2">
+                              <div className="flex items-center gap-2 text-rose-800 dark:text-rose-200 font-bold text-xs">
+                                <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                                <span>Payment Declined: Insufficient Funds</span>
+                              </div>
+                              <p className="text-rose-700 dark:text-rose-300 text-xs leading-relaxed">
+                                Your bank declined the debit of ₦{fundAmountInput} due to insufficient funds in this account. Please select another card or fund with Paystack.
+                              </p>
+                              <div className="flex gap-2 pt-1">
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  className="flex-1 h-8 text-xs font-semibold whitespace-nowrap"
+                                  onClick={() => setCardFundError(null)}
+                                >
+                                  Try Another Card
+                                </Button>
+                                <Button
+                                  type="button"
+                                  className="flex-1 h-8 text-xs font-semibold whitespace-nowrap"
+                                  onClick={() => {
+                                    setCardFundError(null);
+                                    setWalletFundMethod("paystack");
+                                  }}
+                                >
+                                  Switch to Paystack
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="pt-1">
+                            <Button
+                              className="w-full h-12 text-sm font-bold shadow-md"
+                              disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0 || (savedCards.length === 0 && !showAddNewCardInline)}
+                              onClick={executeCardDebit}
+                            >
+                              {isFunding ? "Processing Debit..." : `Debit ₦${fundAmountInput || "0"} from Card`}
+                            </Button>
                           </div>
-                        ) : (
-                          <div className="p-3 rounded-xl border border-dashed text-xs text-[var(--color-text-secondary)]">
-                            No saved card found. Add a card in Billing &amp; Payments or pay via Paystack.
-                          </div>
-                        )
+                        </div>
                       ) : (
-                        <div className="p-3.5 rounded-xl border flex items-center justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                          <div className="flex items-center gap-2.5">
-                            <CreditCard className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
-                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Paystack Instant Escrow</span>
+                        <div className="space-y-4">
+                          <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-[#0BA4DB]/15 text-[#0BA4DB] flex items-center justify-center font-bold text-sm">
+                                  P
+                                </div>
+                                <div>
+                                  <div className="text-xs font-bold text-[var(--color-text-primary)]">Paystack Secure Checkout</div>
+                                  <div className="text-[10px] text-[var(--color-text-tertiary)]">Card, Bank Transfer, or USSD</div>
+                                </div>
+                              </div>
+                              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 whitespace-nowrap">
+                                256-Bit SSL
+                              </span>
+                            </div>
+                            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                              Click below to open Paystack's secure checkout. Once payment completes, your wallet balance will be credited instantly.
+                            </p>
                           </div>
-                          <span className="text-[11px] font-mono font-medium text-emerald-500">Secured 256-bit</span>
+
+                          <Button
+                            className="w-full h-12 text-sm font-bold shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+                            style={{ background: "#0BA4DB", color: "#FFFFFF" }}
+                            disabled={!fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0}
+                            onClick={() => setShowPaystackModal(true)}
+                          >
+                            <span>Pay ₦{fundAmountInput || "0"} with Paystack</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
                         </div>
                       )}
-
-                      <div className="pt-2">
-                        <Button
-                          className="w-full h-12 text-sm font-bold shadow-md"
-                          disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0}
-                          onClick={() => {
-                            const amt = parseInt(fundAmountInput.replace(/\D/g, ""), 10) || 0;
-                            if (amt <= 0) return;
-                            setIsFunding(true);
-                            setTimeout(() => {
-                              appStateSync.fundWallet(amt);
-                              setWalletBalance(prev => prev + amt);
-                              setIsFunding(false);
-                              setFundingSuccess(true);
-                            }, 500);
-                          }}
-                        >
-                          {isFunding ? "Processing Payment..." : walletFundMethod === "card" ? `Debit ₦${fundAmountInput || "0"} from Card` : `Fund Wallet ₦${fundAmountInput || "0"}`}
-                        </Button>
-                      </div>
                     </div>
                   )}
                 </div>
+              </Modal>
+            )}
+
+            {/* ── Paystack Checkout Integration Modal ── */}
+            {showPaystackModal && (
+              <Modal key="paystack-modal" onClose={() => { if (!paystackProcessing) setShowPaystackModal(false); }}>
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="p-0 max-w-md w-full rounded-2xl overflow-hidden bg-white text-slate-900 shadow-2xl border border-slate-200 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-800"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {/* Paystack Header */}
+                  <div className="bg-[#0BA4DB] px-6 py-4 text-white flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center font-bold text-sm">
+                        P
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold tracking-wide text-white/90">PAYSTACK SECURE CHECKOUT</div>
+                        <div className="text-[11px] text-white/75">Monologg Creative · client@filmcraft.ng</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-mono font-bold text-lg text-white">₦{fundAmountInput}</div>
+                      <div className="text-[10px] text-white/80">Secured 256-Bit</div>
+                    </div>
+                  </div>
+
+                  {/* Paystack Tabs */}
+                  <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+                    <button
+                      type="button"
+                      onClick={() => setPaystackTab("card")}
+                      className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        paystackTab === "card"
+                          ? "border-[#0BA4DB] text-[#0BA4DB] bg-white dark:bg-slate-900"
+                          : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Card</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaystackTab("transfer")}
+                      className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        paystackTab === "transfer"
+                          ? "border-[#0BA4DB] text-[#0BA4DB] bg-white dark:bg-slate-900"
+                          : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Layers className="w-3.5 h-3.5" />
+                      <span>Transfer</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaystackTab("ussd")}
+                      className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-1.5 border-b-2 transition-all ${
+                        paystackTab === "ussd"
+                          ? "border-[#0BA4DB] text-[#0BA4DB] bg-white dark:bg-slate-900"
+                          : "border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>USSD</span>
+                    </button>
+                  </div>
+
+                  {/* Tab Body */}
+                  <div className="p-6 space-y-4">
+                    {paystackProcessing ? (
+                      <div className="py-10 text-center space-y-3">
+                        <div className="w-10 h-10 border-3 border-[#0BA4DB] border-t-transparent rounded-full animate-spin mx-auto" />
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">Authorizing payment with bank...</div>
+                        <div className="text-xs text-slate-500">Please do not close this window</div>
+                      </div>
+                    ) : (
+                      <>
+                        {paystackTab === "card" && (
+                          <div className="space-y-3">
+                            <div className="text-xs text-slate-500">
+                              Simulate instant card payment via Paystack:
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-slate-500">Card Number</label>
+                              <Input readOnly value="4084 ···· ···· 9410 (Visa)" className="font-mono text-xs bg-slate-50 dark:bg-slate-800" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-slate-500">Valid Thru</label>
+                                <Input readOnly value="12 / 28" className="font-mono text-xs bg-slate-50 dark:bg-slate-800" />
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-slate-500">CVV</label>
+                                <Input readOnly value="123" className="font-mono text-xs bg-slate-50 dark:bg-slate-800" />
+                              </div>
+                            </div>
+                            <Button
+                              className="w-full h-11 text-xs font-bold text-white shadow-md mt-2"
+                              style={{ background: "#0BA4DB" }}
+                              onClick={executePaystackPayment}
+                            >
+                              Pay ₦{fundAmountInput}
+                            </Button>
+                          </div>
+                        )}
+
+                        {paystackTab === "transfer" && (
+                          <div className="space-y-3">
+                            <div className="text-xs text-slate-500">
+                              Transfer exactly <strong>₦{fundAmountInput}</strong> to the dedicated virtual account:
+                            </div>
+                            <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Bank</span>
+                                <span className="text-xs font-bold">Wema Bank</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Account Number</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono font-bold text-sm">0128 4930 21</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard?.writeText("0128493021");
+                                      setPaystackCopied(true);
+                                      setTimeout(() => setPaystackCopied(false), 2000);
+                                    }}
+                                    className="text-xs px-2 py-0.5 rounded bg-[#0BA4DB]/10 text-[#0BA4DB] font-semibold hover:bg-[#0BA4DB]/20 transition-colors"
+                                  >
+                                    {paystackCopied ? "Copied!" : "Copy"}
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Beneficiary</span>
+                                <span className="text-xs font-medium">Monologg / Paystack</span>
+                              </div>
+                              <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700 text-[11px] text-amber-600 dark:text-amber-400">
+                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Expires in 29:45</span>
+                                <span>Single-use account</span>
+                              </div>
+                            </div>
+                            <Button
+                              className="w-full h-11 text-xs font-bold text-white shadow-md"
+                              style={{ background: "#0BA4DB" }}
+                              onClick={executePaystackPayment}
+                            >
+                              I Have Sent ₦{fundAmountInput}
+                            </Button>
+                          </div>
+                        )}
+
+                        {paystackTab === "ussd" && (
+                          <div className="space-y-3">
+                            <div className="text-xs text-slate-500">
+                              Dial this code on your mobile phone to authorize payment:
+                            </div>
+                            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-center space-y-1">
+                              <div className="text-xs text-slate-500 font-semibold">GTBank USSD Code</div>
+                              <div className="font-mono font-bold text-base text-[#0BA4DB] tracking-wider">
+                                *737*2*{fundAmountInput.replace(/\D/g, "")}*0128#
+                              </div>
+                              <div className="text-[11px] text-slate-400">Works with your linked mobile number</div>
+                            </div>
+                            <Button
+                              className="w-full h-11 text-xs font-bold text-white shadow-md"
+                              style={{ background: "#0BA4DB" }}
+                              onClick={executePaystackPayment}
+                            >
+                              I Have Dialed the Code
+                            </Button>
+                          </div>
+                        )}
+
+                        <div className="pt-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setShowPaystackModal(false)}
+                            className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium"
+                          >
+                            Cancel and return to Monologg
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </motion.div>
               </Modal>
             )}
 
@@ -4340,6 +4847,31 @@ export function ClientDashboard() {
                 </Modal>
               );
             })()}
+          </AnimatePresence>
+
+          {/* Floating Success Toast Notification */}
+          <AnimatePresence>
+            {toastMessage && (
+              <motion.div
+                key="toast-banner"
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                className="fixed top-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl border border-slate-700/60 max-w-sm text-xs font-body font-medium"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1">{toastMessage}</div>
+                <button
+                  onClick={() => setToastMessage(null)}
+                  className="w-5 h-5 rounded-full flex items-center justify-center hover:opacity-75 transition-opacity"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </main>

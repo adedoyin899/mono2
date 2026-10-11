@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 119: Client Funds Withdrawal Accessibility Contrast Overhaul, Single-Line Plain English Copy, Zero-Draft Direct Settlement Branching & No-Wrap Button Constraints)
+**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Polish, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -703,6 +703,35 @@ Overhauled the Client Analytics experience and streamlined client-facing setting
   - Updated `TransactionHistory.test.tsx` (9/9 passing) with test coverage for streamlined single-line copy and direct zero-draft settlement paths; 120/120 tests passing across all 25 test suites in `apps/web`.
   - Clean TypeScript typecheck (`tsc --noEmit`, 0 errors).
   - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.5 MB).
+
+### Step 120: Client Escrow Safeguard Modal UX Polish, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration (Session 120)
+
+- **Step 2 Escrow Safeguard Modal UX & Copy Polish (`TransactionHistory.tsx`):**
+  - Removed excessive uppercase badges and visual clutter from the modal header, preserving the alert triangle and concise headline `You have {N} live projects holding escrow`.
+  - Replaced repetitive badges on each project card with a banking-style breakdown: Project Title, craft niche, applicant count, and locked hold amount (`₦XXX,XXX Escrow hold`).
+  - Simplified reassurance box to single-line copy: `Your project drafts and auditions stay safe. Briefs, sides, and pitches are preserved so you can republish anytime. Withdrawals reach your bank within 24 hours.`
+  - Added click event stop-propagation on modal dialog containers to prevent inner clicks from inadvertently closing the dialog.
+- **Fund Client Wallet Modal Overhaul (`ClientDashboard.tsx`):**
+  - Cleaned up header copy: `Fund Client Wallet` / `Add funds to book performers and fund project escrow`.
+  - Added quick amount preset pills (`₦50k`, `₦100k`, `₦250k`, `₦500k`) and formatted input with currency adornment.
+  - Divided payment into two clean, prominent channels: **Saved Card** and **Paystack**.
+- **Saved Card Management & Insufficient Funds Error State:**
+  - Displayed saved cards with radio selection, brand logos, last 4 digits, expiry, cardholder name, and Default badge.
+  - Added inline `+ Add New Card` form with automatic card brand detection (Mastercard, Visa, Verve), number grouping, MM/YY expiry, CVV, and cardholder name, persisting directly to `appStateSync.addBillingCard`.
+  - Built an interactive **Insufficient Funds error state**:
+    - Triggered on bank decline: displays a theme-adaptive rose alert banner explaining the decline with two recovery CTAs (`Try Another Card` and `Switch to Paystack`).
+- **Full Paystack Branded Checkout Modal (`showPaystackModal`):**
+  - Designed an authentic Paystack modal featuring the branded `#0BA4DB` cyan header, merchant name (`Monologg Creative`), email, and amount.
+  - Implemented 3 functional checkout tabs:
+    - **Card:** Pay with debit card.
+    - **Transfer:** Dedicated single-use virtual account (`Wema Bank · 0128 4930 21 · Monologg / Paystack Escrow`) with 1-click Copy button and countdown timer.
+    - **USSD:** Bank dial code (`*737*2*{amount}*0128#`).
+  - Added authorization animation, wallet credit via `appStateSync.fundWallet`, in-app notifications, top-right floating toast notification, and transitions to the success screen.
+- **Automated Testing & Standalone Distribution Rebuilding:**
+  - Added 4 unit and integration tests in `ClientDashboard.test.tsx` (15/15 passing).
+  - All 25 test suites passing with 124/124 tests (`npm test`).
+  - 0 TypeScript compiler errors (`tsc --noEmit`).
+  - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.57 MB).
 
 ---
 

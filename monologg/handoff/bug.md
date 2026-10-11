@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 119: Client Withdrawal Accessibility, WCAG AAA Contrast Refinement, Single-Line Copy & Context-Aware Zero-Draft Direct Settlement)
+**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Cleanup, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 70. Modal backdrop click-propagation causing accidental dismissal on inner clicks & missing insufficient funds error state in Fund Wallet
+- **Severity:** Medium / UX Stability & Payment Error Handling
+- **What happened:** In `ClientDashboard.tsx`, interactive child controls inside the Fund Client Wallet modal (preset pills, form inputs, buttons) did not stop click event propagation. Clicks bubbled up to the outer `<Modal>` component wrapper which triggered `onClose` and closed the modal unexpectedly. Additionally, the client wallet funding flow lacked error handling when a debit card had insufficient funds and did not offer alternative payment channels like Paystack bank transfer or USSD.
+- **Root Cause:** Omission of `onClick={e => e.stopPropagation()}` on the modal container div, and absent error state branching in the card debit handler.
+- **Resolution:** Added `onClick={e => e.stopPropagation()}` to all modal container divs in `ClientDashboard.tsx` and `TransactionHistory.tsx`. Implemented an Insufficient Funds declined card error banner with one-click recovery CTAs (`Try Another Card` and `Switch to Paystack`), and built an authentic multi-channel Paystack Checkout modal with instant Escrow Virtual Account transfer and USSD support. Verified with 15/15 tests passing in `ClientDashboard.test.tsx` and 124/124 tests passing across the entire web app.
 
 ### 69. Low-contrast lavender text on light modal surfaces & misleading 0-draft project status in withdrawal confirmation
 - **Severity:** Low / Visual Accessibility & UX Logic Consistency

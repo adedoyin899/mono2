@@ -380,4 +380,102 @@ describe("ClientDashboard — Analytics Tab", () => {
   });
 });
 
+describe("ClientDashboard — Fund Client Wallet Modal & Paystack Integration", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function renderDashboard() {
+    const { ClientDashboard } = await import("./ClientDashboard");
+    render(
+      <MemoryRouter initialEntries={["/client"]}>
+        <ClientDashboard />
+      </MemoryRouter>,
+    );
+  }
+
+  it("opens the fund wallet modal, cleans copy, allows quick preset selection", async () => {
+    await renderDashboard();
+    const fundWalletBtn = await screen.findByRole("button", { name: /fund wallet/i });
+    fireEvent.click(fundWalletBtn);
+
+    expect(await screen.findByText("Fund Client Wallet")).toBeInTheDocument();
+    expect(screen.getByText("Add funds to book performers and fund project escrow")).toBeInTheDocument();
+
+    // Presets exist
+    const preset100k = screen.getByRole("button", { name: "₦100k" });
+    fireEvent.click(preset100k);
+    expect(screen.getByDisplayValue("100,000")).toBeInTheDocument();
+  });
+
+  it("debits from saved card successfully, shows success screen, and displays updated balance", async () => {
+    await renderDashboard();
+    fireEvent.click(await screen.findByRole("button", { name: /fund wallet/i }));
+    await screen.findByText("Fund Client Wallet");
+
+    // Click debit from card
+    const debitBtn = screen.getByRole("button", { name: /debit ₦.* from card/i });
+    fireEvent.click(debitBtn);
+
+    // Expect success screen
+    expect(await screen.findByText("Wallet Funded Successfully!")).toBeInTheDocument();
+    expect(screen.getByText("Done")).toBeInTheDocument();
+    expect(screen.getByText("View Projects")).toBeInTheDocument();
+  });
+
+  it("triggers insufficient funds error state on excessive debit, offers retry and paystack switch", async () => {
+    await renderDashboard();
+    fireEvent.click(await screen.findByRole("button", { name: /fund wallet/i }));
+    await screen.findByText("Fund Client Wallet");
+
+    // Enter excessive amount e.g. 1,500,000 to trigger insufficient funds
+    const input = screen.getByPlaceholderText("e.g. 50,000");
+    fireEvent.change(input, { target: { value: "1,500,000" } });
+
+    const debitBtn = screen.getByRole("button", { name: /debit ₦1,500,000 from card/i });
+    fireEvent.click(debitBtn);
+
+    // Error state appears
+    expect(await screen.findByText(/Payment Declined: Insufficient Funds/i)).toBeInTheDocument();
+    expect(screen.getByText(/Try Another Card/i)).toBeInTheDocument();
+    expect(screen.getByText(/Switch to Paystack/i)).toBeInTheDocument();
+
+    // Switch to Paystack resolves error and switches method
+    fireEvent.click(screen.getByRole("button", { name: /Switch to Paystack/i }));
+    expect(screen.getByText(/Paystack Secure Checkout/i)).toBeInTheDocument();
+  });
+
+  it("opens Paystack checkout modal, switches channels, and credits wallet on payment completion", async () => {
+    await renderDashboard();
+    fireEvent.click(await screen.findByRole("button", { name: /fund wallet/i }));
+    await screen.findByText("Fund Client Wallet");
+
+    // Switch to Paystack
+    fireEvent.click(screen.getByRole("button", { name: /Paystack/i }));
+    const paystackBtn = screen.getByRole("button", { name: /Pay ₦.* with Paystack/i });
+    fireEvent.click(paystackBtn);
+
+    // Paystack checkout modal is displayed
+    expect(await screen.findByText("PAYSTACK SECURE CHECKOUT")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Card" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Transfer" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "USSD" })).toBeInTheDocument();
+
+    // Switch to Transfer tab
+    fireEvent.click(screen.getByRole("button", { name: "Transfer" }));
+    expect(screen.getByText("Wema Bank")).toBeInTheDocument();
+    expect(screen.getByText("0128 4930 21")).toBeInTheDocument();
+
+    // Execute transfer completion
+    const completeTransferBtn = screen.getByRole("button", { name: /I Have Sent ₦/i });
+    fireEvent.click(completeTransferBtn);
+
+    // Transitions to success screen
+    expect(await screen.findByText("Wallet Funded Successfully!")).toBeInTheDocument();
+    expect(screen.getAllByText(/Paystack Instant Escrow/i).length).toBeGreaterThan(0);
+  });
+});
+
 

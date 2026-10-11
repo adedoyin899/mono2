@@ -715,16 +715,11 @@ export function TransactionHistory() {
                     <AlertTriangle className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 whitespace-nowrap">
-                        Escrow Safeguard
-                      </span>
-                    </div>
                     <h3 className="font-display text-xl font-bold text-[var(--color-text-primary)]">
                       You have {liveProjects.length} live projects holding escrow
                     </h3>
-                    <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)] leading-relaxed">
-                      Active projects must move to Drafts to release locked escrow funds. They can be republished anytime.
+                    <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)]">
+                      To withdraw escrow funds, these projects will move to Drafts. You can republish them anytime.
                     </p>
                   </div>
                 </div>
@@ -741,7 +736,7 @@ export function TransactionHistory() {
               {/* The Live Projects List */}
               <div className="space-y-2">
                 <div className="text-xs font-semibold uppercase tracking-wider font-body px-1 text-[var(--color-text-tertiary)] whitespace-nowrap">
-                  Live Projects Moving to Draft ({liveProjects.length})
+                  Active Projects ({liveProjects.length})
                 </div>
                 <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
                   {liveProjects.map((p) => (
@@ -759,8 +754,6 @@ export function TransactionHistory() {
                           </div>
                           <div className="text-xs font-body text-[var(--color-text-tertiary)] flex items-center gap-1.5 whitespace-nowrap">
                             <span>{p.niche}</span>
-                            <span>·</span>
-                            <span className="font-mono">{p.budget} Escrow</span>
                             {p.applicants !== undefined && (
                               <>
                                 <span>·</span>
@@ -770,25 +763,28 @@ export function TransactionHistory() {
                           </div>
                         </div>
                       </div>
-                      <Badge tone="warning" size="sm" className="whitespace-nowrap">Move to Draft</Badge>
+                      <div className="text-right shrink-0">
+                        <div className="text-xs font-mono font-bold text-[var(--color-text-primary)]">
+                          {p.budget}
+                        </div>
+                        <div className="text-[10px] font-body text-amber-600 dark:text-amber-400">
+                          Escrow hold
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Educational Reassurance Card (Clean, High Contrast, Accessible) */}
-              <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 text-xs space-y-1.5">
+              {/* Educational Reassurance Card (Clean, Simple, High Contrast) */}
+              <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 text-xs space-y-1">
                 <div className="flex items-center gap-2 font-bold text-purple-900 dark:text-purple-100">
                   <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span>When you have funds back:</span>
+                  <span>Your project drafts and auditions stay safe</span>
                 </div>
-                <p className="text-purple-800 dark:text-purple-200 leading-relaxed text-xs">
-                  Go to Drafts in your dashboard and click <strong>Publish &amp; Fund Escrow</strong> to repost your projects. All brief details, audition sides, and pitches are preserved.
+                <p className="text-purple-800 dark:text-purple-200 text-xs">
+                  Briefs, sides, and pitches are preserved so you can republish anytime. Withdrawals reach your bank within 24 hours.
                 </p>
-                <div className="text-[11px] text-purple-700 dark:text-purple-300 font-mono pt-0.5 flex items-center gap-1.5 whitespace-nowrap">
-                  <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span>Payout transfers to your personal account within 24 hours.</span>
-                </div>
               </div>
 
               {/* Actions */}

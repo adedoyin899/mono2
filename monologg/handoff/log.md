@@ -1,11 +1,62 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 119: Client Withdrawal Accessibility, WCAG AAA Contrast Refinement, Single-Line Copy & Context-Aware Zero-Draft Direct Settlement)
+**Last updated:** 2026-10-11 (Session 120: Client Escrow Safeguard Modal UX Cleanup, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 120 (2026-10-11) — Client Escrow Safeguard Modal UX Cleanup, Fund Client Wallet Overhaul, Saved Card with Insufficient Funds Error State, and Full Paystack Checkout Integration
+
+**Goal:** Clean up the copy and UX of the Step 2 Escrow Safeguard modal (`TransactionHistory.tsx`), and completely overhaul the Fund Client Wallet flow (`ClientDashboard.tsx`) with concise copy, two primary payment methods (Saved Card and Paystack), an inline card addition workflow, an insufficient funds error state with fallback actions, an authentic multi-channel Paystack Checkout modal, an updated success screen, and real-time in-app toast notifications:
+1. **Escrow Safeguard Modal UX & Copy Polish (`TransactionHistory.tsx`):**
+   - Cleaned up visual noise from the modal header: removed redundant uppercase `ESCROW SAFEGUARD` pill badge, keeping the alert triangle icon and concise headline: `You have {N} live projects holding escrow`.
+   - Replaced repeated `Move to Draft` tag badges on every project row with clean, banking-grade breakdown layout showing Project Title, craft niche, applicant count, and locked escrow hold amount (`₦XXX,XXX Escrow hold`).
+   - Simplified reassurance callout box to a clean single-line reassurance: `Your project drafts and auditions stay safe. Briefs, sides, and pitches are preserved so you can republish anytime. Withdrawals reach your bank within 24 hours.`
+   - Fixed modal backdrop click-propagation bug (`onClick={e => e.stopPropagation()}`) ensuring clicks inside modal content do not inadvertently dismiss the modal dialog.
+2. **Fund Client Wallet Modal UX & Copy Overhaul (`ClientDashboard.tsx`):**
+   - Streamlined modal header copy to simple and sweet: `Fund Client Wallet` / `Add funds to book performers and fund project escrow`.
+   - Polished quick amount preset pills (`₦50k`, `₦100k`, `₦250k`, `₦500k`) and amount input with clean `₦` prefix and number formatting.
+   - Structured payment methods into 2 clean, prominent choices:
+     - **Saved Card:** Direct debit from saved card or add new card.
+     - **Paystack:** Secure checkout via Card, Bank Transfer, or USSD.
+3. **Saved Card Management & Insufficient Funds Error State:**
+   - Displayed saved cards with radio selection, brand logos, last 4 digits, expiry, cardholder name, and Default badge.
+   - Added inline `+ Add New Card` form with automatic card brand detection (Mastercard, Visa, Verve), formatted number grouping, MM/YY expiry, CVV, and cardholder name, instantly persisting via `appStateSync.addBillingCard`.
+   - Implemented realistic **Insufficient Funds error state** (`cardFundError === "insufficient_funds"`):
+     - Displays theme-adaptive rose alert banner: `Payment Declined: Insufficient Funds` / `Your bank declined the debit of ₦{amount} due to insufficient funds in this account. Please select another card or fund with Paystack.`
+     - Provides two immediate one-click recovery CTAs: `Try Another Card` and `Switch to Paystack`.
+     - Added test error trigger link to easily test/simulate the declined card state on demand.
+4. **Paystack Integration Checkout Modal (`showPaystackModal`):**
+   - Implemented authentic Paystack branded checkout modal featuring `#0BA4DB` cyan header, merchant name (`Monologg Creative`), email, and amount.
+   - Three functional checkout tabs:
+     - **Card Tab:** Pay with test/saved debit card.
+     - **Transfer Tab:** Dedicated single-use virtual account (`Wema Bank · 0128 4930 21 · Monologg / Paystack Escrow`) with 1-click Copy button and countdown timer.
+     - **USSD Tab:** Bank USSD dial code (`*737*2*{amount}*0128#`).
+   - Animated bank authorization spinner (`Authorizing payment with bank...`).
+   - On completion: credits wallet via `appStateSync.fundWallet(amt)`, updates `walletBalance`, creates an in-app notification in `appStateSync.addNotification(...)`, triggers a floating success toast, and transitions to the Success screen.
+5. **Success Confirmation Screen & Floating Toast Notifications:**
+   - Displays emerald checkmark animation, credited amount `+₦{amount}`, new available balance, payment method used, and transaction reference.
+   - Added floating toast notification banner fixed at top-right with auto-dismiss after 4 seconds.
+6. **Testing, Build & Standalone Distribution:**
+   - Added 4 comprehensive unit and integration tests in `ClientDashboard.test.tsx` (15/15 passing).
+   - All 25 test suites passing with 124/124 tests (`npm test`).
+   - Clean TypeScript typecheck (`tsc --noEmit`, 0 errors).
+   - Re-compiled Vite standalone bundle and inlined into `monologg/monologg-app.html` (1.57 MB).
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/TransactionHistory.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 
