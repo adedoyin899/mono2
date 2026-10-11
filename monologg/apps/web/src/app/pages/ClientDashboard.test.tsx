@@ -81,3 +81,141 @@ describe("ClientDashboard — attribute filters", () => {
     });
   });
 });
+
+describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function renderProjectsTab() {
+    const { ClientDashboard } = await import("./ClientDashboard");
+    render(
+      <MemoryRouter>
+        <ClientDashboard />
+      </MemoryRouter>,
+    );
+    // Click the "My Projects" tab in the navigation
+    const projectsTabBtn = screen.getAllByText(/My Projects/i)[0]!;
+    fireEvent.click(projectsTabBtn);
+    await screen.findByText("Nike Q1 Campaign");
+  }
+
+  it("navigates to My Projects tab, opens project detailed view, and displays all key FAANG sections", async () => {
+    await renderProjectsTab();
+
+    // Click "View Project →"
+    const viewButtons = screen.getAllByText("View Project →");
+    fireEvent.click(viewButtons[0]!);
+
+    // Check project header metadata
+    expect(await screen.findByText("P-001")).toBeInTheDocument();
+    expect(screen.getAllByText("Nike Q1 Campaign").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("₦200,000")).toBeInTheDocument();
+
+    // Check Creative Brief & Synopsis
+    expect(screen.getByText("Creative Brief & Synopsis")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Seeking a commanding, resonant voiceover artist/i),
+    ).toBeInTheDocument();
+
+    // Check Role & Craft Requirements
+    expect(screen.getByText("Role & Craft Requirements")).toBeInTheDocument();
+    expect(screen.getByText("VO ARTIST")).toBeInTheDocument();
+
+    // Check Audition Sides & Script Excerpt
+    expect(screen.getByText("Audition Sides & Script Excerpt")).toBeInTheDocument();
+
+    // Check Deliverables & Licensing Milestones
+    expect(screen.getByText("Deliverables & Licensing Milestones")).toBeInTheDocument();
+    expect(screen.getByText(/2x 30s broadcast WAV master audio files/i)).toBeInTheDocument();
+
+    // Check Project Assets & Reference Files
+    expect(screen.getByText("Project Assets & Reference Files")).toBeInTheDocument();
+    expect(screen.getByText("Nike_Q1_Campaign_Creative_Brief.pdf")).toBeInTheDocument();
+
+    // Check Applicant Pipeline & Casting
+    expect(screen.getByText(/Applicant Pipeline & Casting/i)).toBeInTheDocument();
+    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    expect(screen.getByText("Amara Diallo")).toBeInTheDocument();
+
+    // Check Project Action Center
+    expect(screen.getByText("Project Action Center")).toBeInTheDocument();
+  });
+
+  it("state switcher preview updates status badges and contextual Action Center CTAs", async () => {
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText("P-001");
+
+    // Click Draft state button
+    fireEvent.click(screen.getByRole("button", { name: "Draft" }));
+    expect(screen.getAllByText("Draft").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Publish Brief & Fund Escrow")).toBeInTheDocument();
+
+    // Click In Progress state button
+    fireEvent.click(screen.getByRole("button", { name: "In Progress" }));
+    expect(screen.getAllByText("In Progress · Hired").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Open Order Room/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Message Performer")).toBeInTheDocument();
+
+    // Click Review state button
+    fireEvent.click(screen.getByRole("button", { name: "Review" }));
+    expect(screen.getAllByText("Under Review · Files Submitted").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Inspect in Order Room/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Request Revision")).toBeInTheDocument();
+
+    // Click Closed state button
+    fireEvent.click(screen.getByRole("button", { name: "Closed" }));
+    expect(screen.getAllByText("Applications Closed").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Reopen Applications")).toBeInTheDocument();
+  });
+
+  it("copies audition script to clipboard and confirms copied state", async () => {
+    const writeTextMock = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: writeTextMock,
+      },
+    });
+
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText("Audition Sides & Script Excerpt");
+
+    const copyBtn = screen.getByRole("button", { name: /copy script/i });
+    fireEvent.click(copyBtn);
+
+    expect(writeTextMock).toHaveBeenCalled();
+    expect(await screen.findByText("Copied!")).toBeInTheDocument();
+  });
+
+  it("filters applicant pipeline and navigates back to projects list", async () => {
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText(/Applicant Pipeline & Casting/i);
+
+    // Filter by Shortlisted
+    fireEvent.click(screen.getByRole("button", { name: /shortlisted \(/i }));
+    expect(screen.getByText("Amara Diallo")).toBeInTheDocument();
+    expect(screen.queryByText("Adaeze Obi")).not.toBeInTheDocument();
+
+    // Filter by All
+    fireEvent.click(screen.getByRole("button", { name: /all \(/i }));
+    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    expect(screen.getByText("Amara Diallo")).toBeInTheDocument();
+
+    // Search filter input
+    const searchInput = screen.getByPlaceholderText(/search applicants\.\.\./i);
+    fireEvent.change(searchInput, { target: { value: "Adaeze" } });
+    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    expect(screen.queryByText("Amara Diallo")).not.toBeInTheDocument();
+
+    // Back to My Projects
+    fireEvent.click(screen.getByRole("button", { name: /back to my projects/i }));
+    expect(await screen.findByText("Post a new project")).toBeInTheDocument();
+    expect(screen.queryByText("Role & Craft Requirements")).not.toBeInTheDocument();
+  });
+});
+

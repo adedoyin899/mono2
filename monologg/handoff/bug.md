@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Single CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
+**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 62. Legacy slide-over applicant modal simultaneously mounting during dedicated full-page project inspection
+- **Severity:** Low / UI Conflict & Modal Leakage
+- **What happened:** When a client clicked "View Project →" from the projects list, `openProjectDetail` set `selectedProjectDetail(project)` AND `setApplicantsProject(project)`. The legacy slide-over modal was guarded only with `{applicantsProject && (`, causing both the full-page detailed project view and the legacy slide-over modal to mount at the same time, polluting the DOM and obscuring interaction.
+- **Root Cause:** Reusing the applicant state setter in the new page-level detail view opener without conditioning the slide-over modal wrapper against active full-page detail mode.
+- **Resolution:** Added a strict guard condition `{applicantsProject && !selectedProjectDetail && (` in `ClientDashboard.tsx`. Now, opening the dedicated full-page project detailed view suppresses the legacy modal completely while allowing the rich in-dashboard talent inspection modal and applicant pipeline to operate cleanly. Validated via automated tests in `ClientDashboard.test.tsx`.
 
 ### 61. Multi-line header and counter wrapping in client onboarding, duplicate hero buttons on client dashboard, mismatched brief niches, static location input, and legacy currency/preset pills
 - **Severity:** Low / UI Polish & Cross-Flow Consistency

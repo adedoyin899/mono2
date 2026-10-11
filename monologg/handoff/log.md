@@ -1,11 +1,76 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Single CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
+**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 114 (2026-10-11) — Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline
+
+**Goal:** Conduct an exhaustive FAANG-grade UX audit of "My Projects" on the Client Dashboard and design an editorial, comprehensive Client Point-of-View (Client POV) project detailed view mirroring the rich structure of the Performer Project Detailed View (`TalentDashboard.tsx`, Session 90):
+1. **Full Information Parity with Performer POV:** Complete section hierarchy including Project ID & Niche badges, verified escrow protection badge, editable display title, metadata icons row (location, timeline, spots, posted date), creative brief synopsis, target craft niches & performer guidelines, audition sides & script excerpt with clipboard copy, deliverables & licensing milestones checklist, and project reference assets with preview/download triggers.
+2. **Comprehensive 6-State Lifecycle Management:** Distinct contextual banners, statuses, and Project Action Center CTAs across `draft`, `active`, `in_progress`, `review`, `completed`, and `closed`.
+3. **Interactive State Preview Switcher:** Rapid 1-click state inspection buttons (`Draft`, `Active`, `In Progress`, `Review`, `Completed`, `Closed`) enabling instantaneous review of all lifecycle states without tedious database mutations.
+4. **FAANG Applicant Pipeline & Casting Review:** Status filter tabs (`All`, `Shortlisted`, `Selected`, `Applied`, `Rejected`), instant applicant search input, rich applicant cards with avatar, verified shield, craft, location, standard rate, pitch quote, profile inspect modal trigger, and contextual hiring actions (`Shortlist`, `Reject`, `Select / Hire`, `Open Order Room →`).
+5. **Calmed Desktop Header Hierarchy:** Hide the redundant desktop page title when inspecting a project so the detailed view takes full focus.
+6. **Defect Fix & Guarding:** Guarded the legacy slide-over modal against mounting when `selectedProjectDetail` is open.
+
+### Detailed Technical Implementations:
+
+1. **Client POV Project Detailed View Structure (`ClientDashboard.tsx`):**
+   - **Top Navigation Bar:**
+     - `← Back to My Projects` button for clean 1-click return to the projects list.
+     - Dynamic status badge with contextual tone mapping (`neutral` for Draft, `success` for Active/Completed, `accent` for In Progress, `warning` for Review, `neutral` for Closed).
+     - Interactive State Previewer buttons allowing instant state toggling between all 6 lifecycle states.
+   - **Project Header Banner:**
+     - Monospace Project ID badge (`P-001`, `P-002`, `P-003`).
+     - Craft Niche badge (`Voice-Over`, `Compere`, etc.).
+     - Escrow status badge (`₦200,000 Escrow Funded` / `Pending Escrow Deposit`).
+     - Large display title with inline editor support.
+     - Metadata icons row: `MapPin` (Hybrid/Remote/On-site), `Clock` (Production timeline), `Users` (Applicant spots filled), `Calendar` (Posted date).
+   - **Section 1: Creative Brief & Synopsis:**
+     - Descriptive narrative paragraph with inline edit mode.
+     - Quick `Edit Brief Info` action trigger.
+   - **Section 2: Role & Craft Requirements:**
+     - Target craft niche badges (`VO ARTIST`, `COMPERE`, `ACTOR`, etc.).
+     - Performer Guidelines & Quality Standards checklist (microphone specs, room acoustics, dialect/cadence guidelines).
+   - **Section 3: Audition Sides & Script Excerpt:**
+     - Elevated monospace container with subtle background styling.
+     - Interactive `Copy Script` button with clipboard integration and dynamic `Copied!` tooltip confirmation.
+   - **Section 4: Deliverables & Licensing Milestones:**
+     - Emerald checkmark checklist detailing broadcast WAV masters, cutdown variations, stems, and commercial licensing rights.
+   - **Section 5: Project Assets & Reference Files:**
+     - Attached briefs, style guides, and scratch tracks with formatted file sizes and `Preview` / `Download` triggers.
+   - **Section 6: Applicant Pipeline & Casting Review:**
+     - Lifecycle spotlight banners:
+       - `in_progress`: Hired Performer Spotlight card with initials avatar, verified badge, and direct `Open Order Room (ORD-001) →` CTA.
+       - `review`: 48-Hour Inspection Countdown notice with file review CTA.
+       - `completed`: 5.0 ★ completion badge and settlement summary.
+       - `draft`: Private draft notice advising to publish brief.
+     - Interactive filter chips bar: `All ({n})`, `Shortlisted ({n})`, `Selected ({n})`, `Applied ({n})`, `Rejected ({n})`.
+     - Real-time search filter input across names, roles, locations, and pitch quotes.
+     - Rich applicant cards: initials avatar, verified badge, rate, italic pitch quote, `View Profile & Reels →` triggering the rich in-dashboard talent modal, and contextual actions (`Shortlist`, `Reject`, `Select / Hire`, `Open Order Room →`).
+   - **Right Column (Sticky Action Sidebar):**
+     - Budget & Escrow card: Fixed escrow amount, reserve confirmation, and platform fee breakdown.
+     - Casting Capacity Tracker: Visual progress bar (`{count} / {cap} filled`) with quick `Pause Applications` / `Reopen` toggle.
+     - Project Action Center: Dynamic state-driven cards with high-impact CTAs tailored to each lifecycle state (`Publish Brief & Fund Escrow`, `Review Applicants`, `Open Order Room →`, `Inspect in Order Room →`, `Post Similar Project Brief`, `Reopen Applications`).
+     - Monologg Escrow Guarantee note: Reassuring Nigerian banking escrow explanation with 24/7 Casting Concierge link.
+
+2. **Automated Unit Testing (`ClientDashboard.test.tsx`):**
+   - Added comprehensive test suite `ClientDashboard — Projects Detailed View (Client POV)` covering:
+     - Opening project detail from My Projects and verifying all sections (Brief, Role Requirements, Audition Sides, Deliverables, Assets, Applicant Pipeline, Action Center).
+     - Interactive state previewer updating badges and action center CTAs across all states.
+     - Audition sides clipboard copy and "Copied!" confirmation.
+     - Applicant pipeline status filtering, search input filtering, and navigating back to the project list.
+   - All 7 tests in `ClientDashboard.test.tsx` passing; 113/113 tests passing across all 25 test suites.
+
+3. **Standalone Distribution Rebuilding (`monologg-app.html`):**
+   - Re-compiled standalone Vite production bundle (`npm run build:standalone`).
+   - Inlined updated CSS (108.2 KB) and JavaScript (1.44 MB) into single-file executable `monologg/monologg-app.html` (1.48 MB).
 
 ---
 

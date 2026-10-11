@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 113: UI Simplification: Single-Line Performer Categories, Client Dashboard Wallet Balance & Sole CTA, 6-Category Brief Builder, Interactive Hub Location Picker, Assets Step Renaming, and Maximum Applicants Clean-up)
+**Last updated:** 2026-10-11 (Session 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -562,6 +562,24 @@ Implemented targeted UI/UX cleanups across Client Onboarding, Client Dashboard, 
 - **Assets Step Nomenclature:** Renamed Step 3 in `ProjectBrief.tsx` from "Scripts & Assets" to **`Assets`** across the stepper navigation, heading, and summary metadata.
 - **Budget Streamlining & Maximum Applicants Copy:** In Step 4 of `ProjectBrief.tsx`, removed fields 1 & 2 (`BUDGET CURRENCY *` switcher and `BUDGET PRESETS`), locking the interface to clean NGN input and range slider. Standardized applicant cap copy to **`Maximum applicants`** across form labels, placeholder, helper copy, and review summaries.
 - **Testing & Standalone Distribution Inlining:** Updated unit tests in `ProjectBrief.test.tsx` (all 109 tests passing across 25 suites), verified `tsc --noEmit` clean, and re-compiled standalone production bundle into `monologg/monologg-app.html` (1.44 MB).
+
+---
+
+### Step 114: Client Projects FAANG Detailed View: 6 Lifecycle States (Draft, Active, In Progress, Review, Completed, Closed), Creative Synopsis, Role & Craft Requirements, Audition Sides with One-Click Copy, Deliverables Checklist, Assets Management & Full Applicant Pipeline (Session 114)
+
+Conducted an exhaustive FAANG-grade UX audit of the Client POV "My Projects" experience and elevated the detailed view in `ClientDashboard.tsx` to match the editorial depth of the Performer Project Detailed View (`TalentDashboard.tsx`, Session 90):
+- **Full Section Hierarchy Parity:** Engineered a clean, 2-column editorial structure with monospaced Project ID badge, craft niche badge, escrow guarantee badge, editable display title, location/timeline/spots metadata icons, descriptive creative brief synopsis with inline editor, role requirements with target craft badges and performer guidelines, audition sides & script excerpt container with clipboard copy and "Copied!" tooltip confirmation, deliverables & licensing milestones checklist, and attached project reference assets with preview/download triggers.
+- **6-State Project Lifecycle Architecture:** Implemented distinct views, contextual banners, and tailored Project Action Center CTAs across all 6 lifecycle states:
+  1. `draft`: Private draft notice advising to publish; `Publish Brief & Fund Escrow`, `Edit Brief Info`, `Delete Draft`.
+  2. `active`: Casting call live status; `Review Applicants ({count})` with smooth scroll, `Pause / Close Applications`, `Copy Shareable Casting Link`.
+  3. `in_progress`: Hired Performer Spotlight card with verified badge and direct `Open Order Room (ORD-001) →` CTA; `Message Performer`.
+  4. `review`: 48-Hour Inspection Countdown banner for submitted WAV masters; `Inspect in Order Room →`, `Request Revision`.
+  5. `completed`: 5.0 ★ completion badge and settlement notice; `View Completed Order Room →`, `Post Similar Project Brief`.
+  6. `closed`: Applications paused banner; `Reopen Applications` CTA.
+- **Interactive State Preview Switcher:** Implemented a quick 6-button state switcher bar in the top navigation, enabling instant inspection and demonstration of all 6 lifecycle views with a single click.
+- **FAANG Applicant Pipeline & Casting Review:** Added 5 interactive status filter chips (`All`, `Shortlisted`, `Selected`, `Applied`, `Rejected`), instant text search input across names, roles, locations, and quotes, and rich applicant cards featuring avatar, verified badge, rate, italic pitch quote, in-dashboard talent modal trigger (`View Profile & Reels →`), and contextual actions (`Shortlist`, `Reject`, `Select / Hire`, `Open Order Room →`).
+- **Defect Resolution & Guarding:** Guarded the legacy slide-over applicant modal against mounting during full-page inspection and calmed the desktop header hierarchy by hiding the global page title when inspecting a project.
+- **Testing & Distribution Rebuilding:** Added comprehensive unit tests in `ClientDashboard.test.tsx` (all 7 tests passing; 113/113 tests passing across all 25 suites), verified clean typecheck (`tsc --noEmit`), and rebuilt the single-file distribution bundle in `monologg/monologg-app.html` (1.48 MB).
 
 ---
 
