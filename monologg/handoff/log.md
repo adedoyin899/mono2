@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
+**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 116 (2026-10-11) — Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification
+
+**Goal:** Fulfill client project brief editing requirements for alpha simplicity and senior FAANG-grade usability:
+1. **Section-by-Section Inline Editable Architecture:** Replace rigid modal editors with inline form transformations across all 5 brief dimensions:
+   - Section 1: Overview & Synopsis (Title, Fixed Escrow Budget, Production Location, Timeline, and Creative Synopsis).
+   - Section 2: Role & Craft Requirements (Interactive multi-select craft category pills: `VO_ARTIST`, `ACTOR`, `COMPERE`, `COMEDIAN`, `SPEAKER_PASTOR`, `CREATOR`, plus Performer Guidelines & Quality Standards).
+   - Section 3: Audition Sides & Script Excerpt (Audition Sides script excerpt textarea, helper copy, copy-to-clipboard action).
+   - Section 4: Deliverables & Licensing Milestones (Interactive milestone checklist with add, inline edit, and remove triggers).
+   - Section 5: Project Assets & Reference Files (Attached reference files management, file preview, download, and attach new file form).
+   - Each section transforms into an inline form on "Edit", saves to `projectOverridesInfo[selectedProjectDetail.id]` and `selectedProjectDetail`, and transforms cleanly back to view mode on "Save".
+2. **Guided Draft Stepper Bar:**
+   - Displayed prominently in `draft` lifecycle state.
+   - Provides 5 interactive step tiles (`01 Overview`, `02 Roles`, `03 Sides`, `04 Milestones`, `05 Assets`) with completion counters (`5/5 Sections Ready`) and direct jump/edit triggers.
+   - Embedded primary `Publish & Fund Escrow` action in the stepper header.
+3. **Semantic Status Colors & Typographic Consistency:**
+   - Standardized status switcher buttons with semantic active colors (`draft`: Zinc-700, `active`: Emerald-600, `in_progress`: Monologg Purple `#7C3AED`, `review`: Amber-600, `completed`: Emerald-600, `closed`: Zinc-600).
+   - Harmonized header banner status pill with semantic icons (`FileText`, `Sparkles`, `ShieldCheck`, `Clock`, `CheckCircle2`, `Lock`) and muted contrast borders.
+   - Uniform font sizing: `font-display text-lg font-bold` for section titles, `text-xs font-semibold uppercase tracking-wider` for subheaders, and `text-xs sm:text-sm font-body` for body copy.
+4. **Testing & Distribution Validation:**
+   - Added unit test cases in `ClientDashboard.test.tsx` verifying the 5-step Draft Stepper rendering, inline form transformations, overview saving, and deliverables list modifications (10/10 passing, 116/116 total test suite passing).
+   - 100% clean TypeScript compiler verification (`npx tsc --noEmit`).
+   - Standalone single-file distribution `monologg-app.html` rebuilt and inlined (1.50 MB).
+
+### Files Touched:
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

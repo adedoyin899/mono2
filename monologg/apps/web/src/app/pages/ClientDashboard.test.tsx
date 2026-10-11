@@ -256,5 +256,54 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(await screen.findByText("Post a new project")).toBeInTheDocument();
     expect(screen.queryByText("Role & Craft Requirements")).not.toBeInTheDocument();
   });
+
+  it("renders the 5-step draft setup stepper and transforms sections into inline inputs that save back to view mode", async () => {
+    await renderProjectsTab();
+    fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    await screen.findByText("P-001");
+
+    // Switch to Draft mode
+    fireEvent.click(screen.getByRole("button", { name: "Draft" }));
+
+    // Check Stepper renders
+    expect(screen.getByText("Draft Setup Stepper")).toBeInTheDocument();
+    expect(screen.getByText("5/5 Sections Ready")).toBeInTheDocument();
+    expect(screen.getByText("Title & Synopsis")).toBeInTheDocument();
+    expect(screen.getByText("Craft Niches")).toBeInTheDocument();
+    expect(screen.getByText("Audition Script")).toBeInTheDocument();
+
+    // Click "Edit Overview"
+    const editOverviewBtn = screen.getByRole("button", { name: "Edit Overview" });
+    fireEvent.click(editOverviewBtn);
+
+    // Section transforms into form with inputs
+    expect(screen.getByText("Edit Overview & Synopsis Details")).toBeInTheDocument();
+    const titleInput = screen.getByPlaceholderText("Project Title");
+    fireEvent.change(titleInput, { target: { value: "Updated Nike Master Spot" } });
+
+    // Save Overview
+    const saveBtn = screen.getByRole("button", { name: "Save Overview" });
+    fireEvent.click(saveBtn);
+
+    // Form transforms back to view mode with updated title
+    expect(screen.queryByText("Edit Overview & Synopsis Details")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Updated Nike Master Spot").length).toBeGreaterThanOrEqual(1);
+
+    // Test Deliverables inline edit transformation
+    const editDelivBtn = screen.getByRole("button", { name: "Edit Deliverables" });
+    fireEvent.click(editDelivBtn);
+    expect(screen.getByText("Manage Milestone Deliverables")).toBeInTheDocument();
+
+    const addDelivInput = screen.getByPlaceholderText(/Add deliverable milestone/i);
+    fireEvent.change(addDelivInput, { target: { value: "1x Dolby Atmos Spatial Master" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    expect(screen.getByDisplayValue("1x Dolby Atmos Spatial Master")).toBeInTheDocument();
+
+    // Save Deliverables
+    fireEvent.click(screen.getByRole("button", { name: "Save Deliverables" }));
+    expect(screen.queryByText("Manage Milestone Deliverables")).not.toBeInTheDocument();
+    expect(screen.getByText("1x Dolby Atmos Spatial Master")).toBeInTheDocument();
+  });
 });
+
 

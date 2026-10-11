@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
+**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 66. Rigid modal-only draft editing preventing modification of craft niches, deliverables, timeline, or reference assets
+- **Severity:** Medium / Feature Completeness & UX Friction
+- **What happened:** In `ClientDashboard.tsx`, entering draft project information was restricted to a single modal card editing title, budget, description, and script excerpt. Clients could not modify requested craft niches, production location, estimated delivery timeline, deliverables checklist items, or reference attachments, forcing fallback defaults.
+- **Root Cause:** Incomplete state wiring in the project details view, binding only synopsis and script overrides while hardcoding remaining fields from static default templates.
+- **Resolution:** Engineered a 5-dimension Section-by-Section Inline Editable Architecture paired with an interactive Draft Stepper. Each section (`overview`, `roles`, `sides`, `deliverables`, `assets`) transforms on demand into an inline form, saves directly into `projectOverridesInfo[selectedProjectDetail.id]` and `selectedProjectDetail`, and transforms cleanly back to view mode.
 
 ### 65. Talent profile modal trapped in Discover tab scope failing to mount from Applicant pipeline cards
 - **Severity:** Medium / Feature Accessibility & Modal Scope

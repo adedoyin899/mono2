@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 115: Senior FAANG UX Audit & Refinement: Multi-Line Button Wrapping Elimination, Per-State Redundancy Purge & Draft Inactive Banner, Storefront Casting Modal with Direct Accept/Reject/Shortlist Actions)
+**Last updated:** 2026-10-11 (Session 116: Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -603,6 +603,31 @@ Executed a comprehensive design and UX refinement across the Client Project Deta
   - Updated and expanded `ClientDashboard.test.tsx` (all 9 tests passing; 115/115 tests passing across all 25 test suites).
   - Verified 100% clean TypeScript compilation (`tsc --noEmit`).
   - Re-compiled standalone Vite production bundle (`build:standalone`) and inlined updated assets into `monologg/monologg-app.html` (1.55 MB).
+
+---
+
+### Step 116: Client Projects Section-by-Section Inline Editable Architecture, Guided Draft Stepper, Semantic State Colors & Alpha UI Simplification (Session 116)
+
+Engineered an inline editable brief architecture and polished the client projects interface for alpha clarity:
+- **Section-by-Section Inline Editable Architecture:** Replaced rigid modal editing with dedicated inline transformations across all 5 brief dimensions:
+  1. *Section 1 (Overview & Synopsis):* Edit form with project title, fixed escrow budget, production location, estimated delivery timeline, and creative synopsis textarea.
+  2. *Section 2 (Role & Craft Requirements):* Interactive multi-select craft category pills (`VO_ARTIST`, `ACTOR`, `COMPERE`, `COMEDIAN`, `SPEAKER_PASTOR`, `CREATOR`) with selection counts and performer guidelines textarea.
+  3. *Section 3 (Audition Sides & Script Excerpt):* Monospace script copy textarea with one-click clipboard copy and tooltip feedback.
+  4. *Section 4 (Deliverables & Licensing Milestones):* Interactive checklist with inline item editing, item removal, and add milestone input.
+  5. *Section 5 (Project Assets & Reference Files):* Reference file manager with item removal, file preview, download actions, and attach new asset form.
+  - Clicking "Edit" transforms the section into clean inputs; clicking "Save" commits updates directly to `projectOverridesInfo[selectedProjectDetail.id]` and `selectedProjectDetail` and transforms cleanly back to view mode.
+- **Guided Draft Stepper Bar:**
+  - Rendered at the top of the project brief in `draft` lifecycle mode.
+  - Features 5 interactive step tiles (`01 Overview`, `02 Roles`, `03 Sides`, `04 Milestones`, `05 Assets`) with progress status (`5/5 Sections Ready`) that smooth-scrolls and triggers inline editing for the target section.
+  - Features direct `Publish & Fund Escrow` action in the stepper header.
+- **Semantic Status Colors & Typographic Polish:**
+  - Standardized state switcher bar with semantic active colors (`draft`: Zinc-700, `active`: Emerald-600, `in_progress`: Monologg Purple `#7C3AED`, `review`: Amber-600, `completed`: Emerald-600, `closed`: Zinc-600).
+  - Standardized status badges with semantic Lucide icons (`FileText`, `Sparkles`, `ShieldCheck`, `Clock`, `CheckCircle2`, `Lock`) and muted contrast borders.
+  - Unified typographic hierarchy across section titles and metadata rows.
+- **Automated Testing & Distribution Rebuilding:**
+  - Added unit test coverage in `ClientDashboard.test.tsx` verifying Draft Stepper rendering, inline form transformations, overview saving, and deliverables list modifications (10/10 passing; 116/116 web tests passing).
+  - Verified 100% clean TypeScript compiler verification (`tsc --noEmit`).
+  - Re-compiled standalone single-file distribution bundle into `monologg/monologg-app.html` (1.50 MB).
 
 ---
 

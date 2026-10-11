@@ -270,10 +270,21 @@ export function ClientDashboard() {
   const [notifications, setNotifications] = useState<ClientNotificationItem[]>(() => appStateSync.getNotifications());
   const [selectedProjectDetail, setSelectedProjectDetail] = useState<ClientProject | null>(null);
   const [isEditingProjectInfo, setIsEditingProjectInfo] = useState(false);
+  const [editingSection, setEditingSection] = useState<"overview" | "roles" | "sides" | "deliverables" | "assets" | null>(null);
   const [editedProjectName, setEditedProjectName] = useState("");
   const [editedProjectBudget, setEditedProjectBudget] = useState("");
+  const [editedProjectNiche, setEditedProjectNiche] = useState("");
+  const [editedProjectLocation, setEditedProjectLocation] = useState("");
+  const [editedProjectTimeline, setEditedProjectTimeline] = useState("");
   const [editedProjectSynopsis, setEditedProjectSynopsis] = useState("");
   const [editedProjectScript, setEditedProjectScript] = useState("");
+  const [editedRoleNiches, setEditedRoleNiches] = useState<string[]>([]);
+  const [editedRoleGuidelines, setEditedRoleGuidelines] = useState("");
+  const [editedDeliverables, setEditedDeliverables] = useState<string[]>([]);
+  const [newDeliverableInput, setNewDeliverableInput] = useState("");
+  const [editedAssets, setEditedAssets] = useState<{ name: string; size: string; type: string }[]>([]);
+  const [newAssetName, setNewAssetName] = useState("");
+  const [newAssetType, setNewAssetType] = useState("Brief PDF");
   const [projectStateOverrides, setProjectStateOverrides] = useState<Record<string, string>>({});
   const [projectOverridesInfo, setProjectOverridesInfo] = useState<Record<string, Partial<ProjectDetailedInfo>>>({});
   const [copiedScript, setCopiedScript] = useState(false);
@@ -349,11 +360,19 @@ export function ClientDashboard() {
     setSelectedProjectDetail(project);
     setEditedProjectName(project.name);
     setEditedProjectBudget(project.budget);
+    setEditedProjectNiche(project.niche);
     const details = { ...getProjectDetails(project), ...(projectOverridesInfo[project.id] || {}) };
     setEditedProjectSynopsis(details.description);
     setEditedProjectScript(details.scriptSample);
+    setEditedProjectLocation(details.location);
+    setEditedProjectTimeline(details.timeline);
+    setEditedRoleNiches(details.nicheReq || []);
+    setEditedRoleGuidelines(details.additionalNotes || "");
+    setEditedDeliverables(details.deliverables || []);
+    setEditedAssets(details.assets || []);
     setIsEditingProjectInfo(false);
     setEditingSynopsisInline(false);
+    setEditingSection(null);
     setApplicantsProject(project);
     setApplicantActionError(null);
     setLoadingApplicants(true);
@@ -1173,9 +1192,19 @@ export function ClientDashboard() {
                                     });
                                   }
                                 }}
-                                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
                                   currentStatus === st.id
-                                    ? "bg-[#7C3AED] text-white shadow-sm"
+                                    ? st.id === "draft"
+                                      ? "bg-zinc-700 text-white shadow-sm"
+                                      : st.id === "active"
+                                      ? "bg-emerald-600 text-white shadow-sm"
+                                      : st.id === "in_progress"
+                                      ? "bg-[#7C3AED] text-white shadow-sm"
+                                      : st.id === "review"
+                                      ? "bg-amber-600 text-white shadow-sm"
+                                      : st.id === "completed"
+                                      ? "bg-emerald-600 text-white shadow-sm"
+                                      : "bg-zinc-600 text-white shadow-sm"
                                     : "hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]"
                                 }`}
                               >
@@ -1203,105 +1232,72 @@ export function ClientDashboard() {
                             <Badge tone="accent" size="sm">
                               {selectedProjectDetail.niche}
                             </Badge>
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              {currentStatus === "draft"
-                                ? "Draft Brief · Unfunded"
-                                : currentStatus === "in_progress"
-                                ? "Escrow Locked · In Production"
-                                : currentStatus === "review"
-                                ? "48h Inspection Timer Active"
-                                : currentStatus === "completed"
-                                ? "Escrow Disbursed · Completed"
-                                : "100% Escrow Funded"}
+                            <span
+                              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
+                                currentStatus === "draft"
+                                  ? "text-zinc-400 bg-zinc-500/10 border-zinc-500/20"
+                                  : currentStatus === "in_progress"
+                                  ? "text-purple-400 bg-purple-500/10 border-purple-500/20"
+                                  : currentStatus === "review"
+                                  ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                                  : currentStatus === "completed"
+                                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                                  : currentStatus === "closed"
+                                  ? "text-zinc-400 bg-zinc-500/10 border-zinc-500/20"
+                                  : "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                              }`}
+                            >
+                              {currentStatus === "draft" ? (
+                                <>
+                                  <FileText className="w-3.5 h-3.5" />
+                                  <span>Draft Brief · Unfunded</span>
+                                </>
+                              ) : currentStatus === "in_progress" ? (
+                                <>
+                                  <ShieldCheck className="w-3.5 h-3.5" />
+                                  <span>Escrow Locked · In Production</span>
+                                </>
+                              ) : currentStatus === "review" ? (
+                                <>
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>48h Inspection Timer Active</span>
+                                </>
+                              ) : currentStatus === "completed" ? (
+                                <>
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Escrow Disbursed · Completed</span>
+                                </>
+                              ) : currentStatus === "closed" ? (
+                                <>
+                                  <Lock className="w-3.5 h-3.5" />
+                                  <span>Applications Paused · Closed</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  <span>100% Escrow Funded · Live Casting</span>
+                                </>
+                              )}
                             </span>
                           </div>
 
                           <button
                             type="button"
-                            onClick={() => setIsEditingProjectInfo(!isEditingProjectInfo)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1 px-2.5 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit"
+                            onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1.5 px-3 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit whitespace-nowrap shrink-0"
                             style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
                           >
                             <Edit3 className="w-3.5 h-3.5" />
-                            <span>{isEditingProjectInfo ? "Close Editor" : "Edit Brief Info"}</span>
+                            <span>{editingSection === "overview" ? "Close Section Editor" : "Edit Brief Info"}</span>
                           </button>
                         </div>
 
-                        {/* Title & Edit view */}
-                        {isEditingProjectInfo ? (
-                          <div className="p-4 sm:p-5 rounded-2xl border my-4 space-y-4" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                Edit Project Brief Details
-                              </span>
-                              <button onClick={() => setIsEditingProjectInfo(false)} className="text-xs text-[var(--color-text-tertiary)] hover:underline">
-                                Cancel
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <div>
-                                <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Project Title</label>
-                                <Input value={editedProjectName} onChange={(e) => setEditedProjectName(e.target.value)} placeholder="Project Title" />
-                              </div>
-                              <div>
-                                <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Budget</label>
-                                <Input value={editedProjectBudget} onChange={(e) => setEditedProjectBudget(e.target.value)} placeholder="Budget (e.g. ₦200,000)" />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Creative Synopsis</label>
-                              <textarea
-                                value={editedProjectSynopsis}
-                                onChange={(e) => setEditedProjectSynopsis(e.target.value)}
-                                rows={3}
-                                className="w-full p-3 rounded-xl border text-xs sm:text-sm font-body resize-y outline-none"
-                                style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                placeholder="Describe the creative project goals..."
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Audition Sides / Script Excerpt</label>
-                              <textarea
-                                value={editedProjectScript}
-                                onChange={(e) => setEditedProjectScript(e.target.value)}
-                                rows={2}
-                                className="w-full p-3 rounded-xl border text-xs font-mono resize-y outline-none"
-                                style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                placeholder="Script excerpt for performers..."
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                className="h-9 text-xs font-semibold px-4"
-                                onClick={() => {
-                                  setSelectedProjectDetail((prev) => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget } : null);
-                                  setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget } : p));
-                                  setProjectOverridesInfo((prev) => ({
-                                    ...prev,
-                                    [selectedProjectDetail.id]: {
-                                      description: editedProjectSynopsis,
-                                      scriptSample: editedProjectScript,
-                                    },
-                                  }));
-                                  setIsEditingProjectInfo(false);
-                                }}
-                              >
-                                Save Changes
-                              </Button>
-                              <Button variant="secondary" className="h-9 text-xs px-3" onClick={() => setIsEditingProjectInfo(false)}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <h1
-                            className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4"
-                            style={{ color: "var(--color-text-primary)" }}
-                          >
-                            {selectedProjectDetail.name}
-                          </h1>
-                        )}
+                        <h1
+                          className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4"
+                          style={{ color: "var(--color-text-primary)" }}
+                        >
+                          {selectedProjectDetail.name}
+                        </h1>
 
                         <div className="flex items-center gap-4 sm:gap-6 flex-wrap text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                           <div className="flex items-center gap-1.5">
@@ -1349,13 +1345,115 @@ export function ClientDashboard() {
                         </div>
                       </div>
 
+                      {/* ── Guided Draft Stepper (Prominent in Draft Mode) ── */}
+                      {currentStatus === "draft" && (
+                        <div
+                          className="p-5 sm:p-6 rounded-3xl border space-y-4"
+                          style={{
+                            background: "var(--color-bg-surface)",
+                            borderColor: "var(--color-border-default)",
+                            boxShadow: "var(--shadow-card)",
+                          }}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)] font-body">
+                                  Draft Setup Stepper
+                                </span>
+                              </div>
+                              <h2 className="text-base sm:text-lg font-bold font-display mt-0.5" style={{ color: "var(--color-text-primary)" }}>
+                                Complete project brief sections before publishing to performers
+                              </h2>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="text-xs font-semibold px-3 py-1 rounded-full font-mono border whitespace-nowrap"
+                                style={{
+                                  background: "var(--color-bg-elevated)",
+                                  borderColor: "var(--color-hairline)",
+                                  color: "var(--color-text-secondary)",
+                                }}
+                              >
+                                5/5 Sections Ready
+                              </span>
+                              <Button
+                                size="sm"
+                                className="h-8 px-3.5 text-xs font-semibold whitespace-nowrap shadow-sm"
+                                onClick={() => {
+                                  setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
+                                  setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
+                                  setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
+                                  if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
+                                    setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
+                                  }
+                                }}
+                              >
+                                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                                <span>Publish &amp; Fund Escrow</span>
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* 5 Stepper Step Tiles */}
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                            {[
+                              { id: "overview", num: "01", title: "Overview", desc: "Title & Synopsis", targetId: "section-overview" },
+                              { id: "roles", num: "02", title: "Roles", desc: "Craft Niches", targetId: "section-roles" },
+                              { id: "sides", num: "03", title: "Sides", desc: "Audition Script", targetId: "section-sides" },
+                              { id: "deliverables", num: "04", title: "Milestones", desc: "Deliverables", targetId: "section-deliverables" },
+                              { id: "assets", num: "05", title: "Assets", desc: "Reference Files", targetId: "section-assets" },
+                            ].map((step) => {
+                              const isEditing = editingSection === step.id;
+                              return (
+                                <button
+                                  key={step.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingSection(isEditing ? null : (step.id as any));
+                                    const el = document.getElementById(step.targetId);
+                                    el?.scrollIntoView({ behavior: "smooth" });
+                                  }}
+                                  className={`p-3 rounded-2xl border text-left transition-all ${
+                                    isEditing
+                                      ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm"
+                                      : "border-[var(--color-hairline)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-bg-elevated)]"
+                                  }`}
+                                  style={{
+                                    background: isEditing ? "var(--color-bg-elevated)" : "var(--color-bg-surface)",
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <span className="font-mono text-[11px] font-bold text-[var(--color-accent)]">
+                                      {step.num}
+                                    </span>
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                      {isEditing ? "Editing" : "Ready"}
+                                    </span>
+                                  </div>
+                                  <div className="text-xs font-bold font-body truncate" style={{ color: "var(--color-text-primary)" }}>
+                                    {step.title}
+                                  </div>
+                                  <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                                    {step.desc}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Two-Column Grid: Left (8 cols) Information & Applicants, Right (4 cols) Sticky Actions */}
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                         {/* ── Left Column: Information & Applicants ── */}
                         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
 
-                          {/* 1. Creative Brief & Synopsis */}
+                          {/* 1. Creative Brief & Synopsis (Inline Editable) */}
                           <div
+                            id="section-overview"
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
                               background: "var(--color-bg-surface)",
@@ -1371,39 +1469,95 @@ export function ClientDashboard() {
                               </div>
                               <button
                                 type="button"
-                                onClick={() => setEditingSynopsisInline(!editingSynopsisInline)}
-                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline"
+                                onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
+                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
                               >
-                                {editingSynopsisInline ? "Done" : "Edit Synopsis"}
+                                {editingSection === "overview" ? "Done" : "Edit Overview"}
                               </button>
                             </div>
 
-                            {editingSynopsisInline ? (
-                              <div className="space-y-3">
-                                <textarea
-                                  value={editedProjectSynopsis}
-                                  onChange={(e) => setEditedProjectSynopsis(e.target.value)}
-                                  rows={4}
-                                  className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
-                                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                />
+                            {editingSection === "overview" ? (
+                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Edit Overview &amp; Synopsis Details
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Project Title
+                                    </label>
+                                    <Input
+                                      value={editedProjectName}
+                                      onChange={(e) => setEditedProjectName(e.target.value)}
+                                      placeholder="Project Title"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Fixed Budget (Escrow)
+                                    </label>
+                                    <Input
+                                      value={editedProjectBudget}
+                                      onChange={(e) => setEditedProjectBudget(e.target.value)}
+                                      placeholder="Budget (e.g. ₦200,000)"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Location / Venue
+                                    </label>
+                                    <Input
+                                      value={editedProjectLocation}
+                                      onChange={(e) => setEditedProjectLocation(e.target.value)}
+                                      placeholder="e.g. Lagos, NG (Hybrid/Remote)"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Project Timeline
+                                    </label>
+                                    <Input
+                                      value={editedProjectTimeline}
+                                      onChange={(e) => setEditedProjectTimeline(e.target.value)}
+                                      placeholder="e.g. 7 Days Delivery"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Creative Brief &amp; Synopsis
+                                  </label>
+                                  <textarea
+                                    value={editedProjectSynopsis}
+                                    onChange={(e) => setEditedProjectSynopsis(e.target.value)}
+                                    rows={4}
+                                    className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
+                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                  />
+                                </div>
                                 <div className="flex gap-2">
                                   <Button
-                                    className="h-8 text-xs px-3"
+                                    className="h-8 text-xs px-3 whitespace-nowrap"
                                     onClick={() => {
+                                      setSelectedProjectDetail((prev) => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || prev.niche } : null);
+                                      setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || p.niche } : p));
                                       setProjectOverridesInfo((prev) => ({
                                         ...prev,
                                         [selectedProjectDetail.id]: {
                                           ...(prev[selectedProjectDetail.id] || {}),
                                           description: editedProjectSynopsis,
+                                          location: editedProjectLocation,
+                                          timeline: editedProjectTimeline,
                                         },
                                       }));
-                                      setEditingSynopsisInline(false);
+                                      setEditingSection(null);
                                     }}
                                   >
-                                    Save Synopsis
+                                    Save Overview
                                   </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5" onClick={() => setEditingSynopsisInline(false)}>
+                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
                                     Cancel
                                   </Button>
                                 </div>
@@ -1415,51 +1569,132 @@ export function ClientDashboard() {
                             )}
                           </div>
 
-                          {/* 2. Role Requirements */}
+                          {/* 2. Role Requirements (Inline Editable) */}
                           <div
+                            id="section-roles"
                             className="p-6 sm:p-7 rounded-3xl border space-y-5"
                             style={{
                               background: "var(--color-bg-surface)",
                               borderColor: "var(--color-border-default)",
                             }}
                           >
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                Role &amp; Craft Requirements
-                              </h2>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-[var(--color-accent)]" />
+                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Role &amp; Craft Requirements
+                                </h2>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setEditingSection(editingSection === "roles" ? null : "roles")}
+                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
+                              >
+                                {editingSection === "roles" ? "Done" : "Edit Requirements"}
+                              </button>
                             </div>
 
-                            <div>
-                              <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                Target Craft Niches
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {projectDetails.nicheReq.map((n) => (
-                                  <Badge key={n} tone="neutral" size="md" className="capitalize">
-                                    {n.replace(/_/g, " ")}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
+                            {editingSection === "roles" ? (
+                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Select Target Craft Niches
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {["VO_ARTIST", "ACTOR", "COMPERE", "COMEDIAN", "SPEAKER_PASTOR", "CREATOR"].map((nicheOption) => {
+                                    const active = editedRoleNiches.includes(nicheOption);
+                                    return (
+                                      <button
+                                        key={nicheOption}
+                                        type="button"
+                                        onClick={() => {
+                                          setEditedRoleNiches((prev) =>
+                                            active ? prev.filter((n) => n !== nicheOption) : [...prev, nicheOption]
+                                          );
+                                        }}
+                                        className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                                          active
+                                            ? "bg-[#7C3AED] text-white shadow-sm"
+                                            : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)]"
+                                        }`}
+                                        style={{ borderColor: active ? "transparent" : "var(--color-hairline)" }}
+                                      >
+                                        {nicheOption.replace(/_/g, " ")}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
 
-                            <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                              <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                Performer Guidelines &amp; Quality Standards
+                                <div>
+                                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Performer Guidelines &amp; Quality Standards
+                                  </label>
+                                  <textarea
+                                    value={editedRoleGuidelines}
+                                    onChange={(e) => setEditedRoleGuidelines(e.target.value)}
+                                    rows={3}
+                                    className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
+                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                    placeholder="Specify acoustic requirements, prior experience, or casting criteria..."
+                                  />
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="h-8 text-xs px-3 whitespace-nowrap"
+                                    onClick={() => {
+                                      setProjectOverridesInfo((prev) => ({
+                                        ...prev,
+                                        [selectedProjectDetail.id]: {
+                                          ...(prev[selectedProjectDetail.id] || {}),
+                                          nicheReq: editedRoleNiches,
+                                          additionalNotes: editedRoleGuidelines,
+                                        },
+                                      }));
+                                      setEditingSection(null);
+                                    }}
+                                  >
+                                    Save Requirements
+                                  </Button>
+                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                    Cancel
+                                  </Button>
+                                </div>
                               </div>
-                              <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                                {projectDetails.additionalNotes}
-                              </p>
-                              <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                                <li>Must have verified profile and demo samples matching requested crafts.</li>
-                                <li>Access to professional recording acoustics or studio space.</li>
-                                <li>Prompt communication and adherence to production delivery milestones.</li>
-                              </ul>
-                            </div>
+                            ) : (
+                              <>
+                                <div>
+                                  <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Target Craft Niches
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    {projectDetails.nicheReq.map((n) => (
+                                      <Badge key={n} tone="neutral" size="md" className="capitalize">
+                                        {n.replace(/_/g, " ")}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                  <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Performer Guidelines &amp; Quality Standards
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                                    {projectDetails.additionalNotes}
+                                  </p>
+                                  <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                                    <li>Must have verified profile and demo samples matching requested crafts.</li>
+                                    <li>Access to professional recording acoustics or studio space.</li>
+                                    <li>Prompt communication and adherence to production delivery milestones.</li>
+                                  </ul>
+                                </div>
+                              </>
+                            )}
                           </div>
 
-                          {/* 3. Audition Sides & Script Excerpt */}
+                          {/* 3. Audition Sides & Script Excerpt (Inline Editable) */}
                           <div
+                            id="section-sides"
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
                               background: "var(--color-bg-surface)",
@@ -1474,76 +1709,213 @@ export function ClientDashboard() {
                                 </h2>
                               </div>
 
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(effectiveScript);
-                                  setCopiedScript(true);
-                                  setTimeout(() => setCopiedScript(false), 2000);
-                                }}
-                                className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)]"
-                                style={{
-                                  borderColor: "var(--color-border-default)",
-                                  color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
-                                }}
-                              >
-                                {copiedScript ? (
-                                  <>
-                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                    <span className="text-emerald-500">Copied!</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3.5 h-3.5" />
-                                    <span>Copy Script</span>
-                                  </>
-                                )}
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(effectiveScript);
+                                    setCopiedScript(true);
+                                    setTimeout(() => setCopiedScript(false), 2000);
+                                  }}
+                                  className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] whitespace-nowrap"
+                                  style={{
+                                    borderColor: "var(--color-border-default)",
+                                    color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
+                                  }}
+                                >
+                                  {copiedScript ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      <span className="text-emerald-500 whitespace-nowrap">Copied!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5 shrink-0" />
+                                      <span className="whitespace-nowrap">Copy Script</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSection(editingSection === "sides" ? null : "sides")}
+                                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
+                                >
+                                  {editingSection === "sides" ? "Done" : "Edit Script"}
+                                </button>
+                              </div>
                             </div>
 
-                            <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                              This excerpt is presented to auditioning performers for their sample take or pitch video:
-                            </p>
+                            {editingSection === "sides" ? (
+                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Audition Copy / Sides
+                                </div>
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Performers auditioning will read and record this sides excerpt for their audition pitch:
+                                </p>
+                                <textarea
+                                  value={editedProjectScript}
+                                  onChange={(e) => setEditedProjectScript(e.target.value)}
+                                  rows={4}
+                                  className="w-full p-3.5 rounded-2xl border font-mono text-xs sm:text-sm resize-y outline-none"
+                                  style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                  placeholder="Sides / Script Excerpt..."
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="h-8 text-xs px-3 whitespace-nowrap"
+                                    onClick={() => {
+                                      setProjectOverridesInfo((prev) => ({
+                                        ...prev,
+                                        [selectedProjectDetail.id]: {
+                                          ...(prev[selectedProjectDetail.id] || {}),
+                                          scriptSample: editedProjectScript,
+                                        },
+                                      }));
+                                      setEditingSection(null);
+                                    }}
+                                  >
+                                    Save Audition Sides
+                                  </Button>
+                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  This excerpt is presented to auditioning performers for their sample take or pitch video:
+                                </p>
 
-                            <div
-                              className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
-                              style={{
-                                background: "var(--color-bg-elevated)",
-                                borderColor: "var(--color-hairline)",
-                                color: "var(--color-text-primary)",
-                              }}
-                            >
-                              {effectiveScript}
-                            </div>
+                                <div
+                                  className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
+                                  style={{
+                                    background: "var(--color-bg-elevated)",
+                                    borderColor: "var(--color-hairline)",
+                                    color: "var(--color-text-primary)",
+                                  }}
+                                >
+                                  {effectiveScript}
+                                </div>
+                              </>
+                            )}
                           </div>
 
-                          {/* 4. Deliverables & Licensing Milestones */}
+                          {/* 4. Deliverables & Licensing Milestones (Inline Editable) */}
                           <div
+                            id="section-deliverables"
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
                               background: "var(--color-bg-surface)",
                               borderColor: "var(--color-border-default)",
                             }}
                           >
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                Deliverables &amp; Licensing Milestones
-                              </h2>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Deliverables &amp; Licensing Milestones
+                                </h2>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setEditingSection(editingSection === "deliverables" ? null : "deliverables")}
+                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
+                              >
+                                {editingSection === "deliverables" ? "Done" : "Edit Deliverables"}
+                              </button>
                             </div>
 
-                            <div className="space-y-2.5">
-                              {effectiveDeliverables.map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                  <span>{item}</span>
+                            {editingSection === "deliverables" ? (
+                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Manage Milestone Deliverables
                                 </div>
-                              ))}
-                            </div>
+                                <div className="space-y-2">
+                                  {editedDeliverables.map((item, idx) => (
+                                    <div key={idx} className="flex items-center gap-2">
+                                      <input
+                                        type="text"
+                                        value={item}
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          setEditedDeliverables((prev) => prev.map((d, i) => i === idx ? val : d));
+                                        }}
+                                        className="flex-1 p-2.5 rounded-xl border text-xs font-body outline-none"
+                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditedDeliverables((prev) => prev.filter((_, i) => i !== idx))}
+                                        className="p-2 rounded-xl text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all shrink-0"
+                                        title="Remove deliverable"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                  <input
+                                    type="text"
+                                    value={newDeliverableInput}
+                                    onChange={(e) => setNewDeliverableInput(e.target.value)}
+                                    placeholder="Add deliverable milestone (e.g. 1x 30s broadcast master WAV)..."
+                                    className="flex-1 p-2.5 rounded-xl border text-xs font-body outline-none"
+                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    className="h-9 px-3 text-xs whitespace-nowrap"
+                                    onClick={() => {
+                                      if (newDeliverableInput.trim()) {
+                                        setEditedDeliverables((prev) => [...prev, newDeliverableInput.trim()]);
+                                        setNewDeliverableInput("");
+                                      }
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="h-8 text-xs px-3 whitespace-nowrap"
+                                    onClick={() => {
+                                      setProjectOverridesInfo((prev) => ({
+                                        ...prev,
+                                        [selectedProjectDetail.id]: {
+                                          ...(prev[selectedProjectDetail.id] || {}),
+                                          deliverables: editedDeliverables,
+                                        },
+                                      }));
+                                      setEditingSection(null);
+                                    }}
+                                  >
+                                    Save Deliverables
+                                  </Button>
+                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2.5">
+                                {effectiveDeliverables.map((item, idx) => (
+                                  <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                    <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                                    <span>{item}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
-                          {/* 5. Project Assets & Reference Files */}
+                          {/* 5. Project Assets & Reference Files (Inline Editable) */}
                           <div
+                            id="section-assets"
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
                               background: "var(--color-bg-surface)",
@@ -1557,54 +1929,153 @@ export function ClientDashboard() {
                                   Project Assets &amp; Reference Files
                                 </h2>
                               </div>
-                              <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-tertiary)" }}>
-                                {effectiveAssets.length} files attached
-                              </span>
-                            </div>
-
-                            <div className="space-y-2.5">
-                              {effectiveAssets.map((asset, idx) => (
-                                <div
-                                  key={idx}
-                                  className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body"
-                                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-tertiary)" }}>
+                                  {effectiveAssets.length} files attached
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSection(editingSection === "assets" ? null : "assets")}
+                                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
                                 >
-                                  <div className="flex items-center gap-3 min-w-0">
-                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>
-                                      <FileText className="w-4 h-4" />
-                                    </div>
-                                    <div className="truncate">
-                                      <div className="font-semibold text-xs truncate" style={{ color: "var(--color-text-primary)" }}>
-                                        {asset.name}
-                                      </div>
-                                      <div className="text-[11px] font-mono" style={{ color: "var(--color-text-tertiary)" }}>
-                                        {asset.type} · {asset.size}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-1.5 shrink-0">
-                                    <button
-                                      type="button"
-                                      onClick={() => alert(`Previewing ${asset.name}`)}
-                                      className="px-2.5 py-1 rounded-lg border text-xs font-semibold hover:bg-[var(--color-bg-surface)] transition-colors"
-                                      style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
-                                    >
-                                      Preview
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => alert(`Downloading ${asset.name} (${asset.size})`)}
-                                      className="p-1.5 rounded-lg border hover:bg-[var(--color-bg-surface)] transition-colors"
-                                      style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
-                                      title="Download asset"
-                                    >
-                                      <Download className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
+                                  {editingSection === "assets" ? "Done" : "Manage Assets"}
+                                </button>
+                              </div>
                             </div>
+
+                            {editingSection === "assets" ? (
+                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Attached Project Files
+                                </div>
+                                <div className="space-y-2">
+                                  {editedAssets.map((asset, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-body"
+                                      style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+                                    >
+                                      <div className="flex items-center gap-2.5 truncate">
+                                        <FileText className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                                        <span className="font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{asset.name}</span>
+                                        <span className="text-[11px] font-mono text-[var(--color-text-tertiary)]">({asset.type} · {asset.size})</span>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditedAssets((prev) => prev.filter((_, i) => i !== idx))}
+                                        className="text-rose-500 hover:text-rose-600 p-1 shrink-0"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="p-3 rounded-xl border space-y-2.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+                                  <div className="text-[11px] font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Attach New Reference File
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <input
+                                      type="text"
+                                      value={newAssetName}
+                                      onChange={(e) => setNewAssetName(e.target.value)}
+                                      placeholder="File Name (e.g. Campaign_Moodboard.pdf)"
+                                      className="p-2 rounded-xl border text-xs font-body outline-none"
+                                      style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                    />
+                                    <input
+                                      type="text"
+                                      value={newAssetType}
+                                      onChange={(e) => setNewAssetType(e.target.value)}
+                                      placeholder="File Type (e.g. Style Guide)"
+                                      className="p-2 rounded-xl border text-xs font-body outline-none"
+                                      style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                    />
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    className="h-8 px-3 text-xs whitespace-nowrap"
+                                    onClick={() => {
+                                      if (newAssetName.trim()) {
+                                        setEditedAssets((prev) => [
+                                          ...prev,
+                                          { name: newAssetName.trim(), type: newAssetType.trim() || "Brief Document", size: "1.8 MB" },
+                                        ]);
+                                        setNewAssetName("");
+                                      }
+                                    }}
+                                  >
+                                    Attach File
+                                  </Button>
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="h-8 text-xs px-3 whitespace-nowrap"
+                                    onClick={() => {
+                                      setProjectOverridesInfo((prev) => ({
+                                        ...prev,
+                                        [selectedProjectDetail.id]: {
+                                          ...(prev[selectedProjectDetail.id] || {}),
+                                          assets: editedAssets,
+                                        },
+                                      }));
+                                      setEditingSection(null);
+                                    }}
+                                  >
+                                    Save Assets
+                                  </Button>
+                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-2.5">
+                                {effectiveAssets.map((asset, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body"
+                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>
+                                        <FileText className="w-4 h-4" />
+                                      </div>
+                                      <div className="truncate">
+                                        <div className="font-semibold text-xs truncate" style={{ color: "var(--color-text-primary)" }}>
+                                          {asset.name}
+                                        </div>
+                                        <div className="text-[11px] font-mono" style={{ color: "var(--color-text-tertiary)" }}>
+                                          {asset.type} · {asset.size}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button
+                                        type="button"
+                                        onClick={() => alert(`Previewing ${asset.name}`)}
+                                        className="px-2.5 py-1 rounded-lg border text-xs font-semibold hover:bg-[var(--color-bg-surface)] transition-colors whitespace-nowrap"
+                                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                                      >
+                                        Preview
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => alert(`Downloading ${asset.name} (${asset.size})`)}
+                                        className="p-1.5 rounded-lg border hover:bg-[var(--color-bg-surface)] transition-colors whitespace-nowrap"
+                                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
+                                        title="Download asset"
+                                      >
+                                        <Download className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           {/* 6. Applicant Pipeline & Casting Management */}
