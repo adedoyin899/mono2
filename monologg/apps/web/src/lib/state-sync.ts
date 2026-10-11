@@ -1,5 +1,14 @@
-import { PROJECTS, SERVICES, TRANSACTIONS, SUPPORT_TICKETS } from "../mocks";
-import type { Project, ServiceRateCard, Transaction, SupportTicket, Applicant } from "@monologg/types";
+import { PROJECTS, SERVICES, TRANSACTIONS, SUPPORT_TICKETS, CLIENT_PROJECTS } from "../mocks";
+import type { Project, ServiceRateCard, Transaction, SupportTicket, Applicant, ClientProject } from "@monologg/types";
+
+export interface BillingCard {
+  id: string;
+  type: "Mastercard" | "Visa" | "Verve";
+  last4: string;
+  expiry: string;
+  cardholderName?: string;
+  isDefault: boolean;
+}
 
 export interface TalentProfileState {
   name: string;
@@ -75,11 +84,18 @@ const STORAGE_KEYS = {
   BALANCE: "monologg_balance",
   SERVICES: "monologg_services",
   PROJECTS: "monologg_projects",
+  CLIENT_PROJECTS: "monologg_client_projects",
+  BILLING_CARDS: "monologg_billing_cards",
   TRANSACTIONS: "monologg_transactions",
   SUPPORT_TICKETS: "monologg_support_tickets",
   APPLICANTS: "monologg_applicants",
   USER_SESSION: "monologg_user_session",
 };
+
+const DEFAULT_BILLING_CARDS: BillingCard[] = [
+  { id: "card-1", type: "Mastercard", last4: "4242", expiry: "08/28", cardholderName: "FilmCraft Studios", isDefault: true },
+  { id: "card-2", type: "Visa", last4: "8899", expiry: "11/27", cardholderName: "Sarah Jenkins", isDefault: false },
+];
 
 const DEFAULT_TALENT_PROFILE: TalentProfileState = {
   name: "Emeka Johnson",
@@ -168,6 +184,8 @@ class StateSyncBus {
   private balance: BalanceState;
   private services: ServiceRateCard[];
   private projects: Project[];
+  private clientProjects: ClientProject[];
+  private billingCards: BillingCard[];
   private transactions: Transaction[];
   private supportTickets: SupportTicket[];
   private applicants: Record<string, Applicant[]>;
@@ -179,6 +197,8 @@ class StateSyncBus {
     this.balance = this.load(STORAGE_KEYS.BALANCE, DEFAULT_BALANCE);
     this.services = this.load(STORAGE_KEYS.SERVICES, SERVICES);
     this.projects = this.load(STORAGE_KEYS.PROJECTS, PROJECTS);
+    this.clientProjects = this.load(STORAGE_KEYS.CLIENT_PROJECTS, CLIENT_PROJECTS);
+    this.billingCards = this.load(STORAGE_KEYS.BILLING_CARDS, DEFAULT_BILLING_CARDS);
     const savedTxns = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
     const existingTxIds = new Set(savedTxns.map((t) => t.id));
     const missingTxns = TRANSACTIONS.filter((t) => !existingTxIds.has(t.id));
@@ -219,6 +239,8 @@ class StateSyncBus {
     this.balance = this.load(STORAGE_KEYS.BALANCE, DEFAULT_BALANCE);
     this.services = this.load(STORAGE_KEYS.SERVICES, SERVICES);
     this.projects = this.load(STORAGE_KEYS.PROJECTS, PROJECTS);
+    this.clientProjects = this.load(STORAGE_KEYS.CLIENT_PROJECTS, CLIENT_PROJECTS);
+    this.billingCards = this.load(STORAGE_KEYS.BILLING_CARDS, DEFAULT_BILLING_CARDS);
     const reloadedTxns = this.load(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS);
     const reloadedIds = new Set(reloadedTxns.map((t) => t.id));
     const missingReloaded = TRANSACTIONS.filter((t) => !reloadedIds.has(t.id));
@@ -327,6 +349,108 @@ class StateSyncBus {
     this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
     this.notify();
     return true;
+  }
+
+  // Client Billing Cards (Saved Payment Methods)
+  getBillingCards(): BillingCard[] {
+    return [...this.billingCards];
+  }
+
+  addBillingCard(card: Omit<BillingCard, "id">): BillingCard {
+    const newCard: BillingCard = {
+      id: `card-${Date.now()}`,
+      ...card,
+    };
+    if (newCard.isDefault) {
+      this.billingCards = this.billingCards.map((c) => ({ ...c, isDefault: false }));
+    }
+    this.billingCards = [...this.billingCards, newCard];
+    this.save(STORAGE_KEYS.BILLING_CARDS, this.billingCards);
+    this.notify();
+    return newCard;
+  }
+
+  setDefaultBillingCard(id: string): void {
+    this.billingCards = this.billingCards.map((c) => ({ ...c, isDefault: c.id === id }));
+    this.save(STORAGE_KEYS.BILLING_CARDS, this.billingCards);
+    this.notify();
+  }
+
+  deleteBillingCard(id: string): void {
+    const wasDefault = this.billingCards.find((c) => c.id === id)?.isDefault;
+    this.billingCards = this.billingCards.filter((c) => c.id !== id);
+    if (wasDefault && this.billingCards.length > 0) {
+      this.billingCards[0]!.isDefault = true;
+    }
+    this.save(STORAGE_KEYS.BILLING_CARDS, this.billingCards);
+    this.notify();
+  }
+
+  // Client Projects Lifecycle & Live-to-Draft Safeguard
+  getClientProjects(): ClientProject[] {
+    return [...this.clientProjects];
+  }
+
+  updateClientProject(id: string, updates: Partial<ClientProject>): ClientProject | null {
+    const idx = this.clientProjects.findIndex((p) => p.id === id);
+    if (idx === -1) return null;
+    this.clientProjects[idx] = { ...this.clientProjects[idx]!, ...updates };
+    this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+    this.notify();
+    return this.clientProjects[idx]!;
+  }
+
+  moveProjectsToDraft(projectIds?: string[]): ClientProject[] {
+    const targetSet = projectIds && projectIds.length > 0 ? new Set(projectIds) : null;
+    this.clientProjects = this.clientProjects.map((p) => {
+      if (!targetSet || targetSet.has(p.id)) {
+        if (p.status === "active" || p.status === "in_review" || p.status === "in_progress") {
+          return { ...p, status: "draft" as const, applicationsOpen: false };
+        }
+      }
+      return p;
+    });
+    this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+    this.notify();
+    return [...this.clientProjects];
+  }
+
+  resetClientProjects(): ClientProject[] {
+    this.clientProjects = [...CLIENT_PROJECTS];
+    this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+    this.notify();
+    return [...this.clientProjects];
+  }
+
+  // Client Funds Withdrawal with 24hr settlement guarantee
+  withdrawClientFunds(amountNaira: number, bankDetails: { bankName: string; accountNumber: string; accountName: string }): { success: boolean; transaction: Transaction } {
+    if (amountNaira <= 0) throw new Error("Invalid withdrawal amount");
+    if (this.balance.available >= amountNaira) {
+      this.balance.available -= amountNaira;
+    }
+    this.balance.withdrawnTotal += amountNaira;
+
+    const newTx: Transaction = {
+      id: `tx-client-${Date.now()}`,
+      bookingId: `bk-withdrawal-${Date.now()}`,
+      direction: "payout",
+      state: "RELEASING",
+      currency: "NGN",
+      baseAmount: amountNaira * 100,
+      baseAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      feeAmount: 0,
+      feeAmountFormatted: "₦0",
+      totalAmount: amountNaira * 100,
+      totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      providerRef: `24hr-Transfer-${bankDetails.bankName}-${bankDetails.accountNumber.slice(-4)}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.transactions = [newTx, ...this.transactions];
+    this.save(STORAGE_KEYS.BALANCE, this.balance);
+    this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    this.notify();
+    return { success: true, transaction: newTx };
   }
 
   // Services / Rate Cards

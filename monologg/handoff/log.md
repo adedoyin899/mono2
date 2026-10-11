@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
+**Last updated:** 2026-10-11 (Session 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 118 (2026-10-11) — Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate
+
+**Goal:** Overhaul the client financial and billing surfaces with FAANG-grade transactional workflows, interactive card management, direct debit capabilities, and a 3-step live projects safeguard gate for escrow balance withdrawals:
+1. **Title & Menu Clean-up (`Settings.tsx`):**
+   - Renamed settings section and menu navigation item from `Billing & Invoicing` to **`Billing and Payments`**.
+   - Purged the redundant `Project Briefs History` item from the client account menu (all brief management is already centrally consolidated in `/client/projects`).
+2. **Interactive Card Management (`Settings.tsx` & `state-sync.ts`):**
+   - Replaced inert "+ Add Card" / "+ Add Corporate Billing Card" actions with a fully functional card modal: live card preview with dynamic brand badges (`Mastercard`, `Visa`, `Verve`), automated space-formatting for card numbers, expiry/CVV input masking, cardholder name, and optional default card designation.
+   - Built full card lifecycle operations: Set as Default, Delete Card confirmation modal with destructive protection for default cards, and persistent storage via `appStateSync.getBillingCards()`, `addBillingCard()`, `setDefaultBillingCard()`, and `deleteBillingCard()`.
+3. **Direct Debit from Card for Checkout & Escrow Funding (`Checkout.tsx` & `ClientDashboard.tsx`):**
+   - In `Checkout.tsx`: Integrated saved card selector with CVV security code authorization (`CVV / CVC Security Code`), allowing direct card debits or adding a new card on the fly.
+   - In `ClientDashboard.tsx`: Added saved card selector with CVV entry to the `Fund Escrow Wallet` modal.
+   - Added **`Publish Brief & Fund Escrow`** modal when publishing draft projects from Draft Stepper, Inactive Spotlight, or Action Center: allows funding either via Escrow Wallet Balance or direct Debit from Card (with CVV authorization), transitioning draft projects to Active.
+4. **Client 24hr Withdrawal Experience & Live Projects Safeguard Gate (`TransactionHistory.tsx`):**
+   - Replaced static `Escrow Protected / Automated Ledger Settlement` telemetry on the client balance card with an active **`Withdraw Funds`** button and `Direct 24hr settlement` badge.
+   - Designed and built a 3-step withdrawal wizard flow:
+     - **Step 1 (Amount & Destination):** Amount input (with quick 25%, 50%, Max buttons), preselected primary bank account (`GTBank · •••• 6789`), settlement speed disclosure (within 24 hours), and dynamic next step branching based on active project state.
+     - **Step 2 (Safeguard Gate):** When the client has active projects (`Nike Q1 Campaign`, `Tech Summit Compere`, `Film Auditions Jan 2025`), the safeguard gate blocks immediate liquidation, explaining that escrowed projects will automatically move to **Draft** status to release locked funds. Provides reassurance that drafts remain intact and can be reposted anytime via `Publish & Fund Escrow`. Action: `Move 3 Projects to Draft & Withdraw`.
+     - **Step 3 (Settlement Confirmation):** Success screen displaying the estimated arrival time, transferred amount, destination account, and a detailed list of projects moved to draft with direct deep link back to client projects.
+5. **Rebuilt Standalone Bundle & Verified Suites:**
+   - Inlined latest compiled assets into `monologg/monologg-app.html` (1.5MB).
+   - 100% test pass rate preserved (25/25 test files, 119/119 unit/integration tests).
+   - 0 TypeScript compiler errors.
+
+**Files touched:**
+- `monologg/apps/web/src/lib/state-sync.ts`
+- `monologg/apps/web/src/lib/api-client.ts`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/apps/web/src/app/pages/Checkout.tsx`
+- `monologg/apps/web/src/app/pages/TransactionHistory.tsx`
+- `monologg/apps/web/src/app/pages/TransactionHistory.test.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
+**Last updated:** 2026-10-11 (Session 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -657,6 +657,29 @@ Overhauled the Client Analytics experience and streamlined client-facing setting
   - Updated `Settings.test.tsx` (13/13 passing) and `ClientDashboard.test.tsx` (11/11 passing); all 117 tests passing across the workspace.
   - 100% clean TypeScript typecheck (`tsc --noEmit`).
   - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.58 MB).
+
+### Step 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate
+
+- **Title & Menu Clean-up (`Settings.tsx`):**
+  - Renamed the client settings section title and account menu label to **`Billing and Payments`**.
+  - Removed the outdated, redundant `Project Briefs History` item from the client account menu.
+- **Interactive Card Management (`Settings.tsx` & `state-sync.ts`):**
+  - Replaced inert add card buttons with a comprehensive Add Card workflow: interactive card preview, dynamic brand badge recognition (`Mastercard`, `Visa`, `Verve`), live 16-digit space-formatting, MM/YY expiry and 3-digit CVV masking, cardholder name, and default card option.
+  - Added Set Default card functionality, a Delete Card modal with destructive protections against deleting the active default card without a replacement, and complete persistence via `appStateSync.getBillingCards()`, `addBillingCard()`, `setDefaultBillingCard()`, and `deleteBillingCard()`.
+- **Direct Debit from Card for Escrow Funding & Projects (`Checkout.tsx` & `ClientDashboard.tsx`):**
+  - In `Checkout.tsx`: Added saved card selector with CVV security verification code authorization for instant payment, plus new card entry.
+  - In `ClientDashboard.tsx`: Added saved card selector with CVV verification to the `Fund Escrow Wallet` modal.
+  - Added **`Publish Brief & Fund Escrow`** modal when publishing draft projects from Draft Stepper, Inactive Spotlight, or Action Center: allows funding either via Escrow Wallet Balance or direct Debit from Card (with CVV authorization), transitioning the draft brief directly to Active.
+- **Client 24hr Withdrawal Experience & Live Projects Safeguard Gate (`TransactionHistory.tsx`):**
+  - Replaced static telemetry badge on the client hero balance card with an active **`Withdraw Funds`** button and `Direct 24hr settlement` badge.
+  - Built a 3-step withdrawal wizard modal flow:
+    - *Step 1 (Amount & Destination):* Amount input (with quick 25%, 50%, Max buttons), preselected primary bank account (`GTBank · •••• 6789`), and 24hr settlement timeline notice.
+    - *Step 2 (Safeguard Gate):* If the client has active projects (`Nike Q1 Campaign`, `Tech Summit Compere`, `Film Auditions Jan 2025`), the safeguard gate blocks premature liquidation and informs the client that active projects will move to **Draft** status to release escrow funds. Reassures them that drafts can be reposted anytime via `Publish & Fund Escrow`. Action: `Move 3 Projects to Draft & Withdraw`.
+    - *Step 3 (Confirmation):* Success screen displaying arrival time, transferred amount, destination account, and a detailed list of projects moved to draft with direct deep link back to client projects.
+- **Automated Testing & Standalone Distribution Rebuilding:**
+  - 119/119 unit/integration tests passing across 25 test files (`Settings.test.tsx`, `TransactionHistory.test.tsx`, `ClientDashboard.test.tsx`).
+  - Clean TypeScript typecheck (`tsc --noEmit`).
+  - Standalone single-file distribution bundle `monologg-app.html` re-compiled and inlined (1.5 MB).
 
 ---
 

@@ -67,6 +67,17 @@ export function Checkout() {
   const [cardName, setCardName] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const [savedCards, setSavedCards] = useState(() => appStateSync.getBillingCards());
+  const [selectedCardId, setSelectedCardId] = useState<string>(() => {
+    const cards = appStateSync.getBillingCards();
+    const def = cards.find((c) => c.isDefault);
+    return def ? def.id : cards[0]?.id || "";
+  });
+  const [cardPayMode, setCardPayMode] = useState<"saved" | "new">(() => {
+    return appStateSync.getBillingCards().length > 0 ? "saved" : "new";
+  });
+  const [savedCardCvv, setSavedCardCvv] = useState("");
+  const [saveNewCard, setSaveNewCard] = useState(true);
 
   // ── Live booking-flow state ────────────────────────────────────────────────
   const [rateCards, setRateCards] = useState<PublicRateCard[]>([]);
@@ -155,6 +166,21 @@ export function Checkout() {
     setPayError(null);
 
     try {
+      if (cardPayMode === "new" && saveNewCard && cardNum.trim()) {
+        const cleanNum = cardNum.replace(/\D/g, "");
+        if (cleanNum.length >= 15) {
+          const type = cleanNum.startsWith("4") ? "Visa" : cleanNum.startsWith("5") ? "Mastercard" : "Verve";
+          appStateSync.addBillingCard({
+            type,
+            last4: cleanNum.slice(-4),
+            expiry,
+            cardholderName: cardName.trim(),
+            isDefault: savedCards.length === 0,
+          });
+          setSavedCards(appStateSync.getBillingCards());
+        }
+      }
+
       if (booking) {
         const { providerRef } = await apiClient.payBooking(booking.id);
         const ok = await apiClient.simulateEscrowWebhook(providerRef);
@@ -571,58 +597,183 @@ export function Checkout() {
                     onSubmit={handlePayment}
                     className="space-y-4"
                   >
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Card Number</label>
-                      <div className="relative">
-                        <Input
-                          placeholder="0000 0000 0000 0000"
-                          value={cardNum}
-                          onChange={e => setCardNum(formatCard(e.target.value))}
-                          className="pr-10"
-                          required
-                        />
-                        <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                    {/* Toggle between Saved Cards and New Card if saved cards exist */}
+                    {savedCards.length > 0 && (
+                      <div className="flex p-1 rounded-xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] mb-4">
+                        <button
+                          type="button"
+                          onClick={() => setCardPayMode("saved")}
+                          className="flex-1 py-2 rounded-lg text-xs font-semibold font-body transition-all"
+                          style={{
+                            background: cardPayMode === "saved" ? "var(--color-accent)" : "transparent",
+                            color: cardPayMode === "saved" ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                          }}
+                        >
+                          Debit from Saved Card ({savedCards.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCardPayMode("new")}
+                          className="flex-1 py-2 rounded-lg text-xs font-semibold font-body transition-all"
+                          style={{
+                            background: cardPayMode === "new" ? "var(--color-accent)" : "transparent",
+                            color: cardPayMode === "new" ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                          }}
+                        >
+                          + New Card
+                        </button>
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Cardholder Name</label>
-                      <Input
-                        placeholder="Name on card"
-                        value={cardName}
-                        onChange={e => setCardName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Expiry</label>
-                        <Input
-                          placeholder="MM/YY"
-                          value={expiry}
-                          onChange={e => setExpiry(formatExpiry(e.target.value))}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>CVV</label>
-                        <Input
-                          placeholder="•••"
-                          value={cvv}
-                          onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                          type="password"
-                          required
-                        />
-                      </div>
-                    </div>
+                    )}
 
-                    <Button
-                      type="submit"
-                      className="w-full h-12 gap-2"
-                      disabled={!cardNum || !cardName || !expiry || !cvv}
-                    >
-                      <Lock className="w-4 h-4" />
-                      Confirm & Deposit {money(TOTAL)}
-                    </Button>
+                    {/* MODE 1: Debit from Saved Card */}
+                    {cardPayMode === "saved" && savedCards.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="block text-xs font-medium uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Select Billing Card
+                          </label>
+                          <div className="space-y-2">
+                            {savedCards.map((card) => {
+                              const isChosen = (selectedCardId || savedCards[0]?.id) === card.id;
+                              return (
+                                <div
+                                  key={card.id}
+                                  onClick={() => setSelectedCardId(card.id)}
+                                  className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                                    isChosen
+                                      ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                                      : "border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)]"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)]">
+                                      <CreditCard className="w-4 h-4 text-[var(--color-accent)]" />
+                                    </div>
+                                    <div>
+                                      <div className="text-sm font-semibold font-body flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
+                                        <span>{card.type} ···· {card.last4}</span>
+                                        {card.isDefault && (
+                                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
+                                            DEFAULT
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-xs font-body text-[var(--color-text-tertiary)]">
+                                        Expires {card.expiry} {card.cardholderName && `· ${card.cardholderName}`}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                    isChosen ? "border-[var(--color-accent)] bg-[var(--color-accent)]" : "border-zinc-400"
+                                  }`}>
+                                    {isChosen && <div className="w-2 h-2 rounded-full bg-white" />}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Enter Card CVV Security Code
+                          </label>
+                          <div className="relative max-w-[140px]">
+                            <Input
+                              type="password"
+                              placeholder="•••"
+                              maxLength={4}
+                              value={savedCardCvv}
+                              onChange={(e) => setSavedCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="font-mono text-center tracking-widest text-base font-bold"
+                              required
+                            />
+                          </div>
+                          <p className="text-[11px] font-body text-[var(--color-text-tertiary)] mt-1.5">
+                            3-digit security code on the back of your card for authorized debit
+                          </p>
+                        </div>
+
+                        <Button
+                          type="submit"
+                          className="w-full h-12 gap-2 text-sm font-bold shadow-md"
+                          disabled={savedCardCvv.length < 3}
+                        >
+                          <Lock className="w-4 h-4" />
+                          Debit {money(TOTAL)} from {savedCards.find((c) => c.id === selectedCardId)?.type || "Card"} ···· {savedCards.find((c) => c.id === selectedCardId)?.last4 || "4242"}
+                        </Button>
+                      </div>
+                    ) : (
+                      /* MODE 2: Enter New Card Details */
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Card Number</label>
+                          <div className="relative">
+                            <Input
+                              placeholder="0000 0000 0000 0000"
+                              value={cardNum}
+                              onChange={e => setCardNum(formatCard(e.target.value))}
+                              className="pr-10 font-mono"
+                              required
+                            />
+                            <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Cardholder Name</label>
+                          <Input
+                            placeholder="Name on card"
+                            value={cardName}
+                            onChange={e => setCardName(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>Expiry</label>
+                            <Input
+                              placeholder="MM/YY"
+                              value={expiry}
+                              onChange={e => setExpiry(formatExpiry(e.target.value))}
+                              className="font-mono"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>CVV</label>
+                            <Input
+                              placeholder="•••"
+                              value={cvv}
+                              onChange={e => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              type="password"
+                              className="font-mono"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <label className="flex items-center gap-2 cursor-pointer pt-1">
+                          <input
+                            type="checkbox"
+                            checked={saveNewCard}
+                            onChange={(e) => setSaveNewCard(e.target.checked)}
+                            className="w-4 h-4 rounded text-[var(--color-accent)] focus:ring-[var(--color-accent)]"
+                          />
+                          <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Save this card to Billing and Payments for future project debits
+                          </span>
+                        </label>
+
+                        <Button
+                          type="submit"
+                          className="w-full h-12 gap-2 text-sm font-bold shadow-md"
+                          disabled={!cardNum || !cardName || !expiry || !cvv}
+                        >
+                          <Lock className="w-4 h-4" />
+                          Debit &amp; Deposit {money(TOTAL)}
+                        </Button>
+                      </div>
+                    )}
                   </motion.form>
                 )}
 

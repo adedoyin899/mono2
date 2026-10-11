@@ -158,4 +158,38 @@ describe("TransactionHistory", () => {
     expect(screen.getByText("You Receive")).toBeInTheDocument();
     expect(screen.getByText("₦0")).toBeInTheDocument();
   });
+
+  it("replaces static telemetry with Withdraw Funds button and enforces live projects safeguard gate", async () => {
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+
+    // 1. "Withdraw Funds" button and "Direct 24hr settlement" are rendered
+    const withdrawBtn = await screen.findByRole("button", { name: /Withdraw Funds/i });
+    expect(withdrawBtn).toBeInTheDocument();
+    expect(screen.getByText("Direct 24hr settlement")).toBeInTheDocument();
+
+    // 2. Click "Withdraw Funds" opens step 1: amount entry
+    fireEvent.click(withdrawBtn);
+    expect(await screen.findByText("Transfer available escrow & platform balance to your personal bank")).toBeInTheDocument();
+    expect(screen.getByText(/(GTBank|Access Bank Plc)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Funds will reach your personal account within 24 hours/i)).toBeInTheDocument();
+
+    // 3. Click Proceed with Withdrawal opens step 2: Live Projects Safeguard Gate
+    const proceedBtn = screen.getByRole("button", { name: /Proceed with Withdrawal/i });
+    fireEvent.click(proceedBtn);
+
+    expect(await screen.findByText(/live projects holding escrow/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nike Q1 Campaign/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tech Summit Compere/i)).toBeInTheDocument();
+    expect(screen.getByText(/Film Auditions Jan 2025/i)).toBeInTheDocument();
+
+    // 4. Click Move 3 Projects to Draft & Withdraw initiates withdrawal and confirms 24hr timeline
+    const confirmWithdrawBtn = screen.getByRole("button", { name: /Move 3 Projects to Draft & Withdraw/i });
+    fireEvent.click(confirmWithdrawBtn);
+
+    expect(await screen.findByText("Withdrawal Initiated!")).toBeInTheDocument();
+    expect(screen.getByText(/Within 24 Hours/i)).toBeInTheDocument();
+    expect(screen.getByText(/3 Projects Moved to Draft/i)).toBeInTheDocument();
+    expect(screen.getByText(/View Draft Projects/i)).toBeInTheDocument();
+  });
 });

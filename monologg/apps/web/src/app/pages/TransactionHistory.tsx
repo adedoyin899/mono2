@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronLeft, Receipt, X, Download, CheckCircle2, ShieldCheck, AlertCircle, Clock, RotateCcw } from "lucide-react";
+import {
+  ChevronLeft, Receipt, X, Download, CheckCircle2, ShieldCheck, AlertCircle, Clock, RotateCcw,
+  ArrowDownToLine, AlertTriangle, Briefcase, ArrowRight, Building2, Sparkles
+} from "lucide-react";
 import { apiClient } from "../../lib/api-client";
 import { formatRelativeTime } from "../../lib/utils";
+import { appStateSync } from "../../lib/state-sync";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
 import { Modal } from "../components/ui/Modal";
-import type { Transaction } from "@monologg/types";
+import type { Transaction, ClientProject } from "@monologg/types";
 
 export type CategoryFilter = "ALL" | "PAYOUT" | "ESCROW" | "DISPUTE";
 
@@ -47,6 +52,59 @@ export function TransactionHistory() {
   const [stateFilter, setStateFilter] = useState<Transaction["state"] | "">("");
   const [loading, setLoading] = useState(true);
   const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
+
+  // Client Withdrawal Flow States
+  const [withdrawalModalStep, setWithdrawalModalStep] = useState<"amount" | "live_projects_warning" | "success" | null>(null);
+  const [withdrawAmountInput, setWithdrawAmountInput] = useState("");
+  const [withdrawAmountError, setWithdrawAmountError] = useState<string | null>(null);
+  const [liveProjects, setLiveProjects] = useState<ClientProject[]>([]);
+  const [isProcessingWithdrawal, setIsProcessingWithdrawal] = useState(false);
+  const [bankDetails] = useState(() => appStateSync.getBankDetails());
+
+  const handleOpenWithdrawal = () => {
+    const allClientProjects = appStateSync.getClientProjects();
+    const active = allClientProjects.filter(
+      (p) => p.status === "active" || p.status === "in_review" || p.status === "in_progress"
+    );
+    setLiveProjects(active);
+    setWithdrawAmountInput(Math.round(heroAmount || 1577950).toLocaleString());
+    setWithdrawAmountError(null);
+    setWithdrawalModalStep("amount");
+  };
+
+  const handleProceedFromAmount = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const raw = parseInt(withdrawAmountInput.replace(/\D/g, ""), 10);
+    if (!raw || raw <= 0) {
+      setWithdrawAmountError("Please enter a valid withdrawal amount.");
+      return;
+    }
+    setWithdrawAmountError(null);
+    // User requested: "The moment you withdraw any amount, lets a have a modal that pops up saying: you have 3 live projects list them, you have to move them to draft..."
+    if (liveProjects.length > 0) {
+      setWithdrawalModalStep("live_projects_warning");
+    } else {
+      executeWithdrawal(raw);
+    }
+  };
+
+  const executeWithdrawal = (amtNaira: number) => {
+    setIsProcessingWithdrawal(true);
+    if (liveProjects.length > 0) {
+      appStateSync.moveProjectsToDraft(liveProjects.map((p) => p.id));
+    }
+    appStateSync.withdrawClientFunds(amtNaira, {
+      bankName: bankDetails.bankName || "Access Bank Plc",
+      accountNumber: bankDetails.accountNumber || "0123455965",
+      accountName: bankDetails.accountName || "Sarah Jenkins",
+    });
+
+    const updated = appStateSync.getTransactions();
+    setAllTransactions(updated);
+    setTransactions(updated);
+    setIsProcessingWithdrawal(false);
+    setWithdrawalModalStep("success");
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -171,14 +229,22 @@ export function TransactionHistory() {
             </div>
           </div>
 
-          {/* Right-side Escrow Security Telemetry */}
-          <div className="hidden sm:flex flex-col items-end text-right z-10 shrink-0">
-            <div className="flex items-center gap-1.5 bg-[#222228] px-3.5 py-1.5 rounded-full border border-[#32323C] text-xs font-mono text-zinc-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#F13030]" />
-              <span>Escrow Protected</span>
-            </div>
-            <div className="text-[11px] text-white/40 font-mono mt-1">
-              Automated Ledger Settlement
+          {/* Right-side Action: Withdraw Funds (Replacing Escrow Protected & Automated Ledger) */}
+          <div className="flex flex-col sm:items-end z-10 shrink-0 gap-1.5 w-full sm:w-auto">
+            <Button
+              onClick={handleOpenWithdrawal}
+              className="h-10 px-5 text-xs font-bold font-mono tracking-wide rounded-full shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto text-white"
+              style={{
+                background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
+                boxShadow: "0 4px 14px rgba(124, 58, 237, 0.35)",
+              }}
+            >
+              <ArrowDownToLine className="w-4 h-4" />
+              <span>Withdraw Funds</span>
+            </Button>
+            <div className="text-[11px] text-white/50 font-mono flex items-center justify-center sm:justify-end gap-1.5">
+              <Clock className="w-3 h-3 text-purple-400" />
+              <span>Direct 24hr settlement</span>
             </div>
           </div>
         </div>
@@ -456,6 +522,358 @@ export function TransactionHistory() {
                 </Button>
                 <Button className="flex-1 h-10 text-xs" onClick={() => setSelectedTxn(null)}>
                   Close
+                </Button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+
+        {/* ── Client Withdrawal Modal Flow ── */}
+        {withdrawalModalStep === "amount" && (
+          <Modal onClose={() => setWithdrawalModalStep(null)}>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="p-6 max-w-md w-full rounded-[24px] space-y-5"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <ArrowDownToLine className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                      Withdraw Funds
+                    </h3>
+                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Transfer available escrow &amp; platform balance to your personal bank
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setWithdrawalModalStep(null)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                  style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Withdrawable Balance Card */}
+              <div className="p-4 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] space-y-1">
+                <div className="text-[11px] font-mono uppercase tracking-wider text-purple-400 font-semibold">
+                  Withdrawable Balance
+                </div>
+                <div className="text-2xl font-bold font-mono" style={{ color: "var(--color-text-primary)" }}>
+                  ₦{Math.round(heroAmount || 1577950).toLocaleString()}
+                </div>
+                <div className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                  Includes available wallet balance and released escrow holdings
+                </div>
+              </div>
+
+              <form onSubmit={handleProceedFromAmount} className="space-y-4">
+                {withdrawAmountError && (
+                  <div className="p-3 rounded-xl flex items-center gap-2 text-xs font-body bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>{withdrawAmountError}</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider block mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Amount to Withdraw (NGN)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-sm pointer-events-none text-zinc-400">
+                      ₦
+                    </span>
+                    <Input
+                      className="pl-8 text-base font-mono font-bold h-12"
+                      value={withdrawAmountInput}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, "");
+                        const num = parseInt(raw, 10);
+                        setWithdrawAmountInput(isNaN(num) ? "" : num.toLocaleString());
+                        if (withdrawAmountError) setWithdrawAmountError(null);
+                      }}
+                      placeholder="e.g. 500,000"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="grid grid-cols-4 gap-2">
+                  {[100000, 250000, 500000].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setWithdrawAmountInput(amt.toLocaleString())}
+                      className="py-1.5 px-1 text-xs font-mono rounded-lg border text-center transition-all"
+                      style={{
+                        background: withdrawAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                        borderColor: withdrawAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-hairline)",
+                        color: withdrawAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-text-secondary)",
+                      }}
+                    >
+                      ₦{amt / 1000}k
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setWithdrawAmountInput(Math.round(heroAmount || 1577950).toLocaleString())}
+                    className="py-1.5 px-1 text-xs font-mono rounded-lg border text-center transition-all bg-[var(--color-bg-elevated)] border-[var(--color-hairline)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)]"
+                  >
+                    All Funds
+                  </button>
+                </div>
+
+                {/* Destination Bank Account */}
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider block mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Settlement Destination Account
+                  </label>
+                  <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                          {bankDetails.bankName || "Access Bank Plc"} · •••• {(bankDetails.accountNumber || "5965").slice(-4)}
+                        </div>
+                        <div className="text-xs font-body text-[var(--color-text-tertiary)]">
+                          {bankDetails.accountName || "Sarah Jenkins"} (Verified Personal Account)
+                        </div>
+                      </div>
+                    </div>
+                    <Badge tone="success" size="sm">Verified</Badge>
+                  </div>
+                </div>
+
+                {/* 24-hour SLA notice */}
+                <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs font-body text-purple-300 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-purple-400 shrink-0" />
+                  <span>24-Hour Settlement: Funds will reach your personal account within 24 hours.</span>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="flex-1 h-11 text-xs"
+                    onClick={() => setWithdrawalModalStep(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    onClick={handleProceedFromAmount}
+                    className="flex-1 h-11 text-xs font-bold text-white shadow-md"
+                    style={{ background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)" }}
+                  >
+                    Proceed with Withdrawal
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </Modal>
+        )}
+
+        {/* ── Live Projects Safeguard Gate Modal ── */}
+        {withdrawalModalStep === "live_projects_warning" && (
+          <Modal onClose={() => setWithdrawalModalStep(null)}>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="p-6 max-w-lg w-full rounded-[24px] space-y-5"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0 mt-0.5">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                        Escrow Safeguard
+                      </span>
+                    </div>
+                    <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                      You have {liveProjects.length} live projects holding escrow
+                    </h3>
+                    <p className="text-xs font-body mt-1 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                      To withdraw funds from platform escrow to your personal account, your live projects must be moved to <strong>Draft</strong>. Once moved to draft, performers can no longer apply, and your funds are released for payout.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setWithdrawalModalStep(null)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity shrink-0 ml-2"
+                  style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* The Live Projects List */}
+              <div className="space-y-2">
+                <div className="text-xs font-semibold uppercase tracking-wider font-body px-1" style={{ color: "var(--color-text-tertiary)" }}>
+                  Live Projects Moving to Draft ({liveProjects.length})
+                </div>
+                <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                  {liveProjects.map((p) => (
+                    <div
+                      key={p.id}
+                      className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0">
+                          <Briefcase className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>
+                            {p.name}
+                          </div>
+                          <div className="text-xs font-body text-[var(--color-text-tertiary)] flex items-center gap-1.5">
+                            <span>{p.niche}</span>
+                            <span>·</span>
+                            <span className="font-mono">{p.budget} Escrow</span>
+                            {p.applicants !== undefined && (
+                              <>
+                                <span>·</span>
+                                <span>{p.applicants} applicants</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Badge tone="warning" size="sm">Moving to Draft</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Educational Reassurance Card */}
+              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs font-body text-purple-200 space-y-1.5">
+                <div className="flex items-center gap-2 font-bold text-white text-sm">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>When you have the money back:</span>
+                </div>
+                <p className="text-xs leading-relaxed text-purple-300">
+                  You will simply go back to your <strong>Drafts</strong> in your Client Dashboard, open your project, and click <strong>Publish &amp; Fund Escrow</strong> to post it again. All audition sides, milestones, and applicant pitches are preserved intact.
+                </p>
+                <div className="text-[11px] text-purple-400 font-mono pt-1">
+                  ⏱️ Payout will transfer to your personal bank account and takes 24 hours to process.
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button
+                  variant="secondary"
+                  className="flex-1 h-11 text-xs"
+                  onClick={() => setWithdrawalModalStep(null)}
+                >
+                  Cancel &amp; Keep Projects Live
+                </Button>
+                <Button
+                  className="flex-1 h-11 text-xs font-bold text-white shadow-md flex items-center justify-center gap-2"
+                  style={{ background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)" }}
+                  disabled={isProcessingWithdrawal}
+                  onClick={() => {
+                    const amt = parseInt(withdrawAmountInput.replace(/\D/g, ""), 10) || Math.round(heroAmount || 1577950);
+                    executeWithdrawal(amt);
+                  }}
+                >
+                  <ArrowDownToLine className="w-4 h-4" />
+                  <span>Move {liveProjects.length} Projects to Draft &amp; Withdraw</span>
+                </Button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+
+        {/* ── Withdrawal Success Confirmation Modal ── */}
+        {withdrawalModalStep === "success" && (
+          <Modal onClose={() => setWithdrawalModalStep(null)}>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="p-6 max-w-md w-full rounded-[24px] space-y-5 text-center"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+
+              <div>
+                <h3 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                  Withdrawal Initiated!
+                </h3>
+                <div className="text-xl font-mono font-bold text-emerald-500 mt-1">
+                  ₦{withdrawAmountInput || Math.round(heroAmount || 1577950).toLocaleString()}
+                </div>
+                <p className="text-xs font-body text-[var(--color-text-secondary)] mt-2">
+                  Your funds will clear into your personal bank account within <strong>24 hours</strong>.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-left space-y-2 text-xs font-body">
+                <div className="flex justify-between py-1 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Destination Account</span>
+                  <span className="font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                    {bankDetails.bankName || "Access Bank Plc"} · •••• {(bankDetails.accountNumber || "5965").slice(-4)}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-[var(--color-hairline)]">
+                  <span className="text-[var(--color-text-tertiary)]">Processing Timeline</span>
+                  <span className="font-mono text-purple-400 font-semibold">
+                    Within 24 Hours
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-[var(--color-text-tertiary)]">Projects Transferred</span>
+                  <span className="font-semibold text-amber-500 font-body">
+                    {liveProjects.length} Projects Moved to Draft
+                  </span>
+                </div>
+              </div>
+
+              {/* What to do next instructions */}
+              <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-left text-xs font-body text-purple-200">
+                <span className="font-bold text-white block mb-1">What to do next:</span>
+                When you have the money back, head to your <strong>Client Dashboard</strong>, find your saved projects under Drafts, and click <strong>Publish &amp; Fund Escrow</strong> to post them again.
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="secondary"
+                  className="flex-1 h-11 text-xs"
+                  onClick={() => setWithdrawalModalStep(null)}
+                >
+                  Done
+                </Button>
+                <Button
+                  className="flex-1 h-11 text-xs font-bold text-white shadow-md flex items-center justify-center gap-1.5"
+                  style={{ background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)" }}
+                  onClick={() => {
+                    setWithdrawalModalStep(null);
+                    navigate("/client");
+                  }}
+                >
+                  <span>View Draft Projects</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
             </motion.div>

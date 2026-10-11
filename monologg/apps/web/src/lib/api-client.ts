@@ -539,7 +539,7 @@ export const apiClient = {
   },
   async listClientProjects(): Promise<ClientProject[]> {
     if (API_MODE === "live") return requestList("/briefs");
-    return mocks.CLIENT_PROJECTS;
+    return appStateSync.getClientProjects();
   },
   async listClientOrders(): Promise<Order[]> {
     if (API_MODE === "live") return requestList("/bookings?role=client");

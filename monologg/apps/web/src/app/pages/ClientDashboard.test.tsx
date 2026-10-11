@@ -183,9 +183,13 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(screen.queryByText("Adaeze Obi")).not.toBeInTheDocument();
     expect(screen.queryByText("Amara Diallo")).not.toBeInTheDocument();
 
-    // Re-publishing switches to active and restores candidates
+    // Re-publishing opens escrow modal, confirming switches to active and restores candidates
     fireEvent.click(screen.getAllByRole("button", { name: /publish & fund escrow/i })[0]!);
-    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    expect(await screen.findByText("Publish Brief & Fund Escrow")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Publish Live/i }));
+    await waitFor(() => {
+      expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   it("view profile & reels opens performer storefront modal with casting CTAs", async () => {

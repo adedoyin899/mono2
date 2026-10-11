@@ -466,3 +466,43 @@ describe("Settings — personal details section and profile button cleanup", () 
   });
 });
 
+describe("Settings — client billing and payments", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("renders Billing and Payments title, omits redundant Project Briefs History, and manages cards", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings?role=client"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    // 1. Menu item is "Billing and Payments" (not "Billing & Invoicing")
+    const billingMenuBtn = screen.getByRole("button", { name: "Billing and Payments" });
+    expect(billingMenuBtn).toBeInTheDocument();
+
+    // 2. Redundant "Project Briefs History" is NOT rendered
+    expect(screen.queryByText("Project Briefs History")).not.toBeInTheDocument();
+
+    // 3. Open Billing and Payments
+    fireEvent.click(billingMenuBtn);
+    expect(await screen.findByText("Saved Billing Cards")).toBeInTheDocument();
+
+    // 4. Shows existing cards
+    expect(screen.getByText(/4242/)).toBeInTheDocument();
+
+    // 5. "+ Add Card" button is present and opens modal
+    const addCardBtn = screen.getByRole("button", { name: /Add Card/i });
+    expect(addCardBtn).toBeInTheDocument();
+    fireEvent.click(addCardBtn);
+
+    expect(await screen.findByText("Add Billing Card")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("4123 4567 8901 2345")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("MM/YY")).toBeInTheDocument();
+  });
+});
+

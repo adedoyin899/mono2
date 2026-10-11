@@ -10,7 +10,7 @@ import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { apiClient, type TalentFilters } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
+import { appStateSync, type BillingCard } from "../../lib/state-sync";
 import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
@@ -20,7 +20,7 @@ import {
   Layers, Copy, FileDown, Folder, Calendar, Share2,
   CheckCircle2, PlayCircle, Eye, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
-  Upload, FileCheck
+  Upload, FileCheck, ArrowRight
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -466,6 +466,21 @@ export function ClientDashboard() {
   const [fundAmountInput, setFundAmountInput] = useState("50,000");
   const [isFunding, setIsFunding] = useState(false);
   const [fundingSuccess, setFundingSuccess] = useState(false);
+  const [walletFundMethod, setWalletFundMethod] = useState<"card" | "paystack">("card");
+
+  // Client project escrow & card debit publishing states
+  const [savedCards, setSavedCards] = useState<BillingCard[]>(() => appStateSync.getBillingCards());
+  const [showPublishEscrowModal, setShowPublishEscrowModal] = useState(false);
+  const [publishingProject, setPublishingProject] = useState<ClientProject | null>(null);
+  const [escrowPaymentMethod, setEscrowPaymentMethod] = useState<"card" | "wallet">("card");
+  const [selectedEscrowCardId, setSelectedEscrowCardId] = useState<string>(() => {
+    const cards = appStateSync.getBillingCards();
+    const def = cards.find(c => c.isDefault) || cards[0];
+    return def ? def.id : "";
+  });
+  const [cardCvv, setCardCvv] = useState("739");
+  const [isPublishingEscrow, setIsPublishingEscrow] = useState(false);
+  const [publishEscrowSuccess, setPublishEscrowSuccess] = useState(false);
 
   const effectiveProjects = isNewUser ? [] : projects;
   const effectiveOrders = isNewUser ? [] : orders;
@@ -481,11 +496,66 @@ export function ClientDashboard() {
     : stats;
   const navigate = useNavigate();
 
+  const handleOpenPublishEscrow = (project?: ClientProject | null) => {
+    const target = project || selectedProjectDetail;
+    if (!target) return;
+    setPublishingProject(target);
+    setPublishEscrowSuccess(false);
+    setIsPublishingEscrow(false);
+    const cards = appStateSync.getBillingCards();
+    setSavedCards(cards);
+    if (!selectedEscrowCardId && cards.length > 0) {
+      const def = cards.find(c => c.isDefault) || cards[0];
+      setSelectedEscrowCardId(def.id);
+    }
+    setShowPublishEscrowModal(true);
+  };
+
+  const handleConfirmPublishEscrow = () => {
+    if (!publishingProject) return;
+    setIsPublishingEscrow(true);
+    setTimeout(() => {
+      appStateSync.updateClientProject(publishingProject.id, {
+        status: "active",
+        applicationsOpen: true,
+      });
+      setProjectStateOverrides((prev) => ({ ...prev, [publishingProject.id]: "active" }));
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === publishingProject.id ? { ...p, status: "active", applicationsOpen: true } : p
+        )
+      );
+      setSelectedProjectDetail((prev) =>
+        prev && prev.id === publishingProject.id
+          ? { ...prev, status: "active", applicationsOpen: true }
+          : prev
+      );
+      if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[publishingProject.id]) {
+        setApplicants(DEFAULT_FALLBACK_APPLICANTS[publishingProject.id]);
+      }
+      appStateSync.addNotification({
+        id: `notif-${Date.now()}`,
+        kind: "PROJECT_APPLICATION",
+        createdAt: new Date().toISOString(),
+        payload: { clientName: `Casting Call Live: ${publishingProject.name}` },
+      });
+
+      if (escrowPaymentMethod === "wallet") {
+        const budgetNum = parseInt(publishingProject.budget.replace(/\D/g, ""), 10) || 750000;
+        setWalletBalance((prev) => Math.max(0, prev - budgetNum));
+      }
+
+      setIsPublishingEscrow(false);
+      setPublishEscrowSuccess(true);
+    }, 600);
+  };
+
   useEffect(() => {
     const sync = () => {
       setClientProfile(appStateSync.getClientProfile());
       apiClient.listClientProjects().then(setProjects);
       setNotifications(appStateSync.getNotifications());
+      setSavedCards(appStateSync.getBillingCards());
     };
     const unsub = appStateSync.subscribe(sync);
     apiClient.getClientStats().then(setStats);
@@ -1534,14 +1604,7 @@ export function ClientDashboard() {
                               <Button
                                 size="sm"
                                 className="h-8 px-3.5 text-xs font-semibold whitespace-nowrap shadow-sm"
-                                onClick={() => {
-                                  setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
-                                  setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
-                                  setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
-                                  if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
-                                    setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
-                                  }
-                                }}
+                                onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                               >
                                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
                                 <span>Publish &amp; Fund Escrow</span>
@@ -2280,14 +2343,7 @@ export function ClientDashboard() {
                                 </p>
                                 <Button
                                   className="h-10 px-5 text-xs font-semibold gap-2 whitespace-nowrap shadow-sm mx-auto"
-                                  onClick={() => {
-                                    setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
-                                    setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
-                                    setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
-                                    if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
-                                      setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
-                                    }
-                                  }}
+                                  onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                                 >
                                   <Sparkles className="w-4 h-4 shrink-0" />
                                   <span>Publish &amp; Fund Escrow</span>
@@ -2681,20 +2737,7 @@ export function ClientDashboard() {
                                   </p>
                                   <Button
                                     className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                    onClick={() => {
-                                      setProjectStateOverrides((prev) => ({ ...prev, [selectedProjectDetail.id]: "active" }));
-                                      setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, status: "active", applicationsOpen: true } : p));
-                                      setSelectedProjectDetail((prev) => prev ? { ...prev, status: "active", applicationsOpen: true } : null);
-                                      if (applicants.length === 0 && DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]) {
-                                        setApplicants(DEFAULT_FALLBACK_APPLICANTS[selectedProjectDetail.id]);
-                                      }
-                                      appStateSync.addNotification({
-                                        id: `notif-${Date.now()}`,
-                                        kind: "PROJECT_APPLICATION",
-                                        createdAt: new Date().toISOString(),
-                                        payload: { clientName: `Casting Call Live: ${selectedProjectDetail.name}` },
-                                      });
-                                    }}
+                                    onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                                   >
                                     <Sparkles className="w-4 h-4 shrink-0" />
                                     <span className="whitespace-nowrap">Publish &amp; Fund Escrow</span>
@@ -3648,13 +3691,111 @@ export function ClientDashboard() {
                         </div>
                       </div>
 
-                      <div className="p-3.5 rounded-xl border flex items-center justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                        <div className="flex items-center gap-2.5">
-                          <CreditCard className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
-                          <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Paystack Instant Escrow</span>
+                      {/* Payment Method Selector */}
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Payment Method
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <button
+                            type="button"
+                            onClick={() => setWalletFundMethod("card")}
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            style={{
+                              background: walletFundMethod === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                              borderColor: walletFundMethod === "card" ? "var(--color-accent)" : "var(--color-hairline)",
+                            }}
+                          >
+                            <CreditCard className="w-4 h-4 shrink-0" style={{ color: walletFundMethod === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                            <div>
+                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Saved Card</div>
+                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Direct debit</div>
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setWalletFundMethod("paystack")}
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            style={{
+                              background: walletFundMethod === "paystack" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                              borderColor: walletFundMethod === "paystack" ? "var(--color-accent)" : "var(--color-hairline)",
+                            }}
+                          >
+                            <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: walletFundMethod === "paystack" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                            <div>
+                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Paystack Escrow</div>
+                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Bank / Transfer</div>
+                            </div>
+                          </button>
                         </div>
-                        <span className="text-[11px] font-mono font-medium text-emerald-500">Secured 256-bit</span>
                       </div>
+
+                      {walletFundMethod === "card" ? (
+                        savedCards.length > 0 ? (
+                          <div className="space-y-2">
+                            <div className="space-y-1.5">
+                              {savedCards.map(c => (
+                                <label
+                                  key={c.id}
+                                  className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all"
+                                  style={{
+                                    background: selectedEscrowCardId === c.id ? "rgba(124, 58, 237, 0.08)" : "var(--color-bg-elevated)",
+                                    borderColor: selectedEscrowCardId === c.id ? "#7C3AED" : "var(--color-hairline)",
+                                  }}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <input
+                                      type="radio"
+                                      name="fundWalletCard"
+                                      checked={selectedEscrowCardId === c.id}
+                                      onChange={() => setSelectedEscrowCardId(c.id)}
+                                      className="accent-[#7C3AED]"
+                                    />
+                                    <CreditCard className="w-4 h-4 text-[#7C3AED]" />
+                                    <div>
+                                      <div className="text-xs font-bold text-[var(--color-text-primary)]">
+                                        {c.type.toUpperCase()} •••• {c.last4}
+                                      </div>
+                                      <div className="text-[10px] text-[var(--color-text-tertiary)]">
+                                        Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {c.isDefault && (
+                                    <Badge tone="accent" size="sm">Default</Badge>
+                                  )}
+                                </label>
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-2 pt-1">
+                              <label className="text-xs font-medium text-[var(--color-text-secondary)] whitespace-nowrap">
+                                CVV Security Code:
+                              </label>
+                              <Input
+                                type="password"
+                                maxLength={4}
+                                value={cardCvv}
+                                onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
+                                className="w-20 text-center font-mono font-bold h-9"
+                                placeholder="•••"
+                              />
+                              <span className="text-[10px] text-[var(--color-text-tertiary)]">3 digits on card back</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-3 rounded-xl border border-dashed text-xs text-[var(--color-text-secondary)]">
+                            No saved card found. Add a card in Billing &amp; Payments or pay via Paystack.
+                          </div>
+                        )
+                      ) : (
+                        <div className="p-3.5 rounded-xl border flex items-center justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                          <div className="flex items-center gap-2.5">
+                            <CreditCard className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Paystack Instant Escrow</span>
+                          </div>
+                          <span className="text-[11px] font-mono font-medium text-emerald-500">Secured 256-bit</span>
+                        </div>
+                      )}
 
                       <div className="pt-2">
                         <Button
@@ -3672,12 +3813,268 @@ export function ClientDashboard() {
                             }, 500);
                           }}
                         >
-                          {isFunding ? "Processing Payment..." : `Fund Wallet ₦${fundAmountInput || "0"}`}
+                          {isFunding ? "Processing Payment..." : walletFundMethod === "card" ? `Debit ₦${fundAmountInput || "0"} from Card` : `Fund Wallet ₦${fundAmountInput || "0"}`}
                         </Button>
                       </div>
                     </div>
                   )}
                 </div>
+              </Modal>
+            )}
+
+            {/* ── Publish Brief & Fund Escrow Modal ── */}
+            {showPublishEscrowModal && publishingProject && (
+              <Modal onClose={() => { setShowPublishEscrowModal(false); setPublishEscrowSuccess(false); }}>
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="p-6 max-w-lg w-full rounded-[24px] space-y-5"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-modal)" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#7C3AED]/15 text-[#7C3AED] border border-[#7C3AED]/25">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                          Publish Brief &amp; Fund Escrow
+                        </h3>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          Lock milestone escrow to activate performer discovery
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { setShowPublishEscrowModal(false); setPublishEscrowSuccess(false); }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {publishEscrowSuccess ? (
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="py-6 text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        <CheckCircle2 className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h4 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                          Brief Published &amp; Escrow Funded!
+                        </h4>
+                        <p className="text-xs font-body max-w-sm mx-auto mt-1 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          <strong>{publishingProject.name}</strong> is now live in performer discovery. Verified performers matching {publishingProject.niche} will start submitting audition tapes.
+                        </p>
+                      </div>
+                      <div className="p-3.5 rounded-xl border text-xs font-mono text-left bg-emerald-500/5 border-emerald-500/20 text-emerald-400 space-y-1">
+                        <div className="flex justify-between">
+                          <span>Escrow Budget Locked:</span>
+                          <span className="font-bold">{publishingProject.budget || "₦750,000"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Status:</span>
+                          <span className="font-bold">Active · Applications Open</span>
+                        </div>
+                      </div>
+                      <Button
+                        className="w-full h-11 text-xs font-bold shadow-md"
+                        onClick={() => {
+                          setShowPublishEscrowModal(false);
+                          setPublishEscrowSuccess(false);
+                        }}
+                      >
+                        Go to Applicant Pipeline
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Brief Summary Box */}
+                      <div className="p-4 rounded-xl border space-y-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#7C3AED]">
+                            Target Brief
+                          </span>
+                          <Badge tone="neutral" size="sm">Private Draft</Badge>
+                        </div>
+                        <div className="text-sm font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
+                          {publishingProject.name}
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-[var(--color-hairline)] text-xs font-body text-[var(--color-text-secondary)]">
+                          <span>Craft Niche: <strong className="text-[var(--color-text-primary)]">{publishingProject.niche}</strong></span>
+                          <span>Audition Cap: <strong className="text-[var(--color-text-primary)]">{publishingProject.applicantCap || 10} performers</strong></span>
+                        </div>
+                      </div>
+
+                      {/* Escrow Required Card */}
+                      <div className="p-4 rounded-xl border flex items-center justify-between" style={{ background: "rgba(124, 58, 237, 0.05)", borderColor: "rgba(124, 58, 237, 0.2)" }}>
+                        <div>
+                          <div className="text-xs text-[var(--color-text-secondary)] font-body">Escrow Commitment Required</div>
+                          <div className="text-2xl font-bold font-mono text-[var(--color-text-primary)]">
+                            {publishingProject.budget || "₦750,000"}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
+                            <ShieldCheck className="w-3.5 h-3.5" /> 100% Escrow Protected
+                          </div>
+                          <div className="text-[10px] text-[var(--color-text-tertiary)]">Released only upon your approval</div>
+                        </div>
+                      </div>
+
+                      {/* Payment Method Selector */}
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Payment Method
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 mb-3">
+                          <button
+                            type="button"
+                            onClick={() => setEscrowPaymentMethod("card")}
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            style={{
+                              background: escrowPaymentMethod === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                              borderColor: escrowPaymentMethod === "card" ? "var(--color-accent)" : "var(--color-hairline)",
+                            }}
+                          >
+                            <CreditCard className="w-4 h-4 shrink-0" style={{ color: escrowPaymentMethod === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                            <div>
+                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Debit from Card</div>
+                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Saved billing card</div>
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEscrowPaymentMethod("wallet")}
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            style={{
+                              background: escrowPaymentMethod === "wallet" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                              borderColor: escrowPaymentMethod === "wallet" ? "var(--color-accent)" : "var(--color-hairline)",
+                            }}
+                          >
+                            <Shield className="w-4 h-4 shrink-0" style={{ color: escrowPaymentMethod === "wallet" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                            <div>
+                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Wallet Balance</div>
+                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>₦{walletBalance.toLocaleString()} available</div>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Subview for Debit from Card */}
+                      {escrowPaymentMethod === "card" && (
+                        <div className="space-y-3">
+                          {savedCards.length > 0 ? (
+                            <>
+                              <div className="space-y-2">
+                                {savedCards.map(c => (
+                                  <label
+                                    key={c.id}
+                                    className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all"
+                                    style={{
+                                      background: selectedEscrowCardId === c.id ? "rgba(124, 58, 237, 0.08)" : "var(--color-bg-elevated)",
+                                      borderColor: selectedEscrowCardId === c.id ? "#7C3AED" : "var(--color-hairline)",
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <input
+                                        type="radio"
+                                        name="escrowCard"
+                                        checked={selectedEscrowCardId === c.id}
+                                        onChange={() => setSelectedEscrowCardId(c.id)}
+                                        className="accent-[#7C3AED]"
+                                      />
+                                      <CreditCard className="w-4 h-4 text-[#7C3AED]" />
+                                      <div>
+                                        <div className="text-xs font-bold text-[var(--color-text-primary)]">
+                                          {c.type.toUpperCase()} •••• {c.last4}
+                                        </div>
+                                        <div className="text-[10px] text-[var(--color-text-tertiary)]">
+                                          Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {c.isDefault && (
+                                      <Badge tone="accent" size="sm">Default</Badge>
+                                    )}
+                                  </label>
+                                ))}
+                              </div>
+
+                              <div className="flex items-center gap-2.5 p-3 rounded-xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <label className="text-xs font-medium text-[var(--color-text-secondary)] whitespace-nowrap">
+                                  Card CVV Code:
+                                </label>
+                                <Input
+                                  type="password"
+                                  maxLength={4}
+                                  value={cardCvv}
+                                  onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
+                                  className="w-20 text-center font-mono font-bold h-9"
+                                  placeholder="•••"
+                                />
+                                <span className="text-[10px] text-[var(--color-text-tertiary)] flex-1">
+                                  Required for 3D-Secure 256-bit tokenized authorization
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="p-4 rounded-xl border border-dashed text-center text-xs space-y-2" style={{ borderColor: "var(--color-border-default)", background: "var(--color-bg-elevated)" }}>
+                              <p className="text-[var(--color-text-secondary)]">No billing card found in your account.</p>
+                              <Button
+                                variant="secondary"
+                                className="h-8 text-xs"
+                                onClick={() => {
+                                  setShowPublishEscrowModal(false);
+                                  navigate("/settings");
+                                }}
+                              >
+                                Add Card in Billing &amp; Payments
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Subview for Wallet */}
+                      {escrowPaymentMethod === "wallet" && (
+                        <div className="p-3.5 rounded-xl border space-y-2 text-xs" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--color-text-secondary)]">Available Client Balance</span>
+                            <span className="font-mono font-bold text-[var(--color-text-primary)]">₦{walletBalance.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--color-text-secondary)]">Deduction for Escrow</span>
+                            <span className="font-mono font-bold text-[#7C3AED]">- {publishingProject.budget || "₦750,000"}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="pt-2 flex gap-3">
+                        <Button
+                          variant="secondary"
+                          className="flex-1 h-12 text-xs"
+                          onClick={() => { setShowPublishEscrowModal(false); setPublishEscrowSuccess(false); }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1 h-12 text-xs font-bold shadow-md"
+                          disabled={isPublishingEscrow || (escrowPaymentMethod === "card" && savedCards.length === 0)}
+                          onClick={handleConfirmPublishEscrow}
+                        >
+                          {isPublishingEscrow
+                            ? "Securing Escrow & Publishing..."
+                            : escrowPaymentMethod === "card"
+                            ? `Debit ${publishingProject.budget || "₦750k"} & Publish Live`
+                            : `Fund Escrow & Publish Live`}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
               </Modal>
             )}
 

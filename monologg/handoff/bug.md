@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 117: Client Analytics Spend Spline Graph & Date Range Dropdown, 4 Cards Metric Alignment, Brand Types Alignment, Unified Profile & Client Passcode Removal)
+**Last updated:** 2026-10-11 (Session 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 68. Unclosed JSX Modal container tag in `TransactionHistory.tsx` & vitest synthetic submit event bubbling on wizard forms
+- **Severity:** Medium / Build Syntax & Synthetic Event Compatibility
+- **What happened:** During the implementation of the 3-step client withdrawal safeguard gate modal in `TransactionHistory.tsx`, an unclosed `<Modal>` tag at the end of the file caused Vite and Vitest's esbuild parser to throw a syntax error (`Unexpected token, expected "}"`). Additionally, in the Vitest JSDOM environment, clicking the primary submit button in the withdrawal amount step did not trigger the modal step advance handler if the handler was attached solely to `<form onSubmit={...}>` without an explicit `onClick` callback on the `<button type="submit">`.
+- **Root Cause:** A missing closing `</Modal>` tag when wrapping the new withdrawal modal JSX block, and synthetic DOM form submit bubbling differences between real browser environments and jsdom.
+- **Resolution:** Fixed the JSX nesting with proper `</Modal>` closure. Attached explicit `onClick` progression handlers alongside the form `onSubmit` handlers on all step transition buttons. Verified with 100% test pass rate across `TransactionHistory.test.tsx` (8/8 tests passing) and clean standalone bundle compilation.
 
 ### 67. Withdrawal passcode card erroneously exposed to client accounts & legacy organization types drifting from onboarding
 - **Severity:** Low / Domain Model Alignment & Security UX Clarity

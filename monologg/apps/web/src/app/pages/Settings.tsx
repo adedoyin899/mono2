@@ -8,7 +8,7 @@ import { Badge } from "../components/ui/Badge";
 import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
+import { appStateSync, type BillingCard } from "../../lib/state-sync";
 import { Modal } from "../components/ui/Modal";
 import type { ServiceRateCard } from "@monologg/types";
 import {
@@ -186,11 +186,16 @@ export function Settings() {
   const [accountName, setAccountName] = useState(bankDetails.accountName);
 
   // Payment Cards state
-  const [paymentCards, setPaymentCards] = useState<Array<{ id: string; type: string; last4: string; expiry: string; isDefault: boolean }>>([
-    { id: "card-1", type: "Mastercard", last4: "4242", expiry: "08/28", isDefault: true },
-    { id: "card-2", type: "Visa", last4: "8899", expiry: "11/27", isDefault: false },
-  ]);
+  const [paymentCards, setPaymentCards] = useState<BillingCard[]>(() => appStateSync.getBillingCards());
   const [deleteCardModal, setDeleteCardModal] = useState<{ id: string; type: string; last4: string } | null>(null);
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
+  const [newCardNumber, setNewCardNumber] = useState("");
+  const [newCardName, setNewCardName] = useState("");
+  const [newCardExpiry, setNewCardExpiry] = useState("");
+  const [newCardCvv, setNewCardCvv] = useState("");
+  const [newCardIsDefault, setNewCardIsDefault] = useState(false);
+  const [addCardError, setAddCardError] = useState<string | null>(null);
+  const [addCardSuccess, setAddCardSuccess] = useState(false);
 
   const [notif, setNotif] = useState({ bookings: true, messages: true, payments: true, marketing: false, reminders: true });
   const [currentPassword, setCurrentPassword] = useState("");
@@ -578,6 +583,71 @@ export function Settings() {
     </button>
   );
 
+  const formatCardNumber = (val: string) => {
+    const digits = val.replace(/\D/g, "").slice(0, 16);
+    return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+  };
+
+  const formatCardExpiry = (val: string) => {
+    const digits = val.replace(/\D/g, "").slice(0, 4);
+    if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return digits;
+  };
+
+  const detectCardType = (num: string): "Visa" | "Mastercard" | "Verve" => {
+    const clean = num.replace(/\D/g, "");
+    if (clean.startsWith("4")) return "Visa";
+    if (clean.startsWith("5") || clean.startsWith("2")) return "Mastercard";
+    if (clean.startsWith("506") || clean.startsWith("6500")) return "Verve";
+    return "Mastercard";
+  };
+
+  const handleSaveNewCard = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanNum = newCardNumber.replace(/\D/g, "");
+    if (cleanNum.length < 15) {
+      setAddCardError("Please enter a valid 16-digit card number.");
+      return;
+    }
+    if (!newCardName.trim()) {
+      setAddCardError("Please enter the name on the card.");
+      return;
+    }
+    if (!/^\d{2}\/\d{2}$/.test(newCardExpiry)) {
+      setAddCardError("Please enter a valid expiry date (MM/YY).");
+      return;
+    }
+    const [mm, yy] = newCardExpiry.split("/").map(Number);
+    if (!mm || mm < 1 || mm > 12) {
+      setAddCardError("Invalid expiry month.");
+      return;
+    }
+    if (newCardCvv.length < 3) {
+      setAddCardError("Please enter a valid 3-digit CVV.");
+      return;
+    }
+
+    const cardType = detectCardType(cleanNum);
+    appStateSync.addBillingCard({
+      type: cardType,
+      last4: cleanNum.slice(-4),
+      expiry: newCardExpiry,
+      cardholderName: newCardName.trim(),
+      isDefault: newCardIsDefault || paymentCards.length === 0,
+    });
+
+    setPaymentCards(appStateSync.getBillingCards());
+    setAddCardError(null);
+    setShowAddCardModal(false);
+    setNewCardNumber("");
+    setNewCardName("");
+    setNewCardExpiry("");
+    setNewCardCvv("");
+    setNewCardIsDefault(false);
+    setAddCardSuccess(true);
+    setTimeout(() => setAddCardSuccess(false), 3000);
+  };
+
   return (
     <div className={isClient ? "role-client min-h-screen flex flex-col" : "role-talent min-h-screen flex flex-col"} style={{ background: "var(--color-bg-canvas)" }}>
       {/* Hidden file inputs for avatar & cover photo upload */}
@@ -599,7 +669,7 @@ export function Settings() {
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
             {section === "profile" && (isClient ? "Profile" : "Edit Profile")}
             {section === "craft_details" && "Personal Details"}
-            {section === "payment" && (isClient ? "Billing & Payment Methods" : "Payment details")}
+            {section === "payment" && (isClient ? "Billing and Payments" : "Payment details")}
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
             {section === "attributes" && "Physical Attributes"}
@@ -710,9 +780,8 @@ export function Settings() {
                 {isClient ? (
                   <>
                     <ListItem label="Profile" icon={Building} onClick={() => setSection("profile")} />
-                    <ListItem label="Billing & Invoicing" icon={CreditCard} onClick={() => setSection("payment")} />
+                    <ListItem label="Billing and Payments" icon={CreditCard} onClick={() => setSection("payment")} />
                     <ListItem label="Transaction History" icon={Receipt} onClick={() => navigate("/transactions")} />
-                    <ListItem label="Project Briefs History" icon={Briefcase} onClick={() => navigate("/client")} />
                     <ListItem label="Notifications" icon={Bell} onClick={() => setSection("notifications")} />
                     <ListItem label="Security & Privacy" icon={Shield} onClick={() => setSection("security")} />
                   </>
@@ -2234,61 +2303,120 @@ export function Settings() {
                 <>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
-                      <div className="text-xs font-medium uppercase tracking-wider font-body" style={s.tertiary}>
-                        Saved Billing Cards
+                      <div>
+                        <div className="text-xs font-medium uppercase tracking-wider font-body" style={s.tertiary}>
+                          Saved Billing Cards
+                        </div>
+                        <div className="text-xs font-body mt-0.5" style={s.secondary}>
+                          Cards used for instant project escrow funding and talent bookings
+                        </div>
                       </div>
                       <Button
                         variant="secondary"
-                        className="h-8 px-3 text-xs"
+                        className="h-8 px-3 text-xs flex items-center gap-1.5"
                         onClick={() => {
-                          const newCard = {
-                            id: `card-${Date.now()}`,
-                            type: "Visa",
-                            last4: String(Math.floor(1000 + Math.random() * 9000)),
-                            expiry: "12/28",
-                            isDefault: false,
-                          };
-                          setPaymentCards((prev) => [...prev, newCard]);
+                          setAddCardError(null);
+                          setShowAddCardModal(true);
                         }}
                       >
-                        + Add Card
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Card</span>
                       </Button>
                     </div>
 
-                    {paymentCards.map((card) => (
-                      <div key={card.id} className="p-4 rounded-xl flex items-center gap-3" style={s.surface}>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)" }}>
-                          <CreditCard className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold font-body" style={s.text}>{card.type} ···· {card.last4}</div>
-                          <div className="text-xs font-body" style={s.tertiary}>Expires {card.expiry}</div>
-                        </div>
-                        {card.isDefault ? (
-                          <Badge tone="success" size="md">Default</Badge>
-                        ) : (
+                    {addCardSuccess && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 rounded-xl flex items-center gap-2.5 text-xs font-body bg-emerald-500/10 border border-emerald-500/20 text-emerald-500"
+                      >
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Billing card saved successfully and ready for project debits.</span>
+                      </motion.div>
+                    )}
+
+                    {paymentCards.length === 0 ? (
+                      <div className="p-8 rounded-2xl border text-center space-y-2" style={s.surface}>
+                        <CreditCard className="w-8 h-8 mx-auto" style={s.tertiary} />
+                        <div className="text-sm font-semibold font-body" style={s.text}>No Saved Cards</div>
+                        <p className="text-xs font-body max-w-xs mx-auto" style={s.secondary}>
+                          Add a corporate debit card or credit card to fund escrow and pay for project briefs seamlessly.
+                        </p>
+                      </div>
+                    ) : (
+                      paymentCards.map((card) => (
+                        <div key={card.id} className="p-4 rounded-xl flex items-center gap-3.5" style={s.surface}>
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border"
+                            style={{
+                              background: card.type === "Mastercard" ? "rgba(239, 68, 68, 0.08)" : "rgba(124, 58, 237, 0.08)",
+                              borderColor: card.type === "Mastercard" ? "rgba(239, 68, 68, 0.2)" : "rgba(124, 58, 237, 0.2)",
+                            }}
+                          >
+                            <CreditCard
+                              className="w-5 h-5"
+                              style={{ color: card.type === "Mastercard" ? "#EF4444" : "var(--color-accent)" }}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold font-body truncate" style={s.text}>
+                                {card.type} ···· {card.last4}
+                              </span>
+                              {card.isDefault && (
+                                <Badge tone="success" size="sm">Default</Badge>
+                              )}
+                            </div>
+                            <div className="text-xs font-body flex items-center gap-2 mt-0.5" style={s.tertiary}>
+                              <span>Expires {card.expiry}</span>
+                              {card.cardholderName && (
+                                <>
+                                  <span>·</span>
+                                  <span className="truncate">{card.cardholderName}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {!card.isDefault && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                appStateSync.setDefaultBillingCard(card.id);
+                                setPaymentCards(appStateSync.getBillingCards());
+                              }}
+                              className="px-2.5 py-1 text-xs font-semibold rounded-[var(--radius-md)] border hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all font-body whitespace-nowrap"
+                              style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                            >
+                              Set Default
+                            </button>
+                          )}
+
                           <button
                             type="button"
-                            onClick={() => {
-                              setPaymentCards((prev) => prev.map((c) => ({ ...c, isDefault: c.id === card.id })));
-                            }}
-                            className="px-2.5 py-1 text-xs font-semibold rounded-[var(--radius-md)] border hover:border-[var(--color-accent)] transition-all font-body"
-                            style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                            aria-label={`Remove ${card.type} ending ${card.last4}`}
+                            onClick={() => setDeleteCardModal({ id: card.id, type: card.type, last4: card.last4 })}
+                            className="p-1.5 rounded-lg hover:bg-rose-500/10 text-zinc-400 hover:text-rose-500 transition-colors"
                           >
-                            Set Default
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          aria-label={`Remove ${card.type} ending ${card.last4}`}
-                          onClick={() => setDeleteCardModal({ id: card.id, type: card.type, last4: card.last4 })}
-                          className="p-1 rounded hover:opacity-70 transition-opacity"
-                        >
-                          <Trash2 className="w-4 h-4" style={{ color: "var(--color-error)" }} />
-                        </button>
-                      </div>
-                    ))}
+                        </div>
+                      ))
+                    )}
                   </div>
+
+                  {/* Add Corporate Billing Card Dashed Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAddCardError(null);
+                      setShowAddCardModal(true);
+                    }}
+                    className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-semibold font-body hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:scale-[0.99]"
+                    style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
+                  >
+                    <Plus className="w-4 h-4" /> Add Corporate Billing Card
+                  </button>
 
                   {/* Delete Payment Method Confirmation Modal */}
                   {deleteCardModal && (
@@ -2301,7 +2429,7 @@ export function Settings() {
                           </button>
                         </div>
                         <p className="text-sm font-body mb-6" style={{ color: "var(--color-text-secondary)" }}>
-                          Are you sure you want to remove <strong>{deleteCardModal.type} ending in {deleteCardModal.last4}</strong>? You will need to re-add this card for future transactions.
+                          Are you sure you want to remove <strong>{deleteCardModal.type} ending in {deleteCardModal.last4}</strong>? You will need to re-add this card for future project debits.
                         </p>
                         <div className="flex gap-3">
                           <Button variant="secondary" className="flex-1 h-10 text-xs" onClick={() => setDeleteCardModal(null)}>Cancel</Button>
@@ -2309,7 +2437,8 @@ export function Settings() {
                             className="flex-1 h-10 text-xs"
                             style={{ background: "var(--color-error)", color: "#fff" }}
                             onClick={() => {
-                              setPaymentCards((prev) => prev.filter((c) => c.id !== deleteCardModal.id));
+                              appStateSync.deleteBillingCard(deleteCardModal.id);
+                              setPaymentCards(appStateSync.getBillingCards());
                               setDeleteCardModal(null);
                             }}
                           >
@@ -2320,12 +2449,192 @@ export function Settings() {
                     </Modal>
                   )}
 
-                  <button
-                    className="w-full p-4 rounded-xl border-2 border-dashed flex items-center justify-center gap-2 text-sm font-medium font-body hover:border-[var(--color-accent)] hover:opacity-100 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
-                    style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                  >
-                    <Plus className="w-4 h-4" /> Add Corporate Billing Card
-                  </button>
+                  {/* ── Working Add Card Modal (FAANG Card Entry & Live Preview) ── */}
+                  {showAddCardModal && (
+                    <Modal onClose={() => setShowAddCardModal(false)}>
+                      <div
+                        className="w-full max-w-md rounded-[24px] p-6 space-y-5"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
+                              <CreditCard className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Add Billing Card</h3>
+                              <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                Corporate card for project escrow &amp; bookings
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowAddCardModal(false)}
+                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                            style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Interactive Live Card Preview */}
+                        <div
+                          className="relative p-5 rounded-2xl text-white shadow-xl overflow-hidden border border-white/10"
+                          style={{
+                            background: "linear-gradient(135deg, #181820 0%, #2A183C 60%, #15151D 100%)",
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-6">
+                            {/* Gold EMV Chip graphic */}
+                            <div className="w-10 h-7 rounded-md bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 border border-amber-200/50 shadow-inner flex items-center justify-center">
+                              <div className="w-6 h-4 border border-amber-900/30 rounded-sm" />
+                            </div>
+                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/10 backdrop-blur-md uppercase tracking-wider">
+                              {detectCardType(newCardNumber)}
+                            </span>
+                          </div>
+
+                          {/* Card Number display */}
+                          <div className="font-mono text-lg sm:text-xl font-bold tracking-[0.18em] mb-4 text-zinc-100">
+                            {newCardNumber.trim() ? formatCardNumber(newCardNumber) : "•••• •••• •••• ••••"}
+                          </div>
+
+                          {/* Cardholder & Expiry */}
+                          <div className="flex justify-between items-end text-xs font-mono uppercase tracking-wider text-zinc-300">
+                            <div className="truncate max-w-[200px]">
+                              <div className="text-[10px] text-zinc-400 font-sans normal-case">Cardholder</div>
+                              <span className="font-semibold text-white">{newCardName.trim() || (clientOrgName || "BRAND / CLIENT NAME")}</span>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="text-[10px] text-zinc-400 font-sans normal-case">Expires</div>
+                              <span className="font-semibold text-white">{newCardExpiry || "MM/YY"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card Entry Form */}
+                        <form onSubmit={handleSaveNewCard} className="space-y-4">
+                          {addCardError && (
+                            <div className="p-3 rounded-xl flex items-center gap-2 text-xs font-body bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                              <AlertTriangle className="w-4 h-4 shrink-0" />
+                              <span>{addCardError}</span>
+                            </div>
+                          )}
+
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Card Number
+                            </label>
+                            <div className="relative">
+                              <Input
+                                value={newCardNumber}
+                                onChange={(e) => {
+                                  const formatted = formatCardNumber(e.target.value);
+                                  setNewCardNumber(formatted);
+                                  if (addCardError) setAddCardError(null);
+                                }}
+                                placeholder="4123 4567 8901 2345"
+                                maxLength={19}
+                                className="pr-10 font-mono text-sm"
+                                required
+                              />
+                              <CreditCard className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              Cardholder Name
+                            </label>
+                            <Input
+                              value={newCardName}
+                              onChange={(e) => {
+                                setNewCardName(e.target.value);
+                                if (addCardError) setAddCardError(null);
+                              }}
+                              placeholder="e.g. Sarah Jenkins / FilmCraft Studios"
+                              className="text-sm font-body"
+                              required
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                Expiry Date
+                              </label>
+                              <Input
+                                value={newCardExpiry}
+                                onChange={(e) => {
+                                  const formatted = formatCardExpiry(e.target.value);
+                                  setNewCardExpiry(formatted);
+                                  if (addCardError) setAddCardError(null);
+                                }}
+                                placeholder="MM/YY"
+                                maxLength={5}
+                                className="font-mono text-sm"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                CVV Security Code
+                              </label>
+                              <Input
+                                type="password"
+                                value={newCardCvv}
+                                onChange={(e) => {
+                                  const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                                  setNewCardCvv(digits);
+                                  if (addCardError) setAddCardError(null);
+                                }}
+                                placeholder="•••"
+                                maxLength={4}
+                                className="font-mono text-sm"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <label className="flex items-center gap-2 cursor-pointer pt-1">
+                            <input
+                              type="checkbox"
+                              checked={newCardIsDefault}
+                              onChange={(e) => setNewCardIsDefault(e.target.checked)}
+                              className="w-4 h-4 rounded text-[var(--color-accent)] focus:ring-[var(--color-accent)]"
+                            />
+                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                              Set as default billing method for project escrow funding
+                            </span>
+                          </label>
+
+                          <div className="pt-2 flex gap-3">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              className="flex-1 h-11 text-xs"
+                              onClick={() => setShowAddCardModal(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              className="flex-1 h-11 text-xs font-semibold shadow-md"
+                            >
+                              Save Card
+                            </Button>
+                          </div>
+
+                          <div className="text-[11px] font-body text-center text-zinc-400 flex items-center justify-center gap-1.5 pt-1">
+                            <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                            <span>256-bit bank encryption · Monologg Escrow Verified</span>
+                          </div>
+                        </form>
+                      </div>
+                    </Modal>
+                  )}
                 </>
               )}
             </motion.div>
