@@ -170,7 +170,7 @@ describe("TransactionHistory", () => {
 
     // 2. Click "Withdraw Funds" opens step 1: amount entry
     fireEvent.click(withdrawBtn);
-    expect(await screen.findByText("Transfer available escrow & platform balance to your personal bank")).toBeInTheDocument();
+    expect(await screen.findByText(/Transfer available funds to your personal bank/i)).toBeInTheDocument();
     expect(screen.getByText(/(GTBank|Access Bank Plc)/i)).toBeInTheDocument();
     expect(screen.getByText(/Funds will reach your personal account within 24 hours/i)).toBeInTheDocument();
 
@@ -188,8 +188,31 @@ describe("TransactionHistory", () => {
     fireEvent.click(confirmWithdrawBtn);
 
     expect(await screen.findByText("Withdrawal Initiated!")).toBeInTheDocument();
-    expect(screen.getByText(/Within 24 Hours/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Within 24 Hours/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/3 Projects Moved to Draft/i)).toBeInTheDocument();
     expect(screen.getByText(/View Draft Projects/i)).toBeInTheDocument();
+  });
+
+  it("handles direct withdrawal cleanly when no active projects exist (does not show 0 projects moved or draft banner)", async () => {
+    const { appStateSync } = await import("../../lib/state-sync");
+    // Move all projects to draft beforehand
+    const projects = appStateSync.getClientProjects();
+    appStateSync.moveProjectsToDraft(projects.map((p) => p.id));
+
+    vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
+    await renderPage();
+
+    const withdrawBtn = await screen.findByRole("button", { name: /Withdraw Funds/i });
+    fireEvent.click(withdrawBtn);
+
+    const proceedBtn = await screen.findByRole("button", { name: /Proceed with Withdrawal/i });
+    fireEvent.click(proceedBtn);
+
+    // Bypasses safeguard gate directly to success
+    expect(await screen.findByText("Withdrawal Initiated!")).toBeInTheDocument();
+    expect(screen.queryByText(/0 Projects Moved to Draft/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/find your saved projects under Drafts/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Settlement in progress:/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Dashboard/i })).toBeInTheDocument();
   });
 });

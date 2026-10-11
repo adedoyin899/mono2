@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-11 (Session 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate)
+**Last updated:** 2026-10-11 (Session 119: Client Withdrawal Accessibility, WCAG AAA Contrast Refinement, Single-Line Copy & Context-Aware Zero-Draft Direct Settlement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 119 (2026-10-11) — Client Withdrawal Accessibility, WCAG AAA Contrast Refinement, Single-Line Copy & Context-Aware Zero-Draft Direct Settlement
+
+**Goal:** Clean up copy, resolve low-contrast accessibility issues in light theme, eliminate double-line text wrapping across all withdrawal modal steps and buttons, and implement context-aware messaging when no live projects need drafting:
+1. **Accessibility & WCAG AAA Contrast Overhaul (`TransactionHistory.tsx`):**
+   - Fixed unreadable washed-out lavender text (`text-purple-200` / `text-purple-300` / `text-white` on white modal surfaces) across all notice cards and banners.
+   - Upgraded to high-contrast theme-adaptive colors: `bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/40`, rich violet heading `text-purple-900 dark:text-purple-100`, and deep purple body `text-purple-800 dark:text-purple-200` (contrast ratio > 9:1, passing WCAG AAA).
+   - High-contrast balance label: upgraded to `text-purple-700 dark:text-purple-300 font-bold`.
+   - Preset buttons: clear, accessible distinction between selected and unselected states with sharp borders.
+2. **Copy Cleanup & Elimination of Double-Line Text:**
+   - **Step 1 (Amount):**
+     - Header subtitle tightened from wordy multi-line copy to concise single-line: `Transfer available funds to your personal bank`.
+     - Withdrawable balance subtext simplified to single line: `Available wallet and released escrow balance`.
+     - 24-hour SLA notice eliminated redundant repetition: `Funds will reach your personal account within 24 hours.`
+     - Buttons enforce `whitespace-nowrap` on `Cancel` and `Proceed with Withdrawal`.
+   - **Step 2 (Safeguard Gate):**
+     - Subtitle streamlined to crisp, plain English: `Active projects must move to Drafts to release locked escrow funds. They can be republished anytime.`
+     - Reassurance card refined: removed walls of text, added clear single-line subtext and timeline.
+     - Secondary button updated to concise single-line `Cancel & Keep Live`, with `whitespace-nowrap` on all CTAs preventing double-line button breaking.
+   - **Step 3 (Confirmation):**
+     - Subtitle trimmed to single line: `Funds will arrive in your bank account within 24 hours.`
+     - Information rows enforce `whitespace-nowrap`.
+3. **Context-Aware Zero-Draft Direct Settlement Logic:**
+   - Solved logical defect where withdrawing with 0 live projects erroneously rendered `0 Projects Moved to Draft` in warning amber and displayed confusing instructions directing the client to go find draft projects.
+   - When projects were moved (`withdrawnProjectsCount > 0`): displays moved count, guidance on re-posting via `Publish & Fund Escrow`, and `View Draft Projects` CTA.
+   - When no projects were moved (`withdrawnProjectsCount === 0`): omits draft row, displays a clear `Settlement in progress` confirmation notice, and renders a clean `Done` and `Dashboard` action.
+4. **Testing, Standalone Rebuild & Validation:**
+   - Updated `TransactionHistory.test.tsx` (9/9 tests passing), adding an explicit test for zero-project direct settlements.
+   - 120/120 tests passing across all 25 test suites in `apps/web`.
+   - Clean TypeScript typecheck (`tsc --noEmit`).
+   - Rebuilt and inlined standalone distribution into `monologg/monologg-app.html`.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/TransactionHistory.tsx`
+- `monologg/apps/web/src/app/pages/TransactionHistory.test.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-11 (Session 118: Billing and Payments Card Management, Direct Debit from Card for Escrow & Projects, Client 24hr Withdrawal Flow with Live Projects Safeguard Gate)
+**Last updated:** 2026-10-11 (Session 119: Client Withdrawal Accessibility, WCAG AAA Contrast Refinement, Single-Line Copy & Context-Aware Zero-Draft Direct Settlement)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 69. Low-contrast lavender text on light modal surfaces & misleading 0-draft project status in withdrawal confirmation
+- **Severity:** Low / Visual Accessibility & UX Logic Consistency
+- **What happened:** In `TransactionHistory.tsx`, information cards inside the withdrawal modal used fixed light-purple classes (`text-purple-200`, `text-purple-300`, `text-white`), rendering text virtually invisible against white/light backgrounds in light theme. In addition, withdrawing funds when no live projects were active still rendered `0 Projects Moved to Draft` in warning amber and displayed confusing instructions telling the client to find their saved projects under Drafts.
+- **Root Cause:** Hardcoded dark-theme text tokens in translucent purple containers without theme awareness, and unconditional rendering of project draft rows/guidance regardless of actual moved projects count.
+- **Resolution:** Upgraded all notice containers to theme-adaptive high-contrast colors (`bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/40`, `text-purple-900 dark:text-purple-100`, `text-purple-800 dark:text-purple-200`) achieving WCAG AAA contrast compliance. Added state tracking for `withdrawnProjectsCount`: when 0 projects are affected, the draft line item and instructions are suppressed in favor of a clean settlement progress notice and direct action buttons.
 
 ### 68. Unclosed JSX Modal container tag in `TransactionHistory.tsx` & vitest synthetic submit event bubbling on wizard forms
 - **Severity:** Medium / Build Syntax & Synthetic Event Compatibility
