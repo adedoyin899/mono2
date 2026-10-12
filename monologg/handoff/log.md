@@ -1,11 +1,42 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-12 (Session 123: Elimination of ALL CAPS Titles & Typography Normalization)
+**Last updated:** 2026-10-12 (Session 124: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 124 (2026-10-12) — Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish
+
+**Goal:** Overhaul the authentication flow (`AuthFlow.tsx`, `SetPassword.tsx`, `LandingPage.tsx`) with FAANG-grade UX/UI quality, unified input sizing, role switcher consistency, intent-aware routing, and natural sentence casing:
+1. **Intent-Aware Routing (`AuthFlow.tsx`):**
+   - Added `useSearchParams` parsing to detect incoming `mode` (`login`/`signin` vs `register`/`signup`) and `role` (`talent` vs `client`).
+   - Clicking "Sign In" on `LandingPage.tsx` now passes `/auth?mode=login` to directly open the Sign In view without an unnecessary splash screen hop.
+   - Clicking "Create Your Profile" passes `/auth?mode=register&role=talent` to directly land on the registration form with Performer pre-selected.
+   - Maintained full backwards compatibility with default `/auth` entry, preserving all 6 test scenarios in `AuthFlow.test.tsx`.
+2. **Unified Role Selector (`AuthFlow.tsx`):**
+   - Replaced disparate, conflicting role switcher implementations with a unified segmented control (`p-1 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]`).
+   - Integrated semantic active indicator dots (white on active crimson/purple, colored on inactive states) for immediate visual feedback.
+   - Retained the `I'm joining as` contextual kicker on registration to orient new users.
+3. **Input Standardization & Visual Hierarchy (`AuthFlow.tsx`, `SetPassword.tsx`):**
+   - Standardized input heights to `h-11 rounded-xl text-sm font-body bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]`.
+   - Added explicit, sentence-cased micro-labels above fields (`Full name`, `Email address`, `Password`, `New password`).
+   - Introduced vertical-centered input icons (`User`, `Mail`, `Lock`) with dedicated padding (`pl-10 pr-3.5`).
+   - Fixed password field text collision: added `pr-11` padding so typed passwords never slide under the `Eye`/`EyeOff` toggle button.
+4. **Quick Demo Access Elevation (`AuthFlow.tsx`):**
+   - Replaced raw text divider with a clean `Quick demo access` card containing two designated Performer and Client shortcut pills.
+   - Retained test-expected button labels (`Performer`, `Client`) while adding semantic indicator badges.
+5. **Modernized Error Feedback & Secondary States (`AuthFlow.tsx`):**
+   - Replaced raw text error strings with alert containers featuring `AlertCircle` icons, translucent error fills, and border highlights.
+   - Polished OTP code input (`h-12 rounded-xl text-center tracking-[0.3em] font-mono`), Magic Link confirmation card, and Forgot Password flow.
+6. **Standalone Distribution Rebuilding (`monologg-app.html`):**
+   - Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.94 MB).
+7. **Verification:**
+   - 124/124 tests passing across all 25 test files (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
 
 ---
 

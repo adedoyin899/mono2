@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-12 (Session 123: Elimination of ALL CAPS Titles & Typography Normalization)
+**Last updated:** 2026-10-12 (Session 124: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 74. Auth Flow Role Switcher Discrepancies, Missing Micro-Labels, and Redundant Interstitial Splash Screens
+- **Severity:** Medium / UI-UX Polish & Information Architecture
+- **What happened:** 
+  1. Visitors clicking "Sign In" on the Landing Page were routed to an intermediate splash screen forcing a second click, rather than navigating directly into the login form.
+  2. Registration and Sign In pages used conflicting role switcher presentations (custom border pill with arbitrary text vs separate radio wrappers) without clear visual hierarchy.
+  3. Form inputs lacked explicit micro-labels above fields, causing accessibility gaps and visual ambiguity when autofilled.
+  4. Password field input text collided with the visibility toggle button due to insufficient right padding (`pr-11` missing).
+- **Root Cause:** Fragmented styling iterations and lack of search-parameter awareness (`?mode=login` / `?mode=register&role=talent`) in `AuthFlow.tsx`.
+- **Fix:** Standardized segmented role selectors with semantic indicator dots, added `h-11 rounded-xl text-sm` inputs with left icons and `pr-11` collision-safe password padding, integrated explicit micro-labels, and added `useSearchParams` initialization.
+- **Validation:** All 124 tests passing across 25 suites, clean typecheck, and rebuilt standalone executable `monologg-app.html`.
 
 ### 73. Aggressive ALL CAPS Titles and `uppercase tracking-wider` Typography Slop Across Platform
 - **Severity:** Low / Typography & Visual Cleanliness

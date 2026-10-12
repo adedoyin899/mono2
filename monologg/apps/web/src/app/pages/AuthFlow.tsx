@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate, Link, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -9,15 +9,38 @@ import { apiClient } from "../../lib/api-client";
 import { supabase, SUPABASE_MODE } from "../../lib/supabase";
 import { appStateSync } from "../../lib/state-sync";
 import { CURRENT_TERMS_VERSION } from "@monologg/types";
-import { Eye, EyeOff, ChevronLeft, Shield, Sun, Moon, Check, Mail, KeyRound } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  ChevronLeft,
+  Sun,
+  Moon,
+  Check,
+  Mail,
+  KeyRound,
+  User,
+  Lock,
+  AlertCircle,
+} from "lucide-react";
 import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
 
 type View = "splash" | "register" | "login" | "forgot" | "otp_entry" | "magic_sent";
 type Role = "talent" | "client";
 
 export function AuthFlow() {
-  const [view, setView] = useState<View>("splash");
-  const [role, setRole] = useState<Role>("talent");
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") || searchParams.get("view");
+  const initialRole = searchParams.get("role");
+
+  const [view, setView] = useState<View>(() => {
+    if (initialMode === "login" || initialMode === "signin") return "login";
+    if (initialMode === "register" || initialMode === "signup") return "register";
+    return "splash";
+  });
+  const [role, setRole] = useState<Role>(() => {
+    if (initialRole === "client") return "client";
+    return "talent";
+  });
   const [showPwd, setShowPwd] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -32,8 +55,6 @@ export function AuthFlow() {
   const [otpCode, setOtpCode] = useState("");
   const [otpResendCooldown, setOtpResendCooldown] = useState(0);
   const [magicLinkEmail, setMagicLinkEmail] = useState("");
-  const [showMagicLinkInput, setShowMagicLinkInput] = useState(false);
-  const [showOtpInput, setShowOtpInput] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
@@ -104,8 +125,6 @@ export function AuthFlow() {
         queryParams: { state: btoa(JSON.stringify({ userType: role === "talent" ? "TALENT" : "CLIENT" })) },
       },
     });
-    // On success the browser navigates away to Google immediately; only errors
-    // return control here, so it's safe to always clear the loading flag.
     if (oauthError) setError(oauthError.message);
     setGoogleAuthLoading(false);
   };
@@ -146,7 +165,6 @@ export function AuthFlow() {
     setError(null);
     setSubmitting(true);
     try {
-      // Server-side rate-limit gate (1/60s)
       await apiClient.requestOtp(otpEmail);
       if (supabase) {
         const { error: otpError } = await supabase.auth.signInWithOtp({
@@ -158,7 +176,6 @@ export function AuthFlow() {
         console.log(`[auth mock] OTP requested for ${otpEmail}`);
       }
       setView("otp_entry" as View);
-      // Start 60s resend cooldown
       setOtpResendCooldown(60);
       const timer = setInterval(() => {
         setOtpResendCooldown((c) => {
@@ -199,7 +216,6 @@ export function AuthFlow() {
             : user.userType === "CLIENT" ? "/client" : "/dashboard",
         );
       } else {
-        // Mock mode: any 6-digit code works
         if (otpCode.length !== 6) throw new Error("Enter the 6-digit code.");
         const user = await apiClient.sessionSync("", userType, { provider: "EMAIL_OTP" });
         navigate(
@@ -220,7 +236,6 @@ export function AuthFlow() {
     surface: { background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" } as React.CSSProperties,
     primary: { color: "var(--color-text-primary)" } as React.CSSProperties,
     secondary: { color: "var(--color-text-secondary)" } as React.CSSProperties,
-    /* gold text on white fails WCAG AA; use underlined primary text for text links */
     gold: { color: "var(--color-text-primary)", textDecoration: "underline", textDecorationColor: "var(--color-gold-primary)", textUnderlineOffset: "3px" } as React.CSSProperties,
   };
 
@@ -232,15 +247,17 @@ export function AuthFlow() {
       <WebGLHeroCanvas opacityMultiplier={0.05} />
 
       {/* Top bar */}
-      <div className="h-16 flex items-center justify-between px-5 md:px-8 relative z-20" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-        <Link to="/" aria-label="Monologg"><Logo className="h-5 w-auto" style={s.primary} /></Link>
+      <div className="h-16 flex items-center justify-between px-5 md:px-8 relative z-20 border-b border-[var(--color-hairline)] bg-[var(--color-bg-canvas)]/80 backdrop-blur-md">
+        <Link to="/" aria-label="Monologg">
+          <Logo className="h-5 w-auto" style={s.primary} />
+        </Link>
         <button
           onClick={toggle}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-11 h-11 rounded-[var(--radius-full)] flex items-center justify-center border transition-colors active:scale-[0.97]"
+          className="w-10 h-10 rounded-full flex items-center justify-center border transition-colors active:scale-[0.97]"
           style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
         >
-          {isDark ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
       </div>
 
@@ -337,7 +354,7 @@ export function AuthFlow() {
         </div>
 
         {/* Right panel — forms */}
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-6 md:p-10">
           <div className="w-full max-w-[420px]">
             {/* Mobile Grainy Gradient Banner */}
             <div
@@ -372,29 +389,31 @@ export function AuthFlow() {
               </div>
             </div>
 
-            {/* Wise-Style Segmented Role Switcher — hidden on Register, which has its own "I'm joining as" toggle */}
+            {/* Unified Segmented Role Switcher */}
             {view !== "register" && (
-              <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
+              <div className="p-1 mb-6 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] flex gap-1">
                 <button
                   type="button"
                   onClick={() => setRole("talent")}
-                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
                     role === "talent"
-                      ? "bg-[#F13030] text-white shadow-md"
-                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                      ? "bg-[#F13030] text-white shadow-sm"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]"
                   }`}
                 >
+                  <span className={`w-1.5 h-1.5 rounded-full ${role === "talent" ? "bg-white" : "bg-[#F13030]"}`} />
                   Performer
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole("client")}
-                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
                     role === "client"
-                      ? "bg-[#7B00FE] text-white shadow-md"
-                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                      ? "bg-[#7B00FE] text-white shadow-sm"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]"
                   }`}
                 >
+                  <span className={`w-1.5 h-1.5 rounded-full ${role === "client" ? "bg-white" : "bg-[#7B00FE]"}`} />
                   Client
                 </button>
               </div>
@@ -411,23 +430,23 @@ export function AuthFlow() {
                   exit={{ opacity: 0, y: -16 }}
                   className="flex flex-col"
                 >
-                  <h1 className="font-display text-[34px] sm:text-[36px] font-bold leading-[1.08] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
+                  <h1 className="font-display text-2xl sm:text-3xl font-bold leading-tight tracking-tight mb-2 text-[var(--color-text-primary)]">
                     Welcome to Monologg
                   </h1>
-                  <p className="text-base font-body mb-8 text-[var(--color-text-secondary)]">
+                  <p className="text-sm font-body mb-6 text-[var(--color-text-secondary)]">
                     Sign in or create a free {role === "talent" ? "Performer" : "Client"} account to continue.
                   </p>
                   <div className="flex flex-col gap-3">
                     <Button
                       variant={role === "talent" ? "red" : "purple"}
-                      className="w-full h-12 text-sm font-bold shadow-lg"
+                      className="w-full h-11 text-sm font-semibold shadow-sm rounded-xl"
                       onClick={() => setView("register")}
                     >
                       Create Free Account
                     </Button>
                     <Button
                       variant="outline-pill"
-                      className="w-full h-12 text-sm font-bold"
+                      className="w-full h-11 text-sm font-semibold rounded-xl"
                       onClick={() => setView("login")}
                     >
                       Sign In
@@ -445,44 +464,66 @@ export function AuthFlow() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex flex-col"
                 >
-                  <button onClick={() => setView("splash")} className="mb-6 -ml-1 flex items-center gap-1 text-sm font-body" style={s.secondary}>
-                    <ChevronLeft className="w-4 h-4" /> Back
-                  </button>
-                  <h2 className="font-display text-[32px] leading-[1.08] tracking-[-0.02em] mb-2" style={s.primary}>Create account</h2>
-                  <p className="text-[15px] font-body mb-7" style={s.secondary}>Join the brief-to-booking pipeline.</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => setView("splash")}
+                      className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Back
+                    </button>
+                    <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] text-xs">
+                      <span className="px-2.5 py-1 rounded-md bg-[var(--color-bg-surface)] font-semibold text-[var(--color-text-primary)] shadow-xs">
+                        Register
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setView("login")}
+                        className="px-2.5 py-1 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] font-medium transition-colors"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  </div>
+
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                    Create account
+                  </h2>
+                  <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
+                    Join the brief-to-booking pipeline.
+                  </p>
 
                   {/* Role toggle */}
-                  <p className="text-xs font-semibold tracking-normal mb-2.5 font-body" style={s.secondary}>I'm joining as</p>
-                  <div
-                    className="flex p-1 rounded-[var(--radius-lg)] mb-6"
-                    style={{ background: "var(--color-bg-surface-2)", border: "1px solid var(--color-hairline)" }}
-                  >
+                  <p className="text-xs font-medium mb-2 font-body text-[var(--color-text-secondary)]">I'm joining as</p>
+                  <div className="p-1 mb-5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] flex gap-1">
                     {(["talent", "client"] as Role[]).map(r => {
                       const active = role === r;
-                      const accent = r === "talent" ? "var(--color-red)" : "var(--color-purple)";
+                      const isTalent = r === "talent";
                       return (
                         <button
                           key={r}
                           type="button"
                           onClick={() => setRole(r)}
-                          className="flex-1 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold font-body transition-all active:scale-[0.98]"
-                          style={{
-                            background: active ? "var(--color-bg-surface)" : "transparent",
-                            color: active ? accent : "var(--color-text-secondary)",
-                            boxShadow: active ? "var(--shadow-card)" : "none",
-                          }}
+                          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                            active
+                              ? isTalent
+                                ? "bg-[#F13030] text-white shadow-sm"
+                                : "bg-[#7B00FE] text-white shadow-sm"
+                              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]"
+                          }`}
                         >
-                          {r === "talent" ? "Performer" : "Client"}
+                          <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-white" : isTalent ? "bg-[#F13030]" : "bg-[#7B00FE]"}`} />
+                          {isTalent ? "Performer" : "Client"}
                         </button>
                       );
                     })}
                   </div>
 
+                  {/* Google OAuth Button */}
                   <button
                     type="button"
                     onClick={handleSupabaseGoogle}
                     disabled={submitting || googleAuthLoading}
-                    className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
+                    className="w-full h-11 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-surface-2)] transition-colors flex items-center justify-center gap-2.5 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-xs"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -499,74 +540,100 @@ export function AuthFlow() {
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
-                  <form onSubmit={handleRegister} className="flex flex-col gap-3">
-                    <Input
-                      placeholder="Full Name"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      required
-                    />
-                    <Input
-                      type="email"
-                      placeholder="Email Address"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                    />
-                    <div className="relative">
-                      <Input
-                        type={showPwd ? "text" : "password"}
-                        placeholder="Create Password (min. 8 chars)"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                        minLength={8}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPwd(!showPwd)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2"
-                        style={s.secondary}
-                      >
-                        {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                  <form onSubmit={handleRegister} className="flex flex-col gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Full name</label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          placeholder="Full Name"
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          className="h-11 pl-10 pr-3.5 rounded-xl text-sm"
+                          required
+                        />
+                      </div>
                     </div>
 
-                    <label className="flex items-start gap-3 mt-2 cursor-pointer">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Email address</label>
+                      <div className="relative">
+                        <Mail className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          type="email"
+                          placeholder="Email Address"
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          className="h-11 pl-10 pr-3.5 rounded-xl text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Password</label>
+                      <div className="relative">
+                        <Lock className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          type={showPwd ? "text" : "password"}
+                          placeholder="Create Password (min. 8 chars)"
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          className="h-11 pl-10 pr-11 rounded-xl text-sm"
+                          required
+                          minLength={8}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd(!showPwd)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-bg-surface-2)] transition-colors"
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                        >
+                          {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Terms consent */}
+                    <label className="flex items-start gap-3 mt-1.5 cursor-pointer select-none">
                       <div
-                        className="relative w-5 h-5 rounded flex items-center justify-center shrink-0 mt-0.5 border"
+                        className="relative w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 border transition-all"
                         style={{
                           background: agreed ? "var(--color-gold-primary)" : "var(--color-bg-elevated)",
                           borderColor: agreed ? "var(--color-gold-primary)" : "var(--color-hairline)",
                         }}
                         onClick={() => setAgreed(!agreed)}
                       >
-                        {agreed && <Check className="w-3 h-3" style={{ color: "#1A1200" }} />}
+                        {agreed && <Check className="w-3.5 h-3.5" style={{ color: "#1A1200" }} />}
                       </div>
-                      <span className="text-xs font-body leading-relaxed" style={s.secondary}>
+                      <span className="text-xs font-body leading-relaxed text-[var(--color-text-secondary)]">
                         I agree to the{" "}
-                        <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="hover:underline" style={s.gold}>Terms of Service</a>{" "}
+                        <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2">Terms of Service</a>{" "}
                         and{" "}
-                        <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline" style={s.gold}>Privacy Policy</a>
+                        <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2">Privacy Policy</a>
                       </span>
                     </label>
 
                     {error && (
-                      <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                      <div className="p-3 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 flex items-start gap-2.5 text-xs font-body text-[var(--color-error)]">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
                     )}
 
                     <Button
                       type="submit"
-                      className="w-full h-12 mt-2"
+                      variant={role === "talent" ? "red" : "purple"}
+                      className="w-full h-11 mt-1 text-sm font-semibold rounded-xl shadow-xs"
                       disabled={!agreed || !name || !email || password.length < 8 || submitting}
                     >
                       {submitting ? "Creating account…" : role === "talent" ? "Create My Performer Profile" : "Create Client Account"}
                     </Button>
                   </form>
 
-                  <p className="text-sm text-center mt-6 font-body" style={s.secondary}>
+                  <p className="text-sm text-center mt-6 font-body text-[var(--color-text-secondary)]">
                     Already have an account?{" "}
-                    <button className="hover:underline font-medium" style={s.gold} onClick={() => setView("login")}>
+                    <button className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2" onClick={() => setView("login")}>
                       Sign In
                     </button>
                   </p>
@@ -582,17 +649,65 @@ export function AuthFlow() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex flex-col"
                 >
-                  <button onClick={() => setView("splash")} className="mb-6 -ml-1 flex items-center gap-1 text-sm font-body" style={s.secondary}>
-                    <ChevronLeft className="w-4 h-4" /> Back
-                  </button>
-                  <h2 className="font-display text-[32px] leading-[1.08] tracking-[-0.02em] mb-2" style={s.primary}>Welcome back</h2>
-                  <p className="text-[15px] font-body mb-6" style={s.secondary}>Sign in to manage your bookings.</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => setView("splash")}
+                      className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Back
+                    </button>
+                    <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setView("register")}
+                        className="px-2.5 py-1 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] font-medium transition-colors"
+                      >
+                        Register
+                      </button>
+                      <span className="px-2.5 py-1 rounded-md bg-[var(--color-bg-surface)] font-semibold text-[var(--color-text-primary)] shadow-xs">
+                        Sign In
+                      </span>
+                    </div>
+                  </div>
 
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                    Welcome back
+                  </h2>
+                  <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
+                    Sign in to manage your bookings.
+                  </p>
+
+                  {/* Role Selector */}
+                  <div className="p-1 mb-5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] flex gap-1">
+                    {(["talent", "client"] as Role[]).map(r => {
+                      const active = role === r;
+                      const isTalent = r === "talent";
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setRole(r)}
+                          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+                            active
+                              ? isTalent
+                                ? "bg-[#F13030] text-white shadow-sm"
+                                : "bg-[#7B00FE] text-white shadow-sm"
+                              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]"
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-white" : isTalent ? "bg-[#F13030]" : "bg-[#7B00FE]"}`} />
+                          {isTalent ? "Performer" : "Client"}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Google OAuth Button */}
                   <button
                     type="button"
                     onClick={handleSupabaseGoogle}
                     disabled={submitting || googleAuthLoading}
-                    className="w-full h-12 rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-all flex items-center justify-center gap-3 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-sm"
+                    className="w-full h-11 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-surface-2)] transition-colors flex items-center justify-center gap-2.5 text-sm font-semibold font-body text-[var(--color-text-primary)] mb-4 active:scale-[0.99] shadow-xs"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -609,62 +724,83 @@ export function AuthFlow() {
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
-                  <form onSubmit={handleLogin} className="flex flex-col gap-3">
-                    <Input
-                      type="email"
-                      placeholder="Email Address"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                    />
-                    <div className="relative">
-                      <Input
-                        type={showPwd ? "text" : "password"}
-                        placeholder="Password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPwd(!showPwd)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2"
-                        style={s.secondary}
-                      >
-                        {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                  <form onSubmit={handleLogin} className="flex flex-col gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Email address</label>
+                      <div className="relative">
+                        <Mail className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          type="email"
+                          placeholder="Email Address"
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          className="h-11 pl-10 pr-3.5 rounded-xl text-sm"
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        className="text-xs font-body hover:underline"
-                        style={s.secondary}
-                        onClick={() => setView("forgot")}
-                      >
-                        Forgot password?
-                      </button>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Password</label>
+                        <button
+                          type="button"
+                          className="text-xs font-body hover:underline text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                          onClick={() => setView("forgot")}
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Lock className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Input
+                          type={showPwd ? "text" : "password"}
+                          placeholder="Password"
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          className="h-11 pl-10 pr-11 rounded-xl text-sm"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd(!showPwd)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-lg hover:bg-[var(--color-bg-surface-2)] transition-colors"
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                        >
+                          {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
+
                     {error && (
-                      <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                      <div className="p-3 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 flex items-start gap-2.5 text-xs font-body text-[var(--color-error)]">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
                     )}
-                    <Button type="submit" className="w-full h-12 mt-2" disabled={submitting}>
+
+                    <Button
+                      type="submit"
+                      variant={role === "talent" ? "red" : "purple"}
+                      className="w-full h-11 mt-1 text-sm font-semibold rounded-xl shadow-xs"
+                      disabled={submitting}
+                    >
                       {submitting ? "Signing in…" : "Sign In"}
                     </Button>
                   </form>
 
-                  <div
-                    className="my-6 flex items-center gap-3"
-                    style={{ borderColor: "var(--color-hairline)" }}
-                  >
-                    <div className="flex-1 border-t" style={{ borderColor: "var(--color-hairline)" }} />
-                    <span className="text-xs font-body" style={s.secondary}>or continue as</span>
-                    <div className="flex-1 border-t" style={{ borderColor: "var(--color-hairline)" }} />
+                  {/* Quick demo access */}
+                  <div className="my-5 flex items-center gap-3">
+                    <div className="flex-1 h-px bg-[var(--color-hairline)]" />
+                    <span className="text-[11px] font-medium font-body text-[var(--color-text-tertiary)]">Quick demo access</span>
+                    <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     <Button
+                      type="button"
                       variant="secondary"
-                      className="flex-1 h-11 text-sm font-semibold"
+                      className="h-10 text-xs font-semibold rounded-xl border border-[var(--color-hairline)] hover:border-[#F13030]/30 hover:bg-[#F13030]/5 transition-all flex items-center justify-center gap-2"
                       onClick={() => {
                         localStorage.setItem("monologg_is_new_user", "false");
                         appStateSync.setLoggedInUser({
@@ -678,11 +814,13 @@ export function AuthFlow() {
                         navigate("/dashboard");
                       }}
                     >
+                      <span className="w-2 h-2 rounded-full bg-[#F13030]" />
                       Performer
                     </Button>
                     <Button
+                      type="button"
                       variant="secondary"
-                      className="flex-1 h-11 text-sm font-semibold"
+                      className="h-10 text-xs font-semibold rounded-xl border border-[var(--color-hairline)] hover:border-[#7B00FE]/30 hover:bg-[#7B00FE]/5 transition-all flex items-center justify-center gap-2"
                       onClick={() => {
                         localStorage.setItem("monologg_is_new_user", "false");
                         appStateSync.setLoggedInUser({
@@ -696,13 +834,14 @@ export function AuthFlow() {
                         navigate("/client");
                       }}
                     >
+                      <span className="w-2 h-2 rounded-full bg-[#7B00FE]" />
                       Client
                     </Button>
                   </div>
 
-                  <p className="text-sm text-center mt-6 font-body" style={s.secondary}>
+                  <p className="text-sm text-center mt-6 font-body text-[var(--color-text-secondary)]">
                     New here?{" "}
-                    <button className="hover:underline font-medium" style={s.gold} onClick={() => setView("register")}>
+                    <button className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2" onClick={() => setView("register")}>
                       Create free account
                     </button>
                   </p>
@@ -718,42 +857,59 @@ export function AuthFlow() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex flex-col"
                 >
-                  <button onClick={() => setView("login")} className="mb-6 -ml-1 flex items-center gap-1 text-sm font-body" style={s.secondary}>
-                    <ChevronLeft className="w-4 h-4" /> Back to Sign In
+                  <button
+                    onClick={() => setView("login")}
+                    className="mb-5 -ml-1 flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors p-1 rounded-lg"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Back to sign in
                   </button>
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-bg-surface-2)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
                     <KeyRound className="w-6 h-6" style={{ color: "var(--color-gold-primary)" }} />
                   </div>
-                  <h2 className="font-display text-[28px] leading-[1.1] tracking-[-0.02em] mb-2" style={s.primary}>Enter your code</h2>
-                  <p className="text-[14px] font-body mb-6" style={s.secondary}>
-                    We sent a 6-digit code to <strong>{otpEmail}</strong>.
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                    Enter your code
+                  </h2>
+                  <p className="text-sm font-body mb-6 text-[var(--color-text-secondary)]">
+                    We sent a 6-digit code to <strong className="text-[var(--color-text-primary)]">{otpEmail}</strong>.
                   </p>
-                  <form onSubmit={handleOtpVerify} className="flex flex-col gap-3">
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]{6}"
-                      maxLength={6}
-                      placeholder="000000"
-                      value={otpCode}
-                      onChange={e => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      className="text-center tracking-[0.3em] text-xl font-mono"
-                      required
-                    />
-                    {error && <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>}
-                    <Button type="submit" className="w-full h-12" disabled={otpCode.length !== 6 || submitting}>
+                  <form onSubmit={handleOtpVerify} className="flex flex-col gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Verification code</label>
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
+                        maxLength={6}
+                        placeholder="000000"
+                        value={otpCode}
+                        onChange={e => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="h-12 text-center tracking-[0.3em] text-xl font-mono rounded-xl"
+                        required
+                      />
+                    </div>
+                    {error && (
+                      <div className="p-3 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 flex items-start gap-2.5 text-xs font-body text-[var(--color-error)]">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      variant={role === "talent" ? "red" : "purple"}
+                      className="w-full h-11 text-sm font-semibold rounded-xl shadow-xs"
+                      disabled={otpCode.length !== 6 || submitting}
+                    >
                       {submitting ? "Verifying…" : "Verify Code"}
                     </Button>
                   </form>
                   <div className="mt-4 text-center">
                     {otpResendCooldown > 0 ? (
-                      <p className="text-xs font-body" style={s.secondary}>Resend in {otpResendCooldown}s</p>
+                      <p className="text-xs font-body text-[var(--color-text-tertiary)]">Resend in {otpResendCooldown}s</p>
                     ) : (
                       <button
                         type="button"
                         onClick={handleOtpRequest as unknown as React.MouseEventHandler}
-                        className="text-xs font-body hover:underline"
-                        style={s.gold}
+                        className="text-xs font-body hover:underline text-[var(--color-text-primary)] font-medium"
                       >
                         Resend code
                       </button>
@@ -768,19 +924,25 @@ export function AuthFlow() {
                   key="magic_sent"
                   initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center text-center"
+                  className="flex flex-col items-center text-center py-4"
                 >
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--color-success-bg)" }}>
-                    <Mail className="w-7 h-7" style={{ color: "var(--color-success)" }} />
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">
+                    <Mail className="w-7 h-7 text-[var(--color-success)]" />
                   </div>
-                  <h2 className="font-display text-[28px] mb-2" style={s.primary}>Check your inbox</h2>
-                  <p className="text-sm font-body mb-6" style={s.secondary}>
-                    We sent a magic sign-in link to <strong>{magicLinkEmail}</strong>. Click the link in the email to continue.
-                    {SUPABASE_MODE === "mock" && " (Dev mode: no real email sent — check console.)"}
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                    Check your inbox
+                  </h2>
+                  <p className="text-sm font-body mb-6 text-[var(--color-text-secondary)] max-w-xs">
+                    We sent a magic sign-in link to <strong className="text-[var(--color-text-primary)]">{magicLinkEmail}</strong>. Click the link in the email to continue.
+                    {SUPABASE_MODE === "mock" && " (Dev mode: check console for link.)"}
                   </p>
-                  <button className="text-sm font-body hover:underline" style={s.gold} onClick={() => setView("login")}>
+                  <Button
+                    variant="outline-pill"
+                    className="h-10 px-5 text-xs font-semibold rounded-xl"
+                    onClick={() => setView("login")}
+                  >
                     Back to Sign In
-                  </button>
+                  </Button>
                 </motion.div>
               )}
 
@@ -793,28 +955,48 @@ export function AuthFlow() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex flex-col"
                 >
-                  <button onClick={() => setView("login")} className="mb-6 -ml-1 flex items-center gap-1 text-sm font-body" style={s.secondary}>
-                    <ChevronLeft className="w-4 h-4" /> Back to Sign In
+                  <button
+                    onClick={() => setView("login")}
+                    className="mb-5 -ml-1 flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors p-1 rounded-lg"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Back to sign in
                   </button>
 
                   {!forgotSent ? (
                     <>
-                      <h2 className="font-display text-[32px] leading-[1.08] tracking-[-0.02em] mb-2" style={s.primary}>Reset password</h2>
-                      <p className="text-[15px] font-body mb-8" style={s.secondary}>
-                        Enter your email and we'll send you a reset link.
+                      <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                        Reset password
+                      </h2>
+                      <p className="text-sm font-body mb-6 text-[var(--color-text-secondary)]">
+                        Enter your email and we'll send you a password reset link.
                       </p>
-                      <form onSubmit={handleForgot} className="flex flex-col gap-3">
-                        <Input
-                          type="email"
-                          placeholder="Email Address"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          required
-                        />
+                      <form onSubmit={handleForgot} className="flex flex-col gap-3.5">
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium font-body text-[var(--color-text-secondary)]">Email address</label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-[var(--color-text-tertiary)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Input
+                              type="email"
+                              placeholder="Email Address"
+                              value={email}
+                              onChange={e => setEmail(e.target.value)}
+                              className="h-11 pl-10 pr-3.5 rounded-xl text-sm"
+                              required
+                            />
+                          </div>
+                        </div>
                         {error && (
-                          <p className="text-xs font-body" style={{ color: "var(--color-error)" }}>{error}</p>
+                          <div className="p-3 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 flex items-start gap-2.5 text-xs font-body text-[var(--color-error)]">
+                            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                            <span>{error}</span>
+                          </div>
                         )}
-                        <Button type="submit" className="w-full h-12 mt-2" disabled={submitting}>
+                        <Button
+                          type="submit"
+                          variant={role === "talent" ? "red" : "purple"}
+                          className="w-full h-11 mt-1 text-sm font-semibold rounded-xl shadow-xs"
+                          disabled={submitting}
+                        >
                           {submitting ? "Sending…" : "Send Reset Link"}
                         </Button>
                       </form>
@@ -823,18 +1005,27 @@ export function AuthFlow() {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="text-center"
+                      className="text-center py-4"
                     >
-                      <div
-                        className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-                        style={{ background: "var(--color-success-bg)" }}
-                      >
-                        <Check className="w-7 h-7" style={{ color: "var(--color-success)" }} />
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-[var(--color-success-bg)] border border-[var(--color-success)]/20">
+                        <Check className="w-7 h-7 text-[var(--color-success)]" />
                       </div>
-                      <h3 className="font-display text-2xl mb-2" style={s.primary}>Check your email</h3>
-                      <p className="text-sm font-body" style={s.secondary}>
-                        We sent a reset link to <strong>{email}</strong>. Check your inbox and follow the instructions.
+                      <h3 className="font-display text-2xl font-bold mb-1 text-[var(--color-text-primary)]">
+                        Check your email
+                      </h3>
+                      <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-xs mx-auto mb-6">
+                        We sent a reset link to <strong className="text-[var(--color-text-primary)]">{email}</strong>. Check your inbox and follow the instructions.
                       </p>
+                      <Button
+                        variant="outline-pill"
+                        className="h-10 px-5 text-xs font-semibold rounded-xl"
+                        onClick={() => {
+                          setForgotSent(false);
+                          setView("login");
+                        }}
+                      >
+                        Back to Sign In
+                      </Button>
                     </motion.div>
                   )}
                 </motion.div>
@@ -847,3 +1038,4 @@ export function AuthFlow() {
     </div>
   );
 }
+

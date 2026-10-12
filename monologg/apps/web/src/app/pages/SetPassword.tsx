@@ -59,17 +59,18 @@ export function SetPassword() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-secondary)" }}>New Password</label>
+            <label className="block text-xs font-medium font-body mb-1.5 text-[var(--color-text-secondary)]">New password</label>
             <Input
               type="password"
               placeholder="At least 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="h-11 rounded-xl text-sm"
               minLength={8}
               required
             />
           </div>
-          <Button type="submit" className="w-full h-12 gap-2" disabled={submitting || password.length < 8}>
+          <Button type="submit" className="w-full h-11 rounded-xl gap-2 font-semibold text-sm" disabled={submitting || password.length < 8}>
             <Lock className="w-4 h-4" />
             {submitting ? "Setting up…" : "Set Password & Continue"}
           </Button>
