@@ -417,13 +417,13 @@ describe("Settings — personal details section and profile button cleanup", () 
 
     // Verify Read-Only Mode contents
     await screen.findByText("Your basic details, craft category, and voice & performance style tags.");
-    expect(screen.getByText("Basic Information")).toBeInTheDocument();
+    expect(screen.getByText("Basic information")).toBeInTheDocument();
     expect(screen.getByText("Female")).toBeInTheDocument();
     expect(screen.getByText("2000-05-15")).toBeInTheDocument();
     expect(screen.getByText(/Ikeja/i)).toBeInTheDocument();
-    expect(screen.getByText("Primary Craft")).toBeInTheDocument();
+    expect(screen.getByText("Primary craft")).toBeInTheDocument();
     expect(screen.getByText("Actors")).toBeInTheDocument();
-    expect(screen.getByText("Thespian AI Performance Summary")).toBeInTheDocument();
+    expect(screen.getByText("Thespian AI performance summary")).toBeInTheDocument();
     expect(screen.getByText("Edit Details")).toBeInTheDocument();
 
     // Toggle to edit mode

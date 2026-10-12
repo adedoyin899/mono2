@@ -1340,7 +1340,7 @@ export function OrderRoom() {
                   }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Escrow Protected</span>
+                    <span className="text-[11px] font-semibold text-zinc-500 tracking-normal">Escrow protected</span>
                     <span
                       className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
                       style={{
@@ -1362,7 +1362,7 @@ export function OrderRoom() {
 
                 {/* Project Lifecycle Phases (Clean, cohesive, responsive cards) */}
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">Project Phases</div>
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-2.5">Project phases</div>
                   <div className="space-y-2">
                     {PHASES.map((p, idx) => {
                       const isPast = idx < phaseIndex;
@@ -1439,7 +1439,7 @@ export function OrderRoom() {
 
                 {/* Streamlined Payment Summary */}
                 <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-xs">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Payment Summary</div>
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-1">Payment summary</div>
                   <div className="flex justify-between items-center text-zinc-600">
                     <span>Project Escrow (Funded)</span>
                     <span className="font-mono font-medium text-zinc-900">₦120,000</span>
@@ -1457,7 +1457,7 @@ export function OrderRoom() {
 
                 {/* Participants */}
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wider mb-2 text-zinc-400">Participants</div>
+                  <div className="text-[11px] font-semibold tracking-normal mb-2 text-zinc-400">Participants</div>
                   <div className="space-y-2">
                     {[
                       { name: talentName, role: "Performer", initials: talentInitials, color: "var(--color-mono-red)", bg: "var(--color-red-soft)" },

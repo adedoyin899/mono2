@@ -281,7 +281,7 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     fireEvent.click(editOverviewBtn);
 
     // Section transforms into form with inputs
-    expect(screen.getByText("Edit Overview & Synopsis Details")).toBeInTheDocument();
+    expect(screen.getByText("Edit overview & synopsis details")).toBeInTheDocument();
     const titleInput = screen.getByPlaceholderText("Project Title");
     fireEvent.change(titleInput, { target: { value: "Updated Nike Master Spot" } });
 
@@ -290,13 +290,13 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     fireEvent.click(saveBtn);
 
     // Form transforms back to view mode with updated title
-    expect(screen.queryByText("Edit Overview & Synopsis Details")).not.toBeInTheDocument();
+    expect(screen.queryByText("Edit overview & synopsis details")).not.toBeInTheDocument();
     expect(screen.getAllByText("Updated Nike Master Spot").length).toBeGreaterThanOrEqual(1);
 
     // Test Deliverables inline edit transformation
     const editDelivBtn = screen.getByRole("button", { name: "Edit Deliverables" });
     fireEvent.click(editDelivBtn);
-    expect(screen.getByText("Manage Milestone Deliverables")).toBeInTheDocument();
+    expect(screen.getByText("Manage milestone deliverables")).toBeInTheDocument();
 
     const addDelivInput = screen.getByPlaceholderText(/Add deliverable milestone/i);
     fireEvent.change(addDelivInput, { target: { value: "1x Dolby Atmos Spatial Master" } });
@@ -305,7 +305,7 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
 
     // Save Deliverables
     fireEvent.click(screen.getByRole("button", { name: "Save Deliverables" }));
-    expect(screen.queryByText("Manage Milestone Deliverables")).not.toBeInTheDocument();
+    expect(screen.queryByText("Manage milestone deliverables")).not.toBeInTheDocument();
     expect(screen.getByText("1x Dolby Atmos Spatial Master")).toBeInTheDocument();
   });
 });
@@ -338,16 +338,16 @@ describe("ClientDashboard — Analytics Tab", () => {
     expect(dateRangeSelect).toBeInTheDocument();
 
     // 4 metric cards are rendered with initial This Year data
-    expect(screen.getByText("Total Spend Till date")).toBeInTheDocument();
+    expect(screen.getByText("Total spend till date")).toBeInTheDocument();
     expect(screen.getAllByText("₦850,000").length).toBeGreaterThanOrEqual(1);
 
     expect(screen.getByText("Total successful projects")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
 
-    expect(screen.getByText("average rating")).toBeInTheDocument();
+    expect(screen.getByText("Average rating")).toBeInTheDocument();
     expect(screen.getByText("4.9 ★")).toBeInTheDocument();
 
-    expect(screen.getByText("repeat talent rate")).toBeInTheDocument();
+    expect(screen.getByText("Repeat talent rate")).toBeInTheDocument();
     expect(screen.getByText("25%")).toBeInTheDocument();
 
     // Funnel and category budget allocation cards are removed

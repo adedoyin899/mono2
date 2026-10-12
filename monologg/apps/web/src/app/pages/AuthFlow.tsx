@@ -245,57 +245,133 @@ export function AuthFlow() {
       </div>
 
       <div className="flex-1 flex relative z-10">
-        {/* Left panel — desktop illustration */}
+        {/* Left panel — Grainy Gradient Showcase Variant (performer/client brand colors & noise) */}
         <div
-          className="hidden lg:flex flex-col justify-between p-14 w-[480px] shrink-0 relative overflow-hidden"
-          style={{ background: "var(--color-bg-elevated)", borderRight: "1px solid var(--color-hairline)" }}
+          className="hidden lg:flex flex-col justify-between p-10 xl:p-12 w-[480px] xl:w-[520px] shrink-0 relative overflow-hidden rounded-[28px] m-4 border shadow-2xl transition-all duration-500"
+          style={{
+            background:
+              role === "talent"
+                ? "radial-gradient(circle at 50% 38%, rgba(241, 48, 48, 0.95) 0%, rgba(220, 38, 38, 0.65) 28%, rgba(123, 0, 254, 0.4) 55%, rgba(10, 6, 18, 0.98) 80%), #0A0612"
+                : "radial-gradient(circle at 50% 38%, rgba(123, 0, 254, 0.95) 0%, rgba(147, 51, 234, 0.65) 28%, rgba(241, 48, 48, 0.4) 55%, rgba(10, 6, 18, 0.98) 80%), #0A0612",
+            borderColor: "rgba(255, 255, 255, 0.12)",
+          }}
         >
+          {/* SVG Noise Grain Overlay */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none opacity-30 mix-blend-overlay"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <filter id="auth-noise-grain">
+              <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+              <feColorMatrix type="saturate" values="0" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#auth-noise-grain)" />
+          </svg>
+
+          {/* Luminous Glow Auras */}
           <div
-            className="absolute -top-24 -left-16 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: `radial-gradient(50% 50% at 50% 50%, var(--color-accent-glow) 0%, transparent 70%)`, filter: "blur(50px)" }}
+            className="absolute top-[22%] left-[22%] w-[300px] h-[300px] rounded-full blur-[70px] pointer-events-none transition-colors duration-700"
+            style={{
+              background: role === "talent" ? "rgba(241, 48, 48, 0.55)" : "rgba(123, 0, 254, 0.55)",
+            }}
           />
-          <div className="relative space-y-4">
-            <h2 className="font-wise-sans text-[36px] sm:text-[42px] font-black uppercase tracking-[-0.03em] leading-[0.95] text-[var(--color-text-primary)]">
-              YOUR CRAFT. ON YOUR TERMS.<br />
-              <span className="relative inline-block text-[var(--color-accent)] mt-1">
-                INSTANTLY BOOKED.
-                <svg
-                  className="absolute left-0 -bottom-1.5 w-full h-3 text-[var(--color-accent)] pointer-events-none"
-                  viewBox="0 0 300 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M5 15Q75 2 150 15T295 12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                </svg>
-              </span>
-            </h2>
-            <p className="text-base font-body leading-relaxed text-[var(--color-text-secondary)]">
-              Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.
-            </p>
+          <div
+            className="absolute bottom-[10%] right-[10%] w-[260px] h-[260px] rounded-full blur-[80px] pointer-events-none transition-colors duration-700"
+            style={{
+              background: role === "talent" ? "rgba(123, 0, 254, 0.35)" : "rgba(241, 48, 48, 0.35)",
+            }}
+          />
+
+          {/* Card Top Brand & Badge */}
+          <div className="relative z-10 flex items-center justify-between">
+            <Link to="/" aria-label="Monologg">
+              <Logo className="h-6 w-auto text-white" />
+            </Link>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-white/90 bg-white/10 backdrop-blur-md border border-white/15">
+              <span
+                className={`w-2 h-2 rounded-full animate-pulse ${
+                  role === "talent" ? "bg-[#F13030]" : "bg-[#A855F7]"
+                }`}
+              />
+              {role === "talent" ? "Performer portal" : "Client portal"}
+            </span>
           </div>
 
-          <div className="relative space-y-3.5">
-            {[
-              "Free to join — zero subscription fees",
-              "Proprietary Thespian AI vibe scanner in 30s",
-              "Get paid the same day deliverables are approved",
-              "Full FINCRA escrow protection on every booking",
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)]"
-                >
-                  <Check className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                </div>
-                <span className="text-sm font-body text-[var(--color-text-primary)] font-medium">{item}</span>
+          {/* Card Hero Content — Dynamic Copy based on Role */}
+          <div className="relative z-10 space-y-6">
+            <div>
+              <div className="text-xs sm:text-sm font-semibold tracking-wide text-white/75 font-body mb-2">
+                Let's help you
               </div>
-            ))}
+              <h2 className="font-display text-3xl xl:text-[40px] font-bold leading-[1.08] tracking-[-0.02em] text-white">
+                {role === "talent"
+                  ? "Find gigs and finish your projects"
+                  : "Find performers and finish your projects"}
+              </h2>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {(role === "talent"
+                ? [
+                    "Free to join — zero subscription fees",
+                    "Proprietary Thespian AI vibe scanner in 30s",
+                    "Get paid the same day deliverables are approved",
+                    "Full FINCRA escrow protection on every booking",
+                  ]
+                : [
+                    "Africa's premier verified performer network",
+                    "Brief-to-booking in 30 seconds",
+                    "Automated escrow milestone releases",
+                    "Full FINCRA escrow protection on every booking",
+                  ]
+              ).map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/15 border border-white/20 text-white">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="text-sm font-body text-white/90 font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Right panel — forms */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-[420px]">
+            {/* Mobile Grainy Gradient Banner */}
+            <div
+              className="lg:hidden w-full mb-6 p-5 rounded-2xl relative overflow-hidden border shadow-lg text-white"
+              style={{
+                background:
+                  role === "talent"
+                    ? "radial-gradient(circle at 50% 35%, rgba(241, 48, 48, 0.95) 0%, rgba(220, 38, 38, 0.65) 30%, rgba(123, 0, 254, 0.4) 60%, rgba(10, 6, 18, 0.98) 85%), #0A0612"
+                    : "radial-gradient(circle at 50% 35%, rgba(123, 0, 254, 0.95) 0%, rgba(147, 51, 234, 0.65) 30%, rgba(241, 48, 48, 0.4) 60%, rgba(10, 6, 18, 0.98) 85%), #0A0612",
+                borderColor: "rgba(255, 255, 255, 0.12)",
+              }}
+            >
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none opacity-25 mix-blend-overlay"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <filter id="auth-noise-grain-mobile">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+                  <feColorMatrix type="saturate" values="0" />
+                </filter>
+                <rect width="100%" height="100%" filter="url(#auth-noise-grain-mobile)" />
+              </svg>
+              <div className="relative z-10 space-y-1.5">
+                <div className="text-[11px] font-semibold tracking-wide text-white/75 font-body">
+                  Let's help you
+                </div>
+                <h2 className="font-display text-lg sm:text-xl font-bold leading-snug tracking-tight text-white">
+                  {role === "talent"
+                    ? "Find gigs and finish your projects"
+                    : "Find performers and finish your projects"}
+                </h2>
+              </div>
+            </div>
+
             {/* Wise-Style Segmented Role Switcher — hidden on Register, which has its own "I'm joining as" toggle */}
             {view !== "register" && (
               <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
@@ -335,8 +411,8 @@ export function AuthFlow() {
                   exit={{ opacity: 0, y: -16 }}
                   className="flex flex-col"
                 >
-                  <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
-                    Welcome to Monologg.
+                  <h1 className="font-display text-[34px] sm:text-[36px] font-bold leading-[1.08] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
+                    Welcome to Monologg
                   </h1>
                   <p className="text-base font-body mb-8 text-[var(--color-text-secondary)]">
                     Sign in or create a free {role === "talent" ? "Performer" : "Client"} account to continue.
@@ -376,7 +452,7 @@ export function AuthFlow() {
                   <p className="text-[15px] font-body mb-7" style={s.secondary}>Join the brief-to-booking pipeline.</p>
 
                   {/* Role toggle */}
-                  <p className="text-xs font-semibold uppercase tracking-widest mb-2.5 font-body" style={s.secondary}>I'm joining as</p>
+                  <p className="text-xs font-semibold tracking-normal mb-2.5 font-body" style={s.secondary}>I'm joining as</p>
                   <div
                     className="flex p-1 rounded-[var(--radius-lg)] mb-6"
                     style={{ background: "var(--color-bg-surface-2)", border: "1px solid var(--color-hairline)" }}
@@ -419,7 +495,7 @@ export function AuthFlow() {
 
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or with email</span>
+                    <span className="text-xs font-body tracking-normal text-[var(--color-text-tertiary)]">Or with email</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 
@@ -529,7 +605,7 @@ export function AuthFlow() {
 
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-body uppercase tracking-wider text-[var(--color-text-tertiary)]">or sign in with email</span>
+                    <span className="text-xs font-body tracking-normal text-[var(--color-text-tertiary)]">Or sign in with email</span>
                     <div className="flex-1 h-px bg-[var(--color-hairline)]" />
                   </div>
 

@@ -123,7 +123,7 @@ export function HelpSupport() {
       </div>
 
       <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
-        <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Frequently Asked Questions</div>
+        <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Frequently asked questions</div>
         <div className="rounded-[var(--radius-xl)] overflow-hidden mb-8" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
           {FAQS.map((item, i) => (
             <div key={item.q} style={{ borderBottom: i < FAQS.length - 1 ? "1px solid var(--color-hairline)" : undefined }}>
@@ -145,7 +145,7 @@ export function HelpSupport() {
           ))}
         </div>
 
-        <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Contact Support</div>
+        <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Contact support</div>
         <form onSubmit={handleSubmit} className="rounded-[var(--radius-xl)] p-4 mb-8 space-y-3" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
           <Input placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
           <textarea
@@ -162,7 +162,7 @@ export function HelpSupport() {
           </Button>
         </form>
 
-        <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Your Requests</div>
+        <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Your requests</div>
         {tickets.length === 0 ? (
           <div className="flex flex-col items-center text-center py-10">
             <LifeBuoy className="w-8 h-8 mb-3" style={s.tertiary} />

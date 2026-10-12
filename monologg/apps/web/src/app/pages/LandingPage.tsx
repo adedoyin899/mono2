@@ -951,14 +951,14 @@ export function LandingPage() {
           <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/30 shadow-sm">
               <Zap className="w-3.5 h-3.5 fill-current text-[#F13030]" />
-              <span>THE FIRST BRIEF-TO-BOOKING PIPELINE FOR PERFORMING ARTS</span>
+              <span>The first brief-to-booking pipeline for performing arts</span>
             </div>
 
             {/* Oversized Display Headline with Red Squiggle Underline */}
-            <h1 className="font-wise-sans text-[48px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.9] text-[var(--color-text-primary)] uppercase max-w-5xl mx-auto">
-              YOUR CRAFT. ON YOUR TERMS.<br />
+            <h1 className="font-wise-sans text-[48px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.92] text-[var(--color-text-primary)] max-w-5xl mx-auto">
+              Your craft on your terms.<br />
               <span className="relative inline-block text-[#F13030] dark:text-[#FF4D4D]">
-                INSTANTLY BOOKED.
+                Instantly booked.
                 <svg
                   className="absolute left-0 -bottom-2 w-full h-4 text-[#F13030] pointer-events-none"
                   viewBox="0 0 300 20"
@@ -1201,8 +1201,8 @@ export function LandingPage() {
         {/* ── FINAL CONVERSION CTA ── */}
         <section className="relative py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
           <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-            <h2 className="font-wise-sans text-4xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white">
-              TAKE CONTROL OF YOUR CRAFT.
+            <h2 className="font-wise-sans text-4xl md:text-7xl font-bold tracking-tight leading-[0.92] text-white">
+              Take control of your craft.
             </h2>
             <p className="text-base text-white/80 max-w-xl mx-auto font-body">
               Join over 3,200 verified actors, voice talent, and comperes getting booked directly with zero commission on their first booking.

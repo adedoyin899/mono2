@@ -232,7 +232,7 @@ export function TransactionHistory() {
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#F13030]/10 blur-3xl pointer-events-none" />
 
           <div className="space-y-1 z-10">
-            <div className="text-xs font-mono text-[#F13030] uppercase tracking-wider font-bold">
+            <div className="text-xs font-body text-[#F13030] tracking-normal font-semibold">
               <span>{heroTitle}</span>
             </div>
             <div className="text-3xl sm:text-4xl font-bold font-mono text-[#F5F5F0] tracking-tight">
@@ -264,11 +264,11 @@ export function TransactionHistory() {
             </div>
           ) : (
             <div className="hidden sm:flex flex-col items-end text-right z-10 shrink-0">
-              <div className="flex items-center gap-1.5 bg-[#222228] px-3.5 py-1.5 rounded-full border border-[#32323C] text-xs font-mono text-zinc-300">
+              <div className="flex items-center gap-1.5 bg-[#222228] px-3.5 py-1.5 rounded-full border border-[#32323C] text-xs font-body text-zinc-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#F13030]" />
                 <span>Escrow Protected</span>
               </div>
-              <div className="text-[11px] text-white/40 font-mono mt-1">
+              <div className="text-[11px] text-white/40 font-body mt-1">
                 Automated Ledger Settlement
               </div>
             </div>

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
+**Last updated:** 2026-10-12 (Session 123: Elimination of ALL CAPS Titles & Typography Normalization)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 73. Aggressive ALL CAPS Titles and `uppercase tracking-wider` Typography Slop Across Platform
+- **Severity:** Low / Typography & Visual Cleanliness
+- **What happened:** Multiple screens rendered card titles, metric sub-headers, navigation labels, and modal titles in jarring ALL CAPS (e.g. `TOTAL EARNINGS TILL DATE`, `UPCOMING SHOOTS`, `ACTIVE AUDITIONS`, `Total Spend Till date`, `average rating`, `repeat talent rate`, `BASIC INFORMATION`, `PRIMARY CRAFT`, `FREQUENTLY ASKED QUESTIONS`).
+- **Root Cause:** Inconsistent use of CSS utility `uppercase tracking-wider` and mixed casing in string literals that forced browser-level transformation to all-capital letters.
+- **Fix:** Systematically audited and converted titles to sentence case / title case where appropriate with standard letter spacing (`font-body tracking-normal`). Updated test assertions in `ClientDashboard.test.tsx` and `Settings.test.tsx` while preserving strict telemetry contracts in `TransactionHistory.tsx`. Rebuilt and inlined `monologg/monologg-app.html`.
+- **Validation:** All 124 unit tests pass, typecheck clean.
 
 ### 72. Double chevron on select dropdowns, disparate input heights, false error-red Availability active state, duplicate bio/tags during active editing, and cluttered bank payout callout layout
 - **Severity:** Medium / UI-UX Polish & Visual Hierarchy

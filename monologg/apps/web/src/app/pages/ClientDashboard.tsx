@@ -887,7 +887,7 @@ export function ClientDashboard() {
       {/* Mobile top bar */}
       <div className="lg:hidden flex items-center justify-between px-5 py-2.5 sticky top-0 z-40 glass-panel" style={{ borderLeft: "none", borderRight: "none", borderTop: "none" }}>
         <div className="min-w-0">
-          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>{orgName}</div>
+          <div className="text-[11px] font-body tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>{orgName}</div>
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -1066,7 +1066,7 @@ export function ClientDashboard() {
                 >
                   <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
                   <div className="relative space-y-2">
-                    <div className="text-xs font-mono uppercase tracking-wider text-[#F1E9FF] font-semibold">Wallet Balance</div>
+                    <div className="text-xs font-body tracking-normal text-[#F1E9FF] font-medium">Wallet balance</div>
                     <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
                       {isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`}
                     </div>
@@ -1796,8 +1796,8 @@ export function ClientDashboard() {
 
                             {editingSection === "overview" ? (
                               <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Edit Overview &amp; Synopsis Details
+                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Edit overview &amp; synopsis details
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   <div>
@@ -1914,8 +1914,8 @@ export function ClientDashboard() {
 
                             {editingSection === "roles" ? (
                               <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Select Target Craft Niches
+                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Select target craft niches
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap">
                                   {["VO_ARTIST", "ACTOR", "COMPERE", "COMEDIAN", "SPEAKER_PASTOR", "CREATOR"].map((nicheOption) => {
@@ -1981,8 +1981,8 @@ export function ClientDashboard() {
                             ) : (
                               <>
                                 <div>
-                                  <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Target Craft Niches
+                                  <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Target craft niches
                                   </div>
                                   <div className="flex items-center gap-2 flex-wrap">
                                     {projectDetails.nicheReq.map((n) => (
@@ -1994,8 +1994,8 @@ export function ClientDashboard() {
                                 </div>
 
                                 <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                  <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Performer Guidelines &amp; Quality Standards
+                                  <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Performer guidelines &amp; quality standards
                                   </div>
                                   <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
                                     {projectDetails.additionalNotes}
@@ -2065,8 +2065,8 @@ export function ClientDashboard() {
 
                             {editingSection === "sides" ? (
                               <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Audition Copy / Sides
+                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Audition copy / sides
                                 </div>
                                 <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                                   Performers auditioning will read and record this sides excerpt for their audition pitch:
@@ -2147,8 +2147,8 @@ export function ClientDashboard() {
 
                             {editingSection === "deliverables" ? (
                               <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Manage Milestone Deliverables
+                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Manage milestone deliverables
                                 </div>
                                 <div className="space-y-2">
                                   {editedDeliverables.map((item, idx) => (
@@ -3287,22 +3287,22 @@ export function ClientDashboard() {
                       {/* 4 Metric Cards */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total Spend Till date</div>
+                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total spend till date</div>
                           <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.totalSpend}</div>
                           <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.spendSubtext}</div>
                         </div>
                         <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total successful projects</div>
+                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total successful projects</div>
                           <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>{currentData.successfulProjects}</div>
                           <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>{currentData.projectsSubtext}</div>
                         </div>
                         <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>average rating</div>
+                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
                           <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.avgRating}</div>
                           <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{currentData.ratingSubtext}</div>
                         </div>
                         <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>repeat talent rate</div>
+                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat talent rate</div>
                           <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.repeatRate}</div>
                           <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.repeatSubtext}</div>
                         </div>

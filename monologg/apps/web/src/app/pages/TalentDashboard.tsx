@@ -1072,7 +1072,7 @@ export function TalentDashboard() {
         style={{ borderLeft: "none", borderRight: "none", borderTop: "none" }}
       >
         <div className="min-w-0">
-          <div className="text-[11px] font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Good morning, {firstName}</div>
+          <div className="text-[11px] font-body tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Good morning, {firstName}</div>
           <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -1270,7 +1270,7 @@ export function TalentDashboard() {
                 >
                   <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
                   <div className="relative space-y-2">
-                    <div className="text-xs font-mono uppercase tracking-wider text-[#FFECEC] font-semibold">Available balance</div>
+                    <div className="text-xs font-body tracking-normal text-[#FFECEC] font-medium">Available balance</div>
                     <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
                       {isNewUser ? "₦0" : "₦148,000"}
                     </div>
@@ -3092,8 +3092,8 @@ export function TalentDashboard() {
                         </div>
 
                         <div>
-                          <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                            Target Craft Niches
+                          <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                            Target craft niches
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
                             {selectedProject.nicheReq.map((n) => (
@@ -3105,8 +3105,8 @@ export function TalentDashboard() {
                         </div>
 
                         <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                          <div className="text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                            Performer Guidelines &amp; Quality Standards
+                          <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                            Performer guidelines &amp; quality standards
                           </div>
                           <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
                             {selectedProject.additionalNotes ||
@@ -3285,8 +3285,8 @@ export function TalentDashboard() {
                       >
                         {/* Budget */}
                         <div>
-                          <div className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
-                            Project Compensation
+                          <div className="text-xs font-semibold font-body tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>
+                            Project compensation
                           </div>
                           <div className="flex items-baseline gap-2 mt-1">
                             <span className="font-display text-3xl font-bold font-mono text-[var(--color-accent)]">
@@ -4022,7 +4022,7 @@ export function TalentDashboard() {
                 {/* Available Balance */}
                 <div className="mb-6 p-6 rounded-[var(--radius-lg)] flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
                   <div>
-                    <div className="text-xs font-body uppercase tracking-wider mb-2" style={{ color: "var(--color-text-tertiary)" }}>Available for Withdrawal</div>
+                    <div className="text-xs font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>Available for withdrawal</div>
                     <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦{isNewUser ? "0" : appStateSync.getBalance().available.toLocaleString()}</div>
                   </div>
                   <Button className="h-11 px-6 whitespace-nowrap" onClick={() => setShowWithdraw(true)}>Withdraw Funds</Button>
@@ -4158,14 +4158,14 @@ export function TalentDashboard() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Card 1: Profile view */}
                       <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile view</div>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile view</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
                       </div>
 
                       {/* Card 2: Project completed */}
                       <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Project completed</div>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Project completed</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>28</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
                       </div>
@@ -4179,7 +4179,7 @@ export function TalentDashboard() {
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <div className="text-xs font-body font-medium uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
+                          <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
                           <span className="text-[11px] font-semibold text-[var(--color-accent)] opacity-80 group-hover:opacity-100 group-hover:underline transition-all">
                             Reviews →
                           </span>
@@ -4195,7 +4195,7 @@ export function TalentDashboard() {
 
                       {/* Card 4: Total earnings */}
                       <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium uppercase tracking-wider mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦1,240,000</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
                       </div>

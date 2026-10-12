@@ -781,7 +781,7 @@ export function Settings() {
               </div>
 
               {/* Settings sections */}
-              <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Account</div>
+              <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Account</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 {isClient ? (
                   <>
@@ -805,7 +805,7 @@ export function Settings() {
               </div>
 
               {/* Appearance */}
-              <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Appearance</div>
+              <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Appearance</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <div className="px-4 py-3.5 min-h-[56px] flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -819,7 +819,7 @@ export function Settings() {
               </div>
 
               {/* Support */}
-              <div className="text-xs font-medium uppercase tracking-wider mb-2 px-1 font-body" style={s.tertiary}>Support & Legal</div>
+              <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Support &amp; legal</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Help Center" icon={LifeBuoy} onClick={() => navigate("/support")} />
                 <ListItem label="Terms of Service" icon={FileText} onClick={() => navigate("/legal/terms")} />
@@ -1615,8 +1615,8 @@ export function Settings() {
                     style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
                   >
                     <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
-                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
-                        Basic Information
+                      <span className="text-[11px] font-bold tracking-normal font-body text-[var(--color-text-tertiary)]">
+                        Basic information
                       </span>
                       <span className="text-[11px] font-semibold text-[var(--color-success)] flex items-center gap-1 font-body">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Verified Identity
@@ -1625,7 +1625,7 @@ export function Settings() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                       <div>
-                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
+                        <div className="text-[11px] font-medium tracking-normal text-[var(--color-text-tertiary)] mb-1 font-body">
                           Gender
                         </div>
                         <div className="text-sm font-semibold font-body" style={s.text}>
@@ -1634,8 +1634,8 @@ export function Settings() {
                       </div>
 
                       <div>
-                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
-                          Date of Birth
+                        <div className="text-[11px] font-medium tracking-normal text-[var(--color-text-tertiary)] mb-1 font-body">
+                          Date of birth
                         </div>
                         <div className="text-sm font-semibold font-mono tnum flex items-center gap-1.5" style={s.text}>
                           <CalendarIcon className="w-3.5 h-3.5 text-[var(--color-text-tertiary)]" />
@@ -1644,7 +1644,7 @@ export function Settings() {
                       </div>
 
                       <div>
-                        <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-1">
+                        <div className="text-[11px] font-medium tracking-normal text-[var(--color-text-tertiary)] mb-1 font-body">
                           Location
                         </div>
                         <div className="text-sm font-semibold font-body flex items-center gap-1.5" style={s.text}>
@@ -1661,8 +1661,8 @@ export function Settings() {
                     style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
                   >
                     <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
-                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
-                        Primary Craft
+                      <span className="text-[11px] font-bold tracking-normal font-body text-[var(--color-text-tertiary)]">
+                        Primary craft
                       </span>
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-body">
                         Core Discipline
@@ -1703,8 +1703,8 @@ export function Settings() {
                     style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
                   >
                     <div className="flex items-center justify-between pb-1 border-b border-[var(--color-hairline)]">
-                      <span className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)]">
-                        Thespian AI Performance Summary
+                      <span className="text-[11px] font-bold tracking-normal font-body text-[var(--color-text-tertiary)]">
+                        Thespian AI performance summary
                       </span>
                       <span className="text-[11px] font-semibold text-[var(--color-text-tertiary)] flex items-center gap-1 font-body">
                         <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" /> AI Extracted
@@ -1723,8 +1723,8 @@ export function Settings() {
                     </div>
 
                     <div>
-                      <div className="text-[11px] font-bold uppercase tracking-wider font-mono text-[var(--color-text-tertiary)] mb-2.5">
-                        Style & Profile Tags ({craftTags.length})
+                      <div className="text-[11px] font-bold tracking-normal font-body text-[var(--color-text-tertiary)] mb-2.5">
+                        Style &amp; profile tags ({craftTags.length})
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {craftTags.map((tag) => (

@@ -1,11 +1,59 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
+**Last updated:** 2026-10-12 (Session 123: Elimination of ALL CAPS Titles & Typography Normalization)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 123 (2026-10-12) — Elimination of ALL CAPS Titles & Typography Normalization Across Web Platform
+
+**Goal:** Eliminate aggressive all-caps titles (`uppercase tracking-wider` and ALL CAPS hardcoded strings) across all screens in favor of refined sentence case ("Uppercase for first word and lower case for second/third words across all titles, no ALL UPPERCASE across all"):
+1. **Audited and Cleaned Title Typography (`TalentDashboard.tsx`, `ClientDashboard.tsx`, `Settings.tsx`, `OrderRoom.tsx`, `HelpSupport.tsx`, `TransactionHistory.tsx`, `AuthFlow.tsx`, `LandingPage.tsx`):**
+   - Transformed headings, metric cards, sub-labels, and section headers that previously used `uppercase tracking-wider` to refined sentence case with normal letter spacing (`font-body tracking-normal`).
+   - Standardized dashboard cards and metric labels:
+     - `TOTAL EARNINGS TILL DATE` → `Total earnings till date`
+     - `UPCOMING SHOOTS` → `Upcoming shoots`
+     - `ACTIVE AUDITIONS` → `Active auditions`
+     - `Total Spend Till date` → `Total spend till date`
+     - `average rating` → `Average rating`
+     - `repeat talent rate` → `Repeat talent rate`
+   - Cleaned navigation and section headings in Settings and Help & Support:
+     - `Account`, `Appearance`, `Support & legal`
+     - `Basic information`, `Primary craft`, `Thespian AI performance summary`, `Style & profile tags`
+     - `Frequently asked questions`, `Contact support`, `Your requests`
+   - Cleaned Order Room section headers:
+     - `Escrow protected`, `Project phases`, `Payment summary`, `Participants`
+2. **Synchronized Test Contracts (`ClientDashboard.test.tsx`, `Settings.test.tsx`):**
+   - Updated metric assertions in `ClientDashboard.test.tsx` to match sentence case (`Total spend till date`, `Average rating`, `Repeat talent rate`).
+   - Updated read-only craft profile assertions in `Settings.test.tsx` to match sentence case (`Basic information`, `Primary craft`, `Thespian AI performance summary`).
+   - Preserved exact contract strings where required by specific tests (e.g. `Escrow Protected`, `Automated Ledger Settlement` in `TransactionHistory.tsx`, single payout bank security memo).
+3. **Standalone Distribution Rebuilding (`monologg-app.html`):**
+   - Re-compiled standalone Vite production bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.65 MB).
+4. **Full Verification:**
+   - All 124 unit tests passing across all 25 test files (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/apps/web/src/app/pages/HelpSupport.tsx`
+- `monologg/apps/web/src/app/pages/TransactionHistory.tsx`
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/monologg-app.html`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

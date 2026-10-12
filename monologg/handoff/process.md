@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-12 (Session 122: Performer Web App UI/UX Visual Upgrade & Hierarchy Polish)
+**Last updated:** 2026-10-12 (Session 123: Elimination of ALL CAPS Titles & Typography Normalization)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -771,6 +771,17 @@ Following the rigorous role-isolation audit in Session 121, this session perform
 - **Fintech Card Payout Destination:** Redesigned the performer's Payout Bank Account into a sleek card layout with masked account number and clear 48-hour security memo while preserving all test assertions.
 - **Projects Detail View & State Polish:** Cleaned script excerpt header artifacts and validated clear visual hierarchy across all 6 application statuses (`APPLIED`, `SHORTLISTED`, `SELECTED`, `REJECTED`, `WITHDRAWN`, pitch form) with role-parameterized Order Room routing (`?role=talent`).
 - **Full Verification:** All 124 unit tests passing, clean TypeScript check, and updated standalone `monologg/monologg-app.html` bundle.
+
+### Step 84: Elimination of ALL CAPS Titles & Typography Normalization (Session 123)
+
+Addressed title casing inconsistencies across all screens to satisfy the FAANG design principle of sentence-cased subheadings and clean visual hierarchy:
+- **Comprehensive Typography Audit:** Replaced jarring all-caps strings and `uppercase tracking-wider` CSS utilities across both performer and client views with natural sentence case (`font-body tracking-normal`).
+- **Dashboard Metric Alignment:** Converted performer metrics (`Total earnings till date`, `Upcoming shoots`, `Active auditions`) and client metrics (`Total spend till date`, `Total successful projects`, `Average rating`, `Repeat talent rate`).
+- **Settings & Navigation Refinement:** Converted section categories (`Account`, `Appearance`, `Support & legal`) and performer personal/craft details (`Basic information`, `Primary craft`, `Thespian AI performance summary`, `Style & profile tags`).
+- **Order Room & Support Overhaul:** Polished sidebar headings (`Escrow protected`, `Project phases`, `Payment summary`, `Participants`) and help sections (`Frequently asked questions`, `Contact support`, `Your requests`).
+- **Test Integrity:** Synchronized test expectations in `ClientDashboard.test.tsx` and `Settings.test.tsx` while preserving strict telemetry contracts in `TransactionHistory.tsx`.
+- **Distribution Rebuild:** Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.65 MB).
+- **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript errors.
 
 ---
 
