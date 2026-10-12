@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-12 (Session 124: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish)
+**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 125 (2026-10-12) — Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client
+
+**Goal:** Restore the earlier clean, high-contrast split-screen onboarding layout for both Performer and Client roles (`AuthFlow.tsx`, `LandingPage.tsx`, `monologg-app.html`):
+1. **Desktop Illustration Split-Screen Panel (`AuthFlow.tsx`):**
+   - Restored the flush, full-height left panel layout with `var(--color-bg-elevated)` background, subtle radial accent glow, and `borderRight: 1px solid var(--color-hairline)`.
+   - Restored bold display all-caps headline: `"YOUR CRAFT. ON YOUR TERMS. INSTANTLY BOOKED."` with dynamic `--color-accent` role scoping and hand-drawn SVG underline under `"BOOKED."`.
+   - Restored subtitle: `"Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline."`.
+   - Restored bottom checklist with soft accent rounded badges (`bg-[var(--color-accent-soft)]`) and accent checkmarks:
+     - Free to join — zero subscription fees
+     - Proprietary Thespian AI vibe scanner in 30s
+     - Get paid the same day deliverables are approved
+     - Full FINCRA escrow protection on every booking
+2. **Pill Role Switcher (`AuthFlow.tsx`):**
+   - Restored the signature rounded-full pill segmented toggle (`rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] p-1`).
+   - Clean, active pill highlights for Performer (`bg-[#F13030] text-white shadow-md`) and Client (`bg-[#7B00FE] text-white shadow-md`).
+3. **Splash Screen Layout (`AuthFlow.tsx`):**
+   - Restored `"Welcome to Monologg."` display headline with period and subtitle `"Sign in or create a free Performer/Client account to continue."`.
+   - Restored dual rounded-full pill buttons: `"Create Free Account"` (`variant={role === "talent" ? "red" : "purple"}`) and `"Sign In"` (`variant="outline-pill"`).
+4. **Landing Page Navigation Alignment (`LandingPage.tsx`):**
+   - Aligned top bar "Sign In" and "Create Your Profile" CTAs to navigate directly to `/auth` onboarding screen.
+5. **Standalone Distribution Rebuilding (`monologg-app.html`):**
+   - Re-compiled standalone production bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.66 MB).
+6. **Verification:**
+   - 124/124 tests passing across all 25 test suites (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
 
 ---
 

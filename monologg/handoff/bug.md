@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-12 (Session 124: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish)
+**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -19,16 +19,12 @@ This tracks every defect found during this engagement — both classic "the buil
 
 ## Bugs found and fixed during this engagement
 
-### 74. Auth Flow Role Switcher Discrepancies, Missing Micro-Labels, and Redundant Interstitial Splash Screens
-- **Severity:** Medium / UI-UX Polish & Information Architecture
-- **What happened:** 
-  1. Visitors clicking "Sign In" on the Landing Page were routed to an intermediate splash screen forcing a second click, rather than navigating directly into the login form.
-  2. Registration and Sign In pages used conflicting role switcher presentations (custom border pill with arbitrary text vs separate radio wrappers) without clear visual hierarchy.
-  3. Form inputs lacked explicit micro-labels above fields, causing accessibility gaps and visual ambiguity when autofilled.
-  4. Password field input text collided with the visibility toggle button due to insufficient right padding (`pr-11` missing).
-- **Root Cause:** Fragmented styling iterations and lack of search-parameter awareness (`?mode=login` / `?mode=register&role=talent`) in `AuthFlow.tsx`.
-- **Fix:** Standardized segmented role selectors with semantic indicator dots, added `h-11 rounded-xl text-sm` inputs with left icons and `pr-11` collision-safe password padding, integrated explicit micro-labels, and added `useSearchParams` initialization.
-- **Validation:** All 124 tests passing across 25 suites, clean typecheck, and rebuilt standalone executable `monologg-app.html`.
+### 74. Onboarding Splash Screen Bypassed and Gradient Theme Desynchronization
+- **Severity:** Low / UI Consistency & Layout Restoration
+- **What happened:** In Session 124, navigation buttons in `LandingPage.tsx` were linked directly to `/auth?mode=login` and `/auth?mode=register&role=talent`, bypassing the clean split-screen splash view where users can freely toggle between Performer and Client modes. In addition, the left illustration panel utilized a heavy dark radial gradient card overlay rather than the clean split-screen layout with subtle accent aura and signature checklist badges.
+- **Root Cause:** Intent-aware routing was pushed into the landing page header buttons rather than preserving the default splash onboarding flow as the entry point, and the illustration panel deviated from the earlier high-contrast split-screen aesthetic.
+- **Fix:** Restored the earlier split-screen layout in `AuthFlow.tsx` with the flush left panel, bold display headline `"YOUR CRAFT. ON YOUR TERMS. INSTANTLY BOOKED."`, hand-drawn SVG underline under `"BOOKED."`, soft accent checkmark badges, and rounded-full pill segmented role toggle. Realigned `LandingPage.tsx` header CTAs to route directly to `/auth`. Rebuilt and inlined `monologg/monologg-app.html`.
+- **Validation:** 124/124 tests pass, typecheck clean, standalone distribution bundle regenerated.
 
 ### 73. Aggressive ALL CAPS Titles and `uppercase tracking-wider` Typography Slop Across Platform
 - **Severity:** Low / Typography & Visual Cleanliness

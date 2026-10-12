@@ -926,7 +926,7 @@ export function LandingPage() {
               <Button
                 variant="outline-pill"
                 className="h-10 px-5 text-xs font-bold hidden sm:inline-flex"
-                onClick={() => navigate("/auth?mode=login")}
+                onClick={() => navigate("/auth")}
               >
                 Sign In
               </Button>
@@ -934,7 +934,7 @@ export function LandingPage() {
               <Button
                 variant="red"
                 className="h-10 px-5 text-xs font-bold"
-                onClick={() => navigate("/auth?mode=register&role=talent")}
+                onClick={() => navigate("/auth")}
               >
                 Create Your Profile
               </Button>

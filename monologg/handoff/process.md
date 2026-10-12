@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-12 (Session 124: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish)
+**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -781,16 +781,20 @@ Addressed title casing inconsistencies across all screens to satisfy the FAANG d
 - **Order Room & Support Overhaul:** Polished sidebar headings (`Escrow protected`, `Project phases`, `Payment summary`, `Participants`) and help sections (`Frequently asked questions`, `Contact support`, `Your requests`).
 - **Test Integrity:** Synchronized test expectations in `ClientDashboard.test.tsx` and `Settings.test.tsx` while preserving strict telemetry contracts in `TransactionHistory.tsx`.
 - **Distribution Rebuild:** Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.65 MB).
-### Step 85: Sign Up & Sign In Page UX/UI Overhaul & FAANG Polish (Session 124)
-
-Standardized the authentication experience across `AuthFlow.tsx`, `SetPassword.tsx`, and `LandingPage.tsx`:
-- **Intent-Aware Routing:** Enabled direct URL parameter navigation (`?mode=login` and `?mode=register&role=talent`) so landing page visitors clicking "Sign In" or "Create Your Profile" jump straight to their requested screen without a superfluous intermediate splash tap.
-- **Segmented Role Selector:** Unlocked an intuitive, consistent Performer / Client role switcher with semantic active indicator dots across registration and login views.
-- **Input Height & Icon Standardization:** Converted form inputs across credentials and passwords to uniform `h-11 rounded-xl text-sm font-body px-3.5` with dedicated vertical-centered icons (`User`, `Mail`, `Lock`) and collision-safe right padding (`pr-11`) for password reveal buttons.
-- **Accessible Micro-Labels & Form Alerts:** Added explicit sentence-cased micro-labels above fields and replaced raw red text strings with structured alert containers with `AlertCircle` icons.
-- **Streamlined Demo Access:** Elevated the Performer and Client sandbox demo buttons into prominent pill triggers within a clean `Quick demo access` card.
-- **Distribution Rebuild:** Re-compiled standalone Vite bundle (`build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.94 MB).
 - **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript errors.
+
+### Step 85: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client (Session 125)
+
+Restored the earlier clean, high-contrast split-screen onboarding layout across `AuthFlow.tsx`, `LandingPage.tsx`, and `monologg-app.html`:
+- **Desktop Split-Screen Illustration Panel:** Restored the flush left panel with `var(--color-bg-elevated)` background, subtle radial accent glow, and crisp vertical hairline divider. Restored the bold display headline `"YOUR CRAFT. ON YOUR TERMS. INSTANTLY BOOKED."` with dynamic role accent scoping, hand-drawn SVG underline under `"BOOKED."`, and 4 soft-accent checklist badges:
+  1. Free to join — zero subscription fees
+  2. Proprietary Thespian AI vibe scanner in 30s
+  3. Get paid the same day deliverables are approved
+  4. Full FINCRA escrow protection on every booking
+- **Pill Role Switcher:** Restored the signature rounded-full pill segmented control with vibrant performer red and client purple active states.
+- **Splash Screen UX & Routing:** Restored `"Welcome to Monologg."` display headline with period and subtitle `"Sign in or create a free Performer/Client account to continue."`, dual rounded-full pill buttons, and aligned `LandingPage.tsx` header CTAs to navigate directly to `/auth`.
+- **Distribution Rebuild:** Re-compiled standalone Vite bundle (`build:standalone`) and safely inlined updated assets into `monologg/monologg-app.html` (1.66 MB).
+- **Verification:** 124/124 tests pass, typecheck clean.
 
 ---
 
