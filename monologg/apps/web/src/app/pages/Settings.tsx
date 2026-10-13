@@ -2204,14 +2204,20 @@ export function Settings() {
 
                       {/* Security Memo (Before save) */}
                       <div
-                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-200/90"
+                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border transition-colors"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          borderColor: "var(--color-border-default)",
+                        }}
                       >
                         <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                         <div>
-                          <span className="font-semibold block mb-0.5 text-amber-950 dark:text-amber-200">
+                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                             Security Memo
                           </span>
-                          You can change your bank account after 48hrs. Once updated, your payout destination is locked for 48 hours to protect your funds.
+                          <span style={{ color: "var(--color-text-secondary)" }}>
+                            You can change your bank account after 48hrs. Once updated, your payout destination is locked for 48 hours to protect your funds.
+                          </span>
                         </div>
                       </div>
 
@@ -2255,7 +2261,7 @@ export function Settings() {
                           borderColor: "var(--color-border-default)",
                         }}
                       >
-                        <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
                           <div
                             className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border"
                             style={{
@@ -2265,16 +2271,26 @@ export function Settings() {
                           >
                             <Building2 className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
                           </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold font-body truncate" style={s.text}>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-bold font-body" style={s.text}>
                                 {bankDetails.bankName}
                               </span>
-                              <span className="text-xs font-mono font-medium text-[var(--color-text-secondary)]">
-                                ···· {bankDetails.accountNumber.slice(-4)}
+                              <span
+                                className="text-xs font-mono font-medium px-2 py-0.5 rounded-md border shrink-0"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                  color: "var(--color-text-secondary)",
+                                }}
+                              >
+                                •••• {bankDetails.accountNumber.slice(-4)}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold font-body px-2 py-0.5 rounded-full text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 shrink-0">
+                                <Check className="w-2.5 h-2.5" /> Verified Destination
                               </span>
                             </div>
-                            <div className="text-xs font-body font-medium truncate mt-0.5" style={s.secondary}>
+                            <div className="text-xs font-body font-medium truncate mt-1" style={s.secondary}>
                               {bankDetails.accountName || "Account Holder"}
                             </div>
                             <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
@@ -2299,14 +2315,20 @@ export function Settings() {
 
                       {/* Security Memo (After save) */}
                       <div
-                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border bg-amber-50/60 dark:bg-amber-950/20 border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-200/90"
+                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border transition-colors"
+                        style={{
+                          background: "var(--color-bg-elevated)",
+                          borderColor: "var(--color-border-default)",
+                        }}
                       >
                         <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
                         <div>
-                          <span className="font-semibold block mb-0.5 text-amber-950 dark:text-amber-200">
+                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                             Security Memo
                           </span>
-                          You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds.
+                          <span style={{ color: "var(--color-text-secondary)" }}>
+                            You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds.
+                          </span>
                         </div>
                       </div>
                     </div>

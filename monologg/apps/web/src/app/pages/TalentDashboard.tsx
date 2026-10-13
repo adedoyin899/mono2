@@ -5027,19 +5027,30 @@ export function TalentDashboard() {
                         return (
                           <div
                             key={rev.id}
-                            className="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-850 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs space-y-3"
+                            className="p-4 rounded-xl border transition-all shadow-2xs space-y-3"
+                            style={{
+                              background: "var(--color-bg-elevated)",
+                              borderColor: "var(--color-border-default)",
+                            }}
                           >
                             {/* Card Top: Client Avatar & Project on Left, Rating Badge & Date on Right */}
                             <div className="flex items-start justify-between gap-3">
-                              <div className="flex items-start gap-3">
-                                <div className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-xs flex items-center justify-center shrink-0 border border-zinc-200/80 dark:border-zinc-700/80 font-display">
+                              <div className="flex items-start gap-3 min-w-0">
+                                <div
+                                  className="w-9 h-9 rounded-full font-bold text-xs flex items-center justify-center shrink-0 border font-display"
+                                  style={{
+                                    background: "var(--color-bg-surface)",
+                                    borderColor: "var(--color-border-default)",
+                                    color: "var(--color-text-primary)",
+                                  }}
+                                >
                                   {clientInitials}
                                 </div>
-                                <div>
-                                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-display">
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-semibold truncate font-display" style={{ color: "var(--color-text-primary)" }}>
                                     {rev.clientName}
                                   </h4>
-                                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-0.5">
+                                  <p className="text-xs font-medium truncate mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
                                     Project: {rev.projectName}
                                   </p>
                                 </div>
@@ -5050,21 +5061,34 @@ export function TalentDashboard() {
                                   <span className="text-amber-500">★</span>
                                   <span>{rev.stars.toFixed(1)}</span>
                                 </div>
-                                <span className="text-[11px] text-zinc-400 font-body">{rev.date}</span>
+                                <span className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>{rev.date}</span>
                               </div>
                             </div>
 
                             {/* Review Quote (Clean quote with subtle left accent line) */}
                             {rev.note && (
-                              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-body leading-relaxed pl-3 border-l-2 border-zinc-200 dark:border-zinc-700 italic my-1.5">
+                              <p
+                                className="text-xs sm:text-sm font-body leading-relaxed pl-3 border-l-2 italic my-1.5"
+                                style={{
+                                  color: "var(--color-text-primary)",
+                                  borderColor: "var(--color-hairline)",
+                                }}
+                              >
                                 &ldquo;{rev.note}&rdquo;
                               </p>
                             )}
 
                             {/* Card Bottom: Compliment Tag and Direct Link */}
-                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-xs">
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t text-xs" style={{ borderColor: "var(--color-hairline)" }}>
                               {rev.tag ? (
-                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                                <span
+                                  className="text-[11px] font-medium px-2 py-0.5 rounded-full border"
+                                  style={{
+                                    background: "var(--color-bg-surface)",
+                                    borderColor: "var(--color-border-default)",
+                                    color: "var(--color-text-secondary)",
+                                  }}
+                                >
                                   {rev.tag}
                                 </span>
                               ) : <span />}
@@ -5074,7 +5098,8 @@ export function TalentDashboard() {
                                   setShowReviewsModal(false);
                                   navigate(`/order/${rev.orderId}?role=talent`);
                                 }}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors cursor-pointer group"
+                                className="inline-flex items-center gap-1 text-xs font-semibold transition-colors cursor-pointer group"
+                                style={{ color: "var(--color-accent)" }}
                               >
                                 <span>View Order Room</span>
                                 <span className="group-hover:translate-x-0.5 transition-transform">→</span>

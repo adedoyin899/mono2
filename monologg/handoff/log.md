@@ -1,11 +1,45 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-13 (Session 128: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild)
+**Last updated:** 2026-10-13 (Session 129: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 129 (2026-10-13) — Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens
+
+**Goal:** Conduct an extensive visual upgrade and UX/UI cleanup strictly for the Performer web app across the five core review screens: Reviews Modal, Earnings by Category Chart, Edit Profile Screen, Payout Bank Account, and Project Detail View & States (`TalentDashboard.tsx`, `Settings.tsx`, `monologg-app.html`):
+1. **The "Two Icons on Inputs" Bug Resolved (`TalentDashboard.tsx`):**
+   - *Root Cause:* Universal CSS in `tokens.css` (lines 303–312) injects an SVG chevron on all `<select>` elements. Redundant manual `<ChevronDown />` icons placed inside relative wrapper divs on timeframe and rating filter dropdowns caused duplicate adjacent/overlapping chevrons (`~~`).
+   - *Fix:* Removed redundant manual `<ChevronDown />` components at lines 4250, 4868, and 4881, yielding clean, single-chevron native dropdowns with proper right padding.
+2. **Reviews Modal UX & Hierarchy Polish (`TalentDashboard.tsx`):**
+   - Standardized search inputs and select heights to uniform `h-9 text-xs rounded-xl`.
+   - Polished star distribution bars in Pillar 3 with aligned counts.
+   - Cleaned card border and backgrounds to match theme variables (`var(--color-bg-elevated)`, `var(--color-border-default)`).
+   - Ensured Order Room links preserve role parameter `?role=talent`.
+3. **Earnings by Category Chart Typography & Layout (`TalentDashboard.tsx`):**
+   - Removed duplicate chevron on timeframe dropdown.
+   - Polished Y-axis label spacing and legend typography.
+4. **Edit Profile Screen & Settings Streamlining (`Settings.tsx` & `TalentDashboard.tsx`):**
+   - Standardized input heights across Name, Stage Title, Location, and Social Media to consistent `h-11 rounded-xl text-sm font-body`.
+   - Polished social media badges with proper vertical centering.
+   - Cleaned up tag input height (`h-11 rounded-xl`) to match the Add button.
+   - Re-styled availability toggle into a clean segmented pill selector with emerald active state for "Available" (pulsing green dot) and amber active state for "Booked" (removing jarring bright red error-like background).
+   - Eliminated redundant Save buttons: kept top-bar Save and bottom card Save/Cancel; removed duplicate read-only bio and tags underneath active edit form.
+5. **Payment Details & Payout Bank Account (`Settings.tsx`):**
+   - Redesigned Payout Bank Account into a sleek fintech card with bank logo, clean typography, and verified badge.
+   - Streamlined policy and security memo into clean, balanced copy while preserving test-expected strings: `You can only have one payout bank. This is how Monologg operates` and `You can change your bank account after 48hrs`.
+6. **Performer Project Detail View & States (`TalentDashboard.tsx`):**
+   - Cleaned up sides script excerpt (stripped duplicate `"Sides / Script Excerpt:\n"` prefix).
+   - Polished metadata row, compensation card, applicant progress bar, and all status banners (`APPLIED`, `SHORTLISTED`, `SELECTED`, `REJECTED`, `WITHDRAWN`, pitch form).
+   - Ensured Order Room navigation passes `?role=talent`.
+7. **Distribution Rebuilding & Quality Assurance:**
+   - 124/124 tests pass across all 25 test suites (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
+   - Standalone single-file bundle `monologg/monologg-app.html` rebuilt and inlined (1.59 MB).
 
 ---
 

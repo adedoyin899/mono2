@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-13 (Session 128: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild)
+**Last updated:** 2026-10-13 (Session 129: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -818,6 +818,16 @@ Completed role isolation polish and CTA streamlining across shared and Performer
 - **OrderRoom Button & CTA Conciseness:** Replaced verbose `"Confirm Brief & Advance to Deliverables"` with clean, punchy `"Confirm Brief & Continue"`. Replaced generic modal action `"Verify"` with explicit contextual labels (`"Verify Check-In"` for live onsite evidence and `"Submit Deliverable"` for asset uploads).
 - **OrderRoom Role-Aware Theme Tokens:** Replaced static red borders and badges with dynamic role colorways (`isClient ? ... : ...`), ensuring performer views render crimson accents (`rgba(241, 48, 48, 0.18)` / `var(--color-red-soft)`) while client views maintain royal purple (`rgba(123, 0, 254, 0.18)` / `var(--color-purple-soft)`).
 - **TransactionHistory Visual Refinement:** Injected root `.role-client` and `.role-talent` classes, dynamic hero balance glowing border, role-tinted filter chips, and tailored fee breakdown explanations (`"Total Released"` for clients vs `"You Receive"` for performers).
+- **Standalone Distribution & Testing:** Rebuilt Vite standalone bundle (`monologg/monologg-app.html`, 1.66 MB). All 124 unit tests passing, zero TypeScript errors.
+
+### Step 89: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens (Session 129)
+
+Completed comprehensive FAANG UX/UI upgrade and visual slop elimination across the 5 core Performer screens:
+- **Reviews Modal (`TalentDashboard.tsx`):** Removed duplicate chevrons, streamlined input sizing to `h-9 text-xs rounded-xl`, perfected star distribution bars with aligned counts, and added role preservation `?role=talent` in Order Room links.
+- **Earnings by Category Chart (`TalentDashboard.tsx`):** Removed duplicate dropdown chevrons, enhanced Y-axis label spacing, and refined legend chips and timeframe selector typography.
+- **Edit Profile (`Settings.tsx` & `TalentDashboard.tsx`):** Standardized input heights across Name, Stage Title, Location, and Social Media to consistent `h-11 rounded-xl text-sm font-body px-3.5`. Restyled Availability to emerald active pill (pulsing green dot) and amber booked pill. Pruned 4 redundant save buttons and duplicate read-only tags/bio beneath the active edit form.
+- **Payment Details / Payout Bank Account (`Settings.tsx`):** Upgraded payout bank into a clean fintech card with bank logo, bold bank name, masked account number, verified pill, and streamlined security copy while preserving exact test string assertions.
+- **Project Detail View & 6 Lifecycle States (`TalentDashboard.tsx`):** Cleaned up script excerpt by removing redundant `"Sides / Script Excerpt:\n"` prefix, adding clipboard copy with "Copied!" feedback and monospace styling, polished all 6 application status banners, and ensured Order Room CTA routes with `?role=talent`.
 - **Standalone Distribution & Testing:** Rebuilt Vite standalone bundle (`monologg/monologg-app.html`, 1.66 MB). All 124 unit tests passing, zero TypeScript errors.
 
 ---

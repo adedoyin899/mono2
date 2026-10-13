@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 
 interface ThemeContextType {
   isDark: boolean;
@@ -17,6 +17,14 @@ export function useThemeState() {
   const [isDark, setIsDark] = useState(() => {
     try { return localStorage.getItem("monologg-theme") === "dark"; } catch { return false; }
   });
+
+  useEffect(() => {
+    try {
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("dark", isDark);
+      }
+    } catch {}
+  }, [isDark]);
 
   const toggle = () => {
     const next = !isDark;
