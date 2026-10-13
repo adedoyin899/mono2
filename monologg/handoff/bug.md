@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-13 (Session 127: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
+**Last updated:** 2026-10-13 (Session 128: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 77. Hardcoded Accent Red Border & Ambiguous Action Modal CTAs in OrderRoom & Transaction History
+- **Severity:** Low / UI Consistency & Action Clarity
+- **What happened:** In `OrderRoom.tsx`, active milestone and checklist items rendered hardcoded red borders (`border-[var(--color-red)]`) and red badges even when viewed from the client perspective, violating role colorway isolation (client is `#7B00FE`, talent is `#F13030`). Furthermore, the modal button read ambiguous `"Verify"` for both checking in and uploading files, and the main advancement CTA was overly long (`"Confirm Brief & Advance to Deliverables"`). In `TransactionHistory.tsx`, filter chips and card accents were hardcoded to purple, not adapting to performer context.
+- **Root Cause:** Static Tailwind CSS classes without role-aware checks (`isClient ? ... : ...`), causing cross-role visual leakage and verbosity.
+- **Resolution:** Replaced lengthy text with `"Confirm Brief & Continue"`, dynamic contextual modal CTAs (`"Verify Check-In"` vs `"Submit Deliverable"`), and role-aware styling for borders, chips, and fee breakdowns. Validated with 124 passing unit tests and standalone bundle build.
 
 ### 76. Dual Chevron Icon Duplication on Universal `<select>` Containers & Syntax IIFE Closure in `TalentDashboard.tsx`
 - **Severity:** Medium / UI Visual Defect & Syntax Integrity

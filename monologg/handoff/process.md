@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-13 (Session 127: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
+**Last updated:** 2026-10-13 (Session 128: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -812,8 +812,13 @@ Conducted a comprehensive UI/UX overhaul of the Performer Web App addressing the
 - **Edit Profile Standardized Sizing & Availability Pill Selector:** Standardized inputs to `h-11 rounded-xl text-sm font-body px-3.5`, refined social inputs with clean left badges, aligned tag input with Add button, replaced misleading red "Available" button with emerald active pill (pulsing dot) and amber "Booked" pill, and removed duplicate read-only tags and bio rendered below the active edit form.
 - **Fintech Card Hierarchy for Payout Bank Account:** Restyled payout bank into a clean fintech card with bank logo, bold bank name, masked account number, verified pill, and streamlined security copy while maintaining exact test string assertions.
 - **Project Detail View & 6 Lifecycle States:** Cleaned up script excerpt by removing redundant `"Sides / Script Excerpt:\n"` prefix, adding clipboard copy with "Copied!" feedback and monospace styling, polished all 6 application status banners, and ensured Order Room CTA routes with `?role=talent`.
-- **Distribution Rebuild:** Re-compiled standalone Vite production bundle (`npm run build:standalone`) and inlined fresh bundle into `monologg/monologg-app.html` (1.66 MB).
-- **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript compilation errors.
+### Step 88: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild (Session 128)
+
+Completed role isolation polish and CTA streamlining across shared and Performer-facing workflows:
+- **OrderRoom Button & CTA Conciseness:** Replaced verbose `"Confirm Brief & Advance to Deliverables"` with clean, punchy `"Confirm Brief & Continue"`. Replaced generic modal action `"Verify"` with explicit contextual labels (`"Verify Check-In"` for live onsite evidence and `"Submit Deliverable"` for asset uploads).
+- **OrderRoom Role-Aware Theme Tokens:** Replaced static red borders and badges with dynamic role colorways (`isClient ? ... : ...`), ensuring performer views render crimson accents (`rgba(241, 48, 48, 0.18)` / `var(--color-red-soft)`) while client views maintain royal purple (`rgba(123, 0, 254, 0.18)` / `var(--color-purple-soft)`).
+- **TransactionHistory Visual Refinement:** Injected root `.role-client` and `.role-talent` classes, dynamic hero balance glowing border, role-tinted filter chips, and tailored fee breakdown explanations (`"Total Released"` for clients vs `"You Receive"` for performers).
+- **Standalone Distribution & Testing:** Rebuilt Vite standalone bundle (`monologg/monologg-app.html`, 1.66 MB). All 124 unit tests passing, zero TypeScript errors.
 
 ---
 

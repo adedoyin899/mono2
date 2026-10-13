@@ -206,7 +206,7 @@ export function TransactionHistory() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body">
+    <div className={`${isClient ? "role-client" : "role-talent"} min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body`}>
       {/* Sticky Fixed Top Navigation Bar */}
       <div className="h-16 flex items-center justify-between px-5 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
         <div className="flex items-center gap-3">
@@ -229,10 +229,16 @@ export function TransactionHistory() {
         {/* Dynamic Financial Summary Card */}
         <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
           {/* Subtle ambient lighting accent */}
-          <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#F13030]/10 blur-3xl pointer-events-none" />
+          <div
+            className="absolute -right-16 -top-16 w-48 h-48 rounded-full blur-3xl pointer-events-none"
+            style={{ background: isClient ? "rgba(123, 0, 254, 0.16)" : "rgba(241, 48, 48, 0.12)" }}
+          />
 
           <div className="space-y-1 z-10">
-            <div className="text-xs font-body text-[#F13030] tracking-normal font-semibold">
+            <div
+              className="text-xs font-body tracking-normal font-semibold"
+              style={{ color: isClient ? "#9B4DFF" : "#F13030" }}
+            >
               <span>{heroTitle}</span>
             </div>
             <div className="text-3xl sm:text-4xl font-bold font-mono text-[#F5F5F0] tracking-tight">
@@ -250,8 +256,8 @@ export function TransactionHistory() {
                 onClick={handleOpenWithdrawal}
                 className="h-10 px-5 text-xs font-bold font-mono tracking-wide rounded-full shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto text-white whitespace-nowrap"
                 style={{
-                  background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)",
-                  boxShadow: "0 4px 14px rgba(124, 58, 237, 0.35)",
+                  background: "linear-gradient(135deg, #7B00FE 0%, #6400D1 100%)",
+                  boxShadow: "0 4px 14px rgba(123, 0, 254, 0.35)",
                 }}
               >
                 <ArrowDownToLine className="w-4 h-4 shrink-0" />
@@ -310,7 +316,9 @@ export function TransactionHistory() {
                 }}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex items-center active:scale-95 ${
                   isSelected
-                    ? "bg-[#F13030] text-white border-[#F13030] shadow-sm shadow-[#F13030]/20"
+                    ? isClient
+                      ? "bg-[#7B00FE] text-white border-[#7B00FE] shadow-sm shadow-[#7B00FE]/20"
+                      : "bg-[#F13030] text-white border-[#F13030] shadow-sm shadow-[#F13030]/20"
                     : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
                 }`}
               >
@@ -485,15 +493,20 @@ export function TransactionHistory() {
                 </div>
                 {/* Plain-English summary: direct and easy to understand */}
                 <p className="text-xs text-[var(--color-text-secondary)] pt-1 max-w-xs mx-auto leading-relaxed">
-                  {selectedTxn.state === "RELEASED" && "Money sent to your bank account."}
+                  {selectedTxn.state === "RELEASED" &&
+                    (isClient ? "Payment released to performer from escrow." : "Money sent to your bank account.")}
                   {(selectedTxn.state === "ESCROW_HELD" ||
                     selectedTxn.state === "AUTHORIZED" ||
                     selectedTxn.state === "INITIATED") &&
-                    "Money is held safely in escrow. You will be paid once the client approves your work."}
+                    (isClient
+                      ? "Funds held safely in escrow. Released upon your approval of delivered work."
+                      : "Money is held safely in escrow. You will be paid once the client approves your work.")}
                   {selectedTxn.state === "REFUNDING" &&
                     "This booking is under dispute review. Our team will resolve it within 48 hours."}
                   {selectedTxn.state === "REFUNDED" &&
-                    "Booking was cancelled. Money was refunded to the client. You received ₦0."}
+                    (isClient
+                      ? "Booking was cancelled. Escrow refunded to your balance or payment method."
+                      : "Booking was cancelled. Money was refunded to the client. You received ₦0.")}
                 </p>
               </div>
 
@@ -522,7 +535,7 @@ export function TransactionHistory() {
                   <span className="font-mono text-[var(--color-text-secondary)]">-{selectedTxn.feeAmountFormatted}</span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-[var(--color-hairline)] font-semibold">
-                  <span className="text-[var(--color-text-primary)]">You Receive</span>
+                  <span className="text-[var(--color-text-primary)]">{isClient ? "Total Released" : "You Receive"}</span>
                   <span className="font-mono text-[var(--color-text-primary)]">
                     {selectedTxn.state === "REFUNDED" ? "₦0" : selectedTxn.totalAmountFormatted}
                   </span>

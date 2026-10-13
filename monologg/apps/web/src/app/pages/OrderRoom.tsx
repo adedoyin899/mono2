@@ -521,7 +521,7 @@ export function OrderRoom() {
             style={{ background: "var(--color-purple)" }}
           >
             <Check className="w-4 h-4" />
-            Confirm Brief & Advance to Deliverables
+            Confirm Brief &amp; Continue
           </button>
         </div>
       );
@@ -741,7 +741,7 @@ export function OrderRoom() {
             onClick={() => setShowOrderInfoModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shadow-2xs active:scale-95"
             style={{
-              border: role === "talent" ? "1px solid rgba(225, 29, 72, 0.25)" : "1px solid rgba(124, 58, 237, 0.25)",
+              border: role === "talent" ? "1px solid rgba(241, 48, 48, 0.25)" : "1px solid rgba(123, 0, 254, 0.25)",
               background: role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)",
               color: role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)",
             }}
@@ -835,7 +835,7 @@ export function OrderRoom() {
                         className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors"
                         style={{
                           background: !isMe ? "var(--color-bg-canvas)" : "rgba(255, 255, 255, 0.85)",
-                          borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(225, 29, 72, 0.18)" : "rgba(124, 58, 237, 0.18)"),
+                          borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(241, 48, 48, 0.18)" : "rgba(123, 0, 254, 0.18)"),
                         }}
                       >
                         <div
@@ -867,7 +867,7 @@ export function OrderRoom() {
                         className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs"
                         style={{
                           background: "rgba(255, 255, 255, 0.95)",
-                          borderColor: isMe && role === "talent" ? "rgba(225, 29, 72, 0.25)" : "rgba(0, 0, 0, 0.08)",
+                          borderColor: isMe && role === "talent" ? "rgba(241, 48, 48, 0.25)" : "rgba(0, 0, 0, 0.08)",
                           color: "#18181b",
                         }}
                       >
@@ -1165,7 +1165,7 @@ export function OrderRoom() {
                   <span>Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, ₦120,000 auto-releases to your balance.</span>
                 </div>
 
-                {/* Modal action buttons with primary CTA "Verify" */}
+                {/* Modal action buttons with contextual primary CTA */}
                 <div className="flex gap-2.5 pt-1">
                   <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => setShowSubmitModal(false)}>
                     Cancel
@@ -1176,7 +1176,7 @@ export function OrderRoom() {
                     onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
                     disabled={deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN}
                   >
-                    Verify
+                    {deliverableTab === "onsite" ? "Verify Check-In" : "Submit Deliverable"}
                   </button>
                 </div>
               </div>

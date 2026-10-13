@@ -1,11 +1,30 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-13 (Session 127: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
+**Last updated:** 2026-10-13 (Session 128: OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 128 (2026-10-13) — OrderRoom & TransactionHistory CTA Polish, Role-Aware Colorways & Standalone Rebuild
+
+**Goal:** Refine CTA copy conciseness and enforce strict role-aware colorway semantics and terminology across `OrderRoom.tsx` and `TransactionHistory.tsx` (`OrderRoom.tsx`, `TransactionHistory.tsx`, `monologg-app.html`):
+1. **OrderRoom CTA Polish (`OrderRoom.tsx`):**
+   - Shortened verbose button copy `"Confirm Brief & Advance to Deliverables"` to concise, action-driven `"Confirm Brief & Continue"`.
+   - Replaced ambiguous generic `"Verify"` modal action button with contextual, clear CTAs: `"Verify Check-In"` for onsite gigs with PIN, and `"Submit Deliverable"` for milestone uploads.
+   - Fixed hardcoded red highlight borders and badge backgrounds to respect performer (`rgba(241, 48, 48, 0.18)`, `var(--color-red-soft)`) vs client (`rgba(123, 0, 254, 0.18)`, `var(--color-purple-soft)`) roles.
+2. **TransactionHistory Role-Aware Hierarchy & Copy (`TransactionHistory.tsx`):**
+   - Wrapped top-level canvas with explicit dynamic role classes (`role-client` vs `role-talent`).
+   - Adapted financial summary hero card styling: ambient lighting glow is now client-purple (`rgba(123, 0, 254, 0.16)`) for clients and performer-red (`rgba(241, 48, 48, 0.12)`) for talent; title accent color toggles between `#9B4DFF` and `#F13030`.
+   - Standardized active filter pill styles to brand purple (`#7B00FE`) when viewed by clients and brand red (`#F13030`) when viewed by talent.
+   - Refined fee breakdown and modal explanation copy: `"Total Released"` for clients versus `"You Receive"` for talent; plain-English escrow and refund descriptions now directly address client perspective when `isClient === true`.
+3. **Standalone Distribution Rebuilding & Test Verification:**
+   - Standalone single-file distribution bundle `monologg/monologg-app.html` re-compiled and inlined (1.66 MB).
+   - 124/124 tests passing across all 25 test suites (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
 
 ---
 
