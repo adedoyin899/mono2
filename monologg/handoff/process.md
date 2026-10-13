@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
+**Last updated:** 2026-10-13 (Session 126: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -793,8 +793,15 @@ Restored the earlier clean, high-contrast split-screen onboarding layout across 
   4. Full FINCRA escrow protection on every booking
 - **Pill Role Switcher:** Restored the signature rounded-full pill segmented control with vibrant performer red and client purple active states.
 - **Splash Screen UX & Routing:** Restored `"Welcome to Monologg."` display headline with period and subtitle `"Sign in or create a free Performer/Client account to continue."`, dual rounded-full pill buttons, and aligned `LandingPage.tsx` header CTAs to navigate directly to `/auth`.
-- **Distribution Rebuild:** Re-compiled standalone Vite bundle (`build:standalone`) and safely inlined updated assets into `monologg/monologg-app.html` (1.66 MB).
-- **Verification:** 124/124 tests pass, typecheck clean.
+### Step 86: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client (Session 126)
+
+Addressed multiple redundant UI controls and visual clutter in `AuthFlow.tsx` to achieve FAANG-level onboarding cleanliness:
+- **Consolidation of Role Switchers:** Eliminated the stacked second `[Performer | Client]` switcher inside the sign-in view and the duplicate `"I'm joining as"` role selector in registration. Positioned a single, authoritative master pill toggle at the top of the form column.
+- **Pruning Cluttered Navigation Controls:** Removed the cramped `[Register | Sign In]` mini-pill from the header bar, standardizing on clean `< Back` navigation and natural bottom toggle links (`"Already have an account? Sign in"` / `"New here? Create free account"`).
+- **Subtle Demo Helper Row:** Replaced the oversized demo divider and repetitive action buttons with a sleek, discreet bottom row (`"Quick demo: [Performer] [Client]"`).
+- **Role-Tailored Hero Benefits:** Dynamically tailored left illustration headline, glow, and benefits for both Performer (Crimson `#F13030`, performer-specific value props) and Client (Royal Purple `#7B00FE`, client-specific value props).
+- **Distribution Rebuild:** Re-compiled standalone Vite production bundle (`npm run build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.59 MB).
+- **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript compilation errors.
 
 ---
 

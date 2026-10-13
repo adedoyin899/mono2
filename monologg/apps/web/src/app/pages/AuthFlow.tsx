@@ -276,36 +276,65 @@ export function AuthFlow() {
           />
           <div className="relative space-y-4">
             <h2 className="font-wise-sans text-[36px] sm:text-[42px] font-black uppercase tracking-[-0.03em] leading-[0.95] text-[var(--color-text-primary)]">
-              YOUR CRAFT. ON YOUR TERMS.<br />
-              <span className="relative inline-block text-[var(--color-accent)] mt-1">
-                INSTANTLY BOOKED.
-                <svg
-                  className="absolute left-0 -bottom-1.5 w-full h-3 text-[var(--color-accent)] pointer-events-none"
-                  viewBox="0 0 300 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M5 15Q75 2 150 15T295 12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                </svg>
-              </span>
+              {role === "talent" ? (
+                <>
+                  YOUR CRAFT. ON YOUR TERMS.<br />
+                  <span className="relative inline-block text-[var(--color-accent)] mt-1">
+                    INSTANTLY BOOKED.
+                    <svg
+                      className="absolute left-0 -bottom-1.5 w-full h-3 text-[var(--color-accent)] pointer-events-none"
+                      viewBox="0 0 300 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M5 15Q75 2 150 15T295 12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                </>
+              ) : (
+                <>
+                  TOP TALENT. ZERO HASSLE.<br />
+                  <span className="relative inline-block text-[var(--color-accent)] mt-1">
+                    INSTANTLY BOOKED.
+                    <svg
+                      className="absolute left-0 -bottom-1.5 w-full h-3 text-[var(--color-accent)] pointer-events-none"
+                      viewBox="0 0 300 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M5 15Q75 2 150 15T295 12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                </>
+              )}
             </h2>
             <p className="text-base font-body leading-relaxed text-[var(--color-text-secondary)]">
-              Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.
+              {role === "talent"
+                ? "Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline."
+                : "Connect with 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline."}
             </p>
           </div>
 
           <div className="relative space-y-3.5">
-            {[
-              "Free to join — zero subscription fees",
-              "Proprietary Thespian AI vibe scanner in 30s",
-              "Get paid the same day deliverables are approved",
-              "Full FINCRA escrow protection on every booking",
-            ].map((item, i) => (
+            {(role === "talent"
+              ? [
+                  "Free to join — zero subscription fees",
+                  "Proprietary Thespian AI vibe scanner in 30s",
+                  "Get paid the same day deliverables are approved",
+                  "Full FINCRA escrow protection on every booking",
+                ]
+              : [
+                  "Free project posting — zero upfront search fees",
+                  "Proprietary Thespian AI vibe scanner in 30s",
+                  "Release funds only when deliverables are approved",
+                  "Full FINCRA escrow protection on every booking",
+                ]
+            ).map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)]"
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)] transition-colors"
                 >
-                  <Check className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                  <Check className="w-3.5 h-3.5 text-[var(--color-accent)] transition-colors" />
                 </div>
                 <span className="text-sm font-body text-[var(--color-text-primary)] font-medium">{item}</span>
               </div>
@@ -319,43 +348,54 @@ export function AuthFlow() {
             {/* Mobile banner */}
             <div className="lg:hidden w-full mb-6 p-6 rounded-2xl relative overflow-hidden border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]">
               <h2 className="font-wise-sans text-2xl font-black uppercase tracking-[-0.03em] leading-tight text-[var(--color-text-primary)] mb-2">
-                YOUR CRAFT. ON YOUR TERMS.<br />
-                <span className="relative inline-block text-[var(--color-accent)]">
-                  INSTANTLY BOOKED.
-                </span>
+                {role === "talent" ? (
+                  <>
+                    YOUR CRAFT. ON YOUR TERMS.<br />
+                    <span className="relative inline-block text-[var(--color-accent)]">
+                      INSTANTLY BOOKED.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    TOP TALENT. ZERO HASSLE.<br />
+                    <span className="relative inline-block text-[var(--color-accent)]">
+                      INSTANTLY BOOKED.
+                    </span>
+                  </>
+                )}
               </h2>
               <p className="text-xs font-body text-[var(--color-text-secondary)]">
-                Join 3,200+ verified performers and casting directors on Africa's first brief-to-booking pipeline.
+                {role === "talent"
+                  ? "Join 3,200+ verified performers on Africa's first brief-to-booking pipeline."
+                  : "Connect with 3,200+ verified performers for your productions."}
               </p>
             </div>
 
-            {/* Wise-Style Segmented Role Switcher */}
-            {view !== "register" && (
-              <div className="flex p-1 mb-8 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
-                <button
-                  type="button"
-                  onClick={() => setRole("talent")}
-                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                    role === "talent"
-                      ? "bg-[#F13030] text-white shadow-md"
-                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                  }`}
-                >
-                  Performer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("client")}
-                  className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                    role === "client"
-                      ? "bg-[#7B00FE] text-white shadow-md"
-                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                  }`}
-                >
-                  Client
-                </button>
-              </div>
-            )}
+            {/* Single Unified Role Switcher */}
+            <div className="flex p-1 mb-6 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
+              <button
+                type="button"
+                onClick={() => setRole("talent")}
+                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  role === "talent"
+                    ? "bg-[#F13030] text-white shadow-md"
+                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                Performer
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("client")}
+                className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
+                  role === "client"
+                    ? "bg-[#7B00FE] text-white shadow-md"
+                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                Client
+              </button>
+            </div>
 
             <AnimatePresence mode="wait">
 
@@ -368,16 +408,16 @@ export function AuthFlow() {
                   exit={{ opacity: 0, y: -16 }}
                   className="flex flex-col"
                 >
-                  <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
-                    Welcome to Monologg.
+                  <h1 className="font-display text-[32px] sm:text-[36px] font-bold leading-[1.05] tracking-[-0.02em] mb-2 text-[var(--color-text-primary)]">
+                    Welcome to Monologg
                   </h1>
-                  <p className="text-base font-body mb-8 text-[var(--color-text-secondary)]">
+                  <p className="text-sm sm:text-base font-body mb-7 text-[var(--color-text-secondary)]">
                     Sign in or create a free {role === "talent" ? "Performer" : "Client"} account to continue.
                   </p>
                   <div className="flex flex-col gap-3">
                     <Button
                       variant={role === "talent" ? "red" : "purple"}
-                      className="w-full h-12 text-sm font-bold shadow-lg rounded-full"
+                      className="w-full h-12 text-sm font-bold shadow-md rounded-full"
                       onClick={() => setView("register")}
                     >
                       Create Free Account
@@ -389,6 +429,49 @@ export function AuthFlow() {
                     >
                       Sign In
                     </Button>
+                  </div>
+
+                  {/* Clean demo row */}
+                  <div className="mt-8 pt-5 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+                    <span className="font-body">Explore demo preview:</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("monologg_is_new_user", "false");
+                          appStateSync.setLoggedInUser({
+                            id: "usr-demo-talent",
+                            email: "emeka@example.com",
+                            name: "Emeka Johnson",
+                            userType: "TALENT",
+                            authProvider: "EMAIL",
+                            isNewUser: false,
+                          });
+                          navigate("/dashboard");
+                        }}
+                        className="px-3 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#F13030]/40 hover:bg-[#F13030]/10 hover:text-[#F13030] transition-colors"
+                      >
+                        Performer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("monologg_is_new_user", "false");
+                          appStateSync.setLoggedInUser({
+                            id: "usr-demo-client",
+                            email: "sarah@filmcraft.com",
+                            name: "Sarah Jenkins",
+                            userType: "CLIENT",
+                            authProvider: "EMAIL",
+                            isNewUser: false,
+                          });
+                          navigate("/client");
+                        }}
+                        className="px-3 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#7B00FE]/40 hover:bg-[#7B00FE]/10 hover:text-[#7B00FE] transition-colors"
+                      >
+                        Client
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -404,56 +487,20 @@ export function AuthFlow() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <button
+                      type="button"
                       onClick={() => setView("splash")}
                       className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
                     >
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
-                    <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] text-xs">
-                      <span className="px-2.5 py-1 rounded-md bg-[var(--color-bg-surface)] font-semibold text-[var(--color-text-primary)] shadow-xs">
-                        Register
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setView("login")}
-                        className="px-2.5 py-1 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] font-medium transition-colors"
-                      >
-                        Sign In
-                      </button>
-                    </div>
                   </div>
 
                   <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
                     Create account
                   </h2>
                   <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
-                    Join the brief-to-booking pipeline.
+                    Join Monologg as a {role === "talent" ? "Performer" : "Client"}.
                   </p>
-
-                  {/* Role toggle */}
-                  <p className="text-xs font-semibold uppercase tracking-widest mb-2.5 font-body" style={s.secondary}>I'm joining as</p>
-                  <div className="flex p-1 mb-5 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
-                    {(["talent", "client"] as Role[]).map(r => {
-                      const active = role === r;
-                      const isTalent = r === "talent";
-                      return (
-                        <button
-                          key={r}
-                          type="button"
-                          onClick={() => setRole(r)}
-                          className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                            active
-                              ? isTalent
-                                ? "bg-[#F13030] text-white shadow-md"
-                                : "bg-[#7B00FE] text-white shadow-md"
-                              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                          }`}
-                        >
-                          {isTalent ? "Performer" : "Client"}
-                        </button>
-                      );
-                    })}
-                  </div>
 
                   {/* Google OAuth Button */}
                   <button
@@ -568,10 +615,14 @@ export function AuthFlow() {
                     </Button>
                   </form>
 
-                  <p className="text-sm text-center mt-6 font-body text-[var(--color-text-secondary)]">
+                  <p className="text-sm text-center mt-5 font-body text-[var(--color-text-secondary)]">
                     Already have an account?{" "}
-                    <button className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2" onClick={() => setView("login")}>
-                      Sign In
+                    <button
+                      type="button"
+                      className="hover:underline font-semibold text-[var(--color-accent)] underline-offset-2"
+                      onClick={() => setView("login")}
+                    >
+                      Sign in
                     </button>
                   </p>
                 </motion.div>
@@ -588,55 +639,20 @@ export function AuthFlow() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <button
+                      type="button"
                       onClick={() => setView("splash")}
                       className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
                     >
                       <ChevronLeft className="w-4 h-4" /> Back
                     </button>
-                    <div className="flex items-center gap-1.5 p-0.5 rounded-lg bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setView("register")}
-                        className="px-2.5 py-1 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] font-medium transition-colors"
-                      >
-                        Register
-                      </button>
-                      <span className="px-2.5 py-1 rounded-md bg-[var(--color-bg-surface)] font-semibold text-[var(--color-text-primary)] shadow-xs">
-                        Sign In
-                      </span>
-                    </div>
                   </div>
 
                   <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
                     Welcome back
                   </h2>
                   <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
-                    Sign in to manage your bookings.
+                    Sign in to your {role === "talent" ? "Performer" : "Client"} account.
                   </p>
-
-                  {/* Role Selector */}
-                  <div className="flex p-1 mb-6 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)]">
-                    {(["talent", "client"] as Role[]).map(r => {
-                      const active = role === r;
-                      const isTalent = r === "talent";
-                      return (
-                        <button
-                          key={r}
-                          type="button"
-                          onClick={() => setRole(r)}
-                          className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
-                            active
-                              ? isTalent
-                                ? "bg-[#F13030] text-white shadow-md"
-                                : "bg-[#7B00FE] text-white shadow-md"
-                              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                          }`}
-                        >
-                          {isTalent ? "Performer" : "Client"}
-                        </button>
-                      );
-                    })}
-                  </div>
 
                   {/* Google OAuth Button */}
                   <button
@@ -725,62 +741,59 @@ export function AuthFlow() {
                     </Button>
                   </form>
 
-                  {/* Quick demo access */}
-                  <div className="my-5 flex items-center gap-3">
-                    <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                    <span className="text-[11px] font-medium font-body text-[var(--color-text-tertiary)]">Quick demo access</span>
-                    <div className="flex-1 h-px bg-[var(--color-hairline)]" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="h-10 text-xs font-bold rounded-full border border-[var(--color-hairline)] hover:border-[#F13030]/30 hover:bg-[#F13030]/5 transition-all flex items-center justify-center gap-2"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-talent",
-                          email: "emeka@example.com",
-                          name: "Emeka Johnson",
-                          userType: "TALENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/dashboard");
-                      }}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#F13030]" />
-                      Performer
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="h-10 text-xs font-bold rounded-full border border-[var(--color-hairline)] hover:border-[#7B00FE]/30 hover:bg-[#7B00FE]/5 transition-all flex items-center justify-center gap-2"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-client",
-                          email: "sarah@filmcraft.com",
-                          name: "Sarah Jenkins",
-                          userType: "CLIENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/client");
-                      }}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#7B00FE]" />
-                      Client
-                    </Button>
-                  </div>
-
-                  <p className="text-sm text-center mt-6 font-body text-[var(--color-text-secondary)]">
+                  <p className="text-sm text-center mt-5 font-body text-[var(--color-text-secondary)]">
                     New here?{" "}
-                    <button className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2" onClick={() => setView("register")}>
+                    <button
+                      type="button"
+                      className="hover:underline font-semibold text-[var(--color-accent)] underline-offset-2"
+                      onClick={() => setView("register")}
+                    >
                       Create free account
                     </button>
                   </p>
+
+                  {/* Clean demo row */}
+                  <div className="mt-6 pt-4 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+                    <span className="font-body">Quick demo:</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("monologg_is_new_user", "false");
+                          appStateSync.setLoggedInUser({
+                            id: "usr-demo-talent",
+                            email: "emeka@example.com",
+                            name: "Emeka Johnson",
+                            userType: "TALENT",
+                            authProvider: "EMAIL",
+                            isNewUser: false,
+                          });
+                          navigate("/dashboard");
+                        }}
+                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#F13030]/40 hover:bg-[#F13030]/10 hover:text-[#F13030] transition-colors"
+                      >
+                        Performer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("monologg_is_new_user", "false");
+                          appStateSync.setLoggedInUser({
+                            id: "usr-demo-client",
+                            email: "sarah@filmcraft.com",
+                            name: "Sarah Jenkins",
+                            userType: "CLIENT",
+                            authProvider: "EMAIL",
+                            isNewUser: false,
+                          });
+                          navigate("/client");
+                        }}
+                        className="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#7B00FE]/40 hover:bg-[#7B00FE]/10 hover:text-[#7B00FE] transition-colors"
+                      >
+                        Client
+                      </button>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 

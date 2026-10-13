@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
+**Last updated:** 2026-10-13 (Session 126: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 126 (2026-10-13) — Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client
+
+**Goal:** Clean up multiple redundant UI controls, eliminate stacked role switchers, remove duplicate navigation controls, and provide tailored visual/benefit hierarchy for both Performer and Client roles (`AuthFlow.tsx`, `monologg-app.html`):
+1. **Elimination of Duplicate Role Switchers (`AuthFlow.tsx`):**
+   - Removed the duplicate `[Performer | Client]` segmented control that was rendered inside `view === "login"` (stacked just 50px below the top role switcher).
+   - Removed the redundant `"I'm joining as"` role selector from `view === "register"`.
+   - Preserved a single master segmented role switcher (`[Performer | Client]`) at the top of the form column, allowing users to toggle role globally across splash, register, and login views.
+2. **Elimination of Redundant Navigation & View Switchers (`AuthFlow.tsx`):**
+   - Removed the cramped `[Register | Sign In]` mini-pill control from the header row in both `register` and `login` views (which clashed with the adjacent `< Back` button and the bottom toggle links).
+   - Standardized on industry-standard clean view toggling:
+     - Register: `< Back` at top, with `"Already have an account? Sign in"` at the bottom.
+     - Login: `< Back` at top, with `"New here? Create free account"` at the bottom.
+3. **Discreet Demo Access Row (`AuthFlow.tsx`):**
+   - Removed the oversized "Quick demo access" divider and large paired buttons that repeated "Performer" and "Client" a third time on the screen.
+   - Replaced with a subtle, non-intrusive footer row (`"Quick demo: [Performer] [Client]"`) with compact pill buttons that preserve instant 1-click test navigation.
+4. **Role-Tailored Value Proposition for Both Roles (`AuthFlow.tsx`):**
+   - Left illustration desktop panel and mobile banner now dynamically adapt based on active role:
+     - **Performer (`role === "talent"`):** Crimson red branding (`#F13030`), display headline `"YOUR CRAFT. ON YOUR TERMS. INSTANTLY BOOKED."`, performer-specific benefits (free to join, Thespian AI vibe scanner, same-day payouts, FINCRA escrow).
+     - **Client (`role === "client"`):** Royal purple branding (`#7B00FE`), display headline `"TOP TALENT. ZERO HASSLE. INSTANTLY BOOKED."`, client-specific benefits (free project posting & zero upfront search fees, Thespian AI vibe scanner, release funds only upon approval, FINCRA escrow).
+5. **Standalone Distribution Rebuilding (`monologg-app.html`):**
+   - Re-compiled standalone Vite production bundle (`npm run build:standalone`).
+   - Inlined freshly built CSS and JavaScript into `monologg/monologg-app.html` (1.59 MB).
+6. **Verification & Quality Assurance:**
+   - 124/124 tests pass across all 25 test suites (`npm test`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`).
 
 ---
 

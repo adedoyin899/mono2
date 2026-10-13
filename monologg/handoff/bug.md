@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-12 (Session 125: Restoration of Earlier Split-Screen Onboarding Layout for Performer and Client)
+**Last updated:** 2026-10-13 (Session 126: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 75. Redundant and Stacked UI Controls in Onboarding / Auth Screen
+- **Severity:** Medium / UX/UI Redundancy & Cognitive Clutter
+- **What happened:** In `AuthFlow.tsx`, the Login screen rendered two identical `[Performer | Client]` segmented role switchers stacked 50px apart (one outside the view and one inside). Additionally, the header bar displayed both a `< Back` button and a redundant `[Register | Sign In]` switcher right next to each other, while the bottom of the form also had a redundant view-switching link. Furthermore, a large "Quick demo access" divider with large buttons repeated "Performer" and "Client" a third time on the same screen, and the left illustration panel did not dynamically adapt its value proposition when switching to the Client role.
+- **Root Cause:** Conditional rendering guard `{view !== "register" && ...}` allowed the top role switcher to render simultaneously with an internal role switcher inside the login view, while legacy navigation buttons and dev demo helpers cluttered the primary conversion form.
+- **Fix:** Consolidated into a single master segmented role switcher (`[Performer | Client]`) at the top of the form column. Removed duplicate role selectors inside login and register views. Replaced the cluttered header switcher with a clean `< Back` button, letting bottom links handle view transitions cleanly. Replaced the bulky demo box with a sleek footer pill row. Dynamically adapted left illustration panel copy, glow, and benefits for both Performer and Client roles.
+- **Validation:** 124/124 tests pass, typecheck clean, standalone distribution bundle regenerated.
 
 ### 74. Onboarding Splash Screen Bypassed and Gradient Theme Desynchronization
 - **Severity:** Low / UI Consistency & Layout Restoration
