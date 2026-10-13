@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-13 (Session 126: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client)
+**Last updated:** 2026-10-13 (Session 127: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 76. Dual Chevron Icon Duplication on Universal `<select>` Containers & Syntax IIFE Closure in `TalentDashboard.tsx`
+- **Severity:** Medium / UI Visual Defect & Syntax Integrity
+- **What happened:** In `TalentDashboard.tsx`, dropdown menus (timeframe selector and review filters) rendered two adjacent chevrons (`~~`). Additionally, an unmatched closing tag in an IIFE in `TalentDashboard.tsx` caused a TypeScript compilation failure during dashboard refactoring.
+- **Root Cause:** Universal CSS rule in `tokens.css` injected an SVG chevron background on all native `<select>` tags, which conflicted with manual `<ChevronDown />` icon components placed inside `<div className="relative">` wrappers. An extra closing tag block was mistakenly left after the clean script excerpt block.
+- **Fix:** Removed redundant manual `<ChevronDown />` components across lines 4250, 4868, and 4881 in `TalentDashboard.tsx`, allowing CSS tokens to handle native select dropdown indicators cleanly. Corrected the closing brackets of the sides excerpt IIFE.
+- **Validation:** All 124 tests pass cleanly, 0 TypeScript errors (`tsc --noEmit`), standalone build succeeded.
 
 ### 75. Redundant and Stacked UI Controls in Onboarding / Auth Screen
 - **Severity:** Medium / UX/UI Redundancy & Cognitive Clutter

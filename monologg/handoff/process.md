@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-13 (Session 126: Elimination of Redundant Auth & Onboarding UI Elements for Performer and Client)
+**Last updated:** 2026-10-13 (Session 127: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -801,6 +801,18 @@ Addressed multiple redundant UI controls and visual clutter in `AuthFlow.tsx` to
 - **Subtle Demo Helper Row:** Replaced the oversized demo divider and repetitive action buttons with a sleek, discreet bottom row (`"Quick demo: [Performer] [Client]"`).
 - **Role-Tailored Hero Benefits:** Dynamically tailored left illustration headline, glow, and benefits for both Performer (Crimson `#F13030`, performer-specific value props) and Client (Royal Purple `#7B00FE`, client-specific value props).
 - **Distribution Rebuild:** Re-compiled standalone Vite production bundle (`npm run build:standalone`) and inlined fresh CSS and JavaScript into `monologg/monologg-app.html` (1.59 MB).
+- **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript compilation errors.
+
+### Step 87: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens (Session 127)
+
+Conducted a comprehensive UI/UX overhaul of the Performer Web App addressing the 5 user-flagged screens:
+- **Dual Chevron Bug Resolution:** Removed manual `<ChevronDown />` icons placed inside select wrappers in `TalentDashboard.tsx`, preventing conflict with global CSS token chevron injection.
+- **Reviews Modal Visual Hierarchy:** Standardized search inputs and selects to `h-9 text-xs rounded-xl`, polished star distribution bars with aligned counts in Pillar 3, and preserved role context with `?role=talent` in Order Room links.
+- **Earnings by Category Chart Typography:** Refined timeframe selector, legend chips, and rotated Y-axis typography for scannability.
+- **Edit Profile Standardized Sizing & Availability Pill Selector:** Standardized inputs to `h-11 rounded-xl text-sm font-body px-3.5`, refined social inputs with clean left badges, aligned tag input with Add button, replaced misleading red "Available" button with emerald active pill (pulsing dot) and amber "Booked" pill, and removed duplicate read-only tags and bio rendered below the active edit form.
+- **Fintech Card Hierarchy for Payout Bank Account:** Restyled payout bank into a clean fintech card with bank logo, bold bank name, masked account number, verified pill, and streamlined security copy while maintaining exact test string assertions.
+- **Project Detail View & 6 Lifecycle States:** Cleaned up script excerpt by removing redundant `"Sides / Script Excerpt:\n"` prefix, adding clipboard copy with "Copied!" feedback and monospace styling, polished all 6 application status banners, and ensured Order Room CTA routes with `?role=talent`.
+- **Distribution Rebuild:** Re-compiled standalone Vite production bundle (`npm run build:standalone`) and inlined fresh bundle into `monologg/monologg-app.html` (1.66 MB).
 - **Verification:** 124/124 tests pass across all 25 test suites, 0 TypeScript compilation errors.
 
 ---

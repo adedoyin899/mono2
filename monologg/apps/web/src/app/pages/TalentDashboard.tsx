@@ -185,11 +185,11 @@ export const CATEGORY_CHART_TIMEFRAMES: Record<
     gig2: [35000, 60000, 110000, 85000, 120000, 150000, 175000],
     maxVal: 400000,
     ticks: [
-      { label: "400k", val: 400000 },
-      { label: "300k", val: 300000 },
-      { label: "200k", val: 200000 },
-      { label: "100k", val: 100000 },
-      { label: "0", val: 0 },
+      { label: "₦400k", val: 400000 },
+      { label: "₦300k", val: 300000 },
+      { label: "₦200k", val: 200000 },
+      { label: "₦100k", val: 100000 },
+      { label: "₦0", val: 0 },
     ],
   },
   "3m": {
@@ -198,11 +198,11 @@ export const CATEGORY_CHART_TIMEFRAMES: Record<
     gig2: [120000, 150000, 175000],
     maxVal: 400000,
     ticks: [
-      { label: "400k", val: 400000 },
-      { label: "300k", val: 300000 },
-      { label: "200k", val: 200000 },
-      { label: "100k", val: 100000 },
-      { label: "0", val: 0 },
+      { label: "₦400k", val: 400000 },
+      { label: "₦300k", val: 300000 },
+      { label: "₦200k", val: 200000 },
+      { label: "₦100k", val: 100000 },
+      { label: "₦0", val: 0 },
     ],
   },
   "1y": {
@@ -211,11 +211,11 @@ export const CATEGORY_CHART_TIMEFRAMES: Record<
     gig2: [25000, 40000, 75000, 110000, 120000, 150000, 175000],
     maxVal: 400000,
     ticks: [
-      { label: "400k", val: 400000 },
-      { label: "300k", val: 300000 },
-      { label: "200k", val: 200000 },
-      { label: "100k", val: 100000 },
-      { label: "0", val: 0 },
+      { label: "₦400k", val: 400000 },
+      { label: "₦300k", val: 300000 },
+      { label: "₦200k", val: 200000 },
+      { label: "₦100k", val: 100000 },
+      { label: "₦0", val: 0 },
     ],
   },
 };
@@ -4129,14 +4129,42 @@ export function TalentDashboard() {
             {/* ── Analytics Tab ── */}
             {activeTab === "analytics" && (
               <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Performer Performance &amp; Analytics</h2>
                     <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
                       Track profile impressions, booking conversion, and earnings velocity for {talentProfile.name}.
                     </p>
                   </div>
-                  <Badge tone={isNewUser ? "neutral" : "success"} size="md">{isNewUser ? "Pending Data" : "Live Sync Active"}</Badge>
+
+                  {/* Period Selector (Matches ClientDashboard UX) */}
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <div
+                      className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-lg)] border text-xs font-body shadow-xs"
+                      style={{
+                        background: "var(--color-bg-surface)",
+                        borderColor: "var(--color-border-default)",
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                      <span className="text-[var(--color-text-secondary)] font-medium">Period:</span>
+                      <select
+                        aria-label="Analytics date range"
+                        value={chartTimeframe}
+                        onChange={(e) => {
+                          setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
+                          setHoveredChartIndex(null);
+                        }}
+                        className="bg-transparent font-semibold cursor-pointer outline-none text-xs"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        <option value="3m">Last 3 months</option>
+                        <option value="6m">Last 6 months</option>
+                        <option value="1y">Past year</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 {isNewUser ? (
@@ -4156,17 +4184,17 @@ export function TalentDashboard() {
                   <>
                     {/* Metric Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      {/* Card 1: Profile view */}
+                      {/* Card 1: Profile views */}
                       <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile view</div>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile views</div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
                       </div>
 
-                      {/* Card 2: Project completed */}
+                      {/* Card 2: Projects completed */}
                       <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Project completed</div>
-                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>28</div>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Projects completed</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>28</div>
                         <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
                       </div>
 
@@ -4188,7 +4216,7 @@ export function TalentDashboard() {
                           <span>4.9</span>
                           <span className="text-amber-500 text-xl">★</span>
                         </div>
-                        <div className="text-xs font-body mt-1 text-zinc-500 dark:text-zinc-400 group-hover:text-[var(--color-accent)] transition-colors">
+                        <div className="text-xs font-body mt-1 transition-colors group-hover:text-[var(--color-accent)]" style={{ color: "var(--color-text-secondary)" }}>
                           Based on {allClientReviews.length} client reviews
                         </div>
                       </div>
@@ -4205,12 +4233,12 @@ export function TalentDashboard() {
                     {(() => {
                       const activeChartData = CATEGORY_CHART_TIMEFRAMES[chartTimeframe];
                       const n = activeChartData.labels.length;
-                      const paddingLeft = 64;
+                      const paddingLeft = 68;
                       const paddingRight = 30;
                       const paddingTop = 25;
                       const paddingBottom = 40;
                       const plotWidth = 760 - paddingLeft - paddingRight;
-                      const plotHeight = 260 - paddingTop - paddingBottom;
+                      const plotHeight = 250 - paddingTop - paddingBottom;
                       const baselineY = paddingTop + plotHeight;
 
                       const gig1Points = activeChartData.gig1.map((val, i) => ({
@@ -4233,53 +4261,51 @@ export function TalentDashboard() {
 
                       return (
                         <div
-                          className="p-6 md:p-7 rounded-[var(--radius-xl)] relative"
+                          className="p-5 sm:p-6 md:p-7 rounded-[var(--radius-xl)] relative"
                           style={{
                             background: "var(--color-bg-surface)",
                             border: "1px solid var(--color-border-default)",
                             boxShadow: "var(--shadow-card)",
                           }}
                         >
-                          {/* Header with Title and Legends above the Chart */}
-                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 mb-5">
+                          {/* Header with Title and Legends matching Client Hierarchy */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                             <div>
-                              <h3 className="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                              <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
                                 Earnings by Category
                               </h3>
-                              <p className="text-xs text-zinc-500 font-body mt-0.5">
+                              <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
                                 Overview of monthly revenue trajectory for your 2 active rate cards
                               </p>
                             </div>
 
-                            {/* Legends & Timeframe in a clean single row above the chart */}
-                            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                              <div className="flex items-center gap-4 text-xs font-body">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="w-2.5 h-2.5 rounded-full bg-[#E50914] inline-block shrink-0 shadow-2xs" />
-                                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{gig1Title}</span>
-                                  <span className="text-[11px] text-zinc-400 font-mono">(68%)</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] inline-block shrink-0 shadow-2xs" />
-                                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{gig2Title}</span>
-                                  <span className="text-[11px] text-zinc-400 font-mono">(32%)</span>
-                                </div>
-                              </div>
-
-                              {/* Timeframe Selector Dropdown */}
-                              <div className="relative shrink-0">
-                                <select
-                                  value={chartTimeframe}
-                                  onChange={(e) => {
-                                    setChartTimeframe(e.target.value as "6m" | "3m" | "1y");
-                                    setHoveredChartIndex(null);
+                            {/* Legends in a clean, accessible row */}
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-5">
+                              <div className="flex items-center gap-2 text-xs font-body">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#E50914] shrink-0" />
+                                <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>{gig1Title}</span>
+                                <span
+                                  className="px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold"
+                                  style={{
+                                    background: "rgba(229, 9, 20, 0.1)",
+                                    color: "#E50914",
                                   }}
-                                  className="appearance-none text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 shadow-2xs hover:border-zinc-300 focus:outline-none"
                                 >
-                                  <option value="6m">Last 6 months</option>
-                                  <option value="3m">Last 3 months</option>
-                                  <option value="1y">Past year</option>
-                                </select>
+                                  68%
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs font-body">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shrink-0" />
+                                <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>{gig2Title}</span>
+                                <span
+                                  className="px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold"
+                                  style={{
+                                    background: "rgba(124, 58, 237, 0.1)",
+                                    color: "#7C3AED",
+                                  }}
+                                >
+                                  32%
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -4287,33 +4313,39 @@ export function TalentDashboard() {
                           {/* Interactive Hover Tooltip Float */}
                           {hoveredChartIndex !== null && hoveredChartIndex < n && (
                             <div
-                              className="absolute top-16 right-6 md:right-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-xl rounded-xl p-3 text-xs pointer-events-none transition-all z-20 min-w-[200px]"
+                              className="absolute top-14 right-6 md:right-8 border shadow-xl rounded-xl p-3 text-xs pointer-events-none transition-all z-20 min-w-[210px]"
+                              style={{
+                                background: "var(--color-bg-surface)",
+                                borderColor: "var(--color-border-default)",
+                                color: "var(--color-text-primary)",
+                                boxShadow: "var(--shadow-card)",
+                              }}
                             >
-                              <div className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1.5 pb-1 border-b border-zinc-100 dark:border-zinc-800 flex justify-between">
+                              <div className="font-semibold mb-1.5 pb-1 flex justify-between border-b" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
                                 <span>{activeChartData.labels[hoveredChartIndex]}</span>
-                                <span className="text-[10px] text-zinc-400 font-mono">Performance</span>
+                                <span className="text-[10px] font-mono" style={{ color: "var(--color-text-tertiary)" }}>Performance</span>
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1.5">
                                 <div className="flex items-center justify-between gap-3">
-                                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
+                                  <span className="flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
                                     <span className="w-2 h-2 rounded-full bg-[#E50914] shrink-0" />
-                                    <span className="truncate max-w-[110px]">{gig1Title}</span>
+                                    <span className="truncate max-w-[120px]">{gig1Title}</span>
                                   </span>
-                                  <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+                                  <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>
                                     ₦{activeChartData.gig1[hoveredChartIndex].toLocaleString()}
                                   </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-3">
-                                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
+                                  <span className="flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
                                     <span className="w-2 h-2 rounded-full bg-[#7C3AED] shrink-0" />
-                                    <span className="truncate max-w-[110px]">{gig2Title}</span>
+                                    <span className="truncate max-w-[120px]">{gig2Title}</span>
                                   </span>
-                                  <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+                                  <span className="font-mono font-semibold" style={{ color: "var(--color-text-primary)" }}>
                                     ₦{activeChartData.gig2[hoveredChartIndex].toLocaleString()}
                                   </span>
                                 </div>
-                                <div className="flex items-center justify-between gap-3 pt-1 border-t border-zinc-100 dark:border-zinc-800 font-bold text-zinc-900 dark:text-white">
-                                  <span>Total:</span>
+                                <div className="flex items-center justify-between gap-3 pt-1.5 border-t font-bold" style={{ borderColor: "var(--color-hairline)" }}>
+                                  <span style={{ color: "var(--color-text-primary)" }}>Total:</span>
                                   <span className="font-mono text-[var(--color-accent)]">
                                     ₦{(activeChartData.gig1[hoveredChartIndex] + activeChartData.gig2[hoveredChartIndex]).toLocaleString()}
                                   </span>
@@ -4323,146 +4355,160 @@ export function TalentDashboard() {
                           )}
 
                           {/* Chart SVG Canvas */}
-                          <div className="w-full overflow-hidden">
-                            <svg
-                              viewBox="0 0 760 260"
-                              className="w-full h-56 sm:h-64 md:h-72 select-none"
-                              preserveAspectRatio="none"
-                              onMouseMove={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const clientX = e.clientX - rect.left;
-                                const scaleX = rect.width / 760;
-                                const svgX = clientX / scaleX;
-                                const relX = svgX - paddingLeft;
-                                const clampedRatio = Math.max(0, Math.min(1, relX / plotWidth));
-                                const idx = Math.round(clampedRatio * (n - 1));
-                                setHoveredChartIndex(idx);
-                              }}
-                              onMouseLeave={() => setHoveredChartIndex(null)}
-                            >
-                              <defs>
-                                <linearGradient id="splineGig1Gradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#E50914" stopOpacity="0.22" />
-                                  <stop offset="100%" stopColor="#E50914" stopOpacity="0.01" />
-                                </linearGradient>
-                                <linearGradient id="splineGig2Gradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.18" />
-                                  <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.01" />
-                                </linearGradient>
-                              </defs>
-
-                              {/* Y-Axis Label Rotated */}
-                              <text
-                                transform="rotate(-90)"
-                                x={-((paddingTop + baselineY) / 2)}
-                                y="18"
-                                textAnchor="middle"
-                                className="text-[11px] font-body fill-zinc-400 font-medium"
+                          <div className="w-full overflow-x-auto">
+                            <div className="min-w-[560px]">
+                              <svg
+                                viewBox="0 0 760 250"
+                                className="w-full h-auto overflow-visible select-none"
+                                onMouseMove={(e) => {
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  const clientX = e.clientX - rect.left;
+                                  const scaleX = rect.width / 760;
+                                  const svgX = clientX / scaleX;
+                                  const relX = svgX - paddingLeft;
+                                  const clampedRatio = Math.max(0, Math.min(1, relX / plotWidth));
+                                  const idx = Math.round(clampedRatio * (n - 1));
+                                  setHoveredChartIndex(idx);
+                                }}
+                                onMouseLeave={() => setHoveredChartIndex(null)}
                               >
-                                Earnings (₦)
-                              </text>
+                                <defs>
+                                  <linearGradient id="splineGig1Gradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#E50914" stopOpacity="0.22" />
+                                    <stop offset="100%" stopColor="#E50914" stopOpacity="0.01" />
+                                  </linearGradient>
+                                  <linearGradient id="splineGig2Gradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.18" />
+                                    <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.01" />
+                                  </linearGradient>
+                                </defs>
 
-                              {/* Horizontal Dashed Grid Lines & Y Ticks */}
-                              {activeChartData.ticks.map((tick) => {
-                                const tickY = baselineY - (tick.val / activeChartData.maxVal) * plotHeight;
-                                return (
-                                  <g key={tick.label}>
-                                    <line
-                                      x1={paddingLeft}
-                                      y1={tickY}
-                                      x2={paddingLeft + plotWidth}
-                                      y2={tickY}
-                                      stroke="currentColor"
-                                      strokeDasharray="4 4"
-                                      className="text-zinc-200 dark:text-zinc-800"
-                                      strokeWidth="1"
-                                    />
-                                    <text
-                                      x={paddingLeft - 8}
-                                      y={tickY + 4}
-                                      textAnchor="end"
-                                      className="text-[11px] font-mono fill-zinc-400 dark:fill-zinc-500"
-                                    >
-                                      {tick.label}
-                                    </text>
-                                  </g>
-                                );
-                              })}
+                                {/* Y-Axis Label Rotated */}
+                                <text
+                                  transform="rotate(-90)"
+                                  x={-((paddingTop + baselineY) / 2)}
+                                  y="18"
+                                  textAnchor="middle"
+                                  className="text-[11px] font-body font-medium"
+                                  style={{ fill: "var(--color-text-tertiary)" }}
+                                >
+                                  Earnings (₦)
+                                </text>
 
-                              {/* Area Fills */}
-                              <path d={area1} fill="url(#splineGig1Gradient)" />
-                              <path d={area2} fill="url(#splineGig2Gradient)" />
+                                {/* Horizontal Dashed Grid Lines & Y Ticks */}
+                                {activeChartData.ticks.map((tick) => {
+                                  const tickY = baselineY - (tick.val / activeChartData.maxVal) * plotHeight;
+                                  const tickLabel = tick.label.startsWith("₦") ? tick.label : `₦${tick.label}`;
+                                  return (
+                                    <g key={tick.label}>
+                                      <line
+                                        x1={paddingLeft}
+                                        y1={tickY}
+                                        x2={paddingLeft + plotWidth}
+                                        y2={tickY}
+                                        stroke="var(--color-hairline)"
+                                        strokeDasharray="4 4"
+                                        strokeWidth="1"
+                                      />
+                                      <text
+                                        x={paddingLeft - 10}
+                                        y={tickY + 4}
+                                        textAnchor="end"
+                                        className="text-[11px] font-mono font-medium"
+                                        style={{ fill: "var(--color-text-tertiary)" }}
+                                      >
+                                        {tickLabel}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
 
-                              {/* Spline Lines */}
-                              <path
-                                d={spline1}
-                                fill="none"
-                                stroke="#E50914"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d={spline2}
-                                fill="none"
-                                stroke="#7C3AED"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
+                                {/* Area Fills */}
+                                <path d={area1} fill="url(#splineGig1Gradient)" />
+                                <path d={area2} fill="url(#splineGig2Gradient)" />
 
-                              {/* Hover Indicator Vertical Line & Circles */}
-                              {hoveredChartIndex !== null && hoveredChartIndex < n && (
-                                <g>
-                                  <line
-                                    x1={gig1Points[hoveredChartIndex].x}
-                                    y1={paddingTop}
-                                    x2={gig1Points[hoveredChartIndex].x}
-                                    y2={baselineY}
-                                    stroke="#94a3b8"
-                                    strokeDasharray="3 3"
-                                    strokeWidth="1.5"
-                                  />
+                                {/* Spline Lines */}
+                                <path
+                                  d={spline1}
+                                  fill="none"
+                                  stroke="#E50914"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d={spline2}
+                                  fill="none"
+                                  stroke="#7C3AED"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+
+                                {/* Data Points Circles (permanent like Client version, expand on hover) */}
+                                {gig1Points.map((pt, i) => (
                                   <circle
-                                    cx={gig1Points[hoveredChartIndex].x}
-                                    cy={gig1Points[hoveredChartIndex].y}
-                                    r="5.5"
+                                    key={`gig1-pt-${i}`}
+                                    cx={pt.x}
+                                    cy={pt.y}
+                                    r={hoveredChartIndex === i ? 6 : 3.5}
                                     fill="#E50914"
-                                    stroke="white"
-                                    strokeWidth="2.5"
+                                    stroke="var(--color-bg-surface)"
+                                    strokeWidth="2"
+                                    className="transition-all duration-150 pointer-events-none"
                                   />
+                                ))}
+                                {gig2Points.map((pt, i) => (
                                   <circle
-                                    cx={gig2Points[hoveredChartIndex].x}
-                                    cy={gig2Points[hoveredChartIndex].y}
-                                    r="5.5"
+                                    key={`gig2-pt-${i}`}
+                                    cx={pt.x}
+                                    cy={pt.y}
+                                    r={hoveredChartIndex === i ? 6 : 3.5}
                                     fill="#7C3AED"
-                                    stroke="white"
-                                    strokeWidth="2.5"
+                                    stroke="var(--color-bg-surface)"
+                                    strokeWidth="2"
+                                    className="transition-all duration-150 pointer-events-none"
                                   />
-                                </g>
-                              )}
+                                ))}
 
-                              {/* X-Axis Tick Labels */}
-                              {activeChartData.labels.map((label, i) => {
-                                const x = paddingLeft + (i / (n - 1)) * plotWidth;
-                                return (
-                                  <text
-                                    key={label}
-                                    x={x}
-                                    y={baselineY + 22}
-                                    textAnchor="middle"
-                                    className="text-[12px] font-body fill-zinc-500 dark:fill-zinc-400 font-medium"
-                                  >
-                                    {label}
-                                  </text>
-                                );
-                              })}
-                            </svg>
+                                {/* Hover Indicator Vertical Line */}
+                                {hoveredChartIndex !== null && hoveredChartIndex < n && (
+                                  <g>
+                                    <line
+                                      x1={gig1Points[hoveredChartIndex].x}
+                                      y1={paddingTop}
+                                      x2={gig1Points[hoveredChartIndex].x}
+                                      y2={baselineY}
+                                      stroke="var(--color-text-tertiary)"
+                                      strokeDasharray="3 3"
+                                      strokeWidth="1.5"
+                                    />
+                                  </g>
+                                )}
+
+                                {/* X-Axis Tick Labels */}
+                                {activeChartData.labels.map((label, i) => {
+                                  const x = paddingLeft + (i / (n - 1)) * plotWidth;
+                                  return (
+                                    <text
+                                      key={label}
+                                      x={x}
+                                      y={baselineY + 22}
+                                      textAnchor="middle"
+                                      className="text-[12px] font-body font-medium"
+                                      style={{ fill: "var(--color-text-secondary)" }}
+                                    >
+                                      {label}
+                                    </text>
+                                  );
+                                })}
+                              </svg>
+                            </div>
                           </div>
                         </div>
                       );
                     })()}
-                </>
+                  </>
                 )}
               </motion.div>
             )}
