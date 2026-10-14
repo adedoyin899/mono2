@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-14 (Session 130: Fund Client Wallet UX/UI Polish & Fintech Streamlining)
+**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 131 (2026-10-14) — Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul
+
+**Goal:** Fix the transparent modal background leak in the "Fund Client Wallet" modal to adhere strictly to the platform's solid surface convention, streamline saved cards by eliminating redundant CVV verification and the inline "Add New Card" form, and expand the client-end Performer Filter modal to filter by Age, Gender, Budget Slider, and Location (`ClientDashboard.tsx`, `talents.ts`, `monologg-app.html`):
+1. **Solid Modal Container Convention (`ClientDashboard.tsx`):**
+   - *Problem:* The `<Modal>` component renders only the outer overlay scrim (`var(--color-overlay)` with backdrop blur). Inside `showFundWalletModal`, the content wrapper was an unstyled `<div>` with `w-full max-w-lg overflow-hidden`, allowing the underlying dashboard and purple hero card to shine through as a semi-transparent background.
+   - *Fix:* Replaced the unstyled container with an animated, solid surface modal container (`motion.div`) with `background: "var(--color-bg-surface)"`, `border: "1px solid var(--color-border-default)"`, `boxShadow: "var(--shadow-modal)"`, `rounded-[var(--radius-xl)]`, and `max-h-[90vh] overflow-y-auto`. Completely seals the modal surface against background bleed-through.
+2. **Streamlined Card Selection & Removal of CVV / Inline Add Card (`ClientDashboard.tsx`):**
+   - Removed the CVV code row (`3 digits on back of card` input).
+   - Removed the inline `+ Add New Card` button and its expandable form since card management belongs strictly in Settings > Payment details.
+   - Rendered saved cards as clean, tactile selectable cards displaying card brand (Mastercard overlapping spheres, Visa badge), masked digits, expiration date, default badges, and checkmark selection state.
+   - Retained the zero-card empty state with direct guidance to Settings / Paystack, and maintained insufficient funds error recovery flows ("Try Another Card" & "Switch to Paystack").
+3. **Performer Filter Overhaul: Age, Gender, Budget Slider & Location (`ClientDashboard.tsx`):**
+   - Added interactive filter controls matching the performer discovery taxonomy:
+     - **Age Range:** `All`, `18-25`, `26-35`, `36-45`, `46-55`, `56-65`, `65+`.
+     - **Gender Presentation:** `All`, `Female`, `Male`, `Non-Binary`, `Androgynous`.
+     - **Budget Slider:** Interactive range slider from ₦0 (Any) up to ₦150k+ with live formatted currency readout (`₦{slider.toLocaleString()}/day` or `Any Budget`).
+     - **Location:** Quick hub pills for `All`, `Lagos`, `Abuja`, `Port Harcourt`, `Ibadan`, `Kano`, `Enugu`, `Accra`.
+   - Preserved all existing physical feature pills (Height, Build, Complexion, Hair) with responsive wrapping.
+   - Added an active filter count pill indicator on the "More Filters" button when criteria are applied.
+   - Updated client-side filter evaluation logic (`filteredTalents`) to filter performers across location, budget, gender presentation, age range, and physical features.
+4. **Mock Fixture Attributes Population (`mocks/talents.ts`):**
+   - Populated realistic `attributes` (`genderPresentation`, `ageRange`, `heightRange`, `build`, `complexion`, `hairColor`) for all 6 mock talents (`tal-001` through `tal-006`) so filtering behaves realistically in mock and demo environments.
+5. **Distribution Rebuilding & Quality Assurance:**
+   - 124/124 tests pass across all 25 test suites (`npm test`).
+   - 0 TypeScript compiler errors (`tsc --noEmit`).
+   - Standalone bundle `monologg/monologg-app.html` rebuilt and inlined (1.59 MB).
 
 ---
 

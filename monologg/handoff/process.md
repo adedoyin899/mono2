@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-14 (Session 130: Fund Client Wallet UX/UI Polish & Fintech Streamlining)
+**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -840,6 +840,20 @@ Streamlined the "Fund Client Wallet" modal in `ClientDashboard.tsx` into an intu
 - **Integrated CVV Security Row:** Restyled CVV code entry into a clean security row with lock icon and 3-digit card guidance.
 - **Escrow-Backed Action Button:** Polished the primary CTA with bold text, debit amount, and bank-grade FINCRA 256-bit encryption trust badge.
 - **Standalone Distribution & Quality Assurance:** Recompiled Vite standalone bundle (`monologg/monologg-app.html`, 1.59 MB). All 124 unit tests passing, zero TypeScript compiler errors.
+
+### Step 91: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul (Session 131)
+
+Enforced the solid modal container standard, streamlined card funding, and expanded the client discovery filters:
+- **Solid Modal Container Convention:** Replaced the unstyled `<div>` wrapper inside `showFundWalletModal` with an animated solid surface container (`motion.div` with `var(--color-bg-surface)`, `border: 1px solid var(--color-border-default)`, `boxShadow: var(--shadow-modal)`, `rounded-[var(--radius-xl)]`, and `max-h-[90vh] overflow-y-auto`). This completely eliminates the transparent background bleed-through from the underlying dashboard hero card.
+- **Saved Cards Streamlining & CVV Purge:** Removed the redundant CVV security code input and inline "+ Add New Card" form since card management belongs strictly in Settings. Rendered saved cards as clean, interactive selection cards with brand logos (Mastercard/Visa), masked digits, expiry metadata, and checkmark selection state, while preserving zero-card empty state and insufficient funds error recovery.
+- **Client Performer Filter Overhaul:** Expanded the client-side Performer Filter modal with:
+  - Age Range chips (`All`, `18-25`, `26-35`, `36-45`, `46-55`, `56-65`, `65+`).
+  - Gender Presentation chips (`All`, `Female`, `Male`, `Non-Binary`, `Androgynous`).
+  - Interactive Budget Range Slider (from ₦0 Any to ₦150k+ with live readout).
+  - Location Hub pills (`All`, `Lagos`, `Abuja`, `Port Harcourt`, `Ibadan`, `Kano`, `Enugu`, `Accra`).
+  - Active filter count indicator badge on the "More Filters" button.
+  - Enhanced client-side filtering logic across all dimensions and populated attributes on mock talents (`mocks/talents.ts`).
+- **Standalone Distribution & Testing:** Recompiled Vite standalone bundle (`monologg/monologg-app.html`, 1.59 MB). All 124 unit tests passing, zero TypeScript compiler errors.
 
 ---
 

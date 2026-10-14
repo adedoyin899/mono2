@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-14 (Session 130: Fund Client Wallet UX/UI Polish & Fintech Streamlining)
+**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 79. Transparent Modal Scrim Leak in Fund Client Wallet Modal & Missing Discovery Filters for Age, Gender, Budget, and Location
+- **Severity:** Medium / Visual Consistency & Discovery UX
+- **What happened:** In `ClientDashboard.tsx`, opening the "Fund Client Wallet" modal caused the underlying dashboard content and purple balance hero card to leak through the modal body because the inner wrapper lacked an explicit solid background and modal container shadow. Furthermore, the modal included redundant card addition forms and CVV inputs when cards were already registered in Settings. Lastly, the Performer Filter modal on the client side lacked core casting filters: Age, Gender, interactive Budget Slider, and Location.
+- **Root Cause:** The generic `<Modal>` primitive intentionally renders only the transparent overlay scrim (`var(--color-overlay)` with backdrop-filter blur) to allow flexible custom modal sizing, expecting child components to declare their own solid surface token (`var(--color-bg-surface)`). The unstyled `<div>` wrapper lacked this token. On the filters side, only physical attributes (height, build, complexion, hair) had been wired up in the modal.
+- **Fix:** Upgraded the inner modal container in `ClientDashboard.tsx` to a standard solid surface container (`motion.div` with `background: "var(--color-bg-surface)"`, `border: "1px solid var(--color-border-default)"`, `boxShadow: "var(--shadow-modal)"`, `rounded-[var(--radius-xl)]`). Purged CVV code input and inline "+ Add New Card" from the quick funding modal in favor of clean card selection. Expanded the client-side Performer Filter modal with Age range chips, Gender presentation chips, an interactive Budget slider (₦0 to ₦150k+ with live readout), and Location hub pills. Populated mock attributes in `talents.ts`.
+- **Validation:** All 124 unit tests pass, typecheck clean, standalone bundle regenerated.
 
 ### 78. Developer Test Artifact Link & Cluttered Radio Input Layout in Fund Client Wallet Modal
 - **Severity:** Low / UI-UX Polish & Production Cleanliness

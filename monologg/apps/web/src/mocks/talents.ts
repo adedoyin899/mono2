@@ -13,6 +13,14 @@ export const TALENTS: Talent[] = [
     reviews: 48,
     available: true,
     avatar: "AO",
+    attributes: {
+      genderPresentation: "FEMININE",
+      ageRange: "RANGE_26_35",
+      heightRange: "CM_160_170",
+      build: "SLIM",
+      complexion: "MEDIUM",
+      hairColor: "BLACK",
+    },
   },
   {
     id: "2",
@@ -26,6 +34,14 @@ export const TALENTS: Talent[] = [
     reviews: 32,
     available: true,
     avatar: "CO",
+    attributes: {
+      genderPresentation: "MASCULINE",
+      ageRange: "RANGE_26_35",
+      heightRange: "CM_180_190",
+      build: "ATHLETIC",
+      complexion: "DARK",
+      hairColor: "BLACK",
+    },
   },
   {
     id: "3",
@@ -39,6 +55,14 @@ export const TALENTS: Talent[] = [
     reviews: 24,
     available: false,
     avatar: "KM",
+    attributes: {
+      genderPresentation: "MASCULINE",
+      ageRange: "RANGE_36_45",
+      heightRange: "CM_170_180",
+      build: "AVERAGE",
+      complexion: "DARK",
+      hairColor: "BLACK",
+    },
   },
   {
     id: "4",
@@ -52,6 +76,14 @@ export const TALENTS: Talent[] = [
     reviews: 61,
     available: true,
     avatar: "AD",
+    attributes: {
+      genderPresentation: "FEMININE",
+      ageRange: "RANGE_18_25",
+      heightRange: "CM_160_170",
+      build: "SLIM",
+      complexion: "LIGHT",
+      hairColor: "BROWN",
+    },
   },
   {
     id: "5",
@@ -65,6 +97,14 @@ export const TALENTS: Talent[] = [
     reviews: 18,
     available: true,
     avatar: "TA",
+    attributes: {
+      genderPresentation: "FEMININE",
+      ageRange: "RANGE_18_25",
+      heightRange: "CM_150_160",
+      build: "CURVY",
+      complexion: "FAIR",
+      hairColor: "BLACK",
+    },
   },
   {
     id: "6",
@@ -78,5 +118,14 @@ export const TALENTS: Talent[] = [
     reviews: 27,
     available: true,
     avatar: "IB",
+    attributes: {
+      genderPresentation: "MASCULINE",
+      ageRange: "RANGE_26_35",
+      heightRange: "CM_180_190",
+      build: "ATHLETIC",
+      complexion: "MEDIUM",
+      hairColor: "BLACK",
+    },
   },
 ];
+

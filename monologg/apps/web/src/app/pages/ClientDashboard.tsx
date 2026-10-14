@@ -418,6 +418,7 @@ export function ClientDashboard() {
   const [showAttributeFilters, setShowAttributeFilters] = useState(false);
   const [showMoreFiltersModal, setShowMoreFiltersModal] = useState(false);
   const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
+  const [maxBudgetSlider, setMaxBudgetSlider] = useState<number>(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<ClientNotificationItem[]>(() => appStateSync.getNotifications());
   const [selectedProjectDetail, setSelectedProjectDetail] = useState<ClientProject | null>(null);
@@ -848,10 +849,34 @@ export function ClientDashboard() {
     setShortlist(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
+  const activeFiltersCount = Object.values(attributeFilters).filter(Boolean).length + (maxBudgetSlider > 0 ? 1 : 0);
+
   const filteredTalents = talents.filter(t => {
     const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.role.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesNiche = selectedNiche === "All" || t.role.toLowerCase().includes(selectedNiche.toLowerCase());
-    return matchesSearch && matchesNiche;
+
+    // Location filter
+    const matchesLocation = !attributeFilters.location || attributeFilters.location === "All" || t.location.toLowerCase() === attributeFilters.location.toLowerCase();
+
+    // Budget slider filter (Rate card)
+    const talentNumPrice = parseInt(t.price.replace(/\D/g, ""), 10) || 0;
+    const matchesBudget = !maxBudgetSlider || maxBudgetSlider === 0 || talentNumPrice <= maxBudgetSlider;
+
+    // Gender / presentation filter
+    const talentGender = t.attributes?.genderPresentation;
+    const matchesGender = !attributeFilters.genderPresentation || !talentGender || talentGender === attributeFilters.genderPresentation;
+
+    // Age filter
+    const talentAge = t.attributes?.ageRange;
+    const matchesAge = !attributeFilters.ageRange || !talentAge || talentAge === attributeFilters.ageRange;
+
+    // Physical attributes (build, height, complexion, hair)
+    const matchesBuild = !attributeFilters.build || !t.attributes?.build || t.attributes.build === attributeFilters.build;
+    const matchesHeight = !attributeFilters.heightRange || !t.attributes?.heightRange || t.attributes.heightRange === attributeFilters.heightRange;
+    const matchesComplexion = !attributeFilters.complexion || !t.attributes?.complexion || t.attributes.complexion === attributeFilters.complexion;
+    const matchesHair = !attributeFilters.hairColor || !t.attributes?.hairColor || t.attributes.hairColor === attributeFilters.hairColor;
+
+    return matchesSearch && matchesNiche && matchesLocation && matchesBudget && matchesGender && matchesAge && matchesBuild && matchesHeight && matchesComplexion && matchesHair;
   });
 
   const filteredActivity = effectiveActivity.filter(item => {
@@ -1313,6 +1338,11 @@ export function ClientDashboard() {
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
                   <Button variant="secondary" className="h-9 px-3 text-xs gap-1.5 shrink-0" onClick={() => setShowMoreFiltersModal(true)}>
                     <Filter className="w-3.5 h-3.5" /> More Filters
+                    {activeFiltersCount > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-[#7B00FE] text-white text-[10px] flex items-center justify-center font-bold">
+                        {activeFiltersCount}
+                      </span>
+                    )}
                   </Button>
                   {NICHES.map(niche => (
                     <button
@@ -3666,47 +3696,194 @@ export function ClientDashboard() {
               <Modal onClose={() => setShowMoreFiltersModal(false)}>
                 <motion.div
                   initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                  className="w-full max-w-lg rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto space-y-5"
+                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-modal)" }}
                   onClick={e => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between mb-5 border-b pb-3" style={{ borderColor: "var(--color-hairline)" }}>
-                    <h3 className="font-display text-xl" style={{ color: "var(--color-text-primary)" }}>Filter Performers by Physical Features</h3>
-                    <button onClick={() => setShowMoreFiltersModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
+                  <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                    <div>
+                      <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Filter Performers</h3>
+                      <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                        Filter by age, gender, budget, location, and physical attributes
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowMoreFiltersModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                      aria-label="Close filters modal"
+                    >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="space-y-4 mb-6">
-                    {ATTRIBUTE_FILTER_FIELDS.map((field) => (
-                      <div key={field.key as string}>
-                        <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>{field.label}</div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {field.options.map((opt) => {
-                            const active = attributeFilters[field.key] === opt;
-                            return (
-                              <button
-                                key={opt}
-                                onClick={() => toggleAttributeFilter(field.key, opt)}
-                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
-                                style={{
-                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                                }}
-                              >
-                                {opt.replace(/_/g, " ")}
-                              </button>
-                            );
-                          })}
-                        </div>
+                  <div className="space-y-4">
+                    {/* 1. Age Filter */}
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Age
                       </div>
-                    ))}
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { label: "18–25", val: "RANGE_18_25" },
+                          { label: "26–35", val: "RANGE_26_35" },
+                          { label: "36–45", val: "RANGE_36_45" },
+                          { label: "46–55", val: "RANGE_46_55" },
+                          { label: "56–65", val: "RANGE_56_65" },
+                          { label: "65+", val: "OVER_65" },
+                        ].map(({ label, val }) => {
+                          const active = attributeFilters.ageRange === val;
+                          return (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => toggleAttributeFilter("ageRange", val)}
+                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
+                              style={{
+                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
+                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
+                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
+                              }}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 2. Gender Filter */}
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Gender
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { label: "Female", val: "FEMININE" },
+                          { label: "Male", val: "MASCULINE" },
+                          { label: "Non-Binary", val: "NON_BINARY" },
+                          { label: "Androgynous", val: "ANDROGYNOUS" },
+                        ].map(({ label, val }) => {
+                          const active = attributeFilters.genderPresentation === val;
+                          return (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => toggleAttributeFilter("genderPresentation", val)}
+                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
+                              style={{
+                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
+                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
+                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
+                              }}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 3. Budget Slider */}
+                    <div className="p-3.5 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                          Budget (Rate Card)
+                        </label>
+                        <span className="font-mono text-xs font-bold" style={{ color: "#7B00FE" }}>
+                          {maxBudgetSlider === 0 ? "Any Budget" : `Up to ₦${maxBudgetSlider.toLocaleString()}`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={150000}
+                        step={5000}
+                        value={maxBudgetSlider}
+                        onChange={(e) => setMaxBudgetSlider(Number(e.target.value))}
+                        className="w-full accent-[#7B00FE] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
+                      />
+                      <div className="flex justify-between text-[11px] font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                        <span>₦0 (Any)</span>
+                        <span>₦75k</span>
+                        <span>₦150k+</span>
+                      </div>
+                    </div>
+
+                    {/* 4. Location Filter */}
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Location
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {["All", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Accra"].map((loc) => {
+                          const active = (!attributeFilters.location && loc === "All") || attributeFilters.location === loc;
+                          return (
+                            <button
+                              key={loc}
+                              type="button"
+                              onClick={() => {
+                                setAttributeFilters(prev => ({
+                                  ...prev,
+                                  location: loc === "All" || prev.location === loc ? undefined : loc,
+                                }));
+                              }}
+                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
+                              style={{
+                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
+                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
+                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
+                              }}
+                            >
+                              {loc}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 5. Physical Attributes (Height, Build, Complexion, Hair) */}
+                    <div className="pt-3 border-t space-y-3.5" style={{ borderColor: "var(--color-hairline)" }}>
+                      <div className="text-[11px] font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Physical Features &amp; Appearance
+                      </div>
+                      {ATTRIBUTE_FILTER_FIELDS.filter(f => f.key !== "genderPresentation").map((field) => (
+                        <div key={field.key as string}>
+                          <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                            {field.label}
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {field.options.map((opt) => {
+                              const active = attributeFilters[field.key] === opt;
+                              return (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => toggleAttributeFilter(field.key, opt)}
+                                  className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
+                                  style={{
+                                    background: active ? "#7B00FE" : "var(--color-bg-elevated)",
+                                    color: active ? "#FFFFFF" : "var(--color-text-secondary)",
+                                    border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
+                                  }}
+                                >
+                                  {opt.replace(/_/g, " ")}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                    <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => setAttributeFilters({})}>Reset Filters</Button>
-                    <Button className="flex-1 h-11 text-xs" onClick={() => setShowMoreFiltersModal(false)}>Apply Filters</Button>
+                    <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => { setAttributeFilters({}); setMaxBudgetSlider(0); }}>
+                      Reset Filters
+                    </Button>
+                    <Button className="flex-1 h-11 text-xs font-bold" style={{ background: "#7B00FE", color: "#FFFFFF" }} onClick={() => setShowMoreFiltersModal(false)}>
+                      Apply Filters {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ""}
+                    </Button>
                   </div>
                 </motion.div>
               </Modal>
@@ -3715,7 +3892,18 @@ export function ClientDashboard() {
             {/* ── Fund Wallet Modal ── */}
             {showFundWalletModal && (
               <Modal key="fund-wallet-modal" onClose={() => { setShowFundWalletModal(false); setFundingSuccess(false); setCardFundError(null); }}>
-                <div className="p-6 space-y-5 max-w-md w-full" onClick={e => e.stopPropagation()}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-md rounded-[var(--radius-xl)] p-6 max-h-[90vh] overflow-y-auto space-y-5"
+                  style={{
+                    background: "var(--color-bg-surface)",
+                    border: "1px solid var(--color-border-default)",
+                    boxShadow: "var(--shadow-modal)",
+                  }}
+                  onClick={e => e.stopPropagation()}
+                >
                   <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
                     <div>
                       <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Fund Client Wallet</h3>
@@ -3856,8 +4044,8 @@ export function ClientDashboard() {
                       </div>
 
                       {/* Payment Method Selector */}
-                      <div>
-                        <label className="text-xs font-semibold block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold block font-body" style={{ color: "var(--color-text-tertiary)" }}>
                           Payment Method
                         </label>
                         <div className="grid grid-cols-2 gap-2.5">
@@ -3920,35 +4108,39 @@ export function ClientDashboard() {
 
                       {walletFundMethod === "card" ? (
                         <div className="space-y-3">
-                          {savedCards.length > 0 ? (
-                            <div className="space-y-2">
-                              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-0.5">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="text-xs font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                Select Card
+                              </label>
+                              <span className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                Registered in Settings
+                              </span>
+                            </div>
+
+                            {savedCards.length > 0 ? (
+                              <div className="space-y-2">
                                 {savedCards.map(c => {
                                   const isSelected = selectedEscrowCardId === c.id;
                                   const isMastercard = c.type.toLowerCase().includes("master");
                                   return (
-                                    <label
+                                    <button
                                       key={c.id}
-                                      className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all hover:border-[#7B00FE]/50"
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedEscrowCardId(c.id);
+                                        setCardFundError(null);
+                                      }}
+                                      className="w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer"
                                       style={{
-                                        background: isSelected ? "rgba(123, 0, 254, 0.05)" : "var(--color-bg-elevated)",
+                                        background: isSelected ? "rgba(123, 0, 254, 0.06)" : "var(--color-bg-elevated)",
                                         borderColor: isSelected ? "#7B00FE" : "var(--color-hairline)",
-                                        boxShadow: isSelected ? "0 0 0 1px #7B00FE" : "none",
+                                        boxShadow: isSelected ? "0 0 0 1.5px #7B00FE" : "none",
                                       }}
                                     >
                                       <div className="flex items-center gap-3 min-w-0">
-                                        <input
-                                          type="radio"
-                                          name="fundWalletCard"
-                                          checked={isSelected}
-                                          onChange={() => {
-                                            setSelectedEscrowCardId(c.id);
-                                            setCardFundError(null);
-                                          }}
-                                          className="accent-[#7B00FE] w-4 h-4 shrink-0"
-                                        />
                                         <div
-                                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                                          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border"
                                           style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
                                         >
                                           {isMastercard ? (
@@ -3963,159 +4155,37 @@ export function ClientDashboard() {
                                           )}
                                         </div>
                                         <div className="min-w-0">
-                                          <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                            {c.type.toUpperCase()} •••• {c.last4}
+                                          <div className="text-xs font-bold font-body flex items-center gap-2" style={{ color: "var(--color-text-primary)" }}>
+                                            <span>{c.type.toUpperCase()} •••• {c.last4}</span>
+                                            {c.isDefault && (
+                                              <Badge tone="accent" size="sm">Default</Badge>
+                                            )}
                                           </div>
                                           <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>
                                             Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
                                           </div>
                                         </div>
                                       </div>
-                                      {c.isDefault && (
-                                        <Badge tone="accent" size="sm">Default</Badge>
-                                      )}
-                                    </label>
+                                      <div
+                                        className="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all"
+                                        style={{
+                                          borderColor: isSelected ? "#7B00FE" : "var(--color-border-default)",
+                                          background: isSelected ? "#7B00FE" : "transparent",
+                                        }}
+                                      >
+                                        {isSelected && <Check className="w-3 h-3 text-white" />}
+                                      </div>
+                                    </button>
                                   );
                                 })}
                               </div>
-
-                              {/* Clean CVV verification row without developer test button */}
-                              <div
-                                className="flex items-center justify-between p-3 rounded-xl border"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="flex items-center gap-2.5">
-                                  <div
-                                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                                    style={{ background: "rgba(123, 0, 254, 0.1)", color: "#7B00FE" }}
-                                  >
-                                    <Lock className="w-3.5 h-3.5" />
-                                  </div>
-                                  <div>
-                                    <label htmlFor="card-cvv-input" className="text-xs font-semibold font-body block" style={{ color: "var(--color-text-primary)" }}>
-                                      CVV Code
-                                    </label>
-                                    <span className="text-[10px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      3 digits on back of card
-                                    </span>
-                                  </div>
-                                </div>
-                                <Input
-                                  id="card-cvv-input"
-                                  type="password"
-                                  maxLength={4}
-                                  value={cardCvv}
-                                  onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                                  className="w-20 text-center font-mono font-bold h-9 text-sm rounded-lg"
-                                  placeholder="•••"
-                                />
+                            ) : (
+                              <div className="p-4 rounded-xl border border-dashed text-xs text-center space-y-1" style={{ color: "var(--color-text-secondary)", borderColor: "var(--color-border-default)" }}>
+                                <p className="font-semibold text-[var(--color-text-primary)]">No saved cards found</p>
+                                <p className="text-[11px] text-[var(--color-text-tertiary)]">Add and manage billing cards in Settings &gt; Payment details, or fund directly via Paystack.</p>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="p-3.5 rounded-xl border border-dashed text-xs text-center" style={{ color: "var(--color-text-secondary)", borderColor: "var(--color-border-default)" }}>
-                              No saved card found. Add a card below or pay via Paystack.
-                            </div>
-                          )}
-
-                          {/* Inline Add Card Toggle & Form */}
-                          {!showAddNewCardInline ? (
-                            <button
-                              type="button"
-                              onClick={() => setShowAddNewCardInline(true)}
-                              className="w-full py-2.5 px-3 rounded-xl border border-dashed text-xs font-semibold text-[#7B00FE] flex items-center justify-center gap-1.5 transition-colors cursor-pointer hover:bg-[#7B00FE]/5"
-                              style={{ borderColor: "var(--color-border-default)" }}
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                              <span>Add New Card</span>
-                            </button>
-                          ) : (
-                            <div className="p-4 rounded-xl border space-y-3" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Add New Card</span>
-                                <button
-                                  type="button"
-                                  onClick={() => setShowAddNewCardInline(false)}
-                                  className="text-xs hover:underline cursor-pointer"
-                                  style={{ color: "var(--color-text-tertiary)" }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                              <div>
-                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Card Number</label>
-                                <Input
-                                  placeholder="0000 0000 0000 0000"
-                                  value={newCardNumber}
-                                  maxLength={19}
-                                  onChange={e => setNewCardNumber(formatCardNumber(e.target.value))}
-                                  className="font-mono text-xs h-9"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Expires</label>
-                                  <Input
-                                    placeholder="MM/YY"
-                                    value={newCardExpiry}
-                                    maxLength={5}
-                                    onChange={e => {
-                                      let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                                      if (v.length > 2) v = `${v.slice(0, 2)}/${v.slice(2)}`;
-                                      setNewCardExpiry(v);
-                                    }}
-                                    className="font-mono text-xs h-9"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>CVV</label>
-                                  <Input
-                                    type="password"
-                                    placeholder="•••"
-                                    value={newCardCvv}
-                                    maxLength={4}
-                                    onChange={e => setNewCardCvv(e.target.value.replace(/\D/g, ""))}
-                                    className="font-mono text-xs h-9 text-center"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Cardholder Name</label>
-                                <Input
-                                  placeholder="e.g. FilmCraft Studios"
-                                  value={newCardName}
-                                  onChange={e => setNewCardName(e.target.value)}
-                                  className="text-xs h-9"
-                                />
-                              </div>
-                              <Button
-                                type="button"
-                                size="sm"
-                                className="w-full h-9 text-xs font-bold"
-                                style={{ background: "#7B00FE", color: "#FFFFFF" }}
-                                disabled={newCardNumber.replace(/\D/g, "").length < 16 || newCardExpiry.length < 5 || newCardCvv.length < 3}
-                                onClick={() => {
-                                  const cleanNum = newCardNumber.replace(/\D/g, "");
-                                  const cardType = detectCardType(cleanNum);
-                                  const added = appStateSync.addBillingCard({
-                                    type: cardType,
-                                    last4: cleanNum.slice(-4),
-                                    expiry: newCardExpiry,
-                                    cardholderName: newCardName.trim() || undefined,
-                                    isDefault: false,
-                                  });
-                                  setSavedCards(appStateSync.getBillingCards());
-                                  setSelectedEscrowCardId(added.id);
-                                  setShowAddNewCardInline(false);
-                                  setNewCardNumber("");
-                                  setNewCardExpiry("");
-                                  setNewCardCvv("");
-                                  setNewCardName("");
-                                }}
-                              >
-                                Save &amp; Select Card
-                              </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
 
                           {/* Insufficient Funds Error State Alert */}
                           {cardFundError === "insufficient_funds" && (
@@ -4155,7 +4225,7 @@ export function ClientDashboard() {
                             <Button
                               className="w-full h-12 text-sm font-bold shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer"
                               style={{ background: "#7B00FE", color: "#FFFFFF" }}
-                              disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0 || (savedCards.length === 0 && !showAddNewCardInline)}
+                              disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0 || savedCards.length === 0}
                               onClick={executeCardDebit}
                             >
                               <Lock className="w-4 h-4 shrink-0" />
@@ -4206,7 +4276,7 @@ export function ClientDashboard() {
                       )}
                     </div>
                   )}
-                </div>
+                </motion.div>
               </Modal>
             )}
 
