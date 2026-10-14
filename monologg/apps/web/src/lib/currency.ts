@@ -76,6 +76,6 @@ export function getRandomLimitError(isMobile: boolean): LimitError {
   } else {
     return choice === 0
       ? { heading: "Amount too high", subtext: "That's a little too ambitious. Please enter a smaller number." }
-      : { heading: "Even FINCRA has limits.", subtext: "Please enter an amount under 999,999,999,999,999." };
+      : { heading: "Even Paystack has limits.", subtext: "Please enter an amount under 999,999,999,999,999." };
   }
 }

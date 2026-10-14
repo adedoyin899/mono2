@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
+**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 81. Redundant Availability Banner, Inconsistent Fee Percentages (9%/12%/15%), Stale FINCRA Mentions & Monospace Script Typography
+- **Severity:** Medium / Performer Trust & Consistency
+- **What happened:** In `TalentDashboard.tsx`, the Availability tab had a duplicate calendar sync prompt at the bottom of the screen despite an active Google Calendar Sync status banner at the top. On the Project Details view, audition sides were styled in monospaced, small code-editor font; client ratings were static text without an interactive reviews modal; and the "Casting Client & Escrow" section was wrapped in heavy nested card boxes. Furthermore, outdated 9%, 11%, 12%, and 15% platform fee figures and stale FINCRA escrow references were displayed across performer dashboards, onboarding rate cards, order rooms, and public landing pages.
+- **Root Cause:** Divergent platform fee iterations across features, prototype card containers, and lack of client reviews inspection modal from performer view.
+- **Resolution:** Removed the redundant bottom availability sync banner and connected the top banner CTA to the calendar sync modal. Made client ratings clickable to open a dedicated verified `Client Reviews & Ratings` modal. Unboxed "Casting Client & Escrow" into clean plain text. Normalized audition sides into readable standard block typography (`font-body text-sm sm:text-base border-l-4`). Replaced all FINCRA mentions with Paystack (`"held securely in escrow by our payment partner, Paystack"`). Standardized performer fee displays on 3 explicit lines (`Base rate`, `Platform fee (7%)`, `You receive`) across all screens.
+- **Validation:** 126 unit tests passing across all 25 suites, typecheck clean, standalone bundle regenerated.
 
 ### 80. Missing Onboarding Calendar Sync Step, Unblocked Availability Events, Unclassified Project Attendance Types & Unenforced Terms Agreement
 - **Severity:** Medium / Performer Onboarding Flow & Operational Trust

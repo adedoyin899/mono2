@@ -169,7 +169,7 @@ describe("TalentDashboard Availability / Calendar View Stress Test", () => {
     await screen.findByText("Select a date to view scheduled slots & events");
 
     // Click Connect button
-    const connectBtn = screen.getByRole("button", { name: "Connect" });
+    const connectBtn = screen.getByRole("button", { name: /Connect Google Calendar|Connect/i });
     fireEvent.click(connectBtn);
 
     // Verify sync modal

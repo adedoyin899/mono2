@@ -703,9 +703,18 @@ export function OrderRoom() {
             <h1 className="text-sm font-semibold text-zinc-900 truncate font-display">
               {orderTitle}
             </h1>
-            <p className="text-xs text-zinc-500 truncate mt-0.5">
-              {role === "talent" ? clientOrg : talentName} · ORD-001
-            </p>
+            <div className="flex items-center gap-2 text-xs text-zinc-500 truncate mt-0.5">
+              <span>{role === "talent" ? clientOrg : talentName} · ORD-001</span>
+              {role === "talent" && (
+                <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full">
+                  <span>Base ₦120,000</span>
+                  <span>·</span>
+                  <span>Fee (7%) -₦8,400</span>
+                  <span>·</span>
+                  <span>You receive <strong className="text-emerald-600 font-bold">₦111,600</strong></span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1205,17 +1214,17 @@ export function OrderRoom() {
               </p>
               <div className="p-3.5 rounded-xl mb-5 space-y-1.5 text-xs" style={{ background: "var(--color-bg-elevated)" }}>
                 <div className="flex justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>Escrow Total</span>
+                  <span style={{ color: "var(--color-text-secondary)" }}>Base rate</span>
                   <span className="font-mono font-semibold text-zinc-900">₦120,000</span>
                 </div>
                 <div className="flex justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>Platform Fee</span>
-                  <span className="font-mono text-zinc-400">₦0</span>
+                  <span style={{ color: "var(--color-text-secondary)" }}>Platform fee (7%)</span>
+                  <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
                 </div>
                 <div className="h-px bg-zinc-200 my-1" />
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-zinc-900">Performer Payout</span>
-                  <span className="font-mono text-emerald-600">₦120,000</span>
+                  <span className="text-zinc-900">You receive</span>
+                  <span className="font-mono text-emerald-600 font-bold">₦111,600</span>
                 </div>
               </div>
               <div className="flex gap-2.5">
@@ -1356,7 +1365,7 @@ export function OrderRoom() {
                   <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
                     {paymentReleased
                       ? `Transferred to ${talentName}.`
-                      : "Auto-releases to performer 48 hours after delivery or upon client approval."}
+                      : "Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval."}
                   </p>
                 </div>
 
@@ -1441,17 +1450,17 @@ export function OrderRoom() {
                 <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-xs">
                   <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-1">Payment summary</div>
                   <div className="flex justify-between items-center text-zinc-600">
-                    <span>Project Escrow (Funded)</span>
+                    <span>Base rate</span>
                     <span className="font-mono font-medium text-zinc-900">₦120,000</span>
                   </div>
                   <div className="flex justify-between items-center text-zinc-600">
-                    <span>Protection Fee</span>
-                    <span className="font-mono text-emerald-600 font-medium">Free (₦0)</span>
+                    <span>Platform fee (7%)</span>
+                    <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
                   </div>
                   <div className="h-px bg-zinc-200 my-1" />
                   <div className="flex justify-between items-center font-semibold text-zinc-900">
-                    <span>{role === "talent" ? "Your Net Payout" : "Performer Payout"}</span>
-                    <span className="font-mono text-emerald-600 text-sm">₦120,000</span>
+                    <span>You receive</span>
+                    <span className="font-mono text-emerald-600 text-sm font-bold">₦111,600</span>
                   </div>
                 </div>
 

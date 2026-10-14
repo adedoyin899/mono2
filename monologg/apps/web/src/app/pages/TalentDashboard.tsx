@@ -494,6 +494,7 @@ export function TalentDashboard() {
   ]);
   const [selectedPayout, setSelectedPayout] = useState<typeof payouts[0] | null>(null);
   const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [showClientReviewsModal, setShowClientReviewsModal] = useState(false);
 
   const allClientReviews = React.useMemo(() => {
     try {
@@ -2141,14 +2142,29 @@ export function TalentDashboard() {
                                   Delivery: {service.delivery}
                                 </div>
                               </div>
-                              <div className="pt-3 border-t flex items-baseline justify-between" style={{ borderColor: "var(--color-hairline)" }}>
-                                <span className="text-[11px] uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Base Rate
-                                </span>
-                                <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
-                                  {service.price}
-                                </span>
-                              </div>
+                              {(() => {
+                                const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                                const symbol = match ? (match[1] || "₦") : "₦";
+                                const num = Number((match ? match[2] : service.price).replace(/[^0-9]/g, "")) || 0;
+                                const fee = Math.round(num * 0.07);
+                                const net = num - fee;
+                                return (
+                                  <div className="pt-3 border-t space-y-1.5 text-xs font-body" style={{ borderColor: "var(--color-hairline)" }}>
+                                    <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                      <span>Base rate</span>
+                                      <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                      <span>Platform fee (7%)</span>
+                                      <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                      <span>You receive</span>
+                                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           ))}
                         </div>
@@ -2216,6 +2232,29 @@ export function TalentDashboard() {
                           <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
                             Delivery: {service.delivery} · {service.bookings} bookings
                           </p>
+                          {(() => {
+                            const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                            const symbol = match ? (match[1] || "₦") : "₦";
+                            const num = Number((match ? match[2] : service.price).replace(/[^0-9]/g, "")) || 0;
+                            const fee = Math.round(num * 0.07);
+                            const net = num - fee;
+                            return (
+                              <div className="mb-3 p-3 rounded-xl border space-y-1 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                  <span>Base rate</span>
+                                  <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                  <span>Platform fee (7%)</span>
+                                  <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                  <span>You receive</span>
+                                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                           <div className="flex gap-2">
                             <Button
                               variant="secondary"
@@ -2344,6 +2383,28 @@ export function TalentDashboard() {
                                  <option value="€">€ EUR</option>
                                </select>
                              </div>
+                             {(() => {
+                               const num = Number(newServicePrice.replace(/[^0-9]/g, "")) || 0;
+                               if (num <= 0) return null;
+                               const fee = Math.round(num * 0.07);
+                               const net = num - fee;
+                               return (
+                                 <div className="mt-2.5 p-3 rounded-xl border space-y-1.5 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                   <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                     <span>Base rate</span>
+                                     <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{rateCardCurrency}{num.toLocaleString()}</span>
+                                   </div>
+                                   <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                     <span>Platform fee (7%)</span>
+                                     <span className="font-mono text-zinc-500 font-medium">-{rateCardCurrency}{fee.toLocaleString()}</span>
+                                   </div>
+                                   <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                     <span>You receive</span>
+                                     <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{rateCardCurrency}{net.toLocaleString()}</span>
+                                   </div>
+                                 </div>
+                               );
+                             })()}
                           </div>
                           <div>
                             <label className="block text-xs font-medium mb-1.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
@@ -2451,7 +2512,7 @@ export function TalentDashboard() {
                     ) : (
                       <Button
                         size="sm"
-                        onClick={handleConnectCalendarSync}
+                        onClick={() => setShowSyncModal(true)}
                         className="h-8 px-3 text-xs font-semibold"
                       >
                         Connect Google Calendar
@@ -3066,17 +3127,6 @@ export function TalentDashboard() {
                     </div>
                   </div>
                 )}
-
-                <div
-                  className="mt-4 p-4 rounded-[var(--radius-md)] flex items-center gap-3"
-                  style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}
-                >
-                  <Calendar className="w-5 h-5 shrink-0" style={{ color: "var(--color-accent)" }} />
-                  <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                    Sync your availability with Google Calendar to avoid double-bookings.
-                  </p>
-                  <Button variant="secondary" className="h-8 px-3 text-xs shrink-0" onClick={() => setShowSyncModal(true)}>Connect</Button>
-                </div>
               </motion.div>
             )}
 
@@ -3142,10 +3192,15 @@ export function TalentDashboard() {
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
                           <ShieldCheck className="w-3.5 h-3.5" /> Verified Client
                         </span>
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-500">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          {selectedProject.clientRating ?? 4.9} ({selectedProject.clientReviews ?? 18} reviews)
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowClientReviewsModal(true)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer group"
+                          title="Click to view client ratings & reviews"
+                        >
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 group-hover:scale-110 transition-transform" />
+                          <span>{selectedProject.clientRating ?? 4.9} ({selectedProject.clientReviews ?? 18} reviews)</span>
+                        </button>
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap">
@@ -3310,10 +3365,11 @@ export function TalentDashboard() {
                             </p>
 
                             <div
-                              className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
+                              className="p-4 sm:p-5 rounded-2xl border font-body text-sm sm:text-base leading-relaxed whitespace-pre-wrap select-text border-l-4"
                               style={{
                                 background: "var(--color-bg-elevated)",
                                 borderColor: "var(--color-hairline)",
+                                borderLeftColor: "var(--color-accent)",
                                 color: "var(--color-text-primary)",
                               }}
                             >
@@ -3355,14 +3411,8 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      {/* 5. Client & Escrow Security */}
-                      <div
-                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
+                      {/* 5. Client & Escrow Security (Unboxed, clean text layout) */}
+                      <div className="space-y-3.5 pt-2">
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
                           <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
@@ -3372,7 +3422,7 @@ export function TalentDashboard() {
 
                         <div className="flex items-center gap-3.5">
                           <div
-                            className="w-12 h-12 rounded-full flex items-center justify-center font-display text-lg font-bold text-white shrink-0 shadow-sm"
+                            className="w-11 h-11 rounded-full flex items-center justify-center font-display text-base font-bold text-white shrink-0 shadow-sm"
                             style={{ background: "var(--color-accent)" }}
                           >
                             {selectedProject.clientName.charAt(0)}
@@ -3382,25 +3432,26 @@ export function TalentDashboard() {
                               <span>{selectedProject.clientName}</span>
                               <ShieldCheck className="w-4 h-4 text-emerald-500" />
                             </div>
-                            <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                              Verified Client · {selectedProject.clientReviews ?? 18} projects completed · {selectedProject.clientRating ?? 4.9} rating
-                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setShowClientReviewsModal(true)}
+                              className="text-xs font-body hover:underline text-left cursor-pointer transition-colors block"
+                              style={{ color: "var(--color-text-secondary)" }}
+                              title="Click to view client ratings & reviews"
+                            >
+                              Verified Client · {selectedProject.clientReviews ?? 18} projects completed · <span className="text-amber-500 font-semibold">{selectedProject.clientRating ?? 4.9} rating ★</span>
+                            </button>
                           </div>
                         </div>
 
-                        <div
-                          className="p-4 rounded-2xl border text-xs sm:text-sm font-body leading-relaxed"
-                          style={{
-                            background: "var(--color-bg-elevated)",
-                            borderColor: "var(--color-hairline)",
-                            color: "var(--color-text-secondary)",
-                          }}
-                        >
-                          <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+                        <div className="text-xs sm:text-sm font-body leading-relaxed space-y-1" style={{ color: "var(--color-text-secondary)" }}>
+                          <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400">
                             <Lock className="w-4 h-4" />
-                            <span>100% Monologg Escrow Guarantee</span>
+                            <span>100% Escrow Guarantee</span>
                           </div>
-                          When selected, 100% of the project budget is held securely in Monologg Escrow before you record. Payment is disbursed directly to your bank account upon client milestone approval. Zero talent deductions.
+                          <p>
+                            When selected, 100% of the project budget is held securely in escrow by our payment partner, Paystack before you record. Payment is disbursed directly to your bank account upon client milestone approval.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -3415,22 +3466,36 @@ export function TalentDashboard() {
                           boxShadow: "var(--shadow-card)",
                         }}
                       >
-                        {/* Budget */}
+                        {/* Budget & 3-line fee breakdown */}
                         <div>
-                          <div className="text-xs font-semibold font-body tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>
+                          <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
                             Project compensation
                           </div>
-                          <div className="flex items-baseline gap-2 mt-1">
-                            <span className="font-display text-3xl font-bold font-mono text-[var(--color-accent)]">
-                              {selectedProject.budget}
-                            </span>
-                            <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                              Fixed Escrow Rate
-                            </span>
+                          {(() => {
+                            const numBudget = Number(selectedProject.budget?.replace(/\D/g, "")) || 0;
+                            const fee = Math.round(numBudget * 0.07);
+                            const net = numBudget - fee;
+                            return (
+                              <div className="p-3.5 rounded-2xl border space-y-1.5 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                  <span>Base rate</span>
+                                  <span className="font-mono font-medium text-sm" style={{ color: "var(--color-text-primary)" }}>₦{numBudget.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                  <span>Platform fee (7%)</span>
+                                  <span className="font-mono text-zinc-500 font-medium">-₦{fee.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center font-semibold pt-1 border-t text-sm" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                  <span>You receive</span>
+                                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">₦{net.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                          <div className="flex items-center gap-1.5 mt-2 text-[11px] font-body text-emerald-600 dark:text-emerald-400">
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
+                            <span>100% escrow guaranteed by Paystack</span>
                           </div>
-                          <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                            0% platform fee for talent · 100% guaranteed payout
-                          </p>
                         </div>
 
                         {/* Applicant spots */}
@@ -4028,6 +4093,30 @@ export function TalentDashboard() {
                           </div>
                         </div>
 
+                        {/* Three-line fee breakdown: Base rate, Platform fee (7%), You receive */}
+                        {(() => {
+                          const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
+                          const symbol = order.amount.startsWith("$") ? "$" : order.amount.startsWith("£") ? "£" : order.amount.startsWith("€") ? "€" : "₦";
+                          const fee = Math.round(num * 0.07);
+                          const net = num - fee;
+                          return (
+                            <div className="mb-3 p-2.5 rounded-xl border space-y-1 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                              <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                <span>Base rate</span>
+                                <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                                <span>Platform fee (7%)</span>
+                                <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                <span>You receive</span>
+                                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         {/* Phase progress */}
                         <div className="flex items-center gap-2 mb-4">
                           {["Briefing", "Deliverables", "Review", "Complete"].map((phase, i) => {
@@ -4269,9 +4358,17 @@ export function TalentDashboard() {
                           <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date} · {payout.ref}</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{payout.amount}</div>
+                          <div className="text-[11px] font-body text-[var(--color-text-secondary)]">
+                            Base: <span className="font-mono font-medium text-[var(--color-text-primary)]">₦{payout.numericAmount.toLocaleString()}</span>
+                          </div>
+                          <div className="text-[11px] font-body text-zinc-500">
+                            Platform fee (7%): <span className="font-mono font-medium">-₦{Math.round(payout.numericAmount * 0.07).toLocaleString()}</span>
+                          </div>
+                          <div className="text-xs font-semibold font-body text-emerald-600 dark:text-emerald-400">
+                            You receive: <span className="font-mono font-bold">₦{(payout.numericAmount - Math.round(payout.numericAmount * 0.07)).toLocaleString()}</span>
+                          </div>
                           <div
-                            className="text-xs font-body font-medium"
+                            className="text-[11px] font-body font-medium mt-0.5"
                             style={{ color: payout.status === "Paid" ? "var(--color-success)" : "var(--color-gold)" }}
                           >
                             {payout.status}
@@ -4932,7 +5029,9 @@ export function TalentDashboard() {
 
                   <div className="text-center py-4 mb-4 rounded-xl relative z-10" style={{ background: "var(--color-bg-elevated)" }}>
                     <div className="text-xs font-body font-medium" style={{ color: "var(--color-text-tertiary)" }}>Transferred Amount</div>
-                    <div className="font-display text-2xl font-bold font-mono" style={{ color: "var(--color-accent)" }}>{selectedPayout.amount}</div>
+                    <div className="font-display text-2xl font-bold font-mono" style={{ color: "var(--color-accent)" }}>
+                      ₦{(selectedPayout.numericAmount - Math.round(selectedPayout.numericAmount * 0.07)).toLocaleString()}
+                    </div>
                     <Badge tone="success" size="sm" className="mt-1">{selectedPayout.status}</Badge>
                   </div>
 
@@ -4953,9 +5052,22 @@ export function TalentDashboard() {
                       <span style={{ color: "var(--color-text-tertiary)" }}>Date &amp; Time</span>
                       <span style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.date} · {selectedPayout.time}</span>
                     </div>
-                    <div className="flex justify-between py-1.5">
-                      <span style={{ color: "var(--color-text-tertiary)" }}>Platform Transfer Fee</span>
-                      <span className="font-mono font-medium" style={{ color: "var(--color-success)" }}>₦0 (Free)</span>
+                    {/* Three-line fee breakdown: Base rate, Platform fee (7%), You receive */}
+                    <div className="p-3 rounded-xl border space-y-1.5 text-xs font-body mt-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                      <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                        <span>Base rate</span>
+                        <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>₦{selectedPayout.numericAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
+                        <span>Platform fee (7%)</span>
+                        <span className="font-mono text-zinc-500 font-medium">-₦{Math.round(selectedPayout.numericAmount * 0.07).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                        <span>You receive</span>
+                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                          ₦{(selectedPayout.numericAmount - Math.round(selectedPayout.numericAmount * 0.07)).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -5283,6 +5395,178 @@ export function TalentDashboard() {
             )}
           </AnimatePresence>
 
+          {/* Casting Client Reviews & Ratings Modal */}
+          <AnimatePresence>
+            {showClientReviewsModal && selectedProject && (
+              <Modal onClose={() => setShowClientReviewsModal(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-2xl rounded-2xl p-6 relative max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-start justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                          {selectedProject.clientName}
+                        </h3>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          <ShieldCheck className="w-3 h-3" /> Verified Client
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-body mt-0.5">
+                        Authentic feedback from verified performers and talent on completed projects
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowClientReviewsModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                      aria-label="Close client reviews modal"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Summary Stats Pillars */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Average Rating</span>
+                      <div className="my-1.5 flex items-center gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          {selectedProject.clientRating ?? 4.9}
+                        </span>
+                        <div className="flex items-center text-amber-500 text-sm tracking-tight" aria-label="5 stars">
+                          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Based on {selectedProject.clientReviews ?? 18} reviews
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Completed Projects</span>
+                      <div className="my-1.5 flex items-baseline gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          {selectedProject.clientReviews ?? 18}
+                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          ✓ 100% Funded
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Zero disputes filed
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Escrow Reliability</span>
+                      <div className="my-1.5 flex items-baseline gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                          100%
+                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                          Instant Payout
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Protected by Paystack
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Reviews List */}
+                  <div className="flex-1 overflow-y-auto py-3 space-y-3 min-h-0 pr-1">
+                    {[
+                      {
+                        id: "crev-1",
+                        performer: "Tomiwa Adeyemi",
+                        craft: "Voice Artist",
+                        stars: 5,
+                        date: "Oct 8, 2026",
+                        note: `${selectedProject.clientName} was prompt with milestone escrow release upon asset delivery. Professional creative direction and clear notes. Highly recommended client!`,
+                        project: selectedProject.projectName,
+                      },
+                      {
+                        id: "crev-2",
+                        performer: "Chioma Ebere",
+                        craft: "Commercial Actor",
+                        stars: 5,
+                        date: "Sep 22, 2026",
+                        note: "Great communication throughout the rehearsal and recording days. The check-in code was verified on physical arrival and payout was instantaneous.",
+                        project: "Independence Day Campaign",
+                      },
+                      {
+                        id: "crev-3",
+                        performer: "David Oladipo",
+                        craft: "Audiobook Narrator",
+                        stars: 4.8,
+                        date: "Aug 15, 2026",
+                        note: "Provided clear script excerpts, reasonable revision turnaround requests, and released funds immediately upon deliverable signoff.",
+                        project: "Audio Drama Series",
+                      },
+                      {
+                        id: "crev-4",
+                        performer: "Sandra Kalu",
+                        craft: "VO Specialist",
+                        stars: 5,
+                        date: "Jul 30, 2026",
+                        note: "Respectful client who values talent time. Escrow funded upfront via our payment partner Paystack gave complete peace of mind.",
+                        project: "Retail Promo Spots",
+                      },
+                    ].map((review) => (
+                      <div
+                        key={review.id}
+                        className="p-4 rounded-xl border transition-all shadow-2xs space-y-2.5 bg-zinc-50/50 dark:bg-zinc-800/40 border-zinc-200 dark:border-zinc-700"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center shrink-0 border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-display">
+                              {review.performer.split(" ").map(n => n[0]).join("")}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-zinc-100 font-display">
+                                {review.performer}
+                              </h4>
+                              <p className="text-[11px] text-zinc-500 font-body">
+                                {review.craft} · {review.project}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                              <span>★</span>
+                              <span>{review.stars}</span>
+                            </div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5">{review.date}</div>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-zinc-700 dark:text-zinc-300 font-body leading-relaxed pl-1">
+                          &ldquo;{review.note}&rdquo;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="pt-3 mt-1 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
+                    <span className="text-xs text-zinc-400 flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-emerald-500" />
+                      Client escrow rating verified by Paystack
+                    </span>
+                    <Button variant="secondary" className="h-8 text-xs px-4" onClick={() => setShowClientReviewsModal(false)}>
+                      Close
+                    </Button>
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
+
           {/* Share Modal */}
           <AnimatePresence>
             {showShare && (
@@ -5397,7 +5681,7 @@ export function TalentDashboard() {
                   <h3 className="font-display text-xl mb-2">Sync with Google Calendar</h3>
                   <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>Connect your Google account to automatically block out times when you're busy and prevent double-bookings.</p>
                   <Button className="w-full h-11 mb-3" onClick={() => {
-                    alert("Redirecting to Google OAuth...");
+                    handleConnectCalendarSync();
                     setShowSyncModal(false);
                   }}>
                     Connect Google Account

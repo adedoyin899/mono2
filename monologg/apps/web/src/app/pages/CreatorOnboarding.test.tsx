@@ -19,19 +19,13 @@ async function renderOnboarding() {
 }
 
 async function goToUploadStep(container: HTMLElement) {
-  // Step 1: Connect your calendar - skip if present
-  const skipBtn = screen.queryByText("Skip for now");
-  if (skipBtn) {
-    fireEvent.click(skipBtn);
-  }
-
-  // Step 2: personal details has defaults; continue.
+  // Step 1: personal details has defaults; continue.
   fireEvent.click(await screen.findByText("Continue"));
 
-  // Step 3: craft is pre-selected ("actor"); continue.
+  // Step 2: craft is pre-selected ("actor"); continue.
   fireEvent.click(await screen.findByText("Continue"));
 
-  // Step 4: select a file.
+  // Step 3: select a file.
   await screen.findByText("Upload your showcase reel");
   const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
   const file = new File(["reel-bytes"], "reel.mp4", { type: "video/mp4" });
@@ -44,6 +38,20 @@ async function goToUploadStep(container: HTMLElement) {
   }
 
   fireEvent.click(await screen.findByText("Upload & Analyse"));
+}
+
+async function goToCalendarStep(container: HTMLElement) {
+  await goToUploadStep(container);
+  await waitFor(
+    () => {
+      expect(screen.getByText("Your style tags are ready.")).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
+  fireEvent.click(screen.getByText("Looks great, continue"));
+  await screen.findByText("Set your rate cards");
+  fireEvent.click(screen.getByText("Continue"));
+  await screen.findByText("Connect your calendar");
 }
 
 describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
@@ -165,9 +173,10 @@ describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
   });
 
   it("talent onboarding: calendar step renders title, body, Google Calendar button, skip, and connection states", async () => {
-    await renderOnboarding();
+    const container = await renderOnboarding();
+    await goToCalendarStep(container);
 
-    // Verify step 1 title and body
+    // Verify step 7 title and body
     expect(screen.getByText("Connect your calendar")).toBeInTheDocument();
     expect(
       screen.getByText("Bookings appear on your calendar automatically, and we only offer slots when you're free."),
@@ -195,39 +204,10 @@ describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
 
   it("talent onboarding: mandatory agreement step renders 5 exact clauses, mandatory checkbox, and disables continue until checked", async () => {
     const container = await renderOnboarding();
+    await goToCalendarStep(container);
 
-    // Step 1: Skip calendar
+    // Step 7: Skip calendar
     fireEvent.click(screen.getByText("Skip for now"));
-
-    // Step 2: Details -> Continue
-    fireEvent.click(await screen.findByText("Continue"));
-
-    // Step 3: Craft -> Continue
-    fireEvent.click(await screen.findByText("Continue"));
-
-    // Step 4: Reel upload
-    await screen.findByText("Upload your showcase reel");
-    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(["reel-bytes"], "reel.mp4", { type: "video/mp4" });
-    fireEvent.change(fileInput, { target: { files: [file] } });
-    const checkbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    if (checkbox && !checkbox.checked) fireEvent.click(checkbox);
-    fireEvent.click(await screen.findByText("Upload & Analyse"));
-
-    // Wait for step 6 (tags) in mock mode
-    await waitFor(
-      () => {
-        expect(screen.getByText("Your style tags are ready.")).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Step 6 -> Step 7 (rate cards)
-    fireEvent.click(screen.getByText("Looks great, continue"));
-
-    // Step 7: Rate cards -> Continue
-    await screen.findByText("Set your rate cards");
-    fireEvent.click(screen.getByText("Continue"));
 
     // Step 8: Performer Terms & Payout Agreement
     await screen.findByText("Performer Terms & Payout Agreement");

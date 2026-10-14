@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
+**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -863,6 +863,16 @@ Implemented four core upgrades across performer onboarding, availability managem
 - **Onsite vs. Online Project Categorization:** Added clear badges and banners to project cards, detail headers, and application pitch boxes. If a gig is remote/online, performers are informed that no physical presence is required; if onsite, performers are reminded of physical arrival and the mandatory 4-digit attendance check-in code.
 - **Mandatory Performer Terms & Payout Agreement (Step 8):** Introduced an enforced legal agreement step after payout/rate card details and before the talent storefront goes live. Outlines all five platform clauses (7% platform fee, KYC-verified bank payout routing, 3 milestone confirmations prior to events, 4-digit check-in code for onsite gigs, and rating degradation for no-shows/unconfirmed gigs). The "Continue" button remains strictly disabled until the performer checks the mandatory consent checkbox with active link to `/legal/terms`. Persists acceptance timestamp in `appStateSync` and localStorage.
 - **Unit Testing & Standalone Distribution:** Added comprehensive unit test coverage in `CreatorOnboarding.test.tsx` (126/126 unit tests passing across all 25 test suites). Rebuilt standalone bundle into single-file executable `monologg/monologg-app.html` (1.61 MB).
+
+### Step 93: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown (Session 133)
+
+Addressed user review feedback across performer screens:
+- **Performer Terms Agreement & Step Reordering:** Reordered the onboarding flow so calendar sync is Step 7 and terms agreement is Step 8, removed the shield/document header icon, and transformed boxed clause cards into an unboxed stacked list with bold emphasis titles. Integrated the 3-line fee breakdown (`Base rate`, `Platform fee (7%)`, `You receive`) into the rate cards step.
+- **Availability Screen Cleanup:** Removed the duplicate bottom calendar banner from the Availability tab while ensuring the top header banner connects seamlessly to the calendar sync modal and passes unit test assertions.
+- **Project Details Screen Refinement:** Made client rating badge (`★ 4.9 (18 reviews)`) and client row clickable to open a verified Client Reviews & Ratings modal (`showClientReviewsModal`). Unboxed the "Casting Client & Escrow" section into clean text layout. Normalized audition sides from small monospace text to readable standard block typography (`font-body text-sm sm:text-base border-l-4`).
+- **Paystack Escrow Explainer Standardization:** Replaced all platform mentions of `FINCRA` with `Paystack` (`"held securely in escrow by our payment partner, Paystack"`), and updated currency limits and FAQ fee references.
+- **Performer 3-Line Fee Breakdown:** Standardized all performer earnings displays to three explicit lines (`Base rate`, `Platform fee (7%)`, `You receive`) across rate cards, projects, orders, earnings, and order rooms, purging legacy 9%, 11%, 12%, and 15% references.
+- **Testing & Distribution Rebuild:** Verified 126/126 unit tests passing across all 25 suites, clean TypeScript check, and regenerated `monologg/monologg-app.html` (1.63 MB).
 
 ---
 

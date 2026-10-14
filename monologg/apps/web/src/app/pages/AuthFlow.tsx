@@ -321,13 +321,13 @@ export function AuthFlow() {
                   "Free to join — zero subscription fees",
                   "Proprietary Thespian AI vibe scanner in 30s",
                   "Get paid the same day deliverables are approved",
-                  "Full FINCRA escrow protection on every booking",
+                  "Payments held securely in escrow by our payment partner, Paystack",
                 ]
               : [
                   "Free project posting — zero upfront search fees",
                   "Proprietary Thespian AI vibe scanner in 30s",
                   "Release funds only when deliverables are approved",
-                  "Full FINCRA escrow protection on every booking",
+                  "Payments held securely in escrow by our payment partner, Paystack",
                 ]
             ).map((item, i) => (
               <div key={i} className="flex items-center gap-3">

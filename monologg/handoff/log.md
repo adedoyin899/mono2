@@ -1,11 +1,45 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
+**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 133 (2026-10-14) — Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown
+
+**Goal:** Execute performer-facing UI/UX refinements based on user review feedback, eliminate boxed cards for terms and escrow summaries, reorder calendar sync to precede terms, enable clickable client ratings modal, normalize audition excerpt typography, eliminate duplicate availability banners, replace all FINCRA references with Paystack, and enforce a 3-line fee breakdown (`Base rate`, `Platform fee (7%)`, `You receive`) across all performer touchpoints (`CreatorOnboarding.tsx`, `TalentDashboard.tsx`, `OrderRoom.tsx`, `AuthFlow.tsx`, `LandingPage.tsx`, `currency.ts`, `CreatorOnboarding.test.tsx`, `TalentDashboardAvailability.test.tsx`, `monologg-app.html`):
+1. **Performer Terms Agreement & Step Reordering (`CreatorOnboarding.tsx`, `CreatorOnboarding.test.tsx`):**
+   - Reordered onboarding sequence so Google Calendar sync is Step 7 (immediately preceding terms) and Performer Terms Agreement is Step 8, giving performers clear context before legal acceptance.
+   - Removed the document/shield header icon from Step 8.
+   - Converted boxed agreement clauses into a clean, unboxed stacked list with bold emphasis titles (`Service Fee`, `Payout Verification`, `Milestone Confirmations`, `Attendance Code`, `Account Standing`).
+   - Added the 3-line fee breakdown (`Base rate`, `Platform fee (7%)`, `You receive`) to onboarding Rate Cards step.
+   - Updated `CreatorOnboarding.test.tsx` navigation helper to walk through the revised 7-step pre-calendar flow, ensuring all 5 onboarding tests pass.
+2. **Availability Calendar Sync Redundancy Resolution (`TalentDashboard.tsx`, `TalentDashboardAvailability.test.tsx`):**
+   - Removed the redundant bottom calendar sync card (`Sync your availability with Google Calendar to avoid double-bookings.`) from the Availability tab since sync status and actions are already prominently featured in the top header banner.
+   - Wired the top banner "Connect Google Calendar" action to open `showSyncModal` and trigger simulated OAuth sync, and updated unit test matcher to pass seamlessly.
+3. **Project Details Page Upgrades & Client Ratings Modal (`TalentDashboard.tsx`):**
+   - Made client rating badge (`★ 4.9 (18 reviews)`) and client row clickable, opening a verified `Client Reviews & Ratings` modal (`showClientReviewsModal`) displaying verified performer reviews for the casting director/producer, average rating score, review date tags, and Paystack escrow guarantee.
+   - Unboxed the "Casting Client & Escrow" section completely, replacing outer container cards and nested boxes with clean, plain text and inline client verification details.
+   - Restyled "Audition Sides & Script Excerpt" from monospace/small font to standard readable block text (`font-body text-sm sm:text-base border-l-4 border-[var(--color-accent)]/30 pl-4 py-2 bg-[var(--color-bg-canvas)]/30 rounded-r-xl`).
+4. **Standardized Paystack Escrow Explainer Across Platform:**
+   - Replaced all instances of `FINCRA` with `Paystack` across performer-facing screens, auth screens, footer, order rooms, and landing pages (`AuthFlow.tsx`, `LandingPage.tsx`, `OrderRoom.tsx`, `TalentDashboard.tsx`, `currency.ts`).
+   - Standardized escrow explainer wording: `"held securely in escrow by our payment partner, Paystack"`.
+   - Updated currency limit error text in `currency.ts` to `"Even Paystack has limits."`.
+5. **Performer 3-Line Fee Breakdown Platform Standardization:**
+   - Wherever fees appear for performers, standardized on three explicit lines:
+     - `Base rate`
+     - `Platform fee (7%)`
+     - `You receive`
+   - Enforced across Rate Card preview (Profile tab), Rates tab, Add/Edit Rate Card modal, Project Details compensation card, Orders active card rows, Recent Payouts rows, Payout Receipt modal, and Order Room headers/payment info modals.
+   - Purged obsolete 9%, 11%, 12%, and 15% references from all performer-facing views.
+6. **Testing, Verification & Standalone Distribution Rebuilding:**
+   - 126/126 unit tests passing across all 25 test files (`pnpm --filter @monologg/web test`).
+   - Zero TypeScript compilation errors (`tsc --noEmit`).
+   - Re-compiled standalone production bundle and updated single-file executable `monologg/monologg-app.html` (1.63 MB).
 
 ---
 

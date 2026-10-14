@@ -149,7 +149,7 @@ const RADAR_NODES = [
     coords: { x: "56.5%", y: "74%" },
     talentName: "Sipho Dlamini",
     category: "Film Stunt Lead",
-    quote: "FINCRA Escrow locked full payment before I stepped on stage.",
+    quote: "Our payment partner Paystack locked full payment in escrow before I stepped on stage.",
     earnings: "R 95,000",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop",
   },
@@ -251,11 +251,11 @@ const STEPS = [
 const FAQS = [
   {
     q: "What fee does Monologg charge creators?",
-    a: "Monologg charges a flat 9% platform commission on completed talent bookings. Profile creation, rate cards, and AI style tagging are 100% free forever.",
+    a: "Monologg deducts a 7% platform fee on completed talent bookings before settlement. Profile creation, rate cards, and AI style tagging are 100% free forever.",
   },
   {
     q: "How does the Monologg Escrow Protocol work?",
-    a: "When a client places an order, full contract payment is securely locked in FINCRA Escrow. Talent works with complete peace of mind, and funds auto-release immediately when deliverables are approved.",
+    a: "When a client places an order, full contract payment is held securely in escrow by our payment partner, Paystack. Talent works with complete peace of mind, and funds auto-release immediately when deliverables are approved.",
   },
   {
     q: "How does Thespian AI Style Tagging work?",
@@ -274,9 +274,9 @@ function MonologgEscrowCalculator() {
   const [amount, setAmount] = useState(CURRENCIES[0].defaultAmount);
   const [showDropdown, setShowDropdown] = useState(false);
   const [sliderMax, setSliderMax] = useState(CURRENCIES[0].max);
-  const escrowFee = Math.round(amount * 0.12);
-  const talentEarnings = amount;
-  const clientTotal = amount + escrowFee;
+  const platformFee = Math.round(amount * 0.07);
+  const youReceive = amount - platformFee;
+  const clientTotal = amount;
 
   const [clientTotalInputStr, setClientTotalInputStr] = useState(
     clientTotal.toLocaleString("en-US")
@@ -360,7 +360,7 @@ function MonologgEscrowCalculator() {
       <div className="bg-[#1B1B20] rounded-[18px] p-4 border border-[#26262E] space-y-1 relative">
         <div className="flex justify-between items-center text-xs text-[#A6A6B0] font-medium">
           <span>Client Pays Total Contract</span>
-          <span className="font-mono">FINCRA Locked</span>
+          <span className="font-mono">Paystack Locked</span>
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1 text-2xl font-bold font-mono text-[#F5F5F0]">
@@ -419,21 +419,21 @@ function MonologgEscrowCalculator() {
 
       <div className="space-y-2 px-2 text-xs text-white/80">
         <div className="flex justify-between items-center py-2 border-b border-white/10">
-          <span className="text-[#A6A6B0]">Talent Base Rate</span>
+          <span className="text-[#A6A6B0]">Base rate</span>
           <span className="font-mono font-bold text-[#FF4D4D]">
             {selectedCurr.symbol}{amount.toLocaleString()}
           </span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-white/10">
-          <span className="text-[#A6A6B0]">Escrow Processing Fee (12%)</span>
+          <span className="text-[#A6A6B0]">Platform fee (7%)</span>
           <span className="font-mono text-[#A6A6B0]">
-            {selectedCurr.symbol}{escrowFee.toLocaleString()}
+            -{selectedCurr.symbol}{platformFee.toLocaleString()}
           </span>
         </div>
         <div className="flex justify-between items-center py-2">
-          <span className="font-bold text-white">Talent Receives (Net Payout)</span>
-          <span className="font-mono font-extrabold text-white text-base">
-            {selectedCurr.symbol}{talentEarnings.toLocaleString()}
+          <span className="font-bold text-white">You receive</span>
+          <span className="font-mono font-extrabold text-emerald-400 text-base">
+            {selectedCurr.symbol}{youReceive.toLocaleString()}
           </span>
         </div>
       </div>
@@ -823,7 +823,7 @@ export function LandingPage() {
           </span>
         </div>
         <div className="flex items-center gap-4 text-white/80 text-[11px]">
-          <span>FINCRA Escrow Secured</span>
+          <span>Paystack Escrow Secured</span>
           <span className="hidden sm:inline">·</span>
           <span className="hidden sm:inline font-mono">3,200+ Verified Talent Profiles</span>
         </div>
@@ -1083,7 +1083,7 @@ export function LandingPage() {
               </h2>
 
               <p className="text-base text-white/80 leading-relaxed font-body">
-                Contracts are funded upfront into FINCRA Escrow prior to recording or performance. Talent works with 100% confidence, and clients enjoy automated deliverable signoff.
+                Contracts are held securely in escrow by our payment partner, Paystack prior to recording or performance. Talent works with 100% confidence, and clients enjoy automated deliverable signoff.
               </p>
 
               <div className="space-y-4 pt-4">
@@ -1284,7 +1284,7 @@ export function LandingPage() {
                 <li><a href="/legal/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="/legal/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">NDPA Data Protection</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FINCRA Compliance</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Paystack Compliance</a></li>
               </ul>
             </div>
           </div>
@@ -1293,7 +1293,7 @@ export function LandingPage() {
             <div>© {new Date().getFullYear()} Monologg Inc. All rights reserved.</div>
             <div className="flex items-center gap-4 text-[11px]">
               <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">✓ NDPA Compliant</span>
-              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">✓ FINCRA Escrow Verified</span>
+              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">✓ Paystack Escrow Verified</span>
             </div>
           </div>
 
