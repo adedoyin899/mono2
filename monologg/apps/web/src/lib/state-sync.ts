@@ -77,6 +77,19 @@ export interface LoggedInUserSession {
   avatarUrl?: string | null;
 }
 
+export interface CalendarSyncState {
+  connected: boolean;
+  email?: string;
+  provider?: "google";
+  lastSyncedAt?: string;
+}
+
+export interface PerformerAgreementState {
+  accepted: boolean;
+  acceptedAt?: string;
+  version: string;
+}
+
 const STORAGE_KEYS = {
   TALENT_PROFILE: "monologg_talent_profile",
   CLIENT_PROFILE: "monologg_client_profile",
@@ -90,6 +103,8 @@ const STORAGE_KEYS = {
   SUPPORT_TICKETS: "monologg_support_tickets",
   APPLICANTS: "monologg_applicants",
   USER_SESSION: "monologg_user_session",
+  CALENDAR_SYNC: "monologg_calendar_sync",
+  PERFORMER_AGREEMENT: "monologg_performer_agreement",
 };
 
 const DEFAULT_BILLING_CARDS: BillingCard[] = [
@@ -642,6 +657,53 @@ class StateSyncBus {
       localStorage.removeItem(STORAGE_KEYS.USER_SESSION);
     }
     this.notify();
+  }
+
+  // Calendar Sync State
+  getCalendarSync(): CalendarSyncState {
+    if (typeof window === "undefined") return { connected: false };
+    const raw = localStorage.getItem(STORAGE_KEYS.CALENDAR_SYNC);
+    if (!raw) return { connected: false };
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return { connected: false };
+    }
+  }
+
+  setCalendarSync(state: Partial<CalendarSyncState>): CalendarSyncState {
+    const current = this.getCalendarSync();
+    const updated: CalendarSyncState = { ...current, ...state };
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.CALENDAR_SYNC, JSON.stringify(updated));
+    }
+    this.notify();
+    return updated;
+  }
+
+  // Performer Terms & Agreement State
+  getPerformerAgreement(): PerformerAgreementState {
+    if (typeof window === "undefined") return { accepted: false, version: "1.0" };
+    const raw = localStorage.getItem(STORAGE_KEYS.PERFORMER_AGREEMENT);
+    if (!raw) return { accepted: false, version: "1.0" };
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return { accepted: false, version: "1.0" };
+    }
+  }
+
+  setPerformerAgreement(accepted: boolean): PerformerAgreementState {
+    const updated: PerformerAgreementState = {
+      accepted,
+      acceptedAt: accepted ? new Date().toISOString() : undefined,
+      version: "1.0",
+    };
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.PERFORMER_AGREEMENT, JSON.stringify(updated));
+    }
+    this.notify();
+    return updated;
   }
 }
 

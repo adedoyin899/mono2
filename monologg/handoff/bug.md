@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
+**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 80. Missing Onboarding Calendar Sync Step, Unblocked Availability Events, Unclassified Project Attendance Types & Unenforced Terms Agreement
+- **Severity:** Medium / Performer Onboarding Flow & Operational Trust
+- **What happened:** In `CreatorOnboarding.tsx`, performers moved directly from registration to personal details without an opportunity to connect their Google Calendar, and completed rate card setup straight into the dashboard without accepting performer-specific terms and payout clauses. In `TalentDashboard.tsx`, the availability screen lacked an explicit sync status indicator and failed to render existing calendar events as blocked availability slots. Furthermore, when browsing and applying for projects, performers had no visual distinction between online/remote gigs and onsite engagements requiring physical venue presence and check-in codes.
+- **Root Cause:** Absence of a dedicated calendar sync onboarding step, missing state synchronization for calendar sync status, and lack of a mandatory terms acceptance gate before profile launch.
+- **Resolution:** Added Step 1 ("Connect your calendar") with Google Calendar connect, Skip for now, connected email badge with Disconnect action, and error state with Retry. Added Step 8 ("Performer Terms & Payout Agreement") with 5 exact clauses, a mandatory terms checkbox linked to `/legal/terms`, and disabled Continue button until checked, persisting acceptance with an ISO timestamp in `appStateSync`. Added a Google Calendar Sync banner on the availability screen, and rendered existing calendar events directly as blocked slots. Added `isProjectOnline` classification, badging project cards with Onsite / Online tags, and displaying an explicit attendance requirement notification in the audition pitch modal. Validated with 126 unit tests passing across all 25 suites and regenerated `monologg-app.html`.
 
 ### 79. Transparent Modal Scrim Leak in Fund Client Wallet Modal & Missing Discovery Filters for Age, Gender, Budget, and Location
 - **Severity:** Medium / Visual Consistency & Discovery UX

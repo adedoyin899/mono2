@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
+**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -854,6 +854,15 @@ Enforced the solid modal container standard, streamlined card funding, and expan
   - Active filter count indicator badge on the "More Filters" button.
   - Enhanced client-side filtering logic across all dimensions and populated attributes on mock talents (`mocks/talents.ts`).
 - **Standalone Distribution & Testing:** Recompiled Vite standalone bundle (`monologg/monologg-app.html`, 1.59 MB). All 124 unit tests passing, zero TypeScript compiler errors.
+
+### Step 92: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement (Session 132)
+
+Implemented four core upgrades across performer onboarding, availability management, and project discovery/applications:
+- **Calendar Onboarding Step (Step 1):** Placed a clean "Connect your calendar" step immediately after sign-up and before availability/personal profile details. Features exact copy ("Bookings appear on your calendar automatically, and we only offer slots when you're free."), primary "Connect Google Calendar" button, "Skip for now" link, simulated OAuth connect flow with connected status badge (showing performer account email and "Disconnect" link), and error state handling with retry.
+- **Availability Screen Calendar Sync & Blocked Slot Rendering:** On the performer dashboard calendar tab (`activeTab === "calendar"`), added a Google Calendar Sync status banner (`Connected` with account details or `Not connected` with quick-connect CTA). Rendered existing external calendar events as distinct blocked slots (`Blocked Slot · Google Calendar Event`) with busy indicators, preventing double bookings. Kept availability slots strictly for event times only (no verification call slot type).
+- **Onsite vs. Online Project Categorization:** Added clear badges and banners to project cards, detail headers, and application pitch boxes. If a gig is remote/online, performers are informed that no physical presence is required; if onsite, performers are reminded of physical arrival and the mandatory 4-digit attendance check-in code.
+- **Mandatory Performer Terms & Payout Agreement (Step 8):** Introduced an enforced legal agreement step after payout/rate card details and before the talent storefront goes live. Outlines all five platform clauses (7% platform fee, KYC-verified bank payout routing, 3 milestone confirmations prior to events, 4-digit check-in code for onsite gigs, and rating degradation for no-shows/unconfirmed gigs). The "Continue" button remains strictly disabled until the performer checks the mandatory consent checkbox with active link to `/legal/terms`. Persists acceptance timestamp in `appStateSync` and localStorage.
+- **Unit Testing & Standalone Distribution:** Added comprehensive unit test coverage in `CreatorOnboarding.test.tsx` (126/126 unit tests passing across all 25 test suites). Rebuilt standalone bundle into single-file executable `monologg/monologg-app.html` (1.61 MB).
 
 ---
 

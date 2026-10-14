@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { Badge } from "../components/ui/Badge";
 import { Logo } from "../components/ui/Logo";
 import { EASE_OUT, DURATION_MED, DURATION_SLOW } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
@@ -17,6 +18,8 @@ import {
   Plus,
   Sparkles,
   AlertTriangle,
+  AlertCircle,
+  RefreshCw,
   X,
   Calendar as CalendarIcon,
   MapPin,
@@ -27,6 +30,8 @@ import {
   Trash2,
   ShieldAlert,
   RotateCcw,
+  Shield,
+  FileText,
 } from "lucide-react";
 
 const DEFAULT_STYLE_TAGS = ["Warm Texture", "Conversational", "Expressive", "High Energy"];
@@ -105,15 +110,28 @@ interface RateCardItem {
 }
 
 export function CreatorOnboarding() {
-  // Step 1: Personal Details (Gender, DOB, Location)
-  // Step 2: Craft (6 Categories)
-  // Step 3: Reel Upload (Anti-AI)
-  // Step 4: Analysing
-  // Step 5: Tags & AI Summary
-  // Step 6: Rate Cards
+  // Step 1: Connect your calendar (Google Calendar Sync)
+  // Step 2: Personal Details (Gender, DOB, Location)
+  // Step 3: Craft (6 Categories)
+  // Step 4: Showcase Reel Upload (Anti-AI)
+  // Step 5: Analysing (Thespian AI)
+  // Step 6: Tags & AI Summary
+  // Step 7: Rate Cards
+  // Step 8: Performer Terms & Payout Agreement
   const [step, setStep] = useState(1);
 
-  // Step 1: Personal Details
+  // Step 1: Connect your calendar
+  const currentUser = appStateSync.getLoggedInUser();
+  const initialCalendar = appStateSync.getCalendarSync();
+  const [calendarState, setCalendarState] = useState<"initial" | "connected" | "error">(() => {
+    return initialCalendar.connected ? "connected" : "initial";
+  });
+  const [connectedEmail, setConnectedEmail] = useState<string>(() => {
+    return initialCalendar.email || currentUser?.email || "alex.morgan@gmail.com";
+  });
+  const [connectingCalendar, setConnectingCalendar] = useState(false);
+
+  // Step 2: Personal Details
   const [gender, setGender] = useState("Female");
   const [dob, setDob] = useState("2000-05-15");
   const [showCalendar, setShowCalendar] = useState(false);
@@ -124,15 +142,15 @@ export function CreatorOnboarding() {
   const [locationInput, setLocationInput] = useState("Ikeja");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
-  // Step 2: Craft Selection
+  // Step 3: Craft Selection
   const [selectedNiche, setSelectedNiche] = useState<string | null>("actors");
 
-  // Step 3: Showcase Reel Upload
+  // Step 4: Showcase Reel Upload
   const [file, setFile] = useState<File | null>(null);
   const [fileSizeError, setFileSizeError] = useState(false);
   const [antiAiCertified, setAntiAiCertified] = useState(true);
 
-  // Step 5: AI Summary & Style Tags
+  // Step 6: AI Summary & Style Tags
   const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([
     "Conversational",
@@ -150,7 +168,7 @@ export function CreatorOnboarding() {
   const [newTagInput, setNewTagInput] = useState("");
   const [aiSummary, setAiSummary] = useState(DEFAULT_SUMMARIES.actors);
 
-  // Step 6: Rate Cards State (Alpha limit: max 2 rate cards)
+  // Step 7: Rate Cards State (Alpha limit: max 2 rate cards)
   const [rateCards, setRateCards] = useState<RateCardItem[]>([
     {
       id: "card-1",
@@ -163,9 +181,72 @@ export function CreatorOnboarding() {
   ]);
   const [refiningCardId, setRefiningCardId] = useState<string | null>(null);
 
+  // Step 8: Performer Terms & Payout Agreement State
+  const initialAgreement = appStateSync.getPerformerAgreement();
+  const [termsAccepted, setTermsAccepted] = useState(initialAgreement.accepted);
+
   const [taggingFailed, setTaggingFailed] = useState(false);
   const mediaAssetIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
+
+  // Calendar handlers
+  const handleConnectCalendar = () => {
+    setConnectingCalendar(true);
+    setTimeout(() => {
+      setConnectingCalendar(false);
+      const email = currentUser?.email || "alex.morgan@gmail.com";
+      appStateSync.setCalendarSync({
+        connected: true,
+        email,
+        provider: "google",
+        lastSyncedAt: new Date().toISOString(),
+      });
+      setConnectedEmail(email);
+      setCalendarState("connected");
+    }, 450);
+  };
+
+  const handleDisconnectCalendar = () => {
+    appStateSync.setCalendarSync({
+      connected: false,
+      email: undefined,
+      provider: undefined,
+    });
+    setCalendarState("initial");
+  };
+
+  const handleFinishOnboarding = () => {
+    if (!termsAccepted) return;
+
+    // Store acceptance with a timestamp
+    appStateSync.setPerformerAgreement(true);
+
+    for (const card of rateCards) {
+      if (card.title.trim()) {
+        try {
+          appStateSync.addService({
+            title: card.title,
+            price: `₦${Number(card.price.replace(/\D/g, "") || "45000").toLocaleString("en-US")}`,
+            delivery: card.delivery,
+            bookings: 0,
+          });
+        } catch {
+          // ignore cap
+        }
+      }
+    }
+    appStateSync.updateTalentProfile({
+      location: location ? `${location}, Nigeria` : "Lagos, Nigeria",
+      bio: aiSummary || undefined,
+      tags: tags.length > 0 ? tags : undefined,
+      gender,
+      dob,
+      craft: selectedNiche || "actors",
+      performanceSummary: aiSummary || undefined,
+      craftTags: tags.length > 0 ? tags : undefined,
+    });
+    navigate("/dashboard");
+  };
 
   // Sync AI summary when niche changes
   useEffect(() => {
@@ -175,7 +256,13 @@ export function CreatorOnboarding() {
   }, [selectedNiche]);
 
   const handleNext = () => setStep((s) => s + 1);
-  const handleBack = () => setStep((s) => s - 1);
+  const handleBack = () => {
+    if (step === 6) {
+      setStep(4);
+    } else {
+      setStep((s) => s - 1);
+    }
+  };
 
   // Tag Handlers
   const handleAddTag = () => {
@@ -275,7 +362,7 @@ export function CreatorOnboarding() {
   async function handleUploadAndAnalyse() {
     if (!file) return;
     setTaggingFailed(false);
-    setStep(4);
+    setStep(5);
 
     if (apiClient.mode !== "live") return;
 
@@ -289,10 +376,10 @@ export function CreatorOnboarding() {
   }
 
   useEffect(() => {
-    if (step !== 4 || taggingFailed) return;
+    if (step !== 5 || taggingFailed) return;
 
     if (apiClient.mode !== "live") {
-      const timer = setTimeout(() => setStep(5), 3000);
+      const timer = setTimeout(() => setStep(6), 3000);
       return () => clearTimeout(timer);
     }
 
@@ -307,7 +394,7 @@ export function CreatorOnboarding() {
         const profile = await apiClient.getCreatorProfile();
         if (cancelled) return;
         setTags(profile.styleTags.length > 0 ? profile.styleTags : DEFAULT_STYLE_TAGS);
-        setStep(5);
+        setStep(6);
       } else if (taggingStatus === "FAILED") {
         setTaggingFailed(true);
       }
@@ -360,19 +447,19 @@ export function CreatorOnboarding() {
 
   return (
     <div className="role-talent min-h-screen bg-[var(--color-bg-canvas)] flex flex-col w-full max-w-[480px] mx-auto relative overflow-hidden">
-      {/* Top Progress Bar - 5 Content Steps: 1, 2, 3, 5, 6 */}
-      {step !== 4 && (
+      {/* Top Progress Bar - 7 Content Steps: 1, 2, 3, 4, 6, 7, 8 (step 5 is Analysing) */}
+      {step !== 5 && (
         <div className="px-5 pt-6 pb-3 flex items-center gap-3">
           <button
             aria-label="Go back"
             onClick={step === 1 ? () => navigate("/auth") : handleBack}
-            className="w-10 h-10 -ml-1 flex items-center justify-center rounded-[var(--radius-full)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.94] transition-all"
+            className="w-10 h-10 -ml-1 flex items-center justify-center rounded-[var(--radius-full)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.94] transition-all cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 flex items-center gap-1.5">
-            {[1, 2, 3, 5, 6].map((s) => {
-              const done = s < step && step !== 4;
+            {[1, 2, 3, 4, 6, 7, 8].map((s) => {
+              const done = s < step && step !== 5;
               const active = s === step;
               return (
                 <div key={s} className="flex-1 h-1.5 rounded-[var(--radius-full)] bg-[var(--color-bg-elevated)] overflow-hidden">
@@ -386,13 +473,131 @@ export function CreatorOnboarding() {
               );
             })}
           </div>
-          <div className="w-10" />
+          <div className="w-10 text-right">
+            <span className="text-[11px] font-mono text-[var(--color-text-tertiary)]">
+              {step < 5 ? step : step - 1}/7
+            </span>
+          </div>
         </div>
       )}
 
       <AnimatePresence mode="wait">
-        {/* ── STEP 1: Personal Details (Gender, Date of Birth, Location) ── */}
+        {/* ── STEP 1: Connect your calendar (Google Calendar Sync) ── */}
         {step === 1 && (
+          <motion.div key="step-calendar" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+            <div className="mt-8 mb-6 text-center max-w-sm mx-auto">
+              <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/20 shadow-lg shadow-purple-500/10">
+                <CalendarIcon className="w-8 h-8 text-[var(--color-accent)]" />
+              </div>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-3">
+                Connect your calendar
+              </h2>
+              <p className="font-body text-[15px] text-[var(--color-text-secondary)] leading-relaxed">
+                Bookings appear on your calendar automatically, and we only offer slots when you&apos;re free.
+              </p>
+            </div>
+
+            {/* Calendar Connection Status Area */}
+            <div className="max-w-sm w-full mx-auto mb-6">
+              {calendarState === "connected" ? (
+                <div className="p-4 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-emerald-500/30 shadow-[var(--shadow-card)] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <Badge tone="success" size="sm">Connected</Badge>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDisconnectCalendar}
+                      className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] hover:underline cursor-pointer"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--color-bg-elevated)] flex items-center justify-center border border-[var(--color-border-default)]">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-semibold text-[var(--color-text-primary)] font-body block truncate">
+                        Google Calendar
+                      </span>
+                      <span className="text-[11px] text-[var(--color-text-secondary)] font-mono truncate block">
+                        {connectedEmail}
+                      </span>
+                    </div>
+                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  </div>
+                </div>
+              ) : calendarState === "error" ? (
+                <div className="p-4 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-rose-500/30 shadow-[var(--shadow-card)] space-y-3">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-[var(--color-error)]" />
+                    <span className="text-xs font-semibold text-[var(--color-error)] font-body">Calendar Connection Failed</span>
+                  </div>
+                  <p className="text-xs font-body text-[var(--color-text-secondary)] leading-relaxed">
+                    Could not connect to Google Calendar. Permission request was not completed.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleConnectCalendar}
+                    className="w-full text-xs font-semibold"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Retry
+                  </Button>
+                </div>
+              ) : (
+                <div className="p-4 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] text-center space-y-2">
+                  <div className="flex justify-center items-center gap-2 text-xs text-[var(--color-text-secondary)] font-body">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Read-only busy slots · Never exposes private event titles</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Buttons: Connect Google Calendar (primary) & Skip for now text link */}
+            <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1 max-w-sm w-full mx-auto flex flex-col items-center gap-3">
+              {calendarState === "connected" ? (
+                <Button onClick={handleNext} className="w-full h-12 text-sm font-bold shadow-md cursor-pointer">
+                  Continue
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleConnectCalendar}
+                  disabled={connectingCalendar}
+                  className="w-full h-12 text-sm font-bold shadow-md flex items-center justify-center gap-2.5 cursor-pointer"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                  </svg>
+                  <span>{connectingCalendar ? "Connecting to Google..." : "Connect Google Calendar"}</span>
+                </Button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleNext}
+                className="text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline py-1 cursor-pointer transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 2: Personal Details (Gender, Date of Birth, Location) ── */}
+        {step === 2 && (
           <motion.div key="step-personal" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-6">
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
@@ -605,8 +810,8 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 2: Craft Selection (The 6 Core Categories) ── */}
-        {step === 2 && (
+        {/* ── STEP 3: Craft Selection (The 6 Core Categories) ── */}
+        {step === 3 && (
           <motion.div key="step-craft" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-6">
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
@@ -670,8 +875,8 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 3: Upload Showcase Reel + Anti-AI Policy ── */}
-        {step === 3 && (
+        {/* ── STEP 4: Upload Showcase Reel + Anti-AI Policy ── */}
+        {step === 4 && (
           <motion.div key="step-reel" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-4">
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
@@ -791,8 +996,8 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 4: Job Polling Simulation & Animation ── */}
-        {step === 4 && (
+        {/* ── STEP 5: Job Polling Simulation & Animation ── */}
+        {step === 5 && (
           <motion.div
             key="step-analysing"
             initial={{ opacity: 0 }}
@@ -839,7 +1044,7 @@ export function CreatorOnboarding() {
                 <p className="font-body text-[length:var(--font-size-sm)] text-[var(--color-text-secondary)] mb-6 max-w-[300px]">
                   Your reel is saved — we just couldn&apos;t generate tags this time. You can try again.
                 </p>
-                <Button onClick={() => setStep(3)} className="w-full max-w-[220px]">
+                <Button onClick={() => setStep(4)} className="w-full max-w-[220px]">
                   Try again
                 </Button>
               </>
@@ -847,8 +1052,8 @@ export function CreatorOnboarding() {
           </motion.div>
         )}
 
-        {/* ── STEP 5: AI Summary & Editable Style Tags + Deletable Suggestions ── */}
-        {step === 5 && (
+        {/* ── STEP 6: AI Summary & Editable Style Tags + Deletable Suggestions ── */}
+        {step === 6 && (
           <motion.div
             key="step-tags"
             initial={{ opacity: 0, scale: 0.97 }}
@@ -1011,15 +1216,15 @@ export function CreatorOnboarding() {
               <Button onClick={handleNext} className="w-full">
                 Looks great, continue
               </Button>
-              <Button variant="ghost" className="w-full" onClick={() => setStep(3)}>
+              <Button variant="ghost" className="w-full" onClick={() => setStep(4)}>
                 Re-upload my reel
               </Button>
             </div>
           </motion.div>
         )}
 
-        {/* ── STEP 6: Set your Rate Cards (Max 2) ── */}
-        {step === 6 && (
+        {/* ── STEP 7: Set your Rate Cards (Max 2) ── */}
+        {step === 7 && (
           <motion.div key="step-rates" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
             <div className="mt-4 mb-4">
               <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
@@ -1158,36 +1363,100 @@ export function CreatorOnboarding() {
 
             <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
               <Button
-                onClick={() => {
-                  for (const card of rateCards) {
-                    if (card.title.trim()) {
-                      try {
-                        appStateSync.addService({
-                          title: card.title,
-                          price: `₦${Number(card.price.replace(/\D/g, "") || "45000").toLocaleString("en-US")}`,
-                          delivery: card.delivery,
-                          bookings: 0,
-                        });
-                      } catch {
-                        // ignore cap
-                      }
-                    }
-                  }
-                  appStateSync.updateTalentProfile({
-                    location: location ? `${location}, Nigeria` : "Lagos, Nigeria",
-                    bio: aiSummary || undefined,
-                    tags: tags.length > 0 ? tags : undefined,
-                    gender,
-                    dob,
-                    craft: selectedNiche || "actors",
-                    performanceSummary: aiSummary || undefined,
-                    craftTags: tags.length > 0 ? tags : undefined,
-                  });
-                  navigate("/dashboard");
-                }}
+                onClick={handleNext}
                 className="w-full"
               >
-                Preview My Profile
+                Continue
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 8: Performer Terms & Payout Agreement ── */}
+        {step === 8 && (
+          <motion.div key="step-agreement" {...rise} className="flex-1 flex flex-col px-5 pb-6 overflow-y-auto">
+            <div className="mt-4 mb-4">
+              <div className="w-12 h-12 rounded-2xl mb-4 flex items-center justify-center bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/20 shadow-md">
+                <FileText className="w-6 h-6 text-[var(--color-accent)]" />
+              </div>
+              <h2 className="font-display text-[length:var(--font-size-2xl)] leading-[1.15] text-[var(--color-text-primary)] mb-2">
+                Performer Terms &amp; Payout Agreement
+              </h2>
+              <p className="font-body text-[14px] text-[var(--color-text-secondary)] leading-relaxed">
+                Please review and accept our platform performer terms before launching your profile.
+              </p>
+            </div>
+
+            {/* Clauses Stacked List */}
+            <div className="space-y-3 mb-6 bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-card)]">
+              <div className="p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <strong className="font-semibold text-[var(--color-text-primary)]">Service Fee:</strong>{" "}
+                  Monologg deducts a 7% platform fee from all completed bookings before settlement.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <strong className="font-semibold text-[var(--color-text-primary)]">Payout Verification:</strong>{" "}
+                  Payouts are routed directly to your verified bank account (OPay, Wema, Zenith, etc.) matching your KYC full legal name. Any payout account changes are subject to review.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <strong className="font-semibold text-[var(--color-text-primary)]">Milestone Confirmations:</strong>{" "}
+                  You agree to respond to automated availability prompts (sent via email and/or platform alerts at 3 times prior to each event).
+                </p>
+              </div>
+
+              <div className="p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <strong className="font-semibold text-[var(--color-text-primary)]">Attendance Code:</strong>{" "}
+                  On-site payouts require entering the client&apos;s 4-digit check-in code upon physical arrival.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)]">
+                <p className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <strong className="font-semibold text-[var(--color-text-primary)]">Account Standing:</strong>{" "}
+                  Unconfirmed gigs or no-shows directly degrade your performer rating and visibility on the platform.
+                </p>
+              </div>
+            </div>
+
+            {/* Checkbox: I agree to the Performer Terms of Service (Mandatory) */}
+            <div className="mb-6">
+              <label className="flex items-start gap-3 p-3.5 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] cursor-pointer select-none hover:border-[var(--color-border-strong)] transition-colors">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded text-[var(--color-accent)] focus:ring-0 shrink-0 cursor-pointer"
+                />
+                <span className="font-body text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  I agree to the{" "}
+                  <a
+                    href="/legal/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[var(--color-accent)] underline underline-offset-2 hover:opacity-80"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Performer Terms of Service
+                  </a>{" "}
+                  <span className="font-semibold text-[var(--color-text-primary)]">(Mandatory)</span>
+                </span>
+              </label>
+            </div>
+
+            <div className="mt-auto pt-6 sticky bottom-0 bg-gradient-to-t from-[var(--color-bg-canvas)] via-[var(--color-bg-canvas)] to-transparent pb-1">
+              <Button
+                onClick={handleFinishOnboarding}
+                disabled={!termsAccepted}
+                className="w-full"
+              >
+                Continue
               </Button>
             </div>
           </motion.div>

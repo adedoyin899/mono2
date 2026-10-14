@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-14 (Session 131: Solid Modal Standard, Saved Cards Streamlining & Client Performer Filters Overhaul)
+**Last updated:** 2026-10-14 (Session 132: Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 132 (2026-10-14) — Performer Calendar Sync, Onsite/Online Project Badging & Mandatory Terms Agreement
+
+**Goal:** Implement talent calendar integration, sync status on availability screen with blocked calendar events, onsite vs. online project classification & application warnings, and mandatory Performer Terms & Payout Agreement at the end of talent onboarding (`CreatorOnboarding.tsx`, `TalentDashboard.tsx`, `state-sync.ts`, `CreatorOnboarding.test.tsx`, `monologg-app.html`):
+1. **Talent Onboarding — "Connect your calendar" Step (`CreatorOnboarding.tsx`, `state-sync.ts`):**
+   - Inserted Step 1 right after sign-up and before availability details.
+   - Title: `"Connect your calendar"`.
+   - Body: `"Bookings appear on your calendar automatically, and we only offer slots when you're free."`.
+   - Interactive buttons: Primary `"Connect Google Calendar"` button with Google logo and `"Skip for now"` secondary link.
+   - States: Connected state displays a connected badge with user account email and a `"Disconnect"` link; Error state renders an alert with retry button (`RefreshCw`).
+   - Integrated with `appStateSync.setCalendarSync(...)` and `appStateSync.getCalendarSync()`.
+2. **Availability Screen Sync Status & Blocked Calendar Slots (`TalentDashboard.tsx`):**
+   - Added a Google Calendar Sync status banner at the top of the availability screen (`activeTab === "calendar"`) showing real-time sync status (`Connected` with account email + Disconnect action, or `Not connected` with Connect Google Calendar action).
+   - Rendered existing calendar events (`dayDetail.events`) as blocked slots (`Blocked Slot · Google Calendar Event` / `Calendar Event`) in the day's slot schedule with visual "Busy" markers.
+   - Strictly preserved availability slots for event times only without adding verification call slot types.
+3. **Onsite vs. Online Project Badging & Application Warning (`TalentDashboard.tsx`):**
+   - Created `isProjectOnline()` helper function to distinguish remote/digital projects from physical gigs.
+   - Added `Online` / `Onsite` badge on project cards in the project browse feed.
+   - Added `Online Project` / `Onsite Project` badge in the Project Detail view header alongside project type and location.
+   - In State 4 ("Ready to Pitch"), added a high-visibility notification callout informing the performer whether the project is 100% remote/online or requires physical attendance at the venue (linking to the 4-digit check-in attendance code requirement).
+4. **Mandatory Performer Terms & Payout Agreement Step (`CreatorOnboarding.tsx`, `state-sync.ts`):**
+   - Added Step 8 at the end of onboarding after rate cards and before profile publication.
+   - Title: `"Performer Terms & Payout Agreement"`.
+   - Rendered the 5 mandatory clauses as a stacked list with bold labels:
+     - **Service Fee:** Monologg deducts a 7% platform fee from all completed bookings before settlement.
+     - **Payout Verification:** Payouts are routed directly to your verified bank account (OPay, Wema, Zenith, etc.) matching your KYC full legal name. Any payout account changes are subject to review.
+     - **Milestone Confirmations:** You agree to respond to automated availability prompts (sent via email and/or platform alerts at 3 times prior to each event).
+     - **Attendance Code:** On-site payouts require entering the client's 4-digit check-in code upon physical arrival.
+     - **Account Standing:** Unconfirmed gigs or no-shows directly degrade your performer rating and visibility on the platform.
+   - Checkbox: `"I agree to the Performer Terms of Service (Mandatory)"` with link to `/legal/terms`.
+   - `"Continue"` button remains disabled until the box is checked.
+   - Acceptance is stored with an ISO timestamp via `appStateSync.setPerformerAgreement(true)`.
+5. **Quality Assurance & Standalone Distribution Rebuilding:**
+   - Updated unit test helper `goToUploadStep` in `CreatorOnboarding.test.tsx` to handle the new calendar step.
+   - Added 2 new unit test suites verifying calendar sync connect/disconnect and mandatory agreement checkbox behavior.
+   - All 126 unit tests passing across all 25 test suites (`pnpm --filter @monologg/web test`).
+   - Clean TypeScript compilation with 0 errors (`tsc --noEmit`).
+   - Regenerated standalone single-file distribution bundle in `monologg/monologg-app.html` (1.61 MB).
 
 ---
 

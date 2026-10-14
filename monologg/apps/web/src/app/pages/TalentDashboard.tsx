@@ -316,6 +316,21 @@ const APPLICATION_STATUS_LABEL: Record<string, string> = {
   WITHDRAWN: "Withdrawn",
 };
 
+export function isProjectOnline(project?: { location?: string; description?: string; projectName?: string } | null): boolean {
+  if (!project) return false;
+  const loc = (project.location || "").toLowerCase();
+  const desc = (project.description || "").toLowerCase();
+  const name = (project.projectName || "").toLowerCase();
+  return (
+    loc.includes("online") ||
+    loc.includes("remote") ||
+    desc.includes("online") ||
+    desc.includes("remote") ||
+    name.includes("voiceover") ||
+    name.includes("voice-over")
+  );
+}
+
 const TALENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "home", label: "Dashboard", icon: Home },
   { id: "storefront", label: "My Profile", icon: User },
@@ -623,6 +638,29 @@ export function TalentDashboard() {
         { label: "Profile Views", value: "0" },
       ]
     : stats;
+
+  // Google Calendar Sync State (state-sync.ts)
+  const [calendarSync, setCalendarSync] = useState(() => appStateSync.getCalendarSync());
+
+  const handleConnectCalendarSync = () => {
+    const email = currentUser?.email || "alex.morgan@gmail.com";
+    const updated = appStateSync.setCalendarSync({
+      connected: true,
+      email,
+      provider: "google",
+      lastSyncedAt: new Date().toISOString(),
+    });
+    setCalendarSync(updated);
+  };
+
+  const handleDisconnectCalendarSync = () => {
+    const updated = appStateSync.setCalendarSync({
+      connected: false,
+      email: undefined,
+      provider: undefined,
+    });
+    setCalendarSync(updated);
+  };
 
   // In-Page Profile Editing State (Airbnb / Upwork / Linktree inspired)
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -2364,6 +2402,64 @@ export function TalentDashboard() {
                   </div>
                 )}
 
+                {/* Google Calendar Sync Status Banner */}
+                <div
+                  className="mb-4 p-4 rounded-[var(--radius-lg)] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  style={{
+                    background: "var(--color-bg-surface)",
+                    border: "1px solid var(--color-border-default)",
+                    boxShadow: "var(--shadow-card)",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--color-bg-elevated)] flex items-center justify-center border border-[var(--color-border-default)] shrink-0">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                          Google Calendar Sync
+                        </span>
+                        {calendarSync.connected ? (
+                          <Badge tone="success" size="sm">Connected</Badge>
+                        ) : (
+                          <Badge tone="neutral" size="sm">Not connected</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs font-body mt-0.5 truncate" style={{ color: "var(--color-text-secondary)" }}>
+                        {calendarSync.connected
+                          ? `Connected as ${calendarSync.email || "Google Account"} · Bookings sync automatically, and existing events block slots.`
+                          : "Connect your calendar to automatically block out slots when you're busy."}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {calendarSync.connected ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleDisconnectCalendarSync}
+                        className="h-8 px-3 text-xs"
+                      >
+                        Disconnect
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={handleConnectCalendarSync}
+                        className="h-8 px-3 text-xs font-semibold"
+                      >
+                        Connect Google Calendar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
                 {/* Calendar Toolbar & Period Navigation */}
                 <div
                   className="p-3.5 rounded-[var(--radius-lg)] mb-4 flex flex-col sm:flex-row items-center justify-between gap-3"
@@ -2832,27 +2928,56 @@ export function TalentDashboard() {
                       )}
                     </div>
 
-                    {/* Explicit slots for this exact day. */}
+                    {/* Explicit slots & Calendar Blocked Slots for this exact day */}
                     <div className="p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
                       <div className="flex items-center justify-between mb-3">
-                        <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Slots for this day</div>
+                        <div>
+                          <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Slots for this day</div>
+                          <p className="text-[11px] font-body text-[var(--color-text-tertiary)] mt-0.5">
+                            Availability slots are for event times only. Conflicting calendar events are automatically blocked.
+                          </p>
+                        </div>
                         <Button variant="secondary" className="h-8 px-3 text-xs gap-1" onClick={() => setShowAddSlot(true)}>
                           <Plus className="w-3.5 h-3.5" /> Add slot
                         </Button>
                       </div>
-                      {!dayDetail.block || dayDetail.block.slots.length === 0 ? (
+
+                      {(!dayDetail.block || dayDetail.block.slots.length === 0) && dayDetail.events.length === 0 ? (
                         <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>No explicit slots — add one to mark part of this day free or unavailable.</p>
                       ) : (
                         <div className="space-y-2">
-                          {dayDetail.block.slots.map((slot, i) => (
-                            <div key={i} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                          {/* Existing calendar events rendered as blocked slots */}
+                          {dayDetail.events.map((evt) => (
+                            <div
+                              key={`blocked-slot-${evt.id}`}
+                              className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/5"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                                <span className="text-xs font-mono tnum font-semibold text-[var(--color-text-primary)] shrink-0">
+                                  {evt.start}–{evt.end}
+                                </span>
+                                <Badge tone="neutral" size="sm">Blocked Slot</Badge>
+                                <span className="text-xs font-body text-[var(--color-text-secondary)] truncate">
+                                  {evt.title} · {calendarSync.connected ? "Google Calendar" : "Calendar Event"}
+                                </span>
+                              </div>
+                              <span className="text-[11px] font-mono font-medium text-amber-600 dark:text-amber-400 shrink-0 ml-2">
+                                Busy
+                              </span>
+                            </div>
+                          ))}
+
+                          {/* Explicit user slots */}
+                          {dayDetail.block?.slots.map((slot, i) => (
+                            <div key={`user-slot-${i}`} className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)]" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full" style={{ background: SLOT_STATE_META[slot.state].color }} />
                                 <span className="text-xs font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{slot.start}–{slot.end}</span>
                                 <Badge tone="neutral" size="sm">{SLOT_STATE_META[slot.state].label}</Badge>
                               </div>
                               {slot.state !== "booked" && (
-                                <button onClick={() => handleRemoveSlot(i)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ color: "var(--color-text-tertiary)" }}>
+                                <button onClick={() => handleRemoveSlot(i)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-canvas)] transition-colors cursor-pointer" style={{ color: "var(--color-text-tertiary)" }}>
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               )}
@@ -3023,8 +3148,11 @@ export function TalentDashboard() {
                         </span>
                       </div>
 
-                      <div>
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Badge tone="accent" size="md">{selectedProject.projectType}</Badge>
+                        <Badge tone={isProjectOnline(selectedProject) ? "neutral" : "accent"} size="md">
+                          {isProjectOnline(selectedProject) ? "Online Project" : "Onsite Project"}
+                        </Badge>
                       </div>
                     </div>
 
@@ -3036,9 +3164,13 @@ export function TalentDashboard() {
                     </h1>
 
                     <div className="flex items-center gap-4 sm:gap-6 flex-wrap text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                        <span>{selectedProject.location || "Lagos, NG (Hybrid/Remote)"}</span>
+                      <div className="flex items-center gap-1.5 font-medium">
+                        {isProjectOnline(selectedProject) ? (
+                          <Globe className="w-4 h-4 text-sky-500 shrink-0" />
+                        ) : (
+                          <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                        )}
+                        <span>{selectedProject.location || (isProjectOnline(selectedProject) ? "Remote (Online)" : "Lagos, NG (On-site)")}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
@@ -3511,6 +3643,29 @@ export function TalentDashboard() {
                         ) : (
                           /* State 4: Ready to Pitch */
                           <div className="space-y-3">
+                            {/* Onsite vs Online Information Banner */}
+                            <div
+                              className={`p-3.5 rounded-xl border flex items-start gap-2.5 ${
+                                isProjectOnline(selectedProject)
+                                  ? "bg-sky-500/10 border-sky-500/30 text-sky-800 dark:text-sky-200"
+                                  : "bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-100"
+                              }`}
+                            >
+                              {isProjectOnline(selectedProject) ? (
+                                <Globe className="w-4 h-4 shrink-0 mt-0.5 text-sky-500" />
+                              ) : (
+                                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                              )}
+                              <div className="text-xs font-body leading-relaxed">
+                                <span className="font-bold">
+                                  {isProjectOnline(selectedProject) ? "Online Project:" : "On-site Project:"}
+                                </span>{" "}
+                                {isProjectOnline(selectedProject)
+                                  ? "This gig is 100% remote. All performances and audition materials are submitted digitally through Monologg."
+                                  : `This gig requires physical on-site presence at ${selectedProject.location || "the client's venue in Lagos"}. On-site payouts require entering the client's 4-digit check-in code upon physical arrival.`}
+                              </div>
+                            </div>
+
                             <div>
                               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
                                 Audition Pitch (optional)
@@ -3727,6 +3882,9 @@ export function TalentDashboard() {
                               ) : (
                                 <Badge tone="success" size="sm">Open</Badge>
                               )}
+                              <Badge tone={isProjectOnline(project) ? "neutral" : "accent"} size="sm">
+                                {isProjectOnline(project) ? "Online" : "Onsite"}
+                              </Badge>
                               <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                                 {project.applicantCount}{project.applicantCap ? `/${project.applicantCap}` : ""} applicants
                               </span>

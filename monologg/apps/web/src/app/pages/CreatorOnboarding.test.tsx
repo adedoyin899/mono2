@@ -19,17 +19,29 @@ async function renderOnboarding() {
 }
 
 async function goToUploadStep(container: HTMLElement) {
-  // Step 1: personal details has defaults; continue.
-  fireEvent.click(screen.getByText("Continue"));
+  // Step 1: Connect your calendar - skip if present
+  const skipBtn = screen.queryByText("Skip for now");
+  if (skipBtn) {
+    fireEvent.click(skipBtn);
+  }
 
-  // Step 2: craft is pre-selected ("actor"); continue.
+  // Step 2: personal details has defaults; continue.
   fireEvent.click(await screen.findByText("Continue"));
 
-  // Step 3: select a file.
+  // Step 3: craft is pre-selected ("actor"); continue.
+  fireEvent.click(await screen.findByText("Continue"));
+
+  // Step 4: select a file.
   await screen.findByText("Upload your showcase reel");
   const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
   const file = new File(["reel-bytes"], "reel.mp4", { type: "video/mp4" });
   fireEvent.change(fileInput, { target: { files: [file] } });
+
+  // Authentic performance checkbox
+  const checkbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+  if (checkbox && !checkbox.checked) {
+    fireEvent.click(checkbox);
+  }
 
   fireEvent.click(await screen.findByText("Upload & Analyse"));
 }
@@ -150,5 +162,96 @@ describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
     );
     expect(screen.getByText("Try again")).toBeInTheDocument();
     expect(screen.queryByText(/verified/i)).not.toBeInTheDocument();
+  });
+
+  it("talent onboarding: calendar step renders title, body, Google Calendar button, skip, and connection states", async () => {
+    await renderOnboarding();
+
+    // Verify step 1 title and body
+    expect(screen.getByText("Connect your calendar")).toBeInTheDocument();
+    expect(
+      screen.getByText("Bookings appear on your calendar automatically, and we only offer slots when you're free."),
+    ).toBeInTheDocument();
+
+    // Verify primary button and skip link
+    const connectBtn = screen.getByText("Connect Google Calendar");
+    expect(connectBtn).toBeInTheDocument();
+    const skipLink = screen.getByText("Skip for now");
+    expect(skipLink).toBeInTheDocument();
+
+    // Click connect Google Calendar
+    fireEvent.click(connectBtn);
+
+    // Wait for connected badge and email
+    await waitFor(() => {
+      expect(screen.getByText("Connected")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Disconnect")).toBeInTheDocument();
+
+    // Disconnect
+    fireEvent.click(screen.getByText("Disconnect"));
+    expect(screen.getByText("Connect Google Calendar")).toBeInTheDocument();
+  });
+
+  it("talent onboarding: mandatory agreement step renders 5 exact clauses, mandatory checkbox, and disables continue until checked", async () => {
+    const container = await renderOnboarding();
+
+    // Step 1: Skip calendar
+    fireEvent.click(screen.getByText("Skip for now"));
+
+    // Step 2: Details -> Continue
+    fireEvent.click(await screen.findByText("Continue"));
+
+    // Step 3: Craft -> Continue
+    fireEvent.click(await screen.findByText("Continue"));
+
+    // Step 4: Reel upload
+    await screen.findByText("Upload your showcase reel");
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["reel-bytes"], "reel.mp4", { type: "video/mp4" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    const checkbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    if (checkbox && !checkbox.checked) fireEvent.click(checkbox);
+    fireEvent.click(await screen.findByText("Upload & Analyse"));
+
+    // Wait for step 6 (tags) in mock mode
+    await waitFor(
+      () => {
+        expect(screen.getByText("Your style tags are ready.")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Step 6 -> Step 7 (rate cards)
+    fireEvent.click(screen.getByText("Looks great, continue"));
+
+    // Step 7: Rate cards -> Continue
+    await screen.findByText("Set your rate cards");
+    fireEvent.click(screen.getByText("Continue"));
+
+    // Step 8: Performer Terms & Payout Agreement
+    await screen.findByText("Performer Terms & Payout Agreement");
+
+    // Verify all 5 clauses exactly as written
+    expect(screen.getByText(/Monologg deducts a 7% platform fee from all completed bookings before settlement/i)).toBeInTheDocument();
+    expect(screen.getByText(/Payouts are routed directly to your verified bank account \(OPay, Wema, Zenith, etc\.\) matching your KYC full legal name/i)).toBeInTheDocument();
+    expect(screen.getByText(/You agree to respond to automated availability prompts \(sent via email and\/or platform alerts at 3 times prior to each event\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/On-site payouts require entering the client's 4-digit check-in code upon physical arrival/i)).toBeInTheDocument();
+    expect(screen.getByText(/Unconfirmed gigs or no-shows directly degrade your performer rating and visibility on the platform/i)).toBeInTheDocument();
+
+    // Verify Checkbox and (Mandatory)
+    expect(screen.getByText("(Mandatory)")).toBeInTheDocument();
+    const termsLink = screen.getByText("Performer Terms of Service");
+    expect(termsLink).toBeInTheDocument();
+    expect(termsLink.closest("a")).toHaveAttribute("href", "/legal/terms");
+
+    // Continue button must be disabled until checked
+    const continueBtn = screen.getByRole("button", { name: "Continue" });
+    expect(continueBtn).toBeDisabled();
+
+    // Check the box
+    const termsBox = screen.getByRole("checkbox");
+    fireEvent.click(termsBox);
+    expect(continueBtn).not.toBeDisabled();
   });
 });
