@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-13 (Session 129: Performer Web App FAANG UX/UI Polish & Cleanup across 5 Core Screens)
+**Last updated:** 2026-10-14 (Session 130: Fund Client Wallet UX/UI Polish & Fintech Streamlining)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,12 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 78. Developer Test Artifact Link & Cluttered Radio Input Layout in Fund Client Wallet Modal
+- **Severity:** Low / UI-UX Polish & Production Cleanliness
+- **What happened:** In `ClientDashboard.tsx`, the "Fund Client Wallet" modal displayed a developer test link `"Test insufficient balance error"` floating next to the CVV input in production UI. In addition, the amount input lacked fintech contrast, the quick preset chips had low visual affordance, and the saved cards list used default radio buttons inside oversized cards without dedicated brand markers.
+- **Root Cause:** Prototype testing helper button left inline in UI markup instead of being triggered naturally through amount thresholds ($\ge ₦1,000,000$).
+- **Resolution:** Removed the floating test link completely while maintaining existing test coverage for insufficient funds; transformed the amount input into a high-contrast fintech container with `#7B00FE` currency sign and bold 24px mono numbers; upgraded quick amount presets into tactile button chips with purple active states; styled saved cards as mini payment cards with dedicated Mastercard and Visa brand badges; integrated the CVV code into an intuitive security row with helper copy; and refined the primary action button with an escrow protection badge. All 124 unit tests pass, typecheck clean.
 
 ### 77. Hardcoded Accent Red Border & Ambiguous Action Modal CTAs in OrderRoom & Transaction History
 - **Severity:** Low / UI Consistency & Action Clarity

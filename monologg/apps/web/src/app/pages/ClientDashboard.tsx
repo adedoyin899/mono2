@@ -3796,76 +3796,96 @@ export function ClientDashboard() {
                     </motion.div>
                   ) : (
                     <div className="space-y-4">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Quick Amount Presets
-                        </label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {[50000, 100000, 250000, 500000].map(amt => (
-                            <button
-                              key={amt}
-                              type="button"
-                              onClick={() => {
-                                setFundAmountInput(amt.toLocaleString());
+                      {/* Amount Section */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs font-semibold block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                            Amount to Fund (NGN)
+                          </label>
+                          <div className="relative flex items-center rounded-2xl border transition-all focus-within:border-[#7B00FE] focus-within:ring-2 focus-within:ring-[#7B00FE]/20" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                            <span className="pl-4 pr-1 font-mono font-bold text-xl select-none" style={{ color: "#7B00FE" }}>
+                              ₦
+                            </span>
+                            <Input
+                              className="border-0 bg-transparent pl-1 pr-4 text-xl font-mono font-bold h-12 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+                              value={fundAmountInput}
+                              onChange={e => {
+                                const raw = e.target.value.replace(/\D/g, "");
+                                const num = parseInt(raw, 10);
+                                setFundAmountInput(isNaN(num) ? "" : num.toLocaleString());
                                 setCardFundError(null);
                               }}
-                              className="py-2 px-1 text-xs font-mono font-medium rounded-xl border transition-all text-center"
-                              style={{
-                                background: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                                borderColor: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-hairline)",
-                                color: fundAmountInput.replace(/\D/g, "") === amt.toString() ? "var(--color-accent)" : "var(--color-text-secondary)",
-                              }}
-                            >
-                              ₦{(amt / 1000)}k
-                            </button>
-                          ))}
+                              placeholder="e.g. 50,000"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Amount to Fund (NGN)
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-sm pointer-events-none" style={{ color: "var(--color-text-secondary)" }}>
-                            ₦
-                          </span>
-                          <Input
-                            className="pl-8 text-base font-mono font-bold h-12"
-                            value={fundAmountInput}
-                            onChange={e => {
-                              const raw = e.target.value.replace(/\D/g, "");
-                              const num = parseInt(raw, 10);
-                              setFundAmountInput(isNaN(num) ? "" : num.toLocaleString());
-                              setCardFundError(null);
-                            }}
-                            placeholder="e.g. 50,000"
-                          />
+                        {/* Quick Presets */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-[11px] font-medium font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                              Quick Amount Presets
+                            </label>
+                            <span className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>Zero deposit fee</span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-2">
+                            {[50000, 100000, 250000, 500000].map(amt => {
+                              const isSelected = fundAmountInput.replace(/\D/g, "") === amt.toString();
+                              return (
+                                <button
+                                  key={amt}
+                                  type="button"
+                                  onClick={() => {
+                                    setFundAmountInput(amt.toLocaleString());
+                                    setCardFundError(null);
+                                  }}
+                                  className="py-2 px-1 text-xs font-mono font-semibold rounded-xl border transition-all text-center flex items-center justify-center cursor-pointer"
+                                  style={{
+                                    background: isSelected ? "#7B00FE" : "var(--color-bg-elevated)",
+                                    borderColor: isSelected ? "#7B00FE" : "var(--color-hairline)",
+                                    color: isSelected ? "#FFFFFF" : "var(--color-text-secondary)",
+                                    boxShadow: isSelected ? "0 2px 8px rgba(123, 0, 254, 0.25)" : "none",
+                                  }}
+                                >
+                                  ₦{(amt / 1000)}k
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
 
                       {/* Payment Method Selector */}
                       <div>
-                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        <label className="text-xs font-semibold block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
                           Payment Method
                         </label>
-                        <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="grid grid-cols-2 gap-2.5">
                           <button
                             type="button"
                             onClick={() => {
                               setWalletFundMethod("card");
                               setCardFundError(null);
                             }}
-                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-3 relative cursor-pointer"
                             style={{
-                              background: walletFundMethod === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                              borderColor: walletFundMethod === "card" ? "var(--color-accent)" : "var(--color-hairline)",
+                              background: walletFundMethod === "card" ? "rgba(123, 0, 254, 0.06)" : "var(--color-bg-elevated)",
+                              borderColor: walletFundMethod === "card" ? "#7B00FE" : "var(--color-hairline)",
+                              boxShadow: walletFundMethod === "card" ? "0 0 0 1px #7B00FE" : "none",
                             }}
                           >
-                            <CreditCard className="w-4 h-4 shrink-0" style={{ color: walletFundMethod === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                            <div>
-                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Saved Card</div>
-                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Direct debit</div>
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                              style={{
+                                background: walletFundMethod === "card" ? "rgba(123, 0, 254, 0.12)" : "var(--color-bg-surface)",
+                                color: walletFundMethod === "card" ? "#7B00FE" : "var(--color-text-secondary)",
+                              }}
+                            >
+                              <CreditCard className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Saved Card</div>
+                              <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>Direct debit</div>
                             </div>
                           </button>
                           <button
@@ -3874,16 +3894,25 @@ export function ClientDashboard() {
                               setWalletFundMethod("paystack");
                               setCardFundError(null);
                             }}
-                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-2.5"
+                            className="p-3 rounded-xl border text-left transition-all flex items-center gap-3 relative cursor-pointer"
                             style={{
-                              background: walletFundMethod === "paystack" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                              borderColor: walletFundMethod === "paystack" ? "var(--color-accent)" : "var(--color-hairline)",
+                              background: walletFundMethod === "paystack" ? "rgba(123, 0, 254, 0.06)" : "var(--color-bg-elevated)",
+                              borderColor: walletFundMethod === "paystack" ? "#7B00FE" : "var(--color-hairline)",
+                              boxShadow: walletFundMethod === "paystack" ? "0 0 0 1px #7B00FE" : "none",
                             }}
                           >
-                            <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: walletFundMethod === "paystack" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                            <div>
-                              <div className="text-xs font-bold" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
-                              <div className="text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                              style={{
+                                background: walletFundMethod === "paystack" ? "rgba(123, 0, 254, 0.12)" : "var(--color-bg-surface)",
+                                color: walletFundMethod === "paystack" ? "#7B00FE" : "var(--color-text-secondary)",
+                              }}
+                            >
+                              <ShieldCheck className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
+                              <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
                             </div>
                           </button>
                         </div>
@@ -3893,69 +3922,97 @@ export function ClientDashboard() {
                         <div className="space-y-3">
                           {savedCards.length > 0 ? (
                             <div className="space-y-2">
-                              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
-                                {savedCards.map(c => (
-                                  <label
-                                    key={c.id}
-                                    className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all"
-                                    style={{
-                                      background: selectedEscrowCardId === c.id ? "rgba(124, 58, 237, 0.08)" : "var(--color-bg-elevated)",
-                                      borderColor: selectedEscrowCardId === c.id ? "#7C3AED" : "var(--color-hairline)",
-                                    }}
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <input
-                                        type="radio"
-                                        name="fundWalletCard"
-                                        checked={selectedEscrowCardId === c.id}
-                                        onChange={() => {
-                                          setSelectedEscrowCardId(c.id);
-                                          setCardFundError(null);
-                                        }}
-                                        className="accent-[#7C3AED]"
-                                      />
-                                      <CreditCard className="w-4 h-4 text-[#7C3AED]" />
-                                      <div>
-                                        <div className="text-xs font-bold text-[var(--color-text-primary)]">
-                                          {c.type.toUpperCase()} •••• {c.last4}
+                              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-0.5">
+                                {savedCards.map(c => {
+                                  const isSelected = selectedEscrowCardId === c.id;
+                                  const isMastercard = c.type.toLowerCase().includes("master");
+                                  return (
+                                    <label
+                                      key={c.id}
+                                      className="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all hover:border-[#7B00FE]/50"
+                                      style={{
+                                        background: isSelected ? "rgba(123, 0, 254, 0.05)" : "var(--color-bg-elevated)",
+                                        borderColor: isSelected ? "#7B00FE" : "var(--color-hairline)",
+                                        boxShadow: isSelected ? "0 0 0 1px #7B00FE" : "none",
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        <input
+                                          type="radio"
+                                          name="fundWalletCard"
+                                          checked={isSelected}
+                                          onChange={() => {
+                                            setSelectedEscrowCardId(c.id);
+                                            setCardFundError(null);
+                                          }}
+                                          className="accent-[#7B00FE] w-4 h-4 shrink-0"
+                                        />
+                                        <div
+                                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+                                        >
+                                          {isMastercard ? (
+                                            <div className="flex -space-x-1.5 items-center">
+                                              <div className="w-3.5 h-3.5 rounded-full bg-[#EB001B] opacity-90" />
+                                              <div className="w-3.5 h-3.5 rounded-full bg-[#F79E1B] opacity-90" />
+                                            </div>
+                                          ) : (
+                                            <span className="font-mono font-black italic text-[11px] text-[#1A1F71] dark:text-[#2E77D0]">
+                                              VISA
+                                            </span>
+                                          )}
                                         </div>
-                                        <div className="text-[10px] text-[var(--color-text-tertiary)]">
-                                          Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                                        <div className="min-w-0">
+                                          <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                            {c.type.toUpperCase()} •••• {c.last4}
+                                          </div>
+                                          <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>
+                                            Expires {c.expiry}{c.cardholderName ? ` · ${c.cardholderName}` : ""}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                    {c.isDefault && (
-                                      <Badge tone="accent" size="sm">Default</Badge>
-                                    )}
-                                  </label>
-                                ))}
+                                      {c.isDefault && (
+                                        <Badge tone="accent" size="sm">Default</Badge>
+                                      )}
+                                    </label>
+                                  );
+                                })}
                               </div>
 
-                              <div className="flex items-center justify-between pt-1">
-                                <div className="flex items-center gap-2">
-                                  <label className="text-xs font-medium text-[var(--color-text-secondary)] whitespace-nowrap">
-                                    CVV Code:
-                                  </label>
-                                  <Input
-                                    type="password"
-                                    maxLength={4}
-                                    value={cardCvv}
-                                    onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                                    className="w-20 text-center font-mono font-bold h-9"
-                                    placeholder="•••"
-                                  />
+                              {/* Clean CVV verification row without developer test button */}
+                              <div
+                                className="flex items-center justify-between p-3 rounded-xl border"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div
+                                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                                    style={{ background: "rgba(123, 0, 254, 0.1)", color: "#7B00FE" }}
+                                  >
+                                    <Lock className="w-3.5 h-3.5" />
+                                  </div>
+                                  <div>
+                                    <label htmlFor="card-cvv-input" className="text-xs font-semibold font-body block" style={{ color: "var(--color-text-primary)" }}>
+                                      CVV Code
+                                    </label>
+                                    <span className="text-[10px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      3 digits on back of card
+                                    </span>
+                                  </div>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setCardFundError(cardFundError ? null : "insufficient_funds")}
-                                  className="text-[10px] text-[var(--color-text-tertiary)] hover:underline"
-                                >
-                                  {cardFundError ? "Clear test error" : "Test insufficient balance error"}
-                                </button>
+                                <Input
+                                  id="card-cvv-input"
+                                  type="password"
+                                  maxLength={4}
+                                  value={cardCvv}
+                                  onChange={e => setCardCvv(e.target.value.replace(/\D/g, ""))}
+                                  className="w-20 text-center font-mono font-bold h-9 text-sm rounded-lg"
+                                  placeholder="•••"
+                                />
                               </div>
                             </div>
                           ) : (
-                            <div className="p-3 rounded-xl border border-dashed text-xs text-[var(--color-text-secondary)]">
+                            <div className="p-3.5 rounded-xl border border-dashed text-xs text-center" style={{ color: "var(--color-text-secondary)", borderColor: "var(--color-border-default)" }}>
                               No saved card found. Add a card below or pay via Paystack.
                             </div>
                           )}
@@ -3965,25 +4022,27 @@ export function ClientDashboard() {
                             <button
                               type="button"
                               onClick={() => setShowAddNewCardInline(true)}
-                              className="w-full py-2 px-3 rounded-xl border border-dashed border-[var(--color-border-default)] hover:border-[#7C3AED] text-xs font-semibold text-[#7C3AED] flex items-center justify-center gap-1.5 transition-colors"
+                              className="w-full py-2.5 px-3 rounded-xl border border-dashed text-xs font-semibold text-[#7B00FE] flex items-center justify-center gap-1.5 transition-colors cursor-pointer hover:bg-[#7B00FE]/5"
+                              style={{ borderColor: "var(--color-border-default)" }}
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Add New Card</span>
                             </button>
                           ) : (
-                            <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] space-y-3">
+                            <div className="p-4 rounded-xl border space-y-3" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-[var(--color-text-primary)]">Add New Card</span>
+                                <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Add New Card</span>
                                 <button
                                   type="button"
                                   onClick={() => setShowAddNewCardInline(false)}
-                                  className="text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                                  className="text-xs hover:underline cursor-pointer"
+                                  style={{ color: "var(--color-text-tertiary)" }}
                                 >
                                   Cancel
                                 </button>
                               </div>
                               <div>
-                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Card Number</label>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Card Number</label>
                                 <Input
                                   placeholder="0000 0000 0000 0000"
                                   value={newCardNumber}
@@ -3994,7 +4053,7 @@ export function ClientDashboard() {
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Expires</label>
+                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Expires</label>
                                   <Input
                                     placeholder="MM/YY"
                                     value={newCardExpiry}
@@ -4008,7 +4067,7 @@ export function ClientDashboard() {
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">CVV</label>
+                                  <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>CVV</label>
                                   <Input
                                     type="password"
                                     placeholder="•••"
@@ -4020,7 +4079,7 @@ export function ClientDashboard() {
                                 </div>
                               </div>
                               <div>
-                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 text-[var(--color-text-tertiary)]">Cardholder Name</label>
+                                <label className="text-[10px] font-semibold uppercase tracking-wider block mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>Cardholder Name</label>
                                 <Input
                                   placeholder="e.g. FilmCraft Studios"
                                   value={newCardName}
@@ -4032,6 +4091,7 @@ export function ClientDashboard() {
                                 type="button"
                                 size="sm"
                                 className="w-full h-9 text-xs font-bold"
+                                style={{ background: "#7B00FE", color: "#FFFFFF" }}
                                 disabled={newCardNumber.replace(/\D/g, "").length < 16 || newCardExpiry.length < 5 || newCardCvv.length < 3}
                                 onClick={() => {
                                   const cleanNum = newCardNumber.replace(/\D/g, "");
@@ -4064,7 +4124,7 @@ export function ClientDashboard() {
                                 <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                                 <span>Payment Declined: Insufficient Funds</span>
                               </div>
-                              <p className="text-rose-700 dark:text-rose-300 text-xs leading-relaxed">
+                              <p className="text-rose-700 dark:text-rose-300 text-xs leading-relaxed font-body">
                                 Your bank declined the debit of ₦{fundAmountInput} due to insufficient funds in this account. Please select another card or fund with Paystack.
                               </p>
                               <div className="flex gap-2 pt-1">
@@ -4079,6 +4139,7 @@ export function ClientDashboard() {
                                 <Button
                                   type="button"
                                   className="flex-1 h-8 text-xs font-semibold whitespace-nowrap"
+                                  style={{ background: "#7B00FE", color: "#FFFFFF" }}
                                   onClick={() => {
                                     setCardFundError(null);
                                     setWalletFundMethod("paystack");
@@ -4090,40 +4151,46 @@ export function ClientDashboard() {
                             </div>
                           )}
 
-                          <div className="pt-1">
+                          <div className="pt-2">
                             <Button
-                              className="w-full h-12 text-sm font-bold shadow-md"
+                              className="w-full h-12 text-sm font-bold shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                              style={{ background: "#7B00FE", color: "#FFFFFF" }}
                               disabled={isFunding || !fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0 || (savedCards.length === 0 && !showAddNewCardInline)}
                               onClick={executeCardDebit}
                             >
-                              {isFunding ? "Processing Debit..." : `Debit ₦${fundAmountInput || "0"} from Card`}
+                              <Lock className="w-4 h-4 shrink-0" />
+                              <span>{isFunding ? "Processing Debit..." : `Debit ₦${fundAmountInput || "0"} from Card`}</span>
                             </Button>
+                            <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span>FINCRA Escrow Protected · 256-Bit Bank-Grade Encryption</span>
+                            </div>
                           </div>
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] space-y-2.5">
+                          <div className="p-4 rounded-xl border space-y-2.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-8 h-8 rounded-lg bg-[#0BA4DB]/15 text-[#0BA4DB] flex items-center justify-center font-bold text-sm">
                                   P
                                 </div>
                                 <div>
-                                  <div className="text-xs font-bold text-[var(--color-text-primary)]">Paystack Secure Checkout</div>
-                                  <div className="text-[10px] text-[var(--color-text-tertiary)]">Card, Bank Transfer, or USSD</div>
+                                  <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack Secure Checkout</div>
+                                  <div className="text-[10px] font-body" style={{ color: "var(--color-text-tertiary)" }}>Card, Bank Transfer, or USSD</div>
                                 </div>
                               </div>
                               <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 whitespace-nowrap">
                                 256-Bit SSL
                               </span>
                             </div>
-                            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                            <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                               Click below to open Paystack's secure checkout. Once payment completes, your wallet balance will be credited instantly.
                             </p>
                           </div>
 
                           <Button
-                            className="w-full h-12 text-sm font-bold shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+                            className="w-full h-12 text-sm font-bold shadow-md flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
                             style={{ background: "#0BA4DB", color: "#FFFFFF" }}
                             disabled={!fundAmountInput || parseInt(fundAmountInput.replace(/\D/g, ""), 10) <= 0}
                             onClick={() => setShowPaystackModal(true)}
@@ -4131,6 +4198,10 @@ export function ClientDashboard() {
                             <span>Pay ₦{fundAmountInput || "0"} with Paystack</span>
                             <ArrowRight className="w-4 h-4" />
                           </Button>
+                          <div className="flex items-center justify-center gap-1.5 text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>Instant Settlement · Certified PCI-DSS Level 1 Payment Gateway</span>
+                          </div>
                         </div>
                       )}
                     </div>
