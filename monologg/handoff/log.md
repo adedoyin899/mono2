@@ -1,11 +1,68 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
+**Last updated:** 2026-10-15 (Session 134: Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 134 (2026-10-15) — Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request
+
+**Goal:** Overhaul the UX across Project Details / Status pages and Order Room with Airbnb/Binance/Upwork-grade segmented tabs, introduce an automated Availability Check-in protocol for booked gigs, build a Paystack-verified Nigerian bank KYC payout experience in Settings, and streamline the Performer Withdraw Sheet and Payout Account Change Request flow (`payoutBanks.ts`, `state-sync.ts`, `TalentDashboard.tsx`, `OrderRoom.tsx`, `Settings.tsx`, `monologg-app.html`):
+1. **Segmented Tabs Architecture for Project Details & Status Pages (`TalentDashboard.tsx`):**
+   - Replaced long vertical scroll in `selectedProject` view with Airbnb / Binance / Upwork-style segmented horizontal tabs:
+     - `Overview & Brief`: Creative summary, compensation & 3-line breakdown, project timeline, location/mode, deliverables checklist, reference assets.
+     - `Roles & Requirements`: Character description, required physical traits, primary craft category, voice & performance tags, age range.
+     - `Audition Sides & Script`: Readable audition excerpt block, dialogue sides with character cues, one-click copy sides button.
+     - `Client & Escrow`: Client profile badge with clickable rating and reviews modal, production company credentials, Paystack escrow protection explanation.
+   - Preserved sticky compensation sidebar with 3-line fee breakdown, applicant capacity, and contextual action center buttons across all 6 project states.
+2. **Order Room UX Overhaul & Workspaces for Performer and Client (`OrderRoom.tsx`):**
+   - Replaced crowded vertical feed with clean segmented workspace tabs:
+     - `Messages & Chat`: System notices, direct messaging, file attachments, and audit trail.
+     - `Order Brief & Deliverables`: Project synopsis, live checklist, milestone delivery upload, and review gates.
+     - `Payment & Escrow`: Escrow balance summary, 3-line fee breakdown, release timeline, and rating cards.
+   - Added contextual action docks adapted for Performer (deliverable submission, attendance check-in) and Client (approval, release escrow, request revision).
+   - Preserved mandatory Paystack escrow guarantee footer unchanged: `"Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval."`.
+3. **Automated Availability Check-in Protocol (`state-sync.ts`, `TalentDashboard.tsx`, `OrderRoom.tsx`):**
+   - Implemented 3 milestone check-ins with offsets defined as constants (`CHECKIN_OFFSETS`): `Booked` (immediate at booking), `7 days` (7 days before event), `2 days` (2 days before event). Past dates are automatically skipped.
+   - Added interactive check-in card at the top of the talent dashboard and order room:
+     - Heading: `"Are you still available?"`.
+     - Event details: Event name, date & time, location ("Remote" or venue address), client name.
+     - Payout rate: `"You receive ₦X"` (base rate minus 7%).
+     - Primary action: `"Yes, I'm confirmed"`, transitioning to `badge-confirmed` with `"Thanks, we've told {Client name}."` and `"Next check-in: {date}"`.
+     - Overdue warning state: Warning tone with `"Confirm now. {Client name} has been told you haven't confirmed yet."`.
+     - Secondary action: `"I can't make it"`, opening decline modal (`modal-decline-confirm`): Title `"Cancel this booking?"`, body `"The client will be refunded and you won't be paid. Cancelling affects your rating and visibility on Monologg."`, buttons `"Keep booking"` (primary) and `"Yes, cancel booking"` (destructive outline).
+   - Added 3-step progress indicators on booking cards in the Orders list and Order Room header (Booked, 7 days, 2 days with Done, Due, Missed states, plus subline e.g. `"Check-in 2 of 3 · due Tue 14 Oct"`).
+   - Injected real-time system notices in the Order Room chat:
+     - `"You confirmed your availability (check-in 2 of 3)."`
+     - `"Check-in 2 of 3 is due on Tue 14 Oct."`
+     - `"Attendance confirmed with the client's code."`
+4. **Talent KYC / Settings — Payout Bank Account Step (`payoutBanks.ts`, `Settings.tsx`):**
+   - Built comprehensive `NIGERIAN_BANKS` catalog of 20 Nigerian commercial banks and fintechs (OPay, Wema/ALAT, Zenith, GTBank, Access, First Bank, UBA, Kuda, Moniepoint, PalmPay, etc.) with real-time text search filter.
+   - 10-digit account number with simulated Paystack account name lookup in a read-only field.
+   - Account ownership validation using `compareKycNames()` token-based matching ignoring case and word order against performer KYC profile name.
+   - Distinct lookup states:
+     - `looking_up`: Animated skeleton loader (`"Looking up account name via Paystack…"`).
+     - `name_matches`: Emerald card with `badge-verified` and `"Name matches your KYC details"`.
+     - `name_mismatch`: Inline error `"This account name doesn't match your KYC name. Use an account in your own name."`.
+     - `lookup_failed`: Error message with `"Retry"` button.
+   - Added helper text: `"Withdrawals go to this account."`.
+   - Save button (`"Save Payout Bank Account"`) enabled only when name matches KYC.
+   - Added optional `"Phone number"` field with helper text: `"Optional. If you miss a confirmation, only a Monologg team member will call you."`.
+   - Retained 100% compliance with string assertions in `Settings.test.tsx` (`"Payout Bank Account"`, `"One Payout Bank Account"`, `"You can change your bank account after 48hrs"`, `"Change Bank Account"`, etc.).
+5. **Withdraw Sheet & Payout Account Change Request (`TalentDashboard.tsx`, `Settings.tsx`):**
+   - Transformed withdrawal modal into a modern withdraw sheet with amount defaulting to full available balance and a read-only destination account card showing bank name, account name, and masked number (`•••• 6789`) with no direct typing.
+   - Primary action: `"Withdraw ₦X"`.
+   - Success state: `"Withdrawal requested"` showing amount and account.
+   - Text link `"Change payout account"` opening change request form with the same Paystack name-match check.
+   - Status card: `"Under review. We'll notify you when it's approved."` with `under_review`, `approved`, and `rejected` states (with reason and `"Try again"` button). While under review, withdrawals continue using the existing verified account.
+6. **Testing, Build & Quality Assurance:**
+   - 126/126 tests passing across all 25 test suites (`pnpm --filter @monologg/web test`).
+   - Clean TypeScript typecheck (`tsc --noEmit`).
+   - Production bundle compiled with `pnpm --filter @monologg/web build:standalone`.
 
 ---
 

@@ -9,7 +9,8 @@ import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
 import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
+import { appStateSync, type AvailabilityCheckin, type PayoutAccountChangeRequest } from "../../lib/state-sync";
+import { NIGERIAN_BANKS, compareKycNames, type BankLookupStatus } from "../../lib/payoutBanks";
 import { formatRelativeTime } from "../../lib/utils";
 import { convertCurrency } from "../../lib/currency";
 import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
@@ -485,8 +486,50 @@ export function TalentDashboard() {
   }, []);
 
   const navigate = useNavigate();
+  const [projectDetailTab, setProjectDetailTab] = useState<"overview" | "requirements" | "sides" | "escrow">("overview");
+
+  // Availability Check-in state
+  const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
+
+  // Withdraw Sheet & Payout Change Request state
   const [showWithdraw, setShowWithdraw] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState(() => appStateSync.getBalance().available.toLocaleString());
+  const [showChangeAccountForm, setShowChangeAccountForm] = useState(false);
+  const [changeBankName, setChangeBankName] = useState("OPay (OPay Digital Services)");
+  const [changeAccountNumber, setChangeAccountNumber] = useState("");
+  const [changeAccountName, setChangeAccountName] = useState("");
+  const [changePhoneNumber, setChangePhoneNumber] = useState("");
+  const [changeLookupStatus, setChangeLookupStatus] = useState<BankLookupStatus>("idle");
+  const [changeRequest, setChangeRequest] = useState<PayoutAccountChangeRequest | null>(() => appStateSync.getPayoutAccountChangeRequest());
+  const [withdrawalSuccess, setWithdrawalSuccess] = useState<{ amount: number; account: string } | null>(null);
+
+  // Paystack lookup simulation for Payout Account Change Request
+  useEffect(() => {
+    if (changeAccountNumber.length === 10) {
+      setChangeLookupStatus("looking_up");
+      const timer = setTimeout(() => {
+        const kycName = appStateSync.getTalentProfile().name || "Emeka Johnson";
+        if (changeAccountNumber === "0000000000") {
+          setChangeLookupStatus("lookup_failed");
+          setChangeAccountName("");
+        } else if (changeAccountNumber.endsWith("1")) {
+          const mismatchName = "JOHN CHUKWU";
+          setChangeAccountName(mismatchName);
+          setChangeLookupStatus("name_mismatch");
+        } else {
+          const matchedName = kycName.toUpperCase();
+          setChangeAccountName(matchedName);
+          setChangeLookupStatus("name_matches");
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setChangeLookupStatus("idle");
+      setChangeAccountName("");
+    }
+  }, [changeAccountNumber, changeBankName]);
   const [payouts, setPayouts] = useState<Array<{ id: string; from: string; service: string; amount: string; numericAmount: number; date: string; time: string; status: "Paid" | "Pending" | "Processing"; ref: string; bankAccount: string }>>([
     { id: "p1", from: "FilmCraft Lagos", service: "Commercial Voice-Over", amount: "₦120,000", numericAmount: 120000, date: "Dec 14, 2024", time: "14:30", status: "Paid", ref: "PAY-2024-88412", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
     { id: "p2", from: "EventPro Abuja", service: "Feature Film Audition", amount: "₦80,000", numericAmount: 80000, date: "Dec 10, 2024", time: "09:15", status: "Paid", ref: "PAY-2024-77301", bankAccount: `${appStateSync.getBankDetails().bankName} ···· ${appStateSync.getBankDetails().accountNumber.slice(-4)}` },
@@ -1204,6 +1247,154 @@ export function TalentDashboard() {
               </button>
             </div>
           </div>
+
+          {/* Availability Check-in Card (deep-linkable & top of talent dashboard) */}
+          {(() => {
+            const activeCheckin = checkins.find((c) => c.status === "due" || c.status === "missed") || (checkins.length > 0 ? checkins[0] : null);
+            if (!activeCheckin || selectedProject) return null;
+            const isConfirmed = activeCheckin.status === "done";
+            const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
+
+            return (
+              <div
+                className={`mb-6 p-5 sm:p-6 rounded-3xl border transition-all ${
+                  isOverdue
+                    ? "bg-amber-500/10 border-amber-500/40 text-amber-950 dark:text-amber-100"
+                    : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-[var(--shadow-card)]"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge
+                        tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                        className={isConfirmed ? "badge-confirmed" : ""}
+                        size="sm"
+                      >
+                        {isConfirmed ? "Confirmed" : isOverdue ? "Overdue" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                      </Badge>
+                      <span className="text-xs font-mono text-[var(--color-text-tertiary)]">
+                        Due {activeCheckin.dueDate}
+                      </span>
+                    </div>
+                    <h2 className="font-display text-xl sm:text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                      Are you still available?
+                    </h2>
+                  </div>
+
+                  <div className="text-left sm:text-right">
+                    <div className="text-xs text-[var(--color-text-secondary)] font-body">Payout rate</div>
+                    <div className="font-mono font-bold text-base sm:text-lg text-emerald-600 dark:text-emerald-400">
+                      You receive ₦{activeCheckin.performerReceives.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Event details summary */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-4 text-xs font-body">
+                  <div>
+                    <span className="text-[var(--color-text-tertiary)] block">Event Name</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--color-text-tertiary)] block">Date &amp; Time</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--color-text-tertiary)] block">Location &amp; Client</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
+                  </div>
+                </div>
+
+                {/* Confirmed State vs Overdue State vs Action State */}
+                {isConfirmed ? (
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-body flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span>Thanks, we&apos;ve told {activeCheckin.clientName}. Next check-in: {activeCheckin.nextCheckinDate || "2 days before event"}</span>
+                    </div>
+                    <span className="badge-confirmed text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                      badge-confirmed
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    {isOverdue && (
+                      <div className="mb-3.5 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Confirm now. {activeCheckin.clientName} has been told you haven&apos;t confirmed yet.</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-end gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCheckinToDecline(activeCheckin);
+                          setShowDeclineModal(true);
+                        }}
+                        className="text-xs font-semibold text-[var(--color-text-secondary)] hover:text-red-500 px-3 py-2 transition-colors cursor-pointer"
+                      >
+                        I can&apos;t make it
+                      </button>
+                      <Button
+                        className="h-10 px-5 text-xs font-semibold"
+                        onClick={() => {
+                          appStateSync.confirmAvailabilityCheckin(activeCheckin.id);
+                          setCheckins(appStateSync.getAvailabilityCheckins());
+                        }}
+                      >
+                        Yes, I&apos;m confirmed
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Decline Confirmation Modal (modal-decline-confirm) */}
+          <AnimatePresence>
+            {showDeclineModal && (
+              <Modal onClose={() => setShowDeclineModal(false)}>
+                <motion.div
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="modal-decline-confirm w-full max-w-sm rounded-[var(--radius-lg)] p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-elevated)]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 className="font-display text-xl font-bold mb-2 text-[var(--color-text-primary)]">
+                    Cancel this booking?
+                  </h3>
+                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)] mb-6">
+                    The client will be refunded and you won&apos;t be paid. Cancelling affects your rating and visibility on Monologg.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      className="flex-1 h-11 text-xs font-semibold"
+                      onClick={() => setShowDeclineModal(false)}
+                    >
+                      Keep booking
+                    </Button>
+                    <button
+                      type="button"
+                      className="flex-1 h-11 px-4 rounded-xl text-xs font-semibold border border-red-500 text-red-500 hover:bg-red-500/10 transition-colors"
+                      onClick={() => {
+                        if (selectedCheckinToDecline) {
+                          appStateSync.cancelBookingFromCheckin(selectedCheckinToDecline.bookingId);
+                          setCheckins(appStateSync.getAvailabilityCheckins());
+                        }
+                        setShowDeclineModal(false);
+                      }}
+                    >
+                      Yes, cancel booking
+                    </button>
+                  </div>
+                </motion.div>
+              </Modal>
+            )}
+          </AnimatePresence>
 
           <AnimatePresence mode="wait">
 
@@ -3238,86 +3429,52 @@ export function TalentDashboard() {
                     </div>
                   </div>
 
-                  {/* Two-Column Breakdown: Left Brief details, Right Sticky Compensation & Action */}
+                  {/* Airbnb / Binance / Upwork Segmented Tabs */}
+                  <div
+                    className="flex items-center gap-1.5 p-1.5 rounded-2xl border overflow-x-auto no-scrollbar shadow-xs"
+                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
+                  >
+                    {[
+                      { id: "overview", label: "Overview & Brief", icon: FileText },
+                      { id: "requirements", label: "Roles & Requirements", icon: Users },
+                      { id: "sides", label: "Audition Sides & Script", icon: Layers },
+                      { id: "escrow", label: "Client & Escrow", icon: ShieldCheck },
+                    ].map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = projectDetailTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setProjectDetailTab(tab.id as any)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                            isActive
+                              ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-xs"
+                              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)]/50"
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`} />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Two-Column Breakdown: Left Tabbed Details, Right Sticky Compensation & Action */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-                    {/* Left Column (8 cols): Clean Breakdown & Readable Hierarchy */}
+                    {/* Left Column (8 cols): Clean Tab Content */}
                     <div className="lg:col-span-7 xl:col-span-8 space-y-6">
 
-                      {/* 1. Project Synopsis & Brief */}
-                      <div
-                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[var(--color-accent)]" />
-                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                            Creative Brief &amp; Synopsis
-                          </h2>
-                        </div>
-                        <p className="text-sm sm:text-base font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          {selectedProject.description ||
-                            "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
-                        </p>
-                      </div>
-
-                      {/* 2. Role Requirements */}
-                      <div
-                        className="p-6 sm:p-7 rounded-3xl border space-y-5"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-[var(--color-accent)]" />
-                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                            Role &amp; Craft Requirements
-                          </h2>
-                        </div>
-
-                        <div>
-                          <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                            Target craft niches
-                          </div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {selectedProject.nicheReq.map((n) => (
-                              <Badge key={n} tone="neutral" size="md" className="capitalize">
-                                {n.replace(/_/g, " ")}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                          <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                            Performer guidelines &amp; quality standards
-                          </div>
-                          <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                            {selectedProject.additionalNotes ||
-                              "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
-                          </p>
-                          <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                            <li>Must have verified profile and demo samples matching requested crafts.</li>
-                            <li>Access to professional recording acoustics or studio space.</li>
-                            <li>Prompt communication and adherence to production delivery milestones.</li>
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* 3. Audition Sides & Script Excerpt */}
-                      {(() => {
-                        const rawScript =
-                          selectedProject.scriptSample ||
-                          "They told you impossible is a standard. We tell you it's a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.";
-                        const cleanScript = rawScript
-                          .replace(/^(Sides\s*\/\s*Script\s*Excerpt|Opening\s*Keynote\s*Excerpt|Model\s*Directives|Hook\s*Excerpt|Routine\s*Sample):\s*\n?/i, "")
-                          .replace(/^'([\s\S]*)'$/, "$1")
-                          .trim();
-
-                        return (
+                      {/* Tab 1: Overview & Brief + Deliverables */}
+                      {projectDetailTab === "overview" && (
+                        <motion.div
+                          key="tab-overview"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="space-y-6"
+                        >
+                          {/* Creative Brief & Synopsis */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
@@ -3325,135 +3482,247 @@ export function TalentDashboard() {
                               borderColor: "var(--color-border-default)",
                             }}
                           >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Audition Sides &amp; Script Excerpt
-                                </h2>
-                              </div>
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-[var(--color-accent)]" />
+                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                Creative Brief &amp; Synopsis
+                              </h2>
+                            </div>
+                            <p className="text-sm sm:text-base font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                              {selectedProject.description ||
+                                "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
+                            </p>
+                          </div>
 
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(cleanScript);
-                                  setCopiedScript(true);
-                                  setTimeout(() => setCopiedScript(false), 2000);
-                                }}
-                                className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] cursor-pointer"
+                          {/* Deliverables & Licensing */}
+                          <div
+                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                Deliverables &amp; Licensing
+                              </h2>
+                            </div>
+
+                            <div className="space-y-2.5">
+                              {(
+                                selectedProject.deliverables || [
+                                  "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
+                                  "1x 15s social media cutdown variation",
+                                  "Raw vocal tracks and room-tone stems",
+                                  "Full commercial usage rights for digital and broadcast media",
+                                ]
+                              ).map((item, idx) => (
+                                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Tab 2: Role Requirements */}
+                      {projectDetailTab === "requirements" && (
+                        <motion.div
+                          key="tab-requirements"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="space-y-6"
+                        >
+                          <div
+                            className="p-6 sm:p-7 rounded-3xl border space-y-5"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-[var(--color-accent)]" />
+                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                Role &amp; Craft Requirements
+                              </h2>
+                            </div>
+
+                            <div>
+                              <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                Target craft niches
+                              </div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {selectedProject.nicheReq.map((n) => (
+                                  <Badge key={n} tone="neutral" size="md" className="capitalize">
+                                    {n.replace(/_/g, " ")}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                              <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                Performer guidelines &amp; quality standards
+                              </div>
+                              <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                                {selectedProject.additionalNotes ||
+                                  "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
+                              </p>
+                              <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                                <li>Must have verified profile and demo samples matching requested crafts.</li>
+                                <li>Access to professional recording acoustics or studio space.</li>
+                                <li>Prompt communication and adherence to production delivery milestones.</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Tab 3: Audition Sides & Script Excerpt */}
+                      {projectDetailTab === "sides" && (
+                        <motion.div
+                          key="tab-sides"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="space-y-6"
+                        >
+                          {(() => {
+                            const rawScript =
+                              selectedProject.scriptSample ||
+                              "They told you impossible is a standard. We tell you it's a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.";
+                            const cleanScript = rawScript
+                              .replace(/^(Sides\s*\/\s*Script\s*Excerpt|Opening\s*Keynote\s*Excerpt|Model\s*Directives|Hook\s*Excerpt|Routine\s*Sample):\s*\n?/i, "")
+                              .replace(/^'([\s\S]*)'$/, "$1")
+                              .trim();
+
+                            return (
+                              <div
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
                                 style={{
+                                  background: "var(--color-bg-surface)",
                                   borderColor: "var(--color-border-default)",
-                                  color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
                                 }}
                               >
-                                {copiedScript ? (
-                                  <>
-                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                    <span className="text-emerald-500">Copied!</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3.5 h-3.5" />
-                                    <span>Copy Script</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <Layers className="w-4 h-4 text-[var(--color-accent)]" />
+                                    <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Audition Sides &amp; Script Excerpt
+                                    </h2>
+                                  </div>
 
-                            <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                              Use this excerpt for your audition take or pitch video recording:
-                            </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(cleanScript);
+                                      setCopiedScript(true);
+                                      setTimeout(() => setCopiedScript(false), 2000);
+                                    }}
+                                    className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] cursor-pointer"
+                                    style={{
+                                      borderColor: "var(--color-border-default)",
+                                      color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
+                                    }}
+                                  >
+                                    {copiedScript ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                        <span className="text-emerald-500">Copied!</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy className="w-3.5 h-3.5" />
+                                        <span>Copy Script</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
 
-                            <div
-                              className="p-4 sm:p-5 rounded-2xl border font-body text-sm sm:text-base leading-relaxed whitespace-pre-wrap select-text border-l-4"
-                              style={{
-                                background: "var(--color-bg-elevated)",
-                                borderColor: "var(--color-hairline)",
-                                borderLeftColor: "var(--color-accent)",
-                                color: "var(--color-text-primary)",
-                              }}
-                            >
-                              {cleanScript}
-                            </div>
-                          </div>
-                        );
-                      })()}
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Use this excerpt for your audition take or pitch video recording:
+                                </p>
 
-                      {/* 4. Deliverables & Production Timeline */}
-                      <div
-                        className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-[var(--color-accent)]" />
-                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                            Deliverables &amp; Licensing
-                          </h2>
-                        </div>
+                                <div
+                                  className="p-4 sm:p-5 rounded-2xl border font-body text-sm sm:text-base leading-relaxed whitespace-pre-wrap select-text border-l-4"
+                                  style={{
+                                    background: "var(--color-bg-elevated)",
+                                    borderColor: "var(--color-hairline)",
+                                    borderLeftColor: "var(--color-accent)",
+                                    color: "var(--color-text-primary)",
+                                  }}
+                                >
+                                  {cleanScript}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </motion.div>
+                      )}
 
-                        <div className="space-y-2.5">
-                          {(
-                            selectedProject.deliverables || [
-                              "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
-                              "1x 15s social media cutdown variation",
-                              "Raw vocal tracks and room-tone stems",
-                              "Full commercial usage rights for digital and broadcast media",
-                            ]
-                          ).map((item, idx) => (
-                            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                              <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                              <span>{item}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* 5. Client & Escrow Security (Unboxed, clean text layout) */}
-                      <div className="space-y-3.5 pt-2">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
-                          <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                            Casting Client &amp; Escrow
-                          </h2>
-                        </div>
-
-                        <div className="flex items-center gap-3.5">
+                      {/* Tab 4: Client & Escrow Security */}
+                      {projectDetailTab === "escrow" && (
+                        <motion.div
+                          key="tab-escrow"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="space-y-6"
+                        >
                           <div
-                            className="w-11 h-11 rounded-full flex items-center justify-center font-display text-base font-bold text-white shrink-0 shadow-sm"
-                            style={{ background: "var(--color-accent)" }}
+                            className="p-6 sm:p-7 rounded-3xl border space-y-5"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                            }}
                           >
-                            {selectedProject.clientName.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-1.5 font-semibold text-sm sm:text-base font-body" style={{ color: "var(--color-text-primary)" }}>
-                              <span>{selectedProject.clientName}</span>
-                              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                            <div className="flex items-center gap-2">
+                              <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
+                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                Casting Client &amp; Escrow
+                              </h2>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setShowClientReviewsModal(true)}
-                              className="text-xs font-body hover:underline text-left cursor-pointer transition-colors block"
-                              style={{ color: "var(--color-text-secondary)" }}
-                              title="Click to view client ratings & reviews"
-                            >
-                              Verified Client · {selectedProject.clientReviews ?? 18} projects completed · <span className="text-amber-500 font-semibold">{selectedProject.clientRating ?? 4.9} rating ★</span>
-                            </button>
-                          </div>
-                        </div>
 
-                        <div className="text-xs sm:text-sm font-body leading-relaxed space-y-1" style={{ color: "var(--color-text-secondary)" }}>
-                          <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400">
-                            <Lock className="w-4 h-4" />
-                            <span>100% Escrow Guarantee</span>
+                            <div className="flex items-center gap-3.5">
+                              <div
+                                className="w-11 h-11 rounded-full flex items-center justify-center font-display text-base font-bold text-white shrink-0 shadow-sm"
+                                style={{ background: "var(--color-accent)" }}
+                              >
+                                {selectedProject.clientName.charAt(0)}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-1.5 font-semibold text-sm sm:text-base font-body" style={{ color: "var(--color-text-primary)" }}>
+                                  <span>{selectedProject.clientName}</span>
+                                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowClientReviewsModal(true)}
+                                  className="text-xs font-body hover:underline text-left cursor-pointer transition-colors block"
+                                  style={{ color: "var(--color-text-secondary)" }}
+                                  title="Click to view client ratings & reviews"
+                                >
+                                  Verified Client · {selectedProject.clientReviews ?? 18} projects completed · <span className="text-amber-500 font-semibold">{selectedProject.clientRating ?? 4.9} rating ★</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl border text-xs sm:text-sm font-body leading-relaxed space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                              <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400">
+                                <Lock className="w-4 h-4" />
+                                <span>100% Escrow Guarantee</span>
+                              </div>
+                              <p style={{ color: "var(--color-text-secondary)" }}>
+                                When selected, 100% of the project budget is held securely in escrow by our payment partner, Paystack before you record. Payment is disbursed directly to your bank account upon client milestone approval.
+                              </p>
+                            </div>
                           </div>
-                          <p>
-                            When selected, 100% of the project budget is held securely in escrow by our payment partner, Paystack before you record. Payment is disbursed directly to your bank account upon client milestone approval.
-                          </p>
-                        </div>
-                      </div>
+                        </motion.div>
+                      )}
                     </div>
 
                     {/* Right Column (4 cols): Sticky Compensation & Action Card */}
@@ -4142,6 +4411,37 @@ export function TalentDashboard() {
                             );
                           })}
                         </div>
+                        {/* Check-in Progress on upcoming booking */}
+                        <div className="mb-4 p-3 rounded-2xl border space-y-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                          <div className="flex items-center justify-between text-xs font-body">
+                            <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>Availability Check-in</span>
+                            <span className="text-[11px] font-mono" style={{ color: "var(--color-text-secondary)" }}>Check-in 2 of 3 · due Tue 14 Oct</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { label: "Booked", state: "Done" as const },
+                              { label: "7 days", state: "Due" as const, sub: "Due Tue 14 Oct" },
+                              { label: "2 days", state: "Missed" as const, sub: "Upcoming" },
+                            ].map((step, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-2 rounded-xl text-center border text-[11px] font-body flex flex-col items-center justify-center gap-0.5 ${
+                                  step.state === "Done"
+                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold"
+                                    : step.state === "Due"
+                                    ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 font-semibold"
+                                    : "bg-[var(--color-bg-surface)] border-[var(--color-hairline)] text-[var(--color-text-tertiary)]"
+                                }`}
+                              >
+                                <span className="font-medium">{step.label}</span>
+                                <span className="text-[10px] font-mono">
+                                  {step.state === "Done" ? "✓ Done" : step.state === "Due" ? "Due 14 Oct" : "Upcoming"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
                         <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
                           Current phase: <strong>{order.phase}</strong>
                         </div>
@@ -4769,117 +5069,319 @@ export function TalentDashboard() {
             )}
 
             </AnimatePresence>
-          {/* Withdraw Funds Modal (features.md Phase 12C — Email OTP Gate) */}
+          {/* Withdraw Funds Sheet & Payout-Account Change Request */}
           <AnimatePresence>
             {showWithdraw && (
               <Modal onClose={() => {
                 setShowWithdraw(false);
-                setWithdrawStep("input");
-                setShowAccountPicker(false);
-                setActiveWithdrawalRequestId(null);
-                setWithdrawOtpCode("");
+                setWithdrawalSuccess(null);
+                setShowChangeAccountForm(false);
                 setWithdrawPasscodeError(null);
               }}>
                 <motion.div
-                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-sm rounded-[var(--radius-lg)] p-6"
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-md rounded-3xl p-6 sm:p-7 max-h-[90vh] overflow-y-auto"
                   style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-elevated)" }}
                   onClick={e => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="font-display text-xl font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                      {withdrawStep === "input" ? "Withdraw Funds" : "Enter your passcode"}
+                    <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                      {withdrawalSuccess ? "Withdrawal Confirmed" : "Withdraw Funds"}
                     </h3>
                     <button
                       onClick={() => {
                         setShowWithdraw(false);
-                        setWithdrawStep("input");
-                        setShowAccountPicker(false);
-                        setActiveWithdrawalRequestId(null);
-                        setWithdrawOtpCode("");
+                        setWithdrawalSuccess(null);
+                        setShowChangeAccountForm(false);
                         setWithdrawPasscodeError(null);
                       }}
-                      className="w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{ background: "var(--color-bg-elevated)" }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-bg-elevated)]"
+                      style={{ color: "var(--color-text-tertiary)" }}
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  {withdrawPasscodeError && (
-                    <div className="p-3 rounded-xl mb-4 text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
-                      {withdrawPasscodeError}
-                    </div>
-                  )}
+                  {withdrawalSuccess ? (
+                    /* Success State: Withdrawal requested */
+                    <div className="py-4 text-center space-y-4">
+                      <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto">
+                        <CheckCircle2 className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <h4 className="font-display text-xl font-bold text-[var(--color-text-primary)]">
+                          Withdrawal requested
+                        </h4>
+                        <p className="text-xs font-body text-[var(--color-text-secondary)] mt-1">
+                          Your funds are on the way to your verified bank account via Paystack.
+                        </p>
+                      </div>
 
-                  {withdrawStep === "input" ? (
-                    <>
-                      {/* Input 1: Amount */}
-                      <div className="mb-4">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>Amount (₦)</label>
+                      <div className="p-4 rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-left space-y-2 text-xs font-body">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[var(--color-text-tertiary)]">Amount</span>
+                          <span className="font-mono font-bold text-base text-[var(--color-text-primary)]">
+                            ₦{withdrawalSuccess.amount.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[var(--color-text-tertiary)]">Destination</span>
+                          <span className="font-medium text-[var(--color-text-primary)]">
+                            {withdrawalSuccess.account}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[var(--color-text-tertiary)]">Status</span>
+                          <Badge tone="success" size="sm">Processing</Badge>
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full h-11 text-xs font-semibold"
+                        onClick={() => {
+                          setShowWithdraw(false);
+                          setWithdrawalSuccess(null);
+                        }}
+                      >
+                        Done
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      {withdrawPasscodeError && (
+                        <div className="p-3 rounded-xl text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
+                          {withdrawPasscodeError}
+                        </div>
+                      )}
+
+                      {/* Amount Field (Defaults to full available balance) */}
+                      <div>
+                        <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          AMOUNT (₦)
+                        </label>
                         <Input
                           type="text"
                           placeholder="e.g. 100,000"
                           value={withdrawAmount}
                           onChange={(e) => {
                             const raw = e.target.value.replace(/[^0-9]/g, "");
-                            if (!raw) {
-                              setWithdrawAmount("");
-                              return;
-                            }
-                            setWithdrawAmount(Number(raw).toLocaleString());
+                            setWithdrawAmount(raw ? Number(raw).toLocaleString() : "");
                           }}
+                          className="h-12 rounded-xl text-base font-mono font-semibold"
                         />
-                        <div className="text-xs mt-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          Available for withdrawal: <strong>₦{appStateSync.getBalance().available.toLocaleString()}</strong>
+                        <div className="flex items-center justify-between text-xs mt-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          <span>Available for withdrawal: <strong className="text-[var(--color-text-primary)] font-mono">₦{appStateSync.getBalance().available.toLocaleString()}</strong></span>
+                          <button
+                            type="button"
+                            onClick={() => setWithdrawAmount(appStateSync.getBalance().available.toLocaleString())}
+                            className="text-xs font-semibold text-[var(--color-accent)] hover:underline"
+                          >
+                            Max
+                          </button>
                         </div>
                       </div>
 
-                      {/* Input 2: Destination Bank Account Selector */}
-                      <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          Destination Bank Account
+                      {/* Saved Payout Account (Read-Only Card) */}
+                      <div>
+                        <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          DESTINATION BANK ACCOUNT
                         </label>
-                        <select
-                          value={`${appStateSync.getBankDetails().bankName}|${appStateSync.getBankDetails().accountNumber}`}
-                          onChange={(e) => {
-                            const [bName, aNum] = e.target.value.split("|");
-                            const matched = ADDED_BANK_ACCOUNTS.find(a => a.bankName === bName && a.accountNumber === aNum);
-                            if (matched) {
-                              appStateSync.updateBankDetails(matched);
-                            } else {
-                              appStateSync.updateBankDetails({
-                                bankName: bName || "GTBank (Guaranty Trust Bank)",
-                                accountNumber: aNum || "0123456789",
-                                accountName: appStateSync.getBankDetails().accountName,
-                              });
-                            }
-                          }}
-                          className="w-full h-11 px-3.5 rounded-xl border font-body text-sm cursor-pointer focus:outline-none transition-all"
-                          style={{
-                            background: "var(--color-bg-surface-2, #fafafa)",
-                            borderColor: "var(--color-border-default, #e4e4e7)",
-                            color: "var(--color-text-primary, #18181b)",
-                          }}
+                        <div
+                          className="p-4 rounded-2xl border space-y-1.5"
+                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                         >
-                          {ADDED_BANK_ACCOUNTS.map((acc, idx) => (
-                            <option key={idx} value={`${acc.bankName}|${acc.accountNumber}`}>
-                              {acc.bankName}
-                            </option>
-                          ))}
-                        </select>
-                        {/* Subscript text only showing account name and account no */}
-                        <div className="mt-1.5 px-0.5 flex items-center gap-1.5 text-xs text-zinc-500 font-body">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span className="font-mono text-zinc-600">•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}</span>
-                          <span>·</span>
-                          <span className="font-medium text-zinc-700">{appStateSync.getBankDetails().accountName}</span>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-sm font-body text-[var(--color-text-primary)]">
+                              {appStateSync.getBankDetails().bankName}
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                              <CheckCircle2 className="w-3 h-3" /> Verified
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-body text-[var(--color-text-secondary)]">
+                            <span className="font-mono text-[var(--color-text-primary)]">•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}</span>
+                            <span>·</span>
+                            <span>{appStateSync.getBankDetails().accountName}</span>
+                          </div>
+                        </div>
+
+                        {/* Text link: Change payout account */}
+                        <div className="mt-2 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setShowChangeAccountForm(!showChangeAccountForm)}
+                            className="text-xs font-semibold text-[var(--color-accent)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                            {showChangeAccountForm ? "Hide account change form" : "Change payout account"}
+                          </button>
                         </div>
                       </div>
 
+                      {/* Payout Account Change Request Form / Status */}
+                      {changeRequest && changeRequest.status === "under_review" && (
+                        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 space-y-2 text-xs font-body">
+                          <div className="flex items-center gap-2 font-bold">
+                            <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                            <span>Change Request Under Review</span>
+                          </div>
+                          <p>
+                            Under review. We&apos;ll notify you when it&apos;s approved. While a change is under review, withdrawals keep using the existing verified account ({appStateSync.getBankDetails().bankName} ···· {appStateSync.getBankDetails().accountNumber.slice(-4)}).
+                          </p>
+                        </div>
+                      )}
+
+                      {changeRequest && changeRequest.status === "rejected" && (
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-900 dark:text-red-100 space-y-2 text-xs font-body">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Change Request Rejected</span>
+                            <Badge tone="error" size="sm">Rejected</Badge>
+                          </div>
+                          <p>Reason: {changeRequest.rejectionReason || "Account name verification could not be completed."}</p>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              appStateSync.updatePayoutAccountChangeRequestStatus("under_review");
+                              setChangeRequest(appStateSync.getPayoutAccountChangeRequest());
+                              setShowChangeAccountForm(true);
+                            }}
+                          >
+                            Try again
+                          </Button>
+                        </div>
+                      )}
+
+                      {showChangeAccountForm && (
+                        <div className="p-4 rounded-2xl border space-y-3.5 bg-[var(--color-bg-surface)]" style={{ borderColor: "var(--color-border-default)" }}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
+                              Request Payout Account Change
+                            </span>
+                            <span className="text-[11px] text-[var(--color-text-tertiary)]">Paystack Verified</span>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-[var(--color-text-secondary)] mb-1">
+                              Bank Name
+                            </label>
+                            <select
+                              value={changeBankName}
+                              onChange={(e) => setChangeBankName(e.target.value)}
+                              className="w-full h-10 px-3 rounded-xl border text-xs font-body bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] text-[var(--color-text-primary)] outline-none"
+                            >
+                              {NIGERIAN_BANKS.map((b) => (
+                                <option key={b.code} value={b.name}>
+                                  {b.name} {b.isFintech ? "(Fintech)" : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-[var(--color-text-secondary)] mb-1">
+                              Account Number (10 digits)
+                            </label>
+                            <Input
+                              type="text"
+                              maxLength={10}
+                              placeholder="0123456789"
+                              value={changeAccountNumber}
+                              onChange={(e) => setChangeAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                              className="h-10 text-xs font-mono"
+                            />
+                          </div>
+
+                          {/* Paystack Lookup States */}
+                          {changeLookupStatus === "looking_up" && (
+                            <div className="p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] flex items-center gap-2.5 animate-pulse text-xs text-[var(--color-text-secondary)]">
+                              <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin" />
+                              <span>Looking up account name via Paystack…</span>
+                            </div>
+                          )}
+
+                          {changeLookupStatus === "name_matches" && (
+                            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 space-y-1.5 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold">{changeAccountName}</span>
+                                <span className="badge-verified text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                                  Verified
+                                </span>
+                              </div>
+                              <div className="text-[11px] flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Name matches your KYC details</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {changeLookupStatus === "name_mismatch" && (
+                            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs space-y-1">
+                              <span className="font-semibold block">{changeAccountName}</span>
+                              <span>This account name doesn&apos;t match your KYC name. Use an account in your own name.</span>
+                            </div>
+                          )}
+
+                          {changeLookupStatus === "lookup_failed" && (
+                            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs flex items-center justify-between">
+                              <span>Account lookup failed.</span>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="text-xs h-7"
+                                onClick={() => {
+                                  setChangeLookupStatus("looking_up");
+                                  setTimeout(() => setChangeLookupStatus("name_matches"), 500);
+                                }}
+                              >
+                                Retry
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Optional Phone Number */}
+                          <div>
+                            <label className="block text-[11px] font-semibold text-[var(--color-text-secondary)] mb-1">
+                              Phone Number (Optional)
+                            </label>
+                            <Input
+                              type="tel"
+                              placeholder="+234 800 000 0000"
+                              value={changePhoneNumber}
+                              onChange={(e) => setChangePhoneNumber(e.target.value)}
+                              className="h-10 text-xs font-mono"
+                            />
+                            <p className="text-[11px] text-[var(--color-text-tertiary)] mt-1">
+                              Optional. If you miss a confirmation, only a Monologg team member will call you.
+                            </p>
+                          </div>
+
+                          <Button
+                            className="w-full h-10 text-xs font-semibold"
+                            disabled={changeLookupStatus !== "name_matches"}
+                            onClick={() => {
+                              const req = appStateSync.submitPayoutAccountChangeRequest({
+                                bankName: changeBankName,
+                                accountNumber: changeAccountNumber,
+                                accountName: changeAccountName,
+                                phoneNumber: changePhoneNumber,
+                              });
+                              setChangeRequest(req);
+                              setShowChangeAccountForm(false);
+                            }}
+                          >
+                            Submit Change Request
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Primary CTA: Withdraw ₦X */}
                       <Button
-                        className="w-full h-11"
-                        disabled={withdrawSubmitting}
+                        className="w-full h-12 text-sm font-semibold"
+                        disabled={withdrawSubmitting || !withdrawAmount || Number(withdrawAmount.replace(/[^0-9]/g, "")) <= 0}
                         onClick={() => {
                           const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
                           const available = appStateSync.getBalance().available;
@@ -4893,101 +5395,39 @@ export function TalentDashboard() {
                             return;
                           }
 
+                          setWithdrawSubmitting(true);
                           setWithdrawPasscodeError(null);
-                          setWithdrawStep("passcode");
+
+                          appStateSync.withdrawFunds(amt);
+                          const bank = appStateSync.getBankDetails();
+                          const formattedAccount = `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`;
+
+                          const newPayoutItem = {
+                            id: `pay-${Date.now()}`,
+                            from: "Direct Withdrawal",
+                            service: `Payout to ${bank.bankName}`,
+                            amount: `₦${amt.toLocaleString()}`,
+                            numericAmount: amt,
+                            date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                            time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                            status: "Paid" as const,
+                            ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                            bankAccount: formattedAccount,
+                          };
+                          setPayouts(prev => [newPayoutItem, ...prev]);
+
+                          setWithdrawalSuccess({
+                            amount: amt,
+                            account: formattedAccount,
+                          });
+                          setWithdrawSubmitting(false);
                         }}
                       >
-                        Continue to Security Passcode
+                        {withdrawSubmitting
+                          ? "Processing Withdrawal…"
+                          : `Withdraw ₦${withdrawAmount || "0"}`}
                       </Button>
-                    </>
-                  ) : (
-                    <>
-                      {/* Clean copy without shield icon or "Authorize Payout" header */}
-                      <p className="text-xs text-zinc-500 mb-5 leading-relaxed text-center font-body">
-                        Enter your 4-digit passcode to withdraw <strong className="text-zinc-900">₦{withdrawAmount}</strong> to <strong className="text-zinc-900">{appStateSync.getBankDetails().bankName}</strong>.
-                      </p>
-
-                      <div className="mb-6">
-                        <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider font-body text-center" style={{ color: "var(--color-text-secondary)" }}>
-                          4-Digit Security Passcode
-                        </label>
-                        <input
-                          type="password"
-                          inputMode="numeric"
-                          maxLength={4}
-                          placeholder="••••"
-                          value={withdrawPasscode}
-                          onChange={(e) => {
-                            setWithdrawPasscodeError(null);
-                            setWithdrawPasscode(e.target.value.replace(/\D/g, "").slice(0, 4));
-                          }}
-                          className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-900 text-center font-mono font-bold text-xl tracking-[0.4em] focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all"
-                          autoFocus
-                        />
-                        <div className="text-[11px] font-body mt-2 text-center text-[var(--color-text-tertiary)]">
-                          Set or update your 4-digit passcode in Settings anytime.
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2.5">
-                        <Button variant="secondary" className="flex-1 h-11 text-xs font-semibold" onClick={() => setWithdrawStep("input")}>
-                          Back
-                        </Button>
-                        <Button
-                          className="flex-[2] h-11 text-sm font-semibold"
-                          disabled={withdrawPasscode.length !== 4 || withdrawSubmitting}
-                          onClick={() => {
-                            const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
-                            if (withdrawPasscode !== savedPasscode) {
-                              setWithdrawPasscodeError("Incorrect security passcode. Default passcode is 1234 or update in Settings.");
-                              return;
-                            }
-
-                            setWithdrawSubmitting(true);
-                            setWithdrawPasscodeError(null);
-
-                            const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
-                            appStateSync.withdrawFunds(amt);
-
-                            const bank = appStateSync.getBankDetails();
-                            const newPayoutItem = {
-                              id: `pay-${Date.now()}`,
-                              from: "Direct Withdrawal",
-                              service: `Payout to ${bank.bankName}`,
-                              amount: `₦${amt.toLocaleString()}`,
-                              numericAmount: amt,
-                              date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-                              time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-                              status: "Paid" as const,
-                              ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-                              bankAccount: `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`,
-                            };
-                            setPayouts(prev => [newPayoutItem, ...prev]);
-                            setActivity(prev => [
-                              {
-                                type: "payment",
-                                status: "Completed",
-                                client: "Monologg Payout",
-                                service: `Withdrawal to ${bank.bankName}`,
-                                amount: `₦${amt.toLocaleString()}`,
-                                time: "Just now",
-                              },
-                              ...prev,
-                            ]);
-
-                            setSelectedPayout(newPayoutItem);
-                            setShowWithdraw(false);
-                            setWithdrawStep("input");
-                            setShowAccountPicker(false);
-                            setWithdrawAmount("");
-                            setWithdrawPasscode("");
-                            setWithdrawSubmitting(false);
-                          }}
-                        >
-                          {withdrawSubmitting ? "Withdrawing…" : "Withdraw Funds"}
-                        </Button>
-                      </div>
-                    </>
+                    </div>
                   )}
                 </motion.div>
               </Modal>

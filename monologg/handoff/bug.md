@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
+**Last updated:** 2026-10-15 (Session 134: Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 82. Unclosed Desktop Header Container in TalentDashboard & Missing AlertCircle Import in OrderRoom
+- **Severity:** High / Build & Test Compilation Gate
+- **What happened:** During dashboard availability check-in card insertion in `TalentDashboard.tsx`, an extra closing `</div>` belonging to the desktop header container was inadvertently removed, causing esbuild to report unmatched `<main>` and `<div>` tags at the bottom of the file (breaking 3 test suites). In `OrderRoom.tsx`, `AlertCircle` was utilized inside the overdue availability banner without being explicitly imported from `lucide-react`.
+- **Root Cause:** Deletion of closing tag block during refactoring and missing icon import declaration.
+- **Resolution:** Re-inserted the matching `</div>` closing tag for the desktop header block in `TalentDashboard.tsx:1248`, and imported `AlertCircle` from `lucide-react` in `OrderRoom.tsx:14`.
+- **Validation:** 126/126 unit tests passing across all 25 test files (`pnpm --filter @monologg/web test`), clean TypeScript typecheck (`tsc --noEmit`), and successful standalone bundle build.
 
 ### 81. Redundant Availability Banner, Inconsistent Fee Percentages (9%/12%/15%), Stale FINCRA Mentions & Monospace Script Typography
 - **Severity:** Medium / Performer Trust & Consistency

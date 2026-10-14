@@ -9,6 +9,7 @@ import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
 import { appStateSync, type BillingCard } from "../../lib/state-sync";
+import { NIGERIAN_BANKS, compareKycNames, type BankLookupStatus, type PayoutAccountChangeRequest } from "../../lib/payoutBanks";
 import { Modal } from "../components/ui/Modal";
 import type { ServiceRateCard } from "@monologg/types";
 import {
@@ -187,9 +188,44 @@ export function Settings() {
   // Bank details
   const [bankDetails, setBankDetails] = useState(() => appStateSync.getBankDetails());
   const [editingBank, setEditingBank] = useState(false);
-  const [bankName, setBankName] = useState(bankDetails.bankName);
-  const [accountNumber, setAccountNumber] = useState(bankDetails.accountNumber);
-  const [accountName, setAccountName] = useState(bankDetails.accountName);
+  const [bankName, setBankName] = useState(bankDetails.bankName || "GTBank (Guaranty Trust Bank)");
+  const [accountNumber, setAccountNumber] = useState(bankDetails.accountNumber || "");
+  const [accountName, setAccountName] = useState(bankDetails.accountName || "");
+  const [phoneNumber, setPhoneNumber] = useState(bankDetails.phoneNumber || "");
+  const [bankSearchQuery, setBankSearchQuery] = useState("");
+  const [bankLookupStatus, setBankLookupStatus] = useState<BankLookupStatus>(() => {
+    if (bankDetails.accountNumber && bankDetails.accountNumber.length === 10 && bankDetails.accountName) {
+      return "name_matches";
+    }
+    return "idle";
+  });
+  const [payoutChangeRequest, setPayoutChangeRequest] = useState<PayoutAccountChangeRequest | null>(() => appStateSync.getPayoutAccountChangeRequest());
+
+  // Paystack lookup simulation for Payout Bank Account
+  useEffect(() => {
+    if (!editingBank) return;
+    if (accountNumber.length === 10) {
+      setBankLookupStatus("looking_up");
+      const timer = setTimeout(() => {
+        const kycName = name || appStateSync.getTalentProfile().name || "Emeka Johnson";
+        if (accountNumber === "0000000000") {
+          setBankLookupStatus("lookup_failed");
+          setAccountName("");
+        } else if (accountNumber.endsWith("1")) {
+          const mismatchName = "JOHN CHUKWU";
+          setAccountName(mismatchName);
+          setBankLookupStatus("name_mismatch");
+        } else {
+          const matchedName = kycName.toUpperCase();
+          setAccountName(matchedName);
+          setBankLookupStatus("name_matches");
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    } else {
+      setBankLookupStatus("idle");
+    }
+  }, [accountNumber, bankName, editingBank, name]);
 
   // Payment Cards state
   const [paymentCards, setPaymentCards] = useState<BillingCard[]>(() => appStateSync.getBillingCards());
@@ -2157,7 +2193,18 @@ export function Settings() {
                   {editingBank ? (
                     /* BEFORE: Setup / Edit Form */
                     <div className="space-y-4 pt-1">
-                      <FormField label="Bank Name">
+                      {/* Searchable Bank Selection */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          Bank Name
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="Search bank or fintech (e.g. OPay, Wema, Zenith, GTBank)..."
+                          value={bankSearchQuery}
+                          onChange={(e) => setBankSearchQuery(e.target.value)}
+                          className="h-9 text-xs font-body mb-1"
+                        />
                         <select
                           value={bankName}
                           onChange={(e) => setBankName(e.target.value)}
@@ -2168,20 +2215,21 @@ export function Settings() {
                             color: "var(--color-text-primary)",
                           }}
                         >
-                          <option value="Access Bank Plc">Access Bank Plc</option>
-                          <option value="GTBank (Guaranty Trust Bank)">GTBank (Guaranty Trust Bank)</option>
-                          <option value="Zenith Bank Plc">Zenith Bank Plc</option>
-                          <option value="First Bank of Nigeria">First Bank of Nigeria</option>
-                          <option value="United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
-                          <option value="Kuda Bank">Kuda Bank</option>
-                          <option value="Moniepoint Microfinance Bank">Moniepoint Microfinance Bank</option>
-                          <option value="OPay">OPay</option>
-                          <option value="Palmpay">Palmpay</option>
-                          <option value="Stanbic IBTC Bank">Stanbic IBTC Bank</option>
-                          <option value="Sterling Bank">Sterling Bank</option>
-                          <option value="Fidelity Bank">Fidelity Bank</option>
+                          {!NIGERIAN_BANKS.some((b) => b.name === bankName) && (
+                            <option value={bankName}>{bankName}</option>
+                          )}
+                          {NIGERIAN_BANKS.filter((b) =>
+                            b.name.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                          ).map((b) => (
+                            <option key={b.code} value={b.name}>
+                              {b.name} {b.isFintech ? "(Fintech)" : ""}
+                            </option>
+                          ))}
                         </select>
-                      </FormField>
+                        <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Withdrawals go to this account.
+                        </p>
+                      </div>
 
                       <FormField label="Account Number (10 digits)">
                         <Input
@@ -2196,11 +2244,84 @@ export function Settings() {
                       <FormField label="Account Name">
                         <Input
                           value={accountName}
-                          onChange={(e) => setAccountName(e.target.value)}
-                          className="h-11 rounded-xl text-sm font-body px-3.5"
+                          readOnly
+                          className="h-11 rounded-xl text-sm font-body px-3.5 bg-[var(--color-bg-elevated)] opacity-90 cursor-not-allowed font-medium"
                           placeholder="EMEKA JOHNSON"
                         />
                       </FormField>
+
+                      {/* Paystack Account Lookup Status */}
+                      {bankLookupStatus === "looking_up" && (
+                        <div className="p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] flex items-center gap-2.5 animate-pulse text-xs text-[var(--color-text-secondary)]">
+                          <div className="w-4 h-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin shrink-0" />
+                          <span className="font-body">Looking up account name via Paystack…</span>
+                        </div>
+                      )}
+
+                      {bankLookupStatus === "name_matches" && (
+                        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-body space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">{accountName}</span>
+                            <span className="badge-verified inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                              <Check className="w-3 h-3" /> Name matches your KYC details
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                            Name matches your KYC details ({name || "Emeka Johnson"}).
+                          </div>
+                        </div>
+                      )}
+
+                      {bankLookupStatus === "name_mismatch" && (
+                        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs font-body space-y-1">
+                          <div className="font-semibold">{accountName}</div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-red-600 dark:text-red-400">
+                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                            <span>This account name doesn&apos;t match your KYC name. Use an account in your own name.</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {bankLookupStatus === "lookup_failed" && (
+                        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <span>Account lookup failed. Please check the account number or bank.</span>
+                          </div>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="text-xs h-8 px-3 shrink-0"
+                            onClick={() => {
+                              setBankLookupStatus("looking_up");
+                              setTimeout(() => {
+                                const kycName = name || appStateSync.getTalentProfile().name || "Emeka Johnson";
+                                setAccountName(kycName.toUpperCase());
+                                setBankLookupStatus("name_matches");
+                              }, 500);
+                            }}
+                          >
+                            Retry
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Optional Phone Number */}
+                      <div>
+                        <label className="block text-xs font-semibold mb-1 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          Phone number
+                        </label>
+                        <Input
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          className="h-11 rounded-xl text-sm font-body px-3.5"
+                          placeholder="+234 800 000 0000"
+                        />
+                        <p className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                          Optional. If you miss a confirmation, only a Monologg team member will call you.
+                        </p>
+                      </div>
 
                       {/* Security Memo (Before save) */}
                       <div
@@ -2231,6 +2352,8 @@ export function Settings() {
                               setBankName(bankDetails.bankName);
                               setAccountNumber(bankDetails.accountNumber);
                               setAccountName(bankDetails.accountName);
+                              setPhoneNumber(bankDetails.phoneNumber || "");
+                              setBankLookupStatus(bankDetails.accountNumber?.length === 10 ? "name_matches" : "idle");
                             }}
                           >
                             Cancel
@@ -2238,10 +2361,10 @@ export function Settings() {
                         )}
                         <Button
                           className={`${bankDetails.accountNumber ? "flex-1" : "w-full"} h-11 text-xs font-semibold rounded-xl`}
-                          disabled={accountNumber.length !== 10 || !accountName.trim()}
+                          disabled={accountNumber.length !== 10 || bankLookupStatus !== "name_matches"}
                           onClick={() => {
-                            appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
-                            setBankDetails({ bankName, accountNumber, accountName });
+                            appStateSync.updateBankDetails({ bankName, accountNumber, accountName, phoneNumber });
+                            setBankDetails({ bankName, accountNumber, accountName, phoneNumber });
                             setEditingBank(false);
                             setSaved(true);
                             setTimeout(() => setSaved(false), 2000);
@@ -2254,6 +2377,53 @@ export function Settings() {
                   ) : (
                     /* AFTER: Saved / Active State */
                     <div className="space-y-4 pt-1">
+                      {/* Payout Change Request Status Card (Under review / Rejected / Approved) */}
+                      {payoutChangeRequest && payoutChangeRequest.status === "under_review" && (
+                        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 space-y-2 text-xs font-body">
+                          <div className="flex items-center gap-2 font-bold">
+                            <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                            <span>Payout Account Change Under Review</span>
+                          </div>
+                          <p>
+                            Under review. We&apos;ll notify you when it&apos;s approved. While a change is under review, withdrawals keep using the existing verified account ({bankDetails.bankName} •••• {bankDetails.accountNumber.slice(-4)}).
+                          </p>
+                        </div>
+                      )}
+
+                      {payoutChangeRequest && payoutChangeRequest.status === "rejected" && (
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-900 dark:text-red-100 space-y-2 text-xs font-body">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Payout Account Change Rejected</span>
+                            <Badge tone="error" size="sm">Rejected</Badge>
+                          </div>
+                          <p>Reason: {payoutChangeRequest.rejectionReason || "Account name verification could not be completed."}</p>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              appStateSync.updatePayoutAccountChangeRequestStatus("under_review");
+                              setPayoutChangeRequest(appStateSync.getPayoutAccountChangeRequest());
+                              setEditingBank(true);
+                            }}
+                          >
+                            Try again
+                          </Button>
+                        </div>
+                      )}
+
+                      {payoutChangeRequest && payoutChangeRequest.status === "approved" && (
+                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-100 space-y-1.5 text-xs font-body">
+                          <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-200">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span>Payout Account Change Approved</span>
+                          </div>
+                          <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                            Your new payout destination is now active for all completed order withdrawals.
+                          </p>
+                        </div>
+                      )}
+
                       <div
                         className="p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border transition-all"
                         style={{
@@ -2296,6 +2466,11 @@ export function Settings() {
                             <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
                               Account Number: {bankDetails.accountNumber}
                             </div>
+                            {bankDetails.phoneNumber && (
+                              <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
+                                Phone: {bankDetails.phoneNumber}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -2304,9 +2479,11 @@ export function Settings() {
                           className="h-10 text-xs font-semibold gap-1.5 rounded-xl shrink-0 self-start sm:self-center"
                           onClick={() => {
                             setEditingBank(true);
-                            setBankName(bankDetails.bankName || "Access Bank Plc");
+                            setBankName(bankDetails.bankName || "GTBank (Guaranty Trust Bank)");
                             setAccountNumber(bankDetails.accountNumber || "");
                             setAccountName(bankDetails.accountName || "");
+                            setPhoneNumber(bankDetails.phoneNumber || "");
+                            setBankLookupStatus(bankDetails.accountNumber?.length === 10 ? "name_matches" : "idle");
                           }}
                         >
                           <Edit2 className="w-3.5 h-3.5" /> Change Bank Account

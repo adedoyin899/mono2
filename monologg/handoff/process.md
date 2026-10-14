@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-14 (Session 133: Performer Flow Polish, Terms List Reordering, Client Ratings Modal, Script Block Typography, Paystack Escrow Standardization & 3-Line Fee Breakdown)
+**Last updated:** 2026-10-15 (Session 134: Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -873,6 +873,16 @@ Addressed user review feedback across performer screens:
 - **Paystack Escrow Explainer Standardization:** Replaced all platform mentions of `FINCRA` with `Paystack` (`"held securely in escrow by our payment partner, Paystack"`), and updated currency limits and FAQ fee references.
 - **Performer 3-Line Fee Breakdown:** Standardized all performer earnings displays to three explicit lines (`Base rate`, `Platform fee (7%)`, `You receive`) across rate cards, projects, orders, earnings, and order rooms, purging legacy 9%, 11%, 12%, and 15% references.
 - **Testing & Distribution Rebuild:** Verified 126/126 unit tests passing across all 25 suites, clean TypeScript check, and regenerated `monologg/monologg-app.html` (1.63 MB).
+
+### Step 94: Project Details & Order Room UX Overhaul, Availability Check-in Protocol & Paystack Bank Verification (Session 134)
+
+Executed an end-to-end UX overhaul and automated availability check-in system across project, order room, and payout touchpoints:
+- **Project Details Segmented Tabs Architecture:** Replaced vertical scrolling with Airbnb / Binance / Upwork-style horizontal segmented tabs (`Overview & Brief`, `Roles & Requirements`, `Audition Sides & Script`, `Client & Escrow`), preserving the sticky sidebar with 3-line fee breakdown, applicant capacity, and contextual action buttons across all 6 project states.
+- **Order Room Workspaces for Performer & Client:** Converted order room layout into three clean workspaces: `Messages & Chat`, `Order Brief & Deliverables`, and `Payment & Escrow`, with role-adapted action docks and preserved Paystack escrow footer guarantee.
+- **Automated Availability Check-in Protocol:** Implemented 3 milestone check-ins (`CHECKIN_OFFSETS`: Booked, 7 days, 2 days before event) skipping passed dates. Embedded interactive check-in cards at the top of the talent dashboard and order room with event metadata, "You receive ₦X" rate, confirmation action (`badge-confirmed`, "Thanks, we've told {Client name}"), overdue alert state, and decline modal (`modal-decline-confirm` with refund and rating impact warnings). Injected real-time system notices in order room chat and 3-step progress indicators on booking cards.
+- **Talent KYC / Settings Payout Bank Account:** Integrated `NIGERIAN_BANKS` list of 20 Nigerian banks & fintechs with search filter, 10-digit account number with simulated Paystack lookup, token-based KYC name comparison (`compareKycNames`), skeleton loader, `badge-verified`, mismatch inline error, retry on failure, helper text, save button validation, and optional phone number field with reassuring helper text.
+- **Withdraw Sheet & Payout Account Change Request:** Modernized withdrawal modal into a withdraw sheet defaulting to full balance, read-only destination account card (`•••• 6789`), "Change payout account" flow with Paystack KYC verification, and status card (`under_review`, `approved`, `rejected` with "Try again" button).
+- **Quality Assurance & Distribution:** All 126 unit tests passing across all 25 test suites, 0 TypeScript compilation errors, and standalone production bundle built.
 
 ---
 

@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import { Avatar } from "../components/ui/Avatar";
+import { Badge } from "../components/ui/Badge";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
+import { appStateSync, type AvailabilityCheckin } from "../../lib/state-sync";
 import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, Shield, Send, Paperclip, CheckCircle2,
-  Lock, FileText, Download, AlertTriangle,
+  Lock, FileText, Download, AlertTriangle, AlertCircle,
   UploadCloud, X, MapPin,
   RefreshCw, FastForward, Check,
   Copy, KeyRound, Star
@@ -101,6 +102,14 @@ export function OrderRoom() {
   const [pinEntry, setPinEntry] = useState("");
   const [copiedPin, setCopiedPin] = useState(false);
 
+  // Workspace Navigation Tabs
+  const [workspaceTab, setWorkspaceTab] = useState<"chat" | "brief" | "escrow">("chat");
+
+  // Availability check-in state
+  const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
+
   // Review phase 48-hour countdown timer
   const [timerSeconds, setTimerSeconds] = useState(48 * 3600);
   const [revisionNotes, setRevisionNotes] = useState("");
@@ -108,6 +117,22 @@ export function OrderRoom() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { id: orderId } = useParams();
+
+  const handleConfirmCheckin = (checkinId: string) => {
+    const updated = appStateSync.confirmAvailabilityCheckin(checkinId);
+    setCheckins(appStateSync.getAvailabilityCheckins());
+    if (updated) {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `sys-chk-${Date.now()}`,
+          from: "system" as const,
+          text: `You confirmed your availability (check-in ${updated.stepIndex} of ${updated.totalSteps}).`,
+          time: "Just now",
+        },
+      ]);
+    }
+  };
 
   /* ── Sync saved review for current role ── */
   useEffect(() => {
@@ -135,7 +160,21 @@ export function OrderRoom() {
   /* ── Data loading ── */
   useEffect(() => {
     apiClient.getOrderMessages(orderId ?? "unknown").then(msgs => {
-      setMessages(msgs as ExtendedOrderMessage[]);
+      const initialMsgs = msgs as ExtendedOrderMessage[];
+      const hasDueNotice = initialMsgs.some(m => m.text?.includes("Check-in 2 of 3 is due"));
+      if (!hasDueNotice) {
+        setMessages([
+          ...initialMsgs,
+          {
+            id: "chk-system-due-1",
+            from: "system" as const,
+            text: "Check-in 2 of 3 is due on Tue 14 Oct.",
+            time: "Yesterday",
+          },
+        ]);
+      } else {
+        setMessages(initialMsgs);
+      }
     });
   }, [orderId]);
 
@@ -305,6 +344,12 @@ export function OrderRoom() {
       },
       {
         id: `local-${prev.length + 2}`,
+        from: "system" as const,
+        text: "Attendance confirmed with the client's code.",
+        time: "Just now",
+      },
+      {
+        id: `local-${prev.length + 3}`,
         from: "system" as const,
         text: "Onsite presence verified. 48-hour inspection window started.",
         time: "Just now",
@@ -763,232 +808,569 @@ export function OrderRoom() {
         </div>
       </header>
 
-      {/* ── Chat Feed + Action Area (No stepper bar taking vertical space) ── */}
-      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full min-h-0">
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-3">
-          {messages.map(msg => {
-            /* System messages */
-            if (msg.from === "system") {
-              return (
-                <div key={msg.id} className="flex justify-center">
-                  <div
-                    className="px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-sm text-center shadow-2xs"
-                    style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>{msg.text}</span>
-                  </div>
-                </div>
-              );
-            }
-
-            const isMe = msg.from === role;
-            const isTalent = msg.from === "talent";
-
-            // Chat bubble colors matching user requirement:
-            // 1. Incoming messages from the other party (!isMe):
-            //    Crisp white card (#ffffff) with subtle neutral border (border-zinc-200/80)
-            //    and dark neutral text (#18181b), exactly matching the user screenshot.
-            // 2. Outgoing messages from current role (isMe):
-            //    - Performer (role === "talent"): consistent soft red hue (#FFF1F2) with subtle red border.
-            //    - Client (role === "client"): consistent soft purple hue (#FAF5FF) with subtle purple border.
-            let bubbleBg: string;
-            let bubbleBorder: string;
-
-            if (!isMe) {
-              bubbleBg = "#ffffff";
-              bubbleBorder = "1px solid rgba(0, 0, 0, 0.08)";
-            } else {
-              if (role === "talent") {
-                bubbleBg = "var(--color-red-soft)";
-                bubbleBorder = "1px solid rgba(225, 29, 72, 0.22)";
-              } else {
-                bubbleBg = "var(--color-purple-soft)";
-                bubbleBorder = "1px solid rgba(124, 58, 237, 0.22)";
-              }
-            }
-
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: DURATION_MED, ease: EASE_OUT }}
-                className={`flex gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
-              >
-                <Avatar
-                  size="sm"
-                  className="w-7 h-7 text-[10px] shrink-0 mt-0.5 font-semibold"
-                  background={isTalent ? "var(--color-red-soft)" : "var(--color-purple-soft)"}
-                  color={isTalent ? "var(--color-mono-red)" : "var(--color-mono-purple)"}
-                >
-                  {isTalent ? talentInitials : "BN"}
-                </Avatar>
-
-                <div className={`max-w-[80%] sm:max-w-[72%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
-                  <div
-                    className="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs text-zinc-900"
-                    style={{
-                      background: bubbleBg,
-                      border: bubbleBorder,
-                      borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                    }}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-
-                    {/* File attachment */}
-                    {msg.attachment && (
-                      <div
-                        className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors"
-                        style={{
-                          background: !isMe ? "var(--color-bg-canvas)" : "rgba(255, 255, 255, 0.85)",
-                          borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(241, 48, 48, 0.18)" : "rgba(123, 0, 254, 0.18)"),
-                        }}
-                      >
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ background: !isMe ? "rgba(0, 0, 0, 0.06)" : (role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)") }}
-                        >
-                          <FileText
-                            className="w-4 h-4"
-                            style={{ color: !isMe ? "var(--color-text-secondary)" : (role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)") }}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0 text-xs">
-                          <div className="font-medium truncate text-zinc-900">{msg.attachment.name}</div>
-                          <div className="text-zinc-500">{msg.attachment.size}</div>
-                        </div>
-                        <button
-                          type="button"
-                          className="p-1.5 rounded-lg transition-colors text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
-                          title="Download"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Onsite evidence card inside performer bubble */}
-                    {msg.onsiteEvidence && (
-                      <div
-                        className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs"
-                        style={{
-                          background: "rgba(255, 255, 255, 0.95)",
-                          borderColor: isMe && role === "talent" ? "rgba(241, 48, 48, 0.25)" : "rgba(0, 0, 0, 0.08)",
-                          color: "#18181b",
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5 font-semibold text-zinc-900">
-                            <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                            Onsite Appearance Verified
-                          </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">
-                            Verified
-                          </span>
-                        </div>
-                        <div className="space-y-1 text-zinc-600">
-                          <div className="font-semibold text-zinc-900">{msg.onsiteEvidence.venue}</div>
-                          <div>📍 {msg.onsiteEvidence.coords}</div>
-                          <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
-                          {msg.onsiteEvidence.pinCode && (
-                            <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800">
-                              <span>Client code confirmed:</span>
-                              <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                {msg.onsiteEvidence.pinCode}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-[10px] mt-1 px-1" style={{ color: "var(--color-text-tertiary)" }}>{msg.time}</span>
-                </div>
-              </motion.div>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Context-aware Action Dock */}
-        {renderActionDock()}
-
-        {/* Payment Released Banner */}
-        {paymentReleased && (
-          <div className="px-4 pb-2">
-            <div
-              className="px-4 py-3 rounded-2xl flex items-center gap-2.5 text-sm font-medium"
-              style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}
-            >
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>₦120,000 released to {talentName}. Order complete.</span>
-            </div>
-          </div>
-        )}
-
-        {/* Message Input */}
-        <div
-          className="px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] border-t"
-          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
-        >
+      {/* ── Check-in Progress Header Bar ── */}
+      <div className="bg-[var(--color-bg-surface)] border-b px-4 sm:px-6 py-2.5" style={{ borderColor: "var(--color-hairline)" }}>
+        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <button
-              aria-label="Attach"
-              onClick={() => role === "talent" ? setShowSubmitModal(true) : fileInputRef.current?.click()}
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all hover:bg-zinc-100 active:scale-95"
-              style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-hairline)" }}
-              title={role === "talent" ? "Submit deliverable" : "Attach file"}
-            >
-              <Paperclip className="w-4 h-4" />
-            </button>
-
-            <textarea
-              className="flex-1 px-3.5 py-2.5 rounded-xl text-sm resize-none focus:outline-none transition-colors"
-              style={{
-                lineHeight: "1.5",
-                border: "1px solid var(--color-hairline)",
-                background: "var(--color-bg-canvas)",
-                color: "var(--color-text-primary)",
-              }}
-              rows={1}
-              placeholder={`Message ${role === "talent" ? clientOrg : talentName}…`}
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-
-            {/* Send CTA in main brand colors: red for performer, purple for client */}
-            <button
-              aria-label="Send"
-              onClick={sendMessage}
-              disabled={!inputText.trim()}
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40 text-white shadow-2xs hover:opacity-95"
-              style={{ background: role === "talent" ? "var(--color-red)" : "var(--color-purple)" }}
-            >
-              <Send className="w-4 h-4" />
-            </button>
+            <span className="text-xs font-semibold text-zinc-900 font-body">Check-in progress:</span>
+            <span className="text-[11px] font-mono text-zinc-500">Check-in 2 of 3 · due Tue 14 Oct</span>
           </div>
 
-          {/* Minimal footer */}
-          <div className="flex items-center justify-between mt-2 px-0.5">
-            <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
-              <Shield className="w-3 h-3 text-emerald-600" />
-              <span>Escrow protected · 48h auto-release</span>
-            </div>
-            <button
-              onClick={() => setShowDisputeModal(true)}
-              className="text-[11px] flex items-center gap-1 transition-colors hover:text-red-600"
-              style={{ color: "var(--color-text-tertiary)" }}
-            >
-              <AlertTriangle className="w-3 h-3 text-amber-500" />
-              Dispute
-            </button>
+          <div className="flex items-center gap-2">
+            {[
+              { label: "Booked", state: "Done" as const },
+              { label: "7 days", state: "Due" as const, sub: "Due Tue 14 Oct" },
+              { label: "2 days", state: "Missed" as const, sub: "Upcoming" },
+            ].map((step, idx) => (
+              <div
+                key={idx}
+                className={`px-2.5 py-1 rounded-full text-xs font-body flex items-center gap-1.5 ${
+                  step.state === "Done"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                    : step.state === "Due"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold"
+                    : "bg-zinc-100 text-zinc-400"
+                }`}
+              >
+                <span>{step.label}</span>
+                <span className="text-[10px] uppercase font-mono">
+                  {step.state === "Done" ? "✓ Done" : step.state === "Due" ? "Due 14 Oct" : "Upcoming"}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* ── Interactive Availability Check-in Card (For Performer Role) ── */}
+      {(() => {
+        const activeCheckin = checkins.find((c) => c.status === "due" || c.status === "missed") || (checkins.length > 0 ? checkins[0] : null);
+        if (!activeCheckin || role !== "talent") return null;
+        const isConfirmed = activeCheckin.status === "done";
+        const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
+
+        return (
+          <div className="max-w-2xl mx-auto w-full px-4 pt-3">
+            <div
+              className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+                isOverdue
+                  ? "bg-amber-500/10 border-amber-500/40 text-amber-950 dark:text-amber-100"
+                  : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge
+                      tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                      className={isConfirmed ? "badge-confirmed" : ""}
+                      size="sm"
+                    >
+                      {isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                    </Badge>
+                    <span className="text-[11px] font-mono text-zinc-500">
+                      Due {activeCheckin.dueDate}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-base sm:text-lg font-bold text-zinc-900">
+                    Are you still available?
+                  </h3>
+                </div>
+
+                <div className="text-left sm:text-right">
+                  <div className="text-[11px] text-zinc-500 font-body">Compensation</div>
+                  <div className="font-mono font-bold text-sm sm:text-base text-emerald-600">
+                    You receive ₦{activeCheckin.performerReceives.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 mb-3 text-xs font-body">
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Event</span>
+                  <span className="font-medium text-zinc-800">{activeCheckin.eventName}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Date &amp; Location</span>
+                  <span className="font-medium text-zinc-800">{activeCheckin.eventDate} · {activeCheckin.location}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[10px]">Client</span>
+                  <span className="font-medium text-zinc-800">{activeCheckin.clientName}</span>
+                </div>
+              </div>
+
+              {isConfirmed ? (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-body flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Thanks, we&apos;ve told {activeCheckin.clientName}. Next check-in: {activeCheckin.nextCheckinDate || "2 days before event"}</span>
+                  </div>
+                  <span className="badge-confirmed text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                    badge-confirmed
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {isOverdue && (
+                    <div className="mb-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 text-xs font-body flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Confirm now. {activeCheckin.clientName} has been told you haven&apos;t confirmed yet.</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end gap-2.5 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCheckinToDecline(activeCheckin);
+                        setShowDeclineModal(true);
+                      }}
+                      className="text-xs font-semibold text-zinc-500 hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
+                    >
+                      I can&apos;t make it
+                    </button>
+                    <Button
+                      size="sm"
+                      className="h-9 px-4 text-xs font-semibold"
+                      onClick={() => handleConfirmCheckin(activeCheckin.id)}
+                    >
+                      Yes, I&apos;m confirmed
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Segmented Workspace Tabs (Airbnb / Upwork / Binance style) ── */}
+      <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-1">
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-100 border border-zinc-200">
+          {[
+            { id: "chat", label: "Messages & Chat", icon: CheckCircle2 },
+            { id: "brief", label: "Order Brief & Deliverables", icon: FileText },
+            { id: "escrow", label: "Payment & Escrow", icon: Shield },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = workspaceTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setWorkspaceTab(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-white text-zinc-900 shadow-2xs font-bold"
+                    : "text-zinc-500 hover:text-zinc-800"
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? (role === "client" ? "text-purple-600" : "text-red-600") : "text-zinc-400"}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── TAB 1: Chat Feed + Action Dock + Composer ── */}
+      {workspaceTab === "chat" && (
+        <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full min-h-0">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-3">
+            {messages.map(msg => {
+              /* System messages */
+              if (msg.from === "system") {
+                return (
+                  <div key={msg.id} className="flex justify-center">
+                    <div
+                      className="px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-sm text-center shadow-2xs"
+                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{msg.text}</span>
+                    </div>
+                  </div>
+                );
+              }
+
+              const isMe = msg.from === role;
+              const isTalent = msg.from === "talent";
+
+              let bubbleBg: string;
+              let bubbleBorder: string;
+
+              if (!isMe) {
+                bubbleBg = "#ffffff";
+                bubbleBorder = "1px solid rgba(0, 0, 0, 0.08)";
+              } else {
+                if (role === "talent") {
+                  bubbleBg = "var(--color-red-soft)";
+                  bubbleBorder = "1px solid rgba(225, 29, 72, 0.22)";
+                } else {
+                  bubbleBg = "var(--color-purple-soft)";
+                  bubbleBorder = "1px solid rgba(124, 58, 237, 0.22)";
+                }
+              }
+
+              return (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: DURATION_MED, ease: EASE_OUT }}
+                  className={`flex gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
+                >
+                  <Avatar
+                    size="sm"
+                    className="w-7 h-7 text-[10px] shrink-0 mt-0.5 font-semibold"
+                    background={isTalent ? "var(--color-red-soft)" : "var(--color-purple-soft)"}
+                    color={isTalent ? "var(--color-mono-red)" : "var(--color-mono-purple)"}
+                  >
+                    {isTalent ? talentInitials : "BN"}
+                  </Avatar>
+
+                  <div className={`max-w-[80%] sm:max-w-[72%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
+                    <div
+                      className="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs text-zinc-900"
+                      style={{
+                        background: bubbleBg,
+                        border: bubbleBorder,
+                        borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                      }}
+                    >
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                      {/* File attachment */}
+                      {msg.attachment && (
+                        <div
+                          className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors"
+                          style={{
+                            background: !isMe ? "var(--color-bg-canvas)" : "rgba(255, 255, 255, 0.85)",
+                            borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(241, 48, 48, 0.18)" : "rgba(123, 0, 254, 0.18)"),
+                          }}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: !isMe ? "rgba(0, 0, 0, 0.06)" : (role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)") }}
+                          >
+                            <FileText
+                              className="w-4 h-4"
+                              style={{ color: !isMe ? "var(--color-text-secondary)" : (role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)") }}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0 text-xs">
+                            <div className="font-medium truncate text-zinc-900">{msg.attachment.name}</div>
+                            <div className="text-zinc-500">{msg.attachment.size}</div>
+                          </div>
+                          <button
+                            type="button"
+                            className="p-1.5 rounded-lg transition-colors text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                            title="Download"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Onsite evidence card inside performer bubble */}
+                      {msg.onsiteEvidence && (
+                        <div
+                          className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs"
+                          style={{
+                            background: "rgba(255, 255, 255, 0.95)",
+                            borderColor: isMe && role === "talent" ? "rgba(241, 48, 48, 0.25)" : "rgba(0, 0, 0, 0.08)",
+                            color: "#18181b",
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1.5 font-semibold text-zinc-900">
+                              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                              Onsite Appearance Verified
+                            </div>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">
+                              Verified
+                            </span>
+                          </div>
+                          <div className="space-y-1 text-zinc-600">
+                            <div className="font-semibold text-zinc-900">{msg.onsiteEvidence.venue}</div>
+                            <div>📍 {msg.onsiteEvidence.coords}</div>
+                            <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
+                            {msg.onsiteEvidence.pinCode && (
+                              <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800">
+                                <span>Client code confirmed:</span>
+                                <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                  {msg.onsiteEvidence.pinCode}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] mt-1 px-1" style={{ color: "var(--color-text-tertiary)" }}>{msg.time}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Context-aware Action Dock */}
+          {renderActionDock()}
+
+          {/* Payment Released Banner */}
+          {paymentReleased && (
+            <div className="px-4 pb-2">
+              <div
+                className="px-4 py-3 rounded-2xl flex items-center gap-2.5 text-sm font-medium"
+                style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>₦120,000 released to {talentName}. Order complete.</span>
+              </div>
+            </div>
+          )}
+
+          {/* Message Input */}
+          <div
+            className="px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] border-t"
+            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+          >
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Attach"
+                onClick={() => role === "talent" ? setShowSubmitModal(true) : fileInputRef.current?.click()}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all hover:bg-zinc-100 active:scale-95"
+                style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-hairline)" }}
+                title={role === "talent" ? "Submit deliverable" : "Attach file"}
+              >
+                <Paperclip className="w-4 h-4" />
+              </button>
+
+              <textarea
+                className="flex-1 px-3.5 py-2.5 rounded-xl text-sm resize-none focus:outline-none transition-colors"
+                style={{
+                  lineHeight: "1.5",
+                  border: "1px solid var(--color-hairline)",
+                  background: "var(--color-bg-canvas)",
+                  color: "var(--color-text-primary)",
+                }}
+                rows={1}
+                placeholder={`Message ${role === "talent" ? clientOrg : talentName}…`}
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+
+              <button
+                aria-label="Send"
+                onClick={sendMessage}
+                disabled={!inputText.trim()}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40 text-white shadow-2xs hover:opacity-95"
+                style={{ background: role === "talent" ? "var(--color-red)" : "var(--color-purple)" }}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Minimal footer */}
+            <div className="flex items-center justify-between mt-2 px-0.5">
+              <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
+                <Shield className="w-3 h-3 text-emerald-600" />
+                <span>Escrow protected · 48h auto-release</span>
+              </div>
+              <button
+                onClick={() => setShowDisputeModal(true)}
+                className="text-[11px] flex items-center gap-1 transition-colors hover:text-red-600"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                <AlertTriangle className="w-3 h-3 text-amber-500" />
+                Dispute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 2: Order Brief & Deliverables ── */}
+      {workspaceTab === "brief" && (
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-2xl mx-auto w-full space-y-5">
+          <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-display text-base font-bold text-zinc-900">Project Deliverables &amp; Scope</h3>
+                <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · ORD-001</p>
+              </div>
+              <Badge tone="accent" size="sm">{gigType === "onsite" ? "Live On-site" : "Remote Recording"}</Badge>
+            </div>
+
+            <div className="space-y-2 text-xs font-body text-zinc-700">
+              <div className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <span>2x 30s broadcast WAV master audio files (24-bit / 48kHz)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <span>1x 15s social media cutdown variation with synced cues</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                <span>Raw vocal stems and ambient room tone file</span>
+              </div>
+            </div>
+
+            {role === "talent" ? (
+              <Button
+                className="w-full h-11 text-xs font-semibold gap-1.5"
+                onClick={() => setShowSubmitModal(true)}
+              >
+                <UploadCloud className="w-4 h-4" /> Submit Order Deliverable
+              </Button>
+            ) : (
+              <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100 text-xs text-zinc-600">
+                Awaiting performer deliverable submission. Once submitted, your 48-hour review window starts.
+              </div>
+            )}
+          </div>
+
+          {/* Project Phases */}
+          <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-3">
+            <h4 className="font-display text-sm font-bold text-zinc-900">Workflow Phases</h4>
+            <div className="space-y-2">
+              {PHASES.map((p, idx) => {
+                const isPast = idx < phaseIndex;
+                const isCurrent = p.id === phase;
+                return (
+                  <div
+                    key={p.id}
+                    className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
+                      isCurrent ? "bg-zinc-50 border-zinc-300 font-semibold" : isPast ? "bg-white border-zinc-100" : "bg-white border-zinc-100 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        isPast ? "bg-emerald-600 text-white" : isCurrent ? "bg-zinc-900 text-white" : "bg-zinc-200 text-zinc-500"
+                      }`}>
+                        {isPast ? "✓" : idx + 1}
+                      </span>
+                      <span className="text-xs text-zinc-900">{p.label}</span>
+                    </div>
+                    <span className="text-[11px] font-medium text-zinc-500">
+                      {isPast ? "Done" : isCurrent ? "In progress" : "Upcoming"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 3: Payment & Escrow ── */}
+      {workspaceTab === "escrow" && (
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-2xl mx-auto w-full space-y-5">
+          <div
+            className="p-5 rounded-2xl border space-y-3"
+            style={{
+              background: paymentReleased ? "var(--color-success-bg)" : "var(--color-bg-surface)",
+              borderColor: paymentReleased ? "var(--color-success)" : "var(--color-border-default)",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider font-body">Escrow Status</span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                {paymentReleased ? "Released" : "100% Secured"}
+              </span>
+            </div>
+            <div className="text-3xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
+            {/* Exactly preserve existing escrow footer label */}
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval.
+            </p>
+          </div>
+
+          {/* Three-line fee breakdown */}
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs font-body">
+            <div className="flex justify-between items-center text-zinc-600">
+              <span>Base rate</span>
+              <span className="font-mono font-medium text-zinc-900">₦120,000</span>
+            </div>
+            <div className="flex justify-between items-center text-zinc-600">
+              <span>Platform fee (7%)</span>
+              <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+            </div>
+            <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 text-sm text-zinc-900">
+              <span>You receive</span>
+              <span className="font-mono font-bold text-emerald-600">₦111,600</span>
+            </div>
+          </div>
+
+          {role === "client" && !paymentReleased && (
+            <Button
+              className="w-full h-11 text-xs font-semibold gap-1.5"
+              style={{ background: "var(--color-purple)" }}
+              onClick={() => setShowReleaseModal(true)}
+            >
+              <CheckCircle2 className="w-4 h-4" /> Release ₦120,000 from Escrow
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Decline Confirmation Modal (modal-decline-confirm) */}
+      <AnimatePresence>
+        {showDeclineModal && (
+          <Modal onClose={() => setShowDeclineModal(false)}>
+            <motion.div
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 20, scale: 0.95 }}
+              className="modal-decline-confirm w-full max-w-sm rounded-[var(--radius-lg)] p-6 bg-white border border-zinc-200 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="font-display text-xl font-bold mb-2 text-zinc-900">
+                Cancel this booking?
+              </h3>
+              <p className="text-xs sm:text-sm font-body leading-relaxed text-zinc-600 mb-6">
+                The client will be refunded and you won&apos;t be paid. Cancelling affects your rating and visibility on Monologg.
+              </p>
+              <div className="flex items-center gap-3">
+                <Button
+                  className="flex-1 h-11 text-xs font-semibold"
+                  onClick={() => setShowDeclineModal(false)}
+                >
+                  Keep booking
+                </Button>
+                <button
+                  type="button"
+                  className="flex-1 h-11 px-4 rounded-xl text-xs font-semibold border border-red-500 text-red-500 hover:bg-red-50 transition-colors"
+                  onClick={() => {
+                    if (selectedCheckinToDecline) {
+                      appStateSync.cancelBookingFromCheckin(selectedCheckinToDecline.bookingId);
+                      setCheckins(appStateSync.getAvailabilityCheckins());
+                      setMessages(prev => [
+                        ...prev,
+                        {
+                          id: `sys-chk-cancel-${Date.now()}`,
+                          from: "system" as const,
+                          text: `Booking cancelled by performer. Client has been refunded.`,
+                          time: "Just now",
+                        },
+                      ]);
+                    }
+                    setShowDeclineModal(false);
+                  }}
+                >
+                  Yes, cancel booking
+                </button>
+              </div>
+            </motion.div>
+          </Modal>
+        )}
+      </AnimatePresence>
 
       {/* ════════ MODALS ════════ */}
 

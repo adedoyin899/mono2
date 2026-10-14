@@ -59,6 +59,43 @@ export interface BankDetailsState {
   bankName: string;
   accountNumber: string;
   accountName: string;
+  phoneNumber?: string;
+}
+
+export const CHECKIN_OFFSETS = [
+  { id: "booked", label: "Booked", daysBefore: null },
+  { id: "7_days", label: "7 days", daysBefore: 7 },
+  { id: "2_days", label: "2 days", daysBefore: 2 },
+] as const;
+
+export interface AvailabilityCheckin {
+  id: string;
+  bookingId: string;
+  eventName: string;
+  eventDate: string;
+  location: string;
+  clientName: string;
+  baseRate: number;
+  performerReceives: number;
+  stepIndex: number;
+  totalSteps: number;
+  stepLabel: "Booked" | "7 days" | "2 days";
+  dueDate: string;
+  status: "done" | "due" | "missed";
+  confirmedAt?: string;
+  nextCheckinDate?: string;
+  isOverdue?: boolean;
+}
+
+export interface PayoutAccountChangeRequest {
+  id: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  phoneNumber?: string;
+  status: "under_review" | "approved" | "rejected";
+  requestedAt: string;
+  rejectionReason?: string;
 }
 
 export interface BalanceState {
@@ -105,6 +142,8 @@ const STORAGE_KEYS = {
   USER_SESSION: "monologg_user_session",
   CALENDAR_SYNC: "monologg_calendar_sync",
   PERFORMER_AGREEMENT: "monologg_performer_agreement",
+  AVAILABILITY_CHECKINS: "monologg_availability_checkins",
+  PAYOUT_CHANGE_REQUEST: "monologg_payout_change_request",
 };
 
 const DEFAULT_BILLING_CARDS: BillingCard[] = [
@@ -704,6 +743,129 @@ class StateSyncBus {
     }
     this.notify();
     return updated;
+  }
+
+  // ── Availability Check-in Management ──
+  getAvailabilityCheckins(): AvailabilityCheckin[] {
+    const defaultCheckins: AvailabilityCheckin[] = [
+      {
+        id: "chk-001",
+        bookingId: "ORD-001",
+        eventName: "Fintech Explainer Series",
+        eventDate: "Tue 24 Nov 2026 · 10:00 AM WAT",
+        location: "Remote (Online)",
+        clientName: "Sahara Media Group",
+        baseRate: 120000,
+        performerReceives: 111600,
+        stepIndex: 2,
+        totalSteps: 3,
+        stepLabel: "7 days",
+        dueDate: "Tue 14 Oct",
+        status: "due",
+        nextCheckinDate: "Thu 19 Nov 2026",
+        isOverdue: false,
+      },
+    ];
+
+    if (typeof window === "undefined") return defaultCheckins;
+    const raw = localStorage.getItem(STORAGE_KEYS.AVAILABILITY_CHECKINS);
+    if (!raw) return defaultCheckins;
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultCheckins;
+    } catch {
+      return defaultCheckins;
+    }
+  }
+
+  confirmAvailabilityCheckin(checkinId: string): AvailabilityCheckin | null {
+    const checkins = this.getAvailabilityCheckins();
+    let updated: AvailabilityCheckin | null = null;
+    const nextList = checkins.map((chk) => {
+      if (chk.id === checkinId) {
+        updated = {
+          ...chk,
+          status: "done" as const,
+          confirmedAt: new Date().toISOString(),
+          isOverdue: false,
+        };
+        return updated;
+      }
+      return chk;
+    });
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.AVAILABILITY_CHECKINS, JSON.stringify(nextList));
+    }
+    this.notify();
+    return updated;
+  }
+
+  cancelBookingFromCheckin(bookingId: string): void {
+    const checkins = this.getAvailabilityCheckins().filter((chk) => chk.bookingId !== bookingId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.AVAILABILITY_CHECKINS, JSON.stringify(checkins));
+    }
+    this.notify();
+  }
+
+  // ── Payout Account Change Request Management ──
+  getPayoutAccountChangeRequest(): PayoutAccountChangeRequest | null {
+    if (typeof window === "undefined") return null;
+    const raw = localStorage.getItem(STORAGE_KEYS.PAYOUT_CHANGE_REQUEST);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  submitPayoutAccountChangeRequest(req: {
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+    phoneNumber?: string;
+  }): PayoutAccountChangeRequest {
+    const newRequest: PayoutAccountChangeRequest = {
+      id: `pcr-${Date.now()}`,
+      bankName: req.bankName,
+      accountNumber: req.accountNumber,
+      accountName: req.accountName,
+      phoneNumber: req.phoneNumber,
+      status: "under_review",
+      requestedAt: new Date().toISOString(),
+    };
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.PAYOUT_CHANGE_REQUEST, JSON.stringify(newRequest));
+    }
+    this.notify();
+    return newRequest;
+  }
+
+  updatePayoutAccountChangeRequestStatus(status: "under_review" | "approved" | "rejected", reason?: string): void {
+    const current = this.getPayoutAccountChangeRequest();
+    if (!current) return;
+    const updated: PayoutAccountChangeRequest = {
+      ...current,
+      status,
+      rejectionReason: reason,
+    };
+
+    if (status === "approved") {
+      this.updateBankDetails({
+        bankName: updated.bankName,
+        accountNumber: updated.accountNumber,
+        accountName: updated.accountName,
+        phoneNumber: updated.phoneNumber,
+      });
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.PAYOUT_CHANGE_REQUEST, JSON.stringify(updated));
+    }
+    this.notify();
   }
 }
 
