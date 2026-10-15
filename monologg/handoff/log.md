@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-15 (Session 136: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal)
+**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 137 (2026-10-15) — PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement
+
+**Goal:** Address user feedback from review screenshots:
+1. **Withdrawal Authorization PIN Modal (Image 1):** Change modal title to `"Input PIN"`, remove redundant lock icon and sub-heading, and standardize PIN input height/size (`h-11`) and font sizes to match the rest of the UI components (`TalentDashboard.tsx`).
+2. **Availability Check-in Multi-Milestone Carousel & Automated Decline Flow (Image 2):** Add left/right milestone switcher arrows to cycle through all 3 milestone types (14-day/Booked, 7-day, 2-day) for easy demoing. When the performer declines a check-in ("I can't make it" -> cancel booking), immediately cancel the order, credit an automatic refund of the booking escrow amount to the client's wallet, send a notification and automated chat message to the client, and update the order status across the check-in card, header badges, active orders list, and Order Room (`TalentDashboard.tsx`, `OrderRoom.tsx`, `state-sync.ts`).
+3. **Client Project Creation Onsite/Online Format & Funding Source Selection (Image 3):** In `ProjectBrief.tsx`, allow clients in Step 1 to select project format (`Online / Remote` vs `On-site / In-person` with venue/city location input for onsite projects). In Step 4, add a funding source selector (`Monologg Wallet Balance` vs `Paystack Card`) with live balance detection, an insufficient balance warning with quick "+ Fund Wallet" Paystack top-up modal, and the mandatory 4-clause Review & Agreement section before publish.
+4. **Rate Card Booking Streamlined Project Details & Review Agreement:** In `Checkout.tsx`, provide the same project details collection (Title, Format, Venue, Notes), funding source selection (Wallet Balance vs Paystack Card with insufficient funds check), and mandatory Review & Agreement terms with required checkbox prior to payment. Also enabled searching performers and booking their rate card directly within `TalentDashboard.tsx`.
+
+### Changes Made:
+- **`monologg/apps/web/src/lib/state-sync.ts`**:
+  - Added `CANCELLED_BOOKINGS` and `ORDER_MESSAGES_PREFIX` storage keys.
+  - Initialized 3 default check-in milestones (`chk-001-step1` Booked/14d, `chk-001-step2` 7d due, `chk-001-step3` 2d upcoming).
+  - Added `isBookingCancelled(bookingId)`, `recordBookingCancellation(...)`, `appendOrderMessage(...)`, `getOrderMessages(...)`, `refundOrder(...)`, and updated `cancelBookingFromCheckin(...)` to execute auto-refund, client notification, and automated chat message.
+- **`monologg/apps/web/src/app/pages/TalentDashboard.tsx`**:
+  - Modal title updated to `"Input PIN"` on passcode step; lock icon and redundant heading removed; input standardized to `h-11 text-center text-base font-mono tracking-[0.5em] rounded-xl font-medium`.
+  - Added milestone switcher arrows (`<ChevronLeft>` and `<ChevronRight>`) to availability check-in card.
+  - Updated availability check-in card and active orders list to show `Cancelled & Refunded` state banner and badge.
+  - Wired up decline modal confirmation to call `cancelBookingFromCheckin`.
+  - Added talents sub-tab to browse/search performers and book their rate card via `Checkout.tsx`.
+- **`monologg/apps/web/src/app/pages/OrderRoom.tsx`**:
+  - Added milestone switcher arrows (`<ChevronLeft>` and `<ChevronRight>`) to availability check-in card.
+  - Rendered `Cancelled & Refunded` danger badge in header when cancelled.
+  - Added prominent cancellation and refund banner with auto-refund status.
+  - Merged automated order chat messages from `appStateSync.getOrderMessages(curOrderId)` into messages feed.
+  - Wired up decline modal confirmation to execute cancellation and sync chat stream.
+- **`monologg/apps/web/src/app/pages/ProjectBrief.tsx`**:
+  - Step 1: Added project format selector (`Online / Remote` vs `On-site / In-person` with venue input).
+  - Step 4: Added funding source selector (`Monologg Wallet Balance` vs `Paystack Card`) with live balance check and insufficient funds alert banner.
+  - Added quick "+ Fund Wallet" Paystack modal with preset buttons (`₦50,000`, `₦100,000`, `₦200,000`).
+  - Added 4-clause Review & Agreement section with mandatory agreement checkbox.
+  - Deducts wallet balance on submission if wallet funding was selected.
+- **`monologg/apps/web/src/app/pages/ProjectBrief.test.tsx`**:
+  - Updated test helper `renderAndFillProjectBrief()` to check the mandatory terms agreement checkbox before clicking "Publish Project".
+- **`monologg/apps/web/src/app/pages/Checkout.tsx`**:
+  - Summary step: Added project details inputs (Project Title, Online vs Onsite, Venue, Notes).
+  - Added funding source selector (`Wallet Balance` vs `Paystack Card`) with live balance check and quick fund modal.
+  - Added Review & Agreement card with the 4 terms and mandatory agreement checkbox.
+  - Direct wallet balance debit for wallet payment flow with instant escrow confirmation.
+- **Validation**:
+  - Ran full unit test suite: 25/25 test suites passed (126/126 tests).
 
 ---
 

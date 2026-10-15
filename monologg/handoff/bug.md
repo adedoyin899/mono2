@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 136: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal)
+**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 85. PIN Modal Component Sizing Inconsistency, Missing Check-in Demo Switcher & Unhandled Decline Cancellation/Refund Flow, and Incomplete Project Brief / Checkout Funding & Terms
+- **Severity:** Medium / UI Hierarchy & Booking Flow Integrity
+- **What happened:** In `TalentDashboard.tsx`, the withdrawal PIN authorization modal had an redundant lock icon, a repeated `"Authorise Withdrawal"` sub-heading, and disproportionately sized input controls relative to the rest of the application. Availability check-ins were hardcoded to a single step with no mechanism to demo the 3 milestones (14-day, 7-day, 2-day). When a performer declined a check-in, the order state remained active with no automated refund credited to the client or automated message dispatched. In `ProjectBrief.tsx` and `Checkout.tsx`, users could not differentiate between onsite vs online projects, select between wallet and card funding with live balance protection, or complete the required 4-clause review & escrow agreement.
+- **Root Cause:** Prototyping gaps in check-in state synchronization; missing decline webhook/handler simulation; lack of format and funding selection controls in brief creation and rate card checkout sheets.
+- **Fix:**
+  - Standardized PIN authorization modal: set title to `"Input PIN"`, removed redundant icon and extra heading, and aligned input sizing (`h-11`) and typography with standard tokens.
+  - Added milestone switcher arrows (`<ChevronLeft>` / `<ChevronRight>`) to availability check-in card across both `TalentDashboard.tsx` and `OrderRoom.tsx`.
+  - Implemented automated decline workflow: cancels the booking, auto-refunds escrow amount to client wallet, sends notification, appends chat message, and displays `Cancelled & Refunded` across all screens.
+  - Added project format (`Online / Remote` vs `On-site / In-person`) with venue inputs, funding source selection with live balance check and "+ Fund Wallet" modal, and the mandatory 4-point Review & Agreement terms across both `ProjectBrief.tsx` and `Checkout.tsx`.
+- **Resolution:** Validated with all 25 test suites passing (126/126 tests).
 
 ### 84. Cluttered 3-Line Fee Formulas on Rate Cards & Payouts, Complex Payout Bank Cards & Missing Passcode Gate in Withdraw Modal
 - **Severity:** Medium / Fintech UX & Visual Simplification

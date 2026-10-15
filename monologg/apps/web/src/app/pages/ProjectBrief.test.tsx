@@ -34,6 +34,7 @@ async function renderAndFillProjectBrief() {
   // Step 4 — "Budget & Publish" text is ambiguous (it's also the always-visible
   // top stepper's label), so wait for step-4-unique content instead.
   await screen.findByText("Set your project budget range to attract the right performers.");
+  fireEvent.click(screen.getByRole("checkbox"));
 }
 
 describe("ProjectBrief", () => {

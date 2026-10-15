@@ -144,6 +144,8 @@ const STORAGE_KEYS = {
   PERFORMER_AGREEMENT: "monologg_performer_agreement",
   AVAILABILITY_CHECKINS: "monologg_availability_checkins",
   PAYOUT_CHANGE_REQUEST: "monologg_payout_change_request",
+  CANCELLED_BOOKINGS: "monologg_cancelled_bookings",
+  ORDER_MESSAGES_PREFIX: "monologg_order_messages_",
 };
 
 const DEFAULT_BILLING_CARDS: BillingCard[] = [
@@ -395,6 +397,60 @@ class StateSyncBus {
       totalAmount: amountNaira * 100,
       totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
       providerRef: "paystack-card",
+      createdAt: new Date().toISOString(),
+    };
+
+    this.transactions = [newTx, ...this.transactions];
+    this.save(STORAGE_KEYS.BALANCE, this.balance);
+    this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    this.notify();
+    return true;
+  }
+
+  deductBalance(amountNaira: number, description?: string, ref?: string): boolean {
+    if (amountNaira <= 0 || amountNaira > this.balance.available) return false;
+    this.balance.available -= amountNaira;
+
+    const newTx: Transaction = {
+      id: `tx-${Date.now()}`,
+      bookingId: ref || `bk-escrow-${Date.now()}`,
+      direction: "payment",
+      state: "RELEASED",
+      currency: "NGN",
+      baseAmount: amountNaira * 100,
+      baseAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      feeAmount: 0,
+      feeAmountFormatted: "₦0",
+      totalAmount: amountNaira * 100,
+      totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      providerRef: description ? `Wallet Escrow: ${description}` : "Wallet Escrow",
+      createdAt: new Date().toISOString(),
+    };
+
+    this.transactions = [newTx, ...this.transactions];
+    this.save(STORAGE_KEYS.BALANCE, this.balance);
+    this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    this.notify();
+    return true;
+  }
+
+  refundOrder(bookingId: string, amountNaira: number, reason?: string): boolean {
+    if (amountNaira <= 0) return false;
+    this.balance.available += amountNaira;
+
+    const newTx: Transaction = {
+      id: `tx-refund-${Date.now()}`,
+      bookingId,
+      direction: "refund",
+      state: "REFUNDED",
+      currency: "NGN",
+      baseAmount: amountNaira * 100,
+      baseAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      feeAmount: 0,
+      feeAmountFormatted: "₦0",
+      totalAmount: amountNaira * 100,
+      totalAmountFormatted: `₦${amountNaira.toLocaleString()}`,
+      providerRef: "Paystack Escrow Auto-Refund",
       createdAt: new Date().toISOString(),
     };
 
@@ -749,7 +805,25 @@ class StateSyncBus {
   getAvailabilityCheckins(): AvailabilityCheckin[] {
     const defaultCheckins: AvailabilityCheckin[] = [
       {
-        id: "chk-001",
+        id: "chk-001-step1",
+        bookingId: "ORD-001",
+        eventName: "Fintech Explainer Series",
+        eventDate: "Tue 24 Nov 2026 · 10:00 AM WAT",
+        location: "Remote (Online)",
+        clientName: "Sahara Media Group",
+        baseRate: 120000,
+        performerReceives: 111600,
+        stepIndex: 1,
+        totalSteps: 3,
+        stepLabel: "Booked",
+        dueDate: "Tue 07 Oct",
+        status: "done",
+        confirmedAt: "2026-10-07T10:00:00.000Z",
+        nextCheckinDate: "Tue 14 Oct 2026",
+        isOverdue: false,
+      },
+      {
+        id: "chk-001-step2",
         bookingId: "ORD-001",
         eventName: "Fintech Explainer Series",
         eventDate: "Tue 24 Nov 2026 · 10:00 AM WAT",
@@ -762,7 +836,24 @@ class StateSyncBus {
         stepLabel: "7 days",
         dueDate: "Tue 14 Oct",
         status: "due",
-        nextCheckinDate: "Thu 19 Nov 2026",
+        nextCheckinDate: "Mon 23 Nov 2026",
+        isOverdue: false,
+      },
+      {
+        id: "chk-001-step3",
+        bookingId: "ORD-001",
+        eventName: "Fintech Explainer Series",
+        eventDate: "Tue 24 Nov 2026 · 10:00 AM WAT",
+        location: "Remote (Online)",
+        clientName: "Sahara Media Group",
+        baseRate: 120000,
+        performerReceives: 111600,
+        stepIndex: 3,
+        totalSteps: 3,
+        stepLabel: "2 days",
+        dueDate: "Mon 23 Nov",
+        status: "due",
+        nextCheckinDate: "Event Day · Tue 24 Nov",
         isOverdue: false,
       },
     ];
@@ -772,7 +863,9 @@ class StateSyncBus {
     if (!raw) return defaultCheckins;
     try {
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultCheckins;
+      if (Array.isArray(parsed) && parsed.length >= 3) return parsed;
+      // If legacy single-item array was stored, return the 3-step default checkins
+      return defaultCheckins;
     } catch {
       return defaultCheckins;
     }
@@ -801,11 +894,107 @@ class StateSyncBus {
     return updated;
   }
 
-  cancelBookingFromCheckin(bookingId: string): void {
+  isBookingCancelled(bookingId: string): boolean {
+    if (typeof window === "undefined") return false;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.CANCELLED_BOOKINGS);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      return Boolean(parsed[bookingId]);
+    } catch {
+      return false;
+    }
+  }
+
+  getCancelledBooking(bookingId: string): { cancelledAt: string; reason: string; amount: number; refundStatus: string } | null {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.CANCELLED_BOOKINGS);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed[bookingId] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  recordBookingCancellation(bookingId: string, info: { cancelledAt: string; reason: string; amount?: number; refundStatus?: string }): void {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.CANCELLED_BOOKINGS);
+      const parsed = raw ? JSON.parse(raw) : {};
+      parsed[bookingId] = {
+        amount: 120000,
+        refundStatus: "completed",
+        ...info,
+      };
+      localStorage.setItem(STORAGE_KEYS.CANCELLED_BOOKINGS, JSON.stringify(parsed));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  appendOrderMessage(bookingId: string, msg: { id: string; from: "system" | "client" | "talent"; text: string; time: string }): void {
+    if (typeof window === "undefined") return;
+    try {
+      const key = `${STORAGE_KEYS.ORDER_MESSAGES_PREFIX}${bookingId}`;
+      const raw = localStorage.getItem(key);
+      const list = raw ? JSON.parse(raw) : [];
+      list.push(msg);
+      localStorage.setItem(key, JSON.stringify(list));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  getOrderMessages(bookingId: string): any[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const key = `${STORAGE_KEYS.ORDER_MESSAGES_PREFIX}${bookingId}`;
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  cancelBookingFromCheckin(bookingId: string, reason?: string): void {
     const checkins = this.getAvailabilityCheckins().filter((chk) => chk.bookingId !== bookingId);
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEYS.AVAILABILITY_CHECKINS, JSON.stringify(checkins));
     }
+
+    // 1. Record cancellation status
+    this.recordBookingCancellation(bookingId, {
+      cancelledAt: new Date().toISOString(),
+      reason: reason || "Performer indicated unavailable during check-in",
+      amount: 120000,
+      refundStatus: "completed",
+    });
+
+    // 2. Process automatic refund to client
+    this.refundOrder(bookingId, 120000, "Automatic refund for cancelled booking: performer declined attendance");
+
+    // 3. Send system message to order chat
+    this.appendOrderMessage(bookingId, {
+      id: `sys-chk-cancel-${Date.now()}`,
+      from: "system",
+      text: "Booking cancelled by performer. 100% booking amount of ₦120,000 has been refunded automatically to your payment source via Paystack Escrow.",
+      time: "Just now",
+    });
+
+    // 4. Send client notification
+    this.addNotification({
+      id: `notif-cancel-${Date.now()}`,
+      kind: "BOOKING_CANCELLED",
+      createdAt: new Date().toISOString(),
+      payload: {
+        bookingId,
+        clientName: "Sahara Media Group",
+        message: `Booking ${bookingId} was cancelled by performer. Automatic refund of ₦120,000 has been processed to client wallet.`,
+      },
+    });
+
     this.notify();
   }
 

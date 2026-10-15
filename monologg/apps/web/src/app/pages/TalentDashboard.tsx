@@ -13,7 +13,7 @@ import { appStateSync, type AvailabilityCheckin, type PayoutAccountChangeRequest
 import { NIGERIAN_BANKS, compareKycNames, type BankLookupStatus } from "../../lib/payoutBanks";
 import { formatRelativeTime } from "../../lib/utils";
 import { convertCurrency } from "../../lib/currency";
-import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric } from "@monologg/types";
+import type { ActivityItem, CalendarEvent, DayDetail, MyApplication, Order, Project, ServiceRateCard, Slot, SlotState, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight, ChevronLeft, ArrowLeft, Clock, MapPin, Info,
@@ -490,8 +490,17 @@ export function TalentDashboard() {
 
   // Availability Check-in state
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
+  const [checkinIndex, setCheckinIndex] = useState(1);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [directoryTalents, setDirectoryTalents] = useState<Talent[]>([]);
+  const [performerSearch, setPerformerSearch] = useState("");
+  const [performerNicheFilter, setPerformerNicheFilter] = useState("all");
+
+  useEffect(() => {
+    apiClient.listTalents().then(setDirectoryTalents).catch(() => {});
+  }, []);
 
   // Withdraw Sheet & Payout Change Request state
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -639,7 +648,7 @@ export function TalentDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // features.md Phase 14 (PWA-14/15/16) — project discovery & applications.
-  const [projectsSubTab, setProjectsSubTab] = useState<"browse" | "applications">("browse");
+  const [projectsSubTab, setProjectsSubTab] = useState<"browse" | "applications" | "talents">("browse");
   const [projects, setProjects] = useState<Project[]>([]);
   const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
   const [projectSearch, setProjectSearch] = useState("");
@@ -1245,15 +1254,18 @@ export function TalentDashboard() {
 
           {/* Availability Check-in Card (deep-linkable & top of talent dashboard) */}
           {(() => {
-            const activeCheckin = checkins.find((c) => c.status === "due" || c.status === "missed") || (checkins.length > 0 ? checkins[0] : null);
+            const activeCheckin = checkins[checkinIndex % (checkins.length || 1)] || checkins[0];
             if (!activeCheckin || selectedProject) return null;
             const isConfirmed = activeCheckin.status === "done";
             const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
+            const isCancelled = appStateSync.isBookingCancelled(activeCheckin.bookingId);
 
             return (
               <div
                 className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
-                  isOverdue
+                  isCancelled
+                    ? "bg-rose-500/10 border-rose-500/30 text-rose-950 dark:text-rose-100"
+                    : isOverdue
                     ? "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
                     : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
                 }`}
@@ -1261,29 +1273,59 @@ export function TalentDashboard() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge
-                        tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
-                        className={isConfirmed ? "badge-confirmed" : ""}
-                        size="sm"
-                      >
-                        {isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label="Previous check-in milestone"
+                          onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
+                          className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                          title="Previous check-in milestone"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                        <Badge
+                          tone={isCancelled ? "danger" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                          className={isConfirmed ? "badge-confirmed" : ""}
+                          size="sm"
+                        >
+                          {isCancelled
+                            ? "Cancelled & Refunded"
+                            : isConfirmed
+                            ? "Confirmed"
+                            : isOverdue
+                            ? "Action Required"
+                            : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                        </Badge>
+                        <button
+                          type="button"
+                          aria-label="Next check-in milestone"
+                          onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
+                          className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                          title="Next check-in milestone"
+                        >
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                       <span className="text-xs text-[var(--color-text-tertiary)] font-body">
                         due {activeCheckin.dueDate}
                       </span>
                     </div>
                     <h2 className="font-display text-lg sm:text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-                      Are you still available?
+                      {isCancelled ? "Booking Cancelled & Refunded" : "Are you still available?"}
                     </h2>
                     <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                      Confirm your attendance to keep your booking reserved with {activeCheckin.clientName}.
+                      {isCancelled
+                        ? `Performer declined check-in. Booking with ${activeCheckin.clientName} has been cancelled and ₦${activeCheckin.baseRate.toLocaleString()} refunded.`
+                        : `Confirm your attendance to keep your booking reserved with ${activeCheckin.clientName}.`}
                     </p>
                   </div>
 
                   <div className="text-left sm:text-right shrink-0">
-                    <div className="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-medium font-body">You receive</div>
-                    <div className="font-mono font-bold text-base sm:text-lg text-emerald-600 dark:text-emerald-400">
-                      ₦{activeCheckin.performerReceives.toLocaleString()}
+                    <div className="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-medium font-body">
+                      {isCancelled ? "Refund Processed" : "You receive"}
+                    </div>
+                    <div className={`font-mono font-bold text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                      ₦{isCancelled ? activeCheckin.baseRate.toLocaleString() : activeCheckin.performerReceives.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -1304,8 +1346,18 @@ export function TalentDashboard() {
                   </div>
                 </div>
 
-                {/* Confirmed State vs Overdue State vs Action State */}
-                {isConfirmed ? (
+                {/* Confirmed State vs Overdue State vs Action State vs Cancelled State */}
+                {isCancelled ? (
+                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-body flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
+                      <span>Order {activeCheckin.bookingId} cancelled. Client was refunded ₦{activeCheckin.baseRate.toLocaleString()} automatically via Paystack.</span>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white">
+                      Cancelled
+                    </span>
+                  </div>
+                ) : isConfirmed ? (
                   <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -1382,6 +1434,7 @@ export function TalentDashboard() {
                         if (selectedCheckinToDecline) {
                           appStateSync.cancelBookingFromCheckin(selectedCheckinToDecline.bookingId);
                           setCheckins(appStateSync.getAvailabilityCheckins());
+                          setToastMessage("Booking cancelled. Client has received an automatic refund of ₦120,000.");
                         }
                         setShowDeclineModal(false);
                       }}
@@ -4003,8 +4056,8 @@ export function TalentDashboard() {
                 <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Projects</h2>
 
-                <div className="flex p-1 rounded-xl mb-5 w-full max-w-xs" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
-                  {(["browse", "applications"] as const).map((tab) => (
+                <div className="flex p-1 rounded-xl mb-5 w-full max-w-md" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                  {(["browse", "applications", "talents"] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setProjectsSubTab(tab)}
@@ -4014,7 +4067,7 @@ export function TalentDashboard() {
                         color: projectsSubTab === tab ? "var(--color-accent-on)" : "var(--color-text-secondary)",
                       }}
                     >
-                      {tab === "browse" ? "Browse" : "My Applications"}
+                      {tab === "browse" ? "Browse Projects" : tab === "applications" ? "My Applications" : "Search Performers"}
                     </button>
                   ))}
                 </div>
@@ -4277,6 +4330,110 @@ export function TalentDashboard() {
                     )}
                   </div>
                 )}
+
+                {/* ── Performer Search & Rate Card Booking Subtab ── */}
+                {projectsSubTab === "talents" && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-2.5">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                        <Input
+                          placeholder="Search performers by name, craft, or niche..."
+                          value={performerSearch}
+                          onChange={(e) => setPerformerSearch(e.target.value)}
+                          className="pl-9 h-11 text-xs"
+                        />
+                      </div>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                        {["all", "Voice-Over Artist", "Actor", "Comedian", "Compere"].map((niche) => (
+                          <button
+                            key={niche}
+                            type="button"
+                            onClick={() => setPerformerNicheFilter(niche)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 ${
+                              performerNicheFilter === niche
+                                ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] font-semibold"
+                                : "bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                            }`}
+                          >
+                            {niche === "all" ? "All Niches" : niche}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {(() => {
+                      const filtered = directoryTalents.filter((t) => {
+                        const matchesQuery = !performerSearch || t.name.toLowerCase().includes(performerSearch.toLowerCase()) || t.role.toLowerCase().includes(performerSearch.toLowerCase());
+                        const matchesNiche = performerNicheFilter === "all" || t.role.toLowerCase().includes(performerNicheFilter.toLowerCase());
+                        return matchesQuery && matchesNiche;
+                      });
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="p-8 text-center rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-tertiary)]">
+                            No performers match your search query. Try another keyword.
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                          {filtered.map((t) => (
+                            <div
+                              key={t.id}
+                              className="p-4 rounded-2xl border transition-all hover:shadow-md bg-[var(--color-bg-surface)] flex flex-col justify-between"
+                              style={{ borderColor: "var(--color-border-default)" }}
+                            >
+                              <div>
+                                <div className="flex items-start justify-between gap-3 mb-2.5">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-10 h-10 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-bold flex items-center justify-center text-sm font-mono shrink-0">
+                                      {t.avatar || t.name.slice(0, 2).toUpperCase()}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="font-bold text-xs sm:text-sm font-body text-[var(--color-text-primary)] truncate">
+                                          {t.name}
+                                        </span>
+                                        {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                                      </div>
+                                      <div className="text-[11px] text-[var(--color-text-tertiary)] font-body truncate">
+                                        {t.role} · {t.location}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <div className="font-mono font-bold text-xs text-[var(--color-accent)]">
+                                      {t.price}
+                                    </div>
+                                    <div className="text-[10px] text-[var(--color-text-tertiary)]">Rate card</div>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-1 mb-3">
+                                  {t.tags?.slice(0, 3).map((tag) => (
+                                    <span key={tag} className="px-2 py-0.5 rounded-md text-[10px] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-hairline)]">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <Button
+                                className="w-full h-9 text-xs font-semibold gap-1.5"
+                                onClick={() => navigate("/checkout", { state: { creatorId: t.id, creatorName: t.name } })}
+                              >
+                                <span>Book Rate Card</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </motion.div>
               )
             )}
@@ -4312,17 +4469,30 @@ export function TalentDashboard() {
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                         onClick={() => navigate(`/order/${order.id}`)}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
-                            <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                            <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{order.counterpart}</p>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-display text-lg" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
-                            <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Due {order.due}</div>
-                          </div>
-                        </div>
+                        {(() => {
+                          const isCancelled = appStateSync.isBookingCancelled(order.id);
+                          return (
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
+                                <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
+                                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{order.counterpart}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-display text-lg" style={{ color: isCancelled ? "var(--color-error)" : "var(--color-accent)" }}>{order.amount}</div>
+                                <div className="text-xs font-body mt-0.5">
+                                  {isCancelled ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                                      Cancelled &amp; Refunded
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "var(--color-text-tertiary)" }}>Due {order.due}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* Three-line fee breakdown: Base rate, Platform fee (7%), You receive */}
                         {(() => {
@@ -5044,7 +5214,7 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-                      {withdrawalSuccess ? "Withdrawal Confirmed" : withdrawStep === "passcode" ? "Authorise Withdrawal" : "Withdraw Funds"}
+                      {withdrawalSuccess ? "Withdrawal Confirmed" : withdrawStep === "passcode" ? "Input PIN" : "Withdraw Funds"}
                     </h3>
                     <button
                       onClick={() => {
@@ -5401,18 +5571,10 @@ export function TalentDashboard() {
                     </div>
                   ) : (
                     /* Step 2: Passcode Authentication */
-                    <div className="space-y-5">
-                      <div className="text-center space-y-1.5">
-                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] flex items-center justify-center mx-auto mb-2">
-                          <Lock className="w-6 h-6" />
-                        </div>
-                        <h4 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                          Authorise Withdrawal
-                        </h4>
-                        <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                          Enter your 4-digit PIN to transfer <strong className="text-[var(--color-text-primary)]">₦{withdrawAmount}</strong> to {appStateSync.getBankDetails().bankName} (•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}).
-                        </p>
-                      </div>
+                    <div className="space-y-4">
+                      <p className="text-xs font-body leading-relaxed text-center" style={{ color: "var(--color-text-secondary)" }}>
+                        Enter your 4-digit PIN to transfer <strong className="text-[var(--color-text-primary)] font-mono">₦{withdrawAmount}</strong> to {appStateSync.getBankDetails().bankName} (•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}).
+                      </p>
 
                       {withdrawPasscodeError && (
                         <div className="p-3 rounded-xl text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
@@ -5432,9 +5594,9 @@ export function TalentDashboard() {
                             setWithdrawPasscodeError(null);
                           }}
                           placeholder="••••"
-                          className="h-14 text-center text-2xl font-mono tracking-[0.8em] rounded-xl font-bold"
+                          className="h-11 text-center text-base font-mono tracking-[0.5em] rounded-xl font-medium"
                         />
-                        <p className="text-[11px] text-center mt-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        <p className="text-xs text-center mt-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
                           Default passcode is 1234. Change this in Settings &gt; Security &amp; Privacy.
                         </p>
                       </div>
@@ -6739,6 +6901,31 @@ export function TalentDashboard() {
             canUpload={true}
             onOpenUpload={() => setShowUploadReelModal(true)}
           />
+
+          {/* Floating Toast Notification */}
+          <AnimatePresence>
+            {toastMessage && (
+              <motion.div
+                key="toast-banner"
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                className="fixed top-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl border border-slate-700/60 max-w-sm text-xs font-body font-medium"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex-1">{toastMessage}</div>
+                <button
+                  onClick={() => setToastMessage(null)}
+                  className="w-5 h-5 rounded-full flex items-center justify-center hover:opacity-75 transition-opacity cursor-pointer"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
       </main>
 

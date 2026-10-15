@@ -7,9 +7,11 @@ import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type CreatedBooking } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
 import type { PublicRateCard } from "@monologg/types";
+import { Modal } from "../components/ui/Modal";
 import {
   ChevronLeft, Lock, Shield, CreditCard, CheckCircle2,
-  ArrowRight, Smartphone, Building2, AlertCircle
+  ArrowRight, Smartphone, Building2, AlertCircle,
+  Wallet, MapPin, Video, Check, AlertTriangle, X
 } from "lucide-react";
 
 type PaymentMethod = "card" | "bank_transfer" | "ussd";
@@ -78,6 +80,20 @@ export function Checkout() {
   });
   const [savedCardCvv, setSavedCardCvv] = useState("");
   const [saveNewCard, setSaveNewCard] = useState(true);
+
+  // ── Project Details for this rate card booking ───────────────────────────
+  const [projectTitle, setProjectTitle] = useState("Commercial Campaign Voice-Over");
+  const [projectFormat, setProjectFormat] = useState<"online" | "onsite">("online");
+  const [venueLocation, setVenueLocation] = useState("");
+  const [projectNotes, setProjectNotes] = useState("");
+
+  // ── Funding Source & Review Terms ─────────────────────────────────────────
+  const [fundingSource, setFundingSource] = useState<"wallet" | "card">("wallet");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(() => appStateSync.getBalance().available);
+  const [showFundModal, setShowFundModal] = useState(false);
+  const [fundAmount, setFundAmount] = useState("100,000");
+  const [fundingProcessing, setFundingProcessing] = useState(false);
 
   // ── Live booking-flow state ────────────────────────────────────────────────
   const [rateCards, setRateCards] = useState<PublicRateCard[]>([]);
@@ -159,6 +175,16 @@ export function Checkout() {
   const serviceTitle = isLive ? (selectedRateCard?.title ?? "Booking") : "Commercial Voice-Over";
   const serviceDelivery = isLive ? (selectedRateCard?.delivery ?? "") : "Same Day";
   const money = (minorUnits: number) => (isLive ? formatMinorUnits(minorUnits, currency) : `₦${minorUnits.toLocaleString()}`);
+
+  const handleWalletPayment = () => {
+    if (!agreedToTerms || walletBalance < TOTAL) return;
+    setStep("processing");
+    setTimeout(() => {
+      appStateSync.deductBalance(TOTAL, `Rate Card Escrow: ${serviceTitle}`, `BK-${Date.now()}`);
+      setWalletBalance(appStateSync.getBalance().available);
+      setStep("confirmed");
+    }, 1000);
+  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -520,6 +546,255 @@ export function Checkout() {
                 )}
               </div>
 
+              {/* Project Details Section (for booking rate card) */}
+              <div
+                className="p-5 rounded-2xl mb-5 space-y-4"
+                style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+              >
+                <div>
+                  <h3 className="text-sm font-bold font-display uppercase tracking-wider" style={{ color: "var(--color-text-primary)" }}>
+                    Project Details
+                  </h3>
+                  <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                    Confirm the brief and format for this talent booking.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Project Name / Campaign Title *
+                  </label>
+                  <Input
+                    value={projectTitle}
+                    onChange={(e) => setProjectTitle(e.target.value)}
+                    placeholder="e.g., Sahara Fintech Explainer Series"
+                    className="text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Project Format *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setProjectFormat("online")}
+                      className="p-3 rounded-xl border text-left transition-all cursor-pointer"
+                      style={{
+                        background: projectFormat === "online" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                        border: `1px solid ${projectFormat === "online" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1" style={{ color: projectFormat === "online" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                        <Video className="w-3.5 h-3.5 shrink-0" />
+                        <span className="text-xs font-bold font-body">Online / Remote</span>
+                      </div>
+                      <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Remote audio/video delivery
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setProjectFormat("onsite")}
+                      className="p-3 rounded-xl border text-left transition-all cursor-pointer"
+                      style={{
+                        background: projectFormat === "onsite" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                        border: `1px solid ${projectFormat === "onsite" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1" style={{ color: projectFormat === "onsite" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="text-xs font-bold font-body">On-site / In-person</span>
+                      </div>
+                      <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Physical event or shoot appearance
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {projectFormat === "onsite" && (
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Event Venue / Location *
+                    </label>
+                    <div className="relative">
+                      <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)]" />
+                      <Input
+                        className="pl-9 text-sm"
+                        placeholder="e.g., Eko Hotel Grand Ballroom, Victoria Island, Lagos"
+                        value={venueLocation}
+                        onChange={(e) => setVenueLocation(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Brief Notes for Performer (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Key instructions, script attachments, or expectations for the performer..."
+                    value={projectNotes}
+                    onChange={(e) => setProjectNotes(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs font-body border resize-none"
+                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Funding Source Selector */}
+              <div
+                className="p-5 rounded-2xl mb-5 space-y-3.5"
+                style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+              >
+                <div>
+                  <h3 className="text-sm font-bold font-display uppercase tracking-wider" style={{ color: "var(--color-text-primary)" }}>
+                    Select Funding Source
+                  </h3>
+                  <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+                    Choose how you want to fund this escrow booking.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFundingSource("wallet")}
+                    className="p-3.5 rounded-xl border text-left transition-all relative cursor-pointer"
+                    style={{
+                      background: fundingSource === "wallet" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                      border: `1px solid ${fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Wallet className="w-4 h-4" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                      <span className="text-xs font-bold font-body" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                        Wallet Balance
+                      </span>
+                    </div>
+                    <div className="text-xs font-mono font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                      Available: ₦{walletBalance.toLocaleString()}
+                    </div>
+                    {fundingSource === "wallet" && (
+                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
+                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
+                      </div>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFundingSource("card")}
+                    className="p-3.5 rounded-xl border text-left transition-all relative cursor-pointer"
+                    style={{
+                      background: fundingSource === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                      border: `1px solid ${fundingSource === "card" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <CreditCard className="w-4 h-4" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                      <span className="text-xs font-bold font-body" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                        Paystack Card
+                      </span>
+                    </div>
+                    <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Debit / Credit Card (Instant)
+                    </div>
+                    {fundingSource === "card" && (
+                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
+                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                {fundingSource === "wallet" && walletBalance < TOTAL && (
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs font-body space-y-2.5">
+                    <div className="flex items-center gap-2 font-bold">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Insufficient Wallet Balance</span>
+                    </div>
+                    <p className="leading-relaxed">
+                      You have <strong className="font-mono">₦{walletBalance.toLocaleString()}</strong> available, but this booking requires <strong className="font-mono">{money(TOTAL)}</strong>. Please fund your wallet or pay via Paystack Card.
+                    </p>
+                    <div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+                        onClick={() => setShowFundModal(true)}
+                      >
+                        <Wallet className="w-3.5 h-3.5" />
+                        <span>+ Fund Wallet with Paystack</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Review & Agreement Card */}
+              <div
+                className="p-5 rounded-2xl mb-5 space-y-3.5"
+                style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+              >
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-accent)" }}>
+                    <Shield className="w-4 h-4" />
+                    <span>Review &amp; Agreement</span>
+                  </div>
+                  <p className="text-xs mt-1 font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Please review booking terms before proceeding to payment:
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)] pt-1" style={{ color: "var(--color-text-secondary)" }}>
+                  <div className="pt-2">
+                    <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                      Escrow Protection:
+                    </strong>
+                    100% of your booking fee is held securely in escrow by our payment partner- Paystack and is only released to the performer after service completion.
+                  </div>
+                  <div className="pt-2">
+                    <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                      Performer Verification:
+                    </strong>
+                    Performers must confirm availability check ins prior to your project 3 separate times to ensure attendance.
+                  </div>
+                  <div className="pt-2">
+                    <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                      Cancellation &amp; Refund Policy:
+                    </strong>
+                    If a performer fails any confirmation check ins or cancels, you receive a refund of your booking amount, minus payment processing charges capped at NGN 5,000.
+                  </div>
+                  <div className="pt-2">
+                    <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                      On-Site Attendance:
+                    </strong>
+                    You will be issued a 4-digit verification code to provide to the talent upon arrival to confirm physical attendance.
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreedToTerms}
+                      onChange={e => setAgreedToTerms(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded text-[var(--color-accent)] focus:ring-[var(--color-accent)] cursor-pointer"
+                    />
+                    <span className="text-xs font-semibold font-body leading-normal" style={{ color: "var(--color-text-primary)" }}>
+                      I agree to the Terms of Service, Escrow Policy, and Processing Fee Terms. (Mandatory)
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               {/* Escrow trust badge */}
               <div
                 className="p-4 rounded-2xl mb-6 flex items-center gap-3"
@@ -534,11 +809,26 @@ export function Checkout() {
                 </div>
               </div>
 
-              <Button className="w-full h-12 text-base" onClick={() => setStep("payment")}>
-                Proceed to Payment <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              {fundingSource === "wallet" ? (
+                <Button
+                  className="w-full h-12 text-base font-semibold"
+                  disabled={!agreedToTerms || walletBalance < TOTAL}
+                  onClick={handleWalletPayment}
+                >
+                  <span>Authorize &amp; Pay {money(TOTAL)} from Wallet</span>
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  className="w-full h-12 text-base font-semibold"
+                  disabled={!agreedToTerms}
+                  onClick={() => setStep("payment")}
+                >
+                  <span>Proceed to Card Payment <ArrowRight className="w-5 h-5 ml-2" /></span>
+                </Button>
+              )}
               <button
-                className="w-full text-sm text-center mt-3 font-body"
+                className="w-full text-sm text-center mt-3 font-body cursor-pointer"
                 style={{ color: "var(--color-text-tertiary)" }}
                 onClick={() => navigate(-1)}
               >
@@ -836,7 +1126,7 @@ export function Checkout() {
               <div className="flex items-center justify-center gap-2 mt-5">
                 <Lock className="w-3.5 h-3.5" style={{ color: "var(--color-success)" }} />
                 <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                  {isLive ? "SSL encrypted · PCI DSS compliant" : "Powered by FINCRA · SSL encrypted · PCI DSS compliant"}
+                  {isLive ? "SSL encrypted · PCI DSS compliant" : "Powered by Paystack · SSL encrypted · PCI DSS compliant"}
                 </p>
               </div>
             </motion.div>
@@ -844,6 +1134,76 @@ export function Checkout() {
 
         </AnimatePresence>
       </div>
+
+      {/* Quick Fund Wallet Modal */}
+      {showFundModal && (
+        <Modal onClose={() => setShowFundModal(false)} align="center" strength="strong">
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold font-display text-zinc-900 dark:text-white">
+                Fund Your Wallet
+              </h3>
+              <button
+                onClick={() => setShowFundModal(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs font-body text-zinc-600 dark:text-zinc-400">
+              Top up your Monologg wallet balance instantly with Paystack to reserve escrow funds for this booking.
+            </p>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body text-zinc-600 dark:text-zinc-400">
+                Deposit Amount (₦)
+              </label>
+              <Input
+                value={fundAmount}
+                onChange={e => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  setFundAmount(raw ? Number(raw).toLocaleString() : "");
+                }}
+                className="font-mono text-base font-bold"
+                placeholder="e.g. 100,000"
+              />
+            </div>
+            <div className="flex gap-2">
+              {[50000, 100000, 200000].map(amt => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => setFundAmount(amt.toLocaleString())}
+                  className="flex-1 py-1 px-2 rounded-lg text-xs font-mono border border-zinc-200 dark:border-zinc-700 hover:border-purple-500 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                >
+                  ₦{amt.toLocaleString()}
+                </button>
+              ))}
+            </div>
+            <Button
+              className="w-full h-11 text-xs font-bold gap-2"
+              disabled={fundingProcessing || !fundAmount}
+              onClick={() => {
+                const num = parseInt(fundAmount.replace(/\D/g, ""), 10);
+                if (num > 0) {
+                  setFundingProcessing(true);
+                  setTimeout(() => {
+                    appStateSync.fundWallet(num);
+                    setWalletBalance(appStateSync.getBalance().available);
+                    setFundingProcessing(false);
+                    setShowFundModal(false);
+                  }, 500);
+                }
+              }}
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>{fundingProcessing ? "Processing via Paystack…" : `Pay ₦${fundAmount} with Paystack`}</span>
+            </Button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
