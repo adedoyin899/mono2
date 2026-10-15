@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-15 (Session 134: Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request)
+**Last updated:** 2026-10-15 (Session 135: FAANG Visual Hierarchy Polish for OrderRoom, Project Tabs, Applicant Capacity & Client Reviews Modal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -883,6 +883,19 @@ Executed an end-to-end UX overhaul and automated availability check-in system ac
 - **Talent KYC / Settings Payout Bank Account:** Integrated `NIGERIAN_BANKS` list of 20 Nigerian banks & fintechs with search filter, 10-digit account number with simulated Paystack lookup, token-based KYC name comparison (`compareKycNames`), skeleton loader, `badge-verified`, mismatch inline error, retry on failure, helper text, save button validation, and optional phone number field with reassuring helper text.
 - **Withdraw Sheet & Payout Account Change Request:** Modernized withdrawal modal into a withdraw sheet defaulting to full balance, read-only destination account card (`•••• 6789`), "Change payout account" flow with Paystack KYC verification, and status card (`under_review`, `approved`, `rejected` with "Try again" button).
 - **Quality Assurance & Distribution:** All 126 unit tests passing across all 25 test suites, 0 TypeScript compilation errors, and standalone production bundle built.
+
+### Step 95: FAANG Visual Hierarchy Polish for OrderRoom, Project Tabs, Applicant Capacity & Client Reviews Modal (Session 135)
+
+Conducted a thorough UI/UX cleanup across Performer and Client surfaces, eliminating visual slop and redundant elements:
+- **OrderRoom Header & Availability Check-in Consolidation:** Removed the standalone, redundant full-width `Check-in progress` secondary bar (`Check-in 2 of 3 ... Booked / 7 days / 2 days`) that previously produced four stacked layers above the chat. Consolidated the 3-step check-in stepper (`Booked`, `7 days`, `2 days`) with status states (`Done`, `Due`, `Upcoming`) directly into the header row of the Availability Check-in Card.
+- **OrderRoom Subtitle Simplification:** Replaced the cluttered base rate formula pill (`Base ₦120,000 · Fee (7%) -₦8,400 · You receive ₦111,600`) with a clean, high-density subtitle (`ORD-001 · ₦111,600 net` for performer or `₦120,000 in escrow` for client) alongside the `Remote`/`On-site` badge.
+- **Segmented Workspace Tabs:** Upgraded workspace tabs by replacing the confusing `CheckCircle2` icon with `MessageSquare` for Messages & Chat, and replacing heavy outline borders with crisp, elevated white pill active states (`bg-white dark:bg-zinc-900 shadow-xs text-zinc-900 font-semibold`).
+- **TalentDashboard Availability Card Polish:** Normalized metadata grid typography (`text-xs uppercase tracking-wider font-semibold text-zinc-400`) and title size (`font-display text-lg sm:text-xl`).
+- **Project Details Tabs & Redundancy Purge:** Polished segmented tabs with monochromatic icons (`FileText`, `Users`, `Layers`, `ShieldCheck`), uniform padding, and crisp active states. Purged the redundant duplicate escrow footnote (`100% Escrow Protected · Direct Bank Payout`) from the bottom of the sticky sidebar, consolidating security messaging under the compensation breakdown (`100% escrow guaranteed by Paystack · Direct bank payout`).
+- **Applicant Capacity Visual De-Escalation:** Replaced the alarming bright red progress bar for `8 / 10 filled` with a calm, dark neutral indicator (`bg-zinc-800 dark:bg-zinc-200`) on a subtle track.
+- **Client Reviews Modal Stats Pillars:** Redesigned `Average Rating`, `Completed Projects`, and `Escrow Reliability` cards with balanced proportions, `text-3xl font-bold` typography, and unboxed pills (`100% Funded`, `Instant Payout`), removing awkward double green borders.
+- **Orders List 3-Milestone Stepper:** Refined the 3-step indicator on upcoming booking cards with standard typography and clean pills.
+- **Standalone Distribution & Testing:** Verified 126/126 unit tests passing across all 25 test suites, 0 TypeScript errors, and regenerated `monologg/monologg-app.html` (1.66 MB).
 
 ---
 

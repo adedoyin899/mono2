@@ -14,7 +14,7 @@ import {
   Lock, FileText, Download, AlertTriangle, AlertCircle,
   UploadCloud, X, MapPin,
   RefreshCw, FastForward, Check,
-  Copy, KeyRound, Star
+  Copy, KeyRound, Star, MessageSquare, ShieldCheck
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -740,23 +740,29 @@ export function OrderRoom() {
           <button
             aria-label="Go back"
             onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 active:scale-95 transition-all text-zinc-500 shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all text-zinc-500 shrink-0 cursor-pointer"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
-            <h1 className="text-sm font-semibold text-zinc-900 truncate font-display">
-              {orderTitle}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate font-display">
+                {orderTitle}
+              </h1>
+              <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                {gigType === "remote" ? "Remote" : "On-site"}
+              </span>
+            </div>
             <div className="flex items-center gap-2 text-xs text-zinc-500 truncate mt-0.5">
               <span>{role === "talent" ? clientOrg : talentName} · ORD-001</span>
-              {role === "talent" && (
-                <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full">
-                  <span>Base ₦120,000</span>
-                  <span>·</span>
-                  <span>Fee (7%) -₦8,400</span>
-                  <span>·</span>
-                  <span>You receive <strong className="text-emerald-600 font-bold">₦111,600</strong></span>
+              <span className="text-zinc-300 dark:text-zinc-700">·</span>
+              {role === "talent" ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                  <span>₦111,600 net</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-purple-600 dark:text-purple-400">
+                  <span>₦120,000 in escrow</span>
                 </span>
               )}
             </div>
@@ -765,12 +771,12 @@ export function OrderRoom() {
 
         <div className="flex items-center gap-2 shrink-0">
           {/* Demo: gig type switcher */}
-          <div className="hidden sm:flex items-center p-0.5 rounded-full bg-zinc-100 text-[11px]">
+          <div className="hidden sm:flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[11px]">
             {(["remote", "onsite"] as GigType[]).map(g => (
               <button
                 key={g}
                 onClick={() => { setGigType(g); setDeliverableTab(g === "remote" ? "online" : "onsite"); }}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${gigType === g ? "bg-white text-zinc-900 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer ${gigType === g ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"}`}
               >
                 {g}
               </button>
@@ -778,27 +784,22 @@ export function OrderRoom() {
           </div>
 
           {/* Demo: role switcher */}
-          <div className="flex items-center p-0.5 rounded-full bg-zinc-100 text-[11px]">
+          <div className="flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[11px]">
             {(["talent", "client"] as UserRole[]).map(r => (
               <button
                 key={r}
                 onClick={() => setRole(r)}
-                className={`px-2.5 py-1 rounded-full font-medium capitalize transition-all ${role === r ? "bg-white text-zinc-900 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800"}`}
+                className={`px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer ${role === r ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"}`}
               >
                 {r === "talent" ? "Performer" : "Client"}
               </button>
             ))}
           </div>
 
-          {/* Order Info pill button matching screenshot aesthetic */}
+          {/* Order Info pill button */}
           <button
             onClick={() => setShowOrderInfoModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shadow-2xs active:scale-95"
-            style={{
-              border: role === "talent" ? "1px solid rgba(241, 48, 48, 0.25)" : "1px solid rgba(123, 0, 254, 0.25)",
-              background: role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)",
-              color: role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)",
-            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95"
             aria-label="Order Info"
             title="View Project Phases & Escrow Details"
           >
@@ -808,40 +809,6 @@ export function OrderRoom() {
         </div>
       </header>
 
-      {/* ── Check-in Progress Header Bar ── */}
-      <div className="bg-[var(--color-bg-surface)] border-b px-4 sm:px-6 py-2.5" style={{ borderColor: "var(--color-hairline)" }}>
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-zinc-900 font-body">Check-in progress:</span>
-            <span className="text-[11px] font-mono text-zinc-500">Check-in 2 of 3 · due Tue 14 Oct</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {[
-              { label: "Booked", state: "Done" as const },
-              { label: "7 days", state: "Due" as const, sub: "Due Tue 14 Oct" },
-              { label: "2 days", state: "Missed" as const, sub: "Upcoming" },
-            ].map((step, idx) => (
-              <div
-                key={idx}
-                className={`px-2.5 py-1 rounded-full text-xs font-body flex items-center gap-1.5 ${
-                  step.state === "Done"
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                    : step.state === "Due"
-                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold"
-                    : "bg-zinc-100 text-zinc-400"
-                }`}
-              >
-                <span>{step.label}</span>
-                <span className="text-[10px] uppercase font-mono">
-                  {step.state === "Done" ? "✓ Done" : step.state === "Due" ? "Due 14 Oct" : "Upcoming"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ── Interactive Availability Check-in Card (For Performer Role) ── */}
       {(() => {
         const activeCheckin = checkins.find((c) => c.status === "due" || c.status === "missed") || (checkins.length > 0 ? checkins[0] : null);
@@ -850,70 +817,104 @@ export function OrderRoom() {
         const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
 
         return (
-          <div className="max-w-2xl mx-auto w-full px-4 pt-3">
+          <div className="max-w-2xl mx-auto w-full px-4 pt-4">
             <div
               className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                 isOverdue
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-950 dark:text-amber-100"
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
                   : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
               }`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge
-                      tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
-                      className={isConfirmed ? "badge-confirmed" : ""}
-                      size="sm"
-                    >
-                      {isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
-                    </Badge>
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      Due {activeCheckin.dueDate}
-                    </span>
-                  </div>
-                  <h3 className="font-display text-base sm:text-lg font-bold text-zinc-900">
-                    Are you still available?
-                  </h3>
+              {/* Top Stepper Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-zinc-100 dark:border-zinc-800">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                    className={isConfirmed ? "badge-confirmed" : ""}
+                    size="sm"
+                  >
+                    {isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                  </Badge>
+                  <span className="text-xs text-zinc-500 font-body">
+                    Check-in {activeCheckin.stepIndex} of {activeCheckin.totalSteps} · due {activeCheckin.dueDate}
+                  </span>
                 </div>
 
-                <div className="text-left sm:text-right">
-                  <div className="text-[11px] text-zinc-500 font-body">Compensation</div>
-                  <div className="font-mono font-bold text-sm sm:text-base text-emerald-600">
-                    You receive ₦{activeCheckin.performerReceives.toLocaleString()}
+                {/* 3-Step Milestone Progress Indicator */}
+                <div className="flex items-center gap-1.5">
+                  {[
+                    { label: "Booked", state: "Done" as const },
+                    { label: "7 days", state: isConfirmed ? ("Done" as const) : ("Due" as const), sub: "Due Tue 14 Oct" },
+                    { label: "2 days", state: "Upcoming" as const, sub: "Upcoming" },
+                  ].map((step, idx) => (
+                    <div
+                      key={idx}
+                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium flex items-center gap-1 ${
+                        step.state === "Done"
+                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                          : step.state === "Due"
+                          ? "bg-amber-100/80 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-semibold ring-1 ring-amber-400/30"
+                          : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
+                      }`}
+                    >
+                      <span>{step.label}</span>
+                      <span className="text-[10px]">
+                        {step.state === "Done" ? "✓" : step.state === "Due" ? "Due" : "Upcoming"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Title & Compensation Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="font-display text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                    Are you still available?
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    Confirm your attendance to keep your booking reserved with {activeCheckin.clientName}.
+                  </p>
+                </div>
+
+                <div className="text-left sm:text-right shrink-0">
+                  <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-medium">You receive</div>
+                  <div className="font-mono font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
+                    ₦{activeCheckin.performerReceives.toLocaleString()}
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 mb-3 text-xs font-body">
+              {/* Event Details Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/80 mb-3 text-xs">
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Event</span>
-                  <span className="font-medium text-zinc-800">{activeCheckin.eventName}</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-medium">Event</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{activeCheckin.eventName}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Date &amp; Location</span>
-                  <span className="font-medium text-zinc-800">{activeCheckin.eventDate} · {activeCheckin.location}</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-medium">Date &amp; Location</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{activeCheckin.eventDate} · {activeCheckin.location}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block text-[10px]">Client</span>
-                  <span className="font-medium text-zinc-800">{activeCheckin.clientName}</span>
+                  <span className="text-zinc-400 block text-[10px] uppercase tracking-wider font-medium">Client</span>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{activeCheckin.clientName}</span>
                 </div>
               </div>
 
               {isConfirmed ? (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-body flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>Thanks, we&apos;ve told {activeCheckin.clientName}. Next check-in: {activeCheckin.nextCheckinDate || "2 days before event"}</span>
                   </div>
                   <span className="badge-confirmed text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                    badge-confirmed
+                    Confirmed
                   </span>
                 </div>
               ) : (
                 <>
                   {isOverdue && (
-                    <div className="mb-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 text-xs font-body flex items-center gap-2">
+                    <div className="mb-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
                       <span>Confirm now. {activeCheckin.clientName} has been told you haven&apos;t confirmed yet.</span>
                     </div>
@@ -926,7 +927,7 @@ export function OrderRoom() {
                         setSelectedCheckinToDecline(activeCheckin);
                         setShowDeclineModal(true);
                       }}
-                      className="text-xs font-semibold text-zinc-500 hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
+                      className="text-xs font-medium text-zinc-500 hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
                     >
                       I can&apos;t make it
                     </button>
@@ -945,13 +946,13 @@ export function OrderRoom() {
         );
       })()}
 
-      {/* ── Segmented Workspace Tabs (Airbnb / Upwork / Binance style) ── */}
+      {/* ── Segmented Workspace Tabs (Airbnb / Upwork / Linear style) ── */}
       <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-1">
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-100 border border-zinc-200">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200/80 dark:border-zinc-700/60">
           {[
-            { id: "chat", label: "Messages & Chat", icon: CheckCircle2 },
+            { id: "chat", label: "Messages & Chat", icon: MessageSquare },
             { id: "brief", label: "Order Brief & Deliverables", icon: FileText },
-            { id: "escrow", label: "Payment & Escrow", icon: Shield },
+            { id: "escrow", label: "Payment & Escrow", icon: ShieldCheck },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = workspaceTab === tab.id;
@@ -960,10 +961,10 @@ export function OrderRoom() {
                 key={tab.id}
                 type="button"
                 onClick={() => setWorkspaceTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                   isActive
-                    ? "bg-white text-zinc-900 shadow-2xs font-bold"
-                    : "text-zinc-500 hover:text-zinc-800"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold"
+                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                 }`}
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? (role === "client" ? "text-purple-600" : "text-red-600") : "text-zinc-400"}`} />

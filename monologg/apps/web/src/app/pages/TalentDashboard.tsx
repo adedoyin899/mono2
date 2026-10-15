@@ -1257,13 +1257,13 @@ export function TalentDashboard() {
 
             return (
               <div
-                className={`mb-6 p-5 sm:p-6 rounded-3xl border transition-all ${
+                className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
                   isOverdue
-                    ? "bg-amber-500/10 border-amber-500/40 text-amber-950 dark:text-amber-100"
-                    : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-[var(--shadow-card)]"
+                    ? "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
+                    : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <Badge
@@ -1271,74 +1271,77 @@ export function TalentDashboard() {
                         className={isConfirmed ? "badge-confirmed" : ""}
                         size="sm"
                       >
-                        {isConfirmed ? "Confirmed" : isOverdue ? "Overdue" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                        {isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
                       </Badge>
-                      <span className="text-xs font-mono text-[var(--color-text-tertiary)]">
-                        Due {activeCheckin.dueDate}
+                      <span className="text-xs text-[var(--color-text-tertiary)] font-body">
+                        due {activeCheckin.dueDate}
                       </span>
                     </div>
-                    <h2 className="font-display text-xl sm:text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                    <h2 className="font-display text-lg sm:text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
                       Are you still available?
                     </h2>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                      Confirm your attendance to keep your booking reserved with {activeCheckin.clientName}.
+                    </p>
                   </div>
 
-                  <div className="text-left sm:text-right">
-                    <div className="text-xs text-[var(--color-text-secondary)] font-body">Payout rate</div>
+                  <div className="text-left sm:text-right shrink-0">
+                    <div className="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-medium font-body">You receive</div>
                     <div className="font-mono font-bold text-base sm:text-lg text-emerald-600 dark:text-emerald-400">
-                      You receive ₦{activeCheckin.performerReceives.toLocaleString()}
+                      ₦{activeCheckin.performerReceives.toLocaleString()}
                     </div>
                   </div>
                 </div>
 
                 {/* Event details summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-4 text-xs font-body">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-3 text-xs font-body">
                   <div>
-                    <span className="text-[var(--color-text-tertiary)] block">Event Name</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Event Name</span>
+                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
                   </div>
                   <div>
-                    <span className="text-[var(--color-text-tertiary)] block">Date &amp; Time</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Date &amp; Time</span>
+                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
                   </div>
                   <div>
-                    <span className="text-[var(--color-text-tertiary)] block">Location &amp; Client</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Location &amp; Client</span>
+                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
                   </div>
                 </div>
 
                 {/* Confirmed State vs Overdue State vs Action State */}
                 {isConfirmed ? (
-                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-body flex items-center justify-between">
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Thanks, we&apos;ve told {activeCheckin.clientName}. Next check-in: {activeCheckin.nextCheckinDate || "2 days before event"}</span>
                     </div>
                     <span className="badge-confirmed text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                      badge-confirmed
+                      Confirmed
                     </span>
                   </div>
                 ) : (
                   <>
                     {isOverdue && (
-                      <div className="mb-3.5 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center gap-2">
+                      <div className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
                         <span>Confirm now. {activeCheckin.clientName} has been told you haven&apos;t confirmed yet.</span>
                       </div>
                     )}
 
-                    <div className="flex items-center justify-end gap-3 pt-1">
+                    <div className="flex items-center justify-end gap-2.5 pt-0.5">
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedCheckinToDecline(activeCheckin);
                           setShowDeclineModal(true);
                         }}
-                        className="text-xs font-semibold text-[var(--color-text-secondary)] hover:text-red-500 px-3 py-2 transition-colors cursor-pointer"
+                        className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
                       >
                         I can&apos;t make it
                       </button>
                       <Button
-                        className="h-10 px-5 text-xs font-semibold"
+                        className="h-9 px-4 text-xs font-semibold"
                         onClick={() => {
                           appStateSync.confirmAvailabilityCheckin(activeCheckin.id);
                           setCheckins(appStateSync.getAvailabilityCheckins());
@@ -3431,7 +3434,7 @@ export function TalentDashboard() {
 
                   {/* Airbnb / Binance / Upwork Segmented Tabs */}
                   <div
-                    className="flex items-center gap-1.5 p-1.5 rounded-2xl border overflow-x-auto no-scrollbar shadow-xs"
+                    className="flex items-center gap-1 p-1 rounded-xl border overflow-x-auto no-scrollbar shadow-2xs"
                     style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
                   >
                     {[
@@ -3447,13 +3450,13 @@ export function TalentDashboard() {
                           key={tab.id}
                           type="button"
                           onClick={() => setProjectDetailTab(tab.id as any)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
                             isActive
-                              ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-xs"
+                              ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] font-semibold shadow-xs"
                               : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)]/50"
                           }`}
                         >
-                          <Icon className={`w-4 h-4 ${isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`} />
+                          <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-tertiary)]"}`} />
                           <span>{tab.label}</span>
                         </button>
                       );
@@ -3761,9 +3764,9 @@ export function TalentDashboard() {
                               </div>
                             );
                           })()}
-                          <div className="flex items-center gap-1.5 mt-2 text-[11px] font-body text-emerald-600 dark:text-emerald-400">
+                          <div className="flex items-center gap-1.5 mt-2.5 text-xs font-body text-emerald-600 dark:text-emerald-400">
                             <Lock className="w-3.5 h-3.5 shrink-0" />
-                            <span>100% escrow guaranteed by Paystack</span>
+                            <span>100% escrow guaranteed by Paystack · Direct bank payout</span>
                           </div>
                         </div>
 
@@ -3778,12 +3781,12 @@ export function TalentDashboard() {
                               {selectedProject.applicantCount} / {selectedProject.applicantCap || 10} filled
                             </span>
                           </div>
-                          <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
+                          <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all"
                               style={{
                                 width: `${Math.min(100, (selectedProject.applicantCount / (selectedProject.applicantCap || 10)) * 100)}%`,
-                                background: selectedProject.applicationsOpen ? "var(--color-accent)" : "var(--color-text-tertiary)",
+                                background: selectedProject.applicationsOpen ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
                               }}
                             />
                           </div>
@@ -4027,12 +4030,6 @@ export function TalentDashboard() {
                             </Button>
                           </div>
                         )}
-
-                        {/* Escrow Guarantee Footnote */}
-                        <div className="pt-3 border-t flex items-center gap-2 text-xs font-body" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-tertiary)" }}>
-                          <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>100% Escrow Protected · Direct Bank Payout</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -4412,30 +4409,30 @@ export function TalentDashboard() {
                           })}
                         </div>
                         {/* Check-in Progress on upcoming booking */}
-                        <div className="mb-4 p-3 rounded-2xl border space-y-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                        <div className="mb-4 p-3 rounded-xl border space-y-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
                           <div className="flex items-center justify-between text-xs font-body">
                             <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>Availability Check-in</span>
-                            <span className="text-[11px] font-mono" style={{ color: "var(--color-text-secondary)" }}>Check-in 2 of 3 · due Tue 14 Oct</span>
+                            <span className="text-[11px]" style={{ color: "var(--color-text-secondary)" }}>Check-in 2 of 3 · due Tue 14 Oct</span>
                           </div>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-1.5">
                             {[
                               { label: "Booked", state: "Done" as const },
                               { label: "7 days", state: "Due" as const, sub: "Due Tue 14 Oct" },
-                              { label: "2 days", state: "Missed" as const, sub: "Upcoming" },
+                              { label: "2 days", state: "Upcoming" as const, sub: "Upcoming" },
                             ].map((step, idx) => (
                               <div
                                 key={idx}
-                                className={`p-2 rounded-xl text-center border text-[11px] font-body flex flex-col items-center justify-center gap-0.5 ${
+                                className={`py-1.5 px-2 rounded-lg text-center text-[11px] font-body flex items-center justify-center gap-1 ${
                                   step.state === "Done"
-                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold"
+                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
                                     : step.state === "Due"
-                                    ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 font-semibold"
-                                    : "bg-[var(--color-bg-surface)] border-[var(--color-hairline)] text-[var(--color-text-tertiary)]"
+                                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold ring-1 ring-amber-400/20"
+                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)]"
                                 }`}
                               >
-                                <span className="font-medium">{step.label}</span>
-                                <span className="text-[10px] font-mono">
-                                  {step.state === "Done" ? "✓ Done" : step.state === "Due" ? "Due 14 Oct" : "Upcoming"}
+                                <span>{step.label}</span>
+                                <span className="text-[10px] opacity-80">
+                                  {step.state === "Done" ? "✓" : step.state === "Due" ? "Due" : "Soon"}
                                 </span>
                               </div>
                             ))}
@@ -5871,48 +5868,48 @@ export function TalentDashboard() {
                   </div>
 
                   {/* Summary Stats Pillars */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Average Rating</span>
-                      <div className="my-1.5 flex items-center gap-2">
-                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Average Rating</span>
+                      <div className="my-2 flex items-baseline gap-2">
+                        <span className="font-display text-3xl font-bold text-zinc-900 dark:text-zinc-100">
                           {selectedProject.clientRating ?? 4.9}
                         </span>
-                        <div className="flex items-center text-amber-500 text-sm tracking-tight" aria-label="5 stars">
+                        <div className="flex items-center text-amber-400 text-sm" aria-label="5 stars">
                           <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                         </div>
                       </div>
-                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-400 font-body">
                         Based on {selectedProject.clientReviews ?? 18} reviews
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Completed Projects</span>
-                      <div className="my-1.5 flex items-baseline gap-2">
-                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                    <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Completed Projects</span>
+                      <div className="my-2 flex items-baseline gap-2">
+                        <span className="font-display text-3xl font-bold text-zinc-900 dark:text-zinc-100">
                           {selectedProject.clientReviews ?? 18}
                         </span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                          ✓ 100% Funded
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          100% Funded
                         </span>
                       </div>
-                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-400 font-body">
                         Zero disputes filed
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">Escrow Reliability</span>
-                      <div className="my-1.5 flex items-baseline gap-2">
-                        <span className="font-display text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Escrow Reliability</span>
+                      <div className="my-2 flex items-baseline gap-2">
+                        <span className="font-display text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                           100%
                         </span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 border border-teal-200 dark:border-teal-800">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300">
                           Instant Payout
                         </span>
                       </div>
-                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-400 font-body">
                         Protected by Paystack
                       </span>
                     </div>

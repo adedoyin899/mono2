@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 134: Project Details & Status UX Overhaul, Order Room Workspace Tabs, Availability Check-in Protocol, Paystack Payout Verification & Bank Change Request)
+**Last updated:** 2026-10-15 (Session 135: FAANG Visual Hierarchy Polish for OrderRoom, Project Tabs, Applicant Capacity & Client Reviews Modal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 83. Redundant Stacked Check-In Bar, Cluttered Navbar Formulas, Alarming Red Capacity Bar & Squashed Review Badges
+- **Severity:** Medium / Visual Hierarchy & Alpha UI Polish
+- **What happened:** In `OrderRoom.tsx`, the top area had four stacked horizontal banners (Navbar, Redundant Check-in progress bar, Availability card, and Workspace tabs) creating severe visual clutter and pushing messages below the fold. The navbar subtitle had an unwieldy fee formula (`Base ₦120,000 · Fee (7%) -₦8,400 · You receive ₦111,600`). Workspace tabs used a misleading checkmark icon (`CheckCircle2`) for "Messages & Chat" with heavy borders. In `TalentDashboard.tsx`, high applicant capacity (8/10 filled) was displayed as a bright red error bar (`var(--color-accent)`); the sticky sidebar had a duplicate escrow protection footer; and the Client Reviews modal had squashed stats cards with awkwardly boxed green pills.
+- **Root Cause:** Iterative feature additions stacked atop one another without visual consolidation; styling applicant capacity with error accent tokens; prototype pill borders in modals.
+- **Resolution:** Consolidated the 3-step check-in stepper directly into the check-in card header and purged the standalone secondary bar. Simplified navbar subtitle to `ORD-001 · ₦111,600 net`. Upgraded tabs with `MessageSquare` and crisp pill active states. Changed capacity bar to neutral dark progress fill. Purged redundant sidebar escrow footnote. Redesigned review modal stats pillars with bold 32px values and clean unboxed badges.
+- **Validation:** 126/126 unit tests passing across all 25 test suites (`pnpm --filter @monologg/web test`), clean TypeScript typecheck (`tsc --noEmit`), and rebuilt standalone HTML bundle.
 
 ### 82. Unclosed Desktop Header Container in TalentDashboard & Missing AlertCircle Import in OrderRoom
 - **Severity:** High / Build & Test Compilation Gate
