@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 135: FAANG Visual Hierarchy Polish for OrderRoom, Project Tabs, Applicant Capacity & Client Reviews Modal)
+**Last updated:** 2026-10-15 (Session 136: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,13 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 84. Cluttered 3-Line Fee Formulas on Rate Cards & Payouts, Complex Payout Bank Cards & Missing Passcode Gate in Withdraw Modal
+- **Severity:** Medium / Fintech UX & Visual Simplification
+- **What happened:** In `TalentDashboard.tsx`, rate cards displayed an overwhelming 3-line formula box (`Base rate`, `Platform fee (7%)`, `You receive`) that visually crowded the service pricing. Similarly, the Payouts transaction feed rendered a stacked multi-line deduction breakdown for every row. The Payout Bank Account in `Settings.tsx` used stacked alert boxes and a complex card structure that was difficult to navigate and edit. In addition, the Withdraw Funds modal lacked quick-fill amount presets and allowed one-click withdrawals without a secondary security passcode verification step.
+- **Root Cause:** Overly verbose financial breakdown boxes left over from earlier fee transparency iterations; non-standard card and banner stacking in Settings; single-step withdrawal modal.
+- **Resolution:** Replaced the 3-line breakdown on Rate Cards with a direct top-right net price badge (e.g. `₦111,600` for `₦120,000`). Replaced the multi-line payout list breakdown with a single clean net payout amount and status badge. Converted Settings payout bank into clean, read-only inputs by default with an edit button. Re-engineered the Withdraw Funds modal with amount presets (`₦25k`, `₦50k`, `₦100k`, `₦200k`, `Max`), an auto-selected destination account card, and a dedicated 4-digit passcode authentication screen before confirmed success.
+- **Validation:** 126/126 unit tests passing across all 25 test suites (`pnpm --filter @monologg/web test`), clean TypeScript check (`tsc --noEmit`), and rebuilt standalone HTML bundle.
 
 ### 83. Redundant Stacked Check-In Bar, Cluttered Navbar Formulas, Alarming Red Capacity Bar & Squashed Review Badges
 - **Severity:** Medium / Visual Hierarchy & Alpha UI Polish

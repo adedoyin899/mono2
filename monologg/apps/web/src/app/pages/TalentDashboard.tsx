@@ -21,7 +21,7 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
-  Filter, ArrowRight
+  Filter, ArrowRight, Building2
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -504,6 +504,10 @@ export function TalentDashboard() {
   const [changeLookupStatus, setChangeLookupStatus] = useState<BankLookupStatus>("idle");
   const [changeRequest, setChangeRequest] = useState<PayoutAccountChangeRequest | null>(() => appStateSync.getPayoutAccountChangeRequest());
   const [withdrawalSuccess, setWithdrawalSuccess] = useState<{ amount: number; account: string } | null>(null);
+  const [withdrawStep, setWithdrawStep] = useState<"amount" | "passcode">("amount");
+  const [withdrawPasscode, setWithdrawPasscode] = useState("");
+  const [withdrawPasscodeError, setWithdrawPasscodeError] = useState<string | null>(null);
+  const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
 
   // Paystack lookup simulation for Payout Account Change Request
   useEffect(() => {
@@ -652,16 +656,7 @@ export function TalentDashboard() {
   const [pitchText, setPitchText] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
-  const [withdrawPasscode, setWithdrawPasscode] = useState("");
-  const [withdrawPasscodeError, setWithdrawPasscodeError] = useState<string | null>(null);
   const [rateCardCurrency, setRateCardCurrency] = useState("₦");
-  // Phase 12C: Withdrawal OTP state
-  const [withdrawStep, setWithdrawStep] = useState<"input" | "passcode">("input");
-  const [showAccountPicker, setShowAccountPicker] = useState(false);
-  const [activeWithdrawalRequestId, setActiveWithdrawalRequestId] = useState<string | null>(null);
-  const [withdrawOtpCode, setWithdrawOtpCode] = useState("");
-  const [withdrawOtpCooldown, setWithdrawOtpCooldown] = useState(0);
-  const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
   const currentUser = appStateSync.getLoggedInUser();
   const [isNewUser, setIsNewUser] = useState(() => {
     const stored = localStorage.getItem("monologg_is_new_user");
@@ -2343,19 +2338,11 @@ export function TalentDashboard() {
                                 const fee = Math.round(num * 0.07);
                                 const net = num - fee;
                                 return (
-                                  <div className="pt-3 border-t space-y-1.5 text-xs font-body" style={{ borderColor: "var(--color-hairline)" }}>
-                                    <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                      <span>Base rate</span>
-                                      <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                      <span>Platform fee (7%)</span>
-                                      <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
-                                      <span>You receive</span>
-                                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
-                                    </div>
+                                  <div className="pt-2 border-t flex items-baseline justify-between" style={{ borderColor: "var(--color-hairline)" }}>
+                                    <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Rate</span>
+                                    <span className="font-display text-base font-bold" style={{ color: "var(--color-accent)" }}>
+                                      {symbol}{net.toLocaleString()}
+                                    </span>
                                   </div>
                                 );
                               })()}
@@ -2421,34 +2408,22 @@ export function TalentDashboard() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-1">
                             <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{service.title}</h3>
-                            <span className="font-display text-xl shrink-0" style={{ color: "var(--color-accent)" }}>{service.price}</span>
+                            {(() => {
+                              const match = service.price.match(/^([^0-9,]*)(.*)$/);
+                              const symbol = match ? (match[1] || "₦") : "₦";
+                              const num = Number((match ? match[2] : service.price).replace(/[^0-9]/g, "")) || 0;
+                              const fee = Math.round(num * 0.07);
+                              const net = num - fee;
+                              return (
+                                <span className="font-display text-xl font-bold shrink-0" style={{ color: "var(--color-accent)" }}>
+                                  {symbol}{net.toLocaleString()}
+                                </span>
+                              );
+                            })()}
                           </div>
                           <p className="text-sm font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
                             Delivery: {service.delivery} · {service.bookings} bookings
                           </p>
-                          {(() => {
-                            const match = service.price.match(/^([^0-9,]*)(.*)$/);
-                            const symbol = match ? (match[1] || "₦") : "₦";
-                            const num = Number((match ? match[2] : service.price).replace(/[^0-9]/g, "")) || 0;
-                            const fee = Math.round(num * 0.07);
-                            const net = num - fee;
-                            return (
-                              <div className="mb-3 p-3 rounded-xl border space-y-1 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                  <span>Base rate</span>
-                                  <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                  <span>Platform fee (7%)</span>
-                                  <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
-                                  <span>You receive</span>
-                                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
-                                </div>
-                              </div>
-                            );
-                          })()}
                           <div className="flex gap-2">
                             <Button
                               variant="secondary"
@@ -2583,19 +2558,9 @@ export function TalentDashboard() {
                                const fee = Math.round(num * 0.07);
                                const net = num - fee;
                                return (
-                                 <div className="mt-2.5 p-3 rounded-xl border space-y-1.5 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                                   <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                     <span>Base rate</span>
-                                     <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{rateCardCurrency}{num.toLocaleString()}</span>
-                                   </div>
-                                   <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                     <span>Platform fee (7%)</span>
-                                     <span className="font-mono text-zinc-500 font-medium">-{rateCardCurrency}{fee.toLocaleString()}</span>
-                                   </div>
-                                   <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
-                                     <span>You receive</span>
-                                     <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{rateCardCurrency}{net.toLocaleString()}</span>
-                                   </div>
+                                 <div className="mt-2.5 p-2.5 rounded-xl border flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                   <span style={{ color: "var(--color-text-secondary)" }}>You receive (after deduction)</span>
+                                   <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{rateCardCurrency}{net.toLocaleString()}</span>
                                  </div>
                                );
                              })()}
@@ -4655,14 +4620,8 @@ export function TalentDashboard() {
                           <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{payout.date} · {payout.ref}</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-[11px] font-body text-[var(--color-text-secondary)]">
-                            Base: <span className="font-mono font-medium text-[var(--color-text-primary)]">₦{payout.numericAmount.toLocaleString()}</span>
-                          </div>
-                          <div className="text-[11px] font-body text-zinc-500">
-                            Platform fee (7%): <span className="font-mono font-medium">-₦{Math.round(payout.numericAmount * 0.07).toLocaleString()}</span>
-                          </div>
-                          <div className="text-xs font-semibold font-body text-emerald-600 dark:text-emerald-400">
-                            You receive: <span className="font-mono font-bold">₦{(payout.numericAmount - Math.round(payout.numericAmount * 0.07)).toLocaleString()}</span>
+                          <div className="text-sm sm:text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                            ₦{(payout.numericAmount - Math.round(payout.numericAmount * 0.07)).toLocaleString()}
                           </div>
                           <div
                             className="text-[11px] font-body font-medium mt-0.5"
@@ -5085,7 +5044,7 @@ export function TalentDashboard() {
                 >
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-                      {withdrawalSuccess ? "Withdrawal Confirmed" : "Withdraw Funds"}
+                      {withdrawalSuccess ? "Withdrawal Confirmed" : withdrawStep === "passcode" ? "Authorise Withdrawal" : "Withdraw Funds"}
                     </h3>
                     <button
                       onClick={() => {
@@ -5093,6 +5052,8 @@ export function TalentDashboard() {
                         setWithdrawalSuccess(null);
                         setShowChangeAccountForm(false);
                         setWithdrawPasscodeError(null);
+                        setWithdrawStep("amount");
+                        setWithdrawPasscode("");
                       }}
                       className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--color-bg-elevated)]"
                       style={{ color: "var(--color-text-tertiary)" }}
@@ -5136,16 +5097,18 @@ export function TalentDashboard() {
                       </div>
 
                       <Button
-                        className="w-full h-11 text-xs font-semibold"
+                        className="w-full h-11 text-xs font-semibold rounded-xl"
                         onClick={() => {
                           setShowWithdraw(false);
                           setWithdrawalSuccess(null);
+                          setWithdrawStep("amount");
+                          setWithdrawPasscode("");
                         }}
                       >
                         Done
                       </Button>
                     </div>
-                  ) : (
+                  ) : withdrawStep === "amount" ? (
                     <div className="space-y-5">
                       {withdrawPasscodeError && (
                         <div className="p-3 rounded-xl text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
@@ -5165,47 +5128,83 @@ export function TalentDashboard() {
                           onChange={(e) => {
                             const raw = e.target.value.replace(/[^0-9]/g, "");
                             setWithdrawAmount(raw ? Number(raw).toLocaleString() : "");
+                            setWithdrawPasscodeError(null);
                           }}
                           className="h-12 rounded-xl text-base font-mono font-semibold"
                         />
                         <div className="flex items-center justify-between text-xs mt-2 font-body" style={{ color: "var(--color-text-secondary)" }}>
                           <span>Available for withdrawal: <strong className="text-[var(--color-text-primary)] font-mono">₦{appStateSync.getBalance().available.toLocaleString()}</strong></span>
+                        </div>
+
+                        {/* Quick-fill Example Figure Buttons + Max */}
+                        <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                          {[25000, 50000, 100000, 200000].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => {
+                                setWithdrawAmount(preset.toLocaleString());
+                                setWithdrawPasscodeError(null);
+                              }}
+                              className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium border transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] cursor-pointer"
+                              style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                            >
+                              ₦{preset.toLocaleString()}
+                            </button>
+                          ))}
                           <button
                             type="button"
-                            onClick={() => setWithdrawAmount(appStateSync.getBalance().available.toLocaleString())}
-                            className="text-xs font-semibold text-[var(--color-accent)] hover:underline"
+                            onClick={() => {
+                              setWithdrawAmount(appStateSync.getBalance().available.toLocaleString());
+                              setWithdrawPasscodeError(null);
+                            }}
+                            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-colors bg-[var(--color-accent-soft)] border-[var(--color-accent)] text-[var(--color-accent)] cursor-pointer"
                           >
                             Max
                           </button>
                         </div>
                       </div>
 
-                      {/* Saved Payout Account (Read-Only Card) */}
+                      {/* Saved Payout Account (Auto-Selected Clean Card) */}
                       <div>
                         <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
                           DESTINATION BANK ACCOUNT
                         </label>
                         <div
-                          className="p-4 rounded-2xl border space-y-1.5"
+                          className="p-3.5 rounded-2xl border flex items-center justify-between gap-3"
                           style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-sm font-body text-[var(--color-text-primary)]">
-                              {appStateSync.getBankDetails().bankName}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                              <CheckCircle2 className="w-3 h-3" /> Verified
-                            </span>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+                              style={{
+                                background: "color-mix(in srgb, var(--color-accent) 10%, transparent)",
+                                borderColor: "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+                              }}
+                            >
+                              <Building2 className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-sm font-body truncate" style={{ color: "var(--color-text-primary)" }}>
+                                  {appStateSync.getBankDetails().bankName}
+                                </span>
+                                <span className="text-xs font-mono text-zinc-500 font-medium">
+                                  •••• {appStateSync.getBankDetails().accountNumber.slice(-4)}
+                                </span>
+                              </div>
+                              <div className="text-xs font-body text-[var(--color-text-secondary)] truncate">
+                                {appStateSync.getBankDetails().accountName}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-xs font-body text-[var(--color-text-secondary)]">
-                            <span className="font-mono text-[var(--color-text-primary)]">•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}</span>
-                            <span>·</span>
-                            <span>{appStateSync.getBankDetails().accountName}</span>
-                          </div>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full shrink-0">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Auto-Selected
+                          </span>
                         </div>
 
                         {/* Text link: Change payout account */}
-                        <div className="mt-2 text-right">
+                        <div className="mt-1.5 text-right">
                           <button
                             type="button"
                             onClick={() => setShowChangeAccountForm(!showChangeAccountForm)}
@@ -5375,10 +5374,10 @@ export function TalentDashboard() {
                         </div>
                       )}
 
-                      {/* Primary CTA: Withdraw ₦X */}
+                      {/* Proceed to Passcode CTA */}
                       <Button
-                        className="w-full h-12 text-sm font-semibold"
-                        disabled={withdrawSubmitting || !withdrawAmount || Number(withdrawAmount.replace(/[^0-9]/g, "")) <= 0}
+                        className="w-full h-12 text-sm font-semibold rounded-xl"
+                        disabled={!withdrawAmount || Number(withdrawAmount.replace(/[^0-9]/g, "")) <= 0}
                         onClick={() => {
                           const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
                           const available = appStateSync.getBalance().available;
@@ -5392,38 +5391,108 @@ export function TalentDashboard() {
                             return;
                           }
 
-                          setWithdrawSubmitting(true);
                           setWithdrawPasscodeError(null);
-
-                          appStateSync.withdrawFunds(amt);
-                          const bank = appStateSync.getBankDetails();
-                          const formattedAccount = `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`;
-
-                          const newPayoutItem = {
-                            id: `pay-${Date.now()}`,
-                            from: "Direct Withdrawal",
-                            service: `Payout to ${bank.bankName}`,
-                            amount: `₦${amt.toLocaleString()}`,
-                            numericAmount: amt,
-                            date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-                            time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-                            status: "Paid" as const,
-                            ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-                            bankAccount: formattedAccount,
-                          };
-                          setPayouts(prev => [newPayoutItem, ...prev]);
-
-                          setWithdrawalSuccess({
-                            amount: amt,
-                            account: formattedAccount,
-                          });
-                          setWithdrawSubmitting(false);
+                          setWithdrawPasscode("");
+                          setWithdrawStep("passcode");
                         }}
                       >
-                        {withdrawSubmitting
-                          ? "Processing Withdrawal…"
-                          : `Withdraw ₦${withdrawAmount || "0"}`}
+                        Proceed to Withdraw ₦{withdrawAmount || "0"}
                       </Button>
+                    </div>
+                  ) : (
+                    /* Step 2: Passcode Authentication */
+                    <div className="space-y-5">
+                      <div className="text-center space-y-1.5">
+                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] flex items-center justify-center mx-auto mb-2">
+                          <Lock className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                          Authorise Withdrawal
+                        </h4>
+                        <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                          Enter your 4-digit PIN to transfer <strong className="text-[var(--color-text-primary)]">₦{withdrawAmount}</strong> to {appStateSync.getBankDetails().bankName} (•••• {appStateSync.getBankDetails().accountNumber.slice(-4)}).
+                        </p>
+                      </div>
+
+                      {withdrawPasscodeError && (
+                        <div className="p-3 rounded-xl text-xs font-body" style={{ background: "var(--color-error-bg)", color: "var(--color-error)" }}>
+                          {withdrawPasscodeError}
+                        </div>
+                      )}
+
+                      <div>
+                        <Input
+                          type="password"
+                          maxLength={4}
+                          autoFocus
+                          value={withdrawPasscode}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                            setWithdrawPasscode(val);
+                            setWithdrawPasscodeError(null);
+                          }}
+                          placeholder="••••"
+                          className="h-14 text-center text-2xl font-mono tracking-[0.8em] rounded-xl font-bold"
+                        />
+                        <p className="text-[11px] text-center mt-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Default passcode is 1234. Change this in Settings &gt; Security &amp; Privacy.
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2.5 pt-2">
+                        <Button
+                          variant="secondary"
+                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
+                          onClick={() => {
+                            setWithdrawStep("amount");
+                            setWithdrawPasscodeError(null);
+                          }}
+                        >
+                          Back
+                        </Button>
+                        <Button
+                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
+                          disabled={withdrawPasscode.length !== 4 || withdrawSubmitting}
+                          onClick={() => {
+                            const savedPasscode = localStorage.getItem("monologg_withdrawal_passcode") || "1234";
+                            if (withdrawPasscode !== savedPasscode) {
+                              setWithdrawPasscodeError("Incorrect withdrawal passcode. Please check your 4-digit PIN.");
+                              return;
+                            }
+
+                            setWithdrawSubmitting(true);
+                            setWithdrawPasscodeError(null);
+                            const amt = Number(withdrawAmount.replace(/[^0-9]/g, ""));
+                            appStateSync.withdrawFunds(amt);
+                            const bank = appStateSync.getBankDetails();
+                            const formattedAccount = `${bank.bankName} ···· ${bank.accountNumber.slice(-4)}`;
+
+                            const newPayoutItem = {
+                              id: `pay-${Date.now()}`,
+                              from: "Direct Withdrawal",
+                              service: `Payout to ${bank.bankName}`,
+                              amount: `₦${amt.toLocaleString()}`,
+                              numericAmount: amt,
+                              date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                              time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+                              status: "Paid" as const,
+                              ref: `PAY-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+                              bankAccount: formattedAccount,
+                            };
+                            setPayouts((prev) => [newPayoutItem, ...prev]);
+
+                            setWithdrawalSuccess({
+                              amount: amt,
+                              account: formattedAccount,
+                            });
+                            setWithdrawSubmitting(false);
+                            setWithdrawStep("amount");
+                            setWithdrawPasscode("");
+                          }}
+                        >
+                          {withdrawSubmitting ? "Processing…" : "Confirm & Withdraw"}
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </motion.div>
@@ -5489,22 +5558,11 @@ export function TalentDashboard() {
                       <span style={{ color: "var(--color-text-tertiary)" }}>Date &amp; Time</span>
                       <span style={{ color: "var(--color-text-secondary)" }}>{selectedPayout.date} · {selectedPayout.time}</span>
                     </div>
-                    {/* Three-line fee breakdown: Base rate, Platform fee (7%), You receive */}
-                    <div className="p-3 rounded-xl border space-y-1.5 text-xs font-body mt-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                      <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                        <span>Base rate</span>
-                        <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>₦{selectedPayout.numericAmount.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                        <span>Platform fee (7%)</span>
-                        <span className="font-mono text-zinc-500 font-medium">-₦{Math.round(selectedPayout.numericAmount * 0.07).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
-                        <span>You receive</span>
-                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                          ₦{(selectedPayout.numericAmount - Math.round(selectedPayout.numericAmount * 0.07)).toLocaleString()}
-                        </span>
-                      </div>
+                    <div className="p-3 rounded-xl border flex items-center justify-between text-xs font-body mt-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                      <span style={{ color: "var(--color-text-secondary)" }}>Payout Amount Received</span>
+                      <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
+                        ₦{(selectedPayout.numericAmount - Math.round(selectedPayout.numericAmount * 0.07)).toLocaleString()}
+                      </span>
                     </div>
                   </div>
 

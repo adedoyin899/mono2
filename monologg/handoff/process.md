@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-15 (Session 135: FAANG Visual Hierarchy Polish for OrderRoom, Project Tabs, Applicant Capacity & Client Reviews Modal)
+**Last updated:** 2026-10-15 (Session 136: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -896,6 +896,19 @@ Conducted a thorough UI/UX cleanup across Performer and Client surfaces, elimina
 - **Client Reviews Modal Stats Pillars:** Redesigned `Average Rating`, `Completed Projects`, and `Escrow Reliability` cards with balanced proportions, `text-3xl font-bold` typography, and unboxed pills (`100% Funded`, `Instant Payout`), removing awkward double green borders.
 - **Orders List 3-Milestone Stepper:** Refined the 3-step indicator on upcoming booking cards with standard typography and clean pills.
 - **Standalone Distribution & Testing:** Verified 126/126 unit tests passing across all 25 test suites, 0 TypeScript errors, and regenerated `monologg/monologg-app.html` (1.66 MB).
+
+### Step 96: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal (Session 136)
+
+Addressed user feedback to streamline performer rate card pricing, eliminate clutter in the payouts list, simplify payout bank management in Settings, and enhance the funds withdrawal experience:
+- **Rate Cards Net Value Display:** Replaced the multi-line formula breakdown box (`Base rate`, `Platform fee (7%)`, `You receive`) from all rate cards in `TalentDashboard.tsx`. Rate cards now display the exact single take-home net rate after 7% platform fee deduction directly in the top-right price tag (e.g., `₦111,600` for `₦120,000` base). Also simplified the storefront preview and Add Service modal live preview to show only the net rate.
+- **Payouts Transaction Feed Streamlining:** Removed the multi-line formula breakdown (`Base`, `Platform fee (7%)`, `You receive`) from every row in the Payouts feed. Every transaction now cleanly renders a single bold net payout amount (e.g. `₦418,500`) and status badge (`Paid`). Simplified the Receipt modal to display "Payout Amount Received".
+- **Payout Bank Account Input-Based Redesign:** Replaced the stacked alert banners and card container in `Settings.tsx` with a clean input-based form. Displayed Bank Name, Account Number (10 digits, mono font), Account Name, and optional Phone number as read-only inputs by default, with an edit button (`"Change Bank Account"`) that unlocks the bank selector, account input with Paystack lookup simulation, and Save / Cancel actions. Preserved all platform policy and 48-hour security memo copy inline in subtle helper text.
+- **Withdraw Funds Modal 2-Step Flow with Presets:** Overhauled the withdrawal modal in `TalentDashboard.tsx`:
+  - Step 1 (Amount): Clean amount input with currency prefix and quick-fill example preset buttons (`₦25,000`, `₦50,000`, `₦100,000`, `₦200,000`, `Max`) that immediately populate the field.
+  - Auto-Selected Destination Account: Replaced repetitive selectors with an auto-selected bank destination card displaying `Building2` icon, bank name, masked account number, account holder name, and green `Auto-Selected` checkmark badge.
+  - Step 2 (Passcode Authorization): Clicking "Proceed to Withdraw ₦X" transitions seamlessly to a 4-digit PIN authentication screen with masked dots, validation against stored passcode (`localStorage.getItem("monologg_withdrawal_passcode") || "1234"`), error feedback, and "Confirm & Withdraw" action.
+  - Step 3 (Success): Instant confirmation view displaying payment checkmark, exact withdrawn amount, destination bank details, and "Done" dismiss button.
+- **Quality Assurance & Standalone Bundle Regeneration:** Verified all 126 unit tests passing across all 25 test suites, 0 TypeScript compilation errors, and inlined freshly compiled production bundle into `monologg/monologg-app.html`.
 
 ---
 

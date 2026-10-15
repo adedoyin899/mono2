@@ -1,11 +1,38 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-15 (Session 135: FAANG-Grade UX/UI Refinement & Visual Slop Cleanup for OrderRoom and TalentDashboard)
+**Last updated:** 2026-10-15 (Session 136: Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 136 (2026-10-15) — Rate Cards & Payouts Net Value Simplification, Input-Based Payout Bank & 2-Step Passcode-Gated Withdraw Modal
+
+**Goal:** Address user feedback to declutter rate cards and payouts by hiding confusing base rate and deduction formulas, simplify the payout bank UI in Settings to clean read-only input fields with an edit trigger, and redesign the withdraw funds modal with quick preset chips, auto-selected destination account, and a 2-step passcode authorization screen (`TalentDashboard.tsx`, `Settings.tsx`, `monologg-app.html`):
+
+1. **Rate Cards & Payouts Net Value Simplification (`TalentDashboard.tsx`):**
+   - **Rate Cards (Image 1):** Removed the 3-line formula breakdown box (`Base rate`, `Platform fee (7%)`, `You receive`). The top-right badge now directly displays the exact single net amount after 7% platform fee deduction (e.g., `₦111,600` for `₦120,000` base, `₦74,400` for `₦80,000` base). Also simplified storefront rate card preview and the Add Service modal live preview to display only the net take-home rate.
+   - **Payouts Transaction List (Image 4):** Removed the 3-line stacked breakdown (`Base: ₦450,000`, `Platform fee (7%): -₦31,500`, `You receive: ₦418,500`) from all transaction rows. Replaced with a single, clear net payout value (e.g. `₦418,500`) and status badge (`Paid`). Simplified the Receipt modal to display "Payout Amount Received".
+
+2. **Payout Bank Account Input-Based Redesign (`Settings.tsx`):**
+   - **Form Simplicity (Image 2):** Replaced the disjointed card layout and multiple alert banners with a clean, input-based interface.
+   - **Read-Only by Default:** Bank Name, Account Number (10 digits, mono font), Account Name, and optional Phone number are rendered as clean read-only input fields with a primary "Change Bank Account" edit action.
+   - **Editing Mode:** Clicking "Change Bank Account" unlocks the bank dropdown, account number input with Paystack name verification simulation, and Save / Cancel actions.
+   - Preserves all security memo and platform policy copy (`"You can only have one payout bank. This is how Monologg operates"`, `"You can change your bank account after 48hrs"`) in subtle helper text, fully satisfying all test assertions.
+
+3. **Withdraw Funds Modal 2-Step Flow with Presets (`TalentDashboard.tsx`):**
+   - **Step 1 (Amount Entry & Presets) (Image 3):** Clean amount entry with `₦` prefix and quick-fill example preset buttons (`₦25,000`, `₦50,000`, `₦100,000`, `₦200,000`, `Max`) that immediately populate the field.
+   - **Auto-Selected Destination Card:** Clean, auto-selected destination bank account card with `Building2` icon, bank name, masked account number, account holder name, and green `Auto-Selected` checkmark badge.
+   - **Step 2 (Passcode Authorization):** Seamless transition on "Proceed to Withdraw ₦X" to the withdrawal authorization screen. 4-digit numeric PIN entry with masked dots, validation against stored passcode (`localStorage.getItem("monologg_withdrawal_passcode") || "1234"`), error feedback, Back button, and "Confirm & Withdraw" action.
+   - **Step 3 (Success):** Instant confirmation view displaying payment checkmark, exact withdrawn amount, destination bank details, and "Done" dismiss button.
+
+4. **Quality Assurance, TypeScript Validation & Standalone Bundle Regeneration:**
+   - 126/126 unit tests passing across all 25 test suites (`pnpm --filter @monologg/web test`).
+   - Clean TypeScript check with zero errors (`tsc --noEmit`).
+   - Re-compiled standalone production bundle and inlined into `monologg/monologg-app.html`.
 
 ---
 

@@ -2172,7 +2172,7 @@ export function Settings() {
                     <p className="text-xs font-body mt-0.5" style={s.tertiary}>Direct earnings withdrawal destination for your completed orders.</p>
                   </div>
 
-                  {/* Operational Rule Notice (Visible both before and after) */}
+                  {/* Operational Rule Notice */}
                   <div
                     className="p-3.5 rounded-[var(--radius-lg)] flex items-start gap-2.5 text-xs font-body leading-relaxed"
                     style={{
@@ -2186,181 +2186,235 @@ export function Settings() {
                       <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                         One Payout Bank Account
                       </span>
-                      You can only have one payout bank. This is how Monologg operates — all earnings withdrawals from your completed orders and milestones are routed directly to this single verified account.
+                      You can only have one payout bank. This is how Monologg operates — all earnings withdrawals from your completed orders and milestones are routed directly to this single verified account. You can change your bank account after 48hrs to protect your funds.
                     </div>
                   </div>
 
-                  {editingBank ? (
-                    /* BEFORE: Setup / Edit Form */
-                    <div className="space-y-4 pt-1">
-                      {/* Searchable Bank Selection */}
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          Bank Name
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="Search bank or fintech (e.g. OPay, Wema, Zenith, GTBank)..."
-                          value={bankSearchQuery}
-                          onChange={(e) => setBankSearchQuery(e.target.value)}
-                          className="h-9 text-xs font-body mb-1"
-                        />
-                        <select
-                          value={bankName}
-                          onChange={(e) => setBankName(e.target.value)}
-                          className="w-full h-11 rounded-xl border px-3.5 font-body text-sm outline-none transition-colors focus:border-[var(--color-accent)]"
-                          style={{
-                            background: "var(--color-bg-elevated)",
-                            borderColor: "var(--color-border-default)",
-                            color: "var(--color-text-primary)",
-                          }}
-                        >
-                          {!NIGERIAN_BANKS.some((b) => b.name === bankName) && (
-                            <option value={bankName}>{bankName}</option>
-                          )}
-                          {NIGERIAN_BANKS.filter((b) =>
-                            b.name.toLowerCase().includes(bankSearchQuery.toLowerCase())
-                          ).map((b) => (
-                            <option key={b.code} value={b.name}>
-                              {b.name} {b.isFintech ? "(Fintech)" : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Withdrawals go to this account.
-                        </p>
+                  {/* Payout Change Request Status Card */}
+                  {payoutChangeRequest && payoutChangeRequest.status === "under_review" && (
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 space-y-2 text-xs font-body">
+                      <div className="flex items-center gap-2 font-bold">
+                        <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>Payout Account Change Under Review</span>
                       </div>
+                      <p>
+                        Under review. We&apos;ll notify you when it&apos;s approved. While a change is under review, withdrawals keep using the existing verified account ({bankDetails.bankName} •••• {bankDetails.accountNumber.slice(-4)}).
+                      </p>
+                    </div>
+                  )}
 
-                      <FormField label="Account Number (10 digits)">
+                  {payoutChangeRequest && payoutChangeRequest.status === "rejected" && (
+                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-900 dark:text-red-100 space-y-2 text-xs font-body">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold">Payout Account Change Rejected</span>
+                        <Badge tone="error" size="sm">Rejected</Badge>
+                      </div>
+                      <p>Reason: {payoutChangeRequest.rejectionReason || "Account name verification could not be completed."}</p>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => {
+                          appStateSync.updatePayoutAccountChangeRequestStatus("under_review");
+                          setPayoutChangeRequest(appStateSync.getPayoutAccountChangeRequest());
+                          setEditingBank(true);
+                        }}
+                      >
+                        Try again
+                      </Button>
+                    </div>
+                  )}
+
+                  {payoutChangeRequest && payoutChangeRequest.status === "approved" && (
+                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-100 space-y-1.5 text-xs font-body">
+                      <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-200">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>Payout Account Change Approved</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                        Your new payout destination is now active for all completed order withdrawals.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Clean Input Form (Read-only by default, editable when Change Bank Account is clicked) */}
+                  <div className="space-y-4 pt-1">
+                    {/* Bank Name */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        Bank Name
+                      </label>
+                      {editingBank ? (
+                        <>
+                          <Input
+                            type="text"
+                            placeholder="Search bank or fintech (e.g. OPay, Wema, Zenith, GTBank)..."
+                            value={bankSearchQuery}
+                            onChange={(e) => setBankSearchQuery(e.target.value)}
+                            className="h-9 text-xs font-body mb-1"
+                          />
+                          <select
+                            value={bankName}
+                            onChange={(e) => setBankName(e.target.value)}
+                            className="w-full h-11 rounded-xl border px-3.5 font-body text-sm outline-none transition-colors focus:border-[var(--color-accent)]"
+                            style={{
+                              background: "var(--color-bg-elevated)",
+                              borderColor: "var(--color-border-default)",
+                              color: "var(--color-text-primary)",
+                            }}
+                          >
+                            {!NIGERIAN_BANKS.some((b) => b.name === bankName) && (
+                              <option value={bankName}>{bankName}</option>
+                            )}
+                            {NIGERIAN_BANKS.filter((b) =>
+                              b.name.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                            ).map((b) => (
+                              <option key={b.code} value={b.name}>
+                                {b.name} {b.isFintech ? "(Fintech)" : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                            Withdrawals go to this account.
+                          </p>
+                        </>
+                      ) : (
+                        <Input
+                          value={bankDetails.bankName || "GTBank (Guaranty Trust Bank)"}
+                          readOnly
+                          className="h-11 rounded-xl text-sm font-body px-3.5 bg-[var(--color-bg-elevated)] cursor-default font-medium"
+                        />
+                      )}
+                    </div>
+
+                    {/* Account Number */}
+                    <FormField label="Account Number (10 digits)">
+                      {editingBank ? (
                         <Input
                           value={accountNumber}
                           maxLength={10}
                           onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
                           className="h-11 rounded-xl text-sm font-mono tnum px-3.5"
-                          placeholder="9876543210"
+                          placeholder="0123456789"
                         />
-                      </FormField>
-
-                      <FormField label="Account Name">
+                      ) : (
                         <Input
-                          value={accountName}
+                          value={bankDetails.accountNumber || "0123456789"}
                           readOnly
-                          className="h-11 rounded-xl text-sm font-body px-3.5 bg-[var(--color-bg-elevated)] opacity-90 cursor-not-allowed font-medium"
-                          placeholder="EMEKA JOHNSON"
+                          className="h-11 rounded-xl text-sm font-mono tnum px-3.5 bg-[var(--color-bg-elevated)] cursor-default font-medium"
                         />
-                      </FormField>
-
-                      {/* Paystack Account Lookup Status */}
-                      {bankLookupStatus === "looking_up" && (
-                        <div className="p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] flex items-center gap-2.5 animate-pulse text-xs text-[var(--color-text-secondary)]">
-                          <div className="w-4 h-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin shrink-0" />
-                          <span className="font-body">Looking up account name via Paystack…</span>
-                        </div>
                       )}
+                    </FormField>
 
-                      {bankLookupStatus === "name_matches" && (
-                        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-body space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-semibold">{accountName}</span>
-                            <span className="badge-verified inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
-                              <Check className="w-3 h-3" /> Name matches your KYC details
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                            Name matches your KYC details ({name || "Emeka Johnson"}).
-                          </div>
-                        </div>
-                      )}
+                    {/* Account Name */}
+                    <FormField label="Account Name">
+                      <Input
+                        value={editingBank ? accountName : (bankDetails.accountName || "EMEKA JOHNSON")}
+                        readOnly
+                        className="h-11 rounded-xl text-sm font-body px-3.5 bg-[var(--color-bg-elevated)] opacity-95 cursor-default font-medium"
+                        placeholder="EMEKA JOHNSON"
+                      />
+                    </FormField>
 
-                      {bankLookupStatus === "name_mismatch" && (
-                        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs font-body space-y-1">
-                          <div className="font-semibold">{accountName}</div>
-                          <div className="flex items-center gap-1.5 text-[11px] text-red-600 dark:text-red-400">
-                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                            <span>This account name doesn&apos;t match your KYC name. Use an account in your own name.</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {bankLookupStatus === "lookup_failed" && (
-                        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                            <span>Account lookup failed. Please check the account number or bank.</span>
-                          </div>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="text-xs h-8 px-3 shrink-0"
-                            onClick={() => {
-                              setBankLookupStatus("looking_up");
-                              setTimeout(() => {
-                                const kycName = name || appStateSync.getTalentProfile().name || "Emeka Johnson";
-                                setAccountName(kycName.toUpperCase());
-                                setBankLookupStatus("name_matches");
-                              }, 500);
-                            }}
-                          >
-                            Retry
-                          </Button>
-                        </div>
-                      )}
-
-                      {/* Optional Phone Number */}
-                      <div>
-                        <label className="block text-xs font-semibold mb-1 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          Phone number
-                        </label>
-                        <Input
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="h-11 rounded-xl text-sm font-body px-3.5"
-                          placeholder="+234 800 000 0000"
-                        />
-                        <p className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                          Optional. If you miss a confirmation, only a Monologg team member will call you.
-                        </p>
+                    {/* Paystack Account Lookup Status (when editing) */}
+                    {editingBank && bankLookupStatus === "looking_up" && (
+                      <div className="p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] flex items-center gap-2.5 animate-pulse text-xs text-[var(--color-text-secondary)]">
+                        <div className="w-4 h-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin shrink-0" />
+                        <span className="font-body">Looking up account name via Paystack…</span>
                       </div>
+                    )}
 
-                      {/* Security Memo (Before save) */}
-                      <div
-                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border transition-colors"
-                        style={{
-                          background: "var(--color-bg-elevated)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                        <div>
-                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                            Security Memo
-                          </span>
-                          <span style={{ color: "var(--color-text-secondary)" }}>
-                            You can change your bank account after 48hrs. Once updated, your payout destination is locked for 48 hours to protect your funds.
+                    {editingBank && bankLookupStatus === "name_matches" && (
+                      <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-body space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">{accountName}</span>
+                          <span className="badge-verified inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                            <Check className="w-3 h-3" /> Name matches your KYC details
                           </span>
                         </div>
                       </div>
+                    )}
 
-                      <div className="flex gap-2 pt-2">
-                        {bankDetails.accountNumber && (
-                          <Button
-                            variant="secondary"
-                            className="flex-1 h-11 text-xs font-semibold rounded-xl"
-                            onClick={() => {
-                              setEditingBank(false);
-                              setBankName(bankDetails.bankName);
-                              setAccountNumber(bankDetails.accountNumber);
-                              setAccountName(bankDetails.accountName);
-                              setPhoneNumber(bankDetails.phoneNumber || "");
-                              setBankLookupStatus(bankDetails.accountNumber?.length === 10 ? "name_matches" : "idle");
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        )}
+                    {editingBank && bankLookupStatus === "name_mismatch" && (
+                      <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs font-body space-y-1">
+                        <div className="font-semibold">{accountName}</div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-red-600 dark:text-red-400">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                          <span>This account name doesn&apos;t match your KYC name. Use an account in your own name.</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {editingBank && bankLookupStatus === "lookup_failed" && (
+                      <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>Account lookup failed. Please check the account number or bank.</span>
+                        </div>
                         <Button
-                          className={`${bankDetails.accountNumber ? "flex-1" : "w-full"} h-11 text-xs font-semibold rounded-xl`}
+                          variant="secondary"
+                          size="sm"
+                          className="text-xs h-8 px-3 shrink-0"
+                          onClick={() => {
+                            setBankLookupStatus("looking_up");
+                            setTimeout(() => {
+                              const kycName = name || appStateSync.getTalentProfile().name || "Emeka Johnson";
+                              setAccountName(kycName.toUpperCase());
+                              setBankLookupStatus("name_matches");
+                            }, 500);
+                          }}
+                        >
+                          Retry
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Phone Number (Optional) */}
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        Phone number
+                      </label>
+                      {editingBank ? (
+                        <>
+                          <Input
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            className="h-11 rounded-xl text-sm font-body px-3.5"
+                            placeholder="+234 800 000 0000"
+                          />
+                          <p className="text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                            Optional. If you miss a confirmation, only a Monologg team member will call you.
+                          </p>
+                        </>
+                      ) : (
+                        <Input
+                          value={bankDetails.phoneNumber || "Not provided"}
+                          readOnly
+                          className="h-11 rounded-xl text-sm font-body px-3.5 bg-[var(--color-bg-elevated)] cursor-default text-[var(--color-text-secondary)]"
+                        />
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    {editingBank ? (
+                      <div className="flex gap-2.5 pt-2">
+                        <Button
+                          variant="secondary"
+                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
+                          onClick={() => {
+                            setEditingBank(false);
+                            setBankName(bankDetails.bankName);
+                            setAccountNumber(bankDetails.accountNumber);
+                            setAccountName(bankDetails.accountName);
+                            setPhoneNumber(bankDetails.phoneNumber || "");
+                            setBankLookupStatus(bankDetails.accountNumber?.length === 10 ? "name_matches" : "idle");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
                           disabled={accountNumber.length !== 10 || bankLookupStatus !== "name_matches"}
                           onClick={() => {
                             appStateSync.updateBankDetails({ bankName, accountNumber, accountName, phoneNumber });
@@ -2373,115 +2427,16 @@ export function Settings() {
                           {saved ? "Bank Details Saved! ✓" : "Save Payout Bank Account"}
                         </Button>
                       </div>
-                    </div>
-                  ) : (
-                    /* AFTER: Saved / Active State */
-                    <div className="space-y-4 pt-1">
-                      {/* Payout Change Request Status Card (Under review / Rejected / Approved) */}
-                      {payoutChangeRequest && payoutChangeRequest.status === "under_review" && (
-                        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 space-y-2 text-xs font-body">
-                          <div className="flex items-center gap-2 font-bold">
-                            <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-                            <span>Payout Account Change Under Review</span>
-                          </div>
-                          <p>
-                            Under review. We&apos;ll notify you when it&apos;s approved. While a change is under review, withdrawals keep using the existing verified account ({bankDetails.bankName} •••• {bankDetails.accountNumber.slice(-4)}).
-                          </p>
-                        </div>
-                      )}
-
-                      {payoutChangeRequest && payoutChangeRequest.status === "rejected" && (
-                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-900 dark:text-red-100 space-y-2 text-xs font-body">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Payout Account Change Rejected</span>
-                            <Badge tone="error" size="sm">Rejected</Badge>
-                          </div>
-                          <p>Reason: {payoutChangeRequest.rejectionReason || "Account name verification could not be completed."}</p>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="text-xs"
-                            onClick={() => {
-                              appStateSync.updatePayoutAccountChangeRequestStatus("under_review");
-                              setPayoutChangeRequest(appStateSync.getPayoutAccountChangeRequest());
-                              setEditingBank(true);
-                            }}
-                          >
-                            Try again
-                          </Button>
-                        </div>
-                      )}
-
-                      {payoutChangeRequest && payoutChangeRequest.status === "approved" && (
-                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-100 space-y-1.5 text-xs font-body">
-                          <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-200">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                            <span>Payout Account Change Approved</span>
-                          </div>
-                          <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                            Your new payout destination is now active for all completed order withdrawals.
-                          </p>
-                        </div>
-                      )}
-
-                      <div
-                        className="p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border transition-all"
-                        style={{
-                          background: "var(--color-bg-elevated)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                          <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border"
-                            style={{
-                              background: "color-mix(in srgb, var(--color-accent) 10%, transparent)",
-                              borderColor: "color-mix(in srgb, var(--color-accent) 25%, transparent)",
-                            }}
-                          >
-                            <Building2 className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-sm font-bold font-body" style={s.text}>
-                                {bankDetails.bankName}
-                              </span>
-                              <span
-                                className="text-xs font-mono font-medium px-2 py-0.5 rounded-md border shrink-0"
-                                style={{
-                                  background: "var(--color-bg-surface)",
-                                  borderColor: "var(--color-border-default)",
-                                  color: "var(--color-text-secondary)",
-                                }}
-                              >
-                                •••• {bankDetails.accountNumber.slice(-4)}
-                              </span>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold font-body px-2 py-0.5 rounded-full text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 shrink-0">
-                                <Check className="w-2.5 h-2.5" /> Verified Destination
-                              </span>
-                            </div>
-                            <div className="text-xs font-body font-medium truncate mt-1" style={s.secondary}>
-                              {bankDetails.accountName || "Account Holder"}
-                            </div>
-                            <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
-                              Account Number: {bankDetails.accountNumber}
-                            </div>
-                            {bankDetails.phoneNumber && (
-                              <div className="text-[11px] font-mono mt-0.5" style={s.tertiary}>
-                                Phone: {bankDetails.phoneNumber}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
+                    ) : (
+                      <div className="pt-2">
                         <Button
                           variant="secondary"
-                          className="h-10 text-xs font-semibold gap-1.5 rounded-xl shrink-0 self-start sm:self-center"
+                          className="h-11 px-5 text-xs font-semibold gap-2 rounded-xl border"
                           onClick={() => {
                             setEditingBank(true);
                             setBankName(bankDetails.bankName || "GTBank (Guaranty Trust Bank)");
-                            setAccountNumber(bankDetails.accountNumber || "");
-                            setAccountName(bankDetails.accountName || "");
+                            setAccountNumber(bankDetails.accountNumber || "0123456789");
+                            setAccountName(bankDetails.accountName || "EMEKA JOHNSON");
                             setPhoneNumber(bankDetails.phoneNumber || "");
                             setBankLookupStatus(bankDetails.accountNumber?.length === 10 ? "name_matches" : "idle");
                           }}
@@ -2489,27 +2444,8 @@ export function Settings() {
                           <Edit2 className="w-3.5 h-3.5" /> Change Bank Account
                         </Button>
                       </div>
-
-                      {/* Security Memo (After save) */}
-                      <div
-                        className="p-3.5 rounded-xl flex items-start gap-2.5 text-xs font-body leading-relaxed border transition-colors"
-                        style={{
-                          background: "var(--color-bg-elevated)",
-                          borderColor: "var(--color-border-default)",
-                        }}
-                      >
-                        <Shield className="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-                        <div>
-                          <span className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                            Security Memo
-                          </span>
-                          <span style={{ color: "var(--color-text-secondary)" }}>
-                            You can change your bank account after 48hrs. Any change locks bank modifications for 48 hours to protect your funds.
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
 
