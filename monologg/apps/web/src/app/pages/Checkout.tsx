@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 type PaymentMethod = "card" | "bank_transfer" | "ussd";
-type CheckoutStep = "service" | "slot" | "summary" | "payment" | "processing" | "confirmed";
+type CheckoutStep = "service" | "slot" | "summary" | "review" | "payment" | "processing" | "confirmed";
 
 interface BookingNavState {
   creatorId?: string;
@@ -430,24 +430,39 @@ export function Checkout() {
         </button>
         <div className="flex-1">
           <div className="text-sm font-semibold font-display" style={{ color: "var(--color-text-primary)" }}>
-            {step === "summary" ? "Booking Summary" : "Payment"}
+            {step === "summary" ? "Booking Details" : step === "review" ? "Review & Agreement" : "Payment"}
           </div>
           <div className="text-xs font-body flex items-center gap-1" style={{ color: "var(--color-success)" }}>
-            <Lock className="w-3 h-3" /> {isLive ? "Escrow Protected" : "Escrow Protected · FINCRA"}
+            <Lock className="w-3 h-3" /> {isLive ? "Escrow Protected" : "Escrow Protected · Paystack Escrow"}
           </div>
         </div>
-        {/* 2-step progress */}
+        {/* 3-step progress */}
         <div className="flex items-center gap-1.5" aria-hidden>
-          {["summary", "payment"].map(st => (
-            <div
-              key={st}
-              className="h-1.5 rounded-[var(--radius-full)] transition-all"
-              style={{
-                width: (step === st || (st === "summary" && step === "payment")) ? 22 : 10,
-                background: (st === "summary" || step === "payment") ? "var(--color-accent)" : "var(--color-bg-elevated)",
-              }}
-            />
-          ))}
+          {(["summary", "review", "payment"] as const).map(st => {
+            const stepOrder: Record<CheckoutStep, number> = {
+              service: 0,
+              slot: 0,
+              summary: 1,
+              review: 2,
+              payment: 3,
+              processing: 3,
+              confirmed: 3,
+            };
+            const currentOrder = stepOrder[step] ?? 1;
+            const thisOrder = stepOrder[st];
+            const isActive = currentOrder >= thisOrder;
+            const isCurrent = step === st;
+            return (
+              <div
+                key={st}
+                className="h-1.5 rounded-[var(--radius-full)] transition-all"
+                style={{
+                  width: isCurrent ? 24 : 10,
+                  background: isActive ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -738,6 +753,100 @@ export function Checkout() {
                 )}
               </div>
 
+              <Button
+                className="w-full h-12 text-base font-semibold"
+                disabled={!projectTitle.trim() || (projectFormat === "onsite" && !venueLocation.trim())}
+                onClick={() => setStep("review")}
+              >
+                <span>Continue to Review &amp; Agreement</span>
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <button
+                type="button"
+                className="w-full text-sm text-center mt-3 font-body cursor-pointer hover:underline"
+                style={{ color: "var(--color-text-tertiary)" }}
+                onClick={() => {
+                  if (isLive && selectedRateCard) {
+                    setStep("slot");
+                  } else {
+                    navigate(-1);
+                  }
+                }}
+              >
+                Go back
+              </button>
+            </motion.div>
+          )}
+
+          {/* Step 2: Review & Agreement (Dedicated step before payment) */}
+          {step === "review" && (
+            <motion.div key="review" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <div className="mb-5">
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>
+                  Review &amp; Agreement
+                </h2>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  Please review your booking overview and agree to the protection terms before payment.
+                </p>
+              </div>
+
+              {/* Booking Overview Card */}
+              <div
+                className="p-5 rounded-2xl mb-5 space-y-3.5"
+                style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+              >
+                <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm font-body" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
+                      {talentName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>{talentName}</div>
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>{serviceTitle} · {isLive ? serviceDelivery : "Same Day Delivery"}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs uppercase font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>Total Escrow</div>
+                    <div className="font-mono tnum text-lg font-bold" style={{ color: "var(--color-accent)" }}>{money(TOTAL)}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs font-body pt-1">
+                  <div>
+                    <span className="text-[var(--color-text-tertiary)] block">Project Title:</span>
+                    <span className="font-semibold truncate block" style={{ color: "var(--color-text-primary)" }}>{projectTitle || "Untitled Project"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--color-text-tertiary)] block">Format:</span>
+                    <span className="font-semibold block" style={{ color: "var(--color-text-primary)" }}>
+                      {projectFormat === "onsite" ? "On-site / In-person" : "Online / Remote"}
+                    </span>
+                  </div>
+                  {projectFormat === "onsite" && venueLocation && (
+                    <div className="col-span-2">
+                      <span className="text-[var(--color-text-tertiary)] block">Venue:</span>
+                      <span className="font-medium text-xs block truncate" style={{ color: "var(--color-text-secondary)" }}>{venueLocation}</span>
+                    </div>
+                  )}
+                  <div className="col-span-2 pt-2 border-t flex items-center justify-between" style={{ borderColor: "var(--color-hairline)" }}>
+                    <span className="text-[var(--color-text-tertiary)]">Funding Source:</span>
+                    <span className="font-semibold inline-flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
+                      {fundingSource === "wallet" ? (
+                        <>
+                          <Wallet className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                          <span>Wallet Balance (₦{walletBalance.toLocaleString()} available)</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                          <span>Paystack Card</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Review & Agreement Card */}
               <div
                 className="p-5 rounded-2xl mb-5 space-y-3.5"
@@ -809,6 +918,30 @@ export function Checkout() {
                 </div>
               </div>
 
+              {fundingSource === "wallet" && walletBalance < TOTAL && (
+                <div className="p-4 rounded-xl mb-5 bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs font-body space-y-2.5">
+                  <div className="flex items-center gap-2 font-bold">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Insufficient Wallet Balance</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    You have <strong className="font-mono">₦{walletBalance.toLocaleString()}</strong> available, but this booking requires <strong className="font-mono">{money(TOTAL)}</strong>. Please fund your wallet or switch to card payment.
+                  </p>
+                  <div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+                      onClick={() => setShowFundModal(true)}
+                    >
+                      <Wallet className="w-3.5 h-3.5" />
+                      <span>+ Fund Wallet with Paystack</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {fundingSource === "wallet" ? (
                 <Button
                   className="w-full h-12 text-base font-semibold"
@@ -827,12 +960,14 @@ export function Checkout() {
                   <span>Proceed to Card Payment <ArrowRight className="w-5 h-5 ml-2" /></span>
                 </Button>
               )}
+
               <button
-                className="w-full text-sm text-center mt-3 font-body cursor-pointer"
+                type="button"
+                className="w-full text-sm text-center mt-3 font-body cursor-pointer hover:underline"
                 style={{ color: "var(--color-text-tertiary)" }}
-                onClick={() => navigate(-1)}
+                onClick={() => setStep("summary")}
               >
-                Go back
+                ← Back to Booking Details
               </button>
             </motion.div>
           )}
@@ -1129,6 +1264,15 @@ export function Checkout() {
                   {isLive ? "SSL encrypted · PCI DSS compliant" : "Powered by Paystack · SSL encrypted · PCI DSS compliant"}
                 </p>
               </div>
+
+              <button
+                type="button"
+                className="w-full text-sm text-center mt-4 font-body cursor-pointer hover:underline"
+                style={{ color: "var(--color-text-tertiary)" }}
+                onClick={() => setStep("review")}
+              >
+                ← Back to Review &amp; Agreement
+              </button>
             </motion.div>
           )}
 

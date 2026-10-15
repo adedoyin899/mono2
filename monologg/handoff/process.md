@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
+**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -908,7 +908,13 @@ Addressed user feedback to streamline performer rate card pricing, eliminate clu
   - Auto-Selected Destination Account: Replaced repetitive selectors with an auto-selected bank destination card displaying `Building2` icon, bank name, masked account number, account holder name, and green `Auto-Selected` checkmark badge.
   - Step 2 (Passcode Authorization): Clicking "Proceed to Withdraw ₦X" transitions seamlessly to a 4-digit PIN authentication screen with masked dots, validation against stored passcode (`localStorage.getItem("monologg_withdrawal_passcode") || "1234"`), error feedback, and "Confirm & Withdraw" action.
   - Step 3 (Success): Instant confirmation view displaying payment checkmark, exact withdrawn amount, destination bank details, and "Done" dismiss button.
-- **Quality Assurance & Standalone Bundle Regeneration:** Verified all 126 unit tests passing across all 25 test suites, 0 TypeScript compilation errors, and inlined freshly compiled production bundle into `monologg/monologg-app.html`.
+### Step 98: Vercel AlertTriangle Runtime Crash Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Page (Session 138)
+
+Resolved deployment defect and user workflow refinements:
+- **Vercel Production Crash Fix:** Resolved runtime crash (`ReferenceError: AlertTriangle is not defined`) by adding missing `AlertTriangle` to `lucide-react` imports in `TalentDashboard.tsx`.
+- **Badge Tone & Transaction Direction Typing:** Replaced non-existent `tone="danger"` with `tone="error"` in `TalentDashboard.tsx` and `OrderRoom.tsx`. Updated `state-sync.ts` to set `direction: "payment"` with `state: "REFUNDED"` conforming strictly to `@monologg/types`.
+- **Dedicated Performer Rate Card Review Step:** Separated Review & Agreement from the `summary` step in `Checkout.tsx`. The checkout flow now progresses cleanly across 3 distinct steps (`Booking Details` -> `Review & Agreement` -> `Payment`), rendering the 4 mandatory escrow protection clauses, agreement checkbox, and wallet/card payment triggers with complete bidirectional navigation.
+- **Project Description on Assets Page:** Added the `Project Description` textarea form field to Step 3 ("Assets") in `ProjectBrief.tsx` matching the user's design reference and synced with the project description state across the brief wizard.
 
 ---
 

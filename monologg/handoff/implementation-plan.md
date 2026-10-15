@@ -1,13 +1,32 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–136 + Session 137 PIN Modal Sizing Polish, Check-in Carousel with Auto-Refund, Project Brief Format & Funding Source Selection, and Rate Card Booking Review Agreement.
+**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–137 + Session 138 AlertTriangle Vercel Fix, Dedicated Rate Card Booking Review Step, and Project Description on Assets Page.
 
 ---
 
 ## ✅ Done
 
-### Session 137 — PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement
+### Session 138 — Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step
+- [x] **Vercel Crash Fix & TypeScript Strict Type Resolution**:
+  - Added `AlertTriangle` to `lucide-react` imports in `TalentDashboard.tsx`, fixing runtime `ReferenceError: AlertTriangle is not defined` on Vercel deployment.
+  - Replaced unsupported `tone="danger"` with `tone="error"` in `TalentDashboard.tsx` and `OrderRoom.tsx` (lines 761, 859).
+  - Fixed `direction: "refund"` in `state-sync.ts:444` to valid `direction: "payment"` with `state: "REFUNDED"`.
+  - Verified `npx tsc --noEmit` exits with 0 errors.
+- [x] **Dedicated Review & Agreement Step in Rate Card Booking Flow (`Checkout.tsx`)**:
+  - Expanded `CheckoutStep` union with `"review"`.
+  - Added 3-step progress bar in header: `Booking Details` -> `Review & Agreement` -> `Payment`.
+  - Transformed `summary` CTA into `"Continue to Review & Agreement"`.
+  - Built dedicated `review` step with:
+    - Booking overview recap card (performer details, delivery, total escrow, campaign title, format, venue, funding method).
+    - Review & Agreement card with 4 mandatory protection clauses and agreement checkbox.
+    - Escrow Protection trust banner.
+    - Insufficient wallet balance alert with quick fund button.
+    - Conditional CTA: `"Authorize & Pay ... from Wallet"` (instant debit) or `"Proceed to Card Payment"`.
+    - Integrated bidirectional back navigation (`payment` -> `review` -> `summary`).
+- [x] **Project Description on Assets Page (`ProjectBrief.tsx`)**:
+  - In Step 3 (Assets), added `FormField label="Project Description"` with responsive textarea matching the provided UI reference.
+  - Kept state synchronized with `description` across both Step 1 and Step 3.
 - [x] **Withdrawal PIN Modal UI Polish (`TalentDashboard.tsx`)**:
   - Modal title updated to `"Input PIN"` on passcode step.
   - Removed redundant lock icon and sub-heading.

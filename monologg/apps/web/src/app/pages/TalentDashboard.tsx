@@ -21,7 +21,7 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
-  Filter, ArrowRight, Building2
+  Filter, ArrowRight, Building2, AlertTriangle
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -1284,7 +1284,7 @@ export function TalentDashboard() {
                           <ChevronLeft className="w-3.5 h-3.5" />
                         </button>
                         <Badge
-                          tone={isCancelled ? "danger" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                          tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
                           className={isConfirmed ? "badge-confirmed" : ""}
                           size="sm"
                         >

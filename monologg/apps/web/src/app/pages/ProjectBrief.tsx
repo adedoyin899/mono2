@@ -581,8 +581,19 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Assets</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Upload any scripts, briefs, or reference materials. (Optional)</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Review your project description, upload scripts, briefs, or reference materials.</p>
               </div>
+
+              <FormField label="Project Description">
+                <textarea
+                  className="w-full px-4 py-3 rounded-2xl text-sm font-body border resize-none transition-colors"
+                  rows={4}
+                  placeholder="Describe your project, goals, and what you're looking for in a performer..."
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                />
+              </FormField>
 
               <div
                 className="relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-10 text-center cursor-pointer hover:opacity-80 transition-opacity"

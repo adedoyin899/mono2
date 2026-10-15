@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
+**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 86. Vercel Production Crash (`ReferenceError: AlertTriangle is not defined`), Badge Tone Prop Discrepancy, and Transaction Direction Schema Mismatch
+- **Severity:** High / Production Runtime Crash
+- **What happened:** On the Vercel production deployment (`mono2-ldt1gydxj-adedoyin899s-projects.vercel.app`), clicking into the Talent Dashboard or check-in alert crashed with an unhandled exception: `ReferenceError: AlertTriangle is not defined`. Additionally, running strict TypeScript checks revealed invalid `tone="danger"` props passed to `<Badge>` in `OrderRoom.tsx` and `TalentDashboard.tsx`, and an invalid `direction: "refund"` set on `Transaction` in `state-sync.ts`.
+- **Root Cause:**
+  - `AlertTriangle` was referenced in `TalentDashboard.tsx:1353` but omitted from the `lucide-react` import statement.
+  - `<Badge>` component strictly defines `tone: "error" | "neutral" | "accent" | "success" | "warning"`; `"danger"` was used instead of `"error"`.
+  - `@monologg/types` `Transaction` schema defines `direction: z.enum(["payment", "payout"])`; `"refund"` was passed directly as direction instead of `"payment"` with `state: "REFUNDED"`.
+- **Fix:**
+  - Added `AlertTriangle` to the `lucide-react` import list in `TalentDashboard.tsx`.
+  - Updated all occurrences of `tone="danger"` to `tone="error"` in `TalentDashboard.tsx` and `OrderRoom.tsx`.
+  - Updated `refundOrder` in `state-sync.ts` to set `direction: "payment"` with `state: "REFUNDED"`.
+  - Verified with `npx tsc --noEmit` (0 errors) and full Vitest suite (126 tests passing).
 
 ### 85. PIN Modal Component Sizing Inconsistency, Missing Check-in Demo Switcher & Unhandled Decline Cancellation/Refund Flow, and Incomplete Project Brief / Checkout Funding & Terms
 - **Severity:** Medium / UI Hierarchy & Booking Flow Integrity

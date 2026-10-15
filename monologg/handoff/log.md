@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-15 (Session 137: PIN Modal Sizing Polish, Check-in Milestone Carousel with Automated Decline & Refund, Project Creation Onsite/Online Format & Wallet/Card Funding, and Rate Card Booking Terms Agreement)
+**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 138 (2026-10-15) — Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step
+
+**Goal:** Address deployment bug and user feedback:
+1. **Fix Vercel Production Crash (`ReferenceError: AlertTriangle is not defined`):**
+   - Resolve missing import of `AlertTriangle` in `TalentDashboard.tsx`.
+   - Correct TypeScript compiler errors: invalid `Badge tone="danger"` in `TalentDashboard.tsx` and `OrderRoom.tsx` (must be `"error"`), and invalid `Transaction.direction: "refund"` in `state-sync.ts` (must be `"payment"` or `"payout"` with `state: "REFUNDED"`).
+2. **Dedicated Performer Rate Card Booking Review Step (`Checkout.tsx`):**
+   - The user requested: *"also for the performer let the review be a seperate step before payment is made"*.
+   - Decouple the Review & Agreement card from the `summary` step into a dedicated standalone `review` step (`CheckoutStep = "service" | "slot" | "summary" | "review" | "payment" | "processing" | "confirmed"`).
+   - Show 3-step progress bar in header (`Booking Details` -> `Review & Agreement` -> `Payment`).
+   - On the `review` step, render:
+     - Booking Overview Card (Performer info, total escrow, project title, format, venue if onsite, funding source).
+     - Review & Agreement Card with 4 mandatory protection clauses (Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance) and mandatory agreement checkbox.
+     - Escrow Protection trust badge.
+     - Insufficient wallet balance warning (if wallet chosen and underfunded) with quick fund button.
+     - Primary CTA: `"Authorize & Pay ... from Wallet"` (if wallet) or `"Proceed to Card Payment"` (if card).
+     - Secondary CTA: `"← Back to Booking Details"`.
+3. **Project Description on Assets Page (`ProjectBrief.tsx`):**
+   - The user requested: *"let the project description be part of the assets page too"*.
+   - In `ProjectBrief.tsx` Step 3 ("Assets"), added the `Project Description` textarea form field (matching the user's design reference) synced to `description` state alongside the asset file uploader and additional performer notes.
+
+### Changes Made:
+- **`monologg/apps/web/src/app/pages/TalentDashboard.tsx`**:
+  - Imported `AlertTriangle` from `lucide-react`.
+  - Replaced invalid `tone="danger"` with `tone="error"` on line 1287.
+- **`monologg/apps/web/src/app/pages/OrderRoom.tsx`**:
+  - Replaced invalid `tone="danger"` with `tone="error"` on lines 761 and 859.
+- **`monologg/apps/web/src/lib/state-sync.ts`**:
+  - Fixed `Transaction` direction in `refundOrder` from `"refund"` to `"payment"` with `state: "REFUNDED"`.
+- **`monologg/apps/web/src/app/pages/ProjectBrief.tsx`**:
+  - In Step 3 (Assets), added `FormField label="Project Description"` with responsive textarea synced to `description`.
+- **`monologg/apps/web/src/app/pages/Checkout.tsx`**:
+  - Added `"review"` to `CheckoutStep` union.
+  - Updated header with 3-step indicator (`summary` -> `review` -> `payment`) and step-aware back navigation.
+  - Transformed `summary` CTA into `"Continue to Review & Agreement"`.
+  - Added dedicated `step === "review"` view with full booking overview, 4 mandatory clauses, agreement checkbox, and conditional payment triggers.
+  - Added back link on card payment view (`"← Back to Review & Agreement"`).
+- **Validation**:
+  - `npx tsc --noEmit` passed with 0 errors.
+  - `npm test -- --run` passed with all 25 test suites and 126 tests passing.
 
 ---
 

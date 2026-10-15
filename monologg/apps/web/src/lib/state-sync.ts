@@ -441,7 +441,7 @@ class StateSyncBus {
     const newTx: Transaction = {
       id: `tx-refund-${Date.now()}`,
       bookingId,
-      direction: "refund",
+      direction: "payment",
       state: "REFUNDED",
       currency: "NGN",
       baseAmount: amountNaira * 100,

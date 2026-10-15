@@ -758,7 +758,7 @@ export function OrderRoom() {
                 {gigType === "remote" ? "Remote" : "On-site"}
               </span>
               {appStateSync.isBookingCancelled(curOrderId) && (
-                <Badge tone="danger" size="sm">Cancelled &amp; Refunded</Badge>
+                <Badge tone="error" size="sm">Cancelled &amp; Refunded</Badge>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-500 truncate mt-0.5">
@@ -856,7 +856,7 @@ export function OrderRoom() {
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
                     <Badge
-                      tone={isCancelled ? "danger" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                      tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
                       className={isConfirmed ? "badge-confirmed" : ""}
                       size="sm"
                     >
