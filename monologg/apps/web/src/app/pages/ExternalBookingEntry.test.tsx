@@ -105,35 +105,31 @@ describe("ExternalBookingEntry (PWA-18)", () => {
 
     await renderFlow();
 
-    // Step: slot picker.
+    // Step 1: Slot & Rate Card picker.
     await screen.findByText("Book Adaeze Obi");
     fireEvent.click(await screen.findByRole("button", { name: "08:00" }));
-    fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Continue to Project Brief/i }));
 
-    // Step: summary + escrow explainer.
-    await screen.findByText("Booking Summary");
-    expect(screen.getByText(/held safely/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
+    // Step 2: Project Brief with Client Name & Email.
+    await screen.findByRole("heading", { name: "Project Brief" });
+    fireEvent.change(screen.getByPlaceholderText("Your full name"), { target: { value: "Jamie Guest" } });
+    fireEvent.change(screen.getByPlaceholderText("you@company.com"), { target: { value: "jamie@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: /Continue to Review & Agreement/i }));
 
-    // Step: context note (optional, not chat).
-    await screen.findByText("A bit of context");
-    expect(screen.getByText(/not a conversation/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Continue/i }));
+    // Step 3: Service Agreement (Review & Agreement).
+    await screen.findByRole("heading", { name: "Review & Agreement" });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /Proceed to Payment/i }));
 
-    // Step: name + email.
-    await screen.findByText("Your details");
-    fireEvent.change(screen.getByPlaceholderText("Your name"), { target: { value: "Jamie Guest" } });
-    fireEvent.change(screen.getByPlaceholderText("you@example.com"), { target: { value: "jamie@example.com" } });
-    fireEvent.click(screen.getByRole("button", { name: /Continue to Payment/i }));
-
-    // Step: payment — "Step 2 of 3" progress indicator per the PRD.
-    await screen.findByText(/Step 2 of 3/i);
+    // Step 4: Escrow Payment.
+    await screen.findByText(/Step 4 of 4/i);
     fireEvent.click(screen.getByRole("button", { name: /Confirm & Deposit/i }));
 
-    // Step: confirmed, with the PWA-19 account-surfacing copy.
+    // Step 5: Confirmed, with Google Meet prompt & account surfacing copy.
     await screen.findByText("Booking Confirmed!", {}, { timeout: 3000 });
-    expect(screen.getByText(/We've created your account/i)).toBeInTheDocument();
+    expect(screen.getByText(/We've created your Monologg account/i)).toBeInTheDocument();
     expect(screen.getByText("jamie@example.com")).toBeInTheDocument();
+    expect(screen.getByText(/Schedule Google Meet Call with Adaeze Obi/i)).toBeInTheDocument();
 
     expect(calledUrls.some((u) => u.endsWith("/public/bookings"))).toBe(true);
     expect(calledUrls.some((u) => u.endsWith("/booking-guest-1/pay"))).toBe(true);

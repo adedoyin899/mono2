@@ -1,11 +1,59 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
+**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 140 (2026-10-16) — External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup
+
+**Goal:** Overhaul the external storefront booking process (`ExternalBookingEntry.tsx`) to match user feedback, clean up redundancy across client review cards, and deliver FAANG-grade UX:
+1. **Replace Standard/Rush with Performer Rate Cards:**
+   - Eliminated obsolete `Standard Booking` vs `Rush Delivery` toggles from Step 1.
+   - Displayed performer rate cards (`rateCards`) with title, delivery, description, and base price, highlighting active selection and rendering a clean `Selected Service` summary card.
+2. **Event Date & Performer Slots Availability with Unavailable Modal:**
+   - Renamed `SELECT DATE` to `EVENT DATE` and `AVAILABLE TIME SLOTS` to `PERFORMER SLOTS`.
+   - Built a tactile 10-day date strip displaying day names, dates, and live status (`● Date Available` vs `● Date Unavailable`).
+   - Unavailable dates and non-open slots are greyed out (`opacity-40 cursor-not-allowed`) and cannot be selected.
+   - If the client attempts to select an unavailable date or clicks proceed without an available slot, an animated `Performer Unavailable` modal opens: *"Performer is not available on this date or time. You can check back again for updated availability or explore another verified performer"* with quick actions `Choose Another Date` and `Browse Other Performers`.
+3. **Project Brief with Client Creation Parity (Step 2):**
+   - Brought full parity with client brief creation:
+     - `Project Name / Campaign Title *`
+     - `Project Format *` (`Online / Remote` vs `On-site / In-person` with `Event Venue / Location *` when onsite)
+     - `Project Description` textarea matching Image 2
+     - Drag & drop / file upload box for scripts and assets (PDF, DOC, TXT, MP3, MP4 max 50MB)
+     - `Additional Notes for Performers` textarea matching Image 2
+     - External guest client contact inputs (`Your Name *`, `Email Address *`) with auto-account setup reassurance.
+4. **Service Agreement (Review & Agreement — Step 3):**
+   - Clean booking overview card with performer details, event date & slot, project format, booking contact, and transparent fee breakdown (Base Rate + 12% Escrow Fee = Total Escrow Deposit).
+   - Unified 4 mandatory protection clauses (Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance) and mandatory agreement checkbox.
+5. **Redundant Escrow Badge & Duplicate Heading Cleanup (Image 4 Feedback):**
+   - Removed the duplicate `Review & Agreement` and `Please review booking terms before proceeding to payment:` text from inside the card across all client review cards (`ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `Checkout.tsx`).
+   - Removed the redundant green `Escrow Protected / Your funds are held safely until you approve the completed work` badge below the card across all 3 screens since Escrow Protection is already the prominent first clause inside the terms.
+6. **Escrow Payment with Image 4 Paystack Gateway & Direct Card (Step 4):**
+   - Integrated the blue-bordered pill button matching Image 4 (`#0052FF` border, purple shield check icon, bold `Paystack`, subtitle `Card, Transfer, USSD`).
+   - Connected `PaystackModal` so clients can pay directly via Card, Bank Transfer (with virtual Wema Bank account), or USSD, and automatically complete the booking upon authorization.
+   - Provided direct card entry fields (Card Number, Expiry, CVV, Cardholder Name) for external clients who prefer direct form entry.
+7. **Google Meet Introduction Call Scheduler Prompt (Confirmed View):**
+   - When the order is confirmed, added a prominent card prompting external clients to schedule a Google Meet introduction call with the performer:
+     - "Schedule Google Meet Call with {creator.name}"
+     - "Hop on a quick video call with {creator.name} to introduce yourself, review the project brief, and confirm delivery expectations."
+     - `Launch Google Meet` 1-click button (opens meet in new tab) + `Copy Meeting Link` with live copied feedback state.
+     - Security memo: "Escrow remains 100% protected during the call and throughout production until you approve deliverables."
+8. **Testing & Validation:**
+   - Updated `ExternalBookingEntry.test.tsx` to validate the new 4-step flow, service agreement, and Google Meet prompt.
+   - All 126 unit tests passing across all 25 test suites (`npm test`).
+   - Clean TypeScript compilation with 0 errors (`npx tsc --noEmit`).
+
+### Changes Made:
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx`**: Complete overhaul replacing standard/rush with rate cards, event date strip, performer slots, project brief parity with file upload, clean service agreement, Paystack modal + direct card input, and Google Meet introduction prompt upon booking confirmation.
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.test.tsx`**: Updated step progression and assertions for the 4-step external booking flow and Google Meet call prompt.
+- **`monologg/apps/web/src/app/pages/ProjectBrief.tsx`**: Removed duplicate inner card headings and removed redundant green escrow badge below Review & Agreement card per Image 4 feedback.
+- **`monologg/apps/web/src/app/pages/Checkout.tsx`**: Removed duplicate inner card headings and removed redundant green escrow badge below Review & Agreement card per Image 4 feedback.
 
 ---
 

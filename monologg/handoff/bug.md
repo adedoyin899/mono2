@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
+**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 88. External Storefront Booking UX Disconnect, Obsolete Standard/Rush Toggles, Redundant Escrow Banner & Missing Google Meet Orientation Gate
+- **Severity:** Medium / External Guest Conversion & Brand Consistency
+- **What happened:** In `ExternalBookingEntry.tsx`, the booking process used obsolete `Standard Booking` vs `Rush Delivery` options instead of the performer's actual rate cards; date selection had no visual distinction between available and booked dates; and no graceful recovery modal existed when users tried to book unavailable performers. The project brief lacked parity with the client brief flow (missing format, venue, description, and asset upload). Furthermore, Review & Agreement cards across all client booking surfaces (`ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `Checkout.tsx`) suffered from duplicate headings and an unnecessary green `Escrow Protected` card below terms. Finally, once an external booking was completed, there was no prompt to schedule an introductory video call with the performer.
+- **Root Cause:** Prototyping legacy in early Phase 16 external entry; disjointed brief form implementations; duplicated section banners in review cards.
+- **Fix:**
+  - Replaced Standard/Rush toggles with performer rate card selection with delivery badges and selected service summary card.
+  - Implemented 10-day date strip with active selection, live status badges, greying out of unavailable dates, and an animated `Performer Unavailable` modal.
+  - Re-engineered Step 2 into a full project brief with campaign title, remote/onsite format, venue, description, asset drag-and-drop uploader, and notes.
+  - Removed duplicate headers and redundant green escrow badge across all 3 client booking review steps.
+  - Added Image 4 Paystack pill modal checkout and direct card input options.
+  - Added a prominent Google Meet introduction call prompt with 1-click launch and copy link upon booking confirmation.
+- **Resolution:** Validated with all 25 test suites passing (126/126 tests) and clean TypeScript typecheck (`npx tsc --noEmit`).
 
 ### 87. Filter Modal Visual Noise, Redundant Brief Description in Step 1, Mixed Review/Budget Wizard Step Order, and Incomplete Paystack Checkout Experience
 - **Severity:** Medium / UX Hierarchy & Fintech Integration

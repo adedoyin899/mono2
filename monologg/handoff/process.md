@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
+**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -924,6 +924,18 @@ Addressed client platform refinements and payment gateway integration:
 - **5-Step Brief Wizard with Penultimate Review & Agreement:** Restructured `ProjectBrief.tsx` into 5 distinct steps: Step 1 (Project Details), Step 2 (Requirements), Step 3 (Assets & Description), Step 4 (Review & Agreement — Penultimate step with Image 3 terms & mandatory agreement checkbox), and Step 5 (Budget & Escrow Payment — Final step). Updated `ProjectBrief.test.tsx` to validate complete progression.
 - **Authentic Paystack Modal & Image 4 UI Integration:** Built reusable `PaystackModal.tsx` component with authentic Paystack header, Card, Bank Transfer (with copyable Wema Bank details), and USSD channels with authorization spinner. Styled the Paystack payment selector as a blue-bordered pill matching Image 4 (`#0052FF`, purple shield icon, bold Paystack, Card/Transfer/USSD subtitle). Connected `PaystackModal` directly into Step 5 of `ProjectBrief.tsx` and Step 3 of `Checkout.tsx`, enabling clients to complete payments directly in the modal and return to finish up with confirmed project publication or booking confirmation.
 - **Testing & Quality Assurance:** Verified all 126 unit tests passing across all 25 test suites (`npm test`) and 0 TypeScript compilation errors (`npx tsc --noEmit`).
+
+### Step 100: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup (Session 140)
+
+Re-engineered the external guest performer storefront booking flow (`ExternalBookingEntry.tsx`) to deliver high-converting FAANG-grade UX:
+- **Rate Card Driven Service Selection:** Replaced old Standard/Rush toggles with real performer rate cards displaying title, delivery time, base rate, and a selected service summary card.
+- **Event Date Strip & Performer Slots with Live Availability:** Re-labeled date and slot sections to `EVENT DATE` and `PERFORMER SLOTS`. Introduced a 10-day date strip with day names, dates, and live status badges (`Available` vs `Booked`). Automatically disabled unavailable dates and non-open slots (`opacity-40 cursor-not-allowed`).
+- **Graceful Performer Unavailable Modal:** Built an animated dialog triggered whenever a user selects an unavailable date or attempts to proceed without open slots, providing clear context (*"Performer is not available on this date or time..."*) and fast navigation back to date selection or broader performer discovery (`/client`).
+- **Client Project Brief Parity:** Upgraded Step 2 to collect campaign title, remote vs. on-site format (with event venue input), project description, drag-and-drop asset/script uploader, performer direction notes, and guest client contact information.
+- **Service Agreement without Duplicate Headings:** Unified Step 3 with booking overview, transparent 12% escrow fee calculation, 4 mandatory protection clauses (Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance), and mandatory agreement checkbox. Purged duplicate inner card headings and redundant green escrow badge below card across all 3 client booking surfaces (`ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `Checkout.tsx`).
+- **Image 4 Paystack Gateway & Direct Card Entry:** Integrated the blue-bordered Paystack pill button (`#0052FF`) with `PaystackModal` for instant Card, Transfer, and USSD payments, alongside direct card number, expiry, and CVV form inputs for guest clients.
+- **Google Meet Introduction Call Scheduler:** Added a high-prominence orientation card upon booking confirmation allowing external clients to launch a Google Meet call directly (`https://meet.google.com/new`) or copy the meeting link with reassuring escrow protection copy.
+- **Testing & Validation:** Updated `ExternalBookingEntry.test.tsx` to assert the 4-step flow, service agreement, and Google Meet prompt. 126/126 unit tests passing across all 25 test suites, and 0 TypeScript compiler errors.
 
 ---
 

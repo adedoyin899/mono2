@@ -861,18 +861,8 @@ export function Checkout() {
                 className="p-5 rounded-2xl mb-5 space-y-3.5"
                 style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
               >
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-accent)" }}>
-                    <Shield className="w-4 h-4" />
-                    <span>Review &amp; Agreement</span>
-                  </div>
-                  <p className="text-xs mt-1 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                    Please review booking terms before proceeding to payment:
-                  </p>
-                </div>
-
-                <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)] pt-1" style={{ color: "var(--color-text-secondary)" }}>
-                  <div className="pt-2">
+                <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
+                  <div className="pt-1">
                     <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                       Escrow Protection:
                     </strong>
@@ -910,20 +900,6 @@ export function Checkout() {
                       I agree to the Terms of Service, Escrow Policy, and Processing Fee Terms. (Mandatory)
                     </span>
                   </label>
-                </div>
-              </div>
-
-              {/* Escrow trust badge */}
-              <div
-                className="p-4 rounded-2xl mb-6 flex items-center gap-3"
-                style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}
-              >
-                <Shield className="w-6 h-6 shrink-0" style={{ color: "var(--color-success)" }} />
-                <div>
-                  <div className="text-sm font-semibold font-body" style={{ color: "var(--color-success)" }}>Escrow Protected</div>
-                  <div className="text-xs font-body" style={{ color: "var(--color-success)" }}>
-                    Your <span className="font-mono tnum">{money(TOTAL)}</span> is held safely until you approve the completed work.
-                  </div>
                 </div>
               </div>
 

@@ -1,11 +1,43 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–138 + Session 139 Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration.
+**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–139 + Session 140 External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup.
 
 ---
 
 ## ✅ Done
+
+### Session 140 — External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup
+- [x] **Rate Card Selection replacing Standard/Rush (`ExternalBookingEntry.tsx`)**:
+  - Removed obsolete Standard Booking (₦120,000) / Rush Delivery (₦180,000) toggles.
+  - Replaced with performer rate cards selector with live cards, delivery badges, and Selected Service summary card.
+- [x] **Event Date & Performer Slots Availability with Modal (`ExternalBookingEntry.tsx`)**:
+  - Renamed labels to `EVENT DATE` and `PERFORMER SLOTS`.
+  - Added tactile 10-day date strip with active selection, live status badges, and greying out of unavailable dates.
+  - Unavailable dates and non-open slots are disabled from selection.
+  - Built `Performer Unavailable` modal triggered if user attempts to select an unavailable date or proceed without open slots.
+- [x] **Project Brief with Client Creation Parity (`ExternalBookingEntry.tsx`)**:
+  - Added Project Name / Campaign Title input.
+  - Added Project Format (`Online / Remote` vs `On-site / In-person` with Event Venue / Location input when onsite).
+  - Added Project Description textarea matching Image 2.
+  - Added drag & drop / click to upload file box for scripts and assets (PDF, DOC, TXT, MP3, MP4 max 50MB) matching Image 2.
+  - Added Additional Notes for Performers textarea matching Image 2.
+  - Added Your Name and Email Address guest client contact inputs with account setup reassurance.
+- [x] **Service Agreement (Review & Agreement — Step 3) (`ExternalBookingEntry.tsx`)**:
+  - Clean booking overview card with performer, service, event date, slot, format, venue, and fee breakdown.
+  - 4 mandatory protection clauses (Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance) and mandatory agreement checkbox.
+- [x] **Redundant Escrow Badge & Duplicate Heading Cleanup (`ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `Checkout.tsx`)**:
+  - Removed duplicate `Review & Agreement` and subtitle from inside the terms card.
+  - Removed redundant green `Escrow Protected` card below the terms card across all 3 client booking flows per Image 4 feedback.
+- [x] **Escrow Payment with Image 4 Paystack Gateway & Direct Card (`ExternalBookingEntry.tsx`)**:
+  - Added blue-bordered Paystack pill button matching Image 4 with `PaystackModal` integration for Card, Bank Transfer, and USSD.
+  - Added direct debit/credit card input form for external users who prefer typing card details directly.
+- [x] **Google Meet Introduction Call Scheduler Prompt (`ExternalBookingEntry.tsx`)**:
+  - Rendered prominent Google Meet card on booking confirmation view with `Launch Google Meet` 1-click button and `Copy Meeting Link` button with copied feedback state.
+- [x] **Testing & Validation**:
+  - Updated `ExternalBookingEntry.test.tsx` for 4-step flow and Google Meet prompt.
+  - All 126 unit tests passing across all 25 test suites (`npm test`).
+  - Clean TypeScript compilation with 0 errors (`npx tsc --noEmit`).
 
 ### Session 139 — Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration
 - [x] **Filter Physical Features & Appearance Removal (`ClientDashboard.tsx`)**:
