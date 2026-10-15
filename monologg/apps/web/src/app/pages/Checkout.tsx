@@ -8,10 +8,12 @@ import { apiClient, type CreatedBooking } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
 import type { PublicRateCard } from "@monologg/types";
 import { Modal } from "../components/ui/Modal";
+import { PaystackModal } from "../components/ui/PaystackModal";
 import {
   ChevronLeft, Lock, Shield, CreditCard, CheckCircle2,
   ArrowRight, Smartphone, Building2, AlertCircle,
-  Wallet, MapPin, Video, Check, AlertTriangle, X
+  Wallet, MapPin, Video, Check, AlertTriangle, X,
+  ShieldCheck
 } from "lucide-react";
 
 type PaymentMethod = "card" | "bank_transfer" | "ussd";
@@ -94,6 +96,7 @@ export function Checkout() {
   const [showFundModal, setShowFundModal] = useState(false);
   const [fundAmount, setFundAmount] = useState("100,000");
   const [fundingProcessing, setFundingProcessing] = useState(false);
+  const [showPaystackModal, setShowPaystackModal] = useState(false);
 
   // ── Live booking-flow state ────────────────────────────────────────────────
   const [rateCards, setRateCards] = useState<PublicRateCard[]>([]);
@@ -702,27 +705,33 @@ export function Checkout() {
                     )}
                   </button>
 
+                  {/* Paystack Pill Card — styled exactly like Image 4 */}
                   <button
                     type="button"
                     onClick={() => setFundingSource("card")}
-                    className="p-3.5 rounded-xl border text-left transition-all relative cursor-pointer"
+                    className="px-5 py-3 rounded-full border-2 text-left transition-all flex items-center gap-3 relative cursor-pointer"
                     style={{
-                      background: fundingSource === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                      border: `1px solid ${fundingSource === "card" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                      borderColor: fundingSource === "card" ? "#0052FF" : "var(--color-hairline)",
+                      background: fundingSource === "card" ? "rgba(0, 82, 255, 0.05)" : "var(--color-bg-elevated)",
+                      boxShadow: fundingSource === "card" ? "0 0 0 1px #0052FF" : "none",
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <CreditCard className="w-4 h-4" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                      <span className="text-xs font-bold font-body" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                        Paystack Card
-                      </span>
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: "rgba(123, 0, 254, 0.12)",
+                        color: "#7B00FE",
+                      }}
+                    >
+                      <ShieldCheck className="w-5 h-5" />
                     </div>
-                    <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                      Debit / Credit Card (Instant)
+                    <div className="min-w-0 pr-2">
+                      <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
                     </div>
                     {fundingSource === "card" && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
-                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
+                      <div className="ml-auto w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "#0052FF" }}>
+                        <Check className="w-2.5 h-2.5 text-white" />
                       </div>
                     )}
                   </button>
@@ -942,24 +951,14 @@ export function Checkout() {
                 </div>
               )}
 
-              {fundingSource === "wallet" ? (
-                <Button
-                  className="w-full h-12 text-base font-semibold"
-                  disabled={!agreedToTerms || walletBalance < TOTAL}
-                  onClick={handleWalletPayment}
-                >
-                  <span>Authorize &amp; Pay {money(TOTAL)} from Wallet</span>
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  className="w-full h-12 text-base font-semibold"
-                  disabled={!agreedToTerms}
-                  onClick={() => setStep("payment")}
-                >
-                  <span>Proceed to Card Payment <ArrowRight className="w-5 h-5 ml-2" /></span>
-                </Button>
-              )}
+              <Button
+                className="w-full h-12 text-base font-semibold"
+                disabled={!agreedToTerms}
+                onClick={() => setStep("payment")}
+              >
+                <span>Proceed to Payment</span>
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
 
               <button
                 type="button"
@@ -986,7 +985,78 @@ export function Checkout() {
                 </div>
               )}
 
-              {/* Payment method tabs */}
+              {/* Paystack Primary Option (styled like Image 4) */}
+              <div className="p-4 rounded-2xl mb-5 border space-y-3" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                    Recommended Payment Gateway
+                  </span>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 font-semibold">
+                    Instant Escrow
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  {/* Paystack Pill Card — styled exactly like Image 4 */}
+                  <div
+                    className="px-5 py-3 rounded-full border-2 text-left flex items-center gap-3 relative"
+                    style={{
+                      borderColor: "#0052FF",
+                      background: "rgba(0, 82, 255, 0.05)",
+                      boxShadow: "0 0 0 1px #0052FF",
+                    }}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: "rgba(123, 0, 254, 0.12)",
+                        color: "#7B00FE",
+                      }}
+                    >
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 pr-2">
+                      <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    className="h-11 px-5 font-bold shadow-md cursor-pointer whitespace-nowrap"
+                    style={{ background: "#0BA4DB", color: "#FFFFFF" }}
+                    onClick={() => setShowPaystackModal(true)}
+                  >
+                    <span>Pay {money(TOTAL)} with Paystack</span>
+                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] pt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span>Click above to open Paystack's official interface. Certified PCI-DSS Level 1 · 256-Bit SSL.</span>
+                </div>
+              </div>
+
+              {/* Wallet payment alternative if sufficient funds */}
+              {walletBalance >= TOTAL && (
+                <div className="p-3.5 rounded-xl mb-5 border flex items-center justify-between gap-3" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+                  <div className="flex items-center gap-2.5">
+                    <Wallet className="w-4 h-4 text-[var(--color-accent)]" />
+                    <span className="text-xs font-medium font-body" style={{ color: "var(--color-text-primary)" }}>
+                      Or pay from Wallet balance (₦{walletBalance.toLocaleString()} available)
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="h-8 text-xs font-semibold whitespace-nowrap"
+                    onClick={handleWalletPayment}
+                  >
+                    Pay from Wallet
+                  </Button>
+                </div>
+              )}
+
+              {/* Payment method tabs for custom manual details */}
               <div
                 className="flex p-1 rounded-xl mb-5"
                 style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}
@@ -1347,6 +1417,32 @@ export function Checkout() {
             </Button>
           </div>
         </Modal>
+      )}
+
+      {showPaystackModal && (
+        <PaystackModal
+          isOpen={showPaystackModal}
+          onClose={() => setShowPaystackModal(false)}
+          amount={TOTAL}
+          email="client@filmcraft.ng"
+          onSuccess={async () => {
+            setShowPaystackModal(false);
+            if (isLive && booking) {
+              setStep("processing");
+              try {
+                const { providerRef } = await apiClient.payBooking(booking.id);
+                const ok = await apiClient.simulateEscrowWebhook(providerRef);
+                if (!ok) throw new Error("escrow confirmation failed");
+                setStep("confirmed");
+              } catch {
+                setPayError("We couldn't confirm your payment. Please try again.");
+                setStep("payment");
+              }
+            } else {
+              setStep("confirmed");
+            }
+          }}
+        />
       )}
     </div>
   );

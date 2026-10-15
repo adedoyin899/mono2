@@ -9,14 +9,15 @@ import { apiClient } from "../../lib/api-client";
 import { appStateSync } from "../../lib/state-sync";
 import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL, getRandomLimitError, LimitError } from "../../lib/currency";
 import { Modal } from "../components/ui/Modal";
+import { PaystackModal } from "../components/ui/PaystackModal";
 import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
   Check, Mic, Video, AlertTriangle, AlertCircle,
   Drama, AudioLines, Laugh, Headphones, MapPin, X,
-  Shield, CreditCard, Wallet
+  Shield, CreditCard, Wallet, ShieldCheck
 } from "lucide-react";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const NICHES = [
   { id: "actors", label: "Actors", icon: Drama },
@@ -96,7 +97,8 @@ const STEPS = [
   { num: 1 as Step, label: "Project Details", icon: FileText },
   { num: 2 as Step, label: "Requirements", icon: Users },
   { num: 3 as Step, label: "Assets", icon: UploadCloud },
-  { num: 4 as Step, label: "Budget & Publish", icon: DollarSign },
+  { num: 4 as Step, label: "Review & Agreement", icon: Shield },
+  { num: 5 as Step, label: "Budget & Publish", icon: DollarSign },
 ];
 
 export function ProjectBrief() {
@@ -138,6 +140,7 @@ export function ProjectBrief() {
   const [showFundModal, setShowFundModal] = useState(false);
   const [fundAmount, setFundAmount] = useState("100,000");
   const [fundingProcessing, setFundingProcessing] = useState(false);
+  const [showPaystackModal, setShowPaystackModal] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const navigate = useNavigate();
@@ -165,9 +168,9 @@ export function ProjectBrief() {
     if (step === 1) return Boolean(projectName.trim() && projectType && (projectFormat === "online" || venueLocation.trim()));
     if (step === 2) return selectedNiches.length > 0;
     if (step === 3) return true;
-    if (step === 4) {
+    if (step === 4) return agreedToTerms;
+    if (step === 5) {
       if (budgetAmount <= 0) return false;
-      if (!agreedToTerms) return false;
       if (fundingSource === "wallet" && walletBalance < budgetAmount) return false;
       return true;
     }
@@ -211,13 +214,7 @@ export function ProjectBrief() {
     }
   };
 
-  const handleNext = async () => {
-    if (step < 4) {
-      setStep((step + 1) as Step);
-      return;
-    }
-    // Live mode: actually create the Brief so it shows up in ClientDashboard's real
-    // "My Projects" list. Mock mode: unchanged — just show the success screen.
+  const executePublish = async () => {
     setPublishing(true);
     try {
       if (fundingSource === "wallet") {
@@ -243,6 +240,18 @@ export function ProjectBrief() {
     } finally {
       setPublishing(false);
     }
+  };
+
+  const handleNext = async () => {
+    if (step < 5) {
+      setStep((step + 1) as Step);
+      return;
+    }
+    if (fundingSource === "card") {
+      setShowPaystackModal(true);
+      return;
+    }
+    await executePublish();
   };
 
   if (submitSuccess) {
@@ -292,7 +301,7 @@ export function ProjectBrief() {
         </button>
         <div className="flex-1">
           <div className="text-sm font-semibold font-display" style={{ color: "var(--color-text-primary)" }}>Create Project Brief</div>
-          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Step {step} of 4</div>
+          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Step {step} of {STEPS.length}</div>
         </div>
         <button onClick={() => navigate("/client")} className="text-sm font-body px-3 py-2 rounded-[var(--radius-full)] hover:opacity-80 active:scale-95 transition-all" style={{ color: "var(--color-text-tertiary)" }}>Cancel</button>
       </div>
@@ -302,7 +311,7 @@ export function ProjectBrief() {
         <motion.div
           className="h-full"
           style={{ background: "var(--color-accent)" }}
-          animate={{ width: `${(step / 4) * 100}%` }}
+          animate={{ width: `${(step / STEPS.length) * 100}%` }}
           transition={{ duration: 0.4 }}
         />
       </div>
@@ -436,17 +445,6 @@ export function ProjectBrief() {
                   </div>
                 </FormField>
               )}
-
-              <FormField label="Project Description">
-                <textarea
-                  className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
-                  rows={4}
-                  placeholder="Describe your project, goals, and what you're looking for in a performer..."
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                />
-              </FormField>
             </motion.div>
           )}
 
@@ -649,7 +647,7 @@ export function ProjectBrief() {
             </motion.div>
           )}
 
-          {/* Step 4 — Budget */}
+          {/* Step 4 — Review & Agreement (Penultimate step) */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -659,127 +657,9 @@ export function ProjectBrief() {
               className="space-y-5"
             >
               <div>
-                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Budget & Publish</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right performers.</p>
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Review &amp; Agreement</h2>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Please review booking terms before proceeding to payment:</p>
               </div>
-
-              <FormField label="Budget Amount (NGN) *">
-                <div className="space-y-4">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
-                      ₦
-                    </span>
-                    <Input
-                      className="pl-8 pr-4 font-mono tnum w-full"
-                      value={budgetInputStr}
-                      onChange={handleBudgetInputChange}
-                      onFocus={handleBudgetInputFocus}
-                      onBlur={handleBudgetInputBlur}
-                    />
-                  </div>
-                  <input
-                    type="range"
-                    min={5000}
-                    max={sliderMax}
-                    step={5000}
-                    value={budgetAmount}
-                    onChange={handleSliderChange}
-                    className="w-full accent-[#7B00FE] cursor-pointer"
-                  />
-                </div>
-              </FormField>
-
-              <FormField label="Maximum applicants (optional)">
-                <Input
-                  type="number"
-                  min={1}
-                  placeholder="e.g. 10 — leave blank for unlimited"
-                  value={applicantCap}
-                  onChange={e => setApplicantCap(e.target.value.replace(/\D/g, ""))}
-                />
-                <p className="text-xs font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
-                  Applications close automatically once this many performers have applied — you still choose who to hire from the pool.
-                </p>
-              </FormField>
-
-              {/* Funding Source Selector */}
-              <FormField label="Select Funding Source *">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setFundingSource("wallet")}
-                    className="p-3.5 rounded-xl border text-left transition-all relative cursor-pointer"
-                    style={{
-                      background: fundingSource === "wallet" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                      border: `1px solid ${fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <Wallet className="w-4 h-4" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                      <span className="text-sm font-semibold font-body" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                        Wallet Balance
-                      </span>
-                    </div>
-                    <div className="text-xs font-mono font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                      Available: ₦{walletBalance.toLocaleString()}
-                    </div>
-                    {fundingSource === "wallet" && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
-                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
-                      </div>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setFundingSource("card")}
-                    className="p-3.5 rounded-xl border text-left transition-all relative cursor-pointer"
-                    style={{
-                      background: fundingSource === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                      border: `1px solid ${fundingSource === "card" ? "var(--color-accent)" : "var(--color-hairline)"}`,
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <CreditCard className="w-4 h-4" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                      <span className="text-sm font-semibold font-body" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                        Paystack Card
-                      </span>
-                    </div>
-                    <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                      Debit / Credit Card (Instant)
-                    </div>
-                    {fundingSource === "card" && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
-                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </FormField>
-
-              {fundingSource === "wallet" && walletBalance < budgetAmount && (
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs font-body space-y-2.5">
-                  <div className="flex items-center gap-2 font-bold">
-                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Insufficient Wallet Balance</span>
-                  </div>
-                  <p className="leading-relaxed">
-                    You have <strong className="font-mono">₦{walletBalance.toLocaleString()}</strong> available, but this project budget is <strong className="font-mono">₦{budgetAmount.toLocaleString()}</strong> (short by ₦{(budgetAmount - walletBalance).toLocaleString()}). Please fund your wallet or switch to Paystack Card payment.
-                  </p>
-                  <div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
-                      onClick={() => setShowFundModal(true)}
-                    >
-                      <DollarSign className="w-3.5 h-3.5" />
-                      <span>+ Fund Wallet with Paystack</span>
-                    </Button>
-                  </div>
-                </div>
-              )}
 
               {/* Review & Agreement Card */}
               <div
@@ -838,27 +718,197 @@ export function ProjectBrief() {
                 </div>
               </div>
 
-              {/* Summary card */}
+              {/* Escrow trust badge */}
+              <div
+                className="p-4 rounded-2xl flex items-center gap-3"
+                style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}
+              >
+                <ShieldCheck className="w-6 h-6 shrink-0" style={{ color: "var(--color-success)" }} />
+                <div>
+                  <div className="text-sm font-semibold font-body" style={{ color: "var(--color-success)" }}>Escrow Protected</div>
+                  <div className="text-xs font-body" style={{ color: "var(--color-success)" }}>
+                    Your funds are held safely until you approve the completed work.
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Overview Card */}
               <div className="p-4 rounded-2xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
                 <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                  Project Summary
+                  Project Overview
                 </div>
                 <div className="space-y-2 text-sm font-body">
                   {[
                     { label: "Name", value: projectName || "—" },
                     { label: "Type", value: projectType || "—" },
                     { label: "Format", value: projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote" },
-                    { label: "Funding Source", value: fundingSource === "wallet" ? "Monologg Wallet" : "Paystack Card" },
                     { label: "Categories", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
                     { label: "Timeline", value: timeline || "Flexible" },
-                    { label: "Budget", value: `₦${budgetAmount.toLocaleString()}` },
-                    { label: "Maximum applicants", value: applicantCap || "Unlimited" },
                   ].map((item, i) => (
                     <div key={i} className="flex justify-between gap-4">
                       <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>
                       <span className="text-right font-medium truncate" style={{ color: "var(--color-text-secondary)" }}>{item.value}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 5 — Budget & Payment (Final step) */}
+          {step === 5 && (
+            <motion.div
+              key="step5"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-5"
+            >
+              <div>
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Budget &amp; Escrow Payment</h2>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right performers.</p>
+              </div>
+
+              <FormField label="Budget Amount (NGN) *">
+                <div className="space-y-4">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
+                      ₦
+                    </span>
+                    <Input
+                      className="pl-8 pr-4 font-mono tnum w-full"
+                      value={budgetInputStr}
+                      onChange={handleBudgetInputChange}
+                      onFocus={handleBudgetInputFocus}
+                      onBlur={handleBudgetInputBlur}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min={5000}
+                    max={sliderMax}
+                    step={5000}
+                    value={budgetAmount}
+                    onChange={handleSliderChange}
+                    className="w-full accent-[#7B00FE] cursor-pointer"
+                  />
+                </div>
+              </FormField>
+
+              <FormField label="Maximum applicants (optional)">
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="e.g. 10 — leave blank for unlimited"
+                  value={applicantCap}
+                  onChange={e => setApplicantCap(e.target.value.replace(/\D/g, ""))}
+                />
+                <p className="text-xs font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                  Applications close automatically once this many performers have applied — you still choose who to hire from the pool.
+                </p>
+              </FormField>
+
+              {/* Funding Source Selector */}
+              <FormField label="Select Funding Source *">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                  <button
+                    type="button"
+                    onClick={() => setFundingSource("wallet")}
+                    className="p-3.5 rounded-2xl border text-left transition-all relative cursor-pointer"
+                    style={{
+                      background: fundingSource === "wallet" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                      border: `1px solid ${fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Wallet className="w-4 h-4" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
+                      <span className="text-sm font-semibold font-body" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                        Wallet Balance
+                      </span>
+                    </div>
+                    <div className="text-xs font-mono font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                      Available: ₦{walletBalance.toLocaleString()}
+                    </div>
+                    {fundingSource === "wallet" && (
+                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
+                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Paystack Pill Card — styled exactly like Image 4 */}
+                  <button
+                    type="button"
+                    onClick={() => setFundingSource("card")}
+                    className="px-5 py-3 rounded-full border-2 text-left transition-all flex items-center gap-3 relative cursor-pointer"
+                    style={{
+                      borderColor: fundingSource === "card" ? "#0052FF" : "var(--color-hairline)",
+                      background: fundingSource === "card" ? "rgba(0, 82, 255, 0.05)" : "var(--color-bg-elevated)",
+                      boxShadow: fundingSource === "card" ? "0 0 0 1px #0052FF" : "none",
+                    }}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: "rgba(123, 0, 254, 0.12)",
+                        color: "#7B00FE",
+                      }}
+                    >
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 pr-2">
+                      <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
+                    </div>
+                    {fundingSource === "card" && (
+                      <div className="ml-auto w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "#0052FF" }}>
+                        <Check className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </FormField>
+
+              {fundingSource === "wallet" && walletBalance < budgetAmount && (
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs font-body space-y-2.5">
+                  <div className="flex items-center gap-2 font-bold">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Insufficient Wallet Balance</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    You have <strong className="font-mono">₦{walletBalance.toLocaleString()}</strong> available, but this project budget is <strong className="font-mono">₦{budgetAmount.toLocaleString()}</strong> (short by ₦{(budgetAmount - walletBalance).toLocaleString()}). Please fund your wallet or switch to Paystack.
+                  </p>
+                  <div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+                      onClick={() => setShowFundModal(true)}
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      <span>+ Fund Wallet with Paystack</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Summary card */}
+              <div className="p-4 rounded-2xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
+                <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                  Payment Summary
+                </div>
+                <div className="space-y-2 text-sm font-body">
+                  <div className="flex justify-between gap-4">
+                    <span style={{ color: "var(--color-text-tertiary)" }}>Escrow Deposit</span>
+                    <span className="font-mono font-bold" style={{ color: "var(--color-text-primary)" }}>₦{budgetAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span style={{ color: "var(--color-text-tertiary)" }}>Payment Gateway</span>
+                    <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                      {fundingSource === "wallet" ? "Monologg Wallet" : "Paystack (Card, Transfer, USSD)"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -880,17 +930,25 @@ export function ProjectBrief() {
               </Button>
             )}
             <Button
-              className="flex-1 h-12"
+              className="flex-1 h-12 font-bold"
               disabled={!canAdvance() || publishing}
               onClick={handleNext}
+              style={{
+                background: step === 5 && fundingSource === "card" ? "#0BA4DB" : undefined,
+                color: step === 5 && fundingSource === "card" ? "#FFFFFF" : undefined,
+              }}
             >
-              {step === 4 ? (publishing ? "Publishing…" : "Publish Project") : "Continue"}
+              {step === 5
+                ? (fundingSource === "card"
+                    ? `Pay ₦${budgetAmount.toLocaleString()} with Paystack`
+                    : (publishing ? "Publishing…" : "Publish Project"))
+                : (step === 4 ? "Continue to Budget & Payment" : "Continue")}
             </Button>
           </div>
 
           {step < 4 && (
             <button
-              className="w-full text-sm text-center mt-2.5 font-body hover:opacity-80 transition-opacity"
+              className="w-full text-sm text-center mt-2.5 font-body hover:opacity-80 transition-opacity cursor-pointer"
               style={{ color: "var(--color-text-tertiary)" }}
               onClick={() => setStep((step + 1) as Step)}
             >
@@ -899,6 +957,19 @@ export function ProjectBrief() {
           )}
         </div>
       </div>
+
+      {showPaystackModal && (
+        <PaystackModal
+          isOpen={showPaystackModal}
+          onClose={() => setShowPaystackModal(false)}
+          amount={budgetAmount}
+          email="client@filmcraft.ng"
+          onSuccess={() => {
+            setShowPaystackModal(false);
+            executePublish();
+          }}
+        />
+      )}
 
       {limitError && (
         <Modal onClose={() => setLimitError(null)} align="center" strength="strong">

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
+**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -915,6 +915,15 @@ Resolved deployment defect and user workflow refinements:
 - **Badge Tone & Transaction Direction Typing:** Replaced non-existent `tone="danger"` with `tone="error"` in `TalentDashboard.tsx` and `OrderRoom.tsx`. Updated `state-sync.ts` to set `direction: "payment"` with `state: "REFUNDED"` conforming strictly to `@monologg/types`.
 - **Dedicated Performer Rate Card Review Step:** Separated Review & Agreement from the `summary` step in `Checkout.tsx`. The checkout flow now progresses cleanly across 3 distinct steps (`Booking Details` -> `Review & Agreement` -> `Payment`), rendering the 4 mandatory escrow protection clauses, agreement checkbox, and wallet/card payment triggers with complete bidirectional navigation.
 - **Project Description on Assets Page:** Added the `Project Description` textarea form field to Step 3 ("Assets") in `ProjectBrief.tsx` matching the user's design reference and synced with the project description state across the brief wizard.
+
+### Step 99: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration (Session 139)
+
+Addressed client platform refinements and payment gateway integration:
+- **Filter Physical Features & Appearance Removal:** Removed Section 5 ("Physical Features & Appearance": Height, Build, Complexion, Hair) from the performer Filter modal in `ClientDashboard.tsx` matching Image 1, updating the subtitle to "Filter by age, gender, budget, and location".
+- **Step 1 Project Description Removal:** Removed the redundant `FormField label="Project Description"` from Step 1 of the Project Brief creation wizard in `ProjectBrief.tsx` matching Image 2, retaining it on Step 3 (Assets) per user specification.
+- **5-Step Brief Wizard with Penultimate Review & Agreement:** Restructured `ProjectBrief.tsx` into 5 distinct steps: Step 1 (Project Details), Step 2 (Requirements), Step 3 (Assets & Description), Step 4 (Review & Agreement — Penultimate step with Image 3 terms & mandatory agreement checkbox), and Step 5 (Budget & Escrow Payment — Final step). Updated `ProjectBrief.test.tsx` to validate complete progression.
+- **Authentic Paystack Modal & Image 4 UI Integration:** Built reusable `PaystackModal.tsx` component with authentic Paystack header, Card, Bank Transfer (with copyable Wema Bank details), and USSD channels with authorization spinner. Styled the Paystack payment selector as a blue-bordered pill matching Image 4 (`#0052FF`, purple shield icon, bold Paystack, Card/Transfer/USSD subtitle). Connected `PaystackModal` directly into Step 5 of `ProjectBrief.tsx` and Step 3 of `Checkout.tsx`, enabling clients to complete payments directly in the modal and return to finish up with confirmed project publication or booking confirmation.
+- **Testing & Quality Assurance:** Verified all 126 unit tests passing across all 25 test suites (`npm test`) and 0 TypeScript compilation errors (`npx tsc --noEmit`).
 
 ---
 

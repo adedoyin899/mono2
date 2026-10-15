@@ -1,11 +1,55 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
+**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 139 (2026-10-15) — Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration
+
+**Goal:** Address user feedback on the client platform:
+1. **Take out Physical Features and Appearance from the Filter:**
+   - In `ClientDashboard.tsx`, removed Section 5 ("Physical Features & Appearance": Height, Build, Complexion, Hair) from the performer Filter modal (matching Image 1), and updated the modal subtitle to "Filter by age, gender, budget, and location".
+2. **Take out Project Description from Step 1 of Brief Creation:**
+   - In `ProjectBrief.tsx`, removed the duplicate `FormField label="Project Description"` from Step 1 (matching Image 2). Project description remains organized on Step 3 (Assets) per Session 138.
+3. **Make Review & Agreement the Penultimate Step:**
+   - Restructured `ProjectBrief.tsx` into 5 distinct wizard steps (`Step = 1 | 2 | 3 | 4 | 5`):
+     - Step 1: Project Details (Name, Type, Format, Venue)
+     - Step 2: Requirements (Niches, Timeline, Location)
+     - Step 3: Assets (File Upload, Project Description, Additional Notes)
+     - Step 4: Review & Agreement (Image 3) — **Penultimate step!** Contains Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance, and mandatory agreement checkbox.
+     - Step 5: Budget & Escrow Payment — **Final step!** Contains budget slider & input, escrow funding source selection (Wallet vs Paystack), payment summary, and direct pay/publish CTA.
+   - Updated `ProjectBrief.test.tsx` to click through Step 4 agreement and verify publishing on Step 5.
+4. **Authentic Paystack Modal & Image 4 Gateway Card:**
+   - Created reusable component `PaystackModal.tsx` (`monologg/apps/web/src/app/components/ui/PaystackModal.tsx`) replicating authentic Paystack Secure Checkout modal with `#0BA4DB` header, 3 payment channels (Card, Transfer with virtual Wema Bank account copy, USSD with shortcodes), simulated bank authorization spinner, and `onSuccess` callback.
+   - Re-styled the Paystack selector card on Step 5 of `ProjectBrief.tsx` and in `Checkout.tsx` to match Image 4 (blue-bordered pill `#0052FF`, purple circle with shield check icon, bold `Paystack`, subtitle `Card, Transfer, USSD`).
+   - Integrated `PaystackModal` directly into both `ProjectBrief.tsx` and `Checkout.tsx` so clients choosing Paystack can pay directly in the modal and return to finish up with confirmed project publication or booking confirmation.
+
+### Changes Made:
+- **`monologg/apps/web/src/app/components/ui/PaystackModal.tsx`**:
+  - New component: authentic Paystack Secure Checkout dialog with Card, Transfer, USSD tabs, copy-to-clipboard virtual account details, bank processing simulator, and completion callback.
+- **`monologg/apps/web/src/app/pages/ClientDashboard.tsx`**:
+  - Removed Section 5 (Physical Features & Appearance: Height, Build, Complexion, Hair) from `More Filters Modal`.
+  - Updated filter modal subtitle from "Filter by age, gender, budget, location, and physical attributes" to "Filter by age, gender, budget, and location".
+- **`monologg/apps/web/src/app/pages/ProjectBrief.tsx`**:
+  - Removed duplicate Project Description input from Step 1.
+  - Expanded wizard steps from 4 to 5 (`STEPS = ["Project Details", "Requirements", "Assets", "Review & Agreement", "Budget & Payment"]`).
+  - Placed Review & Agreement on Step 4 as the penultimate step with mandatory terms checkbox.
+  - Placed Budget & Escrow Funding on Step 5 as the final step.
+  - Styled Paystack option as a blue-bordered pill matching Image 4.
+  - Wired `PaystackModal` to open when paying via Paystack on Step 5, auto-executing publication upon success.
+- **`monologg/apps/web/src/app/pages/Checkout.tsx`**:
+  - Styled Paystack funding option on `summary` and `payment` steps to match Image 4.
+  - Rendered `PaystackModal` on payment step, transitioning to `step = "confirmed"` upon successful payment.
+- **`monologg/apps/web/src/app/pages/ProjectBrief.test.tsx`**:
+  - Updated test helper `renderAndFillProjectBrief` to navigate through Step 4 (agree to terms) and advance to Step 5 (publish).
+- **Validation**:
+  - `npx tsc --noEmit` passed with 0 errors.
+  - `npm test` in `monologg/apps/web` passed with all 25 test suites and 126 tests passing.
 
 ---
 

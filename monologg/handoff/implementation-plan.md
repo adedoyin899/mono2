@@ -1,11 +1,31 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–137 + Session 138 AlertTriangle Vercel Fix, Dedicated Rate Card Booking Review Step, and Project Description on Assets Page.
+**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–138 + Session 139 Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration.
 
 ---
 
 ## ✅ Done
+
+### Session 139 — Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration
+- [x] **Filter Physical Features & Appearance Removal (`ClientDashboard.tsx`)**:
+  - Removed Section 5 ("Physical Features & Appearance": Height, Build, Complexion, Hair) from the performer `More Filters Modal` matching Image 1.
+  - Updated the modal subtitle to "Filter by age, gender, budget, and location".
+- [x] **Step 1 Project Description Removal (`ProjectBrief.tsx`)**:
+  - Removed the duplicate `FormField label="Project Description"` from Step 1 of the brief creation wizard matching Image 2.
+  - Retained Project Description on Step 3 (Assets) per Session 138 user request.
+- [x] **5-Step Project Brief Wizard with Penultimate Review & Agreement (`ProjectBrief.tsx`, `ProjectBrief.test.tsx`)**:
+  - Split brief creation into 5 steps (`STEPS = ["Project Details", "Requirements", "Assets", "Review & Agreement", "Budget & Payment"]`).
+  - Placed Review & Agreement on Step 4 as the penultimate step with mandatory terms checkbox (Escrow Protection, Performer Verification, Cancellation & Refund Policy, On-Site Attendance).
+  - Placed Budget & Escrow Payment on Step 5 as the final step.
+  - Updated test helper `renderAndFillProjectBrief` to step through the 5 steps and verify publish execution.
+- [x] **Authentic Paystack Modal & Image 4 UI Integration (`PaystackModal.tsx`, `ProjectBrief.tsx`, `Checkout.tsx`)**:
+  - Created authentic `PaystackModal.tsx` supporting Card, Bank Transfer (with copyable virtual Wema Bank account), and USSD shortcodes with processing spinner.
+  - Re-styled Paystack payment selector as a blue-bordered pill matching Image 4 (`#0052FF` border, purple shield check icon, bold Paystack, Card/Transfer/USSD subtitle).
+  - Integrated `PaystackModal` directly into Step 5 of `ProjectBrief.tsx` and Step 3 of `Checkout.tsx`, enabling clients to pay directly via Paystack and automatically return to finish up with confirmed project publication or booking confirmation.
+- [x] **Quality Assurance & Verification**:
+  - All 126 unit tests passing across all 25 test suites (`npm test`).
+  - Clean TypeScript typecheck with 0 errors (`npx tsc --noEmit`).
 
 ### Session 138 — Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step
 - [x] **Vercel Crash Fix & TypeScript Strict Type Resolution**:

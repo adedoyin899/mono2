@@ -31,10 +31,13 @@ async function renderAndFillProjectBrief() {
   await screen.findByRole("heading", { name: "Assets" });
   fireEvent.click(screen.getByText("Continue"));
 
-  // Step 4 — "Budget & Publish" text is ambiguous (it's also the always-visible
-  // top stepper's label), so wait for step-4-unique content instead.
-  await screen.findByText("Set your project budget range to attract the right performers.");
+  // Step 4 — Penultimate step: Review & Agreement
+  await screen.findByRole("heading", { name: "Review & Agreement" });
   fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.click(screen.getByText("Continue to Budget & Payment"));
+
+  // Step 5 — Final step: Budget & Payment
+  await screen.findByText("Set your project budget range to attract the right performers.");
 }
 
 describe("ProjectBrief", () => {

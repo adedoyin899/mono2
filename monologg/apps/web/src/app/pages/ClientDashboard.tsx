@@ -3690,7 +3690,7 @@ export function ClientDashboard() {
             )}
           </AnimatePresence>
 
-          {/* More Filters Modal (Physical Features & Attributes) */}
+          {/* More Filters Modal */}
           <AnimatePresence>
             {showMoreFiltersModal && (
               <Modal onClose={() => setShowMoreFiltersModal(false)}>
@@ -3704,7 +3704,7 @@ export function ClientDashboard() {
                     <div>
                       <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Filter Performers</h3>
                       <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                        Filter by age, gender, budget, location, and physical attributes
+                        Filter by age, gender, budget, and location
                       </p>
                     </div>
                     <button
@@ -3840,40 +3840,6 @@ export function ClientDashboard() {
                           );
                         })}
                       </div>
-                    </div>
-
-                    {/* 5. Physical Attributes (Height, Build, Complexion, Hair) */}
-                    <div className="pt-3 border-t space-y-3.5" style={{ borderColor: "var(--color-hairline)" }}>
-                      <div className="text-[11px] font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                        Physical Features &amp; Appearance
-                      </div>
-                      {ATTRIBUTE_FILTER_FIELDS.filter(f => f.key !== "genderPresentation").map((field) => (
-                        <div key={field.key as string}>
-                          <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                            {field.label}
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {field.options.map((opt) => {
-                              const active = attributeFilters[field.key] === opt;
-                              return (
-                                <button
-                                  key={opt}
-                                  type="button"
-                                  onClick={() => toggleAttributeFilter(field.key, opt)}
-                                  className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
-                                  style={{
-                                    background: active ? "#7B00FE" : "var(--color-bg-elevated)",
-                                    color: active ? "#FFFFFF" : "var(--color-text-secondary)",
-                                    border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
-                                  }}
-                                >
-                                  {opt.replace(/_/g, " ")}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
 

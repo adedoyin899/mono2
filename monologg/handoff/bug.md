@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-15 (Session 138: Vercel AlertTriangle Runtime Fix, Badge Tone & Transaction Schema Typing, Dedicated Review Step in Rate Card Checkout, and Project Description on Assets Step)
+**Last updated:** 2026-10-15 (Session 139: Filter Physical Attributes Removal, Step 1 Brief Description Removal, 5-Step Project Brief with Penultimate Review, and Image 4 Paystack Modal Integration)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 87. Filter Modal Visual Noise, Redundant Brief Description in Step 1, Mixed Review/Budget Wizard Step Order, and Incomplete Paystack Checkout Experience
+- **Severity:** Medium / UX Hierarchy & Fintech Integration
+- **What happened:** In `ClientDashboard.tsx`, the performer Filter modal contained a long Section 5 with physical attributes (Height, Build, Complexion, Hair) that added visual noise to casting discovery. In `ProjectBrief.tsx`, Step 1 displayed a redundant Project Description field that duplicated the description input placed on Step 3 (Assets). Furthermore, the 4-clause Review & Agreement card was combined on the final Step 4 alongside budget inputs, rather than serving as the clean penultimate step before payment. When selecting Paystack, the UI lacked authentic payment channels (Card, Transfer, USSD) and did not match the user's design reference.
+- **Root Cause:** Prototyping debt in filter modals; conflicting placements of project description across brief iterations; combining review terms and payment into a single step without a dedicated modal checkout gateway.
+- **Fix:**
+  - Removed Section 5 (Physical Features & Appearance) from the filter modal in `ClientDashboard.tsx`, updating subtitle to "Filter by age, gender, budget, and location".
+  - Removed duplicate Project Description from Step 1 in `ProjectBrief.tsx`, keeping it organized in Step 3 (Assets).
+  - Split `ProjectBrief.tsx` into 5 steps with Review & Agreement as the penultimate Step 4 and Budget & Escrow Funding as the final Step 5.
+  - Built `PaystackModal.tsx` supporting Card, Bank Transfer (with copyable Wema Bank details), and USSD shortcodes.
+  - Re-styled Paystack payment selector as a blue-bordered pill matching Image 4 and wired `PaystackModal` to both `ProjectBrief.tsx` and `Checkout.tsx`.
+- **Resolution:** Validated with all 25 test suites passing (126/126 tests) and clean TypeScript typecheck (`npx tsc --noEmit`).
 
 ### 86. Vercel Production Crash (`ReferenceError: AlertTriangle is not defined`), Badge Tone Prop Discrepancy, and Transaction Direction Schema Mismatch
 - **Severity:** High / Production Runtime Crash
