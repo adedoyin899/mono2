@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
+**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 101: External Storefront Booking FAANG UX Sweep — Step 1 Clutter Removal, Solid Modal Container, Step 3 Contact & Agreement, Payment Redundancy Cleanup, and Confirmed Screen Polish (Session 141)
+
+Conducted a thorough UI/UX sweep of the external visitor performer storefront booking flow (`ExternalBookingEntry.tsx`) to eliminate clunky layouts, text transparency defects, and visual noise:
+- **Step 1 Clutter Removal:** Removed the redundant rate cards selector row and Selected Service summary card from Step 1. The step is now focused strictly on `Event date` (10-day availability strip + date picker) and `Performer slots` (hour availability grid).
+- **Solid Modal Container Background:** Solved text transparency in the `Performer Unavailable` modal by applying an elevated solid surface (`var(--color-bg-surface)` / `bg-white dark:bg-zinc-900 border shadow-2xl`) and preventing scrim click dismissal when interacting with modal buttons.
+- **Contact Information Relocated to Step 3:** Moved client contact fields (`Your name` and `Email address`) out of Step 2 (Project Brief) into Step 3. Step 3 is now `Contact & Agreement`, consolidating client contact details with the 4-point Service Agreement and mandatory terms checkbox.
+- **Verbose Fee Formula Removal:** Removed the multi-line formula breakdown (`Base Rate`, `Escrow Protection Fee`, `Total Deposit`) from Step 3, replacing it with a concise single-line summary with total escrow amount.
+- **Payment Screen Redundancy Cleanup (Image 4):** Stripped repetitive displays of `₦134,400` and duplicate escrow chips across Step 4, yielding an Apple/Stripe-caliber checkout with Paystack gateway and direct card entry form.
+- **Confirmed Screen Redesign (Image 5):** Fixed the string formatting spacing bug (`₦134 , 400` -> `₦134,400`), eliminated the double green circle in favor of a crisp single-ring emerald checkmark, removed clashing neon purple/blue colors, and refined the Google Meet introduction call card with cohesive borders and button styles.
+- **Input Title Case Standardization:** Converted all input labels and section titles across all steps from aggressive all-caps into clean sentence/title case.
+- **Testing & Verification:** Updated `ExternalBookingEntry.test.tsx` to assert the updated Step 2 -> Step 3 flow. All 126 unit tests passed across all 25 test suites with 0 TypeScript errors.
+
+---
 
 ### Step 1: Figure out what was actually in the folder
 

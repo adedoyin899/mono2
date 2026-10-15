@@ -274,9 +274,9 @@ export function ExternalBookingEntry() {
   };
 
   const STEP_ITEMS = [
-    { id: 1, label: "Service & Slot", key: "slot" as Step },
+    { id: 1, label: "Event & Slot", key: "slot" as Step },
     { id: 2, label: "Project Brief", key: "brief" as Step },
-    { id: 3, label: "Review & Agreement", key: "review" as Step },
+    { id: 3, label: "Contact & Agreement", key: "review" as Step },
     { id: 4, label: "Escrow Payment", key: "payment" as Step },
   ];
 
@@ -303,7 +303,7 @@ export function ExternalBookingEntry() {
           </div>
         </div>
 
-        {/* 4-Step Progress Stepper (matching User Design Reference) */}
+        {/* 4-Step Progress Stepper */}
         <div className="max-w-xl mx-auto px-4 pb-3">
           <div className="flex items-center justify-between relative">
             <div className="absolute top-4 left-6 right-6 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
@@ -322,7 +322,7 @@ export function ExternalBookingEntry() {
                     if (item.id === 1) setStep("slot");
                     else if (item.id === 2) setStep("brief");
                     else if (item.id === 3) setStep("review");
-                    else if (item.id === 4 && agreedToTerms) setStep("payment");
+                    else if (item.id === 4 && agreedToTerms && name.trim() && email.trim()) setStep("payment");
                   }}
                   className={`relative z-10 flex flex-col items-center gap-1.5 group ${
                     item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-50"
@@ -359,94 +359,20 @@ export function ExternalBookingEntry() {
     );
   };
 
-  // ── Step 1: Service & Slot (Rate cards, Event Date, Performer Slots) ───────────
+  // ── Step 1: Event Date & Performer Slots ──────────────────────────────────────
   if (step === "slot") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header(`Book ${creator?.name ?? "Performer"}`, () => navigate(-1))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-6">
-          {/* Rate Cards Selector (Replaces obsolete Standard/Rush toggle) */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                Select Rate Card / Service
-              </label>
-              <span className="text-xs font-body text-[var(--color-text-tertiary)]">
-                {rateCards.length} service{rateCards.length === 1 ? "" : "s"} offered
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {rateCards.map((card) => {
-                const isSelected = selectedRateCard?.id === card.id;
-                return (
-                  <button
-                    key={card.id}
-                    type="button"
-                    onClick={() => setSelectedRateCard(card)}
-                    className="p-3.5 rounded-2xl border text-left transition-all relative cursor-pointer"
-                    style={{
-                      background: isSelected ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
-                      borderColor: isSelected ? "var(--color-accent)" : "var(--color-hairline)",
-                      boxShadow: isSelected ? "var(--shadow-card)" : "none",
-                    }}
-                  >
-                    <div className="text-xs font-bold font-body line-clamp-1 mb-1" style={{ color: "var(--color-text-primary)" }}>
-                      {card.title}
-                    </div>
-                    <div className="font-mono text-sm font-bold" style={{ color: "var(--color-accent)" }}>
-                      {money(card.basePriceAmount)}
-                    </div>
-                    <div className="text-[11px] font-body mt-1 text-[var(--color-text-tertiary)]">
-                      {card.delivery || "Standard Delivery"}
-                    </div>
-                    {isSelected && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center bg-[var(--color-accent)] text-[var(--color-accent-on)]">
-                        <Check className="w-2.5 h-2.5" />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Selected Service Card */}
-          {selectedRateCard && (
-            <div
-              className="p-4 sm:p-5 rounded-2xl border"
-              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
-            >
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-1 font-body text-[var(--color-text-tertiary)]">
-                Selected Service
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                    {selectedRateCard.title}
-                  </h3>
-                  <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                    {selectedRateCard.description || "Verified talent gig with escrow protection and delivery check-ins."}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-xs uppercase font-medium text-[var(--color-text-tertiary)]">Base Rate</div>
-                  <div className="font-mono text-lg font-bold" style={{ color: "var(--color-accent)" }}>
-                    {money(selectedRateCard.basePriceAmount)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Event Date Section (Available vs. Unavailable Dates) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                Event Date
+              <label className="block text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                Event date
               </label>
-              <span className="text-xs font-body" style={{ color: isSelectedDateUnavailable ? "var(--color-error)" : "var(--color-success)" }}>
-                {isSelectedDateUnavailable ? "● Date Unavailable" : "● Date Available"}
+              <span className="text-xs font-body font-medium" style={{ color: isSelectedDateUnavailable ? "var(--color-error)" : "var(--color-success)" }}>
+                {isSelectedDateUnavailable ? "● Date unavailable" : "● Date available"}
               </span>
             </div>
 
@@ -501,8 +427,8 @@ export function ExternalBookingEntry() {
           {/* Performer Slots Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                Performer Slots
+              <label className="block text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                Performer slots
               </label>
               <span className="text-xs font-body text-[var(--color-text-tertiary)]">
                 {openSlots.length > 0 ? "Select an available hour" : "No open slots on this date"}
@@ -542,10 +468,17 @@ export function ExternalBookingEntry() {
           </Button>
         </div>
 
-        {/* Unavailable Performer Modal */}
+        {/* Unavailable Performer Modal — Solid background, stopPropagation */}
         {showUnavailableModal && (
           <Modal onClose={() => setShowUnavailableModal(false)} align="center" strength="strong">
-            <div className="p-6 text-center max-w-sm space-y-4">
+            <div
+              className="w-full max-w-sm rounded-3xl p-6 text-center space-y-4 border shadow-2xl relative z-10"
+              style={{
+                background: "var(--color-bg-surface)",
+                borderColor: "var(--color-hairline)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto bg-amber-500/10 text-amber-500 border border-amber-500/20">
                 <CalendarX className="w-7 h-7" />
               </div>
@@ -556,10 +489,10 @@ export function ExternalBookingEntry() {
                 {creator?.name || "This performer"} is not available on this date or time. You can check back again for updated availability or explore another verified performer.
               </p>
               <div className="flex flex-col gap-2 pt-2">
-                <Button className="w-full h-11 text-xs font-bold" onClick={() => setShowUnavailableModal(false)}>
+                <Button className="w-full h-11 text-xs font-bold cursor-pointer" onClick={() => setShowUnavailableModal(false)}>
                   Choose Another Date
                 </Button>
-                <Button variant="secondary" className="w-full h-11 text-xs" onClick={() => navigate("/client")}>
+                <Button variant="secondary" className="w-full h-11 text-xs cursor-pointer" onClick={() => navigate("/client")}>
                   Browse Other Performers
                 </Button>
               </div>
@@ -570,7 +503,7 @@ export function ExternalBookingEntry() {
     );
   }
 
-  // ── Step 2: Project Brief (Campaign title, Format, Venue, Description, Assets, Notes, Name & Email) ──
+  // ── Step 2: Project Brief (Campaign title, Format, Venue, Description, Assets, Notes) ──
   if (step === "brief") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
@@ -587,8 +520,8 @@ export function ExternalBookingEntry() {
 
           {/* Project Title */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-              Project Name / Campaign Title *
+            <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+              Project name / campaign title *
             </label>
             <Input
               value={projectName}
@@ -600,8 +533,8 @@ export function ExternalBookingEntry() {
 
           {/* Project Format */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-              Project Format *
+            <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+              Project format *
             </label>
             <div className="grid grid-cols-2 gap-2.5">
               <button
@@ -645,8 +578,8 @@ export function ExternalBookingEntry() {
           {/* On-site Venue */}
           {projectFormat === "onsite" && (
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-                Event Venue / Location *
+              <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+                Event venue / location *
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-accent)]" />
@@ -660,10 +593,10 @@ export function ExternalBookingEntry() {
             </div>
           )}
 
-          {/* Project Description (Matching Image 2) */}
+          {/* Project Description */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-              Project Description
+            <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+              Project description
             </label>
             <textarea
               rows={3}
@@ -675,10 +608,10 @@ export function ExternalBookingEntry() {
             />
           </div>
 
-          {/* Assets Upload (Matching Image 2) */}
+          {/* Assets Upload */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-              Project Assets &amp; Script
+            <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+              Project assets & script
             </label>
             <div
               className="relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-colors"
@@ -727,10 +660,10 @@ export function ExternalBookingEntry() {
             </div>
           </div>
 
-          {/* Additional Notes (Matching Image 2) */}
+          {/* Additional Notes */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>
-              Additional Notes for Performers
+            <label className="block text-xs font-medium mb-1.5 font-body text-[var(--color-text-secondary)]">
+              Additional notes for performer
             </label>
             <textarea
               rows={3}
@@ -742,21 +675,78 @@ export function ExternalBookingEntry() {
             />
           </div>
 
-          {/* Client Details Section (Your Name, Email) */}
-          <div className="p-4 sm:p-5 rounded-2xl border space-y-3.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-accent)]">
-                Your Contact Information
+          <Button
+            className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
+            disabled={!projectName.trim() || (projectFormat === "onsite" && !venueLocation.trim())}
+            onClick={() => setStep("review")}
+          >
+            <span>Continue to Contact & Agreement</span>
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+
+          <button
+            type="button"
+            className="w-full text-xs text-center font-body text-[var(--color-text-tertiary)] hover:underline cursor-pointer"
+            onClick={() => setStep("slot")}
+          >
+            ← Back to Event & Slot
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Step 3: Contact & Agreement (Contact Details, Clean Summary & Service Agreement) ──
+  if (step === "review") {
+    return (
+      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
+        {header("Contact & Agreement", () => setStep("brief"))}
+        <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
+          <div>
+            <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              Contact & Agreement
+            </h2>
+            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
+              Enter your contact information and accept escrow protection terms before payment.
+            </p>
+          </div>
+
+          {/* Clean Booking Summary Strip (No redundant fee calculation formulas) */}
+          <div
+            className="p-4 rounded-2xl border flex items-center justify-between"
+            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+          >
+            <div className="min-w-0 pr-3">
+              <div className="text-sm font-bold font-body truncate" style={{ color: "var(--color-text-primary)" }}>
+                {creator?.name || "Performer"} · {selectedRateCard?.title || "Service"}
               </div>
-              <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
-                We'll create your secure Monologg client account automatically once your escrow booking is confirmed.
+              <div className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
+                {slotDate} at {selectedSlotStart} · {projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote"}
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[11px] font-medium text-[var(--color-text-tertiary)]">Total escrow</div>
+              <div className="font-mono text-base font-bold" style={{ color: "var(--color-accent)" }}>
+                {money(total)}
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information (Now Step 3!) */}
+          <div className="p-5 rounded-2xl border space-y-3.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+            <div>
+              <div className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                Your contact information
+              </div>
+              <p className="text-xs font-body text-[var(--color-text-tertiary)] mt-0.5">
+                We'll create your secure Monologg account automatically once your escrow booking is confirmed.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
-                  Your Name *
+                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                  Your name *
                 </label>
                 <Input
                   value={name}
@@ -767,8 +757,8 @@ export function ExternalBookingEntry() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
-                  Email Address *
+                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                  Email address *
                 </label>
                 <Input
                   type="email"
@@ -781,131 +771,38 @@ export function ExternalBookingEntry() {
             </div>
           </div>
 
-          <Button
-            className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
-            disabled={!projectName.trim() || (projectFormat === "onsite" && !venueLocation.trim()) || !name.trim() || !email.trim() || !email.includes("@")}
-            onClick={() => setStep("review")}
-          >
-            <span>Continue to Review &amp; Agreement</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-
-          <button
-            type="button"
-            className="w-full text-xs text-center font-body text-[var(--color-text-tertiary)] hover:underline cursor-pointer"
-            onClick={() => setStep("slot")}
-          >
-            ← Back to Service &amp; Slot
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Step 3: Review & Agreement (Service Agreement, Terms, and Overview) ────────
-  if (step === "review") {
-    return (
-      <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
-        {header("Review & Agreement", () => setStep("brief"))}
-        <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
-          <div>
-            <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Review &amp; Agreement
-            </h2>
-            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-              Please review your booking details and accept the terms of service before payment.
-            </p>
-          </div>
-
-          {/* Booking Overview Card */}
+          {/* Clean Service Agreement Card */}
           <div
             className="p-5 rounded-2xl border space-y-3.5"
             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
           >
-            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-              <div>
-                <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                  {creator?.name || "Performer"}
-                </div>
-                <div className="text-xs font-body text-[var(--color-text-secondary)]">
-                  {selectedRateCard?.title} · {slotDate} @ {selectedSlotStart}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[11px] uppercase font-semibold text-[var(--color-text-tertiary)]">Total Escrow</div>
-                <div className="font-mono text-lg font-bold" style={{ color: "var(--color-accent)" }}>
-                  {money(total)}
-                </div>
-              </div>
+            <div className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+              Service agreement & escrow terms
             </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs font-body">
-              <div>
-                <span className="text-[var(--color-text-tertiary)] block">Project Title:</span>
-                <span className="font-semibold block truncate" style={{ color: "var(--color-text-primary)" }}>
-                  {projectName || "Untitled Campaign"}
-                </span>
-              </div>
-              <div>
-                <span className="text-[var(--color-text-tertiary)] block">Format:</span>
-                <span className="font-semibold block" style={{ color: "var(--color-text-primary)" }}>
-                  {projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote"}
-                </span>
-              </div>
-              <div className="col-span-2 pt-1">
-                <span className="text-[var(--color-text-tertiary)] block">Booking Contact:</span>
-                <span className="font-medium" style={{ color: "var(--color-text-primary)" }}>
-                  {name} ({email})
-                </span>
-              </div>
-            </div>
-
-            {/* Fee Breakdown */}
-            <div className="pt-2 border-t space-y-1.5 text-xs font-body" style={{ borderColor: "var(--color-hairline)" }}>
-              <div className="flex justify-between">
-                <span style={{ color: "var(--color-text-secondary)" }}>Base Rate</span>
-                <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{money(baseRate)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span style={{ color: "var(--color-text-secondary)" }}>Escrow Protection Fee (12%)</span>
-                <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>+{money(escrowFee)}</span>
-              </div>
-              <div className="flex justify-between pt-1 border-t font-semibold" style={{ borderColor: "var(--color-hairline)" }}>
-                <span style={{ color: "var(--color-text-primary)" }}>Total Deposit</span>
-                <span className="font-mono text-sm" style={{ color: "var(--color-accent)" }}>{money(total)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Clean Review & Agreement Card (No duplicate headers, no redundant escrow badge) */}
-          <div
-            className="p-5 rounded-2xl border space-y-3.5"
-            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
-          >
             <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
               <div className="pt-1">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                   Escrow Protection:
                 </strong>
-                100% of your booking fee is held securely in escrow by our payment partner- Paystack and is only released to the performer after service completion.
+                100% of your booking fee is held securely in escrow by Paystack and is only released after service completion and your approval.
               </div>
               <div className="pt-2">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                   Performer Verification:
                 </strong>
-                Performers must confirm availability check ins prior to your project 3 separate times to ensure attendance.
+                Performers must confirm availability check-ins prior to your project to ensure attendance and readiness.
               </div>
               <div className="pt-2">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                  Cancellation &amp; Refund Policy:
+                  Cancellation & Refund Policy:
                 </strong>
-                If a performer fails any confirmation check ins or cancels, you receive a refund of your booking amount, minus payment processing charges capped at NGN 5,000.
+                If a performer fails confirmation check-ins or cancels, you receive a full refund minus payment processing charges capped at NGN 5,000.
               </div>
               <div className="pt-2">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
                   On-Site Attendance:
                 </strong>
-                You will be issued a 4-digit verification code to provide to the talent upon arrival to confirm physical attendance.
+                You will receive a 4-digit verification code to give to the talent upon arrival to confirm physical attendance.
               </div>
             </div>
 
@@ -926,7 +823,7 @@ export function ExternalBookingEntry() {
 
           <Button
             className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
-            disabled={!agreedToTerms}
+            disabled={!name.trim() || !email.trim() || !email.includes("@") || !agreedToTerms}
             onClick={() => setStep("payment")}
           >
             <span>Proceed to Payment</span>
@@ -945,26 +842,29 @@ export function ExternalBookingEntry() {
     );
   }
 
-  // ── Step 4: Escrow Payment (Image 4 Paystack Modal & Direct Card Input) ────────
+  // ── Step 4: Escrow Payment (Cleaned up, no repeating amounts/tags) ────────────
   if (step === "payment") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
         {header("Payment", () => setStep("review"))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
-          <div className="flex items-baseline justify-between">
-            <div>
-              <div className="text-xs uppercase font-semibold font-body text-[var(--color-text-tertiary)]">
-                Step 4 of 4: Escrow Payment
-              </div>
-              <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          {/* Streamlined Payment Header */}
+          <div>
+            <div className="text-xs font-semibold font-body text-[var(--color-text-tertiary)] mb-0.5">
+              Step 4 of 4 · Escrow payment
+            </div>
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
                 Pay <span className="font-mono text-[var(--color-accent)]">{money(total)}</span>
               </h2>
+              <div className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Escrow Protected</span>
+              </div>
             </div>
-            <div className="text-right">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                100% Escrow
-              </span>
-            </div>
+            <p className="text-xs font-body text-[var(--color-text-secondary)] mt-1">
+              Booking {creator?.name || "Performer"} for <span className="font-semibold text-[var(--color-text-primary)]">{name}</span> ({email}) · {slotDate} at {selectedSlotStart}
+            </p>
           </div>
 
           {payError && (
@@ -974,76 +874,64 @@ export function ExternalBookingEntry() {
             </div>
           )}
 
-          {/* Booking Overview Chip */}
-          <div className="p-4 rounded-2xl border flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-            <div>
-              <span className="text-[var(--color-text-tertiary)] block">Booking for</span>
-              <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>{name || "Guest"} ({email || "client"})</span>
-            </div>
-            <div className="text-right">
-              <span className="text-[var(--color-text-tertiary)] block">Total Escrow</span>
-              <span className="font-mono font-bold text-sm" style={{ color: "var(--color-accent)" }}>{money(total)}</span>
-            </div>
-          </div>
-
-          {/* Payment Method 1: Paystack (Styled exactly like Image 4) */}
-          <div className="p-4 sm:p-5 rounded-2xl border space-y-3.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
+          {/* Payment Method 1: Paystack (Recommended Gateway) */}
+          <div
+            className="p-5 rounded-2xl border space-y-3"
+            style={{
+              background: "var(--color-bg-surface)",
+              borderColor: "var(--color-hairline)",
+              boxShadow: "var(--shadow-card)",
+            }}
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase font-bold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
-                Recommended Gateway
+              <span className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                Recommended gateway
               </span>
-              <span className="text-[11px] font-mono text-emerald-500 font-semibold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Instant Paystack Checkout
+              <span className="text-xs font-mono font-medium text-[var(--color-text-tertiary)]">
+                Cards · Bank Transfer · USSD
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              {/* Paystack Pill Card — matching Image 4 */}
-              <div
-                className="px-5 py-3 rounded-full border-2 text-left flex items-center gap-3 relative"
-                style={{
-                  borderColor: "#0052FF",
-                  background: "rgba(0, 82, 255, 0.05)",
-                  boxShadow: "0 0 0 1px #0052FF",
-                }}
-              >
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+              <div className="flex items-center gap-3">
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                  style={{
-                    background: "rgba(123, 0, 254, 0.12)",
-                    color: "#7B00FE",
-                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(11, 164, 219, 0.12)", color: "#0BA4DB" }}
                 >
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <div className="min-w-0 pr-2">
-                  <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
-                  <div className="text-xs font-body text-[var(--color-text-tertiary)]">Card, Transfer, USSD</div>
+                <div>
+                  <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                    Paystack
+                  </div>
+                  <div className="text-xs font-body text-[var(--color-text-tertiary)]">
+                    Instant, secure checkout
+                  </div>
                 </div>
               </div>
 
               <Button
                 type="button"
-                className="h-11 px-5 font-bold shadow-md cursor-pointer whitespace-nowrap text-white"
+                className="h-11 px-5 font-bold shadow-sm cursor-pointer whitespace-nowrap text-white gap-2"
                 style={{ background: "#0BA4DB" }}
                 onClick={() => setShowPaystackModal(true)}
               >
-                <span>Pay {money(total)} with Paystack</span>
-                <ArrowRight className="w-4 h-4 ml-1.5" />
+                <span>Pay with Paystack</span>
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
-              Click above to launch Paystack's secure checkout with Card, direct Wema Bank transfer, or USSD shortcodes.
-            </p>
           </div>
 
-          {/* Payment Method 2: Direct Card Input for external users */}
-          <div className="p-4 sm:p-5 rounded-2xl border space-y-4" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+          {/* Payment Method 2: Direct Card Input */}
+          <div
+            className="p-5 rounded-2xl border space-y-4"
+            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-[var(--color-accent)]" />
-                <span className="text-xs font-bold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
-                  Or Pay with Debit / Credit Card
+                <span className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                  Or pay with debit / credit card
                 </span>
               </div>
               <div className="flex gap-1.5 text-[10px] font-mono uppercase font-semibold text-[var(--color-text-tertiary)]">
@@ -1053,8 +941,8 @@ export function ExternalBookingEntry() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
-                  Card Number
+                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                  Card number
                 </label>
                 <Input
                   value={cardNum}
@@ -1066,8 +954,8 @@ export function ExternalBookingEntry() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
-                    Expiry Date
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                    Expiry date
                   </label>
                   <Input
                     value={expiry}
@@ -1080,7 +968,7 @@ export function ExternalBookingEntry() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
                     CVV
                   </label>
                   <Input
@@ -1095,8 +983,8 @@ export function ExternalBookingEntry() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body text-[var(--color-text-secondary)]">
-                  Cardholder Name
+                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                  Cardholder name
                 </label>
                 <Input
                   value={cardName}
@@ -1107,19 +995,19 @@ export function ExternalBookingEntry() {
               </div>
 
               <Button
-                className="w-full h-12 text-sm font-bold gap-2 cursor-pointer mt-2"
+                className="w-full h-12 text-sm font-bold gap-2 cursor-pointer mt-1"
                 disabled={submitting}
                 onClick={handlePay}
               >
                 <Lock className="w-4 h-4" />
-                <span>{submitting ? "Confirming Escrow…" : `Confirm & Deposit ${money(total)}`}</span>
+                <span>{submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}</span>
               </Button>
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--color-text-tertiary)] pt-1">
-            <Lock className="w-3.5 h-3.5 text-emerald-500" />
-            <span>256-Bit SSL Encrypted · PCI-DSS Compliant Paystack Escrow</span>
+          <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-tertiary)] pt-1">
+            <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>256-bit SSL encryption · PCI-DSS compliant Paystack escrow</span>
           </div>
         </div>
 
@@ -1159,52 +1047,56 @@ export function ExternalBookingEntry() {
     );
   }
 
-  // ── Step: confirmed (With Google Meet Intro Call & Account Surfacing) ─────────
+  // ── Step: confirmed (FAANG-grade UX — Serene, Polished, High-Trust) ───────────
   return (
     <div className="role-client min-h-screen flex flex-col items-center justify-center p-4 sm:p-6" style={{ background: "var(--color-bg-canvas)" }}>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-md w-full space-y-5">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-          className="w-18 h-18 rounded-full flex items-center justify-center mx-auto bg-[var(--color-success-bg)] border border-[var(--color-success)]"
-        >
-          <CheckCircle2 className="w-9 h-9 text-[var(--color-success)]" />
-        </motion.div>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center max-w-md w-full space-y-6">
+        {/* Refined single-ring status badge */}
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 ring-8 ring-emerald-500/10">
+          <Check className="w-7 h-7 stroke-[2.5]" />
+        </div>
 
-        <div>
-          <h2 className="font-display text-3xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+        {/* Clean, calm typography */}
+        <div className="space-y-1.5">
+          <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
             Booking Confirmed!
           </h2>
-          <p className="text-base font-body font-semibold text-[var(--color-accent)]">
-            <span className="font-mono tnum">{money(total)}</span> secured in escrow
+          <p className="text-sm font-body font-medium" style={{ color: "var(--color-text-secondary)" }}>
+            <span className="font-mono font-bold text-[var(--color-text-primary)]">{money(total)}</span> secured in escrow
           </p>
-          <p className="text-xs font-body text-[var(--color-text-secondary)] mt-1">
-            Your funds are held securely by Monologg until {creator?.name ?? "your performer"} delivers and you approve the completed work.
+          <p className="text-xs font-body text-[var(--color-text-tertiary)] max-w-sm mx-auto leading-relaxed">
+            Your funds are held securely until {creator?.name ?? "your performer"} delivers and you approve the completed work.
           </p>
         </div>
 
-        {/* ── FAANG Google Meet Call Introduction Prompt ── */}
+        {/* Google Meet Alignment Card — Refined, premium card styling */}
         <div
-          className="p-5 rounded-2xl border text-left space-y-3.5 relative overflow-hidden"
+          className="p-5 rounded-2xl border text-left space-y-4"
           style={{
             background: "var(--color-bg-surface)",
-            borderColor: "var(--color-accent)",
-            boxShadow: "0 4px 20px -4px var(--color-accent-glow)",
+            borderColor: "var(--color-hairline)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
-              <VideoIcon className="w-5 h-5" />
+          <div className="flex items-start gap-3.5">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border"
+              style={{
+                background: "var(--color-bg-elevated)",
+                borderColor: "var(--color-hairline)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              <VideoIcon className="w-5 h-5 text-[var(--color-accent)]" />
             </div>
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)]">
-                Next Step: Video Introduction
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] font-semibold text-[var(--color-accent)]">
+                Next step · Video introduction
               </div>
-              <h4 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                Schedule Google Meet Call with {creator?.name || "Performer"}
+              <h4 className="text-sm font-bold font-body mt-0.5" style={{ color: "var(--color-text-primary)" }}>
+                Schedule Google Meet with {creator?.name || "Performer"}
               </h4>
-              <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
+              <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)] leading-relaxed">
                 Hop on a quick video call to align on your campaign brief, tone preferences, and delivery timeline.
               </p>
             </div>
@@ -1215,8 +1107,8 @@ export function ExternalBookingEntry() {
               href={googleMeetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 h-10 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 text-white transition-opacity hover:opacity-90"
-              style={{ background: "#0052FF" }}
+              className="flex-1 h-10 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 text-white transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer"
+              style={{ background: "var(--color-accent)" }}
             >
               <span>Launch Google Meet</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -1229,45 +1121,52 @@ export function ExternalBookingEntry() {
                 setCopiedMeetLink(true);
                 setTimeout(() => setCopiedMeetLink(false), 2000);
               }}
-              className="h-10 px-4 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="h-10 px-4 rounded-xl text-xs font-medium border flex items-center justify-center gap-1.5 transition-colors cursor-pointer hover:bg-[var(--color-bg-elevated)]"
               style={{
-                background: "var(--color-bg-elevated)",
+                background: "var(--color-bg-surface)",
                 borderColor: "var(--color-hairline)",
-                color: "var(--color-text-primary)",
+                color: "var(--color-text-secondary)",
               }}
             >
               <Copy className="w-3.5 h-3.5" />
-              <span>{copiedMeetLink ? "Copied Link!" : "Copy Link"}</span>
+              <span>{copiedMeetLink ? "Copied link!" : "Copy link"}</span>
             </button>
           </div>
 
-          <p className="text-[10px] font-body text-[var(--color-text-tertiary)] flex items-center gap-1">
-            <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
-            <span>Escrow remains 100% protected during the call and throughout production until you approve deliverables.</span>
-          </p>
+          <div className="text-[11px] font-body text-[var(--color-text-tertiary)] flex items-center gap-1.5 pt-1 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+            <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Escrow remains 100% protected during the call and throughout production.</span>
+          </div>
         </div>
 
-        {/* Account Details Card */}
+        {/* Muted Account Surfacing Card */}
         <div
           className="p-4 rounded-2xl flex items-start gap-3 text-left border"
           style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
         >
-          <Mail className="w-5 h-5 shrink-0 mt-0.5 text-[var(--color-accent)]" />
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+            style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+          >
+            <Mail className="w-4 h-4" />
+          </div>
           <div>
-            <div className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+            <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
               We've created your Monologg account
             </div>
-            <div className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
-              Check <span className="font-semibold text-[var(--color-text-primary)]">{email}</span> for a secure sign-in link to set your password and access your Order Room to approve deliverables.
+            <div className="text-xs font-body mt-0.5 text-[var(--color-text-tertiary)] leading-relaxed">
+              Check <span className="font-semibold text-[var(--color-text-secondary)]">{email || "your inbox"}</span> for a secure sign-in link to set your password and access your Order Room to approve deliverables.
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2.5 pt-1">
-          <Button className="w-full h-11 text-xs font-bold" onClick={() => navigate("/auth")}>
-            Go to Sign In <ArrowRight className="w-4 h-4 ml-1.5" />
+        {/* Clean, unified navigation buttons */}
+        <div className="flex flex-col gap-2 pt-1">
+          <Button className="w-full h-11 text-xs font-bold gap-2 cursor-pointer" onClick={() => navigate("/auth")}>
+            <span>Go to Sign In</span>
+            <ArrowRight className="w-4 h-4" />
           </Button>
-          <Button variant="secondary" className="w-full h-11 text-xs" onClick={() => navigate(`/${handle || ""}`)}>
+          <Button variant="secondary" className="w-full h-11 text-xs font-medium cursor-pointer" onClick={() => navigate(`/${handle || ""}`)}>
             Back to Storefront
           </Button>
         </div>
@@ -1275,3 +1174,4 @@ export function ExternalBookingEntry() {
     </div>
   );
 }
+

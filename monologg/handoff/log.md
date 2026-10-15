@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
+**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 141 (2026-10-16) — External Storefront Booking FAANG UX Sweep: Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign
+
+**Goal:** Execute a comprehensive FAANG-grade UX/UI sweep across the external performer storefront booking flow (`ExternalBookingEntry.tsx`), eliminating visual clutter, fixing buggy/AI-slop styling, and aligning with modern typography standards:
+1. **Step 1 Clutter Removal (Rate Card & Selected Service Sections):**
+   - Removed the first two redundant sections under Step 1: the rate cards selector row and the `Selected Service` summary card.
+   - Step 1 is now cleanly dedicated to `Event date` (tactile 10-day availability strip + fallback calendar input) and `Performer slots` (interactive hour grid with open/booked states).
+2. **Solid Modal Container Background:**
+   - Fixed the `Performer Unavailable` modal so that its inner dialog card is styled with a solid opaque background (`var(--color-bg-surface)` / `bg-white dark:bg-zinc-900 border shadow-2xl`) and click-propagation isolation (`onClick={e => e.stopPropagation()}`), eliminating transparent text bleeding over the scrim.
+3. **Contact Information Relocated to Step 3:**
+   - Moved `Your name` and `Email address` inputs out of Step 2 (Project Brief) into Step 3.
+   - Renamed Step 3 to `Contact & Agreement`. Step 3 now contains a concise single-line booking summary, guest client contact inputs, and the 4-point Service Agreement with mandatory terms checkbox.
+4. **Redundant Fee Breakdown Formula Removal:**
+   - Removed the verbose fee breakdown calculation formula (`Base Rate ₦120,000`, `Escrow Protection Fee (12%) +₦14,400`, `Total Deposit ₦134,400`) from Step 3 per user instruction. Replaced it with a clean, high-trust single-line summary with total escrow amount.
+5. **Image 4 Payment Step Redundancy Cleanup (Step 4):**
+   - Eliminated the 4 duplicate displays of `₦134,400` and repetitive badges (`100% Escrow`, `Instant Paystack Checkout`, duplicate total deposit chip).
+   - Re-architected Step 4 into a clean, Stripe/Apple-grade payment screen: an authoritative header with total escrow amount and trust indicator, Paystack gateway card with `Pay with Paystack` button triggering `PaystackModal`, and a direct debit/credit card entry form.
+6. **Image 5 Confirmed Screen Polish (Eliminating "AI Slop"):**
+   - Redesigned the booking confirmed view with serene, cohesive FAANG aesthetics:
+     - Replaced the awkward double green border with a crisp, single-ring emerald checkmark badge.
+     - Fixed the typography whitespace bug (`₦134 , 400` -> `₦134,400`) and removed clashing neon purple/blue colors.
+     - Redesigned the Google Meet introduction card with refined neutral borders, high-contrast primary CTA, secondary copy link button, and subtle escrow reassurance.
+     - Replaced loud styling on account creation notice and navigation buttons with elegant, unified UI components.
+7. **No All-Caps Input Titles Standard:**
+   - Swept all input labels, section titles, and stepper indicators to eliminate all-caps formatting in favor of sentence/title case (`Event date`, `Performer slots`, `Project name / campaign title *`, `Project format *`, `Event venue / location *`, `Project description`, `Project assets & script`, `Additional notes for performer`, `Your contact information`, `Your name *`, `Email address *`, `Card number`, `Expiry date`, `Cardholder name`).
+8. **Testing & Validation:**
+   - Updated `ExternalBookingEntry.test.tsx` to reflect the updated Step 2 -> Step 3 flow with Contact & Agreement inputs and assertions.
+   - All 25 test suites passed (126/126 tests) in `apps/web`.
+   - Clean TypeScript check with 0 errors (`npx tsc --noEmit`).
+
+### Changes Made:
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx`**: Removed Step 1 rate card cards, added solid modal container background, moved contact info to Step 3, removed fee formula breakdown, cleaned up Step 4 payment redundancy, redesigned confirmed screen into FAANG aesthetic, and purged all-caps input labels.
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.test.tsx`**: Updated step navigation and assertions to test Step 2 brief -> Step 3 contact info & terms -> Step 4 payment -> confirmed Google Meet prompt.
 
 ---
 

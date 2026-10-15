@@ -1,11 +1,38 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–139 + Session 140 External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup.
+**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–140 + Session 141 External Storefront Booking FAANG UX Sweep.
 
 ---
 
 ## ✅ Done
+
+### Session 141 — External Storefront Booking FAANG UX Sweep: Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign
+- [x] **Step 1 Clutter Removal (`ExternalBookingEntry.tsx`)**:
+  - Removed the rate cards selector row and the Selected Service summary card from Step 1.
+  - Dedicated Step 1 exclusively to `Event date` (tactile 10-day availability strip) and `Performer slots` (hour slots grid).
+- [x] **Solid Modal Container Background (`ExternalBookingEntry.tsx`)**:
+  - Wrapped `Performer Unavailable` modal dialog content in an opaque elevated container (`bg-white dark:bg-zinc-900 border shadow-2xl`) with `onClick={e => e.stopPropagation()}` to prevent backdrop click closure and eliminate text transparency.
+- [x] **Contact Information Relocated to Step 3 (`ExternalBookingEntry.tsx`)**:
+  - Moved `Your name` and `Email address` fields out of Step 2 (Project Brief) into Step 3.
+  - Step 3 is now `Contact & Agreement`, pairing client contact details with the 4-point Service Agreement and mandatory terms checkbox.
+- [x] **Redundant Fee Breakdown Formula Removal (`ExternalBookingEntry.tsx`)**:
+  - Removed the `Base Rate ₦120,000`, `Escrow Protection Fee (12%) +₦14,400`, `Total Deposit ₦134,400` calculation box from Step 3.
+  - Replaced with a clean, high-trust single-line summary with total escrow amount.
+- [x] **Payment Redundancy Cleanup (Image 4) (`ExternalBookingEntry.tsx`)**:
+  - Eliminated repetitive `₦134,400` tags and redundant escrow badges from Step 4.
+  - Cleaned up into an authoritative header, streamlined Paystack gateway trigger (`Pay with Paystack` button opening `PaystackModal`), and direct debit/credit card input form.
+- [x] **Confirmed Screen FAANG Redesign (Image 5) (`ExternalBookingEntry.tsx`)**:
+  - Eliminated awkward double green border in favor of a crisp, single-ring emerald checkmark badge.
+  - Fixed typography whitespace bug (`₦134 , 400` -> `₦134,400`) and removed clashing neon purple/blue colors.
+  - Redesigned the Google Meet introduction card with subtle neutral borders, unified button styles, and live copy link feedback.
+  - Refined account creation memo and navigation buttons.
+- [x] **Purged All-Caps Input Titles (`ExternalBookingEntry.tsx`)**:
+  - Converted all input labels and section titles across all steps from all-caps to clean sentence/title case.
+- [x] **Testing & Verification**:
+  - Updated `ExternalBookingEntry.test.tsx` to validate Step 2 -> Step 3 progression and assertions.
+  - All 126 unit tests passing across all 25 test suites (`npm test`).
+  - Clean TypeScript typecheck with 0 errors (`npx tsc --noEmit`).
 
 ### Session 140 — External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup
 - [x] **Rate Card Selection replacing Standard/Rush (`ExternalBookingEntry.tsx`)**:

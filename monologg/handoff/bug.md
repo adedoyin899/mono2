@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-16 (Session 140: External Storefront Booking Overhaul, Rate Card Integration, Event Date & Performer Slots Availability with Unavailable Modal, 4-Step Parity Brief & Service Agreement, Image 4 Paystack Checkout, Google Meet Intro Call Prompt, and Redundant Escrow Header Cleanup)
+**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,27 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 89. External Booking Step 1 Clutter, Missing Modal Container Background, Redundant Step 4 Price Duplications, All-Caps Input Titles, and Confirmed Screen "AI Slop" Aesthetic Disconnect
+- **Severity:** Medium / Design Quality & External Conversion
+- **What happened:** In `ExternalBookingEntry.tsx`:
+  1. Step 1 contained redundant service cards (`Select Rate Card / Service` row + `Selected Service` summary card) when users had already chosen their rate card on the storefront.
+  2. The `Performer Unavailable` modal lacked a solid container background, rendering text transparently over the backdrop scrim and closing unexpectedly when clicking modal content.
+  3. Contact details were awkwardly bundled inside Step 2 (Project Brief) instead of pairing with terms in Step 3.
+  4. Step 3 displayed an unnecessary multi-line formula breakdown (`Base Rate`, `Escrow Protection Fee`, `Total Deposit`).
+  5. Step 4 duplicated `₦134,400` in 4 places alongside redundant tags (`100% Escrow`, `Instant Paystack Checkout`, `Total Escrow`).
+  6. The Confirmed View had a double green circular border, a string formatting bug (`₦134 , 400`), and clashing neon colors (neon purple, electric blue, bright green, and mismatched buttons) that looked like buggy "AI slop".
+  7. Input field labels across the entire file were formatted in loud all-caps.
+- **Root Cause:** Incomplete cleanup during previous iterations; missing surface background styles on the bespoke modal panel; lack of unified sentence-case label standards.
+- **Fix:**
+  - Removed rate cards selector row and Selected Service summary card from Step 1.
+  - Added solid opaque container background (`var(--color-bg-surface)` / `bg-white dark:bg-zinc-900 border shadow-2xl`) and click-propagation stop to `Performer Unavailable` modal.
+  - Relocated `Your name` and `Email address` fields to Step 3 (`Contact & Agreement`).
+  - Removed redundant fee formula box from Step 3.
+  - Cleaned up Step 4 into an authoritative header, single Paystack checkout trigger, and direct card input form.
+  - Redesigned Confirmed View into a serene FAANG layout: single-ring emerald checkmark, clean `₦134,400` typography, refined Google Meet call scheduler card, muted account creation notice, and cohesive navigation buttons.
+  - Normalized all input titles to sentence/title case.
+- **Resolution:** Validated with all 25 test suites passing (126/126 tests) and clean TypeScript check (`npx tsc --noEmit`).
 
 ### 88. External Storefront Booking UX Disconnect, Obsolete Standard/Rush Toggles, Redundant Escrow Banner & Missing Google Meet Orientation Gate
 - **Severity:** Medium / External Guest Conversion & Brand Consistency

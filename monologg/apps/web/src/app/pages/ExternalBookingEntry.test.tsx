@@ -105,19 +105,19 @@ describe("ExternalBookingEntry (PWA-18)", () => {
 
     await renderFlow();
 
-    // Step 1: Slot & Rate Card picker.
+    // Step 1: Event Date & Performer Slot picker.
     await screen.findByText("Book Adaeze Obi");
     fireEvent.click(await screen.findByRole("button", { name: "08:00" }));
     fireEvent.click(screen.getByRole("button", { name: /Continue to Project Brief/i }));
 
-    // Step 2: Project Brief with Client Name & Email.
+    // Step 2: Project Brief.
     await screen.findByRole("heading", { name: "Project Brief" });
+    fireEvent.click(screen.getByRole("button", { name: /Continue to Contact & Agreement/i }));
+
+    // Step 3: Contact & Agreement (Client Name, Email & Service Agreement).
+    await screen.findByRole("heading", { name: "Contact & Agreement" });
     fireEvent.change(screen.getByPlaceholderText("Your full name"), { target: { value: "Jamie Guest" } });
     fireEvent.change(screen.getByPlaceholderText("you@company.com"), { target: { value: "jamie@example.com" } });
-    fireEvent.click(screen.getByRole("button", { name: /Continue to Review & Agreement/i }));
-
-    // Step 3: Service Agreement (Review & Agreement).
-    await screen.findByRole("heading", { name: "Review & Agreement" });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Proceed to Payment/i }));
 
@@ -129,7 +129,7 @@ describe("ExternalBookingEntry (PWA-18)", () => {
     await screen.findByText("Booking Confirmed!", {}, { timeout: 3000 });
     expect(screen.getByText(/We've created your Monologg account/i)).toBeInTheDocument();
     expect(screen.getByText("jamie@example.com")).toBeInTheDocument();
-    expect(screen.getByText(/Schedule Google Meet Call with Adaeze Obi/i)).toBeInTheDocument();
+    expect(screen.getByText(/Schedule Google Meet with Adaeze Obi/i)).toBeInTheDocument();
 
     expect(calledUrls.some((u) => u.endsWith("/public/bookings"))).toBe(true);
     expect(calledUrls.some((u) => u.endsWith("/booking-guest-1/pay"))).toBe(true);
