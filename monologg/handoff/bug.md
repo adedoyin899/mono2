@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 92. Repetitive Escrow Phrasing, Client-Performer Perspective Inconsistencies, and Upfront Fee Transparency Gaps
+- **Severity:** Medium / FAANG UX Quality & Information Architecture
+- **What happened:**
+  1. In `Checkout.tsx` and `ExternalBookingEntry.tsx`, post-booking confirmed screens featured 3 redundant paragraphs and badges all repeating "escrow" ("₦X secured in escrow", "held securely in escrow", "escrow remains 100% protected").
+  2. In `OrderRoom.tsx`, clients were exposed to performer interactive check-in buttons ("I can't make it", "Yes, I'm confirmed"), client release modals told clients "You receive ₦111,600", the side drawer showed performer net payouts instead of client escrow deposit totals, and the Google Meet intro banner stayed visible even on cancelled bookings.
+  3. In `ProjectBrief.tsx` and `LegalPage.tsx`, platform terms referenced vague escrow descriptions without explicitly disclosing the exact dual deduction model (12% client escrow protection fee added at deposit; 7% performer service fee deducted upon release).
+- **Root Cause:** Prototyped single-template components without strict role perspective branching; accumulated boilerplate safety copy without UX copy audit.
+- **Fix:**
+  - Streamlined confirmed screens in `Checkout.tsx` and `ExternalBookingEntry.tsx` to a single high-trust escrow pill, clean subhead, and focused Order Room next-step card with real-time milestone tracking.
+  - Implemented collapsible progressive disclosure for the Google Meet orientation card, hide orientation card on cancellation with a clean refund notice, branched availability banner so clients see performer confirmation status rather than check-in buttons, updated release payment modal to "Performer receives ₦111,600", and made side drawer payment summaries role-aware.
+  - Added full creative brief, script excerpt with 1-click copy, and campaign assets download to Tab 2 (`Brief & Files`) in `OrderRoom.tsx`.
+  - Disclosed the 12% client / 7% talent dual deduction policy explicitly across all terms, review cards, and budget breakdowns.
+- **Resolution:** 100% passing test suite (580/580 tests) and 0 TypeScript compilation errors (`npx tsc --noEmit`).
 
 ### 91. Clunky 10-Day Availability Strip, Premature Confirmation Google Meet CTAs, Stepper Arrow Clutter, and Missing Client Order Room Intro Call Reminder
 - **Severity:** Medium / Design Quality & Post-Checkout Conversion

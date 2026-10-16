@@ -421,8 +421,8 @@ export function Checkout() {
               <Lock className="w-3.5 h-3.5" />
               {money(TOTAL)} secured in escrow
             </div>
-            <p className="text-xs font-body mt-2.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-              Your funds are held securely until {talentName} delivers and you approve the completed work.
+            <p className="text-xs font-body mt-2 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+              Funds remain protected until you review and approve completed deliverables.
             </p>
           </div>
 
@@ -452,8 +452,8 @@ export function Checkout() {
                   <p className="text-sm font-semibold font-body leading-tight" style={{ color: "var(--color-text-primary)" }}>
                     Schedule Google Meet with {talentName}
                   </p>
-                  <p className="text-xs font-body mt-0.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                    Your video introduction call cannot be done here. Enter your dedicated Order Room workspace to schedule and launch your Google Meet call, chat with {talentName}, and manage deliverables.
+                  <p className="text-xs font-body mt-1 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                    Launch your orientation video call, align on script sides, and coordinate milestones directly in your Order Room.
                   </p>
                 </div>
               </div>
@@ -461,8 +461,8 @@ export function Checkout() {
 
             {/* Info bullets */}
             {[
-              { icon: CheckCircle2, text: "A reminder banner is set up for you inside the Order Room workspace.", iconColor: "var(--color-success)" },
-              { icon: Lock, text: "Escrow remains 100% protected during the call and throughout production.", iconColor: "var(--color-text-tertiary)" },
+              { icon: CheckCircle2, text: "Milestones and creative files tracked in real time", iconColor: "var(--color-success)" },
+              { icon: Shield, text: "Payment is released only after your final sign-off", iconColor: "var(--color-accent)" },
             ].map((item, i) => {
               const Icon = item.icon;
               return (
@@ -957,9 +957,9 @@ export function Checkout() {
                 <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
                   <div className="pt-1">
                     <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                      Escrow Protection:
+                      Escrow Protection &amp; Transparent Fee Structure:
                     </strong>
-                    100% of your booking fee is held securely in escrow by our payment partner- Paystack and is only released to the performer after service completion.
+                    100% of your booking fee is held securely in escrow by Paystack and is only released to the performer after service completion. A transparent 12% client escrow protection fee is added at deposit, and a 7% platform fee is deducted from the performer's payout upon completion.
                   </div>
                   <div className="pt-2">
                     <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>

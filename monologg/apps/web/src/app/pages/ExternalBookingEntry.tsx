@@ -985,9 +985,9 @@ export function ExternalBookingEntry() {
             <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
               <div className="pt-1">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                  Escrow Protection:
+                  Escrow Protection &amp; Fee Policy:
                 </strong>
-                100% of your booking fee is held securely in escrow by Paystack and is only released after service completion and your approval.
+                100% of your booking fee is held securely in escrow by Paystack and is only released after service completion and approval. A transparent 12% client escrow protection fee is added at deposit, and a 7% platform fee is deducted from the performer's payout upon completion.
               </div>
               <div className="pt-2">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
@@ -1352,7 +1352,7 @@ export function ExternalBookingEntry() {
             <span className="font-mono font-bold text-[var(--color-text-primary)]">{money(total)}</span> secured in escrow
           </p>
           <p className="text-xs font-body text-[var(--color-text-tertiary)] max-w-sm mx-auto leading-relaxed">
-            Your funds are held securely until {creator?.name ?? "your performer"} delivers and you approve the completed work.
+            Funds remain protected until you review and approve completed deliverables.
           </p>
         </div>
 
@@ -1384,7 +1384,7 @@ export function ExternalBookingEntry() {
                 Schedule Google Meet with {creator?.name || "Performer"}
               </h4>
               <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)] leading-relaxed">
-                Your video introduction call cannot be done here. Enter your dedicated Order Room workspace to schedule and launch your Google Meet call, chat with {creator?.name || "the performer"}, and manage deliverables.
+                Launch your orientation video call, align on script sides, and coordinate milestones directly in your Order Room.
               </p>
             </div>
           </div>
@@ -1396,15 +1396,15 @@ export function ExternalBookingEntry() {
               borderColor: "var(--color-hairline)",
             }}
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+            <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
             <span className="text-[var(--color-text-secondary)]">
-              A reminder banner is set up for you inside the Order Room workspace.
+              Milestones and creative files tracked in real time
             </span>
           </div>
 
           <div className="text-[11px] font-body text-[var(--color-text-tertiary)] flex items-center gap-1.5 pt-1 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-            <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Escrow remains 100% protected during the call and throughout production.</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Payment is released only after your final sign-off</span>
           </div>
         </div>
 

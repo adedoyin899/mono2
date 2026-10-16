@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 144: UI/UX Hierarchy Cleanup — OrderRoom, Checkout Confirmation, Workspace Tabs)
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,52 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 144 (2026-10-16) — UI/UX Hierarchy Cleanup: OrderRoom, Checkout Confirmation, Workspace Tabs
+## Session 145 (2026-10-16) — Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps
+
+**Goal:** Conduct an end-to-end FAANG-grade UI/UX audit and visual sweep across client and performer applications, addressing voice prompt directives: eliminate cluttered layouts and walls of text, purge redundant "escrow" repetitions across booking confirmed screens, implement progressive disclosure (collapsible/minimizable banners), establish complete role perspective accuracy (ensure clients do not see talent check-in buttons or talent earnings, and ensure talents see complete client creative briefs and scripts), and make the dual deduction model (12% client escrow fee / 7% performer service fee) transparent across all terms and payment summaries.
+
+**Files Changed:**
+
+### `apps/web/src/app/pages/OrderRoom.tsx`
+- **Progressive Disclosure & Layout Balance:**
+  - Added `clientIntroCollapsed` state to allow clients to minimize/expand the Google Meet video intro banner, preventing the banner from taking up the entire screen fold.
+  - Automatically hidden the Google Meet orientation card when a booking is cancelled, replacing it with a single clean refund notice.
+- **Role Perspective Correction:**
+  - **Availability Banner:** Performer sees interactive check-in buttons ("I can't make it", "Yes, I'm confirmed"). Client now sees a dedicated "Performer Attendance Status" status bar with milestone indicators and verification state, completely removing performer action buttons from client view.
+  - **Navbar Badge:** Client sees `₦134,400 in escrow` (or `₦134,400 refunded to wallet`); Performer sees `₦111,600 net` (or `₦0 refunded to client`).
+  - **Release Payment Modal:** Changed "You receive ₦111,600" to "Performer receives ₦111,600" so clients confirming payment release are presented with accurate recipient context.
+  - **Side Drawer Payment Summary:** Dynamically renders "Escrow deposit summary" (`Base rate ₦120,000` + `Escrow protection fee (12%) +₦14,400` = `Total deposited ₦134,400`) for clients, and "Payout summary" (`Base rate ₦120,000` - `Platform fee (7%) -₦8,400` = `You receive ₦111,600`) for performers.
+- **Brief & Files Parity (Tab 2):**
+  - Added full parity view showing the client's creative brief & scope, full dialogue script with 1-click `Copy Script` button, downloadable campaign assets (`Nike_Campaign_Brief_v2.pdf`), deliverables checklist, and workflow timeline.
+- **Payment & Escrow Parity (Tab 3):**
+  - Explicitly presents role-specific breakdown: Client sees 100% Secured in Escrow (`₦134,400`) with base rate and 12% protection fee; Performer sees Secured in Escrow (`₦111,600`) with base rate and 7% platform deduction.
+
+### `apps/web/src/app/pages/Checkout.tsx`
+- **Confirmation Screen Decluttering (`step === "confirmed"`):**
+  - Eliminated repeating "escrow" 3+ times in stacked cards and walls of text.
+  - Replaced run-on paragraphs with a single clean escrow badge, concise subhead, and a focused Order Room next-step card with real-time milestone tracking and approval protection bullets.
+- **Fee Transparency in Review & Terms:**
+  - Updated Review & Agreement terms to explicitly disclose the dual deduction policy: 100% funds held in escrow, 12% client escrow protection fee added at deposit, and 7% platform fee deducted from performer earnings upon completion.
+
+### `apps/web/src/app/pages/ExternalBookingEntry.tsx`
+- **Confirmed View Polish:**
+  - Mirrored the streamlined FAANG confirmed view from `Checkout.tsx`, removing repetitive escrow paragraphs while preserving key next-step Google Meet guidance and account surfacing copy.
+- **Step 3 Terms & Service Agreement:**
+  - Updated Escrow Protection bullet to explicitly detail the 12% client escrow fee and 7% performer service fee structure.
+
+### `apps/web/src/app/pages/ProjectBrief.tsx`
+- **Step 4 Terms & Service Agreement:**
+  - Updated Escrow Protection clause to clearly explain the 12% client escrow protection fee upon hiring and the 7% performer service fee upon payout.
+- **Step 5 Budget & Payment Summary:**
+  - Added explicit 3-line breakdown: Base Project Budget, Escrow Protection Fee (12%), and Total Escrow Deposit.
+
+### `apps/web/src/app/pages/LegalPage.tsx`
+- **Bookings & Escrow Terms:**
+  - Updated section 2 to explicitly disclose the 12% client escrow protection fee and 7% performer service fee.
+
+**Technical Context:**
+- Zero TypeScript compiler errors (`npx tsc --noEmit` exited 0).
+- All 56 test files and 580 tests passed (`npm test` 100% clean).
 
 **Goal:** Clean up information hierarchy across four screens based on FAANG UX audit of screenshots — reduce visual noise, improve scanability, and ensure each role (client / performer) sees only the most important information first.
 

@@ -120,6 +120,8 @@ export function OrderRoom() {
   const [clientIntroScheduled, setClientIntroScheduled] = useState(false);
   const [clientIntroCopied, setClientIntroCopied] = useState(false);
   const [clientIntroDismissed, setClientIntroDismissed] = useState(false);
+  const [clientIntroCollapsed, setClientIntroCollapsed] = useState(false);
+  const [briefScriptCopied, setBriefScriptCopied] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -738,6 +740,12 @@ export function OrderRoom() {
     return null;
   };
 
+  const activeCheckin = checkins[checkinIndex % (checkins.length || 1)] || checkins[0];
+  const isCancelled = Boolean(
+    appStateSync.isBookingCancelled(curOrderId) ||
+    (activeCheckin && appStateSync.isBookingCancelled(activeCheckin.bookingId))
+  );
+
   /* ─── JSX ─────────────────────────────────────────────────── */
   return (
     <div className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
@@ -763,16 +771,16 @@ export function OrderRoom() {
               <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
                 {gigType === "remote" ? "Remote" : "On-site"}
               </span>
-              {appStateSync.isBookingCancelled(curOrderId) && (
+              {(appStateSync.isBookingCancelled(curOrderId) || isCancelled) && (
                 <Badge tone="error" size="sm">Cancelled &amp; Refunded</Badge>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-500 truncate mt-0.5">
               <span>{role === "talent" ? clientOrg : talentName} · {curOrderId}</span>
               <span className="text-zinc-300 dark:text-zinc-700">·</span>
-              {appStateSync.isBookingCancelled(curOrderId) ? (
+              {(appStateSync.isBookingCancelled(curOrderId) || isCancelled) ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600 dark:text-rose-400">
-                  <span>₦120,000 refunded to client</span>
+                  <span>{role === "talent" ? "Booking cancelled" : "₦134,400 refunded to wallet"}</span>
                 </span>
               ) : role === "talent" ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
@@ -780,7 +788,7 @@ export function OrderRoom() {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-purple-600 dark:text-purple-400">
-                  <span>₦120,000 in escrow</span>
+                  <span>₦134,400 in escrow</span>
                 </span>
               )}
             </div>
@@ -829,10 +837,7 @@ export function OrderRoom() {
 
       {/* ── Availability Check-in Card / Cancelled Banner ── */}
       {(() => {
-        const activeCheckin = checkins[checkinIndex % (checkins.length || 1)] || checkins[0];
-        const isCancelled = appStateSync.isBookingCancelled(curOrderId) || (activeCheckin && appStateSync.isBookingCancelled(activeCheckin.bookingId));
         if (!activeCheckin && !isCancelled) return null;
-        if (!isCancelled && role !== "talent") return null;
 
         const isConfirmed = activeCheckin ? activeCheckin.status === "done" : false;
         const isOverdue = activeCheckin ? (activeCheckin.isOverdue || activeCheckin.status === "missed") : false;
@@ -863,8 +868,8 @@ export function OrderRoom() {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {/* Prev/next stepper only when not cancelled */}
-                  {!isCancelled && (
+                  {/* Prev/next stepper for talent when not cancelled */}
+                  {!isCancelled && role === "talent" && (
                     <>
                       <button
                         type="button"
@@ -880,9 +885,9 @@ export function OrderRoom() {
                     tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
                     size="sm"
                   >
-                    {isCancelled ? "Cancelled & Refunded" : isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : `Check-in ${activeCheckin?.stepIndex || 1} of ${activeCheckin?.totalSteps || 3}`}
+                    {isCancelled ? "Cancelled & Refunded" : isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : role === "client" ? "Attendance Verified" : `Check-in ${activeCheckin?.stepIndex || 1} of ${activeCheckin?.totalSteps || 3}`}
                   </Badge>
-                  {!isCancelled && (
+                  {!isCancelled && role === "talent" && (
                     <button
                       type="button"
                       aria-label="Next check-in"
@@ -923,39 +928,45 @@ export function OrderRoom() {
               </div>
 
               {/* Body */}
-              <div className="px-4 py-4">
-                <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="px-4 py-3.5">
+                <div className="flex items-start justify-between gap-4 mb-2.5">
                   <div className="flex-1 min-w-0">
                     <h3 className={`font-display text-sm font-bold leading-tight ${
                       isCancelled ? "text-rose-900 dark:text-rose-100" : "text-zinc-900 dark:text-zinc-100"
                     }`}>
-                      {isCancelled ? "Booking Cancelled & Refunded" : "Are you still available?"}
+                      {isCancelled
+                        ? "Booking Cancelled & Refunded"
+                        : role === "client"
+                        ? "Performer Attendance Status"
+                        : "Are you still available?"}
                     </h3>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
                       {isCancelled
-                        ? "The performer declined availability check-in. ₦120,000 has been refunded automatically to the client's wallet."
+                        ? (role === "client" ? "The performer declined check-in. ₦134,400 has been refunded automatically to your wallet." : "You declined the check-in milestone. Booking cancelled without penalty.")
+                        : role === "client"
+                        ? (isConfirmed ? `${talentName} confirmed attendance for this booking. Milestone 1 of 3 verified.` : `Awaiting attendance check-in confirmation from ${talentName}.`)
                         : `Confirm your attendance to keep your booking reserved with ${activeCheckin?.clientName || clientOrg}.`}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-0.5">
-                      {isCancelled ? "Refunded" : "You receive"}
+                      {isCancelled ? "Refunded" : role === "client" ? "Escrow Deposit" : "You receive"}
                     </div>
                     <div className={`font-mono font-bold text-sm ${
                       isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
                     }`}>
-                      ₦{isCancelled ? "120,000" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
+                      ₦{isCancelled ? "134,400" : role === "client" ? "134,400" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
                     </div>
                   </div>
                 </div>
 
                 {/* Event details inline */}
-                <div className="flex items-center gap-3 flex-wrap text-xs py-2.5 border-t border-b mb-3"
+                <div className="flex items-center gap-3 flex-wrap text-xs py-2 border-t border-b mb-2.5"
                   style={{ borderColor: isCancelled ? "rgba(254,202,202,0.6)" : "var(--color-hairline)" }}>
                   {[
                     { label: "Event", value: activeCheckin?.eventName || orderTitle },
                     { label: "Date & Location", value: `${activeCheckin?.eventDate || "Tue 24 Nov 2026"} · ${activeCheckin?.location || (gigType === "remote" ? "Remote (Online)" : "Eko Hotel, Lagos")}` },
-                    { label: "Client", value: activeCheckin?.clientName || clientOrg },
+                    { label: role === "client" ? "Performer" : "Client", value: role === "client" ? talentName : (activeCheckin?.clientName || clientOrg) },
                   ].map((item) => (
                     <div key={item.label} className="flex flex-col min-w-0">
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{item.label}</span>
@@ -968,9 +979,17 @@ export function OrderRoom() {
                 {isCancelled ? (
                   <div className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
                     <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                    <span>Booking cancelled and ₦120,000 refunded to client automatically.</span>
+                    <span>Booking cancelled and ₦134,400 refunded automatically.</span>
                     <span className="ml-auto text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shrink-0">
                       Cancelled
+                    </span>
+                  </div>
+                ) : role === "client" ? (
+                  <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Attendance protocol active · 3 verification gates scheduled prior to production</span>
+                    <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                      Protected
                     </span>
                   </div>
                 ) : isConfirmed ? (
@@ -982,7 +1001,7 @@ export function OrderRoom() {
                 ) : (
                   <div className="flex flex-col gap-2">
                     {isOverdue && (
-                      <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-400/30 text-amber-800 dark:text-amber-200 text-xs">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-400/30 text-amber-800 dark:text-amber-200 text-xs">
                         <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         <span>Confirm now — {activeCheckin?.clientName} has been notified you haven&apos;t confirmed yet.</span>
                       </div>
@@ -1007,93 +1026,96 @@ export function OrderRoom() {
         );
       })()}
 
-      {/* ── Video Introduction Reminder (Client) ── */}
-      {role === "client" && !appStateSync.isBookingCancelled(curOrderId) && !clientIntroDismissed && (
-        <div className="max-w-2xl mx-auto w-full px-4 pt-4">
+      {/* ── Video Introduction Reminder (Client, with Progressive Disclosure) ── */}
+      {role === "client" && !isCancelled && !clientIntroDismissed && (
+        <div className="max-w-2xl mx-auto w-full px-4 pt-3">
           <div
-            className="rounded-2xl border overflow-hidden"
+            className="rounded-2xl border overflow-hidden transition-all"
             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
           >
             {/* Header strip */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+            <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: "var(--color-hairline)" }}>
               <div className="flex items-center gap-2">
                 <Badge tone={clientIntroScheduled ? "success" : "accent"} size="sm">
-                  {clientIntroScheduled ? "Step 1 Done" : "Action Recommended · Step 1"}
+                  {clientIntroScheduled ? "Step 1 Done" : "Action Recommended"}
                 </Badge>
-                <span className="text-[11px] text-zinc-400 dark:text-zinc-500">Video orientation call</span>
+                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Video introduction call</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setClientIntroDismissed(true)}
-                className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
-              >
-                Dismiss
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="px-4 py-3">
-              <div className="flex items-start gap-3">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
-                  style={{ background: "var(--color-accent-soft)", borderColor: "var(--color-accent)30" }}
-                >
-                  <Video className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold font-body text-zinc-900 dark:text-zinc-100 leading-tight">
-                    Schedule Google Meet with {talentName}
-                  </p>
-                  <p className="text-xs font-body mt-0.5 leading-relaxed text-zinc-500 dark:text-zinc-400">
-                    Conduct a brief introductory call to align on your campaign brief, tone preferences, and production deliverables before work begins.
-                  </p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-wrap items-center gap-2 mt-3">
-                <a
-                  href="https://meet.google.com/new"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setClientIntroScheduled(true)}
-                  className="h-8 px-3.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-white transition-colors cursor-pointer shadow-xs"
-                  style={{ background: "var(--color-accent)" }}
-                >
-                  Launch Google Meet
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
-                  onClick={() => { navigator.clipboard?.writeText("https://meet.google.com/new"); setClientIntroCopied(true); setTimeout(() => setClientIntroCopied(false), 2000); }}
-                  className="h-8 px-3.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  onClick={() => setClientIntroCollapsed((prev) => !prev)}
+                  className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
                 >
-                  <Copy className="w-3 h-3" />
-                  {clientIntroCopied ? "Copied!" : "Copy Link"}
+                  {clientIntroCollapsed ? "Expand" : "Minimize"}
                 </button>
+                <span className="text-zinc-300 dark:text-zinc-700">·</span>
                 <button
                   type="button"
-                  onClick={() => setClientIntroScheduled((prev) => !prev)}
-                  className={`h-8 px-3.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ml-auto ${
-                    clientIntroScheduled
-                      ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
-                      : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                  }`}
+                  onClick={() => setClientIntroDismissed(true)}
+                  className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
                 >
-                  <Check className="w-3 h-3" />
-                  {clientIntroScheduled ? "Marked Done" : "Mark as Done"}
+                  Dismiss
                 </button>
               </div>
             </div>
 
-            {/* Escrow footnote */}
-            <div
-              className="flex items-center gap-1.5 px-4 py-2 border-t text-[11px] text-zinc-400 dark:text-zinc-500"
-              style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-elevated)" }}
-            >
-              <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>Escrow Protected · Your funds remain 100% secured during the call and throughout production until you approve deliverables.</span>
-            </div>
+            {/* Body - collapsible */}
+            {!clientIntroCollapsed && (
+              <div className="px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
+                    style={{ background: "var(--color-accent-soft)", borderColor: "var(--color-accent)30" }}
+                  >
+                    <Video className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold font-body text-zinc-900 dark:text-zinc-100 leading-tight">
+                      Schedule Google Meet with {talentName}
+                    </p>
+                    <p className="text-xs font-body mt-0.5 leading-relaxed text-zinc-500 dark:text-zinc-400">
+                      Conduct a brief introductory call to align on your campaign brief, tone preferences, and production deliverables before work begins.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <a
+                    href="https://meet.google.com/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setClientIntroScheduled(true)}
+                    className="h-8 px-3.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-white transition-colors cursor-pointer shadow-xs"
+                    style={{ background: "var(--color-accent)" }}
+                  >
+                    Launch Google Meet
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => { navigator.clipboard?.writeText("https://meet.google.com/new"); setClientIntroCopied(true); setTimeout(() => setClientIntroCopied(false), 2000); }}
+                    className="h-8 px-3.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Copy className="w-3 h-3" />
+                    {clientIntroCopied ? "Copied!" : "Copy Link"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClientIntroScheduled((prev) => !prev)}
+                    className={`h-8 px-3.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ml-auto ${
+                      clientIntroScheduled
+                        ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
+                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    }`}
+                  >
+                    <Check className="w-3 h-3" />
+                    {clientIntroScheduled ? "Marked Done" : "Mark as Done"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1350,27 +1372,100 @@ export function OrderRoom() {
       {/* ── TAB 2: Order Brief & Deliverables ── */}
       {workspaceTab === "brief" && (
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-2xl mx-auto w-full space-y-5">
-          <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-4">
+          {/* Creative Brief & Synopsis */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display text-base font-bold text-zinc-900">Project Deliverables &amp; Scope</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · ORD-001</p>
+                <h3 className="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">Creative Brief &amp; Project Scope</h3>
+                <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · {curOrderId}</p>
               </div>
               <Badge tone="accent" size="sm">{gigType === "onsite" ? "Live On-site" : "Remote Recording"}</Badge>
             </div>
 
-            <div className="space-y-2 text-xs font-body text-zinc-700">
-              <div className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span>2x 30s broadcast WAV master audio files (24-bit / 48kHz)</span>
+            <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-700/60 text-xs font-body leading-relaxed text-zinc-700 dark:text-zinc-300">
+              Client is seeking a commanding, resonant voiceover artist for a national campaign spot. Selected performer will record master WAV stems, adhere to natural pacing, and coordinate any retakes within the 48-hour review window.
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
+                <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">Project Format</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                  {gigType === "onsite" ? "On-site: Eko Hotel & Suites, VI, Lagos" : "Remote / Online (Studio Recording)"}
+                </span>
               </div>
-              <div className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span>1x 15s social media cutdown variation with synced cues</span>
+              <div className="p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
+                <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">Timeline &amp; Turnaround</span>
+                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                  First cut due within 24h · 48h client review
+                </span>
               </div>
-              <div className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                <span>Raw vocal stems and ambient room tone file</span>
+            </div>
+
+            {/* Audition Sides & Script Excerpt */}
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 font-display">
+                  <FileText className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                  Dialogue Script Excerpt
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText("They told you impossible is a standard. We tell you it's a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.");
+                    setBriefScriptCopied(true);
+                    setTimeout(() => setBriefScriptCopied(false), 2000);
+                  }}
+                  className="text-[11px] font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3 h-3" />
+                  {briefScriptCopied ? "Copied!" : "Copy Script"}
+                </button>
+              </div>
+              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border-l-4 border-l-[var(--color-accent)] border border-zinc-200/80 dark:border-zinc-700/80 text-xs sm:text-sm font-body italic text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                &ldquo;They told you impossible is a standard. We tell you it&apos;s a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.&rdquo;
+              </div>
+            </div>
+
+            {/* Reference Attachment */}
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block mb-2 font-display">Campaign Reference Files</span>
+              <div className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-800/40">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-red-500/10 text-red-600 flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">Nike_Campaign_Brief_v2.pdf</div>
+                    <div className="text-[10px] text-zinc-400">1.2 MB · Brand tone &amp; pronunciation guide</div>
+                  </div>
+                </div>
+                <a
+                  href="#download"
+                  onClick={(e) => { e.preventDefault(); alert("Downloading brief reference package..."); }}
+                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1 shrink-0 ml-2 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Deliverables Checklist */}
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block mb-2.5 font-display">Required Deliverables</span>
+              <div className="space-y-2 text-xs font-body text-zinc-700 dark:text-zinc-300">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>2x 30s broadcast WAV master audio files (24-bit / 48kHz)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>1x 15s social media cutdown variation with synced cues</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>Raw vocal stems and ambient room tone file</span>
+                </div>
               </div>
             </div>
 
@@ -1382,15 +1477,15 @@ export function OrderRoom() {
                 <UploadCloud className="w-4 h-4" /> Submit Order Deliverable
               </Button>
             ) : (
-              <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100 text-xs text-zinc-600">
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700 text-xs text-zinc-600 dark:text-zinc-400">
                 Awaiting performer deliverable submission. Once submitted, your 48-hour review window starts.
               </div>
             )}
           </div>
 
           {/* Project Phases */}
-          <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-3">
-            <h4 className="font-display text-sm font-bold text-zinc-900">Workflow Phases</h4>
+          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+            <h4 className="font-display text-sm font-bold text-zinc-900 dark:text-zinc-100">Workflow Phases</h4>
             <div className="space-y-2">
               {PHASES.map((p, idx) => {
                 const isPast = idx < phaseIndex;
@@ -1399,16 +1494,16 @@ export function OrderRoom() {
                   <div
                     key={p.id}
                     className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
-                      isCurrent ? "bg-zinc-50 border-zinc-300 font-semibold" : isPast ? "bg-white border-zinc-100" : "bg-white border-zinc-100 opacity-60"
+                      isCurrent ? "bg-zinc-50 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 font-semibold" : isPast ? "bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800" : "bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 opacity-60"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        isPast ? "bg-emerald-600 text-white" : isCurrent ? "bg-zinc-900 text-white" : "bg-zinc-200 text-zinc-500"
+                        isPast ? "bg-emerald-600 text-white" : isCurrent ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" : "bg-zinc-200 text-zinc-500"
                       }`}>
                         {isPast ? "✓" : idx + 1}
                       </span>
-                      <span className="text-xs text-zinc-900">{p.label}</span>
+                      <span className="text-xs text-zinc-900 dark:text-zinc-100">{p.label}</span>
                     </div>
                     <span className="text-[11px] font-medium text-zinc-500">
                       {isPast ? "Done" : isCurrent ? "In progress" : "Upcoming"}
@@ -1421,7 +1516,7 @@ export function OrderRoom() {
         </div>
       )}
 
-      {/* ── TAB 3: Payment & Escrow ── */}
+      {/* ── TAB 3: Payment & Escrow (Dual Client / Performer Perspectives) ── */}
       {workspaceTab === "escrow" && (
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-2xl mx-auto w-full space-y-5">
           <div
@@ -1432,34 +1527,57 @@ export function OrderRoom() {
             }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider font-body">Escrow Status</span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider font-body">
+                {role === "client" ? "Escrow Status" : "Payout Status"}
+              </span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40">
                 <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                {paymentReleased ? "Released" : "100% Secured"}
+                {paymentReleased ? "Released" : role === "client" ? "100% Secured" : "Secured in Escrow"}
               </span>
             </div>
-            <div className="text-3xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
+            <div className="text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-100 tracking-tight">
+              {role === "client" ? "₦134,400" : "₦111,600"}
+            </div>
             {/* Exactly preserve existing escrow footer label */}
             <p className="text-xs text-zinc-500 leading-relaxed">
               Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval.
             </p>
           </div>
 
-          {/* Three-line fee breakdown */}
-          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs font-body">
-            <div className="flex justify-between items-center text-zinc-600">
-              <span>Base rate</span>
-              <span className="font-mono font-medium text-zinc-900">₦120,000</span>
+          {/* Three-line fee breakdown tailored to role */}
+          {role === "client" ? (
+            <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 space-y-2 text-xs font-body">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Client Booking Summary</div>
+              <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
+                <span>Performer base rate</span>
+                <span className="font-mono font-medium text-zinc-900 dark:text-zinc-100">₦120,000</span>
+              </div>
+              <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
+                <span>Escrow protection fee (12%)</span>
+                <span className="font-mono text-zinc-600 dark:text-zinc-300 font-medium">+₦14,400</span>
+              </div>
+              <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100">
+                <span>Total escrow deposit</span>
+                <span className="font-mono font-bold text-purple-600 dark:text-purple-400">₦134,400</span>
+              </div>
             </div>
-            <div className="flex justify-between items-center text-zinc-600">
-              <span>Platform fee (7%)</span>
-              <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+          ) : (
+            <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 space-y-2 text-xs font-body">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Performer Payout Summary</div>
+              <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
+                <span>Base rate</span>
+                <span className="font-mono font-medium text-zinc-900 dark:text-zinc-100">₦120,000</span>
+              </div>
+              <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
+                <span>Platform fee (7%)</span>
+                <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+              </div>
+              <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100">
+                <span>You receive</span>
+                <span className="font-mono font-bold text-emerald-600">₦111,600</span>
+              </div>
             </div>
-            <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 text-sm text-zinc-900">
-              <span>You receive</span>
-              <span className="font-mono font-bold text-emerald-600">₦111,600</span>
-            </div>
-          </div>
+          )}
 
           {role === "client" && !paymentReleased && (
             <Button
@@ -1759,7 +1877,7 @@ export function OrderRoom() {
                 </div>
                 <div className="h-px bg-zinc-200 my-1" />
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-zinc-900">You receive</span>
+                  <span className="text-zinc-900">Performer receives</span>
                   <span className="font-mono text-emerald-600 font-bold">₦111,600</span>
                 </div>
               </div>
@@ -1984,20 +2102,38 @@ export function OrderRoom() {
 
                 {/* Streamlined Payment Summary */}
                 <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-xs">
-                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-1">Payment summary</div>
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-1">
+                    {role === "client" ? "Escrow deposit summary" : "Payout summary"}
+                  </div>
                   <div className="flex justify-between items-center text-zinc-600">
                     <span>Base rate</span>
                     <span className="font-mono font-medium text-zinc-900">₦120,000</span>
                   </div>
-                  <div className="flex justify-between items-center text-zinc-600">
-                    <span>Platform fee (7%)</span>
-                    <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
-                  </div>
-                  <div className="h-px bg-zinc-200 my-1" />
-                  <div className="flex justify-between items-center font-semibold text-zinc-900">
-                    <span>You receive</span>
-                    <span className="font-mono text-emerald-600 text-sm font-bold">₦111,600</span>
-                  </div>
+                  {role === "client" ? (
+                    <>
+                      <div className="flex justify-between items-center text-zinc-600">
+                        <span>Escrow protection fee (12%)</span>
+                        <span className="font-mono text-zinc-700 font-medium">+₦14,400</span>
+                      </div>
+                      <div className="h-px bg-zinc-200 my-1" />
+                      <div className="flex justify-between items-center font-semibold text-zinc-900">
+                        <span>Total deposited</span>
+                        <span className="font-mono text-purple-700 text-sm font-bold">₦134,400</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center text-zinc-600">
+                        <span>Platform fee (7%)</span>
+                        <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+                      </div>
+                      <div className="h-px bg-zinc-200 my-1" />
+                      <div className="flex justify-between items-center font-semibold text-zinc-900">
+                        <span>You receive</span>
+                        <span className="font-mono text-emerald-600 text-sm font-bold">₦111,600</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Participants */}

@@ -669,9 +669,9 @@ export function ProjectBrief() {
                 <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
                   <div className="pt-1">
                     <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                      Escrow Protection:
+                      Escrow Protection &amp; Transparent Fee Policy:
                     </strong>
-                    100% of your booking fee is held securely in escrow by our payment partner- Paystack and is only released to the performer after service completion.
+                    100% of your project budget is held securely in escrow by Paystack and is only released after milestone delivery and approval. A transparent 12% client escrow protection fee is added at deposit, and a 7% platform fee is deducted from the performer's payout upon completion.
                   </div>
                   <div className="pt-2">
                     <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
@@ -876,10 +876,19 @@ export function ProjectBrief() {
                 </div>
                 <div className="space-y-2 text-sm font-body">
                   <div className="flex justify-between gap-4">
-                    <span style={{ color: "var(--color-text-tertiary)" }}>Escrow Deposit</span>
-                    <span className="font-mono font-bold" style={{ color: "var(--color-text-primary)" }}>₦{budgetAmount.toLocaleString()}</span>
+                    <span style={{ color: "var(--color-text-tertiary)" }}>Base Project Budget</span>
+                    <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>₦{budgetAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between gap-4">
+                    <span style={{ color: "var(--color-text-tertiary)" }}>Escrow Protection Fee (12%)</span>
+                    <span className="font-mono text-zinc-500 font-medium">+₦{Math.round(budgetAmount * 0.12).toLocaleString()}</span>
+                  </div>
+                  <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
+                  <div className="flex justify-between gap-4 font-semibold">
+                    <span style={{ color: "var(--color-text-primary)" }}>Total Escrow Deposit</span>
+                    <span className="font-mono font-bold text-purple-600 dark:text-purple-400">₦{(budgetAmount + Math.round(budgetAmount * 0.12)).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 pt-1">
                     <span style={{ color: "var(--color-text-tertiary)" }}>Payment Gateway</span>
                     <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>
                       {fundingSource === "wallet" ? "Monologg Wallet" : "Paystack (Card, Transfer, USSD)"}

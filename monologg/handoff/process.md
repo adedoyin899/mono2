@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 104: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps (Session 145)
+
+Conducted a full-platform UX audit and visual hierarchy cleanup addressing client/performer role perspective clarity, copy redundancy, and fee transparency:
+- **Order Room Progressive Disclosure & Cancellation Guard (`OrderRoom.tsx`):** Added collapsible/minimizable controls (`clientIntroCollapsed`) on the Google Meet orientation card for clients to preserve viewport space; automatically hide the meeting banner on cancelled bookings, displaying a clean refund banner.
+- **Role Perspective Corrections in Order Room (`OrderRoom.tsx`):**
+  - Availability Check-in: Performers receive interactive check-in buttons; clients view non-interactive performer confirmation status indicators.
+  - Financial Displays: Client navbar and payment drawers show escrow deposit breakdown (`Base + 12% protection fee = ₦134,400`), while performer views show net take-home earnings (`Base - 7% platform fee = ₦111,600`).
+  - Release Payment Modal: Replaced "You receive ₦111,600" with "Performer receives ₦111,600" so clients confirming milestone release have unambiguous context.
+- **Project Brief & Dialogue Sides Parity (`OrderRoom.tsx`):** Expanded Tab 2 (`Brief & Files`) to provide complete parity with client project briefs: creative brief synopsis, full dialogue script with 1-click `Copy Script` button, downloadable campaign assets (`Nike_Campaign_Brief_v2.pdf`), deliverables checklist, and workflow timeline.
+- **Confirmed Screens Copy Decluttering (`Checkout.tsx`, `ExternalBookingEntry.tsx`):** Purged repetitive mentions of "escrow" (previously 3+ occurrences in stacked cards), replacing them with a single authoritative escrow badge, concise subhead, and a focused Order Room next-step card.
+- **Transparent Fee Structure Disclosure (`Checkout.tsx`, `ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `LegalPage.tsx`):** Explicitly detailed the platform's dual deduction model (12% client escrow protection fee added at deposit; 7% performer service fee deducted upon release) across all terms, review cards, and payment summaries.
+- **Testing & Verification:** Zero TypeScript compilation errors (`npx tsc --noEmit`); all 56 test files and 580 tests passed cleanly (`npm test`).
+
+---
 
 ### Step 103: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Client Google Meet Reminder Banner (Session 143)
 

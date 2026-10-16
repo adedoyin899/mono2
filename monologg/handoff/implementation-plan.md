@@ -1,13 +1,35 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–142 + Session 143 Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, and Order Room Client Google Meet Reminder Banner.
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–144 + Session 145 Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps.
 
 ---
 
 ## ✅ Done
 
-### Session 143 — Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner
+### Session 145 — Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps
+- [x] **OrderRoom Progressive Disclosure & Layout Balance (`OrderRoom.tsx`)**:
+  - Implemented collapsible/minimizable progressive disclosure toggle (`clientIntroCollapsed`) on the Google Meet orientation card for clients.
+  - Automatically hidden the orientation card when a booking is cancelled, replacing it with a clean single-row refund notice.
+- [x] **Role Perspective Correction in OrderRoom (`OrderRoom.tsx`)**:
+  - Replaced the performer availability check-in buttons on the client view with a dedicated, non-interactive "Performer Attendance Status" milestone bar.
+  - Dynamically rendered navbar amounts: `₦134,400 in escrow` for client vs `₦111,600 net` for performer.
+  - Corrected Release Payment modal copy to "Performer receives ₦111,600" so clients are not told "You receive".
+  - Refined side drawer payment breakdown dynamically to show "Escrow deposit summary" for clients (Base + 12% protection fee = ₦134,400) and "Payout summary" for performers (Base - 7% platform fee = ₦111,600).
+- [x] **Brief & Files Parity (`OrderRoom.tsx`)**:
+  - Added full parity view showing the client's creative brief & scope, full dialogue script with 1-click `Copy Script` button, downloadable campaign assets (`Nike_Campaign_Brief_v2.pdf`), deliverables checklist, and workflow timeline.
+- [x] **Decluttering Confirmed Screens (`Checkout.tsx`, `ExternalBookingEntry.tsx`)**:
+  - Purged 3+ redundant mentions of "escrow" and verbose run-on paragraphs on the booking confirmed views.
+  - Polished FAANG-grade trust signals with a single escrow pill, concise subtitle, and focused Order Room next-step card.
+- [x] **Upfront Fee Transparency Across Flow (`Checkout.tsx`, `ExternalBookingEntry.tsx`, `ProjectBrief.tsx`, `LegalPage.tsx`)**:
+  - Explicitly stated the dual deduction platform model across all Review & Service Agreement terms: 12% client escrow protection fee added at deposit; 7% performer service fee deducted upon payout.
+  - Updated `ProjectBrief.tsx` Step 5 payment card to show Base Budget, 12% Escrow Fee, and Total Escrow Deposit.
+- [x] **Testing & Verification**:
+  - All 56 test files and 580 tests passed (`npm test` 100% clean).
+  - TypeScript compiled with 0 errors (`npx tsc --noEmit`).
+
+### Session 144 — UI/UX Hierarchy Cleanup: OrderRoom, Checkout Confirmation, Workspace Tabs
+- [x] Redesigned OrderRoom availability banner, shortened workspace tab labels, and refreshed Checkout confirmation screen.
 - [x] **Compact Month Calendar with Navigation (`ExternalBookingEntry.tsx`)**:
   - Replaced the horizontal 10-day strip and date input with a full interactive month calendar card.
   - Month and year navigation header (`October 2026`) with `<` (prev) and `>` (next) buttons (blocking past month navigation).

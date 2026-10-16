@@ -17,7 +17,7 @@ const CONTENT: Record<LegalPageType, { title: string; sections: Array<{ heading:
     title: "Terms of Service",
     sections: [
       { heading: "1. Using Monologg", body: "You must be able to form a binding contract to use Monologg, and you agree to provide accurate account information." },
-      { heading: "2. Bookings & Escrow", body: "Payments for bookings are held in escrow until deliverables are approved. Platform fees are disclosed before checkout and never change after a booking is confirmed." },
+      { heading: "2. Bookings & Escrow", body: "Payments for bookings are held securely in escrow until deliverables are approved. Platform fees (a 12% client escrow protection fee and a 7% performer service fee) are disclosed transparently before checkout and never change after a booking is confirmed." },
       { heading: "3. Identity Verification & AI Tagging", body: "Identity verification and AI-generated style tags are independent systems. Verification never derives from AI tagging, and AI tagging never confers identity verification." },
       { heading: "4. Account Termination", body: "Either party may close their account at any time. Bookings already in escrow are settled per their existing state before closure." },
     ],
