@@ -363,52 +363,145 @@ export function Checkout() {
   }
 
   if (step === "confirmed") {
+    const nextSteps = [
+      {
+        num: "1",
+        title: `Schedule intro call with ${talentName}`,
+        desc: "A quick 10-min Google Meet to align on tone, brief, and expectations.",
+        color: "var(--color-accent)",
+        colorSoft: "var(--color-accent-soft)",
+      },
+      {
+        num: "2",
+        title: "Await your deliverable",
+        desc: `${talentName} will submit your files. You'll be notified when they're ready to review.`,
+        color: "var(--color-success)",
+        colorSoft: "var(--color-success-bg)",
+      },
+      {
+        num: "3",
+        title: "Approve & release payment",
+        desc: "Once satisfied, approve and escrow auto-releases to the performer.",
+        color: "#f59e0b",
+        colorSoft: "#fef3c7",
+      },
+    ];
+
     return (
       <div className="role-client min-h-screen flex flex-col items-center justify-center p-6" style={{ background: "var(--color-bg-canvas)" }}>
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: DURATION_MED, ease: EASE_OUT }}
-          className="text-center max-w-sm"
+          className="w-full max-w-sm"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success)" }}
-          >
-            <CheckCircle2 className="w-10 h-10" style={{ color: "var(--color-success)" }} />
-          </motion.div>
-
-          <h2 className="font-display text-3xl mb-2" style={{ color: "var(--color-text-primary)" }}>Booking Confirmed!</h2>
-          <p className="text-base font-body mb-1" style={{ color: "var(--color-accent)" }}>
-            <span className="font-mono tnum font-semibold">{money(TOTAL)}</span> secured in escrow
-          </p>
-          <p className="text-sm font-body mb-8" style={{ color: "var(--color-text-secondary)" }}>
-            Your funds are held securely until {talentName} delivers and you approve the work. The Order Room is ready.
-          </p>
-
-          <div className="p-5 rounded-[var(--radius-xl)] mb-6 text-left" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
-            {[
-              { label: "Performer", value: talentName, mono: false },
-              { label: "Service", value: serviceTitle, mono: false },
-              { label: "Amount in Escrow", value: money(TOTAL), mono: true },
-              { label: "Order ID", value: isLive && booking ? booking.id : "ORD-" + Math.floor(Math.random() * 9000 + 1000), mono: true },
-            ].map((item, i) => (
-              <div key={i} className={`flex justify-between text-sm font-body py-2.5 ${i < 3 ? "border-b" : ""}`} style={{ borderColor: "var(--color-hairline)" }}>
-                <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>
-                <span className={`font-medium ${item.mono ? "font-mono tnum" : ""}`} style={{ color: "var(--color-text-primary)" }}>{item.value}</span>
-              </div>
-            ))}
+          {/* Success icon */}
+          <div className="flex justify-center mb-5">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22, delay: 0.08 }}
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{ background: "var(--color-success-bg)", border: "1.5px solid var(--color-success)" }}
+            >
+              <CheckCircle2 className="w-8 h-8" style={{ color: "var(--color-success)" }} />
+            </motion.div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <Button className="w-full h-12" onClick={() => navigate(isLive && booking ? `/order/${booking.id}` : "/order/1")}>
-              Go to Order Room <ArrowRight className="w-4 h-4 ml-2" />
+          {/* Heading */}
+          <div className="text-center mb-5">
+            <h2 className="font-display text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+              Booking Confirmed!
+            </h2>
+            {/* Escrow pill */}
+            <div
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold font-mono mt-1"
+              style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)", border: "1px solid var(--color-accent)20" }}
+            >
+              <Lock className="w-3.5 h-3.5" />
+              {money(TOTAL)} secured in escrow
+            </div>
+            <p className="text-xs font-body mt-2.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+              Your funds are held securely until {talentName} delivers and you approve the completed work.
+            </p>
+          </div>
+
+          {/* What happens next */}
+          <div
+            className="rounded-2xl overflow-hidden mb-5"
+            style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+          >
+            {/* Next step call-out */}
+            <div className="px-5 pt-4 pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                >
+                  Next step · Order Room
+                </span>
+              </div>
+              <div className="flex items-start gap-3 mt-2">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-accent)30" }}
+                >
+                  <Video className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold font-body leading-tight" style={{ color: "var(--color-text-primary)" }}>
+                    Schedule Google Meet with {talentName}
+                  </p>
+                  <p className="text-xs font-body mt-0.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                    Your video introduction call cannot be done here. Enter your dedicated Order Room workspace to schedule and launch your Google Meet call, chat with {talentName}, and manage deliverables.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Info bullets */}
+            {[
+              { icon: CheckCircle2, text: "A reminder banner is set up for you inside the Order Room workspace.", iconColor: "var(--color-success)" },
+              { icon: Lock, text: "Escrow remains 100% protected during the call and throughout production.", iconColor: "var(--color-text-tertiary)" },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className="flex items-start gap-2.5 px-5 py-3 border-b last:border-b-0" style={{ borderColor: "var(--color-hairline)" }}>
+                  <Icon className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: item.iconColor }} />
+                  <span className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{item.text}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Account notice (if new user) */}
+          <div
+            className="flex items-start gap-3 px-4 py-3 rounded-xl mb-5"
+            style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-elevated)" }}>
+              <Lock className="w-3.5 h-3.5" style={{ color: "var(--color-text-secondary)" }} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold font-body mb-0.5" style={{ color: "var(--color-text-primary)" }}>
+                We've created your Monologg account
+              </p>
+              <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                Check <span className="font-semibold" style={{ color: "var(--color-accent)" }}>ss@gmail.com</span> for a secure sign-in link to set your password and access your Order Room to approve deliverables.
+              </p>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-col gap-2.5">
+            <Button
+              className="w-full h-12 text-sm font-semibold gap-2"
+              onClick={() => navigate(isLive && booking ? `/order/${booking.id}` : "/order/1")}
+            >
+              Enter Order Room <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button variant="secondary" className="w-full h-12" onClick={() => navigate("/client")}>
-              Back to Dashboard
+            <Button variant="secondary" className="w-full h-11 text-sm" onClick={() => navigate("/client")}>
+              Back to Storefront
             </Button>
           </div>
         </motion.div>

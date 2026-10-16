@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
+**Last updated:** 2026-10-16 (Session 144: UI/UX Hierarchy Cleanup — OrderRoom, Checkout Confirmation, Workspace Tabs)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 144 (2026-10-16) — UI/UX Hierarchy Cleanup: OrderRoom, Checkout Confirmation, Workspace Tabs
+
+**Goal:** Clean up information hierarchy across four screens based on FAANG UX audit of screenshots — reduce visual noise, improve scanability, and ensure each role (client / performer) sees only the most important information first.
+
+**Files Changed:**
+
+### `apps/web/src/app/pages/Checkout.tsx`
+- **Booking Confirmed screen (`step === "confirmed"`)**: Completely redesigned.
+  - Removed the generic 4-row summary table (Performer / Service / Amount / Order ID) — redundant and slows down the "what now?" moment.
+  - Added an escrow pill `₦X secured in escrow` with a Lock icon, inline below the title — immediate trust signal.
+  - Added a white card with a `Next step · Order Room` label strip, a video icon, and a description of what to do in the Order Room.
+  - Added two bullet footnotes: reminder banner note + escrow-stays-safe note.
+  - Added an account creation notice card (email link).
+  - Changed "Back to Dashboard" → "Back to Storefront" and "Go to Order Room" → "Enter Order Room" for cleaner copy.
+
+### `apps/web/src/app/pages/OrderRoom.tsx`
+- **Availability check-in / Cancelled banner card**: Redesigned from a padded box to a bordered card with a compact status bar header.
+  - Status bar shows: badge + prev/next nav chevrons + due date — all on one row, much less heavy.
+  - Milestone chips (`Booked ✓`, `7 days Due`, `2 days ·`) moved to right of status bar (hidden on mobile).
+  - Body is now 3 sections: title+amount row → inline event detail chips → action row.
+  - Event details are now presented as label/value pairs in a horizontal flex row (not a grid box) — saves vertical space.
+  - Cancelled/Confirmed/Action states each render as a single-row inline status strip rather than a full card.
+- **Video intro reminder card (Client)**: Redesigned with a separate header strip (badge + dismiss).
+  - Body is a 2-line content area with a 36×36 icon, title, and description.
+  - Actions row: 3 buttons at height 32px (tighter, less massive).
+  - Escrow footnote moved to a subtle tinted footer strip.
+- **Workspace tabs**: Shortened labels — `"Messages & Chat"` → `"Messages"`, `"Order Brief & Deliverables"` → `"Brief & Files"`, `"Payment & Escrow"` → `"Payment"` — these were getting truncated on mobile and felt cluttered.
+
+**Technical context:** TypeScript compiled clean (exit 0) post-change.
 
 ---
 
