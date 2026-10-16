@@ -114,15 +114,16 @@ describe("ExternalBookingEntry (PWA-18)", () => {
     await screen.findByRole("heading", { name: "Project Brief" });
     fireEvent.click(screen.getByRole("button", { name: /Continue to Contact & Agreement/i }));
 
-    // Step 3: Contact & Agreement (Client Name, Email & Service Agreement).
+    // Step 3: Contact & Agreement (Client Name, Email, Phone & Service Agreement).
     await screen.findByRole("heading", { name: "Contact & Agreement" });
     fireEvent.change(screen.getByPlaceholderText("Your full name"), { target: { value: "Jamie Guest" } });
     fireEvent.change(screen.getByPlaceholderText("you@company.com"), { target: { value: "jamie@example.com" } });
+    fireEvent.change(screen.getByPlaceholderText("+234 800 000 0000"), { target: { value: "08012345678" } });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Proceed to Payment/i }));
 
-    // Step 4: Escrow Payment.
-    await screen.findByText(/Step 4 of 4/i);
+    // Step 4: Payment.
+    await screen.findByRole("heading", { name: "Payment" });
     fireEvent.click(screen.getByRole("button", { name: /Confirm & Deposit/i }));
 
     // Step 5: Confirmed, with Google Meet prompt & account surfacing copy.

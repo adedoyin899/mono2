@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
+**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 102: External Booking Single-Row Stepper Header, Step 3 Phone Input & Visual Hierarchy, and Step 4 2-Option Payment with Unified CTA (Session 142)
+
+Addressed user visual design feedback on the external performer storefront booking flow (`ExternalBookingEntry.tsx`):
+- **Header & Stepper Single-Row Alignment:** Combined the back navigation chevron `<` and the 4-step progress stepper onto a single horizontal line (`h-16 flex items-center gap-3 sm:gap-6 px-4 max-w-xl mx-auto`). Deleted the redundant second text header (`Contact & Agreement`, `Payment`, `Escrow Protected Booking`), recovering vertical screen space and eliminating repetitive step titles.
+- **Step 1 Direct Booking Heading:** Positioned `Book ${creator?.name ?? "Performer"}` directly above the date picker alongside an `Escrow protected booking` trust badge.
+- **Step 3 Booking Summary Removal & Phone Input:** Removed the top summary card (`Emeka Johnson · Standard Booking ... ₦134,400`) from Step 3. Added a required `Phone number *` input (`+234 800 000 0000`) for SMS/booking notifications and refined the visual hierarchy between client contact details and the 4-point Service Agreement card.
+- **Step 4 2-Option Payment Selector & Single Unified CTA:** Replaced multiple stacked payment sections with a clean Order Summary card (`₦134,400` deposit + `100% Escrow Protected` badge) and an interactive 2-option selector (`Pay with Card` vs `Pay with Paystack`). Eliminated the competing cyan/blue button so there is only one authoritative CTA button at the bottom styled in the platform brand color (`Pay ₦134,400 with Paystack` or `Confirm & Deposit ₦134,400`).
+- **Testing & Verification:** Updated unit tests in `ExternalBookingEntry.test.tsx`. All 126 unit tests across 25 suites pass, with 0 TypeScript compilation errors.
+
+---
 
 ### Step 101: External Storefront Booking FAANG UX Sweep — Step 1 Clutter Removal, Solid Modal Container, Step 3 Contact & Agreement, Payment Redundancy Cleanup, and Confirmed Screen Polish (Session 141)
 

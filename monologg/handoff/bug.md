@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
+**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 90. External Booking Header Repetition & Vertical Spacing, Missing Client Phone Number for SMS Booking Notifications, and Step 4 Payment Multi-CTA Clutter
+- **Severity:** Medium / Design Quality & External Checkout Conversion
+- **What happened:** In `ExternalBookingEntry.tsx`:
+  1. The header occupied excessive vertical height with redundant titles (`Contact & Agreement`, `Payment`, `Escrow Protected Booking`) rendered on a separate row below the back button and above the stepper.
+  2. Step 3 contained a redundant summary strip (`Emeka Johnson · Standard Booking 2026-10-16 at 00:00 · Online / Remote Total escrow ₦134,400`) that repeated data already clear from previous steps.
+  3. Step 3 only requested name and email, lacking a phone number field to allow automated SMS notifications, WhatsApp reminders, and booking check-in alerts for external clients.
+  4. Step 4 had a confusing visual hierarchy with competing CTA buttons: a cyan/blue `Pay with Paystack` button inside the top card alongside a red `Confirm & Deposit` card payment button at the bottom, creating decision friction and color clashes.
+- **Root Cause:** Navigation layout legacy with multi-row stacked header bars; omission of mobile notification contact channels; separate disparate payment cards rather than a unified selector pattern.
+- **Fix:**
+  - Placed the back button `<` on the exact same horizontal row as the 4-step progress stepper (`h-16 flex items-center gap-3 sm:gap-6 px-4 max-w-xl mx-auto`), removing repetitive title text rows.
+  - Removed redundant summary strip from Step 3.
+  - Added required `Phone number *` input (`+234 800 000 0000`) on Step 3 for client SMS/notification delivery.
+  - Overhauled Step 4 into a clean Order Summary card with total deposit (`₦134,400`), an interactive 2-option selector (`Pay with Card` vs `Pay with Paystack`), and a single, authoritative primary CTA button at the bottom styled consistently in Monologg brand theme.
+- **Resolution:** Validated with all 25 test suites passing (126/126 tests) and clean TypeScript check (`npx tsc --noEmit`).
 
 ### 89. External Booking Step 1 Clutter, Missing Modal Container Background, Redundant Step 4 Price Duplications, All-Caps Input Titles, and Confirmed Screen "AI Slop" Aesthetic Disconnect
 - **Severity:** Medium / Design Quality & External Conversion

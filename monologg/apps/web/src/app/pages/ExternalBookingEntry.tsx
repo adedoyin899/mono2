@@ -97,12 +97,13 @@ export function ExternalBookingEntry() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Step 3: Review & Agreement (Service Agreement)
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Step 4: Escrow Payment
-  const [paymentOption, setPaymentOption] = useState<"paystack" | "card">("paystack");
+  const [paymentOption, setPaymentOption] = useState<"card" | "paystack">("card");
   const [cardNum, setCardNum] = useState("");
   const [cardName, setCardName] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -223,6 +224,7 @@ export function ExternalBookingEntry() {
       projectName && `Project: ${projectName}`,
       projectFormat && `Format: ${projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote"}`,
       projectDescription && `Description: ${projectDescription}`,
+      phone && `Phone: ${phone}`,
       additionalNotes && `Notes: ${additionalNotes}`,
       uploadedFile && `Asset attached: ${uploadedFile.name}`,
     ]
@@ -280,79 +282,71 @@ export function ExternalBookingEntry() {
     { id: 4, label: "Escrow Payment", key: "payment" as Step },
   ];
 
-  const header = (title: string, onBack: () => void) => {
+  const header = (onBack: () => void) => {
     const currentStepNum = getStepNumber(step);
     return (
       <div className="sticky top-0 z-40 glass-panel border-b" style={{ borderColor: "var(--color-hairline)" }}>
-        <div className="h-16 flex items-center gap-3 px-4 max-w-xl mx-auto w-full">
+        <div className="h-16 flex items-center gap-3 sm:gap-6 px-4 max-w-xl mx-auto w-full">
           <button
             aria-label="Go back"
             onClick={onBack}
-            className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0 cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0 cursor-pointer"
             style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold font-display truncate" style={{ color: "var(--color-text-primary)" }}>
-              {title}
-            </div>
-            <div className="text-xs font-body text-[var(--color-text-tertiary)] flex items-center gap-1">
-              <Lock className="w-3 h-3 text-[var(--color-success)]" /> Escrow Protected Booking
-            </div>
-          </div>
-        </div>
 
-        {/* 4-Step Progress Stepper */}
-        <div className="max-w-xl mx-auto px-4 pb-3">
-          <div className="flex items-center justify-between relative">
-            <div className="absolute top-4 left-6 right-6 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
+          {/* 4-Step Progress Stepper on the exact same row as back button */}
+          <div className="flex-1 relative">
+            <div className="absolute top-3.5 left-4 right-4 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
             <div
-              className="absolute top-4 left-6 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
+              className="absolute top-3.5 left-4 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
               style={{ width: `${((currentStepNum - 1) / (STEP_ITEMS.length - 1)) * 100}%` }}
             />
-            {STEP_ITEMS.map((item) => {
-              const isDone = item.id < currentStepNum;
-              const isActive = item.id === currentStepNum;
-              return (
-                <button
-                  key={item.id}
-                  disabled={item.id > currentStepNum}
-                  onClick={() => {
-                    if (item.id === 1) setStep("slot");
-                    else if (item.id === 2) setStep("brief");
-                    else if (item.id === 3) setStep("review");
-                    else if (item.id === 4 && agreedToTerms && name.trim() && email.trim()) setStep("payment");
-                  }}
-                  className={`relative z-10 flex flex-col items-center gap-1.5 group ${
-                    item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-50"
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-body transition-all ${
-                      isDone
-                        ? "bg-[var(--color-accent)] text-[var(--color-accent-on)]"
-                        : isActive
-                        ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] ring-4 ring-[var(--color-accent-glow)]"
-                        : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]"
+            <div className="flex items-center justify-between relative z-10">
+              {STEP_ITEMS.map((item) => {
+                const isDone = item.id < currentStepNum;
+                const isActive = item.id === currentStepNum;
+                return (
+                  <button
+                    key={item.id}
+                    disabled={item.id > currentStepNum}
+                    onClick={() => {
+                      if (item.id === 1) setStep("slot");
+                      else if (item.id === 2) setStep("brief");
+                      else if (item.id === 3) setStep("review");
+                      else if (item.id === 4 && agreedToTerms && name.trim() && email.trim() && phone.trim()) setStep("payment");
+                    }}
+                    className={`flex flex-col items-center group ${
+                      item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-40"
                     }`}
                   >
-                    {isDone ? <Check className="w-4 h-4" /> : item.id}
-                  </div>
-                  <span
-                    className={`text-[11px] font-body transition-colors ${
-                      isActive
-                        ? "text-[var(--color-accent)] font-semibold"
-                        : isDone
-                        ? "text-[var(--color-text-primary)] font-medium"
-                        : "text-[var(--color-text-tertiary)]"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold font-body transition-all ${
+                        isDone
+                          ? "bg-[var(--color-accent)] text-[var(--color-accent-on)]"
+                          : isActive
+                          ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] ring-4 ring-[var(--color-accent-glow)]"
+                          : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]"
+                      }`}
+                    >
+                      {isDone ? <Check className="w-3.5 h-3.5" /> : item.id}
+                    </div>
+                    <span
+                      className={`text-[10px] sm:text-[11px] font-body mt-1 transition-colors ${
+                        isActive
+                          ? "text-[var(--color-accent)] font-semibold"
+                          : isDone
+                          ? "text-[var(--color-text-primary)] font-medium"
+                          : "text-[var(--color-text-tertiary)]"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -363,8 +357,20 @@ export function ExternalBookingEntry() {
   if (step === "slot") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
-        {header(`Book ${creator?.name ?? "Performer"}`, () => navigate(-1))}
+        {header(() => navigate(-1))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-6">
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-1">
+              <Lock className="w-3.5 h-3.5" /> Escrow protected booking
+            </div>
+            <h1 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              Book {creator?.name ?? "Performer"}
+            </h1>
+            <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
+              Select your event date and preferred performer time slot.
+            </p>
+          </div>
+
           {/* Event Date Section (Available vs. Unavailable Dates) */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -507,7 +513,7 @@ export function ExternalBookingEntry() {
   if (step === "brief") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
-        {header("Project Brief", () => setStep("slot"))}
+        {header(() => setStep("slot"))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
           <div>
             <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
@@ -696,54 +702,36 @@ export function ExternalBookingEntry() {
     );
   }
 
-  // ── Step 3: Contact & Agreement (Contact Details, Clean Summary & Service Agreement) ──
+  // ── Step 3: Contact & Agreement (Contact Details & Service Agreement) ──────────
   if (step === "review") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
-        {header("Contact & Agreement", () => setStep("brief"))}
+        {header(() => setStep("brief"))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
           <div>
             <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
               Contact & Agreement
             </h2>
-            <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-              Enter your contact information and accept escrow protection terms before payment.
+            <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
+              Provide your contact details for booking notifications and accept the escrow terms.
             </p>
           </div>
 
-          {/* Clean Booking Summary Strip (No redundant fee calculation formulas) */}
+          {/* Contact Details Card */}
           <div
-            className="p-4 rounded-2xl border flex items-center justify-between"
+            className="p-5 rounded-2xl border space-y-4"
             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
           >
-            <div className="min-w-0 pr-3">
-              <div className="text-sm font-bold font-body truncate" style={{ color: "var(--color-text-primary)" }}>
-                {creator?.name || "Performer"} · {selectedRateCard?.title || "Service"}
-              </div>
-              <div className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
-                {slotDate} at {selectedSlotStart} · {projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote"}
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="text-[11px] font-medium text-[var(--color-text-tertiary)]">Total escrow</div>
-              <div className="font-mono text-base font-bold" style={{ color: "var(--color-accent)" }}>
-                {money(total)}
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information (Now Step 3!) */}
-          <div className="p-5 rounded-2xl border space-y-3.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
             <div>
-              <div className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
-                Your contact information
-              </div>
+              <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                Your contact details
+              </h3>
               <p className="text-xs font-body text-[var(--color-text-tertiary)] mt-0.5">
-                We'll create your secure Monologg account automatically once your escrow booking is confirmed.
+                We'll use these details to send project updates, check-in alerts, and your Monologg sign-in link.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
                   Your name *
@@ -756,17 +744,32 @@ export function ExternalBookingEntry() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                  Email address *
-                </label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  className="text-sm font-body"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                    Email address *
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@company.com"
+                    className="text-sm font-body"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                    Phone number *
+                  </label>
+                  <Input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+234 800 000 0000"
+                    className="text-sm font-body"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -776,9 +779,9 @@ export function ExternalBookingEntry() {
             className="p-5 rounded-2xl border space-y-3.5"
             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
           >
-            <div className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+            <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
               Service agreement & escrow terms
-            </div>
+            </h3>
             <div className="space-y-2.5 text-xs font-body leading-relaxed divide-y divide-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
               <div className="pt-1">
                 <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
@@ -823,7 +826,7 @@ export function ExternalBookingEntry() {
 
           <Button
             className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
-            disabled={!name.trim() || !email.trim() || !email.includes("@") || !agreedToTerms}
+            disabled={!name.trim() || !email.trim() || !email.includes("@") || !phone.trim() || !agreedToTerms}
             onClick={() => setStep("payment")}
           >
             <span>Proceed to Payment</span>
@@ -842,29 +845,49 @@ export function ExternalBookingEntry() {
     );
   }
 
-  // ── Step 4: Escrow Payment (Cleaned up, no repeating amounts/tags) ────────────
+  // ── Step 4: Escrow Payment (2-Option Selector, Single CTA Button) ─────────────
   if (step === "payment") {
     return (
       <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
-        {header("Payment", () => setStep("review"))}
+        {header(() => setStep("review"))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
-          {/* Streamlined Payment Header */}
           <div>
-            <div className="text-xs font-semibold font-body text-[var(--color-text-tertiary)] mb-0.5">
-              Step 4 of 4 · Escrow payment
-            </div>
-            <div className="flex items-baseline justify-between">
-              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
-                Pay <span className="font-mono text-[var(--color-accent)]">{money(total)}</span>
-              </h2>
-              <div className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Escrow Protected</span>
+            <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              Payment
+            </h2>
+            <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
+              Choose your preferred payment method to deposit funds into escrow.
+            </p>
+          </div>
+
+          {/* Clean Order Total & Escrow Card */}
+          <div
+            className="p-4 sm:p-5 rounded-2xl border flex items-center justify-between"
+            style={{
+              background: "var(--color-bg-surface)",
+              borderColor: "var(--color-hairline)",
+              boxShadow: "var(--shadow-card)",
+            }}
+          >
+            <div>
+              <div className="text-xs font-body text-[var(--color-text-tertiary)]">
+                Total escrow deposit
+              </div>
+              <div className="font-mono text-2xl font-bold mt-0.5" style={{ color: "var(--color-text-primary)" }}>
+                {money(total)}
+              </div>
+              <div className="text-[11px] font-body text-[var(--color-text-secondary)] mt-0.5">
+                {creator?.name || "Performer"} · {slotDate} @ {selectedSlotStart}
               </div>
             </div>
-            <p className="text-xs font-body text-[var(--color-text-secondary)] mt-1">
-              Booking {creator?.name || "Performer"} for <span className="font-semibold text-[var(--color-text-primary)]">{name}</span> ({email}) · {slotDate} at {selectedSlotStart}
-            </p>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <ShieldCheck className="w-3.5 h-3.5" /> 100% Escrow Protected
+              </span>
+              <div className="text-[10px] text-[var(--color-text-tertiary)] mt-1">
+                Released only after your approval
+              </div>
+            </div>
           </div>
 
           {payError && (
@@ -874,25 +897,157 @@ export function ExternalBookingEntry() {
             </div>
           )}
 
-          {/* Payment Method 1: Paystack (Recommended Gateway) */}
-          <div
-            className="p-5 rounded-2xl border space-y-3"
-            style={{
-              background: "var(--color-bg-surface)",
-              borderColor: "var(--color-hairline)",
-              boxShadow: "var(--shadow-card)",
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
-                Recommended gateway
-              </span>
-              <span className="text-xs font-mono font-medium text-[var(--color-text-tertiary)]">
-                Cards · Bank Transfer · USSD
-              </span>
-            </div>
+          {/* Payment Method 2-Option Selector */}
+          <div className="space-y-3">
+            <label className="block text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+              Select payment method
+            </label>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Option 1: Card */}
+              <button
+                type="button"
+                onClick={() => setPaymentOption("card")}
+                className="p-4 rounded-2xl border text-left transition-all cursor-pointer relative"
+                style={{
+                  background: paymentOption === "card" ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                  borderColor: paymentOption === "card" ? "var(--color-accent)" : "var(--color-hairline)",
+                  boxShadow: paymentOption === "card" ? "var(--shadow-card)" : "none",
+                }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-[var(--color-accent)]" />
+                    <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                      Pay with Card
+                    </span>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      paymentOption === "card" ? "border-[var(--color-accent)] bg-[var(--color-accent)]" : "border-[var(--color-hairline)]"
+                    }`}
+                  >
+                    {paymentOption === "card" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                </div>
+                <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                  Direct card entry (Visa, Mastercard, Verve)
+                </p>
+              </button>
+
+              {/* Option 2: Paystack */}
+              <button
+                type="button"
+                onClick={() => setPaymentOption("paystack")}
+                className="p-4 rounded-2xl border text-left transition-all cursor-pointer relative"
+                style={{
+                  background: paymentOption === "paystack" ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                  borderColor: paymentOption === "paystack" ? "var(--color-accent)" : "var(--color-hairline)",
+                  boxShadow: paymentOption === "paystack" ? "var(--shadow-card)" : "none",
+                }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
+                    <span className="text-xs font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                      Pay with Paystack
+                    </span>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      paymentOption === "paystack" ? "border-[var(--color-accent)] bg-[var(--color-accent)]" : "border-[var(--color-hairline)]"
+                    }`}
+                  >
+                    {paymentOption === "paystack" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                </div>
+                <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                  Instant checkout via Card, Bank Transfer, or USSD
+                </p>
+              </button>
+            </div>
+          </div>
+
+          {/* Conditional Details based on selection */}
+          {paymentOption === "card" ? (
+            <div
+              className="p-5 rounded-2xl border space-y-4"
+              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
+                  Card information
+                </span>
+                <div className="flex gap-1.5 text-[10px] font-mono uppercase font-semibold text-[var(--color-text-tertiary)]">
+                  <span>Visa</span> · <span>Mastercard</span> · <span>Verve</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                    Card number
+                  </label>
+                  <Input
+                    value={cardNum}
+                    onChange={(e) => setCardNum(e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
+                    placeholder="0000 0000 0000 0000"
+                    className="font-mono text-sm font-medium"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                      Expiry date
+                    </label>
+                    <Input
+                      value={expiry}
+                      onChange={(e) => {
+                        const clean = e.target.value.replace(/\D/g, "").slice(0, 4);
+                        setExpiry(clean.length > 2 ? `${clean.slice(0, 2)}/${clean.slice(2)}` : clean);
+                      }}
+                      placeholder="MM/YY"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                      CVV
+                    </label>
+                    <Input
+                      type="password"
+                      maxLength={4}
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="123"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                    Cardholder name
+                  </label>
+                  <Input
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="Name as it appears on card"
+                    className="text-sm font-body"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="p-5 rounded-2xl border space-y-3"
+              style={{
+                background: "var(--color-bg-surface)",
+                borderColor: "var(--color-hairline)",
+                boxShadow: "var(--shadow-card)",
+              }}
+            >
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -902,108 +1057,40 @@ export function ExternalBookingEntry() {
                 </div>
                 <div>
                   <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                    Paystack
+                    Paystack Checkout
                   </div>
                   <div className="text-xs font-body text-[var(--color-text-tertiary)]">
-                    Instant, secure checkout
+                    Instant, secure checkout via Cards, direct Bank Transfer (Wema Bank), or USSD
                   </div>
                 </div>
               </div>
-
-              <Button
-                type="button"
-                className="h-11 px-5 font-bold shadow-sm cursor-pointer whitespace-nowrap text-white gap-2"
-                style={{ background: "#0BA4DB" }}
-                onClick={() => setShowPaystackModal(true)}
-              >
-                <span>Pay with Paystack</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              <p className="text-xs font-body text-[var(--color-text-secondary)] leading-relaxed pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                Click below to launch the secure Paystack checkout modal. Your funds will be deposited directly into Monologg escrow.
+              </p>
             </div>
-          </div>
+          )}
 
-          {/* Payment Method 2: Direct Card Input */}
-          <div
-            className="p-5 rounded-2xl border space-y-4"
-            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-[var(--color-accent)]" />
-                <span className="text-xs font-semibold font-body text-[var(--color-text-secondary)]">
-                  Or pay with debit / credit card
-                </span>
-              </div>
-              <div className="flex gap-1.5 text-[10px] font-mono uppercase font-semibold text-[var(--color-text-tertiary)]">
-                <span>Visa</span> · <span>Mastercard</span> · <span>Verve</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                  Card number
-                </label>
-                <Input
-                  value={cardNum}
-                  onChange={(e) => setCardNum(e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
-                  placeholder="0000 0000 0000 0000"
-                  className="font-mono text-sm font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                    Expiry date
-                  </label>
-                  <Input
-                    value={expiry}
-                    onChange={(e) => {
-                      const clean = e.target.value.replace(/\D/g, "").slice(0, 4);
-                      setExpiry(clean.length > 2 ? `${clean.slice(0, 2)}/${clean.slice(2)}` : clean);
-                    }}
-                    placeholder="MM/YY"
-                    className="font-mono text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                    CVV
-                  </label>
-                  <Input
-                    type="password"
-                    maxLength={4}
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    placeholder="123"
-                    className="font-mono text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                  Cardholder name
-                </label>
-                <Input
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  placeholder="Name as it appears on card"
-                  className="text-sm font-body"
-                />
-              </div>
-
-              <Button
-                className="w-full h-12 text-sm font-bold gap-2 cursor-pointer mt-1"
-                disabled={submitting}
-                onClick={handlePay}
-              >
-                <Lock className="w-4 h-4" />
-                <span>{submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}</span>
-              </Button>
-            </div>
-          </div>
+          {/* Only ONE single CTA button */}
+          {paymentOption === "paystack" ? (
+            <Button
+              type="button"
+              className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
+              onClick={() => setShowPaystackModal(true)}
+            >
+              <span>Pay {money(total)} with Paystack</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
+              disabled={submitting}
+              onClick={handlePay}
+            >
+              <Lock className="w-4 h-4" />
+              <span>{submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}</span>
+            </Button>
+          )}
 
           <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-tertiary)] pt-1">
             <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

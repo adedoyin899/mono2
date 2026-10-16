@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 141: External Storefront Booking FAANG UX Sweep — Rate Card Clutter Removal, Solid Modal Background, Step 3 Contact & Agreement, Payment Redundancy Cleanup, No All-Caps Titles, and Confirmed View Redesign)
+**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 142 (2026-10-16) — External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA
+
+**Goal:** Address user design feedback on `ExternalBookingEntry.tsx` to streamline the top sticky navigation, refine contact information collection, and clean up payment method selection:
+1. **Header & Stepper Single-Line Unification:**
+   - Placed the back button `<` on the exact same horizontal row as the 4-step progress stepper (`h-16 flex items-center gap-3 sm:gap-6 px-4 max-w-xl mx-auto`).
+   - Removed the duplicate top text row (`Contact & Agreement`, `Payment`, `Escrow Protected Booking`) from the sticky navbar, resolving repetitive header titles across steps.
+2. **Step 1 Body Heading:**
+   - Displayed `Book ${creator?.name ?? "Performer"}` with a clean `Escrow protected booking` trust badge directly above the date picker.
+3. **Step 3 Summary Strip Removal & Phone Number Addition:**
+   - Removed the redundant booking summary strip (`Emeka Johnson · Standard Booking 2026-10-16 at 00:00 · Online / Remote Total escrow ₦134,400`) from Step 3.
+   - Added `Phone number *` (`phone` state, placeholder `+234 800 000 0000`, validation requirement, and contextNote compilation) so clients can be notified of booking check-ins and project updates via SMS/phone.
+   - Refined Step 3 visual hierarchy: clean `Contact & Agreement` headline, `Your contact details` card, `Service agreement & escrow terms` card, and a single `Proceed to Payment` action button.
+4. **Step 4 Payment Method 2-Option Selector & Single CTA Button:**
+   - Replaced clashing payment sections with a clean Order Summary card showing total deposit (`₦134,400`) and green `100% Escrow Protected` badge.
+   - Created a 2-option selector: `Pay with Card` vs `Pay with Paystack` with active state indicators and contextual subtexts.
+   - Swapped content dynamically: Card fields (`Card number`, `Expiry date`, `CVV`, `Cardholder name`) render when Card is selected; Paystack channel description renders when Paystack is selected.
+   - Removed competing blue button; provided ONLY ONE primary CTA button at the bottom styled in platform brand color (`var(--color-accent)`): `Pay ₦134,400 with Paystack` or `Confirm & Deposit ₦134,400`.
+5. **Testing & Validation:**
+   - Updated `ExternalBookingEntry.test.tsx` to include phone number input and verify the single CTA button progression.
+   - All 25 test suites passed (126/126 tests) in `apps/web`.
+   - Clean TypeScript check with 0 errors (`npx tsc --noEmit`).
+
+### Changes Made:
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx`**: Unified back button and stepper onto a single sticky header row, added phone input and removed summary box on Step 3, implemented 2-option payment selector with single CTA button on Step 4.
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.test.tsx`**: Added phone number entry and updated Step 4 assertions.
 
 ---
 
