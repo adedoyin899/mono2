@@ -48,4 +48,19 @@ describe("OrderRoom (via api-client, mock mode)", () => {
       expect(screen.getByText(/Order Room created/)).toBeInTheDocument();
     });
   });
+
+  it("renders the interactive Google Meet reminder banner for client role with launch and copy actions", async () => {
+    render(
+      <MemoryRouter initialEntries={["/order/ORD-001?role=client"]}>
+        <Routes>
+          <Route path="/order/:id" element={<OrderRoom />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByText(/Schedule Google Meet with/)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /Launch Google Meet/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Copy Link/i })).toBeInTheDocument();
+    });
+  });
 });

@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
+**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 143 (2026-10-16) — Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner
+
+**Goal:** Overhaul the external storefront booking experience (`ExternalBookingEntry.tsx`) and client Order Room (`OrderRoom.tsx`) per user visual feedback:
+1. **Interactive Compact Month Calendar with Navigation:**
+   - Replaced the clunky 10-day cards strip and bottom date input with a FAANG-grade monthly calendar.
+   - Month and year navigation header with `<` (prev) and `>` (next) controls (preventing navigating before the current month).
+   - Clear availability legend (`Date available` emerald dot vs `Booked / Unavailable` line-through).
+   - 7-day Monday-first week grid with padded leading blanks. Past days are disabled; booked/unavailable dates (Sundays, 18th, 20th, 25th) are marked with strikethrough styling and clicking them triggers the solid `Performer Unavailable` modal.
+   - Available days are clickable with high-contrast active selection in platform red (`#E50914`).
+   - Selected date summary strip cleanly connects the calendar to the candidate performer slots grid below.
+2. **Centered Stepper with Extreme-Left Back Arrow:**
+   - On Step 1: Omitted the back arrow completely since the external booking page is opened on a fresh browser page, eliminating awkward clutter.
+   - On Steps 2–4: Positioned the `<` chevron at the extreme left edge (`absolute left-4 top-1/2 -translate-y-1/2`), keeping the 4-step progress stepper perfectly centered in the navbar.
+3. **Confirmed Screen UX & Order Room Routing:**
+   - Removed immediate "Launch Google Meet" and "Copy link" buttons from the external checkout confirmation screen since the video call belongs in the workspace.
+   - Added clear next-step guidance explaining that the introductory Google Meet call is scheduled and conducted directly inside the Order Room workspace.
+   - Primary CTA: `Enter Order Room` (with `ArrowRight`), routing the client directly to `/order/:id?role=client`.
+4. **Order Room Client Google Meet Reminder Banner:**
+   - Added an interactive introductory call reminder banner at the top of `OrderRoom.tsx` for client roles.
+   - Matches the visual styling and placement of the performer availability check-in card: `Action Recommended · Step 1` badge, Google Meet launch button, copy link button, and `Mark as Done` status toggle.
+5. **Testing & Verification:**
+   - Updated `dashboardParity.test.tsx` to assert the client Google Meet reminder banner in `OrderRoom`.
+   - All 25 test suites passed (127/127 tests) in `apps/web`.
+   - Clean TypeScript check with 0 errors (`npx tsc --noEmit`).
+
+### Changes Made:
+- **`monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx`**: Month calendar with navigation and availability indicators, extreme-left back chevron on steps 2-4, and Order Room next-step confirmation screen.
+- **`monologg/apps/web/src/app/pages/OrderRoom.tsx`**: Interactive Google Meet reminder banner for client role.
+- **`monologg/apps/web/src/app/pages/dashboardParity.test.tsx`**: Client Google Meet reminder test case.
 
 ---
 

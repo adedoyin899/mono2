@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–141 + Session 142 External Booking Header & Stepper Line Unification, Phone Input, and 2-Option Payment with Single CTA.
+**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–142 + Session 143 Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, and Order Room Client Google Meet Reminder Banner.
 
 ---
 
 ## ✅ Done
+
+### Session 143 — Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner
+- [x] **Compact Month Calendar with Navigation (`ExternalBookingEntry.tsx`)**:
+  - Replaced the horizontal 10-day strip and date input with a full interactive month calendar card.
+  - Month and year navigation header (`October 2026`) with `<` (prev) and `>` (next) buttons (blocking past month navigation).
+  - Clear availability legend (`Date available` emerald dot vs `Booked / Unavailable` line-through).
+  - 7-column Monday-first week grid with padded blanks. Past days disabled; booked dates (Sundays, 18th, 20th, 25th) marked with strikethrough styling and clicking them triggers the solid `Performer Unavailable` modal.
+  - High-contrast selection in Monologg brand red (`#E50914`).
+  - Tactile selected date status strip connecting the calendar directly to open performer slots below.
+- [x] **Centered Stepper with Extreme-Left Back Arrow (`ExternalBookingEntry.tsx`)**:
+  - Omitted back arrow completely on Step 1 since external visitor booking opens in a fresh browser page.
+  - On Steps 2–4, pinned back arrow `<` at extreme left (`absolute left-4 top-1/2 -translate-y-1/2`), keeping the 4-step progress stepper centered across the navbar.
+- [x] **Confirmed Screen UX & Direct Order Room Routing (`ExternalBookingEntry.tsx`)**:
+  - Removed confusing immediate "Launch Google Meet" and "Copy link" buttons from the post-checkout confirmation screen.
+  - Clarified that the video intro call takes place inside the dedicated Order Room workspace where a reminder banner is waiting.
+  - Provided primary CTA `Enter Order Room` routing directly to `/order/:id?role=client`.
+- [x] **Client Google Meet Reminder Banner (`OrderRoom.tsx`)**:
+  - Added an interactive introductory call reminder banner at the top of the Order Room for client roles (matching performer check-in style).
+  - Includes `Launch Google Meet`, `Copy Link`, and `Mark as Done` status actions with 100% escrow protection reassurance.
+- [x] **Testing & Verification**:
+  - Updated `dashboardParity.test.tsx` to assert the client Google Meet reminder banner in `OrderRoom`.
+  - All 25 test suites passing (127/127 tests) with 0 TypeScript compilation errors.
 
 ### Session 142 — External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA
 - [x] **Single-Row Header & Stepper (`ExternalBookingEntry.tsx`)**:

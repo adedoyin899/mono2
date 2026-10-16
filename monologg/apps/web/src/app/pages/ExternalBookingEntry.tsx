@@ -8,7 +8,7 @@ import { PaystackModal } from "../components/ui/PaystackModal";
 import { apiClient, type CreatedBooking } from "../../lib/api-client";
 import type { PublicRateCard, PublicStorefront } from "@monologg/types";
 import {
-  ChevronLeft, Lock, ArrowRight, AlertCircle, CheckCircle2, Mail,
+  ChevronLeft, ChevronRight, Lock, ArrowRight, AlertCircle, CheckCircle2, Mail,
   CreditCard, ShieldCheck, Check, Calendar, Clock, MapPin, Video,
   UploadCloud, FileText, CalendarX, Copy, ExternalLink, Video as VideoIcon
 } from "lucide-react";
@@ -177,26 +177,127 @@ export function ExternalBookingEntry() {
 
   const money = (kobo: number) => `₦${(kobo / 100).toLocaleString()}`;
 
-  // Generate date strip for upcoming 10 days
-  const upcomingDays = React.useMemo(() => {
-    const list = [];
-    const base = new Date();
-    for (let i = 0; i < 10; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      const iso = d.toISOString().split("T")[0]!;
-      const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
-      const dayNum = d.toLocaleDateString("en-US", { day: "numeric" });
-      const monthName = d.toLocaleDateString("en-US", { month: "short" });
-      // Designate Sundays (day 0) or day 4 as unavailable to illustrate greyed out / unselectable state
-      const isUnavailable = d.getDay() === 0 || i === 4;
-      list.push({ iso, dayName, dayNum, monthName, isUnavailable });
+  // Month Calendar View State (FAANG-grade month grid with navigation)
+  const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => {
+    const d = new Date(slotDate || todayISO());
+    return isNaN(d.getTime()) ? new Date() : new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+
+  const calendarYear = calendarViewDate.getFullYear();
+  const calendarMonth = calendarViewDate.getMonth(); // 0-indexed
+
+  const monthYearLabel = calendarViewDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const handlePrevMonth = () => {
+    setCalendarViewDate((prev) => {
+      const now = new Date();
+      if (
+        prev.getFullYear() < now.getFullYear() ||
+        (prev.getFullYear() === now.getFullYear() && prev.getMonth() <= now.getMonth())
+      ) {
+        return prev;
+      }
+      return new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
+    });
+  };
+
+  const handleNextMonth = () => {
+    setCalendarViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const isPrevMonthDisabled = (() => {
+    const now = new Date();
+    return (
+      calendarYear < now.getFullYear() ||
+      (calendarYear === now.getFullYear() && calendarMonth <= now.getMonth())
+    );
+  })();
+
+  const DOW_HEADERS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+  // Helper to determine whether a given ISO date is unavailable
+  const checkDateUnavailable = React.useCallback((iso: string): boolean => {
+    try {
+      const [y, m, d] = iso.split("-").map(Number);
+      const target = new Date(y!, m! - 1, d!);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const targetStart = new Date(target);
+      targetStart.setHours(0, 0, 0, 0);
+
+      // Past dates are unavailable
+      if (targetStart < today) return true;
+
+      // Sundays (day 0) or specific scheduled booked days (18, 20, 25) when not today
+      const dayOfWeek = target.getDay();
+      const isBooked = dayOfWeek === 0 || [18, 20, 25].includes(d!);
+      return isBooked;
+    } catch {
+      return false;
     }
-    return list;
   }, []);
 
-  const currentDayInfo = upcomingDays.find((d) => d.iso === slotDate);
-  const isSelectedDateUnavailable = Boolean(currentDayInfo?.isUnavailable);
+  const isSelectedDateUnavailable = checkDateUnavailable(slotDate);
+
+  const calendarDays = React.useMemo(() => {
+    const firstDayRaw = new Date(calendarYear, calendarMonth, 1).getDay();
+    // Monday start: 0 = Mon, ..., 6 = Sun
+    const startOffset = (firstDayRaw + 6) % 7;
+    const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+    const blanks = Array.from({ length: startOffset }, (_, i) => ({
+      key: `blank-${i}`,
+      isBlank: true,
+      dayNum: 0,
+      iso: "",
+      isPast: false,
+      isUnavailable: false,
+      isSelected: false,
+    }));
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const days = Array.from({ length: totalDays }, (_, i) => {
+      const dayNum = i + 1;
+      const iso = `${calendarYear}-${String(calendarMonth + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+      const dObj = new Date(calendarYear, calendarMonth, dayNum);
+      dObj.setHours(0, 0, 0, 0);
+      const isPast = dObj < today;
+      const isUnavailable = checkDateUnavailable(iso);
+      const isSelected = slotDate === iso;
+
+      return {
+        key: `day-${iso}`,
+        isBlank: false,
+        dayNum,
+        iso,
+        isPast,
+        isUnavailable,
+        isSelected,
+      };
+    });
+
+    return [...blanks, ...days];
+  }, [calendarYear, calendarMonth, slotDate, checkDateUnavailable]);
+
+  const formatSelectedDateHuman = (iso: string): string => {
+    try {
+      const [y, m, d] = iso.split("-").map(Number);
+      const dateObj = new Date(y!, m! - 1, d!);
+      return dateObj.toLocaleDateString("en-US", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch {
+      return iso;
+    }
+  };
 
   const handleSelectDate = (iso: string, isUnavailable: boolean) => {
     if (isUnavailable) {
@@ -286,21 +387,25 @@ export function ExternalBookingEntry() {
     const currentStepNum = getStepNumber(step);
     return (
       <div className="sticky top-0 z-40 glass-panel border-b" style={{ borderColor: "var(--color-hairline)" }}>
-        <div className="h-16 flex items-center gap-3 sm:gap-6 px-4 max-w-xl mx-auto w-full">
-          <button
-            aria-label="Go back"
-            onClick={onBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0 cursor-pointer"
-            style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+        <div className="h-16 relative flex items-center justify-center px-4 max-w-xl mx-auto w-full">
+          {/* Back button at the extreme left (omitted on step 1 since it's a fresh browser page) */}
+          {currentStepNum > 1 && (
+            <button
+              type="button"
+              aria-label="Go back"
+              onClick={onBack}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0 cursor-pointer z-20"
+              style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
 
-          {/* 4-Step Progress Stepper on the exact same row as back button */}
-          <div className="flex-1 relative">
-            <div className="absolute top-3.5 left-4 right-4 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
+          {/* 4-Step Progress Stepper centered in the navbar */}
+          <div className="w-full max-w-md mx-auto px-6 sm:px-8 relative">
+            <div className="absolute top-3.5 left-8 right-8 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
             <div
-              className="absolute top-3.5 left-4 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
+              className="absolute top-3.5 left-8 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
               style={{ width: `${((currentStepNum - 1) / (STEP_ITEMS.length - 1)) * 100}%` }}
             />
             <div className="flex items-center justify-between relative z-10">
@@ -371,55 +476,150 @@ export function ExternalBookingEntry() {
             </p>
           </div>
 
-          {/* Event Date Section (Available vs. Unavailable Dates) */}
-          <div className="space-y-3">
+          {/* Event Date Section: Simple Compact Month Calendar with Month Toggle */}
+          <div
+            className="p-4 sm:p-5 rounded-2xl border space-y-4"
+            style={{
+              background: "var(--color-bg-surface)",
+              borderColor: "var(--color-hairline)",
+              boxShadow: "var(--shadow-card)",
+            }}
+          >
+            {/* Calendar Month Header & Switcher */}
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold font-body text-[var(--color-text-secondary)]">
-                Event date
-              </label>
-              <span className="text-xs font-body font-medium" style={{ color: isSelectedDateUnavailable ? "var(--color-error)" : "var(--color-success)" }}>
-                {isSelectedDateUnavailable ? "● Date unavailable" : "● Date available"}
-              </span>
+              <div>
+                <h3 className="font-display text-base sm:text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                  {monthYearLabel}
+                </h3>
+                <p className="text-[11px] font-body text-[var(--color-text-tertiary)]">
+                  Pick an available date for your event
+                </p>
+              </div>
+
+              {/* Month Switcher Controls */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  aria-label="Previous month"
+                  onClick={handlePrevMonth}
+                  disabled={isPrevMonthDisabled}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
+                    isPrevMonthDisabled
+                      ? "opacity-30 cursor-not-allowed border-transparent text-zinc-400"
+                      : "cursor-pointer hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border-[var(--color-hairline)]"
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next month"
+                  onClick={handleNextMonth}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center border cursor-pointer hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border-[var(--color-hairline)] transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Tactile 10-Day Availability Strip */}
-            <div className="grid grid-cols-5 gap-2">
-              {upcomingDays.map((day) => {
-                const isSelected = slotDate === day.iso;
+            {/* Availability Legend */}
+            <div className="flex items-center gap-4 text-xs font-body pt-1 pb-1 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Date available</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500 font-medium">
+                <span className="w-2 h-2 rounded-full bg-zinc-400/60 dark:bg-zinc-600" />
+                <span className="line-through decoration-zinc-400/50">Booked / Unavailable</span>
+              </div>
+            </div>
+
+            {/* Days of Week Header */}
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {DOW_HEADERS.map((dow) => (
+                <div key={dow} className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] py-1">
+                  {dow}
+                </div>
+              ))}
+            </div>
+
+            {/* Days Grid */}
+            <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center">
+              {calendarDays.map((item) => {
+                if (item.isBlank) {
+                  return <div key={item.key} className="h-9 sm:h-10" />;
+                }
+
+                if (item.isPast) {
+                  return (
+                    <div
+                      key={item.key}
+                      className="h-9 sm:h-10 flex items-center justify-center text-xs font-mono text-zinc-300 dark:text-zinc-700 cursor-not-allowed select-none"
+                    >
+                      {item.dayNum}
+                    </div>
+                  );
+                }
+
+                if (item.isUnavailable) {
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => handleSelectDate(item.iso, true)}
+                      title="Booked — click for availability details"
+                      className="h-9 sm:h-10 rounded-xl flex items-center justify-center text-xs font-mono font-medium text-zinc-400 dark:text-zinc-500 bg-zinc-100/60 dark:bg-zinc-800/40 line-through decoration-zinc-400/60 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer"
+                    >
+                      {item.dayNum}
+                    </button>
+                  );
+                }
+
                 return (
                   <button
-                    key={day.iso}
+                    key={item.key}
                     type="button"
-                    onClick={() => handleSelectDate(day.iso, day.isUnavailable)}
-                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
-                      day.isUnavailable ? "opacity-40 cursor-not-allowed bg-[var(--color-bg-elevated)]" : ""
+                    onClick={() => handleSelectDate(item.iso, false)}
+                    className={`h-9 sm:h-10 rounded-xl flex items-center justify-center text-xs font-mono font-semibold transition-all cursor-pointer ${
+                      item.isSelected
+                        ? "shadow-sm scale-[1.04]"
+                        : "hover:bg-[var(--color-bg-elevated)]"
                     }`}
                     style={{
-                      background: isSelected ? "var(--color-accent)" : "var(--color-bg-surface)",
-                      color: isSelected ? "var(--color-accent-on)" : "var(--color-text-primary)",
-                      borderColor: isSelected ? "var(--color-accent)" : "var(--color-hairline)",
+                      background: item.isSelected ? "var(--color-accent)" : "transparent",
+                      color: item.isSelected ? "var(--color-accent-on)" : "var(--color-text-primary)",
                     }}
                   >
-                    <span className="text-[10px] font-body uppercase font-semibold">{day.dayName}</span>
-                    <span className="text-base font-bold font-mono my-0.5">{day.dayNum}</span>
-                    <span className="text-[9px] font-body uppercase opacity-80">{day.isUnavailable ? "Booked" : day.monthName}</span>
+                    {item.dayNum}
                   </button>
                 );
               })}
             </div>
 
-            {/* Standard Calendar Date Picker Fallback */}
-            <div className="pt-1">
-              <Input
-                type="date"
-                value={slotDate}
-                min={todayISO()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSlotDate(val);
-                }}
-                className="text-sm font-body"
-              />
+            {/* Selected Date Status Pill */}
+            <div
+              className="p-3 rounded-xl border flex items-center justify-between text-xs font-body mt-2"
+              style={{
+                background: "var(--color-bg-elevated)",
+                borderColor: "var(--color-hairline)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                <span className="font-semibold text-[var(--color-text-primary)]">
+                  {formatSelectedDateHuman(slotDate)}
+                </span>
+              </div>
+              <span
+                className="font-medium flex items-center gap-1.5"
+                style={{ color: isSelectedDateUnavailable ? "var(--color-error)" : "var(--color-success)" }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: isSelectedDateUnavailable ? "var(--color-error)" : "var(--color-success)" }}
+                />
+                <span>{isSelectedDateUnavailable ? "Date unavailable" : "Date available"}</span>
+              </span>
             </div>
           </div>
 
@@ -1156,9 +1356,9 @@ export function ExternalBookingEntry() {
           </p>
         </div>
 
-        {/* Google Meet Alignment Card — Refined, premium card styling */}
+        {/* Order Room & Google Meet Next Step Card */}
         <div
-          className="p-5 rounded-2xl border text-left space-y-4"
+          className="p-5 rounded-2xl border text-left space-y-3"
           style={{
             background: "var(--color-bg-surface)",
             borderColor: "var(--color-hairline)",
@@ -1178,46 +1378,28 @@ export function ExternalBookingEntry() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[11px] font-semibold text-[var(--color-accent)]">
-                Next step · Video introduction
+                Next step · Order Room
               </div>
               <h4 className="text-sm font-bold font-body mt-0.5" style={{ color: "var(--color-text-primary)" }}>
                 Schedule Google Meet with {creator?.name || "Performer"}
               </h4>
               <p className="text-xs font-body mt-1 text-[var(--color-text-secondary)] leading-relaxed">
-                Hop on a quick video call to align on your campaign brief, tone preferences, and delivery timeline.
+                Your video introduction call cannot be done here. Enter your dedicated Order Room workspace to schedule and launch your Google Meet call, chat with {creator?.name || "the performer"}, and manage deliverables.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-            <a
-              href={googleMeetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 h-10 px-4 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 text-white transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer"
-              style={{ background: "var(--color-accent)" }}
-            >
-              <span>Launch Google Meet</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard?.writeText(googleMeetUrl);
-                setCopiedMeetLink(true);
-                setTimeout(() => setCopiedMeetLink(false), 2000);
-              }}
-              className="h-10 px-4 rounded-xl text-xs font-medium border flex items-center justify-center gap-1.5 transition-colors cursor-pointer hover:bg-[var(--color-bg-elevated)]"
-              style={{
-                background: "var(--color-bg-surface)",
-                borderColor: "var(--color-hairline)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              <Copy className="w-3.5 h-3.5" />
-              <span>{copiedMeetLink ? "Copied link!" : "Copy link"}</span>
-            </button>
+          <div
+            className="p-3 rounded-xl text-xs font-body flex items-center gap-2.5 border"
+            style={{
+              background: "var(--color-bg-elevated)",
+              borderColor: "var(--color-hairline)",
+            }}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+            <span className="text-[var(--color-text-secondary)]">
+              A reminder banner is set up for you inside the Order Room workspace.
+            </span>
           </div>
 
           <div className="text-[11px] font-body text-[var(--color-text-tertiary)] flex items-center gap-1.5 pt-1 border-t" style={{ borderColor: "var(--color-hairline)" }}>
@@ -1249,8 +1431,11 @@ export function ExternalBookingEntry() {
 
         {/* Clean, unified navigation buttons */}
         <div className="flex flex-col gap-2 pt-1">
-          <Button className="w-full h-11 text-xs font-bold gap-2 cursor-pointer" onClick={() => navigate("/auth")}>
-            <span>Go to Sign In</span>
+          <Button
+            className="w-full h-11 text-xs font-bold gap-2 cursor-pointer"
+            onClick={() => navigate(booking?.id ? `/order/${booking.id}?role=client` : "/order/ORD-001?role=client")}
+          >
+            <span>Enter Order Room</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
           <Button variant="secondary" className="w-full h-11 text-xs font-medium cursor-pointer" onClick={() => navigate(`/${handle || ""}`)}>

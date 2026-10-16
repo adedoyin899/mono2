@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
+**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 91. Clunky 10-Day Availability Strip, Premature Confirmation Google Meet CTAs, Stepper Arrow Clutter, and Missing Client Order Room Intro Call Reminder
+- **Severity:** Medium / Design Quality & Post-Checkout Conversion
+- **What happened:**
+  1. In `ExternalBookingEntry.tsx`, date selection used an awkward 10-day 2-row strip and a redundant native date input rather than a standard, navigable monthly calendar.
+  2. On Step 1, the back arrow `<` sat next to step 1 even though external visitors open the booking link in a fresh browser page, creating visual asymmetry and confusion.
+  3. On the booking confirmation screen, prominent "Launch Google Meet" and "Copy link" buttons invited users to join a video call immediately outside the platform, before they had logged into the workspace or set their account password.
+  4. In `OrderRoom.tsx`, only performers had an availability check-in reminder; clients had no corresponding banner prompting them to schedule or complete their video introduction call with the performer.
+- **Root Cause:** Prototyped horizontal date strip with hardcoded day offsets; premature placement of meeting links on guest completion screens; one-sided check-in architecture in Order Room.
+- **Fix:**
+  - Built a compact month calendar grid in `ExternalBookingEntry.tsx` with month/year navigation, availability legend, past-date disabling, booked-date strikethrough styling with modal warnings, and brand red selection.
+  - Omitted the back arrow on Step 1, and positioned it at the extreme left on Steps 2–4 to preserve centered stepper alignment.
+  - Replaced immediate Google Meet launch buttons on the confirmation screen with clear next-step guidance and an authoritative `Enter Order Room` primary CTA.
+  - Added an interactive Google Meet reminder banner at the top of `OrderRoom.tsx` for client roles with launch, copy, and completion actions.
+- **Resolution:** Validated with all 25 test suites passing (127/127 tests) and clean TypeScript check (`npx tsc --noEmit`).
 
 ### 90. External Booking Header Repetition & Vertical Spacing, Missing Client Phone Number for SMS Booking Notifications, and Step 4 Payment Multi-CTA Clutter
 - **Severity:** Medium / Design Quality & External Checkout Conversion

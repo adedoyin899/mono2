@@ -14,7 +14,8 @@ import {
   Lock, FileText, Download, AlertTriangle, AlertCircle,
   UploadCloud, X, MapPin,
   RefreshCw, FastForward, Check,
-  Copy, KeyRound, Star, MessageSquare, ShieldCheck
+  Copy, KeyRound, Star, MessageSquare, ShieldCheck,
+  Video, ExternalLink
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -114,6 +115,11 @@ export function OrderRoom() {
   // Review phase 48-hour countdown timer
   const [timerSeconds, setTimerSeconds] = useState(48 * 3600);
   const [revisionNotes, setRevisionNotes] = useState("");
+
+  // Client Video Introduction Reminder state
+  const [clientIntroScheduled, setClientIntroScheduled] = useState(false);
+  const [clientIntroCopied, setClientIntroCopied] = useState(false);
+  const [clientIntroDismissed, setClientIntroDismissed] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -1004,6 +1010,91 @@ export function OrderRoom() {
           </div>
         );
       })()}
+
+      {/* ── Interactive Video Introduction Reminder Card (For Client Role) ── */}
+      {role === "client" && !appStateSync.isBookingCancelled(curOrderId) && !clientIntroDismissed && (
+        <div className="max-w-2xl mx-auto w-full px-4 pt-4">
+          <div className="p-4 sm:p-5 rounded-2xl border transition-all bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 mb-3 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <Badge tone={clientIntroScheduled ? "success" : "accent"} size="sm">
+                  {clientIntroScheduled ? "Introduction Scheduled" : "Action Recommended · Step 1"}
+                </Badge>
+                <span className="text-xs font-body text-zinc-500 dark:text-zinc-400">
+                  Video orientation call
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setClientIntroDismissed(true)}
+                className="text-xs font-body text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer self-end sm:self-auto"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="flex items-start gap-3.5 mb-3.5">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/40 text-purple-600 dark:text-purple-400">
+                <Video className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm font-bold font-body text-zinc-900 dark:text-zinc-100">
+                  Schedule Google Meet with {talentName}
+                </h4>
+                <p className="text-xs font-body mt-1 text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                  Conduct a brief introductory call to align on your campaign brief, tone preferences, and production deliverables before work begins.
+                </p>
+              </div>
+            </div>
+
+            {/* Quick action buttons */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 mb-3">
+              <a
+                href="https://meet.google.com/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setClientIntroScheduled(true)}
+                className="h-9 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-white bg-purple-600 hover:bg-purple-700 transition-colors cursor-pointer shadow-xs"
+              >
+                <span>Launch Google Meet</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText("https://meet.google.com/new");
+                  setClientIntroCopied(true);
+                  setTimeout(() => setClientIntroCopied(false), 2000);
+                }}
+                className="h-9 px-3.5 rounded-xl text-xs font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>{clientIntroCopied ? "Link Copied!" : "Copy Link"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setClientIntroScheduled((prev) => !prev)}
+                className={`h-9 px-3.5 rounded-xl text-xs font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ml-auto ${
+                  clientIntroScheduled
+                    ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
+                    : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                }`}
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>{clientIntroScheduled ? "Marked Done" : "Mark as Done"}</span>
+              </button>
+            </div>
+
+            {/* Escrow footnote */}
+            <div className="text-[11px] font-body text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>Escrow Protected: Your funds remain 100% secured in escrow during the call and throughout production until you approve deliverables.</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Segmented Workspace Tabs (Airbnb / Upwork / Linear style) ── */}
       <div className="max-w-2xl mx-auto w-full px-4 pt-3 pb-1">

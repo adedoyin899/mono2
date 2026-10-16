@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 142: External Booking Header & Stepper Line Unification, Step 3 Phone Notification Input & Hierarchy Refinement, and Step 4 Payment 2-Option Selector with Single Unified CTA)
+**Last updated:** 2026-10-16 (Session 143: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Order Room Client Google Meet Reminder Banner)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 103: Compact Month Calendar with Navigation, Centered Stepper with Extreme-Left Back Arrow, Post-Checkout Order Room Routing, and Client Google Meet Reminder Banner (Session 143)
+
+Refined the external storefront booking flow and Order Room experience based on user design critique:
+- **Compact Month Calendar with Month Switcher:** Replaced the horizontal 10-day strip and native date input with a responsive, interactive month calendar. Integrated month/year navigation (`<` and `>` controls with past-month disabling), an availability legend (`Date available` vs `Booked / Unavailable`), a 7-column Monday-first week grid with padded blanks, disabled past dates, strikethrough styling for booked dates (clicking them displays the solid `Performer Unavailable` modal), Monologg brand red active selection, and a status summary strip connecting the calendar directly to open performer slots below.
+- **Centered Stepper with Extreme-Left Back Chevron:** Omitted the back button on Step 1 since external visitor booking opens in a fresh browser page, eliminating awkward placement. On Steps 2–4, pinned the back chevron at the extreme left edge (`absolute left-4 top-1/2 -translate-y-1/2`), keeping the 4-step progress stepper centered across the navbar.
+- **Post-Checkout Order Room Guidance & Primary CTA:** Removed immediate "Launch Google Meet" and "Copy link" buttons from the external checkout confirmation screen since the video call belongs in the workspace. Added clear guidance explaining that the intro call is scheduled and launched inside the Order Room, and provided an authoritative `Enter Order Room` primary CTA button routing to `/order/:id?role=client`.
+- **Client Google Meet Reminder Banner in Order Room:** Added an interactive introductory call reminder banner at the top of `OrderRoom.tsx` for client roles with `Launch Google Meet`, `Copy Link`, and `Mark as Done` status actions.
+- **Testing & Verification:** Added automated test assertion in `dashboardParity.test.tsx` for the client Google Meet reminder. All 25 test suites passed (127/127 tests) with 0 TypeScript compilation errors.
+
+---
 
 ### Step 102: External Booking Single-Row Stepper Header, Step 3 Phone Input & Visual Hierarchy, and Step 4 2-Option Payment with Unified CTA (Session 142)
 
