@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–144 + Session 145 Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps.
+**Last updated:** 2026-10-18 (Session 146: New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–145 + Session 146 New Branch `ui-updates` & opendraft Component Library UI Rework.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -140,6 +140,17 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 ---
 
 ## 5. Design system
+
+### 5.5 opendraft UI System Integration (`ui-updates` branch)
+
+As of Session 146, Monologg adopted the **opendraft** component library (`https://ui-system-virid.vercel.app/docs`) across `apps/web`:
+- **Components Installed (`src/components/ui/`):** `card`, `stat`, `badge`, `button`, `tabs`, `avatar`, `empty-state`, `input`, `separator`, `skeleton`, `dialog`, `dropdown-menu`, `alert`.
+- **Motion Primitives (`src/lib/motion.ts`):** Standardized spring physics curve tokens (`spring.smooth`, `spring.bouncy`, `spring.snappy`).
+- **Brand Color Preservation:** Monologg brand identity is strictly preserved:
+  - Performer / Talent Mono-Red: `#F13030` (`var(--color-mono-red)`)
+  - Client Mono-Purple: `#7B00FE` (`var(--color-mono-purple)`)
+  - The design system binds `--brand: var(--color-mono-red)` and `--primary: var(--brand)` on `.role-talent`, and dynamically switches `--brand: var(--color-mono-purple)` on `.role-client`. Focus rings, glowing accents, and badges leverage CSS `color-mix` with `--brand` for visual coherence.
+- **Legacy Backward Compatibility:** Primitives support both modern opendraft APIs (`variant`, `delta`, `columns`) and legacy Monologg props (`tone`, `variant="primary" | "red" | "purple"`, `error`).
 
 ### Single source of truth: `apps/web/src/styles/tokens.css`
 

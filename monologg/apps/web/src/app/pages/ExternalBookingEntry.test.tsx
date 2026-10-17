@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -107,7 +107,9 @@ describe("ExternalBookingEntry (PWA-18)", () => {
 
     // Step 1: Event Date & Performer Slot picker.
     await screen.findByText("Book Adaeze Obi");
-    fireEvent.click(await screen.findByRole("button", { name: "08:00" }));
+    const slotBtn = await screen.findByRole("button", { name: "08:00" });
+    await waitFor(() => expect(slotBtn).toBeEnabled());
+    fireEvent.click(slotBtn);
     fireEvent.click(screen.getByRole("button", { name: /Continue to Project Brief/i }));
 
     // Step 2: Project Brief.

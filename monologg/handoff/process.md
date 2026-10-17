@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Last updated:** 2026-10-18 (Session 146: New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,24 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 105: UI Rework with opendraft Component Library on `ui-updates` Branch — Talent Dashboard Prototype (Session 146)
+
+Initiated the platform-wide UI modernization on a clean, dedicated branch (`ui-updates`), adopting the **opendraft** component library (`https://ui-system-virid.vercel.app/docs`) while preserving Monologg's signature brand colors:
+- **Branch Strategy:** Cleanly deleted deprecated `web_redesign` branch from local and remote (`origin`), created and checked out tracking branch `ui-updates`.
+- **Component Suite Installation:** Downloaded and installed opendraft primitives in `apps/web/src/components/ui/` (`card`, `stat`, `badge`, `button`, `tabs`, `avatar`, `empty-state`, `input`, `separator`, `skeleton`, `dialog`, `dropdown-menu`, `alert`) and motion tokens in `src/lib/motion.ts`, adding `radix-ui` and `class-variance-authority` dependencies.
+- **Brand Color Alignment:** Mapped Monologg's Talent Mono-Red (`#F13030`) and Client Mono-Purple (`#7B00FE`) to opendraft CSS variables `--brand`, `--primary`, and `--ring` across light and dark modes.
+- **Talent Dashboard Prototype (`TalentDashboard.tsx`):**
+  - Reworked Home tab Action Nudges and Profile Completion prompts into structured `<Card>` components.
+  - Implemented `<StatGroup columns={3}>` with `<Stat>` delta chips for Monthly Earnings, Active Bookings, and Completion Rate.
+  - Converted empty states across Activity, Rate Cards, Active Orders, and Analytics into opendraft `<EmptyState>` components.
+  - Upgraded Rate Cards and Active Orders lists to opendraft `<Card>` primitives.
+  - Replaced ad-hoc KPI boxes in Earnings and Analytics with `<StatGroup columns={3}>` and `<StatGroup columns={4}>`.
+  - Refactored Availability Check-in Card to opendraft `<Card>`.
+- **Testing & Tooling:** Configured `@` alias in `vitest.config.ts`, fixed early-morning GMT+1 timezone bug in `todayISO()`.
+- **Verification:** All 25 test suites and 127 tests passed cleanly (`npm test`), TypeScript compiled with 0 errors (`npm run typecheck`), and production build succeeded in 2.40s (`npm run build`).
+
+---
 
 ### Step 104: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps (Session 145)
 

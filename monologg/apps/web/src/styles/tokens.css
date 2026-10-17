@@ -24,6 +24,37 @@
   --color-slate: #5D5D66;
   --color-hairline: #ECECE8;
 
+  /* opendraft Design System Tokens (Mapped to Monologg Brand Identity) */
+  --brand: var(--color-mono-red);
+  --brand-foreground: #FFFFFF;
+  --primary: var(--brand);
+  --primary-foreground: #FFFFFF;
+  --background: #FAF9F6;
+  --foreground: #16161A;
+  --card: #FFFFFF;
+  --card-foreground: #16161A;
+  --popover: #FFFFFF;
+  --popover-foreground: #16161A;
+  --surface: #F4F4F1;
+  --secondary: #F1F1EE;
+  --secondary-foreground: #16161A;
+  --ink: #16161A;
+  --ink-foreground: #FFFFFF;
+  --muted: #F2F2EF;
+  --muted-foreground: #6D6D75;
+  --accent: #EFEFEA;
+  --accent-foreground: #16161A;
+  --destructive: #D31F20;
+  --destructive-foreground: #FFFFFF;
+  --success: #1A7544;
+  --warning: #B37E08;
+  --border: #E8E8E3;
+  --input: #DCDCD6;
+  --ring: color-mix(in oklch, var(--brand) 45%, transparent);
+  --control-radius: 10px;
+  --surface-radius: 16px;
+  --text-scale: 1;
+
   /* Fonts */
   --font-wise-sans: 'Inter', system-ui, sans-serif;
   --font-display-heavy: 'Inter', system-ui, sans-serif;
@@ -228,6 +259,9 @@
 
 /* Role scopes — flip the adaptive accent per app side */
 .role-talent {
+  --brand: var(--color-mono-red);
+  --primary: var(--brand);
+  --ring: color-mix(in oklch, var(--brand) 45%, transparent);
   --color-accent: var(--color-red);
   --color-accent-press: var(--color-red-press);
   --color-accent-soft: var(--color-red-soft);
@@ -236,6 +270,9 @@
   --color-border-active: var(--color-red);
 }
 .role-client {
+  --brand: var(--color-mono-purple);
+  --primary: var(--brand);
+  --ring: color-mix(in oklch, var(--brand) 45%, transparent);
   --color-accent: var(--color-purple);
   --color-accent-press: var(--color-purple-press);
   --color-accent-soft: var(--color-purple-soft);
