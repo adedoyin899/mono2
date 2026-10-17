@@ -1,74 +1,11 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 146: New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library)
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
-
----
-
-## Session 146 (2026-10-18) — New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library
-
-**Goal:** Initialize the dedicated `ui-updates` branch (replacing the deprecated `web_redesign` branch), integrate the **opendraft** component library (`https://ui-system-virid.vercel.app/docs`), preserve Monologg's signature brand colors (Talent Mono-Red `#F13030`, Client Mono-Purple `#7B00FE`) while adopting opendraft's sleek aesthetic tokens, and execute a comprehensive UI rework across the **Talent Dashboard** (`TalentDashboard.tsx`) as the primary testbed screen.
-
-**Files Changed:**
-
-### `apps/web/package.json` & `pnpm-lock.yaml`
-- Installed required primitives for opendraft component suite: `radix-ui` and `class-variance-authority`.
-
-### `apps/web/src/components/ui/*` & `src/lib/motion.ts`
-- Installed opendraft component suite:
-  - `card.tsx`: Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction.
-  - `stat.tsx`: Stat and StatGroup with adaptive container grid and delta chip indicators.
-  - `badge.tsx`: opendraft badge with backward-compatibility for legacy `tone` and `size` props.
-  - `button.tsx`: opendraft button with spinner loading, active scale, and legacy variant aliases (`primary`, `red`, `purple`, `dark-pill`, `outline-pill`, `icon`).
-  - `input.tsx`: opendraft input with brand focus ring and `error` state support.
-  - `tabs.tsx`: Spring-animated layout indicator tabs (pill & underline variants).
-  - `avatar.tsx`: Avatar, AvatarImage, AvatarFallback, AvatarGroup.
-  - `empty-state.tsx`: Structured empty state primitive with icon container, title, description, and action slots.
-  - `separator.tsx`, `skeleton.tsx`, `dialog.tsx`, `dropdown-menu.tsx`, `alert.tsx`.
-  - `lib/motion.ts`: Standardized spring physics curve definitions.
-
-### `apps/web/src/styles/tokens.css` & `tailwind.css`
-- Mapped opendraft design system tokens to Monologg brand identity:
-  - `--brand: var(--color-mono-red)` (with `.role-client` override to `--color-mono-purple`).
-  - `--primary: var(--brand)` and `--ring: color-mix(in oklch, var(--brand) 45%, transparent)`.
-  - Added utility classes: `heading`, `eyebrow`, `scrollbar-hide`.
-
-### `apps/web/src/app/pages/TalentDashboard.tsx`
-- Refactored UI imports to pull primitives from `@/components/ui/`.
-- **Home Tab**:
-  - Replaced ad-hoc action nudges checklist box with opendraft `<Card>`, `<CardHeader>`, and `<CardContent>`.
-  - Added `<StatGroup columns={3}>` featuring Monthly Earnings, Active Bookings, and Completion Rate with delta indicators.
-  - Replaced manual empty state with opendraft `<EmptyState>`.
-  - Styled profile completion card with opendraft `<Card>` tokens and brand tints.
-- **Rate Cards Tab**:
-  - Replaced empty state with `<EmptyState>`.
-  - Wrapped service cards in opendraft `<Card>`.
-- **Active Orders Tab**:
-  - Replaced empty state with `<EmptyState>`.
-  - Replaced order items with opendraft `<Card>`.
-- **Earnings Tab**:
-  - Available balance container wrapped in opendraft `<Card>`.
-  - Replaced summary stat boxes with opendraft `<StatGroup columns={3}>` and `<Stat>` primitives.
-- **Analytics Tab**:
-  - Replaced empty state with `<EmptyState>`.
-  - Replaced 4 metric boxes with `<StatGroup columns={4}>` and `<Stat>` primitives.
-- **Availability Check-in Card**:
-  - Upgraded top-of-dashboard checkin card to opendraft `<Card>`.
-
-### `apps/web/vitest.config.ts`
-- Added `@` path alias (`path.resolve(__dirname, './src')`) to align with `vite.config.ts` and `tsconfig.json`.
-
-### `apps/web/src/app/pages/ExternalBookingEntry.tsx` & `TalentDashboard.tsx`
-- Fixed timezone defect in `todayISO()`: replaced UTC `new Date().toISOString().split("T")[0]` with local calendar date components to prevent today's date from shifting backward to yesterday during GMT+1 early morning hours.
-
-**Technical Context:**
-- Zero TypeScript compiler errors (`corepack pnpm --filter @monologg/web typecheck` exited 0).
-- All 25 test suites and 127 tests passed cleanly (`corepack pnpm --filter @monologg/web test` 100% pass).
-- Production build succeeded cleanly in 2.40s (`corepack pnpm --filter @monologg/web build`).
 
 ---
 

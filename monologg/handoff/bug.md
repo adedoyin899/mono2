@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 146: New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library)
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,19 +18,6 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
-
-### 93. Timezone Shift in `todayISO()` Marking Today as Past Date in GMT+1 & Missing Path Alias in `vitest.config.ts`
-- **Severity:** High / Date Logic Integrity & Test Suite Resolution
-- **What happened:**
-  1. In `ExternalBookingEntry.tsx` and `TalentDashboard.tsx`, `todayISO()` computed today's date string using `new Date().toISOString().split("T")[0]`. In timezones east of UTC (e.g. West Africa Time / GMT+1), between midnight and 01:00 AM local time, `toISOString()` returns the previous UTC day. Consequently, the local today's date was treated as a strictly past date (`dayISO < todayStr` evaluated as true for the current day), disabling today's bookable slots on the calendar and failing availability tests.
-  2. In `vitest.config.ts`, the `@` path alias was missing, while present in `vite.config.ts` and `tsconfig.json`. Importing newly installed opendraft primitives via `@/components/ui/...` compiled cleanly under `tsc --noEmit` but failed under `vitest run`.
-- **Root Cause:**
-  - Reliance on UTC serialization (`toISOString()`) for local calendar comparison without accounting for timezone offsets.
-  - Omission of `resolve.alias` in `vitest.config.ts`.
-- **Fix:**
-  - Refactored `todayISO()` in both files to construct the `YYYY-MM-DD` string from local date components (`getFullYear()`, `getMonth() + 1`, `getDate()`).
-  - Added `resolve: { alias: { "@": path.resolve(__dirname, "./src") } }` to `vitest.config.ts`.
-- **Resolution:** 100% passing tests (all 25 suites and 127 tests pass) and 0 TypeScript compilation errors.
 
 ### 92. Repetitive Escrow Phrasing, Client-Performer Perspective Inconsistencies, and Upfront Fee Transparency Gaps
 - **Severity:** Medium / FAANG UX Quality & Information Architecture

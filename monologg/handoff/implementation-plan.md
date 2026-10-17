@@ -1,36 +1,11 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 146: New Branch ui-updates & UI Rework of Talent Dashboard with opendraft Component Library)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–145 + Session 146 New Branch `ui-updates` & opendraft Component Library UI Rework.
+**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–144 + Session 145 Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps.
 
 ---
 
 ## ✅ Done
-
-### Session 146 — New Branch `ui-updates` & UI Rework of Talent Dashboard with opendraft Component Library
-- [x] **Git Branch Hygiene**:
-  - Deleted obsolete local and remote `web_redesign` branch.
-  - Created and checked out new tracking branch `ui-updates`.
-- [x] **Component Library Integration (`https://ui-system-virid.vercel.app/docs`)**:
-  - Installed `radix-ui` and `class-variance-authority` dependencies.
-  - Installed opendraft UI component suite in `apps/web/src/components/ui/` (`card`, `stat`, `badge`, `button`, `tabs`, `avatar`, `empty-state`, `input`, `separator`, `skeleton`, `dialog`, `dropdown-menu`, `alert`) and motion tokens in `src/lib/motion.ts`.
-  - Added legacy variant and prop compatibility (`tone`, `variant="primary" | "red" | "purple"`, `error`).
-- [x] **Design Tokens & Brand Color Alignment (`tokens.css`, `tailwind.css`)**:
-  - Maintained Monologg brand identity: Talent Mono-Red (`#F13030`) and Client Mono-Purple (`#7B00FE`) mapped via `--brand` and `--primary`.
-  - Added `@theme` and `@utility` rules for `heading`, `eyebrow`, and `scrollbar-hide`.
-- [x] **Talent Dashboard UI Rework (`TalentDashboard.tsx`)**:
-  - **Home Tab**: Reworked Action Nudges with opendraft `<Card>`, added `<StatGroup columns={3}>` with delta badges, converted empty state to `<EmptyState>`, styled profile completion card with opendraft `<Card>`.
-  - **Rate Cards Tab**: Replaced empty state with `<EmptyState>` and service items with `<Card>`.
-  - **Active Orders Tab**: Replaced empty state with `<EmptyState>` and order items with `<Card>`.
-  - **Earnings Tab**: Wrapped Available Balance in `<Card>`, converted summary stats to `<StatGroup columns={3}>`.
-  - **Analytics Tab**: Converted metrics to `<StatGroup columns={4}>`, converted empty state to `<EmptyState>`.
-  - **Availability Check-in Card**: Upgraded top-of-dashboard card to opendraft `<Card>`.
-- [x] **Tooling & Test Parity**:
-  - Added `@` alias to `vitest.config.ts`.
-  - Fixed GMT+1 timezone bug in `todayISO()` in `ExternalBookingEntry.tsx` and `TalentDashboard.tsx`.
-  - All 25 test suites and 127 tests pass cleanly (`npm test`).
-  - TypeScript compiles with 0 errors (`npm run typecheck`).
-  - Production build succeeds in 2.40s (`npm run build`).
 
 ### Session 145 — Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps
 - [x] **OrderRoom Progressive Disclosure & Layout Balance (`OrderRoom.tsx`)**:

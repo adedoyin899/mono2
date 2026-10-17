@@ -1,18 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction } from "@/components/ui/card";
-import { Stat, StatGroup } from "@/components/ui/stat";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
 import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { Modal } from "../components/ui/Modal";
+import { Badge } from "../components/ui/Badge";
 import { apiClient, type AppNotification } from "../../lib/api-client";
 import { appStateSync, type AvailabilityCheckin, type PayoutAccountChangeRequest } from "../../lib/state-sync";
 import { NIGERIAN_BANKS, compareKycNames, type BankLookupStatus } from "../../lib/payoutBanks";
@@ -243,11 +238,7 @@ function recurRuleLabel(rule: string): string {
 }
 
 function todayISO(): string {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return new Date().toISOString().slice(0, 10);
 }
 
 function addDaysISO(date: string, days: number): string {
@@ -1270,13 +1261,13 @@ export function TalentDashboard() {
             const isCancelled = appStateSync.isBookingCancelled(activeCheckin.bookingId);
 
             return (
-              <Card
-                className={`mb-6 p-5 sm:p-6 transition-all ${
+              <div
+                className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
                   isCancelled
                     ? "bg-rose-500/10 border-rose-500/30 text-rose-950 dark:text-rose-100"
                     : isOverdue
                     ? "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
-                    : "bg-card border-border shadow-xs"
+                    : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
@@ -1408,7 +1399,7 @@ export function TalentDashboard() {
                     </div>
                   </>
                 )}
-              </Card>
+              </div>
             );
           })()}
 
@@ -1463,142 +1454,120 @@ export function TalentDashboard() {
               <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
 
                 {/* Onboarding Action Nudges Checklist Card */}
-                <Card className="mb-6 border-brand/20 bg-card overflow-hidden">
-                  <CardHeader className="pb-2 pt-4 px-5 flex flex-row items-center justify-between">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-5 rounded-[var(--radius-xl)] border border-[var(--color-accent)]/30 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-bg-surface)] to-[var(--color-bg-surface)] relative overflow-hidden"
+                  style={{ boxShadow: "var(--shadow-card)" }}
+                >
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-brand flex items-center justify-center text-white text-xs font-bold font-mono shadow-xs">
+                      <div className="w-9 h-9 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent-on)] text-xs font-bold font-mono">
                         {isNewUser ? "1/5" : "4/5"}
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold">
+                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
                           {isNewUser ? "Welcome! Complete your Performer Setup" : "Career Checklist & Action Nudges"}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
+                        </h3>
+                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
                           {isNewUser ? "Follow these steps to unlock client bookings and start earning." : "Key steps to maximize your visibility and client booking conversion."}
-                        </CardDescription>
+                        </p>
                       </div>
                     </div>
-                    <Badge variant={isNewUser ? "brand" : "success"}>{isNewUser ? "Onboarding" : "Active Profile"}</Badge>
-                  </CardHeader>
+                    <Badge tone={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Profile"}</Badge>
+                  </div>
 
-                  <CardContent className="px-5 pb-5 pt-0">
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mb-4">
-                      <div className="h-full bg-brand rounded-full transition-all duration-500" style={{ width: isNewUser ? "20%" : "80%" }} />
-                    </div>
+                  <div className="w-full h-1.5 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden mb-4">
+                    <div className="h-full bg-[var(--color-accent)] rounded-full transition-all duration-500" style={{ width: isNewUser ? "20%" : "80%" }} />
+                  </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                      <button
-                        onClick={() => setActiveTab("storefront")}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-hairline hover:border-brand/40 hover:bg-accent/40 text-left transition-colors group cursor-pointer"
-                      >
-                        <div className="w-8 h-8 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                          <User className="w-4 h-4" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button
+                      onClick={() => setActiveTab("storefront")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-foreground group-hover:text-brand flex items-center justify-between">
-                            Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                          </div>
-                          <div className="text-[11px] text-muted-foreground truncate">Bio & headshots</div>
-                        </div>
-                      </button>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Bio & headshots</div>
+                      </div>
+                    </button>
 
-                      <button
-                        onClick={() => setActiveTab("rates")}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-hairline hover:border-brand/40 hover:bg-accent/40 text-left transition-colors group cursor-pointer"
-                      >
-                        <div className="w-8 h-8 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                          <DollarSign className="w-4 h-4" />
+                    <button
+                      onClick={() => setActiveTab("rates")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <DollarSign className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Rate Cards <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-foreground group-hover:text-brand flex items-center justify-between">
-                            Rate Cards <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                          </div>
-                          <div className="text-[11px] text-muted-foreground truncate">Add services & price</div>
-                        </div>
-                      </button>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Add services & price</div>
+                      </div>
+                    </button>
 
-                      <button
-                        onClick={() => setActiveTab("calendar")}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-hairline hover:border-brand/40 hover:bg-accent/40 text-left transition-colors group cursor-pointer"
-                      >
-                        <div className="w-8 h-8 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                          <Calendar className="w-4 h-4" />
+                    <button
+                      onClick={() => setActiveTab("calendar")}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Availability <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-foreground group-hover:text-brand flex items-center justify-between">
-                            Availability <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                          </div>
-                          <div className="text-[11px] text-muted-foreground truncate">Set working slots</div>
-                        </div>
-                      </button>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Set working slots</div>
+                      </div>
+                    </button>
 
-                      <button
-                        onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-hairline hover:border-brand/40 hover:bg-accent/40 text-left transition-colors group cursor-pointer"
-                      >
-                        <div className="w-8 h-8 rounded-md bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                          <Briefcase className="w-4 h-4" />
+                    <button
+                      onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }}
+                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
+                        <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
+                          Apply to Briefs <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-foreground group-hover:text-brand flex items-center justify-between">
-                            Apply to Briefs <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                          </div>
-                          <div className="text-[11px] text-muted-foreground truncate">Browse open roles</div>
-                        </div>
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Browse open roles</div>
+                      </div>
+                    </button>
+                  </div>
+                </motion.div>
 
                 {/* HERO — earnings moment */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
-                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-2xl bg-gradient-to-br from-[#F13030] to-[#D31F20] text-white shadow-lg"
+                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#F13030] to-[#D31F20] text-white shadow-xl"
                 >
-                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 pointer-events-none" />
+                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
                   <div className="relative space-y-2">
-                    <div className="text-xs font-medium text-white/80">Available balance</div>
-                    <div className="heading font-bold text-white tabular-nums leading-none text-4xl sm:text-5xl">
+                    <div className="text-xs font-body tracking-normal text-[#FFECEC] font-medium">Available balance</div>
+                    <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
                       {isNewUser ? "₦0" : "₦148,000"}
                     </div>
-                    <div className="flex items-center gap-1.5 pt-1 text-xs text-white/90">
-                      <TrendingUp className="w-4 h-4 text-white" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
+                    <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#FFECEC]/90">
+                      <TrendingUp className="w-4 h-4 text-[#FFECEC]" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
                     </div>
                     <div className="flex gap-2.5 pt-3">
-                      <Button variant="ink" size="sm" onClick={() => setActiveTab("earnings")} className="bg-white text-[#F13030] hover:bg-white/90 font-semibold shadow-xs">
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#F13030] shadow-md hover:bg-white/90">
                         {isNewUser ? "Setup Payouts" : "Withdraw"}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => setActiveTab("earnings")} className="bg-white/15 text-white hover:bg-white/25 border-white/25 font-semibold">
+                      </button>
+                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">
                         View earnings
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </motion.div>
-
-                {/* Key Metrics StatGroup */}
-                <StatGroup columns={3} className="mb-6">
-                  <Stat
-                    label="Monthly Earnings"
-                    value={isNewUser ? "₦0" : "₦148,000"}
-                    delta={{ value: "+18%", direction: "up" }}
-                    icon={<DollarSign />}
-                    bare
-                  />
-                  <Stat
-                    label="Active Bookings"
-                    value={isNewUser ? "0" : "3"}
-                    delta={{ value: "+2", direction: "up" }}
-                    icon={<Calendar />}
-                    bare
-                  />
-                  <Stat
-                    label="Completion Rate"
-                    value={isNewUser ? "0%" : "100%"}
-                    delta={{ value: "0%", direction: "flat" }}
-                    icon={<CheckCircle2 />}
-                    bare
-                  />
-                </StatGroup>
 
                 {/* Quick-action ghost-circle row */}
                 <div className="grid grid-cols-4 gap-2 mb-6">
@@ -1608,38 +1577,37 @@ export function TalentDashboard() {
                     { label: "Rates", icon: DollarSign, action: () => setActiveTab("rates") },
                     { label: "Orders", icon: MessageSquare, action: () => setActiveTab("orders") },
                   ].map((qa, i) => (
-                    <button key={i} onClick={qa.action} className="flex flex-col items-center gap-2 py-1 group cursor-pointer">
+                    <button key={i} onClick={qa.action} className="flex flex-col items-center gap-2 py-1 group">
                       <span
-                        className="w-14 h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 group-hover:border-brand/40 group-active:scale-95 bg-surface border border-hairline"
+                        className="w-14 h-14 rounded-full flex items-center justify-center transition-transform group-active:scale-95"
+                        style={{ background: "var(--color-accent-glow)", border: "1px solid var(--color-hairline)" }}
                       >
-                        <qa.icon className="w-5 h-5 text-brand" />
+                        <qa.icon className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
                       </span>
-                      <span className="text-[11px] text-muted-foreground group-hover:text-foreground transition-colors text-center">{qa.label}</span>
+                      <span className="text-[11px] font-body text-center" style={{ color: "var(--color-text-secondary)" }}>{qa.label}</span>
                     </button>
                   ))}
                 </div>
 
                 {/* Recent activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <span className="heading text-lg font-semibold text-foreground">Recent Activity</span>
-                  <Button variant="link" size="sm" className="h-auto p-0 text-xs font-semibold text-brand" onClick={() => setActiveTab("activity")}>
+                  <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
+                  <button className="text-xs font-body font-semibold" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>
                     View all →
-                  </Button>
+                  </button>
                 </div>
 
                 {effectiveActivity.length === 0 ? (
-                  <EmptyState
-                    icon={<Bell />}
-                    title="No activity logged yet"
-                    description="Complete your profile and apply to open projects to get client bookings."
-                    bordered
-                    className="py-12 bg-card"
-                    action={
-                      <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} size="sm">
-                        Browse Open Projects
-                      </Button>
-                    }
-                  />
+                  <div className="text-center py-10 px-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
+                    <div className="w-12 h-12 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mx-auto mb-3 text-[var(--color-accent)]">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>No activity logged yet</p>
+                    <p className="text-xs font-body mt-1 mb-4 text-[var(--color-text-secondary)]">Complete your profile and apply to open projects to get client bookings.</p>
+                    <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="h-9 px-4 text-xs">
+                      Browse Open Projects
+                    </Button>
+                  </div>
                 ) : (
                   <div className="space-y-2.5">
                     {effectiveActivity.map((item, i) => (
@@ -1651,24 +1619,24 @@ export function TalentDashboard() {
                           else if (item.type === "payment") setActiveTab("earnings");
                           else if (item.type === "message") setActiveTab("orders");
                         }}
-                        className="flex items-center gap-3.5 px-4 py-3 rounded-lg border bg-card hover:border-brand/40 transition-colors cursor-pointer active:scale-[0.99]"
-                        style={{ minHeight: 68 }}
+                        className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
                       >
                         <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
                           style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
                         >
-                          {item.type === "booking" && <Calendar className="w-5 h-5 text-brand" />}
-                          {item.type === "payment" && <DollarSign className="w-5 h-5 text-success" />}
-                          {item.type === "message" && <MessageSquare className="w-5 h-5 text-brand" />}
+                          {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
+                          {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-foreground truncate">{item.client}</div>
-                          <div className="text-xs text-muted-foreground truncate">{item.service}</div>
+                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
+                          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.service}</div>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="text-sm font-semibold font-mono tabular-nums text-foreground">{item.amount}</div>
-                          <div className="text-[11px] text-muted-foreground">{item.time}</div>
+                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
+                          <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
                         </div>
                       </motion.div>
                     ))}
@@ -1676,18 +1644,21 @@ export function TalentDashboard() {
                 )}
 
                 {/* Profile completion prompt */}
-                <Card className="mt-5 p-4 flex flex-row items-center gap-4 bg-brand/5 border-brand/20">
-                  <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
-                    <Award className="w-5 h-5" />
+                <div
+                  className="mt-5 p-4 rounded-[var(--radius-lg)] flex items-center gap-4"
+                  style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-hairline)" }}
+                >
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
+                    <Award className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-foreground">Profile 85% complete</div>
-                    <div className="text-xs text-muted-foreground">Add a bio to attract more clients</div>
+                    <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Profile 85% complete</div>
+                    <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Add a bio to attract more clients</div>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => setActiveTab("storefront")}>
+                  <Button variant="secondary" className="h-9 px-3 text-xs shrink-0" onClick={() => setActiveTab("storefront")}>
                     Complete
                   </Button>
-                </Card>
+                </div>
 
               </motion.div>
             )}
@@ -2460,24 +2431,25 @@ export function TalentDashboard() {
                 </div>
 
                 {effectiveServices.length === 0 ? (
-                  <EmptyState
-                    icon={<DollarSign />}
-                    title="No Rate Cards Created Yet"
-                    description="Create fixed-price service rate cards so clients can instantly book your voice-over, acting, or compere services. You can create up to 2 rate cards."
-                    bordered
-                    className="py-16 bg-card"
-                    action={
-                      <Button onClick={() => setShowAddService(true)} className="gap-2">
-                        <Plus className="w-4 h-4" /> Create Your First Rate Card
-                      </Button>
-                    }
-                  />
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <DollarSign className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Rate Cards Created Yet</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Create fixed-price service rate cards so clients can instantly book your voice-over, acting, or compere services. You can create up to 2 rate cards.
+                    </p>
+                    <Button onClick={() => setShowAddService(true)} className="gap-2">
+                      <Plus className="w-4 h-4" /> Create Your First Rate Card
+                    </Button>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {effectiveServices.map(service => (
-                    <Card
+                    <div
                       key={service.id}
-                      className="p-5"
+                      className="p-5 rounded-[var(--radius-lg)]"
+                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                     >
                       <div className="flex items-start gap-4">
                         <div
@@ -2537,7 +2509,7 @@ export function TalentDashboard() {
                           </div>
                         </div>
                       </div>
-                    </Card>
+                    </div>
                   ))}
 
                   {effectiveServices.length < 2 ? (
@@ -4471,29 +4443,30 @@ export function TalentDashboard() {
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
                 {effectiveOrders.length === 0 ? (
-                  <EmptyState
-                    icon={<MessageSquare />}
-                    title="No Active Orders"
-                    description="You don't have any bookings in progress right now. Share your profile link or pitch to open projects to land client orders."
-                    bordered
-                    className="py-16 bg-card"
-                    action={
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <MessageSquare className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Orders</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      You don't have any bookings in progress right now. Share your profile link or pitch to open projects to land client orders.
+                    </p>
+                    <div className="flex gap-3">
                       <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="gap-2">
                         <Briefcase className="w-4 h-4" /> Apply to Projects
                       </Button>
-                    }
-                    secondaryAction={
                       <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
                         <Share2 className="w-4 h-4" /> Share Profile Link
                       </Button>
-                    }
-                  />
+                    </div>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {effectiveOrders.map(order => (
-                      <Card
+                      <div
                         key={order.id}
-                        className="p-5 cursor-pointer hover:border-brand/40 transition-colors"
+                        className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                         onClick={() => navigate(`/order/${order.id}`)}
                       >
                         {(() => {
@@ -4608,7 +4581,7 @@ export function TalentDashboard() {
                         <Button className="w-full h-10 text-sm gap-2">
                           Enter Order Room <ChevronRight className="w-4 h-4" />
                         </Button>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -4726,35 +4699,32 @@ export function TalentDashboard() {
                 <h2 className="font-display text-2xl mb-6 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Earnings</h2>
 
                 {/* Available Balance */}
-                <Card className="mb-6 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="mb-6 p-6 rounded-[var(--radius-lg)] flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)" }}>
                   <div>
-                    <CardDescription className="text-xs mb-1">Available for withdrawal</CardDescription>
-                    <div className="heading text-4xl tabular-nums font-bold text-foreground">₦{isNewUser ? "0" : appStateSync.getBalance().available.toLocaleString()}</div>
+                    <div className="text-xs font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>Available for withdrawal</div>
+                    <div className="font-display text-4xl tnum" style={{ color: "var(--color-text-primary)" }}>₦{isNewUser ? "0" : appStateSync.getBalance().available.toLocaleString()}</div>
                   </div>
-                  <Button className="h-10 px-6 whitespace-nowrap" onClick={() => setShowWithdraw(true)}>Withdraw Funds</Button>
-                </Card>
+                  <Button className="h-11 px-6 whitespace-nowrap" onClick={() => setShowWithdraw(true)}>Withdraw Funds</Button>
+                </div>
                 
                 {/* Summary cards */}
-                <StatGroup columns={3} className="mb-6">
-                  <Stat
-                    label="This Month"
-                    value={isNewUser ? "₦0" : `₦${appStateSync.getBalance().available.toLocaleString()}`}
-                    hint="Current month"
-                    bare
-                  />
-                  <Stat
-                    label="Last Month"
-                    value={isNewUser ? "₦0" : "₦125,000"}
-                    hint="Previous month"
-                    bare
-                  />
-                  <Stat
-                    label="All Time"
-                    value={isNewUser ? "₦0" : `₦${(1240000 + appStateSync.getBalance().withdrawnTotal).toLocaleString()}`}
-                    hint="Since joining"
-                    bare
-                  />
-                </StatGroup>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {[
+                    { label: "This Month", value: isNewUser ? "₦0" : `₦${appStateSync.getBalance().available.toLocaleString()}`, sub: "Current month" },
+                    { label: "Last Month", value: isNewUser ? "₦0" : "₦125,000", sub: "Previous month" },
+                    { label: "All Time", value: isNewUser ? "₦0" : `₦${(1240000 + appStateSync.getBalance().withdrawnTotal).toLocaleString()}`, sub: "Since joining" },
+                  ].map((stat, i) => (
+                    <div
+                      key={i}
+                      className="p-5 rounded-[var(--radius-lg)]"
+                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
+                    >
+                      <div className="text-xs font-body mb-1" style={{ color: "var(--color-text-tertiary)" }}>{stat.label}</div>
+                      <div className="font-display text-2xl tnum mb-0.5" style={{ color: "var(--color-text-primary)" }}>{stat.value}</div>
+                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>{stat.sub}</div>
+                    </div>
+                  ))}
+                </div>
 
                 {/* Monthly bar chart (simplified visual) */}
                 <div
@@ -4879,53 +4849,66 @@ export function TalentDashboard() {
                 </div>
 
                 {isNewUser ? (
-                  <EmptyState
-                    icon={<TrendingUp />}
-                    title="Analytics Will Unlock Soon"
-                    description="Profile views, conversion metrics, and monthly booking trends will automatically track as clients view your profile and send booking requests."
-                    bordered
-                    className="py-16 bg-card"
-                    action={
-                      <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
-                        <Share2 className="w-4 h-4" /> Share Profile to Drive Views
-                      </Button>
-                    }
-                  />
+                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                      <TrendingUp className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>Analytics Will Unlock Soon</h3>
+                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                      Profile views, conversion metrics, and monthly booking trends will automatically track as clients view your profile and send booking requests.
+                    </p>
+                    <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
+                      <Share2 className="w-4 h-4" /> Share Profile to Drive Views
+                    </Button>
+                  </div>
                 ) : (
                   <>
                     {/* Metric Cards */}
-                    <StatGroup columns={4} className="mb-6">
-                      <Stat
-                        label="Profile views"
-                        value="1,420"
-                        delta={{ value: "+18%", direction: "up" }}
-                        bare
-                      />
-                      <Stat
-                        label="Projects completed"
-                        value="28"
-                        hint="100% on-time delivery"
-                        bare
-                      />
-                      <Stat
-                        label="Average rating"
-                        value={
-                          <span className="flex items-center gap-1">
-                            <span>4.9</span>
-                            <span className="text-amber-500 text-lg">★</span>
-                          </span>
-                        }
-                        hint={`Based on ${allClientReviews.length} client reviews`}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Card 1: Profile views */}
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile views</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
+                      </div>
+
+                      {/* Card 2: Projects completed */}
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Projects completed</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>28</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
+                      </div>
+
+                      {/* Card 3: Average rating (Clickable to open Reviews Modal) */}
+                      <div
                         onClick={() => setShowReviewsModal(true)}
-                        bare
-                      />
-                      <Stat
-                        label="Total earnings"
-                        value="₦1,240,000"
-                        delta={{ value: "+₦240k", direction: "up" }}
-                        bare
-                      />
-                    </StatGroup>
+                        role="button"
+                        tabIndex={0}
+                        className="p-4 sm:p-5 rounded-[var(--radius-xl)] cursor-pointer transition-all hover:border-[var(--color-accent)] hover:shadow-md group"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
+                          <span className="text-[11px] font-semibold text-[var(--color-accent)] opacity-80 group-hover:opacity-100 group-hover:underline transition-all">
+                            Reviews →
+                          </span>
+                        </div>
+                        <div className="font-display text-2xl font-bold tnum flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
+                          <span>4.9</span>
+                          <span className="text-amber-500 text-xl">★</span>
+                        </div>
+                        <div className="text-xs font-body mt-1 transition-colors group-hover:text-[var(--color-accent)]" style={{ color: "var(--color-text-secondary)" }}>
+                          Based on {allClientReviews.length} client reviews
+                        </div>
+                      </div>
+
+                      {/* Card 4: Total earnings */}
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦1,240,000</div>
+                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
+                      </div>
+                    </div>
 
                     {/* Single Full-Width Category Earnings Spline Area Graph */}
                     {(() => {
