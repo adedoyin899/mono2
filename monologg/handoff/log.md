@@ -1,11 +1,53 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 146 (2026-10-18) — Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room
+
+**Goal:** Conduct an end-to-end visual hierarchy and UX overhaul across the Performer Dashboard (`TalentDashboard.tsx`) and Order Room (`OrderRoom.tsx`), resolving critical user design critiques across 5 provided screens: replace the aggressive solid red balance slab with an Apple/Linear-grade deep slate obsidian surface; replace floating ghost circles with an integrated, structured quick-navigation dock; transform Recent Activity into a polished wallet transaction feed; add a real gradient progress bar to the profile completion prompt; eliminate the confusing 250px check-in banner and contradictory "Are you still available?" prompt on confirmed milestones by implementing an auto-collapsing status ribbon with progressive disclosure; modernize the Order Card with net payout clarity and a 4-segment progress bar; and redesign the Creative Brief into an editorial script reader and teleprompter card.
+
+**Files Changed:**
+
+### `apps/web/src/app/pages/TalentDashboard.tsx`
+- **Modern Deep Slate Balance Hero:**
+  - Replaced the overpowering bright red gradient container with a sleek, dark obsidian/graphite fintech card (`bg-zinc-900 text-white rounded-[28px] border border-zinc-800/80 shadow-xl`) with ambient Monologg brand red backlighting (`blur-3xl`).
+  - Added real-time status indicator (`Available Balance` with active emerald pulse dot) and `Escrow Protected Payouts` trust pill.
+  - Rendered high-contrast balance (`₦148,000`), emerald monthly growth badge (`+18% vs last month`), tactile primary CTA (`Withdraw Funds` with `ArrowUpRight`), and secondary glass button (`Analytics` with `BarChart2`).
+  - Added structured sub-metrics breakdown: `In Active Escrow (₦120,000)`, `Completed Bookings (8 projects)`, and `Platform Trust Rating (100% Clean)`.
+- **Quick-Action Navigation Grid:**
+  - Replaced the 4 disconnected floating pink ghost circles with a structured 4-card navigation dock (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`) featuring status badges, descriptions, and interactive hover states.
+- **Recent Activity Feed:**
+  - Replaced plain grey cards with an Apple Wallet style transaction feed featuring contextual icon surfaces (payment: emerald, booking: Monologg accent, message: sky blue), strong typography, and smooth interactive hover chevrons.
+- **Profile Completion Card:**
+  - Upgraded the basic pink box into an engaging onboarding card featuring an animated gradient progress bar (`w-full h-2 rounded-full bg-gradient-to-r from-amber-500 to-[var(--color-accent)]`) and clear CTA button.
+- **Orders Tab Order Card Overhaul:**
+  - Removed the alarming bright red price font, replacing it with prominent Net Payout (`₦111,600`) and subtle fee breakdown (`Base ₦120,000 · 7% platform fee (-₦8,400)`).
+  - Replaced the clunky circle-and-line stepper with a modern 4-segment production phase progress tracker (`Briefing` ✓, `Deliverables` Active, `Review`, `Complete`).
+  - Integrated the attendance gate into a clean single-row status strip with action due pill.
+- **Attendance Check-In Carousel Overhaul:**
+  - Resolved the contradictory "Are you still available?" prompt on confirmed milestones, displaying a clean "Attendance Verified" card with next gate date (`Mon 23 Nov 2026`).
+  - Upgraded unconfirmed gates into clean action cards with distinct secondary (`I can't make it`) and primary (`Yes, I'm confirmed`) buttons.
+
+### `apps/web/src/app/pages/OrderRoom.tsx`
+- **Auto-Collapsing Attendance Verification Ribbon:**
+  - Eliminated the massive 250px vertical check-in card that pushed messages and tabs down the viewport.
+  - Implemented an auto-collapsing status ribbon (height ~42px) when attendance is confirmed, displaying `Attendance Confirmed`, milestone gate status, and an interactive `View Details` toggle.
+  - Unconfirmed attendance displays a clean, compact verification card with balanced paddings, clear event metadata, and crisp action buttons.
+- **Creative Brief & Teleprompter Overhaul (Tab 2):**
+  - Upgraded the dialogue script excerpt into an editorial **Script Reader & Teleprompter Card** with audio pacing guide (`~18s audio read · Warm, commanding brand voice`), broadcast copy chip, elegant serif typography, and 1-click `Copy Script` button.
+  - Added high-visibility asset download card for `Nike_Campaign_Brief_v2.pdf` (1.2 MB).
+  - Streamlined the required deliverables checklist with clear green checkmarks and audio format specifications.
+
+**Technical Context:**
+- Zero TypeScript compiler errors (`npx tsc --noEmit` exited 0).
+- All parity and talent dashboard test suites passed cleanly (`npm test`).
 
 ---
 

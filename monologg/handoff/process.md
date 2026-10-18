@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Last updated:** 2026-10-18 (Session 146: Overhaul Performer Dashboard and Order Room Visual Hierarchy, Deep Slate Fintech Theme, and Progressive Disclosure)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,34 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 105: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room (Session 146)
+
+Executed a targeted overhaul of visual hierarchy, component containerization, and progressive disclosure across 5 user-flagged interfaces in `TalentDashboard.tsx` and `OrderRoom.tsx`:
+- **Fintech Hero Balance Elevation (Screenshot 2):**
+  - Eliminated the flat, solid bright red slab that overwhelmed the dashboard and degraded readability.
+  - Implemented an obsidian Deep Slate / Graphite container (`bg-zinc-900 border border-zinc-800/80 shadow-xl`) with ambient Monologg red edge glow, emerald status pulse dot, `Escrow Protected Payouts` badge, large `₦148,000` balance display, and `+18% vs last month` trend indicator.
+  - Added a tactile white `Withdraw Funds` CTA with `ArrowUpRight` icon, frosted glass `View Earnings` / `Analytics` button, and an integrated 3-stat telemetry dock (`In Active Escrow`, `Completed Bookings`, `Platform Trust Rating` at 99.4%).
+- **Tactile Quick Actions Navigation Dock (Screenshot 2):**
+  - Replaced low-contrast floating pink circles with 4 high-contrast cards (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`) featuring dedicated icon surfaces, status/count badges, and hover elevation micro-interactions.
+- **Apple Wallet Styled Recent Activity Feed (Screenshot 2):**
+  - Replaced plain text cards with transaction rows featuring contextual category icon pills (Calendar, Wallet, Messages), high-contrast bold take-home payouts (`₦45,000`, `₦120,000`, `₦80,000`), and relative timestamps.
+- **Progressive Onboarding Card (Screenshot 2):**
+  - Upgraded the 85% profile completion alert with a visual progress bar and clean, high-contrast action button.
+- **Intelligent Availability Check-In Gate (Screenshot 1):**
+  - Fixed logic contradiction where confirmed check-in milestones still asked "Are you still available?".
+  - Unconfirmed milestones render an actionable confirmation prompt with `I can't make it` and `Yes, I'm confirmed` buttons.
+  - Confirmed milestones render a calm, reassuring "Attendance Verified" card showing the next milestone date without alarming CTAs.
+- **Order Card Clarity & Take-Home Truth (Screenshot 3):**
+  - Replaced alarming bright red `₦120,000` header with clear take-home net payout `₦111,600` in bold emerald, clearly noting fee deduction context (`Base ₦120,000 · 7% platform fee (-₦8,400)`).
+  - Modernized the circle stepper into a clean 4-segment production progress bar (`Briefing` -> `Deliverables` -> `Review` -> `Complete`).
+- **Progressive Disclosure Attendance Ribbon in Order Room (Screenshots 4 & 5):**
+  - Replaced the intrusive 250px vertical block on confirmed milestones with an auto-collapsing 42px header ribbon with an emerald `Attendance Confirmed` badge and interactive `View Details` toggle, recovering ~200px of vertical space for messaging and files.
+- **Teleprompter-Grade Creative Brief & Dialogue Sides (Screenshot 5):**
+  - Upgraded the dialogue script excerpt into a teleprompter-grade script reader with broadcast voiceover chip, audio read pacing estimate (`~18s read`), 1-click clipboard copy button, downloadable campaign asset card (`Nike_Campaign_Brief_v2.pdf`), and deliverables checklist.
+- **Verification & Parity:** Zero TypeScript compilation errors (`npx tsc --noEmit`); all dashboard parity tests and notification suites passed cleanly.
+
+---
 
 ### Step 104: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps (Session 145)
 

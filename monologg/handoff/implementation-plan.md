@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–144 + Session 145 Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps.
+**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–145 + Session 146 Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room.
 
 ---
 
 ## ✅ Done
+
+### Session 146 — Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room
+- [x] **Performer Dashboard Deep Slate Fintech Balance Hero (`TalentDashboard.tsx`)**:
+  - Replaced solid bright red hero banner with a modern deep slate / graphite obsidian card with ambient brand red backlight, status pulse dot, and `Escrow Protected Payouts` trust badge.
+  - Implemented high-contrast `₦148,000` metric, `+18% vs last month` trend indicator, and tactile `Withdraw Funds` CTA.
+  - Added structured sub-metrics breakdown: `In Active Escrow (₦120,000)`, `Completed Bookings (8 projects)`, and `Platform Trust Rating (100% Clean)`.
+- [x] **Quick-Action Structured Navigation Dock (`TalentDashboard.tsx`)**:
+  - Replaced 4 floating pink ghost circles with a cohesive 4-card navigation dock (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`) with hover micro-interactions and contextual status tags.
+- [x] **Recent Activity Apple Wallet Feed (`TalentDashboard.tsx`)**:
+  - Upgraded transaction rows with contextual colored icon surfaces, clear hierarchy (client, service, timestamp, amount), and interactive hover indicators.
+- [x] **Profile Completion Progress Bar (`TalentDashboard.tsx`)**:
+  - Replaced plain pink box with an onboarding card featuring an 85% gradient progress bar and clean action button.
+- [x] **Orders Tab Order Card Redesign (`TalentDashboard.tsx`)**:
+  - Replaced alarming red amount with bold Net Payout (`₦111,600`) and subtle fee note (`Base ₦120,000 · 7% platform fee (-₦8,400)`).
+  - Modernized the 4-phase progress tracker into a clean segmented bar (`Briefing` ✓, `Deliverables` Active, `Review`, `Complete`).
+  - Integrated attendance gate status into a clean single-row status strip.
+- [x] **OrderRoom Progressive Disclosure Attendance Ribbon (`OrderRoom.tsx`)**:
+  - Eliminated the 250px vertical block and contradictory "Are you still available?" question on confirmed milestones.
+  - Implemented an auto-collapsing status ribbon (height ~42px) with `Attendance Confirmed` badge and interactive `View Details` toggle.
+  - Retained clean, high-contrast action card for unconfirmed check-ins.
+- [x] **Editorial Creative Brief & Teleprompter Card (`OrderRoom.tsx`)**:
+  - Upgraded dialogue script excerpt into a broadcast script reader with estimated read time (~18s), 1-click script copy, polished campaign asset download card, and deliverables specs.
 
 ### Session 145 — Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps
 - [x] **OrderRoom Progressive Disclosure & Layout Balance (`OrderRoom.tsx`)**:

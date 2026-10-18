@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-16 (Session 145: Comprehensive UI/UX Audit & Sweep Across Client and Performer Web Apps)
+**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 93. Overpowering Red Balance Banner, Floating Ghost Circles, Contradictory Check-In Banners, and Broken Order Card Hierarchy
+- **Severity:** Medium / Visual Hierarchy & Interaction Design
+- **What happened:**
+  1. In `TalentDashboard.tsx`, the Available Balance hero was styled as a solid, blinding red gradient slab (`#F13030` to `#D31F20`) that overwhelmed the entire interface and felt like a severe error alert.
+  2. The quick-action controls (`Profile`, `Availability`, `Rates`, `Orders`) floated underneath as washed-out pink ghost circles with weak typographic grouping.
+  3. The Profile Completion banner had no visual progress bar despite reading "85% complete".
+  4. In `OrderRoom.tsx` and `TalentDashboard.tsx`, the attendance check-in banner took up over 250px of vertical space, crushing the workspace tabs and message feed. Even after being confirmed, it remained fully expanded and continued to contradictorily ask "Are you still available?".
+  5. In the Orders tab, order amounts were styled in bright red font (connoting debt or financial loss rather than performer earnings), nested inside a box within a box, with a clunky circle-and-line stepper.
+- **Root Cause:** Accumulation of ad-hoc card wrappers and alert styling without a cohesive fintech visual architecture or progressive disclosure mechanics.
+- **Fix:**
+  - Redesigned the Balance Hero into an Apple/Linear-grade Deep Slate / Graphite obsidian card with Monologg brand red ambient backlight, real-time status pulse, escrow protection badge, and structured sub-metrics (`In Active Escrow`, `Completed Bookings`, `Platform Trust Rating`).
+  - Replaced floating ghost circles with an integrated 4-card quick navigation dock.
+  - Added a visible gradient progress bar to the profile completion prompt.
+  - Implemented an auto-collapsing attendance ribbon (height ~42px) in `OrderRoom.tsx` that reclaims viewport space once confirmed, and eliminated contradictory question copy.
+  - Modernized the Order Card with bold Net Payout (`₦111,600`), fee notation, and a 4-segment production progress bar.
+  - Upgraded Creative Brief into an editorial script reader and teleprompter card.
+- **Resolution:** Verified with `npx tsc --noEmit` (0 errors) and automated test suite pass.
 
 ### 92. Repetitive Escrow Phrasing, Client-Performer Perspective Inconsistencies, and Upfront Fee Transparency Gaps
 - **Severity:** Medium / FAANG UX Quality & Information Architecture

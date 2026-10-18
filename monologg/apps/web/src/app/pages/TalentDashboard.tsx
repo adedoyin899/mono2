@@ -21,7 +21,7 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
-  Filter, ArrowRight, Building2, AlertTriangle
+  Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -1265,88 +1265,105 @@ export function TalentDashboard() {
                 className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
                   isCancelled
                     ? "bg-rose-500/10 border-rose-500/30 text-rose-950 dark:text-rose-100"
+                    : isConfirmed
+                    ? "bg-emerald-500/[0.04] border-emerald-500/30 shadow-xs"
                     : isOverdue
-                    ? "bg-amber-500/10 border-amber-500/30 text-amber-950 dark:text-amber-100"
+                    ? "bg-amber-500/[0.06] border-amber-500/40 shadow-xs"
                     : "bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-xs"
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          aria-label="Previous check-in milestone"
-                          onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
-                          className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
-                          title="Previous check-in milestone"
-                        >
-                          <ChevronLeft className="w-3.5 h-3.5" />
-                        </button>
-                        <Badge
-                          tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
-                          className={isConfirmed ? "badge-confirmed" : ""}
-                          size="sm"
-                        >
-                          {isCancelled
-                            ? "Cancelled & Refunded"
-                            : isConfirmed
-                            ? "Confirmed"
-                            : isOverdue
-                            ? "Action Required"
-                            : `Check-in ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
-                        </Badge>
-                        <button
-                          type="button"
-                          aria-label="Next check-in milestone"
-                          onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
-                          className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
-                          title="Next check-in milestone"
-                        >
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                {/* Header row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      {checkins.length > 1 && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            aria-label="Previous check-in milestone"
+                            onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
+                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                            title="Previous check-in milestone"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Next check-in milestone"
+                            onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
+                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                            title="Next check-in milestone"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                      <Badge
+                        tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                        className={isConfirmed ? "badge-confirmed" : ""}
+                        size="sm"
+                      >
+                        {isCancelled
+                          ? "Cancelled & Refunded"
+                          : isConfirmed
+                          ? "Attendance Verified"
+                          : isOverdue
+                          ? "Action Required"
+                          : `Milestone Gate ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                      </Badge>
                       <span className="text-xs text-[var(--color-text-tertiary)] font-body">
-                        due {activeCheckin.dueDate}
+                        {isConfirmed ? "Confirmed for production" : `due ${activeCheckin.dueDate}`}
                       </span>
                     </div>
-                    <h2 className="font-display text-lg sm:text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-                      {isCancelled ? "Booking Cancelled & Refunded" : "Are you still available?"}
-                    </h2>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+
+                    <h2 className="font-display text-lg sm:text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
                       {isCancelled
-                        ? `Performer declined check-in. Booking with ${activeCheckin.clientName} has been cancelled and ₦${activeCheckin.baseRate.toLocaleString()} refunded.`
+                        ? "Booking Cancelled & Refunded"
+                        : isConfirmed
+                        ? `Session Confirmed with ${activeCheckin.clientName}`
+                        : `Confirm attendance for ${activeCheckin.clientName}`}
+                    </h2>
+                    <p className="text-xs text-[var(--color-text-secondary)]">
+                      {isCancelled
+                        ? `Performer declined check-in. Booking with ${activeCheckin.clientName} was cancelled and ₦${activeCheckin.baseRate.toLocaleString()} refunded.`
+                        : isConfirmed
+                        ? `Your attendance is locked in. Next verification gate scheduled for ${activeCheckin.nextCheckinDate || "Mon 23 Nov 2026"} (2 days prior to event).`
                         : `Confirm your attendance to keep your booking reserved with ${activeCheckin.clientName}.`}
                     </p>
                   </div>
 
                   <div className="text-left sm:text-right shrink-0">
-                    <div className="text-[11px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-medium font-body">
-                      {isCancelled ? "Refund Processed" : "You receive"}
+                    <div className="text-[10px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold font-body">
+                      {isCancelled ? "Refund Processed" : "Net Take-Home"}
                     </div>
-                    <div className={`font-mono font-bold text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                    <div className={`font-mono font-black text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                       ₦{isCancelled ? activeCheckin.baseRate.toLocaleString() : activeCheckin.performerReceives.toLocaleString()}
                     </div>
+                    {!isCancelled && (
+                      <div className="text-[10px] text-[var(--color-text-tertiary)] font-body">
+                        Base ₦{activeCheckin.baseRate.toLocaleString()}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Event details summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-3 text-xs font-body">
-                  <div>
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Event Name</span>
-                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-4 text-xs font-body">
+                  <div className="space-y-0.5">
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Event Name</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
                   </div>
-                  <div>
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Date &amp; Time</span>
-                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
+                  <div className="space-y-0.5">
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Date &amp; Time</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
                   </div>
-                  <div>
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-medium">Location &amp; Client</span>
-                    <span className="font-medium text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
+                  <div className="space-y-0.5">
+                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Location &amp; Client</span>
+                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
                   </div>
                 </div>
 
-                {/* Confirmed State vs Overdue State vs Action State vs Cancelled State */}
+                {/* Status action row */}
                 {isCancelled ? (
                   <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-body flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -1361,43 +1378,44 @@ export function TalentDashboard() {
                   <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Thanks, we&apos;ve told {activeCheckin.clientName}. Next check-in: {activeCheckin.nextCheckinDate || "2 days before event"}</span>
+                      <span>Attendance confirmed. {activeCheckin.clientName} has been notified and production scheduling is verified.</span>
                     </div>
-                    <span className="badge-confirmed text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                      Confirmed
+                    <span className="badge-confirmed text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                      Confirmed ✓
                     </span>
                   </div>
                 ) : (
-                  <>
+                  <div>
                     {isOverdue && (
                       <div className="mb-3 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-200 text-xs font-body flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span>Confirm now. {activeCheckin.clientName} has been told you haven&apos;t confirmed yet.</span>
+                        <span>Confirm now — {activeCheckin.clientName} has been notified that your confirmation is pending.</span>
                       </div>
                     )}
 
-                    <div className="flex items-center justify-end gap-2.5 pt-0.5">
+                    <div className="flex items-center justify-end gap-3 pt-1">
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedCheckinToDecline(activeCheckin);
                           setShowDeclineModal(true);
                         }}
-                        className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
+                        className="h-9 px-4 text-xs font-medium rounded-xl border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:text-red-500 hover:border-red-400 transition-colors cursor-pointer bg-[var(--color-bg-surface)]"
                       >
                         I can&apos;t make it
                       </button>
                       <Button
-                        className="h-9 px-4 text-xs font-semibold"
+                        className="h-9 px-5 text-xs font-bold gap-1.5 shadow-sm"
                         onClick={() => {
                           appStateSync.confirmAvailabilityCheckin(activeCheckin.id);
                           setCheckins(appStateSync.getAvailabilityCheckins());
                         }}
                       >
-                        Yes, I&apos;m confirmed
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Yes, I&apos;m confirmed</span>
                       </Button>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             );
@@ -1544,56 +1562,127 @@ export function TalentDashboard() {
                   </div>
                 </motion.div>
 
-                {/* HERO — earnings moment */}
+                {/* HERO — Modern Deep Slate / Graphite with Monologg brand red accents */}
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
-                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#F13030] to-[#D31F20] text-white shadow-xl"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: EASE_OUT }}
+                  className="relative overflow-hidden mb-6 p-6 sm:p-7 rounded-[28px] bg-zinc-900 dark:bg-zinc-950 text-white border border-zinc-800/80 shadow-xl"
                 >
-                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
-                  <div className="relative space-y-2">
-                    <div className="text-xs font-body tracking-normal text-[#FFECEC] font-medium">Available balance</div>
-                    <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
-                      {isNewUser ? "₦0" : "₦148,000"}
+                  {/* Ambient red backlight */}
+                  <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[var(--color-accent)]/15 blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-zinc-800/40 blur-2xl pointer-events-none" />
+
+                  <div className="relative">
+                    {/* Top status bar */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[11px] font-mono tracking-wider uppercase text-zinc-400 font-semibold">Available Balance</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-body text-zinc-300">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Escrow Protected Payouts</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#FFECEC]/90">
-                      <TrendingUp className="w-4 h-4 text-[#FFECEC]" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
+
+                    {/* Primary balance row */}
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-5">
+                      <div>
+                        <div className="font-display font-black text-white tnum leading-tight text-4xl sm:text-5xl tracking-tight">
+                          {isNewUser ? "₦0" : "₦148,000"}
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 text-xs font-body text-zinc-400">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                            <TrendingUp className="w-3.5 h-3.5" /> {isNewUser ? "Ready to earn your first payout" : "+18% vs last month"}
+                          </span>
+                          <span className="hidden sm:inline text-zinc-500">·</span>
+                          <span className="hidden sm:inline text-zinc-400">Next auto-withdrawal: Fri 24 Oct</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
+                        <button
+                          onClick={() => setActiveTab("earnings")}
+                          className="h-10 px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center gap-1.5 cursor-pointer hover:opacity-95"
+                          style={{ background: "var(--color-accent)" }}
+                        >
+                          <ArrowUpRight className="w-4 h-4" />
+                          <span>{isNewUser ? "Setup Payouts" : "Withdraw Funds"}</span>
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("earnings")}
+                          className="h-10 px-4 rounded-xl text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <BarChart2 className="w-3.5 h-3.5" />
+                          <span>Analytics</span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-2.5 pt-3">
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#F13030] shadow-md hover:bg-white/90">
-                        {isNewUser ? "Setup Payouts" : "Withdraw"}
-                      </button>
-                      <button onClick={() => setActiveTab("earnings")} className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white/20 text-white hover:bg-white/30 border border-white/20">
-                        View earnings
-                      </button>
+
+                    {/* Sub-metrics breakdown */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-4 border-t border-zinc-800/80 text-xs font-body">
+                      <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                        <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">In Active Escrow</div>
+                        <div className="font-mono font-bold text-sm text-zinc-100 mt-0.5">₦120,000</div>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                        <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Completed Bookings</div>
+                        <div className="font-mono font-bold text-sm text-zinc-100 mt-0.5">8 projects</div>
+                      </div>
+                      <div className="hidden sm:block p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+                        <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Platform Trust Rating</div>
+                        <div className="font-mono font-bold text-sm text-emerald-400 mt-0.5">100% (Clean)</div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Quick-action ghost-circle row */}
-                <div className="grid grid-cols-4 gap-2 mb-6">
+                {/* Quick-action structured navigation grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   {[
-                    { label: "Profile", icon: User, action: () => setActiveTab("storefront") },
-                    { label: "Availability", icon: Calendar, action: () => setActiveTab("calendar") },
-                    { label: "Rates", icon: DollarSign, action: () => setActiveTab("rates") },
-                    { label: "Orders", icon: MessageSquare, action: () => setActiveTab("orders") },
+                    { label: "Public Storefront", sub: "View & share profile", icon: User, action: () => setActiveTab("storefront"), badge: "Public" },
+                    { label: "Availability", sub: "Manage slots & dates", icon: Calendar, action: () => setActiveTab("calendar"), badge: "Sync" },
+                    { label: "Rate Cards", sub: "Edit service pricing", icon: DollarSign, action: () => setActiveTab("rates"), badge: "3 active" },
+                    { label: "Active Orders", sub: "Track live bookings", icon: MessageSquare, action: () => setActiveTab("orders"), badge: effectiveOrders.length > 0 ? `${effectiveOrders.length} active` : undefined },
                   ].map((qa, i) => (
-                    <button key={i} onClick={qa.action} className="flex flex-col items-center gap-2 py-1 group">
-                      <span
-                        className="w-14 h-14 rounded-full flex items-center justify-center transition-transform group-active:scale-95"
-                        style={{ background: "var(--color-accent-glow)", border: "1px solid var(--color-hairline)" }}
-                      >
-                        <qa.icon className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                      </span>
-                      <span className="text-[11px] font-body text-center" style={{ color: "var(--color-text-secondary)" }}>{qa.label}</span>
+                    <button
+                      key={i}
+                      onClick={qa.action}
+                      className="p-3.5 rounded-2xl border text-left transition-all hover:border-[var(--color-accent)] hover:shadow-sm bg-[var(--color-bg-surface)] group flex flex-col justify-between cursor-pointer"
+                      style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                          <qa.icon className="w-5 h-5" />
+                        </div>
+                        {qa.badge && (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]">
+                            {qa.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                          {qa.label}
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
+                          {qa.sub}
+                        </div>
+                      </div>
                     </button>
                   ))}
                 </div>
 
                 {/* Recent activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
-                  <button className="text-xs font-body font-semibold" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>
-                    View all →
+                  <div>
+                    <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Recent Activity</h3>
+                    <p className="text-xs font-body text-[var(--color-text-tertiary)]">Real-time payouts, client bookings, and order updates</p>
+                  </div>
+                  <button className="text-xs font-body font-semibold hover:underline flex items-center gap-1" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>
+                    <span>View all</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -1619,44 +1708,78 @@ export function TalentDashboard() {
                           else if (item.type === "payment") setActiveTab("earnings");
                           else if (item.type === "message") setActiveTab("orders");
                         }}
-                        className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99]"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
+                        className="flex items-center gap-3.5 px-4 py-3 rounded-2xl cursor-pointer hover:border-[var(--color-accent)] transition-all active:scale-[0.99] group"
+                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)", minHeight: 68 }}
                       >
                         <div
-                          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
-                          style={{ background: item.type === "payment" ? "var(--color-success-bg)" : "var(--color-accent-glow)" }}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                          style={{
+                            background: item.type === "payment" ? "rgba(16, 185, 129, 0.1)" : item.type === "booking" ? "var(--color-accent-soft)" : "rgba(14, 165, 233, 0.1)",
+                            color: item.type === "payment" ? "#059669" : item.type === "booking" ? "var(--color-accent)" : "#0284c7",
+                          }}
                         >
-                          {item.type === "booking" && <Calendar className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
-                          {item.type === "payment" && <DollarSign className="w-5 h-5" style={{ color: "var(--color-success)" }} />}
-                          {item.type === "message" && <MessageSquare className="w-5 h-5" style={{ color: "var(--color-accent)" }} />}
+                          {item.type === "booking" && <Calendar className="w-5 h-5" />}
+                          {item.type === "payment" && <DollarSign className="w-5 h-5" />}
+                          {item.type === "message" && <MessageSquare className="w-5 h-5" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.client}</div>
-                          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.service}</div>
+                          <div className="text-sm font-bold font-body truncate group-hover:text-[var(--color-accent)] transition-colors" style={{ color: "var(--color-text-primary)" }}>
+                            {item.client}
+                          </div>
+                          <div className="text-xs font-body text-[var(--color-text-secondary)] truncate">
+                            {item.service}
+                          </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <div className="text-sm font-semibold font-mono tnum" style={{ color: "var(--color-text-primary)" }}>{item.amount}</div>
-                          <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>{item.time}</div>
+                        <div className="text-right shrink-0 flex items-center gap-3">
+                          <div>
+                            <div className={`text-sm font-mono font-bold ${item.type === "payment" ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--color-text-primary)]"}`}>
+                              {item.amount}
+                            </div>
+                            <div className="text-[11px] font-body text-[var(--color-text-tertiary)]">{item.time}</div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-zinc-300 dark:text-zinc-600 group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
                         </div>
                       </motion.div>
                     ))}
                   </div>
                 )}
 
-                {/* Profile completion prompt */}
+                {/* Profile completion prompt with visual progress bar */}
                 <div
-                  className="mt-5 p-4 rounded-[var(--radius-lg)] flex items-center gap-4"
-                  style={{ background: "var(--color-accent-soft)", border: "1px solid var(--color-hairline)" }}
+                  className="mt-6 p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  style={{
+                    background: "var(--color-bg-surface)",
+                    borderColor: "var(--color-border-default)",
+                    boxShadow: "var(--shadow-card)",
+                  }}
                 >
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
-                    <Award className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1.5 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold font-body text-[var(--color-text-primary)]">Profile 85% Complete</span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                          Almost Done
+                        </span>
+                      </div>
+                      <p className="text-xs font-body text-[var(--color-text-secondary)]">
+                        Add a bio and media reel to boost client discovery and rank higher in brand searches.
+                      </p>
+                      {/* Visual Progress Bar */}
+                      <div className="w-full max-w-xs h-2 rounded-full bg-[var(--color-bg-elevated)] overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-[var(--color-accent)]" style={{ width: "85%" }} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>Profile 85% complete</div>
-                    <div className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Add a bio to attract more clients</div>
-                  </div>
-                  <Button variant="secondary" className="h-9 px-3 text-xs shrink-0" onClick={() => setActiveTab("storefront")}>
-                    Complete
+                  <Button
+                    variant="secondary"
+                    className="h-9 px-4 text-xs font-semibold shrink-0 gap-1.5"
+                    onClick={() => setActiveTab("storefront")}
+                  >
+                    <span>Complete Profile</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Button>
                 </div>
 
@@ -4462,127 +4585,120 @@ export function TalentDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {effectiveOrders.map(order => (
-                      <div
-                        key={order.id}
-                        className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                        onClick={() => navigate(`/order/${order.id}`)}
-                      >
-                        {(() => {
-                          const isCancelled = appStateSync.isBookingCancelled(order.id);
-                          return (
-                            <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
-                                <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>{order.counterpart}</p>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-display text-lg" style={{ color: isCancelled ? "var(--color-error)" : "var(--color-accent)" }}>{order.amount}</div>
-                                <div className="text-xs font-body mt-0.5">
-                                  {isCancelled ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                                      Cancelled &amp; Refunded
-                                    </span>
-                                  ) : (
-                                    <span style={{ color: "var(--color-text-tertiary)" }}>Due {order.due}</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                    {effectiveOrders.map(order => {
+                      const isCancelled = appStateSync.isBookingCancelled(order.id);
+                      const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
+                      const symbol = order.amount.startsWith("$") ? "$" : order.amount.startsWith("£") ? "£" : order.amount.startsWith("€") ? "€" : "₦";
+                      const fee = Math.round(num * 0.07);
+                      const net = num - fee;
 
-                        {/* Three-line fee breakdown: Base rate, Platform fee (7%), You receive */}
-                        {(() => {
-                          const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
-                          const symbol = order.amount.startsWith("$") ? "$" : order.amount.startsWith("£") ? "£" : order.amount.startsWith("€") ? "€" : "₦";
-                          const fee = Math.round(num * 0.07);
-                          const net = num - fee;
-                          return (
-                            <div className="mb-3 p-2.5 rounded-xl border space-y-1 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                              <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                <span>Base rate</span>
-                                <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>{symbol}{num.toLocaleString()}</span>
-                              </div>
-                              <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
-                                <span>Platform fee (7%)</span>
-                                <span className="font-mono text-zinc-500 font-medium">-{symbol}{fee.toLocaleString()}</span>
-                              </div>
-                              <div className="flex justify-between items-center font-semibold pt-1 border-t" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
-                                <span>You receive</span>
-                                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{symbol}{net.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Phase progress */}
-                        <div className="flex items-center gap-2 mb-4">
-                          {["Briefing", "Deliverables", "Review", "Complete"].map((phase, i) => {
-                            const current = ["Briefing", "Deliverables", "Review", "Complete"].indexOf(order.phase);
-                            const isDone = i < current;
-                            const isActive = i === current;
-                            return (
-                              <React.Fragment key={phase}>
-                                <div className="flex flex-col items-center">
-                                  <div
-                                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono"
-                                    style={{
-                                      background: isDone ? "var(--color-success-bg)" : isActive ? "var(--color-accent-glow)" : "var(--color-bg-elevated)",
-                                      color: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-text-tertiary)",
-                                      border: `1px solid ${isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                                    }}
-                                  >
-                                    {isDone ? "✓" : i + 1}
-                                  </div>
-                                </div>
-                                {i < 3 && <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-border-default)" }} />}
-                              </React.Fragment>
-                            );
-                          })}
-                        </div>
-                        {/* Check-in Progress on upcoming booking */}
-                        <div className="mb-4 p-3 rounded-xl border space-y-2" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                          <div className="flex items-center justify-between text-xs font-body">
-                            <span className="font-semibold" style={{ color: "var(--color-text-primary)" }}>Availability Check-in</span>
-                            <span className="text-[11px]" style={{ color: "var(--color-text-secondary)" }}>Check-in 2 of 3 · due Tue 14 Oct</span>
-                          </div>
-                          <div className="grid grid-cols-3 gap-1.5">
-                            {[
-                              { label: "Booked", state: "Done" as const },
-                              { label: "7 days", state: "Due" as const, sub: "Due Tue 14 Oct" },
-                              { label: "2 days", state: "Upcoming" as const, sub: "Upcoming" },
-                            ].map((step, idx) => (
-                              <div
-                                key={idx}
-                                className={`py-1.5 px-2 rounded-lg text-center text-[11px] font-body flex items-center justify-center gap-1 ${
-                                  step.state === "Done"
-                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                                    : step.state === "Due"
-                                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold ring-1 ring-amber-400/20"
-                                    : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)]"
-                                }`}
-                              >
-                                <span>{step.label}</span>
-                                <span className="text-[10px] opacity-80">
-                                  {step.state === "Done" ? "✓" : step.state === "Due" ? "Due" : "Soon"}
+                      return (
+                        <div
+                          key={order.id}
+                          className="p-5 sm:p-6 rounded-2xl cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border shadow-xs group"
+                          style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                          onClick={() => navigate(`/order/${order.id}`)}
+                        >
+                          {/* Card Header */}
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-tertiary)]">
+                                  {order.id}
                                 </span>
+                                {isCancelled ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                                    Cancelled &amp; Refunded
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-body text-[var(--color-text-tertiary)]">
+                                    Due {order.due}
+                                  </span>
+                                )}
                               </div>
-                            ))}
+                              <h3 className="text-base sm:text-lg font-bold font-body group-hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]">
+                                {order.project}
+                              </h3>
+                              <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
+                                Client: <span className="font-semibold text-[var(--color-text-primary)]">{order.counterpart}</span>
+                              </p>
+                            </div>
+
+                            <div className="text-left sm:text-right shrink-0">
+                              <div className="text-[10px] uppercase font-semibold tracking-wider text-[var(--color-text-tertiary)] font-body">
+                                {isCancelled ? "Refund Processed" : "Your Net Take-Home"}
+                              </div>
+                              <div className={`font-mono font-black text-xl leading-tight ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                                {symbol}{isCancelled ? num.toLocaleString() : net.toLocaleString()}
+                              </div>
+                              {!isCancelled && (
+                                <div className="text-[11px] text-[var(--color-text-tertiary)] font-body mt-0.5">
+                                  Base {symbol}{num.toLocaleString()} · 7% platform fee (-{symbol}{fee.toLocaleString()})
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                          Current phase: <strong>{order.phase}</strong>
-                        </div>
+                          {/* Phase Progress Bar (Segmented) */}
+                          <div className="my-4 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)]">
+                            <div className="flex items-center justify-between text-xs font-body mb-2.5">
+                              <span className="font-semibold text-[var(--color-text-primary)]">Production Phase</span>
+                              <span className="font-semibold text-[var(--color-accent)]">
+                                {order.phase}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2">
+                              {["Briefing", "Deliverables", "Review", "Complete"].map((phase, i) => {
+                                const current = ["Briefing", "Deliverables", "Review", "Complete"].indexOf(order.phase);
+                                const isDone = i < current;
+                                const isActive = i === current;
+                                return (
+                                  <div key={phase} className="flex flex-col gap-1">
+                                    <div
+                                      className={`h-2 rounded-full transition-all ${
+                                        isDone
+                                          ? "bg-emerald-500"
+                                          : isActive
+                                          ? "bg-[var(--color-accent)]"
+                                          : "bg-zinc-200 dark:bg-zinc-700"
+                                      }`}
+                                    />
+                                    <span className={`text-[10px] font-body truncate ${
+                                      isDone ? "text-emerald-600 dark:text-emerald-400 font-semibold" : isActive ? "text-[var(--color-accent)] font-bold" : "text-[var(--color-text-tertiary)]"
+                                    }`}>
+                                      {phase} {isDone ? "✓" : ""}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
 
-                        <Button className="w-full h-10 text-sm gap-2">
-                          Enter Order Room <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
+                          {/* Check-in Progress Strip */}
+                          {!isCancelled && (
+                            <div className="mb-4 p-3 rounded-xl border flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                                  <Calendar className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0 truncate">
+                                  <div className="font-semibold text-[var(--color-text-primary)] truncate">Availability Milestone Gate 2 of 3</div>
+                                  <div className="text-[11px] text-[var(--color-text-tertiary)] truncate">7-day re-confirmation due Tue 14 Oct</div>
+                                </div>
+                              </div>
+                              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20 shrink-0 ml-2">
+                                Due Now
+                              </span>
+                            </div>
+                          )}
+
+                          <Button className="w-full h-10 text-xs font-bold gap-2 shadow-xs">
+                            <span>Enter Order Room</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </motion.div>

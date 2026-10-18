@@ -12,7 +12,7 @@ import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, ChevronRight, Shield, Send, Paperclip, CheckCircle2,
   Lock, FileText, Download, AlertTriangle, AlertCircle,
-  UploadCloud, X, MapPin,
+  UploadCloud, X, MapPin, Clock,
   RefreshCw, FastForward, Check,
   Copy, KeyRound, Star, MessageSquare, ShieldCheck,
   Video, ExternalLink
@@ -122,6 +122,7 @@ export function OrderRoom() {
   const [clientIntroDismissed, setClientIntroDismissed] = useState(false);
   const [clientIntroCollapsed, setClientIntroCollapsed] = useState(false);
   const [briefScriptCopied, setBriefScriptCopied] = useState(false);
+  const [checkinDetailsExpanded, setCheckinDetailsExpanded] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -843,185 +844,166 @@ export function OrderRoom() {
         const isOverdue = activeCheckin ? (activeCheckin.isOverdue || activeCheckin.status === "missed") : false;
 
         return (
-          <div className="max-w-2xl mx-auto w-full px-4 pt-4">
-            <div
-              className={`rounded-2xl border overflow-hidden transition-all ${
-                isCancelled
-                  ? "border-rose-200/70 dark:border-rose-800/40"
-                  : isOverdue
-                  ? "border-amber-300/60 dark:border-amber-700/40"
-                  : "border-[var(--color-border-default)]"
-              }`}
-              style={{
-                background: isCancelled
-                  ? "rgba(254,242,242,0.7)"
-                  : "var(--color-bg-surface)",
-                boxShadow: "var(--shadow-card)",
-              }}
-            >
-              {/* Status bar */}
-              <div
-                className={`flex items-center justify-between px-4 py-2.5 border-b ${
-                  isCancelled
-                    ? "border-rose-200/60 dark:border-rose-800/40"
-                    : "border-[var(--color-hairline)]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {/* Prev/next stepper for talent when not cancelled */}
-                  {!isCancelled && role === "talent" && (
-                    <>
-                      <button
-                        type="button"
-                        aria-label="Previous check-in"
-                        onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
-                        className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors cursor-pointer"
-                      >
-                        <ChevronLeft className="w-3 h-3" />
-                      </button>
-                    </>
-                  )}
-                  <Badge
-                    tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
-                    size="sm"
-                  >
-                    {isCancelled ? "Cancelled & Refunded" : isConfirmed ? "Confirmed" : isOverdue ? "Action Required" : role === "client" ? "Attendance Verified" : `Check-in ${activeCheckin?.stepIndex || 1} of ${activeCheckin?.totalSteps || 3}`}
-                  </Badge>
-                  {!isCancelled && role === "talent" && (
+          <div className="max-w-2xl mx-auto w-full px-4 pt-3">
+            {isConfirmed ? (
+              /* Confirmed Ribbon with progressive disclosure */
+              <div className="rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 bg-emerald-50/70 dark:bg-emerald-950/20 p-3 shadow-xs">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <div className="min-w-0 truncate text-xs font-body">
+                      <span className="font-bold text-emerald-900 dark:text-emerald-100">Attendance Confirmed</span>
+                      <span className="text-emerald-700/80 dark:text-emerald-300/80 hidden sm:inline ml-1.5">
+                        · Milestone Gate {activeCheckin?.stepIndex || 2} of {activeCheckin?.totalSteps || 3} verified
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 shrink-0 text-xs font-body">
+                    <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                      ₦{role === "client" ? "134,400 deposit" : `${activeCheckin?.performerReceives?.toLocaleString() || "111,600"} net`}
+                    </span>
                     <button
                       type="button"
-                      aria-label="Next check-in"
-                      onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
-                      className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors cursor-pointer"
+                      onClick={() => setCheckinDetailsExpanded(prev => !prev)}
+                      className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
                     >
-                      <ChevronRight className="w-3 h-3" />
+                      {checkinDetailsExpanded ? "Hide Details" : "View Details"}
                     </button>
-                  )}
-                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                    {isCancelled ? "Order status: Cancelled" : `due ${activeCheckin?.dueDate || "Tue 14 Oct"}`}
-                  </span>
+                  </div>
                 </div>
 
-                {/* Milestone chips */}
-                {!isCancelled && (
-                  <div className="hidden sm:flex items-center gap-1">
-                    {[
-                      { label: "Booked", done: true },
-                      { label: "7 days", done: isConfirmed, due: !isConfirmed },
-                      { label: "2 days", done: false, due: false },
-                    ].map((step, idx) => (
-                      <span
-                        key={idx}
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          step.done
-                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-                            : step.due
-                            ? "bg-amber-100/80 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
-                            : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
-                        }`}
-                      >
-                        {step.label} {step.done ? "✓" : step.due ? "Due" : "·"}
-                      </span>
-                    ))}
+                {checkinDetailsExpanded && (
+                  <div className="mt-3 pt-3 border-t border-emerald-200/50 dark:border-emerald-800/30 text-xs font-body grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-emerald-800/60 dark:text-emerald-300/60 block">Event</span>
+                      <span className="font-medium text-emerald-950 dark:text-emerald-100">{activeCheckin?.eventName || orderTitle}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-emerald-800/60 dark:text-emerald-300/60 block">Date &amp; Location</span>
+                      <span className="font-medium text-emerald-950 dark:text-emerald-100">{activeCheckin?.eventDate || "Tue 24 Nov 2026"} · {activeCheckin?.location || "Remote (Online)"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold text-emerald-800/60 dark:text-emerald-300/60 block">Next Gate</span>
+                      <span className="font-medium text-emerald-950 dark:text-emerald-100">{activeCheckin?.nextCheckinDate || "Mon 23 Nov 2026 (2 days prior)"}</span>
+                    </div>
                   </div>
                 )}
               </div>
+            ) : isCancelled ? (
+              /* Cancelled Ribbon */
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-body flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>
+                    {role === "client"
+                      ? "Performer declined check-in. ₦134,400 has been refunded automatically to your wallet."
+                      : "Booking cancelled and ₦134,400 refunded automatically to client."}
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shrink-0">
+                  Cancelled
+                </span>
+              </div>
+            ) : (
+              /* Pending Attendance Verification Card */
+              <div
+                className={`rounded-2xl border overflow-hidden transition-all bg-[var(--color-bg-surface)] ${
+                  isOverdue ? "border-amber-400/50 shadow-xs" : "border-[var(--color-border-default)] shadow-xs"
+                }`}
+              >
+                {/* Header status bar */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40">
+                  <div className="flex items-center gap-2">
+                    {!isCancelled && role === "talent" && checkins.length > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label="Previous check-in"
+                          onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
+                          className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 transition-colors cursor-pointer"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Next check-in"
+                          onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
+                          className="w-5 h-5 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 transition-colors cursor-pointer"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                    <Badge tone={isOverdue ? "warning" : "accent"} size="sm">
+                      {isOverdue ? "Action Required" : role === "client" ? "Attendance Tracking" : `Milestone Gate ${activeCheckin?.stepIndex || 2} of ${activeCheckin?.totalSteps || 3}`}
+                    </Badge>
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                      due {activeCheckin?.dueDate || "Tue 14 Oct"}
+                    </span>
+                  </div>
 
-              {/* Body */}
-              <div className="px-4 py-3.5">
-                <div className="flex items-start justify-between gap-4 mb-2.5">
-                  <div className="flex-1 min-w-0">
-                    <h3 className={`font-display text-sm font-bold leading-tight ${
-                      isCancelled ? "text-rose-900 dark:text-rose-100" : "text-zinc-900 dark:text-zinc-100"
-                    }`}>
-                      {isCancelled
-                        ? "Booking Cancelled & Refunded"
-                        : role === "client"
-                        ? "Performer Attendance Status"
-                        : "Are you still available?"}
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-semibold text-zinc-400 tracking-wider block">
+                      {role === "client" ? "Escrow Deposit" : "Net Take-Home"}
+                    </span>
+                    <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                      ₦{role === "client" ? "134,400" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">
+                      {role === "client"
+                        ? "Performer Attendance Verification"
+                        : `Confirm attendance for ${activeCheckin?.clientName || clientOrg}`}
                     </h3>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                      {isCancelled
-                        ? (role === "client" ? "The performer declined check-in. ₦134,400 has been refunded automatically to your wallet." : "You declined the check-in milestone. Booking cancelled without penalty.")
-                        : role === "client"
-                        ? (isConfirmed ? `${talentName} confirmed attendance for this booking. Milestone 1 of 3 verified.` : `Awaiting attendance check-in confirmation from ${talentName}.`)
+                      {role === "client"
+                        ? `Awaiting attendance check-in confirmation from ${talentName}. Milestone 1 of 3 verified.`
                         : `Confirm your attendance to keep your booking reserved with ${activeCheckin?.clientName || clientOrg}.`}
                     </p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-medium mb-0.5">
-                      {isCancelled ? "Refunded" : role === "client" ? "Escrow Deposit" : "You receive"}
-                    </div>
-                    <div className={`font-mono font-bold text-sm ${
-                      isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
-                    }`}>
-                      ₦{isCancelled ? "134,400" : role === "client" ? "134,400" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
-                    </div>
-                  </div>
-                </div>
 
-                {/* Event details inline */}
-                <div className="flex items-center gap-3 flex-wrap text-xs py-2 border-t border-b mb-2.5"
-                  style={{ borderColor: isCancelled ? "rgba(254,202,202,0.6)" : "var(--color-hairline)" }}>
-                  {[
-                    { label: "Event", value: activeCheckin?.eventName || orderTitle },
-                    { label: "Date & Location", value: `${activeCheckin?.eventDate || "Tue 24 Nov 2026"} · ${activeCheckin?.location || (gigType === "remote" ? "Remote (Online)" : "Eko Hotel, Lagos")}` },
-                    { label: role === "client" ? "Performer" : "Client", value: role === "client" ? talentName : (activeCheckin?.clientName || clientOrg) },
-                  ].map((item) => (
-                    <div key={item.label} className="flex flex-col min-w-0">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{item.label}</span>
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate">{item.value}</span>
+                  {/* Event summary grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs font-body">
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Event</span>
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">{activeCheckin?.eventName || orderTitle}</span>
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Date &amp; Time</span>
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">{activeCheckin?.eventDate || "Tue 24 Nov 2026"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Location &amp; Client</span>
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">
+                        {activeCheckin?.location || (gigType === "remote" ? "Remote (Online)" : "Eko Hotel, Lagos")} · {activeCheckin?.clientName || clientOrg}
+                      </span>
+                    </div>
+                  </div>
 
-                {/* Action row */}
-                {isCancelled ? (
-                  <div className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
-                    <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                    <span>Booking cancelled and ₦134,400 refunded automatically.</span>
-                    <span className="ml-auto text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shrink-0">
-                      Cancelled
-                    </span>
-                  </div>
-                ) : role === "client" ? (
-                  <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Attendance protocol active · 3 verification gates scheduled prior to production</span>
-                    <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
-                      Protected
-                    </span>
-                  </div>
-                ) : isConfirmed ? (
-                  <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Thanks, we&apos;ve told {activeCheckin?.clientName}. Next check-in: {activeCheckin?.nextCheckinDate || "2 days before event"}</span>
-                    <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">Confirmed</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {isOverdue && (
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-400/30 text-amber-800 dark:text-amber-200 text-xs">
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <span>Confirm now — {activeCheckin?.clientName} has been notified you haven&apos;t confirmed yet.</span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-end gap-2.5">
+                  {/* Actions */}
+                  {role === "talent" && (
+                    <div className="flex items-center justify-end gap-2.5 pt-1">
                       <button
                         type="button"
                         onClick={() => { setSelectedCheckinToDecline(activeCheckin); setShowDeclineModal(true); }}
-                        className="text-xs font-medium text-zinc-400 hover:text-red-500 px-3 py-1.5 transition-colors cursor-pointer"
+                        className="h-8 px-3.5 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-red-500 hover:border-red-300 transition-colors cursor-pointer"
                       >
                         I can&apos;t make it
                       </button>
-                      <Button size="sm" className="h-8 px-4 text-xs font-semibold" onClick={() => activeCheckin && handleConfirmCheckin(activeCheckin.id)}>
-                        Yes, I&apos;m confirmed
+                      <Button size="sm" className="h-8 px-4 text-xs font-bold gap-1.5 shadow-xs" onClick={() => activeCheckin && handleConfirmCheckin(activeCheckin.id)}>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Yes, I&apos;m confirmed</span>
                       </Button>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })()}
@@ -1373,41 +1355,71 @@ export function OrderRoom() {
       {workspaceTab === "brief" && (
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-2xl mx-auto w-full space-y-5">
           {/* Creative Brief & Synopsis */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="p-6 rounded-3xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-xs space-y-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 border-b border-[var(--color-hairline)]">
               <div>
-                <h3 className="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">Creative Brief &amp; Project Scope</h3>
-                <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · {curOrderId}</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-tertiary)]">
+                    {curOrderId}
+                  </span>
+                  <Badge tone="accent" size="sm">
+                    {gigType === "onsite" ? "Live On-site Performance" : "Remote Studio Recording"}
+                  </Badge>
+                </div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">
+                  Creative Brief &amp; Project Scope
+                </h3>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                  {orderTitle} · Commissioned by <span className="font-semibold text-[var(--color-text-primary)]">{clientOrg}</span>
+                </p>
               </div>
-              <Badge tone="accent" size="sm">{gigType === "onsite" ? "Live On-site" : "Remote Recording"}</Badge>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-700/60 text-xs font-body leading-relaxed text-zinc-700 dark:text-zinc-300">
+            {/* Synopsis */}
+            <div className="p-4 rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
               Client is seeking a commanding, resonant voiceover artist for a national campaign spot. Selected performer will record master WAV stems, adhere to natural pacing, and coordinate any retakes within the 48-hour review window.
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
-                <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">Project Format</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                  {gigType === "onsite" ? "On-site: Eko Hotel & Suites, VI, Lagos" : "Remote / Online (Studio Recording)"}
-                </span>
+            {/* Format & Timeline Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-body">
+              <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)] flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider block">Production Format</span>
+                  <span className="font-semibold text-[var(--color-text-primary)] block mt-0.5">
+                    {gigType === "onsite" ? "On-site: Eko Hotel & Suites, VI, Lagos" : "Remote (Studio Audio Master)"}
+                  </span>
+                </div>
               </div>
-              <div className="p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
-                <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">Timeline &amp; Turnaround</span>
-                <span className="font-medium text-zinc-800 dark:text-zinc-200">
-                  First cut due within 24h · 48h client review
-                </span>
+
+              <div className="p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] tracking-wider block">Timeline &amp; Turnaround</span>
+                  <span className="font-semibold text-[var(--color-text-primary)] block mt-0.5">
+                    First cut due within 24h · 48h review window
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Audition Sides & Script Excerpt */}
-            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 font-display">
-                  <FileText className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                  Dialogue Script Excerpt
-                </span>
+            {/* Teleprompter / Dialogue Script Excerpt */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between mb-2.5">
+                <div>
+                  <span className="text-xs font-bold text-[var(--color-text-primary)] flex items-center gap-1.5 font-display">
+                    <FileText className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                    Dialogue Script Reader &amp; Pacing Guide
+                  </span>
+                  <span className="text-[11px] text-[var(--color-text-tertiary)] font-body">
+                    ~18s audio read · Warm, commanding brand voice
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -1415,34 +1427,43 @@ export function OrderRoom() {
                     setBriefScriptCopied(true);
                     setTimeout(() => setBriefScriptCopied(false), 2000);
                   }}
-                  className="text-[11px] font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="h-7 px-2.5 rounded-lg text-xs font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] transition-colors flex items-center gap-1.5 cursor-pointer border border-[var(--color-accent)]/20"
                 >
                   <Copy className="w-3 h-3" />
-                  {briefScriptCopied ? "Copied!" : "Copy Script"}
+                  <span>{briefScriptCopied ? "Copied!" : "Copy Script"}</span>
                 </button>
               </div>
-              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border-l-4 border-l-[var(--color-accent)] border border-zinc-200/80 dark:border-zinc-700/80 text-xs sm:text-sm font-body italic text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                &ldquo;They told you impossible is a standard. We tell you it&apos;s a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.&rdquo;
+
+              <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-inner relative overflow-hidden">
+                <div className="absolute top-2 right-3 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+                  Broadcast Copy
+                </div>
+                <p className="font-serif sm:text-base text-sm leading-relaxed tracking-wide italic text-zinc-100">
+                  &ldquo;They told you impossible is a standard. We tell you it&apos;s a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.&rdquo;
+                </p>
               </div>
             </div>
 
-            {/* Reference Attachment */}
-            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block mb-2 font-display">Campaign Reference Files</span>
-              <div className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-800/40">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-red-500/10 text-red-600 flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4" />
+            {/* Campaign Reference Files */}
+            <div className="pt-3 border-t border-[var(--color-hairline)]">
+              <span className="text-xs font-bold text-[var(--color-text-primary)] block mb-2.5 font-display">
+                Campaign Reference Attachments
+              </span>
+              <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40 hover:border-[var(--color-accent)] transition-all">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">Nike_Campaign_Brief_v2.pdf</div>
-                    <div className="text-[10px] text-zinc-400">1.2 MB · Brand tone &amp; pronunciation guide</div>
+                    <div className="text-xs font-bold text-[var(--color-text-primary)] truncate">Nike_Campaign_Brief_v2.pdf</div>
+                    <div className="text-[11px] text-[var(--color-text-tertiary)]">1.2 MB · Brand pronunciation &amp; creative tone guide</div>
                   </div>
                 </div>
                 <a
                   href="#download"
                   onClick={(e) => { e.preventDefault(); alert("Downloading brief reference package..."); }}
-                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1 shrink-0 ml-2 cursor-pointer"
+                  className="h-8 px-3 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 shrink-0 ml-3 cursor-pointer shadow-xs hover:opacity-95"
+                  style={{ background: "var(--color-accent)" }}
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
@@ -1451,20 +1472,22 @@ export function OrderRoom() {
             </div>
 
             {/* Deliverables Checklist */}
-            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block mb-2.5 font-display">Required Deliverables</span>
-              <div className="space-y-2 text-xs font-body text-zinc-700 dark:text-zinc-300">
-                <div className="flex items-start gap-2">
+            <div className="pt-3 border-t border-[var(--color-hairline)]">
+              <span className="text-xs font-bold text-[var(--color-text-primary)] block mb-2.5 font-display">
+                Required Production Deliverables
+              </span>
+              <div className="space-y-2 text-xs font-body text-[var(--color-text-secondary)]">
+                <div className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-bg-elevated)]/40 border border-[var(--color-hairline)]">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>2x 30s broadcast WAV master audio files (24-bit / 48kHz)</span>
+                  <span className="font-medium text-[var(--color-text-primary)]">2x 30s broadcast WAV master audio files (24-bit / 48kHz, -23 LUFS integrated)</span>
                 </div>
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-bg-elevated)]/40 border border-[var(--color-hairline)]">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>1x 15s social media cutdown variation with synced cues</span>
+                  <span className="font-medium text-[var(--color-text-primary)]">1x 15s social media cutdown variation with synced cues</span>
                 </div>
-                <div className="flex items-start gap-2">
+                <div className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--color-bg-elevated)]/40 border border-[var(--color-hairline)]">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>Raw vocal stems and ambient room tone file</span>
+                  <span className="font-medium text-[var(--color-text-primary)]">Raw vocal stems and ambient room tone WAV file</span>
                 </div>
               </div>
             </div>
