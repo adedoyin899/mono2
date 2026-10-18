@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
+**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,38 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 147 (2026-10-18) — Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture
+## Session 148 (2026-10-18) — Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication
+
+**Goal:** Overhaul the visual hierarchy, interaction design, and UX clarity across 5 newly submitted user review screens (Tranche 3):
+1. **Submit Deliverable Modal — Digital Files Mode (`OrderRoom.tsx`):**
+   - Implemented interactive drag-and-drop file upload with visual boundary feedback (`isDraggingFile`).
+   - Built a rich selected-file preview card featuring file type iconography, file size telemetry, pulsing green `Ready for delivery` status chip, and quick `Replace` / `Remove` actions.
+   - Fixed financial accuracy bug in the 48-hour escrow guarantee notice: replaced inaccurate gross payout statement ("₦120,000 auto-releases to your balance") with strictly accurate net take-home calculation (`₦111,600 net` after Monologg's 7% platform fee deduction).
+2. **Verify Live Appearance Modal — Onsite Gig Mode (`OrderRoom.tsx`):**
+   - Transformed the awkward single-input dot placeholder (`••••`) into 4 discrete auto-advancing OTP digit boxes with auto-focus forward, backspace navigation, paste distribution, and active focus rings.
+   - Added real-time PIN validation against `CLIENT_GENERATED_PIN` ("4821") with emerald success chip (`✓ Code verified with FilmCraft Studios`) and clear error handling.
+   - Eliminated the washed-out disabled pink button (`bg-red-300`), establishing a clean disabled button state (`bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed`) that transitions to a vivid Monologg crimson CTA on valid PIN verification.
+3. **Performer Performance & Analytics Tab (`TalentDashboard.tsx`):**
+   - Fixed fintech color semantics: eradicated alarming bright red typography on accumulated positive performer income (`₦1,240,000` total earnings) and projects completed (`28`), restoring them to high-contrast neutral text (`var(--color-text-primary)` / `text-zinc-900 dark:text-zinc-100`) accompanied by positive emerald growth indicators (`↑ +₦240,000 this month`, `100% on-time delivery`).
+   - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards for visual cohesion.
+   - Refined `Reviews →` link hover micro-interactions and fixed spline chart tooltip total from red to bold high-contrast primary text.
+4. **Physical Attributes Screen (`Settings.tsx`):**
+   - Expanded container width from narrow `max-w-lg` (512px) to comfortable `max-w-4xl` to eliminate excessive empty margins.
+   - Reorganized 8 vertically stacked dropdowns into a modern 2-column responsive layout grouped by logical categories: *Demographics & Build* (5 fields) and *Appearance & Features* (3 fields).
+   - Replaced the confusing `P | S | P` buttons (where two buttons shared the identical letter "P") with an unambiguous, accessible segmented control: `🔒 Priv` · `🔍 Filter` · `🌐 Public`.
+   - Elevated the consent checkbox card and gave the Save Attributes button a clean disabled state.
+5. **Edit Profile / Storefront Editor (`Settings.tsx` & `TalentDashboard.tsx`):**
+   - Eliminated confusing triple-redundant save triggers (sticky top bar `Save`, form `Save Profile`, and floating bottom bar `Save Changes`). Standardized on a single authoritative `Save Changes` CTA inside the edit form and a clean sticky header action.
+   - Corrected Rate Card prices from alarming red text (`var(--color-accent)`) to high-contrast neutral (`var(--color-text-primary)`).
+
+**Files Changed:**
+- `apps/web/src/app/pages/OrderRoom.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/Settings.tsx`
+
+**Technical Context:**
+- `npx tsc --noEmit` exited 0 (clean compilation).
+- All 25 test suites and 127/127 tests passed cleanly (`npm test`).
 
 **Goal:** Address second tranche of user UI/UX design reviews across Order Room dark mode chat bubbles, Project Detail ("Client & Escrow" tab and compensation sidebar), Availability Month calendar grid, and External Booking calendar availability:
 1. **Order Room Dark Mode Contrast Fix (`OrderRoom.tsx`):** Fix critical contrast failure where performer outgoing messages rendered near-black text (`text-zinc-900`) on dark translucent red (`rgba(255, 77, 77, 0.14)`), resulting in near 1:1 unreadable contrast in dark mode. Replaced with solid brand accent (`bg-[#E50914]` for talent, `bg-[#7B00FE]` for client) with high-contrast `text-white`, dark-mode adaptive incoming messages, high-contrast attachment preview cards, and elevated `Submit Deliverable` CTA button.

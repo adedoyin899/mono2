@@ -96,12 +96,18 @@ export function OrderRoom() {
   const [deliverableTab, setDeliverableTab] = useState<"online" | "onsite">("online");
   const [stagedFile, setStagedFile] = useState<{ name: string; size: string; type: "file" | "image" } | null>(null);
   const [onlineNotes, setOnlineNotes] = useState("");
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Submit modal — onsite PIN verification
   const [onsiteNotes, setOnsiteNotes] = useState("");
   const [pinEntry, setPinEntry] = useState("");
   const [copiedPin, setCopiedPin] = useState(false);
+  const pin0Ref = useRef<HTMLInputElement>(null);
+  const pin1Ref = useRef<HTMLInputElement>(null);
+  const pin2Ref = useRef<HTMLInputElement>(null);
+  const pin3Ref = useRef<HTMLInputElement>(null);
+  const pinDigitRefs = [pin0Ref, pin1Ref, pin2Ref, pin3Ref];
 
   // Workspace Navigation Tabs
   const [workspaceTab, setWorkspaceTab] = useState<"chat" | "brief" | "escrow">("chat");
@@ -1719,32 +1725,73 @@ export function OrderRoom() {
                     />
 
                     {stagedFile ? (
-                      <div className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-zinc-900 flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-white" />
+                      <div className="p-4 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 flex items-center justify-between gap-3 shadow-xs">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-11 h-11 rounded-xl bg-zinc-900 dark:bg-white flex items-center justify-center shrink-0 shadow-sm">
+                            <FileText className="w-5 h-5 text-white dark:text-zinc-900" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{stagedFile.name}</div>
+                            <div className="flex items-center gap-2 mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                              <span className="font-mono">{stagedFile.size}</span>
+                              <span>·</span>
+                              <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Ready for delivery
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-zinc-900 truncate">{stagedFile.name}</div>
-                          <div className="text-xs text-zinc-400 mt-0.5">{stagedFile.size} · <span className="text-emerald-600 font-medium">Ready</span></div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-2.5 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-700 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Replace
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setStagedFile(null)}
+                            className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                            aria-label="Remove staged file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button onClick={() => setStagedFile(null)} className="p-1.5 rounded-lg hover:bg-zinc-200 text-zinc-400 transition-colors">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
                       </div>
                     ) : (
                       <div
+                        onDragOver={(e) => { e.preventDefault(); setIsDraggingFile(true); }}
+                        onDragLeave={() => setIsDraggingFile(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDraggingFile(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) {
+                            const sizeMb = (file.size / 1048576).toFixed(1);
+                            const isImg = file.type.startsWith("image/");
+                            setStagedFile({ name: file.name, size: `${sizeMb} MB`, type: isImg ? "image" : "file" });
+                          }
+                        }}
                         onClick={() => fileInputRef.current ? fileInputRef.current.click() : setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" })}
-                        className="border-2 border-dashed border-zinc-200 hover:border-zinc-300 rounded-2xl flex flex-col items-center py-8 cursor-pointer bg-zinc-50/50 hover:bg-zinc-50 transition-all text-center"
+                        className={`border-2 border-dashed rounded-2xl flex flex-col items-center py-8 px-4 cursor-pointer transition-all text-center group ${
+                          isDraggingFile
+                            ? "border-[var(--color-red)] bg-red-50/20"
+                            : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 bg-zinc-50/50 dark:bg-zinc-800/30 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
+                        }`}
                       >
-                        <div className="w-11 h-11 rounded-full bg-white shadow-2xs border border-zinc-200 flex items-center justify-center mb-2.5">
-                          <UploadCloud className="w-5 h-5 text-zinc-600" />
+                        <div className="w-12 h-12 rounded-full bg-white dark:bg-zinc-800 shadow-2xs border border-zinc-200 dark:border-zinc-700 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                          <UploadCloud className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
                         </div>
-                        <p className="text-sm font-semibold text-zinc-800">Drop file or <span className="underline underline-offset-2">browse</span></p>
-                        <p className="text-xs text-zinc-400 mt-1">MP3, MP4, WAV, PDF, ZIP · Max 500MB</p>
+                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                          Drop file or <span className="underline underline-offset-2 hover:text-[var(--color-red)]">browse</span>
+                        </p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">MP3, MP4, WAV, PDF, ZIP · Max 500MB</p>
                         <button
                           type="button"
                           onClick={e => { e.stopPropagation(); setStagedFile({ name: "Nike_VO_Final_v1.mp3", size: "8.4 MB", type: "file" }); }}
-                          className="mt-3 text-[11px] text-zinc-400 hover:text-zinc-700 underline"
+                          className="mt-3.5 px-3 py-1 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full shadow-2xs hover:shadow-xs transition-all cursor-pointer"
                         >
                           Use demo file
                         </button>
@@ -1752,10 +1799,9 @@ export function OrderRoom() {
                     )}
 
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Notes (optional)</label>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Notes (optional)</label>
                       <textarea
-                        className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 resize-none"
-                        style={{ "--tw-ring-color": "var(--color-accent-glow)" } as React.CSSProperties}
+                        className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none transition-all"
                         rows={2}
                         value={onlineNotes}
                         onChange={e => setOnlineNotes(e.target.value)}
@@ -1765,66 +1811,107 @@ export function OrderRoom() {
                   </>
                 )}
 
-                {/* ── TAB: Onsite Gig (Streamlined auto-verified chip + Single 4-digit code input) ── */}
+                {/* ── TAB: Onsite Gig (Streamlined auto-verified chip + 4 Discrete OTP Boxes) ── */}
                 {deliverableTab === "onsite" && (
                   <>
-                    {/* Clean compact auto-verified banner without inner card boxes */}
-                    <div className="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200/70 flex items-start gap-2.5">
+                    {/* Clean compact auto-verified banner */}
+                    <div className="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 flex items-start gap-2.5">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />
-                      <div className="text-xs text-emerald-950 leading-relaxed">
+                      <div className="text-xs text-emerald-950 dark:text-emerald-200 leading-relaxed">
                         <span className="font-semibold">Presence auto-verified: </span>
                         <span>Your venue location and arrival timestamp are automatically recorded for proof of attendance.</span>
                       </div>
                     </div>
 
-                    {/* Single 4-digit code input */}
-                    <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200">
+                    {/* Discrete 4-digit code input */}
+                    <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/80">
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-semibold text-zinc-900">Client Verification Code</label>
-                        <span className="text-[10px] text-zinc-400 font-medium">4 digits</span>
+                        <label className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">Client Verification Code</label>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-200/70 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 font-semibold">4 digits</span>
                       </div>
-                      <p className="text-xs text-zinc-500 mb-3 leading-relaxed">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3 leading-relaxed">
                         Ask <strong>{clientOrg}</strong> for their 4-digit code upon arrival to confirm your check-in.
                       </p>
 
-                      {/* Single input box for all 4 digits */}
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={4}
-                        value={pinEntry}
-                        onChange={e => {
-                          const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          setPinEntry(v);
-                        }}
-                        placeholder="••••"
-                        className={`w-full h-12 px-4 rounded-xl border text-center font-mono font-bold text-xl tracking-[0.4em] transition-all focus:outline-none ${
-                          pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN
-                            ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                            : "border-zinc-200 bg-white text-zinc-900 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                        }`}
-                      />
+                      {/* 4 discrete auto-advancing OTP digit boxes */}
+                      <div className="flex items-center justify-center gap-3 my-2">
+                        {[0, 1, 2, 3].map((idx) => {
+                          const val = pinEntry[idx] || "";
+                          const isMatched = pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN;
+                          const isInvalid = pinEntry.length === 4 && pinEntry !== CLIENT_GENERATED_PIN;
+                          return (
+                            <input
+                              key={idx}
+                              ref={pinDigitRefs[idx]}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={1}
+                              value={val}
+                              aria-label={`Digit ${idx + 1} of verification code`}
+                              onChange={(e) => {
+                                const char = e.target.value.replace(/\D/g, "").slice(-1);
+                                const chars = pinEntry.padEnd(4, " ").split("");
+                                chars[idx] = char || " ";
+                                const next = chars.join("").trimEnd();
+                                setPinEntry(next);
+                                if (char && idx < 3) {
+                                  pinDigitRefs[idx + 1].current?.focus();
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Backspace") {
+                                  if (!val && idx > 0) {
+                                    pinDigitRefs[idx - 1].current?.focus();
+                                  } else {
+                                    const chars = pinEntry.padEnd(4, " ").split("");
+                                    chars[idx] = " ";
+                                    setPinEntry(chars.join("").trimEnd());
+                                  }
+                                }
+                              }}
+                              onPaste={(e) => {
+                                e.preventDefault();
+                                const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
+                                setPinEntry(pasted);
+                                const targetIdx = Math.min(pasted.length, 3);
+                                pinDigitRefs[targetIdx].current?.focus();
+                              }}
+                              className={`w-14 h-14 rounded-2xl border text-center font-mono font-bold text-2xl transition-all focus:outline-none ${
+                                isMatched
+                                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500/20"
+                                  : isInvalid
+                                  ? "border-red-400 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 ring-2 ring-red-400/20"
+                                  : val
+                                  ? "border-zinc-800 dark:border-zinc-200 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 ring-1 ring-zinc-800/10 shadow-xs"
+                                  : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-zinc-900 dark:focus:border-white focus:ring-2 focus:ring-zinc-900/10"
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
 
                       {pinEntry.length === 4 && pinEntry === CLIENT_GENERATED_PIN ? (
-                        <div className="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1.5 pt-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          Code verified with {clientOrg}
+                        <div className="flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl px-3 border border-emerald-200/80 dark:border-emerald-800/60 mt-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span>Code verified with {clientOrg}</span>
                         </div>
                       ) : pinEntry.length === 4 ? (
-                        <div className="text-xs text-red-600 font-medium text-center pt-2">
-                          Incorrect code. Please ask the client to confirm.
+                        <div className="flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50/80 dark:bg-red-950/40 rounded-xl px-3 border border-red-200/80 dark:border-red-800/60 mt-2">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <span>Incorrect code. Please ask {clientOrg} to confirm.</span>
                         </div>
                       ) : (
-                        <div className="text-[11px] text-zinc-400 text-center pt-2">
-                          The client can find this 4-digit code in their Order Room.
+                        <div className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center pt-2">
+                          The client can find this 4-digit code in their active Order Room.
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Performance notes (optional)</label>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Performance notes (optional)</label>
                       <textarea
-                        className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none resize-none"
+                        className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-white/10 resize-none transition-all"
                         rows={2}
                         value={onsiteNotes}
                         onChange={e => setOnsiteNotes(e.target.value)}
@@ -1834,20 +1921,30 @@ export function OrderRoom() {
                   </>
                 )}
 
-                {/* Escrow Guarantee note */}
-                <div className="flex items-start gap-2 px-3.5 py-2.5 rounded-xl text-xs" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
-                  <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, ₦120,000 auto-releases to your balance.</span>
+                {/* Escrow Guarantee note — Accurate net payout after 7% platform fee */}
+                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl border border-emerald-100 dark:border-emerald-900/60 bg-emerald-50/60 dark:bg-emerald-950/30 text-xs text-zinc-700 dark:text-zinc-300">
+                  <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
+                    Submitting activates your <strong>48-hour inspection window</strong>. If uncontested, <strong className="font-mono font-bold text-emerald-700 dark:text-emerald-300">₦111,600 net</strong> (₦120,000 escrow minus 7% platform fee) auto-releases to your balance.
+                  </div>
                 </div>
 
-                {/* Modal action buttons with contextual primary CTA */}
+                {/* Modal action buttons with contextual primary CTA & crisp disabled state */}
                 <div className="flex gap-2.5 pt-1">
-                  <Button variant="secondary" className="flex-1 h-11 text-sm" onClick={() => setShowSubmitModal(false)}>
+                  <Button variant="secondary" className="flex-1 h-11 text-sm font-semibold" onClick={() => setShowSubmitModal(false)}>
                     Cancel
                   </Button>
                   <button
-                    className="flex-1 h-11 rounded-2xl text-sm font-semibold transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white disabled:opacity-40"
-                    style={{ background: "var(--color-red)" }}
+                    className={`flex-1 h-11 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-xs ${
+                      deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed"
+                        : "text-white hover:opacity-95 active:scale-[0.98] cursor-pointer"
+                    }`}
+                    style={
+                      deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN
+                        ? undefined
+                        : { background: "var(--color-red)" }
+                    }
                     onClick={deliverableTab === "onsite" ? handleSubmitOnsiteEvidence : handleSubmitOnlineDeliverable}
                     disabled={deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN}
                   >

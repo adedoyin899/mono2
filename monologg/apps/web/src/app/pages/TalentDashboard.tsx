@@ -18,7 +18,7 @@ import {
   Home, Calendar, Bell, User, Share2, Shield, Play, TrendingUp,
   Plus, Edit2, Trash2, ChevronRight, ChevronLeft, ArrowLeft, Clock, MapPin, Info,
   MessageSquare, DollarSign, CheckCircle2, X, ExternalLink, ChevronDown,
-  BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound,
+  BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound, Eye,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
   Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle
@@ -2516,7 +2516,7 @@ export function TalentDashboard() {
                                 return (
                                   <div className="pt-2 border-t flex items-baseline justify-between" style={{ borderColor: "var(--color-hairline)" }}>
                                     <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>Rate</span>
-                                    <span className="font-display text-base font-bold" style={{ color: "var(--color-accent)" }}>
+                                    <span className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                       {symbol}{net.toLocaleString()}
                                     </span>
                                   </div>
@@ -5147,17 +5147,30 @@ export function TalentDashboard() {
                     {/* Metric Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Card 1: Profile views */}
-                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Profile views</div>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Profile views</div>
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                            <Eye className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
                         <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>1,420</div>
-                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
+                        <div className="text-xs font-body mt-1 font-medium" style={{ color: "var(--color-success)" }}>↑ +18% this month</div>
                       </div>
 
                       {/* Card 2: Projects completed */}
-                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Projects completed</div>
-                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>28</div>
-                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>100% on-time delivery</div>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Projects completed</div>
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>28</div>
+                        <div className="text-xs font-body mt-1 flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <span>100% on-time delivery</span>
+                        </div>
                       </div>
 
                       {/* Card 3: Average rating (Clickable to open Reviews Modal) */}
@@ -5170,8 +5183,8 @@ export function TalentDashboard() {
                       >
                         <div className="flex items-center justify-between mb-1">
                           <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
-                          <span className="text-[11px] font-semibold text-[var(--color-accent)] opacity-80 group-hover:opacity-100 group-hover:underline transition-all">
-                            Reviews →
+                          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-[var(--color-accent)] transition-all flex items-center gap-0.5">
+                            Reviews <ChevronRight className="w-3 h-3 inline" />
                           </span>
                         </div>
                         <div className="font-display text-2xl font-bold tnum flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
@@ -5184,10 +5197,15 @@ export function TalentDashboard() {
                       </div>
 
                       {/* Card 4: Total earnings */}
-                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                        <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
-                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>₦1,240,000</div>
-                        <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
+                      <div className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Total earnings</div>
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                            <DollarSign className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>₦1,240,000</div>
+                        <div className="text-xs font-body mt-1 font-semibold" style={{ color: "var(--color-success)" }}>↑ +₦240,000 this month</div>
                       </div>
                     </div>
 
@@ -5308,7 +5326,7 @@ export function TalentDashboard() {
                                 </div>
                                 <div className="flex items-center justify-between gap-3 pt-1.5 border-t font-bold" style={{ borderColor: "var(--color-hairline)" }}>
                                   <span style={{ color: "var(--color-text-primary)" }}>Total:</span>
-                                  <span className="font-mono text-[var(--color-accent)]">
+                                  <span className="font-mono font-bold" style={{ color: "var(--color-text-primary)" }}>
                                     ₦{(activeChartData.gig1[hoveredChartIndex] + activeChartData.gig2[hoveredChartIndex]).toLocaleString()}
                                   </span>
                                 </div>

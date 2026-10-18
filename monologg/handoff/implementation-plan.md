@@ -1,11 +1,32 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–145 + Session 146 + Session 147 Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture.
+**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–147 + Session 148 Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication.
 
 ---
 
 ## ✅ Done
+
+### Session 148 — Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication
+- [x] **Submit Deliverable Modal (Digital Files Mode - `OrderRoom.tsx`)**:
+  - Added drag & drop file upload with visual boundary feedback (`isDraggingFile`).
+  - Added rich selected-file card with file type iconography, file size, pulsing green `Ready for delivery` status badge, and `Replace` / `Remove` actions.
+  - Corrected inspection window copy: states `₦111,600 net` (after 7% platform fee) auto-releases to balance instead of inaccurate ₦120,000.
+- [x] **Verify Live Appearance Modal (Onsite Gig Mode - `OrderRoom.tsx`)**:
+  - Built 4 discrete auto-advancing OTP digit boxes with auto-forward, backspace back-navigation, and paste support.
+  - Added real-time PIN validation against `CLIENT_GENERATED_PIN` ("4821") with emerald success badge.
+  - Eliminated washed-out disabled pink button; implemented clean disabled button state (`bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed`) transitioning to vivid Monologg crimson CTA on verification.
+- [x] **Performer Performance & Analytics Tab (`TalentDashboard.tsx`)**:
+  - Fixed fintech color semantics: eradicated alarming bright red typography on accumulated positive performer income (`₦1,240,000`) and completed projects (`28`), restoring them to high-contrast neutral text with emerald growth badges.
+  - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards.
+  - Refined `Reviews →` link hover micro-interactions and changed tooltip total to high-contrast primary text.
+- [x] **Physical Attributes Screen (`Settings.tsx`)**:
+  - Expanded container to `max-w-4xl` and organized 8 fields into a 2-column responsive layout grouped by *Demographics & Build* and *Appearance & Features*.
+  - Replaced ambiguous `P | S | P` buttons with clear segmented controls (`🔒 Priv` · `🔍 Filter` · `🌐 Public`).
+  - Elevated consent checkbox card and styled Save Attributes with clean disabled state.
+- [x] **Edit Profile / Storefront Editor (`Settings.tsx` & `TalentDashboard.tsx`)**:
+  - Eliminated confusing triple-redundant save triggers; standardized on `Save Changes` CTA inside the form and clean header action.
+  - Corrected Rate Card prices from alarming red text (`var(--color-accent)`) to high-contrast neutral (`var(--color-text-primary)`).
 
 ### Session 147 — Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture
 - [x] **Order Room Dark Mode Contrast & Message Bubbles (`OrderRoom.tsx`)**:

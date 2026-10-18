@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
+**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 95. Inaccurate Gross Escrow Copy in Order Room, Alarming Red Analytics Numbers, Cryptic P-S-P Attributes Controls, and Triple Save Triggers
+- **Severity:** High / Financial Copy Accuracy, UX & Visual Semantics
+- **What happened:**
+  1. In `OrderRoom.tsx`, the 48-hour inspection guarantee copy stated "₦120,000 auto-releases to your balance", incorrectly displaying the client's gross escrow deposit rather than the performer's actual net take-home `₦111,600` (after deducting Monologg's 7% platform fee).
+  2. In `OrderRoom.tsx`, the Onsite verification code input was rendered as an awkward single input with centered dots `••••`, while the unverified button appeared as a washed-out pink tomato pill (`bg-red-300`).
+  3. In `TalentDashboard.tsx`, total accumulated earnings (`₦1,240,000`) and completed projects (`28`) were colored with `var(--color-accent)` (bright red), violating fintech conventions where red strictly connotes losses, negative deltas, or debt.
+  4. In `Settings.tsx`, the Physical Attributes page rendered 8 single-line dropdowns vertically stacked in a narrow 512px column with excessive dead whitespace, accompanied by cryptic `P | S | P` buttons where both Private and Public shared the identical letter "P".
+  5. In `Settings.tsx`, editing the profile rendered 3 competing save triggers at once: a sticky top bar `Save`, an in-form `Save Profile`, and a bottom floating bar `Save Changes`.
+- **Root Cause:** Stale gross balance hardcoding in the escrow modal; missing discrete OTP PIN input architecture; improper semantic usage of `--color-accent` on financial earnings; narrow default container constraint on `section === "attributes"`; and overlapping legacy save triggers.
+- **Fix:**
+  - Corrected Order Room copy to state `₦111,600 net (after 7% platform fee)` auto-releases to balance.
+  - Built 4 discrete auto-advancing OTP digit boxes with auto-forward, backspace back-navigation, paste distribution, and a clean disabled button state.
+  - Replaced red typography on positive earnings and projects with high-contrast neutral primary text and emerald growth chips.
+  - Expanded Physical Attributes to `max-w-4xl`, grouped fields into a responsive 2-column card layout (*Demographics & Build* and *Appearance & Features*), and implemented unambiguous segmented controls (`🔒 Priv` · `🔍 Filter` · `🌐 Public`).
+  - De-duplicated save triggers on the profile editor, retaining an authoritative `Save Changes` CTA inside the form and a clean sticky header action.
+- **Resolution:** Verified with `npx tsc --noEmit` (0 errors) and all 25 test suites passed cleanly (127/127 tests).
 
 ### 94. Order Room Dark Mode Text Contrast Failure, Project Detail Dead Space, and Calendar Marshmallow Day Cells
 - **Severity:** High / Accessibility & Visual Design

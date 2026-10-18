@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–146 + Session 147 Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture.
+**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–147 + Session 148 Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -210,6 +210,21 @@ Key token groups:
   - Balances the Project Detail layout by replacing empty dead space in Tab 4 with a rich 4-stat client track record bar (18 funded projects, 4.9 rating, <2h release speed, 100% escrow secured) and a 3-pillar protection breakdown (Locked Upfront, 48h Auto-Release, Direct Bank Payout).
 - **Connected Calendar Grid Architecture (`TalentDashboard.tsx` — Session 147):**
   - Replaced loose, puffy squircle "marshmallow" tiles with a connected calendar grid container featuring inline month chevrons (`<` and `>`), day count chip, high-contrast day numbers, today indicator, and bottom telemetry legend.
+- **Submit Deliverable & Live Appearance Verification Overhaul (`OrderRoom.tsx` — Session 148):**
+  - Built interactive drag-and-drop file dropzone with visual boundary feedback and rich selected-file card with file type iconography, file size, pulsing green `Ready for delivery` status badge, and `Replace` / `Remove` actions.
+  - Replaced awkward centered dots with 4 discrete auto-advancing OTP digit boxes with auto-forward, backspace back-navigation, paste distribution, active focus rings, and real-time PIN validation against `CLIENT_GENERATED_PIN` ("4821") with emerald success badge.
+  - Corrected inspection window copy: states `₦111,600 net` (after 7% platform fee) auto-releases to balance instead of inaccurate gross deposit ₦120,000.
+  - Eliminated washed-out disabled pink button, establishing a clean disabled button state (`bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed`) that transitions to vivid Monologg crimson CTA on verification.
+- **Financial Metric Semantics & Analytics Metric Elevation (`TalentDashboard.tsx` — Session 148):**
+  - Eradicated alarming red typography on accumulated positive performer income (`₦1,240,000` total earnings) and completed projects (`28`), restoring them to high-contrast neutral text (`var(--color-text-primary)`) accompanied by positive emerald growth indicators (`↑ +₦240,000 this month`, `100% on-time delivery`).
+  - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards for visual cohesion, and updated Rate Card prices to high-contrast neutral text.
+- **Physical Attributes 2-Column Responsive Layout & Unambiguous Visibility (`Settings.tsx` — Session 148):**
+  - Expanded container width from narrow `max-w-lg` (512px) to comfortable `max-w-4xl` to eliminate excessive empty margins.
+  - Reorganized 8 vertically stacked dropdowns into a modern 2-column responsive layout grouped by logical categories: *Demographics & Build* (5 fields) and *Appearance & Features* (3 fields).
+  - Replaced ambiguous `P | S | P` buttons (where two buttons shared the identical letter "P") with an unambiguous, accessible segmented control: `🔒 Priv` · `🔍 Filter` · `🌐 Public`.
+- **Edit Profile Save Action De-duplication (`Settings.tsx` — Session 148):**
+  - Eliminated confusing triple-redundant save triggers (sticky top bar `Save`, in-form `Save Profile`, and floating bottom bar `Save Changes`). Standardized on a single authoritative `Save Changes` CTA inside the form and a clean sticky header action.
+
 
 ### Shared components (`src/app/components/ui/`)
 

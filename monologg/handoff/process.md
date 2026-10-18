@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
+**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,29 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 107: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication (Session 148)
+
+Addressed third tranche of user UI/UX design critiques across 5 targeted screens:
+- **Submit Deliverable Modal — Digital Files Mode (`OrderRoom.tsx`):**
+  - Integrated interactive drag & drop with boundary feedback (`isDraggingFile`), rich selected-file card with file type iconography, file size telemetry, pulsing green `Ready for delivery` status badge, and `Replace` / `Remove` actions.
+  - Corrected inspection window copy: states `₦111,600 net` (after 7% platform fee) auto-releases to balance instead of inaccurate gross deposit ₦120,000.
+- **Verify Live Appearance Modal — Onsite Gig Mode (`OrderRoom.tsx`):**
+  - Built 4 discrete auto-advancing OTP digit boxes with auto-forward, backspace back-navigation, paste distribution, and active focus rings.
+  - Added real-time PIN validation against `CLIENT_GENERATED_PIN` ("4821") with emerald success badge.
+  - Eliminated washed-out disabled pink button, establishing a clean disabled button state (`bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed`) that transitions to vivid Monologg crimson CTA on verification.
+- **Performer Performance & Analytics Tab (`TalentDashboard.tsx`):**
+  - Fixed fintech color semantics: eradicated alarming red typography on accumulated positive performer income (`₦1,240,000` total earnings) and completed projects (`28`), restoring them to high-contrast neutral text (`var(--color-text-primary)`) accompanied by positive emerald growth indicators (`↑ +₦240,000 this month`, `100% on-time delivery`).
+  - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards for visual cohesion, and updated Rate Card prices to high-contrast neutral text.
+- **Physical Attributes 2-Column Responsive Layout & Unambiguous Visibility (`Settings.tsx`):**
+  - Expanded container width from narrow `max-w-lg` (512px) to comfortable `max-w-4xl` to eliminate excessive empty margins.
+  - Reorganized 8 vertically stacked dropdowns into a modern 2-column responsive layout grouped by logical categories: *Demographics & Build* (5 fields) and *Appearance & Features* (3 fields).
+  - Replaced ambiguous `P | S | P` buttons (where two buttons shared the identical letter "P") with an unambiguous, accessible segmented control: `🔒 Priv` · `🔍 Filter` · `🌐 Public`.
+- **Edit Profile Save Action De-duplication (`Settings.tsx` & `TalentDashboard.tsx`):**
+  - Eliminated confusing triple-redundant save triggers (sticky top bar `Save`, in-form `Save Profile`, and floating bottom bar `Save Changes`). Standardized on a single authoritative `Save Changes` CTA inside the form and a clean sticky header action.
+- **Testing & Verification:** Zero TypeScript compilation errors (`npx tsc --noEmit`); all 25 test suites and 127/127 tests passed cleanly (`npm test`).
+
+---
 
 ### Step 106: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture (Session 147)
 

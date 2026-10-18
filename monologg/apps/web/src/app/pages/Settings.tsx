@@ -772,7 +772,7 @@ export function Settings() {
         )}
       </div>
 
-      <main id="main-content" className={`flex-1 px-4 py-5 w-full ${section === "profile" && !isClient ? "max-w-4xl mx-auto" : "max-w-lg mx-auto"}`}>
+      <main id="main-content" className={`flex-1 px-4 py-5 w-full ${(section === "profile" || section === "attributes") && !isClient ? "max-w-4xl mx-auto" : "max-w-lg mx-auto"}`}>
         <AnimatePresence mode="wait">
 
           {/* ── Main Settings Menu ── */}
@@ -1435,8 +1435,8 @@ export function Settings() {
                             <Button variant="secondary" onClick={() => setIsEditingProfile(false)} className="h-11 px-5 text-xs font-semibold">
                               Cancel
                             </Button>
-                            <Button onClick={handleSaveProfile} disabled={savingProfile} className="gap-2 h-11 px-5 text-xs font-semibold">
-                              <Check className="w-4 h-4" /> Save Profile
+                            <Button onClick={handleSaveProfile} disabled={savingProfile} className="gap-2 h-11 px-6 text-xs font-semibold">
+                              <Check className="w-4 h-4" /> {savingProfile ? "Saving…" : "Save Changes"}
                             </Button>
                           </div>
                         </motion.div>
@@ -1569,7 +1569,7 @@ export function Settings() {
                                 <span className="text-[11px] uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
                                   Base Rate
                                 </span>
-                                <span className="font-display text-lg font-bold" style={{ color: "var(--color-accent)" }}>
+                                <span className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   {service.price}
                                 </span>
                               </div>
@@ -1579,15 +1579,6 @@ export function Settings() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Bottom Save Button */}
-                  <Button
-                    className="w-full h-12 text-sm font-semibold"
-                    onClick={handleSaveProfile}
-                    disabled={savingProfile}
-                  >
-                    {savingProfile ? "Saving…" : "Save Changes"}
-                  </Button>
                 </div>
               )}
             </motion.div>
@@ -2075,85 +2066,193 @@ export function Settings() {
 
           {/* ── Physical Attributes (features.md Phase 12A.3, Talent Only) ── */}
           {section === "attributes" && !isClient && (
-            <motion.div key="attributes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-5">
-              <p className="text-xs font-body leading-relaxed" style={s.secondary}>
-                Every field below is optional — fill in only what you're comfortable
-                sharing, any time. Each has its own visibility: <strong>Private</strong> (never
-                shown), <strong>Searchable</strong> (matches a client's filter, value never shown),
-                or <strong>Public</strong> (shown on your profile).
-              </p>
+            <motion.div key="attributes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+              {/* Informational Guidance Banner */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] space-y-1.5">
+                <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  Casting &amp; Physical Specifications
+                </h3>
+                <p className="text-xs font-body leading-relaxed" style={s.secondary}>
+                  Every field below is optional — fill in only what you're comfortable sharing, any time. Each specification has its own granular privacy control: <strong>Private</strong> (only you can see this), <strong>Searchable</strong> (matches client search filters, exact value never disclosed), or <strong>Public</strong> (displayed on your storefront).
+                </p>
+              </div>
 
-              {ATTRIBUTE_FIELDS.map((field) => (
-                <FormField key={field.key as string} label={field.label}>
-                  <div className="flex items-center gap-2">
-                    <select
-                      aria-label={field.label}
-                      value={attrValues[field.key as string] ?? ""}
-                      onChange={(e) => setAttrValues((prev) => ({ ...prev, [field.key as string]: e.target.value }))}
-                      className="flex-1 h-[54px] rounded-[var(--radius-lg)] border px-4 font-body text-base"
-                      style={{ ...s.elevated, color: "var(--color-text-primary)" }}
-                    >
-                      <option value="">Not set</option>
-                      {field.options.map((opt) => (
-                        <option key={opt} value={opt}>{opt.replace(/_/g, " ")}</option>
-                      ))}
-                    </select>
-                    <div className="flex rounded-[var(--radius-lg)] overflow-hidden border shrink-0" style={{ borderColor: "var(--color-hairline)" }}>
-                      {VISIBILITY_LEVELS.map((level) => {
-                        const active = (attrVisibility[field.key as string] ?? "SEARCHABLE") === level;
-                        return (
-                          <button
-                            key={level}
-                            type="button"
-                            aria-label={`${field.label} visibility: ${level}`}
-                            aria-pressed={active}
-                            disabled={!attrValues[field.key as string]}
-                            onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
-                            className="px-2 h-11 text-[10px] font-semibold font-body uppercase tracking-wide disabled:opacity-30"
-                            style={{
-                              background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                              color: active ? "var(--color-accent-on)" : "var(--color-text-tertiary)",
-                            }}
-                          >
-                            {level[0]}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+              {/* Group 1: Demographics & Build */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] space-y-4">
+                <div className="border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                  <h4 className="font-display text-sm font-semibold text-zinc-900 dark:text-zinc-100">Demographics &amp; Build</h4>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Physical measurements and demographic attributes for role casting.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {ATTRIBUTE_FIELDS.filter(f => ["heightRange", "weightRange", "ageRange", "build", "genderPresentation"].includes(f.key as string)).map((field) => {
+                    const currentVal = attrValues[field.key as string] ?? "";
+                    const currentVis = attrVisibility[field.key as string] ?? "SEARCHABLE";
+                    return (
+                      <div key={field.key as string} className="p-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-bold uppercase tracking-wider font-body text-zinc-700 dark:text-zinc-300">
+                            {field.label}
+                          </label>
+                          {/* Segmented Visibility Control */}
+                          <div className="flex items-center rounded-lg border border-zinc-200 dark:border-zinc-700 p-0.5 bg-white dark:bg-zinc-900">
+                            {VISIBILITY_LEVELS.map((level) => {
+                              const active = currentVis === level;
+                              const labels: Record<AttributeVisibility, string> = {
+                                PRIVATE: "🔒 Priv",
+                                SEARCHABLE: "🔍 Filter",
+                                PUBLIC: "🌐 Public",
+                              };
+                              return (
+                                <button
+                                  key={level}
+                                  type="button"
+                                  aria-label={`${field.label} visibility: ${level}`}
+                                  aria-pressed={active}
+                                  disabled={!currentVal}
+                                  onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
+                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                                    active
+                                      ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs"
+                                      : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                  }`}
+                                >
+                                  {labels[level]}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <select
+                          aria-label={field.label}
+                          value={currentVal}
+                          onChange={(e) => setAttrValues((prev) => ({ ...prev, [field.key as string]: e.target.value }))}
+                          className="w-full h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 font-body text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 outline-none focus:border-zinc-900 dark:focus:border-white focus:ring-1 focus:ring-zinc-900/10 transition-colors"
+                        >
+                          <option value="">Not set</option>
+                          {field.options.map((opt) => (
+                            <option key={opt} value={opt}>{opt.replace(/_/g, " ")}</option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Group 2: Appearance & Complexion */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] space-y-4">
+                <div className="border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                  <h4 className="font-display text-sm font-semibold text-zinc-900 dark:text-zinc-100">Appearance &amp; Features</h4>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Complexion, hair, and eye colors for visual character matching.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {ATTRIBUTE_FIELDS.filter(f => ["complexion", "hairColor", "eyeColor"].includes(f.key as string)).map((field) => {
+                    const currentVal = attrValues[field.key as string] ?? "";
+                    const currentVis = attrVisibility[field.key as string] ?? "SEARCHABLE";
+                    return (
+                      <div key={field.key as string} className="p-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-bold uppercase tracking-wider font-body text-zinc-700 dark:text-zinc-300">
+                            {field.label}
+                          </label>
+                          {/* Segmented Visibility Control */}
+                          <div className="flex items-center rounded-lg border border-zinc-200 dark:border-zinc-700 p-0.5 bg-white dark:bg-zinc-900">
+                            {VISIBILITY_LEVELS.map((level) => {
+                              const active = currentVis === level;
+                              const labels: Record<AttributeVisibility, string> = {
+                                PRIVATE: "🔒 Priv",
+                                SEARCHABLE: "🔍 Filter",
+                                PUBLIC: "🌐 Public",
+                              };
+                              return (
+                                <button
+                                  key={level}
+                                  type="button"
+                                  aria-label={`${field.label} visibility: ${level}`}
+                                  aria-pressed={active}
+                                  disabled={!currentVal}
+                                  onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
+                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                                    active
+                                      ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs"
+                                      : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                                  }`}
+                                >
+                                  {labels[level]}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <select
+                          aria-label={field.label}
+                          value={currentVal}
+                          onChange={(e) => setAttrValues((prev) => ({ ...prev, [field.key as string]: e.target.value }))}
+                          className="w-full h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 font-body text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 outline-none focus:border-zinc-900 dark:focus:border-white focus:ring-1 focus:ring-zinc-900/10 transition-colors"
+                        >
+                          <option value="">Not set</option>
+                          {field.options.map((opt) => (
+                            <option key={opt} value={opt}>{opt.replace(/_/g, " ")}</option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Group 3: Casting Notes & Distinctive Features */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] space-y-4">
+                <div>
+                  <h4 className="font-display text-sm font-semibold text-zinc-900 dark:text-zinc-100">Distinctive Features</h4>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Tattoos, piercings, scars, or notable physical traits (up to 120 characters).</p>
+                </div>
+                <FormField label="Distinctive features (up to 120 characters)">
+                  <textarea
+                    maxLength={120}
+                    rows={2}
+                    value={distinctiveFeatures}
+                    onChange={(e) => setDistinctiveFeatures(e.target.value)}
+                    placeholder="e.g. Small scar near left eyebrow, athletic posture, fluent voice delivery"
+                    className="w-full px-4 py-3 rounded-xl text-sm font-body border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900/10 resize-none transition-all"
+                  />
                 </FormField>
-              ))}
+              </div>
 
-              <FormField label="Distinctive features (up to 120 characters)">
-                <textarea
-                  maxLength={120}
-                  rows={2}
-                  value={distinctiveFeatures}
-                  onChange={(e) => setDistinctiveFeatures(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
-                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                />
-              </FormField>
+              {/* Consent Card */}
+              <div className="p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-700 bg-[var(--color-bg-surface)] shadow-2xs">
+                <label className="flex items-start gap-3 text-xs font-body leading-relaxed text-zinc-600 dark:text-zinc-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={consentChecked}
+                    onChange={(e) => setConsentChecked(e.target.checked)}
+                    className="mt-0.5 rounded border-zinc-300 dark:border-zinc-600 text-[var(--color-red)] focus:ring-[var(--color-red)] cursor-pointer"
+                  />
+                  <span>
+                    I consent to storing this information under the visibility settings I've chosen above, and understand it's used for casting search filters only — never automated shortlisting or scoring.
+                  </span>
+                </label>
+              </div>
 
-              <label className="flex items-start gap-2.5 text-xs font-body cursor-pointer" style={s.secondary}>
-                <input
-                  type="checkbox"
-                  checked={consentChecked}
-                  onChange={(e) => setConsentChecked(e.target.checked)}
-                  className="mt-0.5"
-                />
-                I consent to storing this information under the visibility settings I've chosen above, and understand it's used for casting search filters only — never automated shortlisting or scoring.
-              </label>
-
-              <Button className="w-full h-12" onClick={handleSaveAttributes} disabled={savingAttributes || !consentChecked}>
+              {/* Action Buttons with Crisp Disabled State */}
+              <button
+                type="button"
+                className={`w-full h-12 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-xs ${
+                  savingAttributes || !consentChecked
+                    ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed"
+                    : "bg-[var(--color-red)] hover:opacity-95 text-white active:scale-[0.98] cursor-pointer"
+                }`}
+                onClick={handleSaveAttributes}
+                disabled={savingAttributes || !consentChecked}
+              >
                 {savingAttributes ? "Saving…" : "Save Attributes"}
-              </Button>
+              </button>
 
               {attributes && (
                 <button
+                  type="button"
                   onClick={handleDeleteAttributes}
-                  className="w-full h-11 text-sm font-body font-medium flex items-center justify-center gap-2"
-                  style={{ color: "var(--color-error)" }}
+                  className="w-full h-11 text-sm font-body font-medium flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" /> Delete all attribute data
                 </button>
