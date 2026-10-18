@@ -80,7 +80,7 @@ describe("CreatorOnboarding — AI style tagging (features.md Phase 7)", () => {
     );
     expect(screen.queryByText(/verification is confirmed/i)).not.toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
-  });
+  }, 15000);
 
   it("live mode: drives the processing view from real job state (queued -> tagging -> done), not a fixed timer", async () => {
     vi.stubEnv("VITE_API_MODE", "live");

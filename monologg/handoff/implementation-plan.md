@@ -1,11 +1,34 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–153 + Session 154 Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup.
+**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–154 + Session 155 Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog.
 
 ---
 
 ## ✅ Done
+
+### Session 155 — Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog
+- [x] **Dark Mode Text Accessibility in Order Room Modals (`OrderRoom.tsx`)**:
+  - Fixed white-on-white text contrast failure when typing in textarea fields in dark mode.
+  - Added theme-adaptive classes (`dark:bg-[#18181b] dark:border-zinc-800 dark:text-zinc-100`) across all modals: Dispute modal, Decline modal, Submit Deliverable modal, Release Payment modal, Request Revision modal, and Order Details modal.
+  - Explicitly styled textareas (`border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500`).
+  - Upgraded Dispute submit CTA to high-contrast red (`bg-red-600 hover:bg-red-700 text-white font-semibold`).
+  - Fixed review rating textareas and onsite PIN code boxes for dark mode parity.
+- [x] **Client Analytics Metric Cards Parity (`ClientDashboard.tsx`)**:
+  - Re-styled the 4 analytics metric cards to match the Performer's cards layout, padding, header/icon-pill, and typography (Image 3).
+  - Configured top-right icon pills: CreditCard ("Total spend till date"), CheckCircle2 ("Total successful projects"), Users ("Repeat talent rate").
+- [x] **Clickable Average Rating & Client Reviews Modal (`ClientDashboard.tsx`)**:
+  - Configured "Average rating" card with interactive `Reviews >` pill button.
+  - Added `showClientReviewsModal` displaying 3 statistical summary pillars (Total Reviews, Average Rating with 5-star cluster, and Rating Distribution breakdown).
+  - Displayed 4 verified performer reviews with avatar initials, craft roles, timestamps, and authentic testimonials.
+- [x] **Removed Bottom Performance Type Chips (`ClientDashboard.tsx`)**:
+  - Removed redundant `NICHES.map(...)` chip buttons below the filter button.
+- [x] **Talent Discovery Filter Modal Dialog (`ClientDashboard.tsx`)**:
+  - Converted the inline filter accordion into a centered `<Modal strength="strong">` dialog matching Image 5.
+  - Structured filters cleanly: Craft Role / Category, Budget Rate Card Slider, Gender, Age Range, and Location.
+  - Retained "Clear attribute filters" and "Show Performers ({filteredTalents.length})" actions.
+- [x] **Automated Test Validation**:
+  - Validated typecheck (0 errors) and all 25 web test files (128/128 tests passing).
 
 ### Session 154 — Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup
 - [x] **Streamlined Booking Entry Header (`ExternalBookingEntry.tsx`)**:

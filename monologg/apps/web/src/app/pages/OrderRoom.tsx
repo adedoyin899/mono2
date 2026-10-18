@@ -425,14 +425,14 @@ export function OrderRoom() {
       if (savedReview && !ratingEditing) {
         return (
           <div className="px-4 pb-3 pt-1">
-            <div className="p-4 rounded-2xl border bg-white shadow-2xs space-y-2.5" style={{ borderColor: "var(--color-hairline)" }}>
+            <div className="p-4 rounded-2xl border bg-white dark:bg-zinc-900 shadow-2xs space-y-2.5 border-[var(--color-hairline)] dark:border-zinc-800">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+                  <div className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-500">
                     <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-zinc-900 font-body">
+                    <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-body">
                       Your Rating for {targetName}
                     </div>
                     <div className="text-[11px] text-zinc-400">Verified &amp; Recorded on Monologg</div>
@@ -440,7 +440,7 @@ export function OrderRoom() {
                 </div>
                 <button
                   onClick={() => setRatingEditing(true)}
-                  className="text-xs font-medium text-zinc-500 hover:text-zinc-800 underline transition-colors"
+                  className="text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 underline transition-colors"
                 >
                   Edit Review
                 </button>
@@ -451,20 +451,20 @@ export function OrderRoom() {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${i < savedReview.stars ? "fill-amber-400 text-amber-400" : "text-zinc-200"}`}
+                      className={`w-4 h-4 ${i < savedReview.stars ? "fill-amber-400 text-amber-400" : "text-zinc-200 dark:text-zinc-700"}`}
                     />
                   ))}
                 </div>
-                <span className="text-xs font-bold font-mono text-zinc-800">{savedReview.stars}.0</span>
+                <span className="text-xs font-bold font-mono text-zinc-800 dark:text-zinc-200">{savedReview.stars}.0</span>
                 {savedReview.tag && (
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700">
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
                     {savedReview.tag}
                   </span>
                 )}
               </div>
 
               {savedReview.note && (
-                <p className="text-xs text-zinc-600 font-body bg-zinc-50 p-2.5 rounded-xl border border-zinc-100">
+                <p className="text-xs text-zinc-600 dark:text-zinc-300 font-body bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800">
                   &ldquo;{savedReview.note}&rdquo;
                 </p>
               )}
@@ -475,13 +475,13 @@ export function OrderRoom() {
 
       return (
         <div className="px-4 pb-3 pt-1">
-          <div className="p-4 rounded-2xl border bg-white shadow-2xs space-y-3" style={{ borderColor: "var(--color-hairline)" }}>
+          <div className="p-4 rounded-2xl border bg-white dark:bg-zinc-900 shadow-2xs space-y-3 border-[var(--color-hairline)] dark:border-zinc-800">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-semibold text-zinc-900 font-body">
+                <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-body">
                   Rate your experience with {targetName}
                 </div>
-                <div className="text-[11px] text-zinc-500">
+                <div className="text-[11px] text-zinc-500 dark:text-zinc-400">
                   Select stars and a prefilled description
                 </div>
               </div>
@@ -501,7 +501,7 @@ export function OrderRoom() {
                     >
                       <Star
                         className={`w-5 h-5 transition-colors ${
-                          isFilled ? "fill-amber-400 text-amber-400" : "text-zinc-300 hover:text-amber-300"
+                          isFilled ? "fill-amber-400 text-amber-400" : "text-zinc-300 dark:text-zinc-600 hover:text-amber-300"
                         }`}
                       />
                     </button>
@@ -528,7 +528,7 @@ export function OrderRoom() {
                           ? role === "client"
                             ? "bg-purple-600 text-white border-purple-600 shadow-2xs font-medium"
                             : "bg-red-600 text-white border-red-600 shadow-2xs font-medium"
-                          : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                          : "bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-750 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700"
                       }`}
                     >
                       {tag}
@@ -545,7 +545,7 @@ export function OrderRoom() {
                 onChange={(e) => setRatingNote(e.target.value)}
                 rows={2}
                 placeholder={`Write an optional note or review for ${targetName}…`}
-                className="w-full p-2.5 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 text-zinc-900 resize-none focus:outline-none focus:bg-white focus:border-zinc-400 transition-colors"
+                className="w-full p-2.5 text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 resize-none focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
               />
             </div>
 
@@ -595,21 +595,21 @@ export function OrderRoom() {
     if (phase === "deliverables" && role === "client" && isOnsite) {
       return (
         <div className="px-4 pb-3 pt-1">
-          <div className="p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200/80">
+          <div className="p-3.5 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60">
             <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-950">
-                <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-950 dark:text-purple-200">
+                <KeyRound className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                 Onsite Arrival Code
               </div>
               <button
                 onClick={handleCopyPin}
-                className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-purple-200 shadow-2xs hover:bg-purple-50 transition-colors"
+                className="text-[11px] font-semibold text-purple-700 dark:text-purple-300 hover:text-purple-900 dark:hover:text-purple-100 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-purple-200 dark:border-purple-700 shadow-2xs hover:bg-purple-50 dark:hover:bg-zinc-700 transition-colors"
               >
-                {copiedPin ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                {copiedPin ? <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3 h-3" />}
                 {copiedPin ? "Copied" : "Copy Code"}
               </button>
             </div>
-            <p className="text-xs text-purple-900/80 mb-2.5 leading-relaxed">
+            <p className="text-xs text-purple-900/80 dark:text-purple-300 mb-2.5 leading-relaxed">
               Share this 4-digit code with <strong>{talentName}</strong> when they arrive at <strong>Comedy Night, Eko Hotel</strong> to confirm their live attendance:
             </p>
             <div className="flex items-center gap-2">
@@ -617,13 +617,13 @@ export function OrderRoom() {
                 {CLIENT_GENERATED_PIN.split("").map((digit, idx) => (
                   <span
                     key={idx}
-                    className="w-10 h-10 rounded-xl bg-white border border-purple-200 flex items-center justify-center font-mono font-bold text-lg text-purple-950 shadow-2xs"
+                    className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-purple-200 dark:border-purple-800 flex items-center justify-center font-mono font-bold text-lg text-purple-950 dark:text-purple-100 shadow-2xs"
                   >
                     {digit}
                   </span>
                 ))}
               </div>
-              <span className="text-[11px] text-purple-700 font-medium ml-1">
+              <span className="text-[11px] text-purple-700 dark:text-purple-300 font-medium ml-1">
                 Performer will ask for this upon arrival
               </span>
             </div>
@@ -1611,13 +1611,13 @@ export function OrderRoom() {
               initial={{ y: 20, scale: 0.95 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 20, scale: 0.95 }}
-              className="modal-decline-confirm w-full max-w-sm rounded-[var(--radius-lg)] p-6 bg-white border border-zinc-200 shadow-xl"
+              className="modal-decline-confirm w-full max-w-sm rounded-[var(--radius-lg)] p-6 bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="font-display text-xl font-bold mb-2 text-zinc-900">
+              <h3 className="font-display text-xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">
                 Cancel this booking?
               </h3>
-              <p className="text-xs sm:text-sm font-body leading-relaxed text-zinc-600 mb-6">
+              <p className="text-xs sm:text-sm font-body leading-relaxed text-zinc-600 dark:text-zinc-400 mb-6">
                 The client will be refunded and you won&apos;t be paid. Cancelling affects your rating and visibility on Monologg.
               </p>
               <div className="flex items-center gap-3">
@@ -1666,20 +1666,20 @@ export function OrderRoom() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg rounded-2xl bg-white border border-zinc-200 shadow-xl overflow-hidden"
+              className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
                 <div>
-                  <h3 className="font-display text-base font-semibold text-zinc-900">
+                  <h3 className="font-display text-base font-semibold text-zinc-900 dark:text-zinc-100">
                     {deliverableTab === "onsite" ? "Verify Live Appearance" : "Submit Deliverable"}
                   </h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">Starts the 48-hour client review window</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Starts the 48-hour client review window</p>
                 </div>
                 <button
                   onClick={() => setShowSubmitModal(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 dark:text-zinc-400 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1690,14 +1690,14 @@ export function OrderRoom() {
                 <div className="flex items-center p-1 rounded-xl gap-1" style={{ background: "var(--color-bg-elevated)" }}>
                   <button
                     onClick={() => setDeliverableTab("online")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white text-zinc-900 shadow-2xs" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "online" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"}`}
                   >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Digital Files
                   </button>
                   <button
                     onClick={() => setDeliverableTab("onsite")}
-                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white text-zinc-900 shadow-2xs" : "text-zinc-500 hover:text-zinc-800"}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${deliverableTab === "onsite" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs" : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"}`}
                   >
                     <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                     Onsite Gig
@@ -1959,29 +1959,29 @@ export function OrderRoom() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
+              className="w-full max-w-sm rounded-2xl p-6 bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl"
               onClick={e => e.stopPropagation()}
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-50 border border-emerald-100">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-center mb-1 text-zinc-900">Release Payment?</h3>
-              <p className="text-sm text-center text-zinc-500 mb-5">
-                This will transfer <strong className="text-zinc-900">₦120,000</strong> from escrow to {talentName}.
+              <h3 className="font-display text-lg font-semibold text-center mb-1 text-zinc-900 dark:text-zinc-100">Release Payment?</h3>
+              <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-5">
+                This will transfer <strong className="text-zinc-900 dark:text-zinc-100">₦120,000</strong> from escrow to {talentName}.
               </p>
-              <div className="p-3.5 rounded-xl mb-5 space-y-1.5 text-xs" style={{ background: "var(--color-bg-elevated)" }}>
+              <div className="p-3.5 rounded-xl mb-5 space-y-1.5 text-xs border border-zinc-200 dark:border-zinc-700/80" style={{ background: "var(--color-bg-elevated)" }}>
                 <div className="flex justify-between">
                   <span style={{ color: "var(--color-text-secondary)" }}>Base rate</span>
-                  <span className="font-mono font-semibold text-zinc-900">₦120,000</span>
+                  <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">₦120,000</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: "var(--color-text-secondary)" }}>Platform fee (7%)</span>
-                  <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+                  <span className="font-mono text-zinc-500 dark:text-zinc-400 font-medium">-₦8,400</span>
                 </div>
-                <div className="h-px bg-zinc-200 my-1" />
+                <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-zinc-900">Performer receives</span>
-                  <span className="font-mono text-emerald-600 font-bold">₦111,600</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">Performer receives</span>
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">₦111,600</span>
                 </div>
               </div>
               <div className="flex gap-2.5">
@@ -2007,16 +2007,16 @@ export function OrderRoom() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
+              className="w-full max-w-sm rounded-2xl p-6 bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center gap-2 mb-1">
-                <RefreshCw className="w-4 h-4 text-amber-600" />
-                <h3 className="font-display text-base font-semibold text-zinc-900">Request Revision</h3>
+                <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                <h3 className="font-display text-base font-semibold text-zinc-900 dark:text-zinc-100">Request Revision</h3>
               </div>
-              <p className="text-xs text-zinc-500 mb-4">The inspection timer pauses and the order returns to the performer.</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">The inspection timer pauses and the order returns to the performer.</p>
               <textarea
-                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 bg-white placeholder:text-zinc-400 focus:outline-none resize-none mb-4"
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none resize-none mb-4"
                 rows={4}
                 value={revisionNotes}
                 onChange={e => setRevisionNotes(e.target.value)}
@@ -2045,24 +2045,30 @@ export function OrderRoom() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-sm rounded-2xl p-6 bg-white border border-zinc-200 shadow-xl"
+              className="w-full max-w-sm rounded-2xl p-6 bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl"
               onClick={e => e.stopPropagation()}
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-amber-50 border border-amber-100">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50">
+                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-500" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-center mb-1 text-zinc-900">Raise a Dispute</h3>
-              <p className="text-sm text-center text-zinc-500 mb-4">
+              <h3 className="font-display text-lg font-semibold text-center mb-1 text-zinc-900 dark:text-zinc-100">Raise a Dispute</h3>
+              <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-4">
                 Our mediation team will review order evidence. Escrow stays locked until resolved.
               </p>
               <textarea
-                className="w-full px-4 py-3 rounded-xl text-sm border border-zinc-200 bg-zinc-50 mb-4 resize-none focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl text-sm border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-red-500/30"
                 rows={4}
                 placeholder="Describe the issue in detail…"
               />
               <div className="flex gap-2.5">
                 <Button variant="secondary" className="flex-1 h-10 text-sm" onClick={() => setShowDisputeModal(false)}>Cancel</Button>
-                <Button variant="destructive" className="flex-1 h-10 text-sm font-semibold" onClick={() => setShowDisputeModal(false)}>Submit</Button>
+                <button
+                  type="button"
+                  className="flex-1 h-10 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+                  onClick={() => setShowDisputeModal(false)}
+                >
+                  Submit
+                </button>
               </div>
             </motion.div>
           </Modal>
@@ -2077,18 +2083,18 @@ export function OrderRoom() {
               initial={{ y: 16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 16, opacity: 0 }}
-              className="w-full max-w-md rounded-2xl bg-white border border-zinc-200 shadow-xl overflow-hidden max-h-[90vh] flex flex-col"
+              className="w-full max-w-md rounded-2xl bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden max-h-[90vh] flex flex-col"
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 shrink-0">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                 <div>
-                  <h3 className="font-display text-base font-semibold text-zinc-900">Order Details</h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">{orderTitle} · ORD-001</p>
+                  <h3 className="font-display text-base font-semibold text-zinc-900 dark:text-zinc-100">Order Details</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{orderTitle} · ORD-001</p>
                 </div>
                 <button
                   onClick={() => setShowOrderInfoModal(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 text-zinc-400 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 dark:text-zinc-400 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -2106,7 +2112,7 @@ export function OrderRoom() {
                   }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-zinc-500 tracking-normal">Escrow protected</span>
+                    <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tracking-normal">Escrow protected</span>
                     <span
                       className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
                       style={{
@@ -2118,8 +2124,8 @@ export function OrderRoom() {
                       {paymentReleased ? "Released" : "100% Secured"}
                     </span>
                   </div>
-                  <div className="text-2xl font-bold font-mono text-zinc-900 tracking-tight">₦120,000</div>
-                  <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                  <div className="text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100 tracking-tight">₦120,000</div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
                     {paymentReleased
                       ? `Transferred to ${talentName}.`
                       : "Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval."}
@@ -2128,7 +2134,7 @@ export function OrderRoom() {
 
                 {/* Project Lifecycle Phases (Clean, cohesive, responsive cards) */}
                 <div>
-                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-2.5">Project phases</div>
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500 mb-2.5">Project phases</div>
                   <div className="space-y-2">
                     {PHASES.map((p, idx) => {
                       const isPast = idx < phaseIndex;
@@ -2138,10 +2144,10 @@ export function OrderRoom() {
                           key={p.id}
                           className={`p-3 rounded-xl border transition-all ${
                             isCurrent
-                              ? "bg-zinc-50/90 border-zinc-300 shadow-2xs"
+                              ? "bg-zinc-50/90 dark:bg-zinc-800/80 border-zinc-300 dark:border-zinc-600 shadow-2xs"
                               : isPast
-                                ? "bg-white border-zinc-100"
-                                : "bg-white border-zinc-100/70 opacity-60"
+                                ? "bg-white dark:bg-zinc-900/60 border-zinc-100 dark:border-zinc-800"
+                                : "bg-white dark:bg-zinc-900/40 border-zinc-100/70 dark:border-zinc-800/50 opacity-60"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -2152,28 +2158,28 @@ export function OrderRoom() {
                                     ? "bg-emerald-600 text-white"
                                     : isCurrent
                                       ? (role === "talent" ? "bg-red-600 text-white" : "bg-purple-600 text-white")
-                                      : "bg-zinc-200 text-zinc-500"
+                                      : "bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
                                 }`}
                               >
                                 {isPast ? "✓" : idx + 1}
                               </span>
-                              <span className={`text-xs font-semibold truncate ${isCurrent ? "text-zinc-900" : "text-zinc-700"}`}>
+                              <span className={`text-xs font-semibold truncate ${isCurrent ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-700 dark:text-zinc-300"}`}>
                                 {p.label}
                               </span>
                             </div>
                             <span
                               className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${
                                 isPast
-                                  ? "bg-emerald-50 text-emerald-700"
+                                  ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
                                   : isCurrent
-                                    ? "bg-amber-50 text-amber-700 font-semibold"
-                                    : "bg-zinc-100 text-zinc-400"
+                                    ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-semibold"
+                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
                               }`}
                             >
                               {isPast ? "Completed" : isCurrent ? (phase === "review" ? formatCountdown(timerSeconds) : "In Progress") : "Upcoming"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-500 mt-1 pl-7 leading-relaxed">
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 pl-7 leading-relaxed">
                             {p.id === "briefing" && "Scope and requirements agreed."}
                             {p.id === "deliverables" && (isOnsite ? "Live performance & onsite check-in." : "Deliverable submission & files staged.")}
                             {p.id === "review" && "48-hour client review window."}
@@ -2187,53 +2193,53 @@ export function OrderRoom() {
 
                 {/* Onsite Arrival Code: VISIBLE TO CLIENT ONLY (performer must not see this) */}
                 {isOnsite && role === "client" && (
-                  <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200/80 space-y-1.5">
+                  <div className="p-3.5 rounded-xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-purple-950 flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="text-xs font-semibold text-purple-950 dark:text-purple-200 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         Arrival Verification Code
                       </span>
-                      <span className="font-mono text-sm font-bold tracking-widest px-2.5 py-0.5 rounded-lg bg-white border border-purple-200 text-purple-900 shadow-2xs">
+                      <span className="font-mono text-sm font-bold tracking-widest px-2.5 py-0.5 rounded-lg bg-white dark:bg-zinc-900 border border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-200 shadow-2xs">
                         {CLIENT_GENERATED_PIN}
                       </span>
                     </div>
-                    <p className="text-xs text-purple-800/80">
+                    <p className="text-xs text-purple-800/80 dark:text-purple-300">
                       Share this 4-digit code with {talentName} upon arrival to verify attendance.
                     </p>
                   </div>
                 )}
 
                 {/* Streamlined Payment Summary */}
-                <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1.5 text-xs">
-                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 mb-1">
+                <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/80 space-y-1.5 text-xs">
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500 mb-1">
                     {role === "client" ? "Escrow deposit summary" : "Payout summary"}
                   </div>
-                  <div className="flex justify-between items-center text-zinc-600">
+                  <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
                     <span>Base rate</span>
-                    <span className="font-mono font-medium text-zinc-900">₦120,000</span>
+                    <span className="font-mono font-medium text-zinc-900 dark:text-zinc-100">₦120,000</span>
                   </div>
                   {role === "client" ? (
                     <>
-                      <div className="flex justify-between items-center text-zinc-600">
+                      <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
                         <span>Escrow protection fee (12%)</span>
-                        <span className="font-mono text-zinc-700 font-medium">+₦14,400</span>
+                        <span className="font-mono text-zinc-700 dark:text-zinc-300 font-medium">+₦14,400</span>
                       </div>
-                      <div className="h-px bg-zinc-200 my-1" />
-                      <div className="flex justify-between items-center font-semibold text-zinc-900">
+                      <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
+                      <div className="flex justify-between items-center font-semibold text-zinc-900 dark:text-zinc-100">
                         <span>Total deposited</span>
-                        <span className="font-mono text-purple-700 text-sm font-bold">₦134,400</span>
+                        <span className="font-mono text-purple-700 dark:text-purple-400 text-sm font-bold">₦134,400</span>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="flex justify-between items-center text-zinc-600">
+                      <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
                         <span>Platform fee (7%)</span>
-                        <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
+                        <span className="font-mono text-zinc-500 dark:text-zinc-400 font-medium">-₦8,400</span>
                       </div>
-                      <div className="h-px bg-zinc-200 my-1" />
-                      <div className="flex justify-between items-center font-semibold text-zinc-900">
+                      <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
+                      <div className="flex justify-between items-center font-semibold text-zinc-900 dark:text-zinc-100">
                         <span>You receive</span>
-                        <span className="font-mono text-emerald-600 text-sm font-bold">₦111,600</span>
+                        <span className="font-mono text-emerald-600 dark:text-emerald-400 text-sm font-bold">₦111,600</span>
                       </div>
                     </>
                   )}
@@ -2241,7 +2247,7 @@ export function OrderRoom() {
 
                 {/* Participants */}
                 <div>
-                  <div className="text-[11px] font-semibold tracking-normal mb-2 text-zinc-400">Participants</div>
+                  <div className="text-[11px] font-semibold tracking-normal mb-2 text-zinc-400 dark:text-zinc-500">Participants</div>
                   <div className="space-y-2">
                     {[
                       { name: talentName, role: "Performer", initials: talentInitials, color: "var(--color-mono-red)", bg: "var(--color-red-soft)" },
@@ -2252,11 +2258,11 @@ export function OrderRoom() {
                           {p.initials}
                         </Avatar>
                         <div>
-                          <div className="text-xs font-semibold text-zinc-900 flex items-center gap-1">
+                          <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
                             {p.name}
                             <Shield className="w-3 h-3 text-emerald-600" />
                           </div>
-                          <div className="text-[11px] text-zinc-400">{p.role}</div>
+                          <div className="text-[11px] text-zinc-400 dark:text-zinc-500">{p.role}</div>
                         </div>
                       </div>
                     ))}

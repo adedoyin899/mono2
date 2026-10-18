@@ -413,7 +413,7 @@ export function ClientDashboard() {
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [showAttributeFilters, setShowAttributeFilters] = useState(false);
-  const [showMoreFiltersModal, setShowMoreFiltersModal] = useState(false);
+  const [showClientReviewsModal, setShowClientReviewsModal] = useState(false);
   const [attributeFilters, setAttributeFilters] = useState<TalentFilters>({});
   const [maxBudgetSlider, setMaxBudgetSlider] = useState<number>(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -1452,234 +1452,218 @@ export function ClientDashboard() {
                   </div>
                 )}
 
-                {/* Attribute filters — features.md Phase 12A.3, PWA-10. */}
-                {showAttributeFilters && (
-                  <div
-                    className="rounded-3xl p-5 sm:p-6 mb-6 space-y-5 border shadow-[var(--shadow-card)]"
-                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
-                  >
-                    {/* Panel Header */}
-                    <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                      <div className="flex items-center gap-2.5">
-                        <SlidersHorizontal className="w-5 h-5 text-[var(--color-accent)]" />
-                        <div>
-                          <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                            Filter Performers
-                          </h3>
-                          <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                            Filter by craft niche, budget rate card, gender, age, and location
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setShowAttributeFilters(false)}
-                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] transition-colors"
-                        style={{ color: "var(--color-text-tertiary)" }}
-                        aria-label="Close filters panel"
+                {/* Filter Performers Modal — Modal dialog matching Performer's own filter modal (Image 5) */}
+                <AnimatePresence>
+                  {showAttributeFilters && (
+                    <Modal onClose={() => setShowAttributeFilters(false)} strength="strong">
+                      <motion.div
+                        initial={{ y: 20, scale: 0.96, opacity: 0 }}
+                        animate={{ y: 0, scale: 1, opacity: 1 }}
+                        exit={{ y: 20, scale: 0.96, opacity: 0 }}
+                        className="w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
+                        style={{
+                          background: "var(--color-bg-surface)",
+                          border: "1px solid var(--color-border-default)",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* 1. Category / Craft Role */}
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                        Category / Craft Role
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {NICHES.map((niche) => {
-                          const active = selectedNiche === niche;
-                          return (
-                            <button
-                              key={niche}
-                              type="button"
-                              onClick={() => setSelectedNiche(niche)}
-                              className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body transition-all ${
-                                active ? "shadow-sm" : "hover:border-[var(--color-border-strong)]"
-                              }`}
-                              style={{
-                                background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                                color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                                border: active ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
-                              }}
-                            >
-                              {niche}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* 2. Maximum Rate Card (Budget Slider) */}
-                    <div className="p-3.5 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
-                          Budget (Rate Card)
-                        </label>
-                        <span className="font-mono text-xs font-bold" style={{ color: "var(--color-accent)" }}>
-                          {maxBudgetSlider === 0 ? "Any Budget" : `Up to ₦${maxBudgetSlider.toLocaleString()}`}
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={150000}
-                        step={5000}
-                        value={maxBudgetSlider}
-                        onChange={(e) => setMaxBudgetSlider(Number(e.target.value))}
-                        className="w-full accent-[var(--color-accent)] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
-                      />
-                      <div className="flex justify-between text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
-                        <span>₦0 (Any)</span>
-                        <span>₦75k</span>
-                        <span>₦150k+</span>
-                      </div>
-                    </div>
-
-                    {/* 3. Physical Attributes (Height, Build, Complexion, Hair, Presentation) */}
-                    <div className="space-y-3 pt-1">
-                      {ATTRIBUTE_FILTER_FIELDS.map((field) => (
-                        <div key={field.key as string}>
-                          <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                            {field.label}
+                        {/* Header */}
+                        <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                          <div className="flex items-center gap-2.5">
+                            <SlidersHorizontal className="w-5 h-5 text-[var(--color-accent)]" />
+                            <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              Filter Performers
+                            </h3>
                           </div>
-                          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide flex-wrap">
-                            {field.options.map((opt) => {
-                              const active = attributeFilters[field.key] === opt;
+                          <button
+                            onClick={() => setShowAttributeFilters(false)}
+                            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] transition-colors"
+                            style={{ color: "var(--color-text-tertiary)" }}
+                            aria-label="Close filters"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* 1. Category / Craft Role */}
+                        <div>
+                          <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-2" style={{ color: "var(--color-text-secondary)" }}>
+                            Category / Craft Role
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {NICHES.map((niche) => {
+                              const active = selectedNiche === niche;
                               return (
                                 <button
-                                  key={opt}
+                                  key={niche}
                                   type="button"
-                                  onClick={() => toggleAttributeFilter(field.key, opt)}
-                                  aria-pressed={active}
-                                  className="px-2.5 py-1 rounded-full text-[11px] font-medium font-body transition-all"
+                                  onClick={() => setSelectedNiche(niche)}
+                                  className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body transition-all ${
+                                    active ? "shadow-sm" : "hover:border-[var(--color-border-strong)]"
+                                  }`}
                                   style={{
                                     background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                                    color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                                    border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                    color: active ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                                    border: active ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
                                   }}
                                 >
-                                  {opt.replace(/_/g, " ")}
+                                  {niche}
                                 </button>
                               );
                             })}
                           </div>
                         </div>
-                      ))}
-                    </div>
 
-                    {/* 4. Demographics (Age Range & Location) */}
-                    <div className="space-y-3 pt-1">
-                      {/* Age */}
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Age Range
+                        {/* 2. Budget (Rate Card) Slider */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-secondary)" }}>
+                              Minimum Budget
+                            </label>
+                            <span className="font-mono text-xs font-bold" style={{ color: "var(--color-accent)" }}>
+                              {maxBudgetSlider === 0 ? "Any Budget" : `Up to ₦${maxBudgetSlider.toLocaleString()}`}
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={150000}
+                            step={5000}
+                            value={maxBudgetSlider}
+                            onChange={(e) => setMaxBudgetSlider(Number(e.target.value))}
+                            className="w-full accent-[var(--color-accent)] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
+                          />
+                          <div className="flex justify-between text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                            <span>₦0 (Any)</span>
+                            <span>₦75k</span>
+                            <span>₦150k+</span>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {[
-                            { label: "18–25", val: "RANGE_18_25" },
-                            { label: "26–35", val: "RANGE_26_35" },
-                            { label: "36–45", val: "RANGE_36_45" },
-                            { label: "46–55", val: "RANGE_46_55" },
-                            { label: "56–65", val: "RANGE_56_65" },
-                            { label: "65+", val: "OVER_65" },
-                          ].map(({ label, val }) => {
-                            const active = attributeFilters.ageRange === val;
-                            return (
-                              <button
-                                key={val}
-                                type="button"
-                                onClick={() => toggleAttributeFilter("ageRange", val)}
-                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
-                                style={{
-                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
+
+                        {/* 3. Gender Filter */}
+                        <div>
+                          {ATTRIBUTE_FILTER_FIELDS.map((field) => (
+                            <div key={field.key as string}>
+                              <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                                {field.label}
+                              </label>
+                              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide flex-wrap">
+                                {field.options.map((opt) => {
+                                  const active = attributeFilters[field.key] === opt;
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => toggleAttributeFilter(field.key, opt)}
+                                      aria-pressed={active}
+                                      className="px-2.5 py-1 rounded-full text-[11px] font-medium font-body transition-all"
+                                      style={{
+                                        background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                        color: active ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                                        border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                      }}
+                                    >
+                                      {opt.replace(/_/g, " ")}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
 
-                      {/* Location */}
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Location
+                        {/* 4. Age Range Filter */}
+                        <div>
+                          <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                            Age Range
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { label: "18–25", val: "RANGE_18_25" },
+                              { label: "26–35", val: "RANGE_26_35" },
+                              { label: "36–45", val: "RANGE_36_45" },
+                              { label: "46–55", val: "RANGE_46_55" },
+                              { label: "56–65", val: "RANGE_56_65" },
+                              { label: "65+", val: "OVER_65" },
+                            ].map(({ label, val }) => {
+                              const active = attributeFilters.ageRange === val;
+                              return (
+                                <button
+                                  key={val}
+                                  type="button"
+                                  onClick={() => toggleAttributeFilter("ageRange", val)}
+                                  className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
+                                  style={{
+                                    background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                    color: active ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                                    border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                  }}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {["All", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Accra"].map((loc) => {
-                            const active = (!attributeFilters.location && loc === "All") || attributeFilters.location === loc;
-                            return (
-                              <button
-                                key={loc}
-                                type="button"
-                                onClick={() => {
-                                  setAttributeFilters(prev => ({
-                                    ...prev,
-                                    location: loc === "All" || prev.location === loc ? undefined : loc,
-                                  }));
-                                }}
-                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
-                                style={{
-                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                                }}
-                              >
-                                {loc}
-                              </button>
-                            );
-                          })}
+
+                        {/* 5. Location Filter */}
+                        <div>
+                          <label className="block text-xs uppercase font-semibold font-body tracking-wider mb-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                            Location
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {["All", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Accra"].map((loc) => {
+                              const active = (!attributeFilters.location && loc === "All") || attributeFilters.location === loc;
+                              return (
+                                <button
+                                  key={loc}
+                                  type="button"
+                                  onClick={() => {
+                                    setAttributeFilters(prev => ({
+                                      ...prev,
+                                      location: loc === "All" || prev.location === loc ? undefined : loc,
+                                    }));
+                                  }}
+                                  className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
+                                  style={{
+                                    background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                    color: active ? "var(--color-accent-on)" : "var(--color-text-secondary)",
+                                    border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                  }}
+                                >
+                                  {loc}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
-                    {/* Panel Footer */}
-                    <div className="pt-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--color-hairline)" }}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAttributeFilters({});
-                          setMaxBudgetSlider(0);
-                          setSelectedNiche("All");
-                        }}
-                        className="px-3.5 py-1.5 rounded-xl text-xs font-body font-medium flex items-center gap-1.5 hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
-                        style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-default)" }}
-                      >
-                        <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-secondary)" }} />
-                        Clear attribute filters
-                      </button>
+                        {/* Footer */}
+                        <div className="pt-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--color-hairline)" }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAttributeFilters({});
+                              setMaxBudgetSlider(0);
+                              setSelectedNiche("All");
+                            }}
+                            className="text-xs font-semibold font-body hover:underline"
+                            style={{ color: "var(--color-text-secondary)" }}
+                          >
+                            Clear attribute filters
+                          </button>
 
-                      <Button
-                        className="h-9 px-4 text-xs font-bold"
-                        onClick={() => setShowAttributeFilters(false)}
-                      >
-                        Show Performers ({filteredTalents.length})
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Quick Niche pills */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
-                  {NICHES.map(niche => (
-                    <button
-                      key={niche}
-                      onClick={() => setSelectedNiche(niche)}
-                      className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
-                      style={{
-                        background: selectedNiche === niche ? "var(--color-accent)" : "var(--color-bg-surface)",
-                        color: selectedNiche === niche ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
-                        border: `1px solid ${selectedNiche === niche ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                      }}
-                    >
-                      {niche}
-                    </button>
-                  ))}
-                </div>
+                          <Button
+                            className="h-10 px-5 text-xs font-bold"
+                            onClick={() => setShowAttributeFilters(false)}
+                          >
+                            Show Performers ({filteredTalents.length})
+                          </Button>
+                        </div>
+                      </motion.div>
+                    </Modal>
+                  )}
+                </AnimatePresence>
 
                 {/* Talent grid */}
                 {filteredTalents.length === 0 ? (
@@ -3739,30 +3723,77 @@ export function ClientDashboard() {
                     </div>
                   ) : (
                     <>
-                      {/* 4 Metric Cards */}
+                      {/* 4 Metric Cards (Designed in exact parity with Performer's cards — Image 3) */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
-                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Total spend till date</div>
-                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">{currentData.totalSpend}</div>
-                          <div className="text-xs font-body font-medium mt-2 text-emerald-600 dark:text-emerald-400">{currentData.spendSubtext}</div>
-                        </div>
-                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
-                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Total successful projects</div>
-                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-accent)] tracking-tight">{currentData.successfulProjects}</div>
-                          <div className="text-xs font-body font-medium mt-2 text-[var(--color-text-secondary)]">{currentData.projectsSubtext}</div>
-                        </div>
-                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
-                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Average rating</div>
-                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight flex items-center gap-1.5">
-                            <span>{currentData.avgRating}</span>
-                            <Star className="w-5 h-5 fill-amber-500 text-amber-500 inline shrink-0" />
+                        {/* Card 1: Total spend till date */}
+                        <div
+                          className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Total spend till date</div>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                              <CreditCard className="w-3.5 h-3.5" />
+                            </div>
                           </div>
-                          <div className="text-xs font-body font-medium mt-2 text-[var(--color-text-tertiary)]">{currentData.ratingSubtext}</div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.totalSpend}</div>
+                          <div className="text-xs font-body mt-1 font-semibold" style={{ color: "var(--color-success)" }}>{currentData.spendSubtext}</div>
                         </div>
-                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
-                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Repeat talent rate</div>
-                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">{currentData.repeatRate}</div>
-                          <div className="text-xs font-body font-medium mt-2 text-emerald-600 dark:text-emerald-400">{currentData.repeatSubtext}</div>
+
+                        {/* Card 2: Total successful projects */}
+                        <div
+                          className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Total successful projects</div>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            </div>
+                          </div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>{currentData.successfulProjects}</div>
+                          <div className="text-xs font-body mt-1 flex items-center gap-1.5" style={{ color: "var(--color-text-secondary)" }}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span>{currentData.projectsSubtext}</span>
+                          </div>
+                        </div>
+
+                        {/* Card 3: Average rating (Clickable to open Client Reviews Modal) */}
+                        <div
+                          onClick={() => setShowClientReviewsModal(true)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setShowClientReviewsModal(true); }}
+                          className="p-4 sm:p-5 rounded-[var(--radius-xl)] cursor-pointer transition-all hover:border-[var(--color-accent)] hover:shadow-md group"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
+                            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-[var(--color-accent)] transition-all flex items-center gap-0.5">
+                              Reviews <ChevronRight className="w-3 h-3 inline" />
+                            </span>
+                          </div>
+                          <div className="font-display text-2xl font-bold tnum flex items-center gap-1.5" style={{ color: "var(--color-text-primary)" }}>
+                            <span>{currentData.avgRating}</span>
+                          </div>
+                          <div className="text-xs font-body mt-1 transition-colors group-hover:text-[var(--color-accent)]" style={{ color: "var(--color-text-secondary)" }}>
+                            {currentData.ratingSubtext}
+                          </div>
+                        </div>
+
+                        {/* Card 4: Repeat talent rate */}
+                        <div
+                          className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:shadow-md"
+                          style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="text-xs font-body font-medium tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Repeat talent rate</div>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
+                              <Users className="w-3.5 h-3.5" />
+                            </div>
+                          </div>
+                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.repeatRate}</div>
+                          <div className="text-xs font-body mt-1 font-semibold" style={{ color: "var(--color-success)" }}>{currentData.repeatSubtext}</div>
                         </div>
                       </div>
 
@@ -4113,165 +4144,197 @@ export function ClientDashboard() {
             )}
           </AnimatePresence>
 
-          {/* More Filters Modal */}
+          {/* Client Reviews & Ratings Modal (Opens when clicking Average Rating card or Reviews >) */}
           <AnimatePresence>
-            {showMoreFiltersModal && (
-              <Modal onClose={() => setShowMoreFiltersModal(false)}>
+            {showClientReviewsModal && (
+              <Modal onClose={() => setShowClientReviewsModal(false)}>
                 <motion.div
-                  initial={{ y: 20, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.95 }}
-                  className="w-full max-w-lg rounded-[var(--radius-xl)] p-6 max-h-[85vh] overflow-y-auto space-y-5"
-                  style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-modal)" }}
-                  onClick={e => e.stopPropagation()}
+                  initial={{ y: 20, scale: 0.95 }}
+                  animate={{ y: 0, scale: 1 }}
+                  exit={{ y: 20, scale: 0.95 }}
+                  className="w-full max-w-2xl rounded-2xl p-6 relative max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                  {/* Modal Header */}
+                  <div className="flex items-start justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                     <div>
-                      <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>Filter Performers</h3>
-                      <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                        Filter by age, gender, budget, and location
+                      <h3 className="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                        Reviews
+                      </h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-body mt-0.5">
+                        Authentic feedback and ratings from performers and creators
                       </p>
                     </div>
                     <button
-                      onClick={() => setShowMoreFiltersModal(false)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
-                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
-                      aria-label="Close filters modal"
+                      onClick={() => setShowClientReviewsModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                      aria-label="Close reviews modal"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="space-y-4">
-                    {/* 1. Age Filter */}
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                        Age
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[
-                          { label: "18–25", val: "RANGE_18_25" },
-                          { label: "26–35", val: "RANGE_26_35" },
-                          { label: "36–45", val: "RANGE_36_45" },
-                          { label: "46–55", val: "RANGE_46_55" },
-                          { label: "56–65", val: "RANGE_56_65" },
-                          { label: "65+", val: "OVER_65" },
-                        ].map(({ label, val }) => {
-                          const active = attributeFilters.ageRange === val;
-                          return (
-                            <button
-                              key={val}
-                              type="button"
-                              onClick={() => toggleAttributeFilter("ageRange", val)}
-                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
-                              style={{
-                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
-                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
-                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
-                              }}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* 2. Gender Filter */}
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                        Gender
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[
-                          { label: "Female", val: "FEMININE" },
-                          { label: "Male", val: "MASCULINE" },
-                          { label: "Non-Binary", val: "NON_BINARY" },
-                          { label: "Androgynous", val: "ANDROGYNOUS" },
-                        ].map(({ label, val }) => {
-                          const active = attributeFilters.genderPresentation === val;
-                          return (
-                            <button
-                              key={val}
-                              type="button"
-                              onClick={() => toggleAttributeFilter("genderPresentation", val)}
-                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
-                              style={{
-                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
-                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
-                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
-                              }}
-                            >
-                              {label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* 3. Budget Slider */}
-                    <div className="p-3.5 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
-                          Budget (Rate Card)
-                        </label>
-                        <span className="font-mono text-xs font-bold" style={{ color: "#7B00FE" }}>
-                          {maxBudgetSlider === 0 ? "Any Budget" : `Up to ₦${maxBudgetSlider.toLocaleString()}`}
+                  {/* 3 Statistical Pillars */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-3.5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                    {/* Pillar 1: Total Reviews */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">
+                        Total Reviews
+                      </span>
+                      <div className="my-1.5 flex items-baseline gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          4
+                        </span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          ✓ 100% Verified
                         </span>
                       </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={150000}
-                        step={5000}
-                        value={maxBudgetSlider}
-                        onChange={(e) => setMaxBudgetSlider(Number(e.target.value))}
-                        className="w-full accent-[#7B00FE] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
-                      />
-                      <div className="flex justify-between text-[11px] font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
-                        <span>₦0 (Any)</span>
-                        <span>₦75k</span>
-                        <span>₦150k+</span>
-                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Zero disputes filed
+                      </span>
                     </div>
 
-                    {/* 4. Location Filter */}
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                        Location
+                    {/* Pillar 2: Average Rating */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
+                      <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 font-body">
+                        Average Rating
+                      </span>
+                      <div className="my-1.5 flex items-center gap-2">
+                        <span className="font-display text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+                          4.9
+                        </span>
+                        <div className="flex items-center text-amber-500 text-sm tracking-tight" aria-label="5 stars">
+                          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {["All", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Accra"].map((loc) => {
-                          const active = (!attributeFilters.location && loc === "All") || attributeFilters.location === loc;
-                          return (
-                            <button
-                              key={loc}
-                              type="button"
-                              onClick={() => {
-                                setAttributeFilters(prev => ({
-                                  ...prev,
-                                  location: loc === "All" || prev.location === loc ? undefined : loc,
-                                }));
-                              }}
-                              className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all cursor-pointer"
-                              style={{
-                                background: active ? "#7B00FE" : "var(--color-bg-elevated)",
-                                color: active ? "#FFFFFF" : "var(--color-text-secondary)",
-                                border: `1px solid ${active ? "#7B00FE" : "var(--color-border-default)"}`,
-                              }}
-                            >
-                              {loc}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                        Top 5% client on Monologg
+                      </span>
+                    </div>
+
+                    {/* Pillar 3: Rating Distribution Bars */}
+                    <div className="p-3.5 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-center space-y-1">
+                      {[
+                        { stars: 5, count: 3, pct: 75, barColor: "bg-teal-500 dark:bg-teal-400" },
+                        { stars: 4, count: 1, pct: 25, barColor: "bg-amber-500 dark:bg-amber-400" },
+                        { stars: 3, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                        { stars: 2, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                        { stars: 1, count: 0, pct: 0, barColor: "bg-zinc-200 dark:bg-zinc-700" },
+                      ].map((item) => (
+                        <div key={item.stars} className="flex items-center gap-1.5 text-[10px]">
+                          <span className="w-5 text-zinc-600 dark:text-zinc-400 font-mono text-right flex items-center justify-end gap-0.5">
+                            {item.stars}<span className="text-amber-500 text-[9px]">★</span>
+                          </span>
+                          <div className="flex-1 h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-700 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${item.barColor} transition-all duration-300`}
+                              style={{ width: `${item.pct}%` }}
+                            />
+                          </div>
+                          <span className="w-4 text-zinc-400 font-mono text-right text-[10px]">
+                            {item.count}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                    <Button variant="secondary" className="flex-1 h-11 text-xs" onClick={() => { setAttributeFilters({}); setMaxBudgetSlider(0); }}>
-                      Reset Filters
-                    </Button>
-                    <Button className="flex-1 h-11 text-xs font-bold" style={{ background: "#7B00FE", color: "#FFFFFF" }} onClick={() => setShowMoreFiltersModal(false)}>
-                      Apply Filters {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ""}
+                  {/* Reviews List */}
+                  <div className="py-4 space-y-3.5 overflow-y-auto flex-1">
+                    {[
+                      {
+                        name: "Adaeze Obi",
+                        initials: "AO",
+                        role: "Lead Voice Artist · Commercial VO",
+                        rating: 5.0,
+                        date: "Oct 2026",
+                        note: "FilmCraft Studios provides the clearest creative briefs in Nollywood. Milestones are funded upfront in escrow and released immediately upon review.",
+                        tags: ["Clear brief & requirements", "Prompt milestone release"],
+                        badgeBg: "var(--color-red-soft)",
+                        badgeColor: "var(--color-mono-red)",
+                      },
+                      {
+                        name: "Chidi Okeke",
+                        initials: "CO",
+                        role: "Stage & Screen Actor · Feature Film Audition",
+                        rating: 5.0,
+                        date: "Sep 2026",
+                        note: "Incredible team to work with. Rehearsal expectations were crystal clear and communication through Monologg order room was seamless.",
+                        tags: ["Fast turnaround", "Professional & respectful"],
+                        badgeBg: "var(--color-purple-soft)",
+                        badgeColor: "var(--color-mono-purple)",
+                      },
+                      {
+                        name: "Kofi Mensah",
+                        initials: "KM",
+                        role: "Compere & Host · Corporate Gala 2026",
+                        rating: 4.8,
+                        date: "Aug 2026",
+                        note: "Very organized event production team. Prompt check-in PIN exchange and instant escrow settlement upon event completion.",
+                        tags: ["Prompt milestone release", "Would work with again"],
+                        badgeBg: "var(--color-accent-soft)",
+                        badgeColor: "var(--color-accent)",
+                      },
+                      {
+                        name: "Fatima Bello",
+                        initials: "FB",
+                        role: "Commercial Model · Brand Campaign",
+                        rating: 4.9,
+                        date: "Jul 2026",
+                        note: "Superb client experience. Creative direction was detailed, respectful, and constructive. Highly recommend booking with them.",
+                        tags: ["Creative & professional", "Clear brief & requirements"],
+                        badgeBg: "var(--color-red-soft)",
+                        badgeColor: "var(--color-mono-red)",
+                      },
+                    ].map((rev, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-xl border bg-zinc-50/60 dark:bg-zinc-800/40 border-zinc-200/80 dark:border-zinc-800 space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <Avatar size="sm" className="w-8 h-8 text-xs font-semibold shrink-0" background={rev.badgeBg} color={rev.badgeColor}>
+                              {rev.initials}
+                            </Avatar>
+                            <div>
+                              <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                                {rev.name}
+                                <span className="text-[10px] font-normal text-zinc-400">· {rev.date}</span>
+                              </div>
+                              <div className="text-[11px] text-zinc-500 dark:text-zinc-400">{rev.role}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 text-xs font-bold font-mono">
+                            <span>★</span>
+                            <span>{rev.rating.toFixed(1)}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-zinc-700 dark:text-zinc-300 font-body leading-relaxed">
+                          &ldquo;{rev.note}&rdquo;
+                        </p>
+
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {rev.tags.map((t, tidx) => (
+                            <span
+                              key={tidx}
+                              className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
+                            >
+                              ✓ {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 shrink-0 flex items-center justify-between">
+                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                      Ratings verified by Monologg Escrow
+                    </span>
+                    <Button variant="secondary" className="h-9 px-4 text-xs font-semibold" onClick={() => setShowClientReviewsModal(false)}>
+                      Close
                     </Button>
                   </div>
                 </motion.div>

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
+**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,28 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 114: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog (Session 155)
+
+Addressed 4 user requests based on visual references across Order Room dark mode accessibility, Client Analytics cards performer parity, clickable ratings modal, removal of bottom quick niche chips, and talent discovery filter modalization:
+- **Dark Mode Accessible Form Inputs in Order Room:**
+  - Resolved white-on-white text contrast failure when typing in textarea inputs across modals.
+  - Added theme-adaptive classes (`dark:bg-[#18181b] dark:border-zinc-800 dark:text-zinc-100`) to Dispute modal, Decline modal, Submit Deliverable modal, Release Payment modal, Request Revision modal, Order Details modal, Review submission form, and PIN code verification inputs.
+  - Form textareas styled with `border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500`.
+  - Upgraded Dispute submit CTA to high-contrast red (`bg-red-600 hover:bg-red-700 text-white font-semibold`).
+- **Client Analytics Cards & Performer Design Parity:**
+  - Redesigned the 4 client analytics cards in `ClientDashboard.tsx` to match the Performer's cards layout, padding, header/icon-pill, and typography (Image 3).
+  - Configured top-right icon pills: CreditCard ("Total spend till date"), CheckCircle2 ("Total successful projects"), Users ("Repeat talent rate").
+- **Interactive Client Reviews & Ratings Modal:**
+  - Made the "Average rating" card clickable with an interactive `Reviews >` pill button.
+  - Added `showClientReviewsModal` displaying 3 statistical summary pillars (Total Reviews, Average Rating with 5-star cluster, and Rating Distribution breakdown).
+  - Displayed 4 verified performer reviews with avatar initials, craft roles, timestamps, and authentic testimonials.
+- **Removed Bottom Quick Niche Chips:**
+  - Removed redundant `NICHES.map(...)` chip buttons below the filter button.
+- **Talent Discovery Filter Modal Dialog:**
+  - Converted the inline filter accordion into a centered `<Modal strength="strong">` dialog matching Image 5.
+  - Structured filters cleanly: Craft Role / Category, Budget Rate Card Slider, Gender, Age Range, and Location.
+  - Retained "Clear attribute filters" and "Show Performers ({filteredTalents.length})" actions.
 
 ### Step 113: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup (Session 154)
 

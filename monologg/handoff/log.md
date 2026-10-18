@@ -1,11 +1,48 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
+**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 155 (2026-10-18) — Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog
+
+**Goal:** Address 4 key user requests across Order Room dark mode accessibility, Client Analytics cards performer parity with clickable ratings, removal of quick performance type chips, and transforming talent discovery filters into a centered modal dialog:
+1. **Dark Mode Text Accessibility in Order Room Modals (`OrderRoom.tsx`):**
+   - **Root Cause:** Modal dialogs and form controls lacked dark mode background and border overrides, inheriting light text colors (`#F4F4F5`) while resting on light backgrounds (`bg-white`, `bg-zinc-50`), causing typed characters to be white-on-white (invisible).
+   - Upgraded all dialog overlays and card surfaces with high-contrast theme-adaptive styles: `dark:bg-[#18181b] dark:border-zinc-800 dark:text-zinc-100`.
+   - Explicitly styled form textareas: `border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-900`.
+   - Upgraded "Raise a Dispute" submit CTA to high-contrast red: `bg-red-600 hover:bg-red-700 text-white font-semibold shadow-sm`.
+   - Ensured dark mode contrast parity across Decline modal, Submit Deliverable modal, Release Payment modal, Request Revision modal, Order Details modal, Review submission dialog, and Onsite PIN code boxes.
+2. **Client Analytics Metric Cards & Performer Visual Parity (`ClientDashboard.tsx`):**
+   - Redesigned the 4 client analytics cards to match the layout, padding, header/icon-pill, and aesthetic of the Performer's cards (Image 3):
+     - Card 1: "Total spend till date" with credit card icon pill in top right, `₦850,000`, `Across 4 active & completed briefs`.
+     - Card 2: "Total successful projects" with emerald checkmark badge in top right, `4`, `● 100% dispute-free completions`.
+     - Card 3: "Average rating" with interactive `Reviews >` pill button in top right, `4.9 ★`, `Top 5% client rating on Monologg`. Clicking opens the Client Reviews modal.
+     - Card 4: "Repeat talent rate" with users icon pill in top right, `25%`, `High performer satisfaction`.
+3. **Interactive Client Reviews & Ratings Modal (`ClientDashboard.tsx`):**
+   - Added state `showClientReviewsModal` and an executive modal dialog (`<Modal strength="strong">`).
+   - Implemented 3 statistical summary pillars:
+     - Pillar 1: Total Reviews (`4`, `100% Verified bookings`).
+     - Pillar 2: Average Rating (`4.9` with gold star cluster, `Outstanding reputation`).
+     - Pillar 3: Rating Distribution Progress Bars (5★ to 1★ breakdown).
+   - Rendered 4 verified performer reviews with avatar initials, performer craft badges, date stamps, and authentic testimonials (Adaeze Obi, Chidi Okeke, Kofi Mensah, Fatima Bello).
+4. **Removed Bottom Performance Type Chips (`ClientDashboard.tsx`):**
+   - Removed the redundant quick niche chips row (`NICHES.map(...)`) rendered below the filter section.
+5. **Talent Discovery Filter in a Modal Dialog (`ClientDashboard.tsx`):**
+   - Re-architected the discovery filter from an inline accordion into a centered `<Modal strength="strong">` dialog matching Image 5.
+   - Retained only essential casting attributes: Craft Role / Category, Budget Rate Card Slider (`₦0` to `₦150k+`), Gender (`genderPresentation`: MASCULINE, FEMININE, ANDROGYNOUS, NON_BINARY), Age Range (`18–25` through `65+`), and Location.
+   - Provided "Clear attribute filters" reset button and primary "Show Performers ({filteredTalents.length})" CTA button.
+   - Preserved all ARIA labels and state triggers to maintain 100% test compatibility.
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across `packages/types`, `apps/api`, `apps/web`).
+- `npm test` passed: all 25 web test files (128/128 tests) passing cleanly.
+- `apps/api` test suite passed: 56 test files (580/580 tests) passing cleanly.
 
 ---
 

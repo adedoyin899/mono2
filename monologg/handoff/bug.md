@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
+**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 102. Dark Mode Contrast Accessibility Inversion in Order Room Modals, Analytics Metric Cards Parity, and Discovery Filter Modalization
+- **Severity:** Medium / Accessibility (WCAG AA) & Design System Parity
+- **What happened:**
+  1. In `OrderRoom.tsx`, the "Raise a Dispute" modal (and related dialogs: Decline, Submit Deliverable, Release Payment, Request Revision, Order Details) used hardcoded `bg-white` panels and `bg-zinc-50` textareas without dark-mode overrides. When dark mode was enabled, global light text (`#F4F4F5`) resulted in white-on-white text inside inputs (e.g. typing `fff` was invisible). The dispute submit button used a low-contrast faint pink background.
+  2. In `ClientDashboard.tsx`, the 4 Analytics metric cards lacked the top-right badges and layout of the Performer's cards (Image 3), and the "Average rating" card was static with no way to inspect ratings and reviews received from performers.
+  3. A redundant horizontal row of quick craft chips (`[All] [Actor] [Voice-Over] ...`) was rendered below the filter button, duplicating filter options.
+  4. The talent discovery filter panel in `ClientDashboard.tsx` was rendered as an inline accordion rather than a centered modal dialog matching the Performer's filter modal (Image 5).
+- **Root Cause:**
+  - Unthemed input elements in `OrderRoom.tsx` inherited the dark mode body text color while sitting on hardcoded white/light gray backgrounds.
+  - Analytics cards in `ClientDashboard.tsx` had not been upgraded to the icon-badge pill structure and interactive Reviews trigger present in `TalentDashboard.tsx`.
+- **Fix:**
+  - Added full dark mode support across all `OrderRoom.tsx` modals (`dark:bg-[#18181b] dark:border-zinc-800`), dark theme textareas (`dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500`), and a high-contrast red submit button.
+  - Redesigned the 4 client analytics cards in `ClientDashboard.tsx` to match Performer cards (Image 3) with top-right icon badges (`CreditCard`, `CheckCircle2`, `Reviews >`, `Users`).
+  - Added an interactive `Reviews >` trigger on the Average Rating card that opens a rich Client Reviews & Ratings modal with 3 statistical pillars and verified performer reviews.
+  - Removed the redundant quick performance type chips row.
+  - Re-architected the discovery filter panel into a centered `<Modal strength="strong">` dialog matching Image 5.
+- **Resolution:** Validated with 0 TypeScript errors, 128/128 web vitest tests passing, and 580/580 API tests passing.
 
 ### 101. Client Discovery Filter Visual Clutter and Booking Flow Misalignment Across Client Roles
 - **Severity:** Medium / Design Alignment & Workflow Parity
