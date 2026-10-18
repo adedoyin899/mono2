@@ -20,7 +20,8 @@ import {
   Layers, Copy, FileDown, Folder, Calendar, Share2,
   CheckCircle2, PlayCircle, Eye, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
-  Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe
+  Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe,
+  Zap, Pause, Volume2
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -445,6 +446,7 @@ export function ClientDashboard() {
   const [applicantFilterTab, setApplicantFilterTab] = useState<"all" | "shortlisted" | "selected" | "applied" | "rejected">("all");
   const [applicantSearchQuery, setApplicantSearchQuery] = useState("");
   const [editingSynopsisInline, setEditingSynopsisInline] = useState(false);
+  const [isPlayingReel, setIsPlayingReel] = useState(false);
   const [activitySearch, setActivitySearch] = useState("");
   const [activityFilter, setActivityFilter] = useState<"all" | "project" | "application" | "payment" | "message">("all");
   const [activity] = useState([
@@ -998,142 +1000,228 @@ export function ClientDashboard() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-5 rounded-[var(--radius-xl)] border border-[var(--color-accent)]/30 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-bg-surface)] to-[var(--color-bg-surface)] relative overflow-hidden"
-                  style={{ boxShadow: "var(--shadow-card)" }}
+                  className="mb-6 p-5 sm:p-6 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] relative overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent-on)] text-xs font-bold font-mono">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--color-accent)] flex items-center justify-center text-white text-xs font-bold font-mono shadow-xs">
                         {isNewUser ? "1/4" : "3/4"}
                       </div>
                       <div>
-                        <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                          {isNewUser ? "Welcome! Get Started as a Client" : "Client Onboarding & Action Nudges"}
-                        </h3>
-                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-base font-bold text-[var(--color-text-primary)]">
+                            {isNewUser ? "Welcome! Get Started as a Client" : "Client Onboarding & Action Nudges"}
+                          </h3>
+                        </div>
+                        <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
                           {isNewUser ? "Follow these steps to discover, shortlist, and hire top performers for your productions." : "Actions to streamline performer acquisition for your current projects."}
                         </p>
                       </div>
                     </div>
-                    <Badge tone={isNewUser ? "accent" : "success"}>{isNewUser ? "Onboarding" : "Active Client"}</Badge>
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        {isNewUser ? "Onboarding" : "Active Client"}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="w-full h-1.5 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden mb-4">
-                    <div className="h-full bg-[var(--color-accent)] rounded-full transition-all duration-500" style={{ width: isNewUser ? "25%" : "75%" }} />
+                  <div className="space-y-1.5 mb-4">
+                    <div className="flex items-center justify-between text-xs font-body">
+                      <span className="text-[var(--color-text-tertiary)] font-medium">Setup progress</span>
+                      <span className="font-bold text-[var(--color-accent)]">{isNewUser ? "25%" : "75%"} completed</span>
+                    </div>
+                    <div className="w-full h-2 bg-[var(--color-bg-elevated)] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[#9035FF] rounded-full transition-all duration-500 shadow-2xs"
+                        style={{ width: isNewUser ? "25%" : "75%" }}
+                      />
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <button
                       onClick={() => navigate("/settings?role=client")}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-border-default)] hover:border-[var(--color-accent)] hover:shadow-xs text-left transition-all group hover:-translate-y-0.5 cursor-pointer"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
-                        <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <Users className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Profile <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between transition-colors">
+                          Profile <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Brand details</div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">Brand details</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => navigate("/brief")}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-border-default)] hover:border-[var(--color-accent)] hover:shadow-xs text-left transition-all group hover:-translate-y-0.5 cursor-pointer"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
-                        <Plus className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <Plus className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Post Project Brief <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between transition-colors">
+                          Post Project Brief <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Receive applications</div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">Receive applications</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setActiveTab("discover")}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-border-default)] hover:border-[var(--color-accent)] hover:shadow-xs text-left transition-all group hover:-translate-y-0.5 cursor-pointer"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
-                        <Search className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <Search className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Find Performers <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between transition-colors">
+                          Find Performers <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Filter by niche & style</div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">Filter by niche & style</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setActiveTab("shortlist")}
-                      className="flex items-center gap-3 p-3 rounded-[var(--radius-lg)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] hover:border-[var(--color-accent)] text-left transition-all group"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--color-bg-surface-2)] border border-[var(--color-border-default)] hover:border-[var(--color-accent)] hover:shadow-xs text-left transition-all group hover:-translate-y-0.5 cursor-pointer"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center shrink-0">
-                        <Star className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <Star className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between">
-                          Shortlist Creators <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] flex items-center justify-between transition-colors">
+                          Shortlist Creators <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate">Bookmark favorites</div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">Bookmark favorites</div>
                       </div>
                     </button>
                   </div>
                 </motion.div>
 
-                {/* HERO — spend / budget moment */}
+                {/* HERO — Executive Financial & Escrow Command Center */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
-                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#7B00FE] to-[#6400D1] text-white shadow-xl"
+                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#1C0E35] via-[#2A1052] to-[#150727] text-white shadow-xl border border-purple-500/20"
                 >
-                  <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10" />
-                  <div className="relative space-y-2">
-                    <div className="text-xs font-body tracking-normal text-[#F1E9FF] font-medium">Wallet balance</div>
-                    <div className="font-display font-black text-white tnum leading-none text-4xl sm:text-5xl">
-                      {isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`}
+                  {/* Subtle blurred purple glow rings in background */}
+                  <div className="absolute -top-24 -right-12 w-72 h-72 rounded-full bg-purple-500/15 blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-20 -left-12 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+
+                  <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    {/* Left: Balance & Actions (7 cols) */}
+                    <div className="lg:col-span-7 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-body font-semibold text-purple-200 uppercase tracking-wider">
+                          Wallet &amp; Escrow Balance
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          <ShieldCheck className="w-3 h-3" /> Paystack Secured
+                        </span>
+                      </div>
+
+                      <div className="font-display font-black text-white tnum leading-tight text-4xl sm:text-5xl tracking-tight">
+                        {isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-body bg-white/10 border border-white/10 text-purple-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          Available: <strong>₦200,000</strong>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-body bg-white/10 border border-white/10 text-purple-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                          Escrow Locked: <strong>₦250,000</strong>
+                        </span>
+                      </div>
+
+                      <div className="pt-2 flex flex-wrap items-center gap-3">
+                        <button
+                          onClick={() => setShowFundWalletModal(true)}
+                          className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90 inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Fund Wallet
+                        </button>
+                        <button
+                          onClick={() => navigate("/transactions?role=client")}
+                          className="h-10 px-4 rounded-full text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 text-white hover:bg-white/20 border border-white/20 inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <CreditCard className="w-3.5 h-3.5" /> Escrow Ledger
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 pt-1 text-xs font-body text-[#F1E9FF]/90">
-                      <Briefcase className="w-4 h-4 text-[#F1E9FF]" /> {isNewUser ? "0 active projects · 0 performers hired" : "4 active projects · 12 performers hired"}
-                    </div>
-                    <div className="pt-3">
-                      <button
-                        onClick={() => setShowFundWalletModal(true)}
-                        className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90 inline-flex items-center gap-1.5"
-                      >
-                        <Plus className="w-3.5 h-3.5" /> Fund Wallet
-                      </button>
+
+                    {/* Right: Production Telemetry Cards (5 cols) */}
+                    <div className="lg:col-span-5 grid grid-cols-3 gap-2.5">
+                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-purple-200 mb-2">
+                          <Briefcase className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xl font-display font-black text-white">{isNewUser ? "0" : "4"}</div>
+                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Active Briefs</div>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-purple-200 mb-2">
+                          <Users className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xl font-display font-black text-white">{isNewUser ? "0" : "12"}</div>
+                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Cast Talent</div>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-emerald-300 mb-2">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="text-xl font-display font-black text-emerald-300">100%</div>
+                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Protected</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Quick-action ghost-circle row */}
-                <div className="grid grid-cols-4 gap-2 mb-6">
+                {/* Quick-Action Hub Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   {[
-                    { label: "Post", icon: Plus, action: () => navigate("/brief") },
-                    { label: "Discover", icon: Search, action: () => setActiveTab("discover") },
-                    { label: "Projects", icon: Briefcase, action: () => setActiveTab("projects") },
-                    { label: "Orders", icon: MessageSquare, action: () => setActiveTab("orders") },
+                    { label: "Post Project", sub: "Create brief & audition", icon: Plus, action: () => navigate("/brief") },
+                    { label: "Find Performers", sub: "Browse 120+ verified talent", icon: Search, action: () => setActiveTab("discover") },
+                    { label: "My Projects", sub: "Review applicant pipeline", icon: Briefcase, action: () => setActiveTab("projects") },
+                    { label: "Active Orders", sub: "Live production rooms", icon: MessageSquare, action: () => setActiveTab("orders") },
                   ].map((qa, i) => (
-                    <button key={i} onClick={qa.action} className="flex flex-col items-center gap-2 py-1 group">
-                      <span
-                        className="w-14 h-14 rounded-full flex items-center justify-center transition-transform group-active:scale-95"
-                        style={{ background: "var(--color-accent-glow)", border: "1px solid var(--color-hairline)" }}
-                      >
-                        <qa.icon className="w-5 h-5" style={{ color: "var(--color-accent)" }} />
-                      </span>
-                      <span className="text-[11px] font-body text-center" style={{ color: "var(--color-text-secondary)" }}>{qa.label}</span>
+                    <button
+                      key={i}
+                      onClick={qa.action}
+                      className="p-3.5 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] hover:shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left flex items-center gap-3"
+                      style={{ boxShadow: "var(--shadow-card)" }}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <qa.icon className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                          {qa.label}
+                        </div>
+                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
+                          {qa.sub}
+                        </div>
+                      </div>
                     </button>
                   ))}
                 </div>
 
-                {/* Recent activity */}
+                {/* Recent Activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <span className="font-display text-lg" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
-                  <button className="text-xs font-body" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>View all →</button>
+                  <span className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Recent Activity</span>
+                  <button className="text-xs font-bold font-body text-[var(--color-accent)] hover:underline cursor-pointer" onClick={() => setActiveTab("activity")}>View all →</button>
                 </div>
                 {effectiveActivity.length === 0 ? (
                   <div className="text-center py-10 px-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}>
@@ -1152,8 +1240,7 @@ export function ClientDashboard() {
                       <motion.div
                         key={item.id}
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3 }}
-                        className="flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-lg)] cursor-pointer transition-transform active:scale-[0.98]"
-                        style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)", boxShadow: "var(--shadow-card)", minHeight: 64 }}
+                        className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.99] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] shadow-xs group"
                         onClick={() => {
                           if (item.type === "project" || item.type === "application") {
                             setActiveTab("projects");
@@ -1164,19 +1251,22 @@ export function ClientDashboard() {
                           }
                         }}
                       >
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-glow)" }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" style={{
+                          background: item.type === "payment" ? "rgba(26,117,68,0.12)" : item.type === "application" ? "rgba(230,165,23,0.12)" : "var(--color-accent-soft)",
+                        }}>
                           {item.type === "project" && <Briefcase className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
-                          {item.type === "application" && <Users className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
-                          {item.type === "payment" && <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />}
+                          {item.type === "application" && <Users className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+                          {item.type === "payment" && <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                           {item.type === "message" && <MessageSquare className="w-4 h-4" style={{ color: "var(--color-accent)" }} />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold font-body truncate" style={{ color: "var(--color-text-primary)" }}>{item.title}</div>
-                          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>{item.desc}</div>
+                          <div className="text-sm font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">{item.title}</div>
+                          <div className="text-xs font-body text-[var(--color-text-secondary)] truncate mt-0.5">{item.desc}</div>
                         </div>
-                        <div className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
+                        <div className="text-[11px] font-mono font-medium shrink-0 px-2.5 py-1 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-tertiary)]">
                           {item.time}
                         </div>
+                        <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all shrink-0" />
                       </motion.div>
                     ))}
                   </div>
@@ -2379,13 +2469,15 @@ export function ClientDashboard() {
                                 </p>
 
                                 <div
-                                  className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)]"
+                                  className="p-5 sm:p-6 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)] relative overflow-hidden bg-slate-950 text-slate-100 shadow-inner"
                                   style={{
-                                    background: "var(--color-bg-elevated)",
                                     borderColor: "var(--color-hairline)",
-                                    color: "var(--color-text-primary)",
                                   }}
                                 >
+                                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-purple-300/70 mb-3 pb-2 border-b border-white/10 select-none">
+                                    <span>Sides // Script Excerpt</span>
+                                    <span>48kHz Studio Mic Take</span>
+                                  </div>
                                   {effectiveScript}
                                 </div>
                               </>
@@ -2494,9 +2586,11 @@ export function ClientDashboard() {
                             ) : (
                               <div className="space-y-2.5">
                                 {effectiveDeliverables.map((item, idx) => (
-                                  <div key={idx} className="flex items-start gap-2.5 text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                    <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                    <span>{item}</span>
+                                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-sm font-body text-[var(--color-text-secondary)]">
+                                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                                      <Check className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="leading-snug">{item}</span>
                                   </div>
                                 ))}
                               </div>
@@ -2626,28 +2720,28 @@ export function ClientDashboard() {
                                 {effectiveAssets.map((asset, idx) => (
                                   <div
                                     key={idx}
-                                    className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                                    className="p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all group"
+                                    style={{ borderColor: "var(--color-hairline)" }}
                                   >
-                                    <div className="flex items-center gap-3 min-w-0">
-                                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--color-bg-surface)", color: "var(--color-accent)" }}>
-                                        <FileText className="w-4 h-4" />
+                                    <div className="flex items-center gap-3.5 min-w-0">
+                                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                                        <FileText className="w-5 h-5" />
                                       </div>
                                       <div className="truncate">
-                                        <div className="font-semibold text-xs truncate" style={{ color: "var(--color-text-primary)" }}>
+                                        <div className="font-semibold text-xs sm:text-sm truncate text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
                                           {asset.name}
                                         </div>
-                                        <div className="text-[11px] font-mono" style={{ color: "var(--color-text-tertiary)" }}>
+                                        <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] mt-0.5">
                                           {asset.type} · {asset.size}
                                         </div>
                                       </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 shrink-0">
+                                    <div className="flex items-center gap-2 shrink-0">
                                       <button
                                         type="button"
                                         onClick={() => alert(`Previewing ${asset.name}`)}
-                                        className="px-2.5 py-1 rounded-lg border text-xs font-semibold hover:bg-[var(--color-bg-surface)] transition-colors whitespace-nowrap"
+                                        className="px-3 py-1.5 rounded-xl border text-xs font-semibold hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs"
                                         style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
                                       >
                                         Preview
@@ -2655,11 +2749,11 @@ export function ClientDashboard() {
                                       <button
                                         type="button"
                                         onClick={() => alert(`Downloading ${asset.name} (${asset.size})`)}
-                                        className="p-1.5 rounded-lg border hover:bg-[var(--color-bg-surface)] transition-colors whitespace-nowrap"
+                                        className="p-2 rounded-xl border hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs"
                                         style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
                                         title="Download asset"
                                       >
-                                        <Download className="w-3.5 h-3.5" />
+                                        <Download className="w-4 h-4" />
                                       </button>
                                     </div>
                                   </div>
@@ -2798,18 +2892,18 @@ export function ClientDashboard() {
 
                             {/* State Specific Spotlight Banner or Inactive Draft Mode */}
                             {currentStatus === "draft" ? (
-                              <div className="text-center py-12 px-6 rounded-2xl border border-dashed" style={{ borderColor: "var(--color-border-default)", background: "var(--color-bg-elevated)" }}>
-                                <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-sm" style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}>
-                                  <FileText className="w-6 h-6" />
+                              <div className="text-center py-12 px-6 rounded-3xl border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] relative overflow-hidden">
+                                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-md bg-[var(--color-accent-soft)] text-[var(--color-accent)] ring-4 ring-purple-500/10">
+                                  <FileText className="w-7 h-7" />
                                 </div>
-                                <h3 className="text-base font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
+                                <h3 className="text-base sm:text-lg font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
                                   Casting Pipeline Inactive
                                 </h3>
                                 <p className="text-xs sm:text-sm font-body text-[var(--color-text-secondary)] max-w-md mx-auto mt-1.5 mb-5 leading-relaxed">
                                   This project brief is saved as a private draft and is not visible in performer discovery. Publish and fund escrow to start receiving audition pitches.
                                 </p>
                                 <Button
-                                  className="h-10 px-5 text-xs font-semibold gap-2 whitespace-nowrap shadow-sm mx-auto"
+                                  className="h-10 px-6 text-xs font-bold gap-2 whitespace-nowrap shadow-md shadow-purple-500/20 mx-auto"
                                   onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                                 >
                                   <Sparkles className="w-4 h-4 shrink-0" />
@@ -3203,7 +3297,7 @@ export function ClientDashboard() {
                                     This brief is saved as a private draft. Publish it to Monologg discovery to notify verified performers.
                                   </p>
                                   <Button
-                                    className="w-full h-11 text-xs font-semibold gap-1.5 whitespace-nowrap"
+                                    className="w-full h-11 text-xs font-bold gap-1.5 whitespace-nowrap bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-md shadow-purple-500/25"
                                     onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                                   >
                                     <Sparkles className="w-4 h-4 shrink-0" />
@@ -3211,7 +3305,7 @@ export function ClientDashboard() {
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs whitespace-nowrap"
+                                    className="w-full h-9 text-xs font-semibold whitespace-nowrap shadow-2xs"
                                     onClick={() => setIsEditingProjectInfo(true)}
                                   >
                                     Edit Brief Info
@@ -3222,9 +3316,9 @@ export function ClientDashboard() {
                                       setProjects((prev) => prev.filter((p) => p.id !== selectedProjectDetail.id));
                                       setSelectedProjectDetail(null);
                                     }}
-                                    className="w-full text-center text-xs text-rose-500 hover:underline pt-1 font-body whitespace-nowrap"
+                                    className="w-full text-center text-xs text-rose-500 hover:underline pt-1 font-body whitespace-nowrap cursor-pointer"
                                   >
-                                    Delete Draft
+                                    Discard Draft
                                   </button>
                                 </div>
                               )}
@@ -3651,40 +3745,38 @@ export function ClientDashboard() {
                     <>
                       {/* 4 Metric Cards */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total spend till date</div>
-                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.totalSpend}</div>
-                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.spendSubtext}</div>
+                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Total spend till date</div>
+                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">{currentData.totalSpend}</div>
+                          <div className="text-xs font-body font-medium mt-2 text-emerald-600 dark:text-emerald-400">{currentData.spendSubtext}</div>
                         </div>
-                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Total successful projects</div>
-                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-accent)" }}>{currentData.successfulProjects}</div>
-                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>{currentData.projectsSubtext}</div>
+                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Total successful projects</div>
+                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-accent)] tracking-tight">{currentData.successfulProjects}</div>
+                          <div className="text-xs font-body font-medium mt-2 text-[var(--color-text-secondary)]">{currentData.projectsSubtext}</div>
                         </div>
-                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Average rating</div>
-                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.avgRating}</div>
-                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>{currentData.ratingSubtext}</div>
+                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Average rating</div>
+                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight flex items-center gap-1.5">
+                            <span>{currentData.avgRating}</span>
+                            <Star className="w-5 h-5 fill-amber-500 text-amber-500 inline shrink-0" />
+                          </div>
+                          <div className="text-xs font-body font-medium mt-2 text-[var(--color-text-tertiary)]">{currentData.ratingSubtext}</div>
                         </div>
-                        <div className="p-4 rounded-[var(--radius-xl)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="text-xs font-body font-medium tracking-normal mb-1" style={{ color: "var(--color-text-tertiary)" }}>Repeat talent rate</div>
-                          <div className="font-display text-2xl font-bold tnum" style={{ color: "var(--color-text-primary)" }}>{currentData.repeatRate}</div>
-                          <div className="text-xs font-body mt-1" style={{ color: "var(--color-success)" }}>{currentData.repeatSubtext}</div>
+                        <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                          <div className="text-xs font-body font-semibold tracking-normal text-[var(--color-text-tertiary)] mb-2">Repeat talent rate</div>
+                          <div className="font-display text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">{currentData.repeatRate}</div>
+                          <div className="text-xs font-body font-medium mt-2 text-emerald-600 dark:text-emerald-400">{currentData.repeatSubtext}</div>
                         </div>
                       </div>
 
-                      {/* Spend Graph (Replaces Category Budget Allocation & Performer Acquisition Funnel) */}
+                      {/* Spend Graph */}
                       <div
-                        className="p-5 sm:p-6 rounded-[var(--radius-xl)]"
-                        style={{
-                          background: "var(--color-bg-surface)",
-                          border: "1px solid var(--color-border-default)",
-                          boxShadow: "var(--shadow-card)",
-                        }}
+                        className="p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-card)]"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                           <div>
-                            <h3 className="font-display text-base font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                            <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
                               Spend Over Time
                             </h3>
                             <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
@@ -3693,11 +3785,11 @@ export function ClientDashboard() {
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 text-xs font-body">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--color-accent)" }} />
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
                               <span style={{ color: "var(--color-text-secondary)" }}>Escrow Spend (₦)</span>
                             </div>
                             <div
-                              className="px-2.5 py-1 rounded-full text-xs font-mono font-semibold"
+                              className="px-3 py-1 rounded-full text-xs font-mono font-bold"
                               style={{
                                 background: "var(--color-accent-soft)",
                                 color: "var(--color-accent)",
@@ -3718,8 +3810,8 @@ export function ClientDashboard() {
                             >
                               <defs>
                                 <linearGradient id="clientSpendGradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.25" />
-                                  <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.01" />
+                                  <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.3" />
+                                  <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.02" />
                                 </linearGradient>
                               </defs>
 
@@ -3753,7 +3845,7 @@ export function ClientDashboard() {
                                       x={paddingLeft - 10}
                                       y={tickY + 4}
                                       textAnchor="end"
-                                      className="text-[11px] font-mono fill-zinc-400 dark:fill-zinc-500"
+                                      className="text-[11px] font-mono fill-zinc-400 dark:fill-zinc-500 font-medium"
                                     >
                                       {tick.label}
                                     </text>
@@ -3769,7 +3861,7 @@ export function ClientDashboard() {
                                 d={spline}
                                 fill="none"
                                 stroke="#7C3AED"
-                                strokeWidth="2.5"
+                                strokeWidth="3"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               />
@@ -5045,11 +5137,13 @@ export function ClientDashboard() {
                     onClick={e => e.stopPropagation()}
                   >
                     {/* Header Banner */}
-                    <div className="h-28 relative" style={{ background: "linear-gradient(135deg, var(--color-accent-soft), var(--color-bg-elevated))" }}>
+                    <div className="h-32 relative overflow-hidden bg-gradient-to-br from-[#2D124D] via-[#1D0C33] to-[#0F081D]">
+                      {/* Atmospheric ambient lighting and subtle grid */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(168,85,247,0.3),transparent_70%)]" />
+                      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:16px_16px]" />
                       <button
                         onClick={() => { setSelectedTalent(null); setSelectedApplicantForProfile(null); }}
-                        className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity z-10"
-                        style={{ background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
+                        className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full flex items-center justify-center bg-black/40 hover:bg-black/70 text-white backdrop-blur-md transition-all z-20 cursor-pointer border border-white/10 active:scale-95"
                         aria-label="Close talent profile"
                       >
                         <X className="w-4 h-4" />
@@ -5058,18 +5152,21 @@ export function ClientDashboard() {
 
                     <div className="px-6 pb-6">
                       {/* Creator Identity Bar */}
-                      <div className="flex items-end justify-between -mt-10 mb-4">
-                        <Avatar
-                          className="w-20 h-20 text-2xl border-4 border-[var(--color-bg-surface)] shadow-sm"
-                          background="var(--color-accent-glow)"
-                          color="var(--color-accent)"
-                        >
-                          {selectedTalent.avatar}
-                        </Avatar>
+                      <div className="flex items-end justify-between -mt-12 mb-4 relative z-10">
+                        <div className="relative">
+                          <Avatar
+                            className="w-22 h-22 text-2xl font-display font-black ring-4 ring-[var(--color-bg-surface)] shadow-2xl"
+                            background="linear-gradient(135deg, #7C3AED, #4F46E5)"
+                            color="#FFFFFF"
+                          >
+                            {selectedTalent.avatar}
+                          </Avatar>
+                          <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-[var(--color-bg-surface)]" title="Online & Studio Ready" />
+                        </div>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="secondary"
-                            className="h-9 px-3 text-xs gap-1.5 whitespace-nowrap"
+                            className="h-9 px-3.5 text-xs font-semibold gap-1.5 whitespace-nowrap rounded-xl shadow-xs hover:border-[var(--color-accent)] transition-all"
                             onClick={() => {
                               setSelectedTalent(null);
                               setSelectedApplicantForProfile(null);
@@ -5077,36 +5174,40 @@ export function ClientDashboard() {
                             }}
                           >
                             <span>Open Public Storefront</span>
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <ExternalLink className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                           </Button>
                         </div>
                       </div>
 
-                      <div className="space-y-1.5 mb-3">
+                      <div className="space-y-1 mb-3.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                          <h3 className="font-display text-2xl font-black tracking-tight" style={{ color: "var(--color-text-primary)" }}>
                             {selectedTalent.name}
                           </h3>
                           {selectedTalent.verified && (
                             <span title="Verified Monologg Performer" className="text-emerald-500 flex items-center">
-                              <ShieldCheck className="w-4 h-4" />
+                              <ShieldCheck className="w-5 h-5" />
                             </span>
                           )}
-                          <span className="text-xs font-mono font-medium flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                            <Star className="w-3 h-3 fill-amber-500" />
+                          <span className="text-xs font-mono font-bold flex items-center gap-1.5 text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                            <Star className="w-3.5 h-3.5 fill-amber-500" />
                             <span>{selectedTalent.rating || 4.9}</span>
-                            <span className="text-[10px] text-[var(--color-text-tertiary)]">({selectedTalent.reviews || 18})</span>
+                            <span className="text-[11px] opacity-75 font-normal">({selectedTalent.reviews || 48})</span>
                           </span>
                         </div>
-                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                          @{selectedTalent.id} · {selectedTalent.role} · {selectedTalent.location}
+                        <p className="text-xs font-body font-medium flex items-center gap-1.5 flex-wrap" style={{ color: "var(--color-text-secondary)" }}>
+                          <span className="font-semibold text-[var(--color-accent)]">@{selectedTalent.id.toString().startsWith("@") ? selectedTalent.id.slice(1) : (selectedTalent.name || "talent").toLowerCase().replace(/[^a-z0-9]/g, ".")}</span>
+                          <span className="text-[var(--color-text-tertiary)]">•</span>
+                          <span>{selectedTalent.role}</span>
+                          <span className="text-[var(--color-text-tertiary)]">•</span>
+                          <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3 text-[var(--color-text-tertiary)]" />{selectedTalent.location}</span>
                         </p>
                       </div>
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-1.5 mb-5">
                         {selectedTalent.tags?.map(tag => (
-                          <Badge key={tag} tone="neutral" size="sm">{tag}</Badge>
+                          <Badge key={tag} tone="neutral" size="sm" className="rounded-lg font-medium">{tag}</Badge>
                         ))}
                       </div>
 
@@ -5137,42 +5238,110 @@ export function ClientDashboard() {
 
                       {/* Reel Preview Player */}
                       <div className="mb-5">
-                        <label className="text-xs font-semibold uppercase tracking-wider block mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Featured Audio / Video Reel
-                        </label>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-text-tertiary)]">
+                            Featured Audio / Video Reel
+                          </label>
+                          <span className="text-[11px] font-mono font-medium text-emerald-500 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Broadcast Master
+                          </span>
+                        </div>
                         <div
-                          className="relative aspect-video rounded-xl overflow-hidden cursor-pointer group border flex items-center justify-center"
-                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                          onClick={() => setIsPlayingReel(!isPlayingReel)}
+                          className="relative rounded-2xl overflow-hidden cursor-pointer group border border-purple-500/25 bg-gradient-to-br from-[#0B0616] via-[#140B28] to-[#07030E] text-white p-4 shadow-xl select-none transition-all hover:border-purple-500/50"
                         >
-                          <div className="w-12 h-12 rounded-full flex items-center justify-center pl-1 group-hover:scale-110 transition-transform shadow-lg" style={{ background: "var(--color-accent)", color: "var(--color-text-inverse)" }}>
-                            <Play className="w-5 h-5 fill-current" />
+                          {/* Studio Ambient Glow */}
+                          <div className="absolute -top-12 -left-12 w-36 h-36 bg-purple-600/20 rounded-full blur-2xl pointer-events-none" />
+                          <div className="absolute -bottom-12 -right-12 w-36 h-36 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none" />
+
+                          {/* Top Bar with Showreel name and specs */}
+                          <div className="flex items-center justify-between relative z-10 mb-4">
+                            <div className="px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wide bg-white/10 backdrop-blur-md text-white border border-white/10">
+                              Commercial &amp; Narration Showreel
+                            </div>
+                            <div className="px-2.5 py-1 rounded-md font-mono text-[11px] font-medium bg-black/50 backdrop-blur-md text-purple-200 border border-white/10">
+                              02:30 · 48kHz HD
+                            </div>
                           </div>
-                          <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded font-mono text-xs text-white" style={{ background: "rgba(0,0,0,0.7)" }}>
-                            02:30 · 48kHz HD
+
+                          {/* Center Playhead & Dynamic Waveform */}
+                          <div className="flex items-center gap-4 py-2 relative z-10">
+                            <button
+                              type="button"
+                              className="w-13 h-13 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-tr from-purple-600 via-purple-500 to-indigo-500 text-white shadow-[0_0_24px_rgba(147,51,234,0.6)] group-hover:scale-105 active:scale-95 transition-all"
+                              aria-label={isPlayingReel ? "Pause reel" : "Play reel"}
+                            >
+                              {isPlayingReel ? (
+                                <Pause className="w-5 h-5 fill-current" />
+                              ) : (
+                                <Play className="w-5 h-5 fill-current ml-0.5" />
+                              )}
+                            </button>
+
+                            {/* Simulated Audio EQ Waveform Bars */}
+                            <div className="flex-1 flex items-center gap-1 h-12 px-2 overflow-hidden">
+                              {[20, 35, 55, 80, 45, 90, 65, 40, 75, 100, 70, 85, 45, 60, 35, 70, 95, 50, 30, 65, 40, 20].map((h, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`flex-1 rounded-full transition-all duration-300 ${
+                                    idx < 9 ? "bg-purple-400" : "bg-purple-400/30"
+                                  }`}
+                                  style={{
+                                    height: isPlayingReel ? `${Math.max(15, (h * (0.6 + (idx % 3) * 0.25)))}%` : `${h * 0.7}%`,
+                                  }}
+                                />
+                              ))}
+                            </div>
                           </div>
-                          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[11px] font-medium text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
-                            Commercial &amp; Narration Showreel
+
+                          {/* Bottom Scrubber & Time */}
+                          <div className="flex items-center justify-between text-[11px] font-mono text-purple-200/70 mt-2 relative z-10">
+                            <span>{isPlayingReel ? "00:42" : "00:00"}</span>
+                            <div className="flex-1 mx-3 h-1.5 rounded-full bg-white/10 overflow-hidden relative">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-400 transition-all duration-300"
+                                style={{ width: isPlayingReel ? "35%" : "0%" }}
+                              />
+                            </div>
+                            <span>02:30</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Storefront Rate Cards */}
                       <div className="space-y-2 mb-6">
-                        <label className="text-xs font-semibold uppercase tracking-wider block font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                          Standard Storefront Rates
-                        </label>
-                        <div className="grid grid-cols-2 gap-2.5">
-                          <div className="p-3 rounded-xl border flex flex-col justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Standard Master</span>
-                            <span className="font-display text-sm font-bold mt-1" style={{ color: "var(--color-accent)" }}>
-                              {selectedTalent.price || "₦50,000"}
-                            </span>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-text-tertiary)]">
+                            Standard Storefront Rates
+                          </label>
+                          <span className="text-[11px] font-body text-[var(--color-text-secondary)]">Escrow Protected</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="p-3.5 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)] transition-all flex flex-col justify-between group">
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-bold font-body text-[var(--color-text-primary)]">Standard Master</span>
+                                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-[var(--color-accent)] border border-purple-500/20">48h Delivery</span>
+                              </div>
+                              <p className="text-[11px] font-body text-[var(--color-text-secondary)] leading-tight">Broadcast-ready master wav, 2 revisions</p>
+                            </div>
+                            <div className="font-display text-base font-black mt-2 text-[var(--color-accent)]">
+                              {selectedTalent.price || "₦28,000"}
+                            </div>
                           </div>
-                          <div className="p-3 rounded-xl border flex flex-col justify-between" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                            <span className="text-xs font-body font-medium" style={{ color: "var(--color-text-primary)" }}>Rush 24h Turnaround</span>
-                            <span className="font-display text-sm font-bold mt-1" style={{ color: "var(--color-accent)" }}>
-                              ₦{((parseInt((selectedTalent.price || "50000").replace(/\D/g, ""), 10) || 50000) * 1.5).toLocaleString()}
-                            </span>
+
+                          <div className="p-3.5 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] hover:border-amber-500/50 transition-all flex flex-col justify-between group">
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-bold font-body text-[var(--color-text-primary)]">Rush 24h Turnaround</span>
+                                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">⚡ Priority</span>
+                              </div>
+                              <p className="text-[11px] font-body text-[var(--color-text-secondary)] leading-tight">Immediate studio queue, expedited delivery</p>
+                            </div>
+                            <div className="font-display text-base font-black mt-2 text-amber-600 dark:text-amber-400">
+                              ₦{((parseInt((selectedTalent.price || "28000").replace(/\D/g, ""), 10) || 28000) * 1.5).toLocaleString()}
+                            </div>
                           </div>
                         </div>
                       </div>

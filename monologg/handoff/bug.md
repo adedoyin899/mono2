@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 151: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup)
+**Last updated:** 2026-10-18 (Session 152: Client Webapp 5-Screen Executive Polish & Modernization)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 99. Client Webapp Visual Polish Lag and Media Player / Numeric Handle Presentation Artifacts
+- **Severity:** Medium / Design Parity & Visual Hierarchy
+- **What happened:**
+  1. The Client Webapp dashboard wallet hero was a flat, non-informative purple block with empty visual space, lacking executive telemetry, escrow status breakdowns, and secondary ledger controls.
+  2. Quick actions were floating circular ghost buttons lacking high-contrast visual grouping, legible subtitles, and consistent card elevation.
+  3. Performer Profile Quick-View modal rendered numeric handles (`@1`) instead of formatted performer handles, displayed a static non-interactive grey rectangle for the featured audio/video reel, and had plain rate card boxes.
+  4. Script sides excerpt inside the Project Detail view was displayed as a plain border box without studio script presentation, and the draft action button copy did not match the user's expected "Discard Draft" design.
+  5. In the Order Room client workspace, message bubbles lacked role-specific visual hierarchy, file attachment cards were flat, and the input composer lacked elevated styling.
+- **Root Cause:**
+  - Client webapp views were originally built as functional prototypes and had not received the executive design overhaul applied to the performer portal in recent sessions.
+- **Fix:**
+  - Rebuilt the Executive Financial Command Center with ambient lighting, Paystack escrow badge, dual balance chips, and 3 glassmorphic telemetry cards.
+  - Formatted creator handle to `@${selectedTalent.name.toLowerCase().replace(/[^a-z0-9]/g, '.')}` and built an interactive Studio Audio Console Reel Player with animated dynamic EQ waveform frequency bars and live scrubber.
+  - Formatted audition script sides as an authentic production teleprompter card and updated sidebar draft CTA to "Discard Draft".
+  - Upgraded Order Room attendance tracking strip, Google Meet action banner, client gradient chat bubbles, frosted file cards, and bottom message composer.
+- **Resolution:** Validated with clean TypeScript compilation and 25/25 test suites passing (127/127 tests).
 
 ### 98. Low Input Contrast in Edit Profile Modal, Verbose Casting Specifications Guidance Copy, and Redundant Production Phase/Briefing Indicators in Active Orders
 - **Severity:** Medium / Accessibility Contrast & Flow Streamlining

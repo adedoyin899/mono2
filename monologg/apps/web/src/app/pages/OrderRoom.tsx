@@ -912,12 +912,12 @@ export function OrderRoom() {
               /* Pending Attendance Verification Card */
               <div
                 className={`rounded-2xl border overflow-hidden transition-all bg-[var(--color-bg-surface)] ${
-                  isOverdue ? "border-amber-400/50 shadow-xs" : "border-[var(--color-border-default)] shadow-xs"
+                  isOverdue ? "border-amber-400/50 shadow-xs" : "border-[var(--color-border-default)] shadow-[var(--shadow-card)]"
                 }`}
               >
                 {/* Header status bar */}
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/60 backdrop-blur-xs">
+                  <div className="flex items-center gap-2.5">
                     {!isCancelled && role === "talent" && checkins.length > 1 && (
                       <div className="flex items-center gap-1">
                         <button
@@ -938,33 +938,33 @@ export function OrderRoom() {
                         </button>
                       </div>
                     )}
-                    <Badge tone={isOverdue ? "warning" : "accent"} size="sm">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-[var(--color-accent)] border border-purple-500/20">
                       {isOverdue ? "Action Required" : role === "client" ? "Attendance Tracking" : `Milestone Gate ${activeCheckin?.stepIndex || 2} of ${activeCheckin?.totalSteps || 3}`}
-                    </Badge>
-                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
+                    </span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 font-body">
                       due {activeCheckin?.dueDate || "Tue 14 Oct"}
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] uppercase font-semibold text-zinc-400 tracking-wider block">
-                      {role === "client" ? "Escrow Deposit" : "Net Take-Home"}
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider block">
+                      {role === "client" ? "ESCROW DEPOSIT" : "Net Take-Home"}
                     </span>
-                    <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono font-black text-sm text-emerald-600 dark:text-emerald-400">
                       ₦{role === "client" ? "134,400" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
                     </span>
                   </div>
                 </div>
 
                 {/* Body */}
-                <div className="p-4 space-y-3">
+                <div className="p-4 sm:p-5 space-y-3.5">
                   <div>
-                    <h3 className="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">
+                    <h3 className="font-display text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
                       {role === "client"
                         ? "Performer Attendance Verification"
                         : `Confirm attendance for ${activeCheckin?.clientName || clientOrg}`}
                     </h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
                       {role === "client"
                         ? `Awaiting attendance check-in confirmation from ${talentName}. Milestone 1 of 3 verified.`
                         : `Confirm your attendance to keep your booking reserved with ${activeCheckin?.clientName || clientOrg}.`}
@@ -972,18 +972,18 @@ export function OrderRoom() {
                   </div>
 
                   {/* Event summary grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs font-body">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs font-body">
                     <div>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Event</span>
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">{activeCheckin?.eventName || orderTitle}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">EVENT</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">{activeCheckin?.eventName || orderTitle}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Date &amp; Time</span>
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">{activeCheckin?.eventDate || "Tue 24 Nov 2026"}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">DATE &amp; TIME</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">{activeCheckin?.eventDate || "Tue 24 Nov 2026 · 10:00 AM WAT"}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 block">Location &amp; Client</span>
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate block">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">LOCATION &amp; CLIENT</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">
                         {activeCheckin?.location || (gigType === "remote" ? "Remote (Online)" : "Eko Hotel, Lagos")} · {activeCheckin?.clientName || clientOrg}
                       </span>
                     </div>
@@ -1016,22 +1016,21 @@ export function OrderRoom() {
       {role === "client" && !isCancelled && !clientIntroDismissed && (
         <div className="max-w-2xl mx-auto w-full px-4 pt-3">
           <div
-            className="rounded-2xl border overflow-hidden transition-all"
-            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+            className="rounded-2xl border overflow-hidden transition-all bg-[var(--color-bg-surface)] border-[var(--color-border-default)] shadow-[var(--shadow-card)]"
           >
             {/* Header strip */}
-            <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+            <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 border-b border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40">
               <div className="flex items-center gap-2">
-                <Badge tone={clientIntroScheduled ? "success" : "accent"} size="sm">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-[var(--color-accent)] border border-purple-500/20">
                   {clientIntroScheduled ? "Step 1 Done" : "Action Recommended"}
-                </Badge>
-                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Video introduction call</span>
+                </span>
+                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Video introduction call</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setClientIntroCollapsed((prev) => !prev)}
-                  className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
                 >
                   {clientIntroCollapsed ? "Expand" : "Minimize"}
                 </button>
@@ -1039,7 +1038,7 @@ export function OrderRoom() {
                 <button
                   type="button"
                   onClick={() => setClientIntroDismissed(true)}
-                  className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
                 >
                   Dismiss
                 </button>
@@ -1048,55 +1047,53 @@ export function OrderRoom() {
 
             {/* Body - collapsible */}
             {!clientIntroCollapsed && (
-              <div className="px-4 py-3">
-                <div className="flex items-start gap-3">
+              <div className="px-4 sm:px-5 py-4">
+                <div className="flex items-start gap-3.5">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border"
-                    style={{ background: "var(--color-accent-soft)", borderColor: "var(--color-accent)30" }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-purple-500/20 bg-[var(--color-accent-soft)] text-[var(--color-accent)] shadow-xs"
                   >
-                    <Video className="w-4 h-4" style={{ color: "var(--color-accent)" }} />
+                    <Video className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold font-body text-zinc-900 dark:text-zinc-100 leading-tight">
                       Schedule Google Meet with {talentName}
                     </p>
-                    <p className="text-xs font-body mt-0.5 leading-relaxed text-zinc-500 dark:text-zinc-400">
+                    <p className="text-xs font-body mt-1 leading-relaxed text-zinc-500 dark:text-zinc-400">
                       Conduct a brief introductory call to align on your campaign brief, tone preferences, and production deliverables before work begins.
                     </p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 mt-3">
+                <div className="flex flex-wrap items-center gap-2.5 mt-4">
                   <a
                     href="https://meet.google.com/new"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setClientIntroScheduled(true)}
-                    className="h-8 px-3.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-white transition-colors cursor-pointer shadow-xs"
-                    style={{ background: "var(--color-accent)" }}
+                    className="h-8.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 text-white transition-all cursor-pointer shadow-md shadow-purple-500/20 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
                   >
                     Launch Google Meet
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <button
                     type="button"
                     onClick={() => { navigator.clipboard?.writeText("https://meet.google.com/new"); setClientIntroCopied(true); setTimeout(() => setClientIntroCopied(false), 2000); }}
-                    className="h-8 px-3.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="h-8.5 px-3.5 rounded-xl text-xs font-semibold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Copy className="w-3 h-3" />
+                    <Copy className="w-3.5 h-3.5" />
                     {clientIntroCopied ? "Copied!" : "Copy Link"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setClientIntroScheduled((prev) => !prev)}
-                    className={`h-8 px-3.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 cursor-pointer ml-auto ${
+                    className={`h-8.5 px-3.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ml-auto shadow-2xs ${
                       clientIntroScheduled
                         ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
-                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        : "border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
                     }`}
                   >
-                    <Check className="w-3 h-3" />
+                    <Check className="w-3.5 h-3.5" />
                     {clientIntroScheduled ? "Marked Done" : "Mark as Done"}
                   </button>
                 </div>
@@ -1177,12 +1174,12 @@ export function OrderRoom() {
 
                   <div className={`max-w-[80%] sm:max-w-[72%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-xs transition-colors ${
+                      className={`px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all ${
                         isMe
                           ? (role === "talent"
-                              ? "bg-[#E50914] text-white border border-red-600/40"
-                              : "bg-[#7B00FE] text-white border border-purple-600/40")
-                          : "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200/90 dark:border-zinc-700/80"
+                              ? "bg-[#E50914] text-white border border-red-600/40 shadow-sm"
+                              : "bg-gradient-to-br from-[#7B00FE] via-[#7000EB] to-[#6000D0] text-white border border-purple-500/30 shadow-md")
+                          : "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200/90 dark:border-zinc-700/80 shadow-xs"
                       }`}
                       style={{
                         borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
@@ -1193,14 +1190,14 @@ export function OrderRoom() {
                       {/* File attachment */}
                       {msg.attachment && (
                         <div
-                          className={`mt-2.5 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors ${
+                          className={`mt-2.5 p-3 rounded-xl flex items-center gap-3 border transition-colors ${
                             isMe
-                              ? "bg-black/15 dark:bg-black/25 border-white/20 text-white"
+                              ? "bg-black/20 hover:bg-black/30 border-white/20 text-white"
                               : "bg-zinc-50 dark:bg-zinc-900/70 border-zinc-200/80 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
                           }`}
                         >
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
                               isMe
                                 ? "bg-white/20 text-white"
                                 : (role === "talent" ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400" : "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400")
@@ -1209,7 +1206,7 @@ export function OrderRoom() {
                             <FileText className="w-4 h-4" />
                           </div>
                           <div className="flex-1 min-w-0 text-xs">
-                            <div className="font-medium truncate">{msg.attachment.name}</div>
+                            <div className="font-semibold truncate">{msg.attachment.name}</div>
                             <div className={isMe ? "text-white/75" : "text-zinc-500 dark:text-zinc-400"}>{msg.attachment.size}</div>
                           </div>
                           <button
@@ -1221,7 +1218,7 @@ export function OrderRoom() {
                             }`}
                             title="Download"
                           >
-                            <Download className="w-3.5 h-3.5" />
+                            <Download className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -1260,7 +1257,7 @@ export function OrderRoom() {
                         </div>
                       )}
                     </div>
-                    <span className="text-[10px] mt-1 px-1 text-zinc-400 dark:text-zinc-500">{msg.time}</span>
+                    <span className="text-[10px] mt-1 px-1 text-zinc-400 dark:text-zinc-500 font-mono">{msg.time}</span>
                   </div>
                 </motion.div>
               );
@@ -1275,7 +1272,7 @@ export function OrderRoom() {
           {paymentReleased && (
             <div className="px-4 pb-2">
               <div
-                className="px-4 py-3 rounded-2xl flex items-center gap-2.5 text-sm font-medium"
+                className="px-4 py-3 rounded-2xl flex items-center gap-2.5 text-sm font-medium shadow-xs"
                 style={{ background: "var(--color-success-bg)", color: "var(--color-success)" }}
               >
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -1293,7 +1290,7 @@ export function OrderRoom() {
               <button
                 aria-label="Attach"
                 onClick={() => role === "talent" ? setShowSubmitModal(true) : fileInputRef.current?.click()}
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all hover:bg-zinc-100 active:scale-95"
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95"
                 style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-hairline)" }}
                 title={role === "talent" ? "Submit deliverable" : "Attach file"}
               >
@@ -1301,10 +1298,9 @@ export function OrderRoom() {
               </button>
 
               <textarea
-                className="flex-1 px-3.5 py-2.5 rounded-xl text-sm resize-none focus:outline-none transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm resize-none focus:outline-none transition-all border border-[var(--color-hairline)] focus:border-[var(--color-accent)]"
                 style={{
                   lineHeight: "1.5",
-                  border: "1px solid var(--color-hairline)",
                   background: "var(--color-bg-canvas)",
                   color: "var(--color-text-primary)",
                 }}
@@ -1319,25 +1315,24 @@ export function OrderRoom() {
                 aria-label="Send"
                 onClick={sendMessage}
                 disabled={!inputText.trim()}
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40 text-white shadow-2xs hover:opacity-95"
-                style={{ background: role === "talent" ? "var(--color-red)" : "var(--color-purple)" }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95 disabled:opacity-40 text-white shadow-md shadow-purple-500/20 hover:scale-105 cursor-pointer bg-gradient-to-tr from-purple-600 to-indigo-600"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
 
             {/* Minimal footer */}
-            <div className="flex items-center justify-between mt-2 px-0.5">
+            <div className="flex items-center justify-between mt-2.5 px-0.5">
               <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>
-                <Shield className="w-3 h-3 text-emerald-600" />
+                <Shield className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Escrow protected · 48h auto-release</span>
               </div>
               <button
                 onClick={() => setShowDisputeModal(true)}
-                className="text-[11px] flex items-center gap-1 transition-colors hover:text-red-600"
+                className="text-[11px] font-medium flex items-center gap-1 transition-colors hover:text-red-600 cursor-pointer"
                 style={{ color: "var(--color-text-tertiary)" }}
               >
-                <AlertTriangle className="w-3 h-3 text-amber-500" />
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                 Dispute
               </button>
             </div>
