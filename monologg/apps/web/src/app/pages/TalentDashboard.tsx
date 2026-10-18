@@ -3008,19 +3008,67 @@ export function TalentDashboard() {
                   }
 
                   return (
-                    <div className="p-5 rounded-[var(--radius-lg)] mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
-                        <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots & events</span>
+                    <div className="p-5 sm:p-6 rounded-3xl mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      {/* Month Header & Inline Chevrons */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
+                            <Calendar className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
+                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+                                {daysInMonth} days
+                              </span>
+                            </div>
+                            <span className="text-xs font-body block mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots & events</span>
+                          </div>
+                        </div>
+
+                        {/* Quick Month Navigator & Today shortcut */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center p-1 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                            <button
+                              aria-label="Previous month"
+                              onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, "month", "prev"))}
+                              className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
+                              style={{ color: "var(--color-text-secondary)" }}
+                              title="Previous Month"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setSelectedDate(todayISO())}
+                              className="px-2.5 py-1 text-xs font-semibold font-body rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
+                              style={{ color: "var(--color-text-primary)" }}
+                            >
+                              Today
+                            </button>
+                            <button
+                              aria-label="Next month"
+                              onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, "month", "next"))}
+                              className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
+                              style={{ color: "var(--color-text-secondary)" }}
+                              title="Next Month"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold mb-3 font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+
+                      {/* Day of Week Header */}
+                      <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold mb-2.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
                         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-                          <div key={day} className="py-1">{day}</div>
+                          <div key={day} className="py-1 font-semibold">{day}</div>
                         ))}
                       </div>
-                      <div className="grid grid-cols-7 gap-2">
+
+                      {/* Days Grid */}
+                      <div className="grid grid-cols-7 gap-2 sm:gap-2.5">
                         {daysArray.map((dateStr, idx) => {
-                          if (!dateStr) return <div key={`empty-${idx}`} className="h-16 sm:h-20 rounded-xl bg-[var(--color-bg-canvas)]/30" />;
+                          if (!dateStr) return <div key={`empty-${idx}`} className="h-16 sm:h-20 rounded-2xl bg-zinc-50/20 dark:bg-zinc-900/10 border border-transparent" />;
                           const isSelected = dateStr === selectedDate;
                           const isToday = dateStr === todayISO();
                           const dayNum = parseInt(dateStr.slice(8), 10);
@@ -3041,12 +3089,14 @@ export function TalentDashboard() {
                                 setSelectedDate(dateStr);
                                 setContextMenu({ x: e.clientX, y: e.clientY, date: dateStr });
                               }}
-                              className={`h-16 sm:h-20 p-2 rounded-xl flex flex-col justify-between relative transition-all active:scale-98 text-xs font-body text-left group ${
+                              className={`h-16 sm:h-20 p-2 sm:p-2.5 rounded-2xl flex flex-col justify-between relative transition-all active:scale-98 text-xs font-body text-left cursor-pointer group ${
                                 isUnavailable
-                                  ? "bg-neutral-100/80 dark:bg-neutral-900/40 border border-dashed border-neutral-300 dark:border-neutral-700/80 text-neutral-400 dark:text-neutral-500"
+                                  ? "bg-neutral-100/70 dark:bg-neutral-900/40 border border-dashed border-neutral-300 dark:border-neutral-700/80 text-neutral-400 dark:text-neutral-500"
                                   : isSelected
-                                  ? "border-2 border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm"
-                                  : "hover:border-[var(--color-border-hover)]"
+                                  ? "border-2 border-[var(--color-accent)] ring-4 ring-[var(--color-accent)]/15 shadow-sm"
+                                  : isToday
+                                  ? "border-2 border-[var(--color-accent)]/70 shadow-2xs hover:border-[var(--color-accent)]"
+                                  : "border border-[var(--color-border-default)] hover:border-[var(--color-border-hover)] hover:shadow-2xs"
                               }`}
                               style={{
                                 background: isUnavailable
@@ -3061,36 +3111,41 @@ export function TalentDashboard() {
                                   : isSelected
                                   ? "var(--color-accent)"
                                   : isToday
-                                  ? "var(--color-accent)"
-                                  : "var(--color-border-default)",
-                                color: isUnavailable
                                   ? undefined
-                                  : isToday && !isSelected
-                                  ? "var(--color-accent)"
-                                  : "var(--color-text-primary)",
+                                  : undefined,
                               }}
                             >
                               <div className="flex items-center justify-between w-full">
-                                <span className={`text-sm font-semibold ${isUnavailable ? "text-neutral-400 dark:text-neutral-500" : isSelected ? "font-bold text-[var(--color-accent)]" : ""}`}>
+                                <span className={`text-sm font-semibold transition-colors ${
+                                  isUnavailable
+                                    ? "text-neutral-400 dark:text-neutral-500 line-through"
+                                    : isSelected
+                                    ? "font-bold text-[var(--color-accent)]"
+                                    : isToday
+                                    ? "font-bold text-[var(--color-accent)]"
+                                    : "group-hover:text-[var(--color-accent)]"
+                                }`} style={{ color: !isUnavailable && !isSelected && !isToday ? "var(--color-text-primary)" : undefined }}>
                                   {dayNum}
                                 </span>
                                 {isToday && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" title="Today" />
+                                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--color-accent)" }}>
+                                    Today
+                                  </span>
                                 )}
                               </div>
 
                               {/* Visual recognition: Unavailable vs Events vs Clean Open */}
                               <div className="w-full min-h-[18px] flex items-center">
                                 {isUnavailable ? (
-                                  <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 bg-neutral-200/60 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded">
+                                  <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 bg-neutral-200/60 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded-md">
                                     Unavailable
                                   </span>
                                 ) : hasMonologg ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/25 truncate max-w-full">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/25 truncate max-w-full">
                                     <LogoMark className="w-2.5 h-2.5 shrink-0" /> Monologg
                                   </span>
                                 ) : hasExternal ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 truncate max-w-full">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 truncate max-w-full">
                                     <Calendar className="w-2.5 h-2.5 shrink-0" /> Event
                                   </span>
                                 ) : null}
@@ -3098,6 +3153,31 @@ export function TalentDashboard() {
                             </button>
                           );
                         })}
+                      </div>
+
+                      {/* Bottom Legend & Quick Telemetry */}
+                      <div className="mt-4 pt-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs font-body" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}>
+                        <div className="flex flex-wrap items-center gap-4">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
+                            <span>Monologg Gig</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-sky-500" />
+                            <span>Calendar Event</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-neutral-400" />
+                            <span>Unavailable</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span>Open Slot</span>
+                          </div>
+                        </div>
+                        <div className="text-[11px] hidden md:block" style={{ color: "var(--color-text-tertiary)" }}>
+                          Right-click any date to toggle availability or add slots
+                        </div>
                       </div>
                     </div>
                   );
@@ -3817,6 +3897,7 @@ export function TalentDashboard() {
                           transition={{ duration: 0.15 }}
                           className="space-y-6"
                         >
+                          {/* Verified Casting Client Card */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-5"
                             style={{
@@ -3824,45 +3905,123 @@ export function TalentDashboard() {
                               borderColor: "var(--color-border-default)",
                             }}
                           >
-                            <div className="flex items-center gap-2">
-                              <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                Casting Client &amp; Escrow
-                              </h2>
+                            <div className="flex items-center justify-between gap-3 pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Casting Client &amp; Escrow Verification
+                                </h2>
+                              </div>
+                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                100% Escrow Funded
+                              </span>
                             </div>
 
-                            <div className="flex items-center gap-3.5">
-                              <div
-                                className="w-11 h-11 rounded-full flex items-center justify-center font-display text-base font-bold text-white shrink-0 shadow-sm"
-                                style={{ background: "var(--color-accent)" }}
-                              >
-                                {selectedProject.clientName.charAt(0)}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-1.5 font-semibold text-sm sm:text-base font-body" style={{ color: "var(--color-text-primary)" }}>
-                                  <span>{selectedProject.clientName}</span>
-                                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setShowClientReviewsModal(true)}
-                                  className="text-xs font-body hover:underline text-left cursor-pointer transition-colors block"
-                                  style={{ color: "var(--color-text-secondary)" }}
-                                  title="Click to view client ratings & reviews"
+                            <div className="flex items-start justify-between flex-wrap gap-4">
+                              <div className="flex items-center gap-3.5">
+                                <div
+                                  className="w-12 h-12 rounded-2xl flex items-center justify-center font-display text-lg font-bold text-white shrink-0 shadow-sm"
+                                  style={{ background: "var(--color-accent)" }}
                                 >
-                                  Verified Client · {selectedProject.clientReviews ?? 18} projects completed · <span className="text-amber-500 font-semibold">{selectedProject.clientRating ?? 4.9} rating ★</span>
-                                </button>
+                                  {selectedProject.clientName.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5 font-semibold text-base font-body" style={{ color: "var(--color-text-primary)" }}>
+                                    <span>{selectedProject.clientName}</span>
+                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowClientReviewsModal(true)}
+                                    className="text-xs font-body hover:underline text-left cursor-pointer transition-colors block mt-0.5"
+                                    style={{ color: "var(--color-text-secondary)" }}
+                                    title="Click to view client ratings & reviews"
+                                  >
+                                    Verified Client · {selectedProject.clientReviews ?? 18} projects completed · <span className="text-amber-500 font-semibold">{selectedProject.clientRating ?? 4.9} rating ★</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => setShowClientReviewsModal(true)}
+                                className="px-3.5 py-1.5 rounded-xl border text-xs font-semibold font-body transition-all hover:bg-[var(--color-bg-elevated)] cursor-pointer"
+                                style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                              >
+                                View Client Reviews
+                              </button>
+                            </div>
+
+                            {/* Client Track Record Telemetry Dock */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-2xl" style={{ background: "var(--color-bg-elevated)" }}>
+                              <div className="text-center p-2">
+                                <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Projects</span>
+                                <span className="font-display text-sm sm:text-base font-bold" style={{ color: "var(--color-text-primary)" }}>{selectedProject.clientReviews ?? 18} funded</span>
+                              </div>
+                              <div className="text-center p-2">
+                                <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Rating</span>
+                                <span className="font-display text-sm sm:text-base font-bold text-amber-500">4.9 ★★★★★</span>
+                              </div>
+                              <div className="text-center p-2">
+                                <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Release Speed</span>
+                                <span className="font-display text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400">&lt; 2 hours</span>
+                              </div>
+                              <div className="text-center p-2">
+                                <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Escrow Status</span>
+                                <span className="font-display text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400">100% Secured</span>
                               </div>
                             </div>
 
-                            <div className="p-4 rounded-2xl border text-xs sm:text-sm font-body leading-relaxed space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                              <div className="flex items-center gap-2 font-semibold text-emerald-600 dark:text-emerald-400">
-                                <Lock className="w-4 h-4" />
-                                <span>100% Escrow Guarantee</span>
+                            <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                              Premier West African casting partner with a flawless escrow release track record on Monologg. Known for transparent briefs, prompt feedback, and instant bank disbursement upon deliverable approval.
+                            </p>
+                          </div>
+
+                          {/* Escrow Guarantee 3-Pillar Security Architecture */}
+                          <div
+                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-4 h-4 text-emerald-500" />
+                              <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                Escrow Protection &amp; Settlement Guarantee
+                              </h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
+                                  <Shield className="w-3.5 h-3.5" />
+                                  <span>1. Locked Upfront</span>
+                                </div>
+                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  100% of the compensation is held securely with Paystack before you confirm your booking or record.
+                                </p>
                               </div>
-                              <p style={{ color: "var(--color-text-secondary)" }}>
-                                When selected, 100% of the project budget is held securely in escrow by our payment partner, Paystack before you record. Payment is disbursed directly to your bank account upon client milestone approval.
-                              </p>
+
+                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>2. 48h Auto-Release</span>
+                                </div>
+                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  Client has a 48-hour inspection window. Funds automatically release if no revisions are requested.
+                                </p>
+                              </div>
+
+                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>3. Direct Payout</span>
+                                </div>
+                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  Net earnings are disbursed directly into your designated local bank account with zero chargeback risk.
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -3889,7 +4048,7 @@ export function TalentDashboard() {
                             const fee = Math.round(numBudget * 0.07);
                             const net = numBudget - fee;
                             return (
-                              <div className="p-3.5 rounded-2xl border space-y-1.5 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                              <div className="p-4 rounded-2xl border space-y-2 text-xs font-body" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
                                 <div className="flex justify-between items-center" style={{ color: "var(--color-text-secondary)" }}>
                                   <span>Base rate</span>
                                   <span className="font-mono font-medium text-sm" style={{ color: "var(--color-text-primary)" }}>₦{numBudget.toLocaleString()}</span>
@@ -3898,16 +4057,16 @@ export function TalentDashboard() {
                                   <span>Platform fee (7%)</span>
                                   <span className="font-mono text-zinc-500 font-medium">-₦{fee.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between items-center font-semibold pt-1 border-t text-sm" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
+                                <div className="flex justify-between items-center font-semibold pt-2 border-t text-sm" style={{ borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}>
                                   <span>You receive</span>
-                                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">₦{net.toLocaleString()}</span>
+                                  <span className="font-mono font-bold text-base text-emerald-600 dark:text-emerald-400">₦{net.toLocaleString()}</span>
                                 </div>
                               </div>
                             );
                           })()}
-                          <div className="flex items-center gap-1.5 mt-2.5 text-xs font-body text-emerald-600 dark:text-emerald-400">
-                            <Lock className="w-3.5 h-3.5 shrink-0" />
-                            <span>100% escrow guaranteed by Paystack · Direct bank payout</span>
+                          <div className="flex items-center gap-1.5 mt-2.5 text-xs font-body font-medium text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>100% Escrow Funded · Direct bank payout</span>
                           </div>
                         </div>
 
@@ -3922,14 +4081,20 @@ export function TalentDashboard() {
                               {selectedProject.applicantCount} / {selectedProject.applicantCap || 10} filled
                             </span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                          <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all"
                               style={{
                                 width: `${Math.min(100, (selectedProject.applicantCount / (selectedProject.applicantCap || 10)) * 100)}%`,
-                                background: selectedProject.applicationsOpen ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+                                background: selectedProject.applicationsOpen ? "var(--color-accent)" : "var(--color-text-tertiary)",
                               }}
                             />
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                            <span>Audition window active</span>
+                            <span className="font-medium text-amber-600 dark:text-amber-400">
+                              {Math.max(0, (selectedProject.applicantCap || 10) - selectedProject.applicantCount)} spots remaining
+                            </span>
                           </div>
                         </div>
 

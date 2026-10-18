@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
+**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 94. Order Room Dark Mode Text Contrast Failure, Project Detail Dead Space, and Calendar Marshmallow Day Cells
+- **Severity:** High / Accessibility & Visual Design
+- **What happened:**
+  1. In `OrderRoom.tsx`, performer sent messages in dark mode rendered near-black text (`text-zinc-900`) on dark translucent red background (`rgba(255, 77, 77, 0.14)`), resulting in near 1:1 unreadable contrast ratio (WCAG AAA/AA failure).
+  2. In `TalentDashboard.tsx`, Project Detail Tab 4 ("Client & Escrow") left huge dead empty space with only a tiny client paragraph, while the right column was cramped and escrow was redundantly stated 3 times on the same page.
+  3. In `TalentDashboard.tsx`, the Month Calendar view rendered day cells as clunky puffy squircle "marshmallows" with wide gaps, ghost grey pills for empty leading slots, and lacked inline month navigation controls and a telemetry legend.
+  4. In `ExternalBookingEntry.tsx`, `checkDateUnavailable` simulated booked days without honoring the 'when not today' guard, causing same-day booking tests to fail when the test date coincided with the hardcoded booked day index.
+- **Root Cause:** Hardcoded `text-zinc-900` class on chat bubble container regardless of dark mode; lack of rich client profile telemetry in Tab 4; loosely coupled grid gap in calendar view; and missing `isToday` check in `checkDateUnavailable`.
+- **Fix:**
+  - Styled sent chat messages with solid high-contrast brand accent (`bg-[#E50914]` / `bg-[#7B00FE]`) and `text-white` in both light and dark modes, ensuring pristine legibility. Adapted incoming bubbles to dark mode with elevated surfaces and clean text.
+  - Built a comprehensive Verified Casting Client Dossier and 3-pillar Escrow Protection Guarantee card in Tab 4, balancing the layout and eliminating repetitive escrow labels.
+  - Replaced puffy day cells with a sleek connected calendar grid with inline navigation chevrons, day count, high-contrast day badges, and a bottom legend.
+  - Guarded `checkDateUnavailable` so same-day appointments are open for bookings.
+- **Resolution:** Verified with `npx tsc --noEmit` (0 errors) and all 25 test suites passed cleanly (127/127 tests).
 
 ### 93. Overpowering Red Balance Banner, Floating Ghost Circles, Contradictory Check-In Banners, and Broken Order Card Hierarchy
 - **Severity:** Medium / Visual Hierarchy & Interaction Design

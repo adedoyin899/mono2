@@ -664,11 +664,10 @@ export function OrderRoom() {
               setDeliverableTab("online");
               setShowSubmitModal(true);
             }}
-            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm hover:opacity-95 text-white"
-            style={{ background: "var(--color-red)" }}
+            className="w-full h-11 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md hover:shadow-lg text-white bg-gradient-to-r from-[#E50914] via-[#F13030] to-[#E50914] hover:brightness-105 cursor-pointer"
           >
             <UploadCloud className="w-4 h-4" />
-            Submit Deliverable
+            <span>Submit Deliverable</span>
           </button>
         </div>
       );
@@ -1140,12 +1139,11 @@ export function OrderRoom() {
               /* System messages */
               if (msg.from === "system") {
                 return (
-                  <div key={msg.id} className="flex justify-center">
+                  <div key={msg.id} className="flex justify-center my-1.5">
                     <div
-                      className="px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-sm text-center shadow-2xs"
-                      style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+                      className="px-3.5 py-1.5 rounded-full text-xs flex items-center gap-1.5 max-w-sm text-center shadow-2xs border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100/90 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 font-medium"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>{msg.text}</span>
                     </div>
                   </div>
@@ -1154,22 +1152,6 @@ export function OrderRoom() {
 
               const isMe = msg.from === role;
               const isTalent = msg.from === "talent";
-
-              let bubbleBg: string;
-              let bubbleBorder: string;
-
-              if (!isMe) {
-                bubbleBg = "#ffffff";
-                bubbleBorder = "1px solid rgba(0, 0, 0, 0.08)";
-              } else {
-                if (role === "talent") {
-                  bubbleBg = "var(--color-red-soft)";
-                  bubbleBorder = "1px solid rgba(225, 29, 72, 0.22)";
-                } else {
-                  bubbleBg = "var(--color-purple-soft)";
-                  bubbleBorder = "1px solid rgba(124, 58, 237, 0.22)";
-                }
-              }
 
               return (
                 <motion.div
@@ -1190,10 +1172,14 @@ export function OrderRoom() {
 
                   <div className={`max-w-[80%] sm:max-w-[72%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
                     <div
-                      className="px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-2xs text-zinc-900"
+                      className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-xs transition-colors ${
+                        isMe
+                          ? (role === "talent"
+                              ? "bg-[#E50914] text-white border border-red-600/40"
+                              : "bg-[#7B00FE] text-white border border-purple-600/40")
+                          : "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200/90 dark:border-zinc-700/80"
+                      }`}
                       style={{
-                        background: bubbleBg,
-                        border: bubbleBorder,
                         borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
                       }}
                     >
@@ -1202,28 +1188,32 @@ export function OrderRoom() {
                       {/* File attachment */}
                       {msg.attachment && (
                         <div
-                          className="mt-2 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors"
-                          style={{
-                            background: !isMe ? "var(--color-bg-canvas)" : "rgba(255, 255, 255, 0.85)",
-                            borderColor: !isMe ? "rgba(0, 0, 0, 0.08)" : (role === "talent" ? "rgba(241, 48, 48, 0.18)" : "rgba(123, 0, 254, 0.18)"),
-                          }}
+                          className={`mt-2.5 p-2.5 rounded-xl flex items-center gap-2.5 border transition-colors ${
+                            isMe
+                              ? "bg-black/15 dark:bg-black/25 border-white/20 text-white"
+                              : "bg-zinc-50 dark:bg-zinc-900/70 border-zinc-200/80 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
+                          }`}
                         >
                           <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                            style={{ background: !isMe ? "rgba(0, 0, 0, 0.06)" : (role === "talent" ? "var(--color-red-soft)" : "var(--color-purple-soft)") }}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                              isMe
+                                ? "bg-white/20 text-white"
+                                : (role === "talent" ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400" : "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400")
+                            }`}
                           >
-                            <FileText
-                              className="w-4 h-4"
-                              style={{ color: !isMe ? "var(--color-text-secondary)" : (role === "talent" ? "var(--color-mono-red)" : "var(--color-mono-purple)") }}
-                            />
+                            <FileText className="w-4 h-4" />
                           </div>
                           <div className="flex-1 min-w-0 text-xs">
-                            <div className="font-medium truncate text-zinc-900">{msg.attachment.name}</div>
-                            <div className="text-zinc-500">{msg.attachment.size}</div>
+                            <div className="font-medium truncate">{msg.attachment.name}</div>
+                            <div className={isMe ? "text-white/75" : "text-zinc-500 dark:text-zinc-400"}>{msg.attachment.size}</div>
                           </div>
                           <button
                             type="button"
-                            className="p-1.5 rounded-lg transition-colors text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                              isMe
+                                ? "text-white/80 hover:text-white hover:bg-white/20"
+                                : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60"
+                            }`}
                             title="Download"
                           >
                             <Download className="w-3.5 h-3.5" />
@@ -1234,30 +1224,29 @@ export function OrderRoom() {
                       {/* Onsite evidence card inside performer bubble */}
                       {msg.onsiteEvidence && (
                         <div
-                          className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs"
-                          style={{
-                            background: "rgba(255, 255, 255, 0.95)",
-                            borderColor: isMe && role === "talent" ? "rgba(241, 48, 48, 0.25)" : "rgba(0, 0, 0, 0.08)",
-                            color: "#18181b",
-                          }}
+                          className={`mt-2.5 p-3 rounded-xl border text-xs shadow-2xs ${
+                            isMe
+                              ? "bg-white/95 text-zinc-900 border-white/40"
+                              : "bg-white dark:bg-zinc-900/90 text-zinc-900 dark:text-zinc-100 border-zinc-200 dark:border-zinc-700"
+                          }`}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1.5 font-semibold text-zinc-900">
+                            <div className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-zinc-100">
                               <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                               Onsite Appearance Verified
                             </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
                               Verified
                             </span>
                           </div>
-                          <div className="space-y-1 text-zinc-600">
-                            <div className="font-semibold text-zinc-900">{msg.onsiteEvidence.venue}</div>
+                          <div className="space-y-1 text-zinc-600 dark:text-zinc-300">
+                            <div className="font-semibold text-zinc-900 dark:text-zinc-100">{msg.onsiteEvidence.venue}</div>
                             <div>📍 {msg.onsiteEvidence.coords}</div>
                             <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
                             {msg.onsiteEvidence.pinCode && (
-                              <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800">
+                              <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800 dark:text-zinc-200">
                                 <span>Client code confirmed:</span>
-                                <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
                                   {msg.onsiteEvidence.pinCode}
                                 </span>
                               </div>
@@ -1266,7 +1255,7 @@ export function OrderRoom() {
                         </div>
                       )}
                     </div>
-                    <span className="text-[10px] mt-1 px-1" style={{ color: "var(--color-text-tertiary)" }}>{msg.time}</span>
+                    <span className="text-[10px] mt-1 px-1 text-zinc-400 dark:text-zinc-500">{msg.time}</span>
                   </div>
                 </motion.div>
               );

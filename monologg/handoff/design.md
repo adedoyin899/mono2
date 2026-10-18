@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-18 (Session 146: Overhaul Performer Dashboard and Order Room Visual Hierarchy, Deep Slate Fintech Theme, and Progressive Disclosure)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–145 + Session 146 Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room.
+**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–146 + Session 147 Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -203,6 +203,13 @@ Key token groups:
   - When attendance is confirmed, the card collapses from a 250px vertical block into a 42px header ribbon with an emerald `Attendance Confirmed` badge and interactive `View Details` toggle, recovering screen real estate for the primary workspace (chat, files, and escrow).
 - **Production Progress Segment Stepper (`TalentDashboard.tsx`):**
   - Replaces arbitrary numbered circles with a 4-step segmented production progress bar (`Briefing` -> `Deliverables` -> `Review` -> `Complete`) with active milestone pulse.
+- **High-Contrast Dark Mode Chat Architecture (`OrderRoom.tsx` — Session 147):**
+  - Replaces dark-translucent-red with solid brand accent (`bg-[#E50914]` for performers, `bg-[#7B00FE]` for clients) paired with pristine `text-white` for all sent bubbles, guaranteeing WCAG AAA contrast in both light and dark themes.
+  - Dark-mode adaptive incoming bubbles (`dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700/80`) and frosted translucent attachment cards (`bg-black/15 dark:bg-black/25 text-white`).
+- **Verified Casting Client Dossier & 3-Pillar Escrow Security (`TalentDashboard.tsx` — Session 147):**
+  - Balances the Project Detail layout by replacing empty dead space in Tab 4 with a rich 4-stat client track record bar (18 funded projects, 4.9 rating, <2h release speed, 100% escrow secured) and a 3-pillar protection breakdown (Locked Upfront, 48h Auto-Release, Direct Bank Payout).
+- **Connected Calendar Grid Architecture (`TalentDashboard.tsx` — Session 147):**
+  - Replaced loose, puffy squircle "marshmallow" tiles with a connected calendar grid container featuring inline month chevrons (`<` and `>`), day count chip, high-contrast day numbers, today indicator, and bottom telemetry legend.
 
 ### Shared components (`src/app/components/ui/`)
 

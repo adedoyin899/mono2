@@ -1,11 +1,27 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–145 + Session 146 Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room.
+**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–145 + Session 146 + Session 147 Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture.
 
 ---
 
 ## ✅ Done
+
+### Session 147 — Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture
+- [x] **Order Room Dark Mode Contrast & Message Bubbles (`OrderRoom.tsx`)**:
+  - Replaced dark translucent red with solid brand accent (`bg-[#E50914]` / `bg-[#7B00FE]`) and high-contrast `text-white` for sent messages, eliminating black-on-dark-red contrast failure in dark mode.
+  - Made incoming messages adapt with high contrast across light (`bg-white text-zinc-900 border-zinc-200`) and dark (`dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700`) modes.
+  - High-contrast attachment preview cards with white text and clean hover states.
+  - Elevated `Submit Deliverable` CTA into an action button with gradient glow.
+- [x] **Project Detail Client Dossier & 3-Pillar Escrow Security Protocol (`TalentDashboard.tsx`)**:
+  - Replaced empty dead space in Tab 4 with a rich Verified Casting Client Dossier, 4-metric track record telemetry dock (18 funded projects, 4.9 rating, <2h release speed, 100% escrow secured), and client bio.
+  - Built a 3-pillar Escrow Protection & Settlement Guarantee card (100% Upfront, 48h Auto-Release, Direct Payout) and eliminated 3x repetitive mentions of escrow.
+  - Modernized right column with bold Net Payout, fee breakdown, and audition spots remaining indicator.
+- [x] **Availability Month Calendar Grid Architecture (`TalentDashboard.tsx`)**:
+  - Replaced clunky puffy marshmallow day cells with a sleek connected calendar grid container.
+  - Added inline month navigation chevrons, days-of-month count, crisp high-contrast day cells, today badge, and interactive legend bar.
+- [x] **External Booking Date Availability (`ExternalBookingEntry.tsx`)**:
+  - Fixed bug in `checkDateUnavailable` to honor the 'when not today' logic so same-day appointments and tests succeed reliably.
 
 ### Session 146 — Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room
 - [x] **Performer Dashboard Deep Slate Fintech Balance Hero (`TalentDashboard.tsx`)**:

@@ -231,9 +231,10 @@ export function ExternalBookingEntry() {
       // Past dates are unavailable
       if (targetStart < today) return true;
 
-      // Sundays (day 0) or specific scheduled booked days (18, 20, 25) when not today
+      // Sundays (day 0) or specific scheduled booked days (20, 25) when not today
+      const isToday = targetStart.getTime() === today.getTime();
       const dayOfWeek = target.getDay();
-      const isBooked = dayOfWeek === 0 || [18, 20, 25].includes(d!);
+      const isBooked = !isToday && (dayOfWeek === 0 || [20, 25].includes(d!));
       return isBooked;
     } catch {
       return false;

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 146: Overhaul Performer Dashboard and Order Room Visual Hierarchy, Deep Slate Fintech Theme, and Progressive Disclosure)
+**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,26 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 106: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture (Session 147)
+
+Addressed second round of user UI/UX design critiques across 4 key application screens:
+- **Order Room Dark Mode Contrast & Message Bubbles (`OrderRoom.tsx`):**
+  - Replaced the illegible dark-translucent-red outgoing message bubbles (which rendered near-black text on dark red) with solid brand accents (`bg-[#E50914]` for performers, `bg-[#7B00FE]` for clients) paired with high-contrast `text-white`, establishing WCAG AAA contrast in both light and dark themes.
+  - Adapted incoming bubbles to dark mode with elevated containers (`dark:bg-zinc-800 dark:text-zinc-100`) and high-contrast translucent attachment preview cards.
+  - Elevated the `Submit Deliverable` CTA into an action button with gradient glow.
+- **Project Detail Client Dossier & 3-Pillar Escrow Security Protocol (`TalentDashboard.tsx`):**
+  - Eliminated large empty dead space in Tab 4 ("Client & Escrow") by building a comprehensive Verified Casting Client Dossier with a 4-stat track record telemetry bar (18 projects funded, 4.9 rating, <2h release speed, 100% escrow secured) and client bio.
+  - Built a 3-pillar Escrow Protection Guarantee card (100% Upfront, 48h Auto-Release, Direct Bank Payout) and purged repetitive mentions of escrow.
+  - Modernized the right column with bold Net Payout (`₦186,000`), clear fee deduction note, and an audition capacity indicator showing remaining spots.
+- **Availability Month Calendar Grid Architecture (`TalentDashboard.tsx`):**
+  - Replaced loose, puffy squircle "marshmallow" tiles with a connected calendar grid container.
+  - Added inline month navigation chevrons (`<` and `>`), days-of-month count, crisp high-contrast day cells, today badge, and an interactive legend bar.
+- **External Booking Date Availability Guard (`ExternalBookingEntry.tsx`):**
+  - Fixed `checkDateUnavailable` to honor the 'when not today' logic, ensuring same-day booking slots are open.
+- **Testing & Verification:** Zero TypeScript compilation errors (`npx tsc --noEmit`); all 25 test suites and 127/127 tests passed cleanly (`npm test`).
+
+---
 
 ### Step 105: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room (Session 146)
 

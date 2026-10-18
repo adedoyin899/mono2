@@ -1,11 +1,30 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 146: Comprehensive UI/UX & Visual Hierarchy Overhaul Across Performer Dashboard and Order Room)
+**Last updated:** 2026-10-18 (Session 147: Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 147 (2026-10-18) — Dark Mode Chat Contrast Fix, Project Detail Client Dossier & Escrow Security Overhaul, and Calendar Grid Architecture
+
+**Goal:** Address second tranche of user UI/UX design reviews across Order Room dark mode chat bubbles, Project Detail ("Client & Escrow" tab and compensation sidebar), Availability Month calendar grid, and External Booking calendar availability:
+1. **Order Room Dark Mode Contrast Fix (`OrderRoom.tsx`):** Fix critical contrast failure where performer outgoing messages rendered near-black text (`text-zinc-900`) on dark translucent red (`rgba(255, 77, 77, 0.14)`), resulting in near 1:1 unreadable contrast in dark mode. Replaced with solid brand accent (`bg-[#E50914]` for talent, `bg-[#7B00FE]` for client) with high-contrast `text-white`, dark-mode adaptive incoming messages, high-contrast attachment preview cards, and elevated `Submit Deliverable` CTA button.
+2. **Project Detail Client & Escrow Dossier (`TalentDashboard.tsx`):** Eliminated large empty dead space in Tab 4. Built a rich Verified Casting Client Dossier with 4-metric track record telemetry dock (18 funded projects, 4.9 rating, <2h release speed, 100% escrow secured), a 3-pillar Escrow Protection & Settlement Guarantee card (100% Upfront, 48h Auto-Release, Direct Payout), and eliminated 3x repetitive mentions of escrow. Modernized the right column with bold Net Payout, fee breakdown, and audition spots remaining indicator.
+3. **Availability Month Calendar Grid Architecture (`TalentDashboard.tsx`):** Replaced clunky puffy marshmallow day cells with a sleek, cohesive calendar grid container with inline month navigation chevrons, days-of-month count, crisp high-contrast day cells, today badge, and interactive legend bar.
+4. **External Booking Date Availability (`ExternalBookingEntry.tsx`):** Fixed bug in `checkDateUnavailable` to honor the 'when not today' logic so same-day appointments and tests succeed reliably.
+
+**Files Changed:**
+- `apps/web/src/app/pages/OrderRoom.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/ExternalBookingEntry.tsx`
+
+**Technical Context:**
+- Zero TypeScript compiler errors (`npx tsc --noEmit` exited 0).
+- All 25 test suites and 127/127 tests passed cleanly (`npm test`).
 
 ---
 
