@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
+**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 109: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture (Session 150)
+
+Addressed cross-portal UI and UX consistency across client and performer portals:
+- **Performer Filter UI Alignment (`ClientDashboard.tsx`):**
+  - Upgraded Discover Performers search header to a side-by-side flex container with search input and `Filters` button (`SlidersHorizontal`) equipped with an active criteria counter badge.
+  - Implemented an active filter chips bar displaying removable pills for Craft, Maximum Rate Card (`Max Rate: ₦...`), and Physical Attributes (`Height`, `Build`, `Complexion`, `Hair`, `Presentation`, `Age`, `Location`) with a `Clear all` reset button.
+  - Rebuilt the expandable Filter Panel (`showAttributeFilters`) with full categories: Craft Role tags, Maximum Rate Card Slider (0 to ₦150k+), Physical Attributes (`ATTRIBUTE_FILTER_FIELDS`), Demographics (Age Range and Locations), with `Clear attribute filters` reset and `Show Performers ({filteredTalents.length})` CTA.
+  - Retained fast-access horizontal scrolling Niche pills for quick one-tap category filtering.
+- **Client Project Detailed View Architectural & Typographic Alignment (`ClientDashboard.tsx`):**
+  - Mirrored the depth and structure from the Client Create Project Brief flow (`ProjectBrief.tsx`) and Performer Project Detail view.
+  - Added dynamic format telemetry (`Globe` for remote/online vs `MapPin` for on-site gigs), Project Type badge (`Commercial / Brief`), and `100% Escrow Funded` badge to Project Header Banner.
+  - Standardized card headers across all 7 project cards to `font-display text-base font-bold` (16px), narrative body descriptions to `text-sm font-body leading-relaxed` (14px), and added signature left accent border callout (`border-l-4 border-l-[var(--color-accent)]`) to audition sides.
+  - Integrated the **Escrow Protection & Settlement Guarantee (Client POV Vertical Layout)** card:
+    - 3-pillar vertical stack with dedicated left emerald icon badges (`Shield`, `Clock`, `CheckCircle2`), step titles (`1. 100% Escrow Protection`, `2. 48h Inspection Window`, `3. Milestone Release Control`), trust badges (`Funded Upfront`, `Review Guarantee`, `Direct Approval`), and client-tailored escrow security copy.
 
 ### Step 108: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup (Session 149)
 

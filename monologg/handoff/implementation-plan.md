@@ -1,11 +1,25 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–148 + Session 149 Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup.
+**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–149 + Session 150 Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture.
 
 ---
 
 ## ✅ Done
+
+### Session 150 — Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture
+- [x] **Performer Filter UI Alignment (`ClientDashboard.tsx`)**:
+  - Replaced legacy icon toggle with side-by-side search input and `Filters` button (`SlidersHorizontal className="w-4 h-4"` and active counter badge).
+  - Added active filter chips bar displaying removable pills for active Craft, Maximum Rate Card (`Max Rate: ₦...`), and Physical Attributes (`Height`, `Build`, `Complexion`, `Hair`, `Presentation`, `Age`, `Location`) with `Clear all` reset button.
+  - Rebuilt expandable Filter Panel with categories for Category/Craft, Maximum Rate Card Slider (0 to ₦150k+), Physical Attributes (`ATTRIBUTE_FILTER_FIELDS`), Demographics (Age Range and Locations), with `Clear attribute filters` reset and `Show Performers ({filteredTalents.length})` CTA.
+  - Retained fast-access horizontal scrolling Niche pills for quick one-tap category filtering.
+- [x] **Client Project Detailed View Architectural & Typographic Alignment (`ClientDashboard.tsx`)**:
+  - Enhanced Project Header Banner with dynamic format telemetry (`Globe` for remote/online vs `MapPin` for on-site), Project Type badge (`Commercial / Brief`), and `100% Escrow Funded` badge.
+  - Standardized card headers to `font-display text-base font-bold` (16px) across Creative Brief & Synopsis, Role & Craft Requirements, Audition Sides & Script Excerpt, Deliverables & Licensing Milestones, Project Assets & Reference Files, and Applicant Pipeline & Casting.
+  - Standardized narrative body copy and descriptions to `text-sm font-body leading-relaxed` (14px).
+  - Enhanced Audition Sides excerpt callout with signature left accent border (`border-l-4 border-l-[var(--color-accent)]`).
+  - Integrated **Escrow Protection & Settlement Guarantee (Client POV Vertical Layout)** card:
+    - Dedicated left emerald icon surfaces (`Shield`, `Clock`, `CheckCircle2`), step titles (`1. 100% Escrow Protection`, `2. 48h Inspection Window`, `3. Milestone Release Control`), trust badges (`Funded Upfront`, `Review Guarantee`, `Direct Approval`), and client-tailored escrow security copy.
 
 ### Session 149 — Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup
 - [x] **Vertical Escrow Protection & Settlement Guarantee (`TalentDashboard.tsx`)**:

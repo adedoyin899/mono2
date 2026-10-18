@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
+**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 150 (2026-10-18) — Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture
+
+**Goal:** Propagate the visual polish, UX consistency, and architectural patterns recently developed for the performer portal onto shared and analogous screens in the client portal (`ClientDashboard.tsx`), fulfilling user requirement for role-tailored information with uniform styling, interaction design, and UX treatments:
+1. **Performer Filter UI Alignment (`ClientDashboard.tsx`):**
+   - Refactored the Discover Performers filter experience to mirror the state-of-the-art Project Filter UI from `TalentDashboard.tsx`, while tailoring options to talent discovery.
+   - Upgraded the search header to a side-by-side flex layout with search input (`!h-10 text-xs sm:text-sm pl-9 pr-8 rounded-xl`) with quick clear `X` button and a dedicated `Filters` button (`SlidersHorizontal className="w-4 h-4"`, `aria-label="Filter performers"`, active counter badge displaying total active criteria).
+   - Added an active filter chips bar displaying removable pills for active Craft, Maximum Rate Card (`Max Rate: ₦...`), and Physical Attributes (`Height`, `Build`, `Complexion`, `Hair`, `Presentation`, `Age`, `Location`) plus a `Clear all` reset action.
+   - Rebuilt the expandable Filter Panel (`showAttributeFilters`) with full categories: Category/Craft Role tags, Maximum Rate Card (Budget Slider from ₦0 to ₦150k+), Physical Attributes (`ATTRIBUTE_FILTER_FIELDS`), Demographics (Age Range and Nigerian Locations), and bottom actions with `Clear attribute filters` button and `Show Performers ({filteredTalents.length})` CTA.
+   - Retained fast-access horizontal scrolling Niche pills for one-tap category filtering.
+2. **Client Project Detailed View Architectural & Typographic Alignment (`ClientDashboard.tsx`):**
+   - Mirrored the depth and structure from the Client Create Project Brief flow (`ProjectBrief.tsx`) and Performer Project Detail view.
+   - In the Project Header Banner, added dynamic format telemetry (`Globe` for remote/online vs `MapPin` for on-site gigs), Project Type badge (`Commercial / Brief`), and `100% Escrow Funded` badge.
+   - Standardized typographic hierarchy across all 7 core project cards: card headers aligned to `font-display text-base font-bold` (16px), and narrative descriptions standardized to `text-sm font-body leading-relaxed` (14px).
+   - Updated Audition Sides & Script Excerpt with the signature left accent callout border (`border-l-4 border-l-[var(--color-accent)]`) for visual prominence.
+   - Integrated the **Escrow Protection & Settlement Guarantee (Client POV Vertical Layout)** card:
+     - Header: `Lock` icon in emerald, title `Escrow Protection & Settlement Guarantee`, and `Paystack Secured` badge.
+     - Pillar 1: `1. 100% Escrow Protection` (`Funded Upfront` badge) — explaining that budget is held safely in Paystack escrow and performers are only paid upon deliverable inspection and approval.
+     - Pillar 2: `2. 48h Inspection Window` (`Review Guarantee` badge) — explaining client's 48-hour window to inspect high-resolution deliverables or request revisions.
+     - Pillar 3: `3. Milestone Release Control` (`Direct Approval` badge) — explaining that disbursement only triggers upon client confirmation in Order Room with Monologg mediation dispute safeguards.
+
+**Files Changed:**
+- `apps/web/src/app/pages/ClientDashboard.tsx`
+
+**Technical Context:**
+- `npx tsc --noEmit` exited 0 (clean compilation).
+- All 25 test suites and 127/127 tests passed cleanly (`npm test`).
 
 ---
 

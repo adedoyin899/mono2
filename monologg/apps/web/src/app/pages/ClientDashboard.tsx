@@ -20,7 +20,7 @@ import {
   Layers, Copy, FileDown, Folder, Calendar, Share2,
   CheckCircle2, PlayCircle, Eye, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
-  Upload, FileCheck, ArrowRight
+  Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -850,6 +850,7 @@ export function ClientDashboard() {
   };
 
   const activeFiltersCount = Object.values(attributeFilters).filter(Boolean).length + (maxBudgetSlider > 0 ? 1 : 0);
+  const totalPerformerFilterCount = activeFiltersCount + (selectedNiche !== "All" ? 1 : 0);
 
   const filteredTalents = talents.filter(t => {
     const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.role.toLowerCase().includes(searchQuery.toLowerCase());
@@ -1264,86 +1265,320 @@ export function ClientDashboard() {
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Find Performers</h2>
 
                 {/* Search + filter */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                    <Input
-                      className="pl-9"
-                      placeholder="Search by name, role, or vibe..."
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
+                    <input
+                      type="text"
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Search by name, role, or vibe..."
+                      className="w-full !h-10 text-xs sm:text-sm pl-9 pr-8 rounded-xl border font-body outline-none transition-all focus:border-[var(--color-accent)]"
+                      style={{
+                        background: "var(--color-bg-surface)",
+                        borderColor: "var(--color-border-default)",
+                        color: "var(--color-text-primary)",
+                      }}
                     />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-[var(--color-bg-elevated)]"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                        aria-label="Clear search"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
+
                   <button
+                    type="button"
                     aria-label="Filter performers"
                     aria-pressed={showAttributeFilters}
                     onClick={() => setShowAttributeFilters((v) => !v)}
-                    className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center border hover:border-[var(--color-accent)] transition-colors relative"
+                    className={`h-10 px-3.5 rounded-xl border text-xs font-semibold font-body inline-flex items-center gap-2 shrink-0 transition-all ${
+                      totalPerformerFilterCount > 0 || showAttributeFilters
+                        ? "border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                        : "hover:border-[var(--color-border-strong)]"
+                    }`}
                     style={{
-                      background: showAttributeFilters ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
-                      borderColor: showAttributeFilters ? "var(--color-accent)" : "var(--color-border-default)",
+                      background: (showAttributeFilters || totalPerformerFilterCount > 0) ? "var(--color-accent-soft)" : "var(--color-bg-surface)",
+                      borderColor: (showAttributeFilters || totalPerformerFilterCount > 0) ? "var(--color-accent)" : "var(--color-border-default)",
+                      color: (showAttributeFilters || totalPerformerFilterCount > 0) ? "var(--color-accent)" : "var(--color-text-primary)",
                     }}
                   >
-                    <Filter className="w-4 h-4" style={{ color: showAttributeFilters ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                    {Object.values(attributeFilters).some(Boolean) && (
-                      <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "var(--color-accent)" }} />
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>Filters</span>
+                    {totalPerformerFilterCount > 0 && (
+                      <span
+                        className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center font-mono tnum"
+                        style={{ background: "var(--color-accent)", color: "#FFFFFF" }}
+                      >
+                        {totalPerformerFilterCount}
+                      </span>
                     )}
                   </button>
                 </div>
 
+                {/* Active Filter Chips */}
+                {totalPerformerFilterCount > 0 && (
+                  <div className="flex items-center gap-1.5 flex-wrap mb-4">
+                    {selectedNiche !== "All" && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
+                        Craft: {selectedNiche}
+                        <button onClick={() => setSelectedNiche("All")} className="hover:opacity-75" aria-label="Remove craft filter">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                    {maxBudgetSlider > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
+                        Max Rate: ₦{maxBudgetSlider.toLocaleString()}
+                        <button onClick={() => setMaxBudgetSlider(0)} className="hover:opacity-75" aria-label="Remove budget filter">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                    {Object.entries(attributeFilters).map(([k, v]) => {
+                      if (!v) return null;
+                      const fieldDef = ATTRIBUTE_FILTER_FIELDS.find(f => f.key === k);
+                      const label = fieldDef?.label || k;
+                      return (
+                        <span key={k} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]">
+                          {label}: {String(v).replace(/_/g, " ")}
+                          <button onClick={() => toggleAttributeFilter(k as any, v as any)} className="hover:opacity-75" aria-label={`Remove ${label} filter`}>
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                    <button
+                      onClick={() => {
+                        setAttributeFilters({});
+                        setMaxBudgetSlider(0);
+                        setSelectedNiche("All");
+                      }}
+                      className="text-[11px] font-semibold text-[var(--color-accent)] hover:underline ml-1"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                )}
+
                 {/* Attribute filters — features.md Phase 12A.3, PWA-10. */}
                 {showAttributeFilters && (
-                  <div className="rounded-[var(--radius-lg)] p-4 mb-6 space-y-3" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}>
-                    {ATTRIBUTE_FILTER_FIELDS.map((field) => (
-                      <div key={field.key as string}>
-                        <div className="text-xs font-medium uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>{field.label}</div>
-                        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-                          {field.options.map((opt) => {
-                            const active = attributeFilters[field.key] === opt;
+                  <div
+                    className="rounded-3xl p-5 sm:p-6 mb-6 space-y-5 border shadow-[var(--shadow-card)]"
+                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
+                  >
+                    {/* Panel Header */}
+                    <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <div className="flex items-center gap-2.5">
+                        <SlidersHorizontal className="w-5 h-5 text-[var(--color-accent)]" />
+                        <div>
+                          <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                            Filter Performers
+                          </h3>
+                          <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                            Filter by craft niche, budget rate card, physical attributes, and demographics
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowAttributeFilters(false)}
+                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] transition-colors"
+                        style={{ color: "var(--color-text-tertiary)" }}
+                        aria-label="Close filters panel"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* 1. Category / Craft Role */}
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wider mb-2 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                        Category / Craft Role
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {NICHES.map((niche) => {
+                          const active = selectedNiche === niche;
+                          return (
+                            <button
+                              key={niche}
+                              type="button"
+                              onClick={() => setSelectedNiche(niche)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-semibold font-body transition-all ${
+                                active ? "shadow-sm" : "hover:border-[var(--color-border-strong)]"
+                              }`}
+                              style={{
+                                background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                                border: active ? "1px solid var(--color-accent)" : "1px solid var(--color-border-default)",
+                              }}
+                            >
+                              {niche}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 2. Maximum Rate Card (Budget Slider) */}
+                    <div className="p-3.5 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs uppercase font-semibold font-body tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                          Budget (Rate Card)
+                        </label>
+                        <span className="font-mono text-xs font-bold" style={{ color: "var(--color-accent)" }}>
+                          {maxBudgetSlider === 0 ? "Any Budget" : `Up to ₦${maxBudgetSlider.toLocaleString()}`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={150000}
+                        step={5000}
+                        value={maxBudgetSlider}
+                        onChange={(e) => setMaxBudgetSlider(Number(e.target.value))}
+                        className="w-full accent-[var(--color-accent)] cursor-pointer h-2 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none"
+                      />
+                      <div className="flex justify-between text-[11px] font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
+                        <span>₦0 (Any)</span>
+                        <span>₦75k</span>
+                        <span>₦150k+</span>
+                      </div>
+                    </div>
+
+                    {/* 3. Physical Attributes (Height, Build, Complexion, Hair, Presentation) */}
+                    <div className="space-y-3 pt-1">
+                      {ATTRIBUTE_FILTER_FIELDS.map((field) => (
+                        <div key={field.key as string}>
+                          <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                            {field.label}
+                          </div>
+                          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide flex-wrap">
+                            {field.options.map((opt) => {
+                              const active = attributeFilters[field.key] === opt;
+                              return (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => toggleAttributeFilter(field.key, opt)}
+                                  aria-pressed={active}
+                                  className="px-2.5 py-1 rounded-full text-[11px] font-medium font-body transition-all"
+                                  style={{
+                                    background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                    color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                                    border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                  }}
+                                >
+                                  {opt.replace(/_/g, " ")}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 4. Demographics (Age Range & Location) */}
+                    <div className="space-y-3 pt-1">
+                      {/* Age */}
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Age Range
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            { label: "18–25", val: "RANGE_18_25" },
+                            { label: "26–35", val: "RANGE_26_35" },
+                            { label: "36–45", val: "RANGE_36_45" },
+                            { label: "46–55", val: "RANGE_46_55" },
+                            { label: "56–65", val: "RANGE_56_65" },
+                            { label: "65+", val: "OVER_65" },
+                          ].map(({ label, val }) => {
+                            const active = attributeFilters.ageRange === val;
                             return (
                               <button
-                                key={opt}
-                                onClick={() => toggleAttributeFilter(field.key, opt)}
-                                aria-pressed={active}
-                                className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium font-body transition-all"
+                                key={val}
+                                type="button"
+                                onClick={() => toggleAttributeFilter("ageRange", val)}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
                                 style={{
                                   background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
                                   color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
                                   border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
                                 }}
                               >
-                                {opt.replace(/_/g, " ")}
+                                {label}
                               </button>
                             );
                           })}
                         </div>
                       </div>
-                    ))}
-                    {Object.values(attributeFilters).some(Boolean) && (
-                      <div className="pt-2 border-t flex justify-end" style={{ borderColor: "var(--color-border-default)" }}>
-                        <button
-                          onClick={() => setAttributeFilters({})}
-                          className="px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-body font-medium flex items-center gap-1.5 hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
-                          style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-default)" }}
-                        >
-                          <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-secondary)" }} />
-                          Clear attribute filters
-                        </button>
+
+                      {/* Location */}
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Location
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["All", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Accra"].map((loc) => {
+                            const active = (!attributeFilters.location && loc === "All") || attributeFilters.location === loc;
+                            return (
+                              <button
+                                key={loc}
+                                type="button"
+                                onClick={() => {
+                                  setAttributeFilters(prev => ({
+                                    ...prev,
+                                    location: loc === "All" || prev.location === loc ? undefined : loc,
+                                  }));
+                                }}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium font-body transition-all"
+                                style={{
+                                  background: active ? "var(--color-accent)" : "var(--color-bg-elevated)",
+                                  color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+                                  border: `1px solid ${active ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                }}
+                              >
+                                {loc}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Panel Footer */}
+                    <div className="pt-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--color-hairline)" }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAttributeFilters({});
+                          setMaxBudgetSlider(0);
+                          setSelectedNiche("All");
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-body font-medium flex items-center gap-1.5 hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
+                        style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-primary)", border: "1px solid var(--color-border-default)" }}
+                      >
+                        <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-secondary)" }} />
+                        Clear attribute filters
+                      </button>
+
+                      <Button
+                        className="h-9 px-4 text-xs font-bold"
+                        onClick={() => setShowAttributeFilters(false)}
+                      >
+                        Show Performers ({filteredTalents.length})
+                      </Button>
+                    </div>
                   </div>
                 )}
 
-                {/* Niche pills + More Filters Modal Button */}
+                {/* Quick Niche pills */}
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
-                  <Button variant="secondary" className="h-9 px-3 text-xs gap-1.5 shrink-0" onClick={() => setShowMoreFiltersModal(true)}>
-                    <Filter className="w-3.5 h-3.5" /> More Filters
-                    {activeFiltersCount > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-[#7B00FE] text-white text-[10px] flex items-center justify-center font-bold">
-                        {activeFiltersCount}
-                      </span>
-                    )}
-                  </Button>
                   {NICHES.map(niche => (
                     <button
                       key={niche}
@@ -1587,6 +1822,9 @@ export function ClientDashboard() {
                             <Badge tone="accent" size="sm">
                               {selectedProjectDetail.niche}
                             </Badge>
+                            <Badge tone="neutral" size="sm">
+                              {(selectedProjectDetail as any).projectType || "Commercial / Brief"}
+                            </Badge>
                             <span
                               className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
                                 currentStatus === "draft"
@@ -1656,7 +1894,11 @@ export function ClientDashboard() {
 
                         <div className="flex items-center gap-4 sm:gap-6 flex-wrap text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                           <div className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                            {(!projectDetails.location || projectDetails.location.toLowerCase().includes("remote") || projectDetails.location.toLowerCase().includes("online")) ? (
+                              <Globe className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                            ) : (
+                              <MapPin className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                            )}
                             <span>{projectDetails.location}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
@@ -1811,7 +2053,7 @@ export function ClientDashboard() {
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <FileText className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Creative Brief &amp; Synopsis
                                 </h2>
                               </div>
@@ -1911,7 +2153,7 @@ export function ClientDashboard() {
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-sm sm:text-base font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                              <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                                 {effectiveSynopsis}
                               </p>
                             )}
@@ -1929,7 +2171,7 @@ export function ClientDashboard() {
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Role &amp; Craft Requirements
                                 </h2>
                               </div>
@@ -2030,7 +2272,7 @@ export function ClientDashboard() {
                                   <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
                                     {projectDetails.additionalNotes}
                                   </p>
-                                  <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                                  <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
                                     <li>Must have verified profile and demo samples matching requested crafts.</li>
                                     <li>Access to professional recording acoustics or studio space.</li>
                                     <li>Prompt communication and adherence to production delivery milestones.</li>
@@ -2052,7 +2294,7 @@ export function ClientDashboard() {
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Audition Sides &amp; Script Excerpt
                                 </h2>
                               </div>
@@ -2137,7 +2379,7 @@ export function ClientDashboard() {
                                 </p>
 
                                 <div
-                                  className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text"
+                                  className="p-4 sm:p-5 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)]"
                                   style={{
                                     background: "var(--color-bg-elevated)",
                                     borderColor: "var(--color-hairline)",
@@ -2162,7 +2404,7 @@ export function ClientDashboard() {
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Deliverables &amp; Licensing Milestones
                                 </h2>
                               </div>
@@ -2252,7 +2494,7 @@ export function ClientDashboard() {
                             ) : (
                               <div className="space-y-2.5">
                                 {effectiveDeliverables.map((item, idx) => (
-                                  <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                  <div key={idx} className="flex items-start gap-2.5 text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                                     <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                                     <span>{item}</span>
                                   </div>
@@ -2273,7 +2515,7 @@ export function ClientDashboard() {
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <Folder className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Project Assets &amp; Reference Files
                                 </h2>
                               </div>
@@ -2426,7 +2668,99 @@ export function ClientDashboard() {
                             )}
                           </div>
 
-                          {/* 6. Applicant Pipeline & Casting Management */}
+                          {/* 6. Escrow Protection & Settlement Guarantee (Client POV Vertical Layout) */}
+                          <div
+                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                              <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-emerald-500" />
+                                <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Escrow Protection &amp; Settlement Guarantee
+                                </h3>
+                              </div>
+                              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                Paystack Secured
+                              </span>
+                            </div>
+
+                            <div className="space-y-3">
+                              {/* Pillar 1: 100% Escrow Protection */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Shield className="w-4 h-4" />
+                                </div>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      1. 100% Escrow Protection
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Funded Upfront
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    Your project budget is held safely in Paystack escrow. Performers are never paid until you inspect and approve the final deliverables.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Pillar 2: 48h Inspection Window */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Clock className="w-4 h-4" />
+                                </div>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      2. 48h Inspection Window
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Review Guarantee
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    Upon deliverable submission, you have 48 hours to inspect high-resolution files, request milestone revisions, or verify broadcast quality.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Pillar 3: Milestone Release Control */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <CheckCircle2 className="w-4 h-4" />
+                                </div>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      3. Milestone Release Control
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Direct Approval
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    Disbursement only triggers when you confirm satisfaction in the Order Room. In case of disputes, Monologg mediation protects your funds.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 7. Applicant Pipeline & Casting Management */}
                           <div
                             id="applicant-pipeline-section"
                             className="p-6 sm:p-7 rounded-3xl border space-y-5"
@@ -2437,7 +2771,7 @@ export function ClientDashboard() {
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                               <div>
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Applicant Pipeline &amp; Casting {currentStatus !== "draft" ? `(${applicants.length})` : ""}
                                 </h2>
                                 <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
+**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 97. Cross-Portal Filter UI Disparity and Missing Client-Side Escrow Guarantee Architecture in Project Details
+- **Severity:** Medium / Cross-Portal UX Parity & Trust Architecture
+- **What happened:**
+  1. The performer filter UI in the client portal (`ClientDashboard.tsx`) lagged behind the state-of-the-art project filter UI in `TalentDashboard.tsx`, utilizing an isolated square icon toggle without visible filter count, without removable active filter chip badges, and splitting filter criteria across an attribute dropdown and a disconnected "More Filters" modal.
+  2. The client project detail view lacked an explicit Escrow Protection & Settlement Guarantee card, creating an informational asymmetry with the Performer portal (which clearly communicated the 3 pillars of payment security) and the Create Project Brief wizard (`ProjectBrief.tsx`).
+  3. Typography across client project detail cards had variable card header scales (`text-lg font-bold` vs standardized `text-base font-bold`) and lacked the signature accent left border callout on the audition script excerpt.
+- **Root Cause:** Feature additions and design polishing applied in previous sessions to the performer portal had not been back-propagated to the client dashboard's shared/analogous views.
+- **Fix:**
+  - Standardized Discover Performer search and filter controls to match the project filter UI: side-by-side search input and `Filters` button (`SlidersHorizontal`) with active filter count badge, removable active filter chips bar (`Craft`, `Max Rate`, physical attributes) with `Clear all`, and unified expandable filter panel.
+  - Standardized client project detail card headers to `font-display text-base font-bold` (16px), narrative descriptions to `text-sm font-body leading-relaxed` (14px), and added left accent border callout (`border-l-4 border-l-[var(--color-accent)]`) to audition sides.
+  - Integrated the Client POV Vertical Escrow Protection & Settlement Guarantee card featuring 3 pillars: `1. 100% Escrow Protection` (`Funded Upfront`), `2. 48h Inspection Window` (`Review Guarantee`), and `3. Milestone Release Control` (`Direct Approval`).
+- **Resolution:** Validated with zero TypeScript compilation errors and all 25 test suites passing (127/127 tests).
 
 ### 96. Typographic Scale Inconsistency Across Project Detail Cards and Extraneous Talent Search Tab in Performer Portal
 - **Severity:** Medium / Typographic Hierarchy & Flow Scoping
