@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
+**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 149 (2026-10-18) — Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup
+
+**Goal:** Address user design feedback regarding vertical layout for escrow protection, font size inconsistencies across project detail cards, and tab cleanup in the performer portal:
+1. **Vertical Escrow Protection & Settlement Guarantee (`TalentDashboard.tsx`):**
+   - Transformed the horizontal 3-pillar card grid (`grid grid-cols-1 md:grid-cols-3 gap-3`) in the Client & Escrow project detail tab into a spacious, elegant vertical stacked layout (`space-y-3`).
+   - Integrated a top header with `Lock` icon, title `Escrow Protection & Settlement Guarantee`, and a `Paystack Secured` emerald badge.
+   - Designed 3 vertical step rows, each featuring a dedicated left emerald icon surface (`Shield`, `Clock`, `CheckCircle2`), bold step title (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`), contextual status chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`), and complete narrative copy with comfortable reading width.
+2. **Standardization of Typographic Hierarchy across Project Detail Cards (`TalentDashboard.tsx`):**
+   - Eliminated jarring font size discrepancies between cards where body paragraphs swung wildly between `text-sm sm:text-base` (16px on desktop) in Creative Brief and `text-xs` (12px) in Casting Client.
+   - Standardized primary card headers across all tabs to `font-display text-base font-bold` (16px) with matching iconography.
+   - Standardized narrative body descriptions across all cards to `text-sm font-body leading-relaxed` (14px).
+   - Standardized script excerpt quote in Audition Sides from oversized `text-sm sm:text-base` (16px) to readable, balanced `text-sm font-body leading-relaxed` (14px).
+   - Standardized telemetry dock values in Casting Client from oversized `text-sm sm:text-base` (16px bold) to crisp `font-display text-sm font-bold` (14px).
+   - Kept supporting subtitles and microcopy consistent at `text-xs font-body` (12px).
+3. **Performer Projects Tab Bar Cleanup (`TalentDashboard.tsx`):**
+   - Removed the extraneous "Search Performers" button from the performer tab strip, keeping only `Browse Projects` and `My Applications`.
+   - Performers apply to projects; talent search belongs strictly in the client portal.
+   - Pruned dead directory search state (`directoryTalents`, `performerSearch`, `performerNicheFilter`) and removed the unused subtab block.
+
+**Files Changed:**
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+
+**Technical Context:**
+- `npx tsc --noEmit` exited 0 (clean compilation).
+- All 25 test suites and 127/127 tests passed cleanly (`npm test`).
 
 ---
 

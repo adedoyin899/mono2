@@ -1,11 +1,25 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–147 + Session 148 Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication.
+**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–148 + Session 149 Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup.
 
 ---
 
 ## ✅ Done
+
+### Session 149 — Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup
+- [x] **Vertical Escrow Protection & Settlement Guarantee (`TalentDashboard.tsx`)**:
+  - Replaced cramped 3-pillar horizontal card grid with a clean vertical stacked card layout (`space-y-3`).
+  - Added dedicated emerald icon surfaces for each pillar (`Shield`, `Clock`, `CheckCircle2`), step titles (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`), and contextual status chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`).
+  - Full-width narrative descriptions with comfortable readability and consistent typography.
+- [x] **Project Detail Typographic Scale Standardization (`TalentDashboard.tsx`)**:
+  - Harmonized card headers to `font-display text-base font-bold` (16px) across Creative Brief, Deliverables, Role Requirements, Audition Sides, and Casting Client.
+  - Standardized all body text and narrative descriptions to `text-sm font-body leading-relaxed` (14px), removing oversized `text-sm sm:text-base` (16px) and undersized `text-xs` (12px).
+  - Aligned script excerpt quote in Audition Sides to `text-sm font-body leading-relaxed`.
+  - Standardized Casting Client telemetry values from `text-sm sm:text-base font-bold` to crisp `font-display text-sm font-bold`.
+- [x] **Performer Projects Sub-tab Cleanup (`TalentDashboard.tsx`)**:
+  - Removed "Search Performers" button from performer portal project navigation tab strip (`Browse Projects` | `My Applications`).
+  - Pruned dead directory search state and removed dormant performer search view.
 
 ### Session 148 — Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication
 - [x] **Submit Deliverable Modal (Digital Files Mode - `OrderRoom.tsx`)**:

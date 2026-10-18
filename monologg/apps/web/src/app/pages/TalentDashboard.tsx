@@ -494,13 +494,6 @@ export function TalentDashboard() {
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [directoryTalents, setDirectoryTalents] = useState<Talent[]>([]);
-  const [performerSearch, setPerformerSearch] = useState("");
-  const [performerNicheFilter, setPerformerNicheFilter] = useState("all");
-
-  useEffect(() => {
-    apiClient.listTalents().then(setDirectoryTalents).catch(() => {});
-  }, []);
 
   // Withdraw Sheet & Payout Change Request state
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -648,7 +641,7 @@ export function TalentDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // features.md Phase 14 (PWA-14/15/16) — project discovery & applications.
-  const [projectsSubTab, setProjectsSubTab] = useState<"browse" | "applications" | "talents">("browse");
+  const [projectsSubTab, setProjectsSubTab] = useState<"browse" | "applications">("browse");
   const [projects, setProjects] = useState<Project[]>([]);
   const [myApplications, setMyApplications] = useState<MyApplication[]>([]);
   const [projectSearch, setProjectSearch] = useState("");
@@ -3708,11 +3701,11 @@ export function TalentDashboard() {
                           >
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                 Creative Brief &amp; Synopsis
                               </h2>
                             </div>
-                            <p className="text-sm sm:text-base font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                            <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                               {selectedProject.description ||
                                 "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
                             </p>
@@ -3728,7 +3721,7 @@ export function TalentDashboard() {
                           >
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                 Deliverables &amp; Licensing
                               </h2>
                             </div>
@@ -3742,7 +3735,7 @@ export function TalentDashboard() {
                                   "Full commercial usage rights for digital and broadcast media",
                                 ]
                               ).map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                <div key={idx} className="flex items-start gap-2.5 text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                                   <span>{item}</span>
                                 </div>
@@ -3770,7 +3763,7 @@ export function TalentDashboard() {
                           >
                             <div className="flex items-center gap-2">
                               <Users className="w-4 h-4 text-[var(--color-accent)]" />
-                              <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                              <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                 Role &amp; Craft Requirements
                               </h2>
                             </div>
@@ -3796,7 +3789,7 @@ export function TalentDashboard() {
                                 {selectedProject.additionalNotes ||
                                   "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
                               </p>
-                              <ul className="text-xs sm:text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                              <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
                                 <li>Must have verified profile and demo samples matching requested crafts.</li>
                                 <li>Access to professional recording acoustics or studio space.</li>
                                 <li>Prompt communication and adherence to production delivery milestones.</li>
@@ -3835,7 +3828,7 @@ export function TalentDashboard() {
                                 <div className="flex items-center justify-between gap-3">
                                   <div className="flex items-center gap-2">
                                     <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-                                    <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                       Audition Sides &amp; Script Excerpt
                                     </h2>
                                   </div>
@@ -3867,12 +3860,12 @@ export function TalentDashboard() {
                                   </button>
                                 </div>
 
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
                                   Use this excerpt for your audition take or pitch video recording:
                                 </p>
 
                                 <div
-                                  className="p-4 sm:p-5 rounded-2xl border font-body text-sm sm:text-base leading-relaxed whitespace-pre-wrap select-text border-l-4"
+                                  className="p-4 sm:p-5 rounded-2xl border font-body text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4"
                                   style={{
                                     background: "var(--color-bg-elevated)",
                                     borderColor: "var(--color-hairline)",
@@ -3908,11 +3901,11 @@ export function TalentDashboard() {
                             <div className="flex items-center justify-between gap-3 pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
                               <div className="flex items-center gap-2">
                                 <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                                <h2 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
                                   Casting Client &amp; Escrow Verification
                                 </h2>
                               </div>
-                              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                 100% Escrow Funded
                               </span>
                             </div>
@@ -3920,13 +3913,13 @@ export function TalentDashboard() {
                             <div className="flex items-start justify-between flex-wrap gap-4">
                               <div className="flex items-center gap-3.5">
                                 <div
-                                  className="w-12 h-12 rounded-2xl flex items-center justify-center font-display text-lg font-bold text-white shrink-0 shadow-sm"
+                                  className="w-11 h-11 rounded-2xl flex items-center justify-center font-display text-base font-bold text-white shrink-0 shadow-sm"
                                   style={{ background: "var(--color-accent)" }}
                                 >
                                   {selectedProject.clientName.charAt(0)}
                                 </div>
                                 <div>
-                                  <div className="flex items-center gap-1.5 font-semibold text-base font-body" style={{ color: "var(--color-text-primary)" }}>
+                                  <div className="flex items-center gap-1.5 font-display font-semibold text-base" style={{ color: "var(--color-text-primary)" }}>
                                     <span>{selectedProject.clientName}</span>
                                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
                                   </div>
@@ -3956,28 +3949,28 @@ export function TalentDashboard() {
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-2xl" style={{ background: "var(--color-bg-elevated)" }}>
                               <div className="text-center p-2">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Projects</span>
-                                <span className="font-display text-sm sm:text-base font-bold" style={{ color: "var(--color-text-primary)" }}>{selectedProject.clientReviews ?? 18} funded</span>
+                                <span className="font-display text-sm font-bold" style={{ color: "var(--color-text-primary)" }}>{selectedProject.clientReviews ?? 18} funded</span>
                               </div>
                               <div className="text-center p-2">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Rating</span>
-                                <span className="font-display text-sm sm:text-base font-bold text-amber-500">4.9 ★★★★★</span>
+                                <span className="font-display text-sm font-bold text-amber-500">{selectedProject.clientRating ?? 4.9} ★★★★★</span>
                               </div>
                               <div className="text-center p-2">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Release Speed</span>
-                                <span className="font-display text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400">&lt; 2 hours</span>
+                                <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">&lt; 2 hours</span>
                               </div>
                               <div className="text-center p-2">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Escrow Status</span>
-                                <span className="font-display text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400">100% Secured</span>
+                                <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">100% Secured</span>
                               </div>
                             </div>
 
-                            <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                            <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                               Premier West African casting partner with a flawless escrow release track record on Monologg. Known for transparent briefs, prompt feedback, and instant bank disbursement upon deliverable approval.
                             </p>
                           </div>
 
-                          {/* Escrow Guarantee 3-Pillar Security Architecture */}
+                          {/* Escrow Guarantee 3-Pillar Security Architecture (Vertical Layout) */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
@@ -3985,42 +3978,86 @@ export function TalentDashboard() {
                               borderColor: "var(--color-border-default)",
                             }}
                           >
-                            <div className="flex items-center gap-2">
-                              <Lock className="w-4 h-4 text-emerald-500" />
-                              <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                Escrow Protection &amp; Settlement Guarantee
-                              </h3>
+                            <div className="flex items-center justify-between gap-3 flex-wrap">
+                              <div className="flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-emerald-500" />
+                                <h3 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Escrow Protection &amp; Settlement Guarantee
+                                </h3>
+                              </div>
+                              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                Paystack Secured
+                              </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
-                                  <Shield className="w-3.5 h-3.5" />
-                                  <span>1. Locked Upfront</span>
+                            <div className="space-y-3">
+                              {/* Pillar 1: Locked Upfront */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Shield className="w-4 h-4" />
                                 </div>
-                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  100% of the compensation is held securely with Paystack before you confirm your booking or record.
-                                </p>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      1. Locked Upfront
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      100% Funded
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    100% of the compensation is held securely with Paystack before you confirm your booking or record.
+                                  </p>
+                                </div>
                               </div>
 
-                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
-                                  <Clock className="w-3.5 h-3.5" />
-                                  <span>2. 48h Auto-Release</span>
+                              {/* Pillar 2: 48h Auto-Release */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Clock className="w-4 h-4" />
                                 </div>
-                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  Client has a 48-hour inspection window. Funds automatically release if no revisions are requested.
-                                </p>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      2. 48h Auto-Release
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Guaranteed Window
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    Client has a 48-hour inspection window. Funds automatically release if no revisions are requested.
+                                  </p>
+                                </div>
                               </div>
 
-                              <div className="p-4 rounded-2xl border space-y-1.5" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
-                                <div className="flex items-center gap-1.5 font-semibold text-xs text-emerald-600 dark:text-emerald-400 font-body">
-                                  <CheckCircle2 className="w-3.5 h-3.5" />
-                                  <span>3. Direct Payout</span>
+                              {/* Pillar 3: Direct Payout */}
+                              <div
+                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                              >
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <CheckCircle2 className="w-4 h-4" />
                                 </div>
-                                <p className="text-[11px] font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  Net earnings are disbursed directly into your designated local bank account with zero chargeback risk.
-                                </p>
+                                <div className="space-y-1 min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                      3. Direct Payout
+                                    </span>
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      Instant Disbursement
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    Net earnings are disbursed directly into your designated local bank account with zero chargeback risk.
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -4344,8 +4381,8 @@ export function TalentDashboard() {
                 <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Projects</h2>
 
-                <div className="flex p-1 rounded-xl mb-5 w-full max-w-md" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
-                  {(["browse", "applications", "talents"] as const).map((tab) => (
+                <div className="flex p-1 rounded-xl mb-5 w-full max-w-xs sm:max-w-sm" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
+                  {(["browse", "applications"] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setProjectsSubTab(tab)}
@@ -4355,7 +4392,7 @@ export function TalentDashboard() {
                         color: projectsSubTab === tab ? "var(--color-accent-on)" : "var(--color-text-secondary)",
                       }}
                     >
-                      {tab === "browse" ? "Browse Projects" : tab === "applications" ? "My Applications" : "Search Performers"}
+                      {tab === "browse" ? "Browse Projects" : "My Applications"}
                     </button>
                   ))}
                 </div>
@@ -4619,109 +4656,6 @@ export function TalentDashboard() {
                   </div>
                 )}
 
-                {/* ── Performer Search & Rate Card Booking Subtab ── */}
-                {projectsSubTab === "talents" && (
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-2.5">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <Input
-                          placeholder="Search performers by name, craft, or niche..."
-                          value={performerSearch}
-                          onChange={(e) => setPerformerSearch(e.target.value)}
-                          className="pl-9 h-11 text-xs"
-                        />
-                      </div>
-                      <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                        {["all", "Voice-Over Artist", "Actor", "Comedian", "Compere"].map((niche) => (
-                          <button
-                            key={niche}
-                            type="button"
-                            onClick={() => setPerformerNicheFilter(niche)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 ${
-                              performerNicheFilter === niche
-                                ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] font-semibold"
-                                : "bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                            }`}
-                          >
-                            {niche === "all" ? "All Niches" : niche}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {(() => {
-                      const filtered = directoryTalents.filter((t) => {
-                        const matchesQuery = !performerSearch || t.name.toLowerCase().includes(performerSearch.toLowerCase()) || t.role.toLowerCase().includes(performerSearch.toLowerCase());
-                        const matchesNiche = performerNicheFilter === "all" || t.role.toLowerCase().includes(performerNicheFilter.toLowerCase());
-                        return matchesQuery && matchesNiche;
-                      });
-
-                      if (filtered.length === 0) {
-                        return (
-                          <div className="p-8 text-center rounded-2xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-tertiary)]">
-                            No performers match your search query. Try another keyword.
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                          {filtered.map((t) => (
-                            <div
-                              key={t.id}
-                              className="p-4 rounded-2xl border transition-all hover:shadow-md bg-[var(--color-bg-surface)] flex flex-col justify-between"
-                              style={{ borderColor: "var(--color-border-default)" }}
-                            >
-                              <div>
-                                <div className="flex items-start justify-between gap-3 mb-2.5">
-                                  <div className="flex items-center gap-2.5">
-                                    <div className="w-10 h-10 rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-bold flex items-center justify-center text-sm font-mono shrink-0">
-                                      {t.avatar || t.name.slice(0, 2).toUpperCase()}
-                                    </div>
-                                    <div className="min-w-0">
-                                      <div className="flex items-center gap-1.5">
-                                        <span className="font-bold text-xs sm:text-sm font-body text-[var(--color-text-primary)] truncate">
-                                          {t.name}
-                                        </span>
-                                        {t.verified && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
-                                      </div>
-                                      <div className="text-[11px] text-[var(--color-text-tertiary)] font-body truncate">
-                                        {t.role} · {t.location}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="text-right shrink-0">
-                                    <div className="font-mono font-bold text-xs text-[var(--color-accent)]">
-                                      {t.price}
-                                    </div>
-                                    <div className="text-[10px] text-[var(--color-text-tertiary)]">Rate card</div>
-                                  </div>
-                                </div>
-
-                                <div className="flex flex-wrap gap-1 mb-3">
-                                  {t.tags?.slice(0, 3).map((tag) => (
-                                    <span key={tag} className="px-2 py-0.5 rounded-md text-[10px] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-hairline)]">
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <Button
-                                className="w-full h-9 text-xs font-semibold gap-1.5"
-                                onClick={() => navigate("/checkout", { state: { creatorId: t.id, creatorName: t.name } })}
-                              >
-                                <span>Book Rate Card</span>
-                                <ChevronRight className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
               </motion.div>
               )
             )}

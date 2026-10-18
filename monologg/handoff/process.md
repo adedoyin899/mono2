@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
+**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 108: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup (Session 149)
+
+Addressed user design critiques across Project Detail and Performer Portal navigation:
+- **Vertical Escrow Protection & Settlement Guarantee (`TalentDashboard.tsx`):**
+  - Replaced cramped 3-pillar horizontal card grid with an elegant vertical stacked timeline layout (`space-y-3`).
+  - Implemented dedicated left emerald icon badges (`Shield`, `Clock`, `CheckCircle2`), bold step titles (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`), and trust chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`) alongside full-width narrative descriptions with comfortable readability.
+- **Project Detail Typographic Scale Standardization (`TalentDashboard.tsx`):**
+  - Standardized primary card headers across all tabs to `font-display text-base font-bold` (16px).
+  - Aligned all body copy and narrative descriptions to `text-sm font-body leading-relaxed` (14px), eliminating mismatched 16px body in Creative Brief and 12px body in Casting Client.
+  - Aligned script excerpt quote in Audition Sides to `text-sm font-body leading-relaxed` and Casting Client telemetry values to crisp `font-display text-sm font-bold`.
+- **Performer Projects Tab Scoping (`TalentDashboard.tsx`):**
+  - Removed "Search Performers" button from performer portal project tab switcher, leaving only `Browse Projects` and `My Applications`.
+  - Pruned unused directory search state and removed dead talents view from the performer portal.
 
 ### Step 107: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication (Session 148)
 

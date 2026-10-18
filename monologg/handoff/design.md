@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–147 + Session 148 Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication.
+**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–148 + Session 149 Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -224,6 +224,10 @@ Key token groups:
   - Replaced ambiguous `P | S | P` buttons (where two buttons shared the identical letter "P") with an unambiguous, accessible segmented control: `🔒 Priv` · `🔍 Filter` · `🌐 Public`.
 - **Edit Profile Save Action De-duplication (`Settings.tsx` — Session 148):**
   - Eliminated confusing triple-redundant save triggers (sticky top bar `Save`, in-form `Save Profile`, and floating bottom bar `Save Changes`). Standardized on a single authoritative `Save Changes` CTA inside the form and a clean sticky header action.
+- **Vertical Escrow Security Layout & Project Detail Typographic Standardization (`TalentDashboard.tsx` — Session 149):**
+  - Converted the Escrow Protection & Settlement Guarantee 3-pillar card grid into a full-width vertical stacked layout (`space-y-3`) with dedicated left emerald icon badges (`Shield`, `Clock`, `CheckCircle2`), step titles (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`), and trust chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`).
+  - Standardized the typographic scale across Project Detail cards: card headers strictly `font-display text-base font-bold` (16px), narrative descriptions strictly `text-sm font-body leading-relaxed` (14px), telemetry numbers `font-display text-sm font-bold` (14px), and subtitles `text-xs font-body` (12px).
+  - Cleaned up the Performer portal project tab bar to strictly display `Browse Projects` and `My Applications`, removing the "Search Performers" button that belongs in the client view.
 
 
 ### Shared components (`src/app/components/ui/`)

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 148: Submit Deliverable & Live Appearance Verification Overhaul, Financial Metric Semantics, Physical Attributes 2-Column Responsive Layout, and Edit Profile Save Action De-duplication)
+**Last updated:** 2026-10-18 (Session 149: Vertical Escrow Protection Layout, Project Detail Typographic Scale Standardization, and Performer Projects Tab Cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 96. Typographic Scale Inconsistency Across Project Detail Cards and Extraneous Talent Search Tab in Performer Portal
+- **Severity:** Medium / Typographic Hierarchy & Flow Scoping
+- **What happened:**
+  1. In `TalentDashboard.tsx`, body paragraphs across project detail tabs had mismatched font sizing: Creative Brief & Synopsis used `text-sm sm:text-base` (rendering at 16px on desktop), while Casting Client & Escrow Verification used `text-xs` (12px), creating a 4px disparity between adjacent cards.
+  2. The script excerpt in Audition Sides was rendered at `text-sm sm:text-base` (16px), making it disproportionately heavy compared to surrounding metadata.
+  3. Client track record telemetry values were set to `text-sm sm:text-base font-bold`, making them larger than the client's own name on desktop screens.
+  4. Escrow Protection & Settlement Guarantee was rendered in a cramped 3-pillar horizontal grid (`grid grid-cols-1 md:grid-cols-3`) that severely compressed text descriptions into narrow columns.
+  5. The performer project navigation bar contained a "Search Performers" button (`Browse Projects` | `My Applications` | `Search Performers`), even though talent search is a client feature, not a performer action.
+- **Root Cause:** Ad-hoc responsive classes (`sm:text-base`) applied unevenly across individual card iterations; cramped 3-column layout constraints on security architecture; and unpruned sub-tab options from initial multi-role experimentation.
+- **Fix:**
+  - Standardized all card headers to `font-display text-base font-bold` (16px).
+  - Standardized all body text and descriptions to `text-sm font-body leading-relaxed` (14px).
+  - Aligned script excerpts to `text-sm font-body leading-relaxed` and telemetry values to `font-display text-sm font-bold`.
+  - Converted Escrow Protection & Settlement Guarantee into a full-width vertical stacked layout (`space-y-3`) with dedicated left icon surfaces and trust badges.
+  - Removed "Search Performers" from the performer projects tab strip, leaving only `Browse Projects` and `My Applications`.
+- **Resolution:** Validated via `tsc --noEmit` and all 25 test suites passing (127/127 tests).
 
 ### 95. Inaccurate Gross Escrow Copy in Order Room, Alarming Red Analytics Numbers, Cryptic P-S-P Attributes Controls, and Triple Save Triggers
 - **Severity:** High / Financial Copy Accuracy, UX & Visual Semantics
