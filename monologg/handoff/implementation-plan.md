@@ -1,11 +1,26 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 152: Client Webapp 5-Screen Executive Polish & Modernization)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–151 + Session 152 Client Webapp 5-Screen Executive Polish & Modernization.
+**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–152 + Session 153 External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade.
 
 ---
 
 ## ✅ Done
+
+### Session 153 — External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade
+- [x] **Stepper Precision Layout Architecture (`ExternalBookingEntry.tsx`)**:
+  - Replaced absolute positioned track (`left-8 right-8` with container percentage width) with flex-based segmented connector bars rendered strictly between adjacent steps (`index < STEP_ITEMS.length - 1`).
+  - Fixed progress bar overflow bug where line extended to the left of Step 1 and overshot significantly past Step 4.
+  - Connector bars now span perfectly from circle `index` to circle `index + 1` with `mt-[13px] sm:mt-[15px]` vertical alignment to circle equator.
+  - Preserved glowing halo ring on active step (`ring-4 ring-[var(--color-accent-soft)] ring-offset-2`) matching user screenshot reference.
+  - Preserved solid brand circle with `Check` icon on completed steps with 300ms ease transitions.
+  - Formatted step labels below nodes with refined tracking and status-driven color hierarchy.
+- [x] **Circular Back Button Polish (`ExternalBookingEntry.tsx`)**:
+  - Upgraded back button to a refined circular surface (`bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800`), crisp hairline border, and interactive scale states.
+- [x] **High-Trust Escrow Header & Performer Identity (`ExternalBookingEntry.tsx`)**:
+  - Elevated bare text escrow badge into a bank-grade trust badge with pulsing emerald indicator and milestone protection note (`Escrow protected booking · 100% Milestone-Gated`).
+  - Added desktop Performer Identity Chip with avatar initial, verified badge shield, and craft category.
+  - Preserved exact text strings for 100% vitest suite compatibility (`Book {creator?.name}`, `Select your event date and preferred performer time slot.`, `Continue to Project Brief`).
 
 ### Session 152 — Client Webapp 5-Screen Executive Polish & Modernization
 - [x] **Screen 1: Dashboard Home Overview & Executive Wallet Hero (`ClientDashboard.tsx`)**:

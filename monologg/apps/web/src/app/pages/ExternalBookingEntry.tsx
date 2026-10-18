@@ -387,35 +387,29 @@ export function ExternalBookingEntry() {
   const header = (onBack: () => void) => {
     const currentStepNum = getStepNumber(step);
     return (
-      <div className="sticky top-0 z-40 glass-panel border-b" style={{ borderColor: "var(--color-hairline)" }}>
-        <div className="h-16 relative flex items-center justify-center px-4 max-w-xl mx-auto w-full">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/90 dark:bg-[#0D0D0F]/90 border-b border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs transition-colors">
+        <div className="h-20 relative flex items-center justify-center px-4 max-w-xl mx-auto w-full">
           {/* Back button at the extreme left (omitted on step 1 since it's a fresh browser page) */}
           {currentStepNum > 1 && (
             <button
               type="button"
               aria-label="Go back"
               onClick={onBack}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0 cursor-pointer z-20"
-              style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700/80 hover:scale-105 active:scale-95 transition-all cursor-pointer z-20 shadow-2xs"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5 stroke-[2.2]" />
             </button>
           )}
 
-          {/* 4-Step Progress Stepper centered in the navbar */}
-          <div className="w-full max-w-md mx-auto px-6 sm:px-8 relative">
-            <div className="absolute top-3.5 left-8 right-8 h-0.5 -translate-y-1/2 bg-[var(--color-hairline)] z-0" />
-            <div
-              className="absolute top-3.5 left-8 h-0.5 -translate-y-1/2 bg-[var(--color-accent)] z-0 transition-all duration-300"
-              style={{ width: `${((currentStepNum - 1) / (STEP_ITEMS.length - 1)) * 100}%` }}
-            />
-            <div className="flex items-center justify-between relative z-10">
-              {STEP_ITEMS.map((item) => {
-                const isDone = item.id < currentStepNum;
-                const isActive = item.id === currentStepNum;
-                return (
+          {/* 4-Step Progress Stepper centered in the navbar with pixel-perfect segmented connector lines */}
+          <div className="w-full max-w-md mx-auto px-2 relative flex items-start justify-between">
+            {STEP_ITEMS.map((item, index) => {
+              const isDone = item.id < currentStepNum;
+              const isActive = item.id === currentStepNum;
+              return (
+                <React.Fragment key={item.id}>
                   <button
-                    key={item.id}
+                    type="button"
                     disabled={item.id > currentStepNum}
                     onClick={() => {
                       if (item.id === 1) setStep("slot");
@@ -423,39 +417,54 @@ export function ExternalBookingEntry() {
                       else if (item.id === 3) setStep("review");
                       else if (item.id === 4 && agreedToTerms && name.trim() && email.trim() && phone.trim()) setStep("payment");
                     }}
-                    className={`flex flex-col items-center group ${
-                      item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                    className={`flex flex-col items-center group relative z-10 shrink-0 ${
+                      item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-45"
                     }`}
+                    style={{ width: "68px" }}
                   >
+                    {/* Circle Node with glowing halo ring on active step */}
                     <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold font-body transition-all ${
+                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold font-body transition-all duration-300 select-none ${
                         isDone
-                          ? "bg-[var(--color-accent)] text-[var(--color-accent-on)]"
+                          ? "bg-[var(--color-accent)] text-white shadow-xs"
                           : isActive
-                          ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] ring-4 ring-[var(--color-accent-glow)]"
-                          : "bg-[var(--color-bg-surface)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]"
+                          ? "bg-[var(--color-accent)] text-white shadow-md ring-4 ring-[var(--color-accent-soft)] ring-offset-2 ring-offset-white dark:ring-offset-zinc-900"
+                          : "bg-white dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700"
                       }`}
                     >
-                      {isDone ? <Check className="w-3.5 h-3.5" /> : item.id}
+                      {isDone ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" /> : item.id}
                     </div>
+
+                    {/* Step Label */}
                     <span
-                      className={`text-[10px] sm:text-[11px] font-body mt-1 transition-colors ${
+                      className={`text-[10px] sm:text-[11px] font-body mt-1 sm:mt-1.5 transition-colors text-center leading-tight whitespace-nowrap ${
                         isActive
                           ? "text-[var(--color-accent)] font-semibold"
                           : isDone
-                          ? "text-[var(--color-text-primary)] font-medium"
-                          : "text-[var(--color-text-tertiary)]"
+                          ? "text-zinc-900 dark:text-zinc-100 font-medium"
+                          : "text-zinc-400 dark:text-zinc-500 font-normal"
                       }`}
                     >
                       {item.label}
                     </span>
                   </button>
-                );
-              })}
-            </div>
+
+                  {/* Segmented Connector Line between circles (never bleeds past start or end) */}
+                  {index < STEP_ITEMS.length - 1 && (
+                    <div className="flex-1 h-[2px] mx-1 sm:mx-2 mt-[13px] sm:mt-[15px] relative bg-zinc-200 dark:bg-zinc-700/80 rounded-full overflow-hidden self-start">
+                      <div
+                        className={`h-full bg-[var(--color-accent)] transition-all duration-300 ease-out ${
+                          item.id < currentStepNum ? "w-full" : "w-0"
+                        }`}
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
-      </div>
+      </header>
     );
   };
 
@@ -466,15 +475,43 @@ export function ExternalBookingEntry() {
         {header(() => navigate(-1))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-6">
           <div>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-1">
-              <Lock className="w-3.5 h-3.5" /> Escrow protected booking
+            {/* High-trust Escrow Protected Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs mb-2.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <Lock className="w-3.5 h-3.5 shrink-0" />
+              <span>Escrow protected booking</span>
+              <span className="text-emerald-300 dark:text-emerald-700">·</span>
+              <span className="text-[11px] font-medium text-emerald-600/90 dark:text-emerald-400/90">100% Milestone-Gated</span>
             </div>
-            <h1 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Book {creator?.name ?? "Performer"}
-            </h1>
-            <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
-              Select your event date and preferred performer time slot.
-            </p>
+
+            {/* Header with Creator Identity */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+                  Book {creator?.name ?? "Performer"}
+                </h1>
+                <p className="text-xs sm:text-sm font-body mt-1 text-[var(--color-text-secondary)]">
+                  Select your event date and preferred performer time slot.
+                </p>
+              </div>
+
+              {creator && (
+                <div className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-700/70 shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white font-bold text-xs ring-1 ring-white dark:ring-zinc-900 shrink-0">
+                    {creator.name ? creator.name.charAt(0) : "P"}
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
+                      <span>{creator.name}</span>
+                      <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                    </div>
+                    <div className="text-[10px] text-zinc-500 font-medium">
+                      {creator.nicheLabel || "Verified"}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Event Date Section: Simple Compact Month Calendar with Month Toggle */}

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 152: Client Webapp 5-Screen Executive Polish & Modernization)
+**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,23 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 112: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade (Session 153)
+
+Addressed layout flaws and aesthetic limitations in the external booking flow (`ExternalBookingEntry.tsx`):
+- **Stepper Precision Geometry & Overflow Fix:**
+  - Replaced the previous absolute positioned track (`left-8 right-8` with container percentage width) with flex-based segmented connector bars rendered strictly between adjacent steps (`index < STEP_ITEMS.length - 1`).
+  - Resolved progress bar overflow bug where line extended to the left of Step 1 and overshot significantly past Step 4.
+  - Connector bars now span perfectly from circle `index` to circle `index + 1` with `mt-[13px] sm:mt-[15px]` vertical alignment to circle equator.
+  - Preserved glowing ambient halo ring on active step node (`ring-4 ring-[var(--color-accent-soft)] ring-offset-2`) matching user screenshot reference.
+  - Preserved solid brand circle with `Check` icon on completed steps with 300ms ease transitions.
+  - Formatted step labels below nodes with refined tracking and status-driven color hierarchy.
+- **Circular Back Button Polish:**
+  - Upgraded back button to a refined circular surface (`bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800`), crisp hairline border, and interactive scale states.
+- **High-Trust Escrow Header & Performer Identity:**
+  - Elevated bare text escrow badge into a bank-grade trust badge with pulsing emerald indicator and milestone protection note (`Escrow protected booking · 100% Milestone-Gated`).
+  - Added desktop Performer Identity Chip with avatar initial, verified badge shield, and craft category.
+  - Preserved exact text strings for 100% vitest suite compatibility (`Book {creator?.name}`, `Select your event date and preferred performer time slot.`, `Continue to Project Brief`).
 
 ### Step 111: Client Webapp 5-Screen Executive Polish & Modernization (Session 152)
 

@@ -1,11 +1,35 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 152: Client Webapp 5-Screen Executive Polish & Modernization)
+**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 153 (2026-10-18) — External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade
+
+**Goal:** Resolve visual layout flaws, progress bar overshoots, and aesthetic limitations in the external booking flow (`ExternalBookingEntry.tsx`) identified from user screenshots of Step 1 and Step 4:
+1. **Stepper Precision Alignment & Overflow Fix (`ExternalBookingEntry.tsx`):**
+   - **Root Cause of Stepper Bug:** The previous implementation used an absolute positioned track with arbitrary `left-8 right-8` padding and calculated `width: ${((currentStepNum - 1) / 3) * 100}%` across the outer container. On Step 1, the track bled to the left of Step 1's circle and to the right of Step 4's circle. On Step 4, `width: 100%` overshot significantly past Step 4's node to the right.
+   - **Architectural Solution:** Replaced absolute bar guesswork with segmented flex connector bars (`index < STEP_ITEMS.length - 1`) placed directly between adjacent step columns.
+   - **Flawless Geometry:** Connector segments span strictly from circle `index` to circle `index + 1`. Zero line exists prior to Step 1, and zero line extends past Step 4.
+   - **Active Halo Rings:** Preserved glowing brand halo ring on the active step node (`ring-4 ring-[var(--color-accent-soft)] ring-offset-2`) matching the user's design reference.
+   - **Completed Step Polish:** Rendered crisp checkmarks (`Check`) on solid brand circles with smooth 300ms ease transitions.
+   - **Typography & Labels:** Elevated step labels below nodes with refined tracking, centered alignment, and status-driven color hierarchy (active: bold accent; completed: dark bold text; upcoming: muted text).
+2. **Back Button Polish (`ExternalBookingEntry.tsx`):**
+   - Elevated circular back button with soft rounded container (`bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800`), crisp border, and tactile feedback (`hover:scale-105 active:scale-95 shadow-2xs`).
+3. **High-Trust Escrow Header & Performer Identity (`ExternalBookingEntry.tsx`):**
+   - Elevated the raw inline text badge into a bank-grade trust badge (`Escrow protected booking · 100% Milestone-Gated`) with emerald status dot, lock icon, and subtle border.
+   - Added Performer Identity Chip on desktop showing creator avatar initial, verified badge shield, and craft category.
+   - Preserved exact text strings (`Book {creator?.name}`, `Select your event date and preferred performer time slot.`, `Continue to Project Brief`) for 100% vitest suite backwards compatibility.
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across `packages/types`, `apps/api`, `apps/web`).
+- `npm test` passed: all 25 web test files (127/127 tests) passed cleanly.
+- `ExternalBookingEntry.test.tsx` passed in 570ms.
 
 ---
 

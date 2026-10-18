@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 152: Client Webapp 5-Screen Executive Polish & Modernization)
+**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 100. External Booking Entry Stepper Track Bleed, Progress Bar Overshoot, and Raw Inline Trust Badge Artifacts
+- **Severity:** Medium / Design Parity & Visual Layout Defect
+- **What happened:**
+  1. In the 4-step external booking entry flow (`ExternalBookingEntry.tsx`), the horizontal track connector was rendered using an absolute positioned line with hardcoded container padding (`left-8 right-8`).
+  2. On Step 1, the track bled out past the left of Step 1's circle and past the right of Step 4's circle.
+  3. On Step 4, setting `width: ${((currentStepNum - 1) / 3) * 100}%` (which evaluated to 100% of the entire container) caused the active red progress line to overshoot significantly past Step 4's node to the right edge of the screen.
+  4. The "Escrow protected booking" badge in the page header was an unstyled inline snippet with a bare lock icon floating above plain text.
+- **Root Cause:**
+  - Absolute positioning across a responsive container with independent padding caused the line start and end points to disconnect from the actual circle centers in flex layout.
+- **Fix:**
+  - Replaced the absolute track bar with segmented flex connector bars (`index < STEP_ITEMS.length - 1`) placed strictly between adjacent step columns.
+  - Connector bars span from circle `index` to circle `index + 1` with zero line before Step 1 and zero line after Step 4.
+  - Elevated the escrow trust indicator into a bank-grade badge (`Escrow protected booking · 100% Milestone-Gated`) with emerald status dot, lock icon, and subtle border.
+  - Added desktop Performer Identity Chip and elevated the back button to a circular tactile surface.
+- **Resolution:** Validated with clean TypeScript compilation and 25/25 test suites passing (127/127 tests).
 
 ### 99. Client Webapp Visual Polish Lag and Media Player / Numeric Handle Presentation Artifacts
 - **Severity:** Medium / Design Parity & Visual Hierarchy
