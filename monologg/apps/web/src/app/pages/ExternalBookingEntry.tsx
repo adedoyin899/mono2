@@ -6,6 +6,7 @@ import { Input } from "../components/ui/Input";
 import { Modal } from "../components/ui/Modal";
 import { PaystackModal } from "../components/ui/PaystackModal";
 import { apiClient, type CreatedBooking } from "../../lib/api-client";
+import { appStateSync } from "../../lib/state-sync";
 import type { PublicRateCard, PublicStorefront } from "@monologg/types";
 import {
   ChevronLeft, ChevronRight, Lock, ArrowRight, AlertCircle, CheckCircle2, Mail,
@@ -76,6 +77,7 @@ export function ExternalBookingEntry() {
   const handle = params.handle || params.creatorId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const isClient = searchParams.get("role") === "client";
 
   const [creator, setCreator] = useState<PublicStorefront | null>(null);
   const [rateCards, setRateCards] = useState<any[]>(FALLBACK_RATE_CARDS);
@@ -99,6 +101,16 @@ export function ExternalBookingEntry() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
+  // Auto-populate registered client contact info when accessed via client role
+  useEffect(() => {
+    if (isClient) {
+      const client = appStateSync.getClientProfile();
+      setName((prev) => prev || client.name || client.orgName || "FilmCraft Studios");
+      setEmail((prev) => prev || client.email || "client@filmcraft.ng");
+      setPhone((prev) => prev || "+234 802 345 6789");
+    }
+  }, [isClient]);
+
   // Step 3: Review & Agreement (Service Agreement)
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -115,6 +127,16 @@ export function ExternalBookingEntry() {
   const [submitting, setSubmitting] = useState(false);
   const [slotError, setSlotError] = useState<string | null>(null);
   const [payError, setPayError] = useState<string | null>(null);
+
+  // Auto-transition client to Order Room after confirming booking
+  useEffect(() => {
+    if (step === "confirmed" && isClient) {
+      const timer = setTimeout(() => {
+        navigate(booking?.id ? `/order/${booking.id}?role=client` : "/order/ORD-001?role=client");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, isClient, booking, navigate]);
 
   // Google Meet Prompt State
   const [copiedMeetLink, setCopiedMeetLink] = useState(false);
@@ -380,7 +402,7 @@ export function ExternalBookingEntry() {
   const STEP_ITEMS = [
     { id: 1, label: "Event & Slot", key: "slot" as Step },
     { id: 2, label: "Project Brief", key: "brief" as Step },
-    { id: 3, label: "Contact & Agreement", key: "review" as Step },
+    { id: 3, label: isClient ? "Agreement" : "Contact & Agreement", key: "review" as Step },
     { id: 4, label: "Escrow Payment", key: "payment" as Step },
   ];
 
@@ -415,7 +437,7 @@ export function ExternalBookingEntry() {
                       if (item.id === 1) setStep("slot");
                       else if (item.id === 2) setStep("brief");
                       else if (item.id === 3) setStep("review");
-                      else if (item.id === 4 && agreedToTerms && name.trim() && email.trim() && phone.trim()) setStep("payment");
+                      else if (item.id === 4 && agreedToTerms && (isClient || (name.trim() && email.trim() && phone.trim()))) setStep("payment");
                     }}
                     className={`flex flex-col items-center group relative z-10 shrink-0 ${
                       item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-45"
@@ -475,43 +497,12 @@ export function ExternalBookingEntry() {
         {header(() => navigate(-1))}
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-6">
           <div>
-            {/* High-trust Escrow Protected Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs mb-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <Lock className="w-3.5 h-3.5 shrink-0" />
-              <span>Escrow protected booking</span>
-              <span className="text-emerald-300 dark:text-emerald-700">·</span>
-              <span className="text-[11px] font-medium text-emerald-600/90 dark:text-emerald-400/90">100% Milestone-Gated</span>
-            </div>
-
-            {/* Header with Creator Identity */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
-                  Book {creator?.name ?? "Performer"}
-                </h1>
-                <p className="text-xs sm:text-sm font-body mt-1 text-[var(--color-text-secondary)]">
-                  Select your event date and preferred performer time slot.
-                </p>
-              </div>
-
-              {creator && (
-                <div className="hidden sm:flex items-center gap-2 p-1.5 pr-3 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-700/70 shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white font-bold text-xs ring-1 ring-white dark:ring-zinc-900 shrink-0">
-                    {creator.name ? creator.name.charAt(0) : "P"}
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
-                      <span>{creator.name}</span>
-                      <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                    </div>
-                    <div className="text-[10px] text-zinc-500 font-medium">
-                      {creator.nicheLabel || "Verified"}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: "var(--color-text-primary)" }}>
+              Book {creator?.name ?? "Performer"}
+            </h1>
+            <p className="text-xs sm:text-sm font-body mt-1 text-[var(--color-text-secondary)]">
+              Select your event date and preferred performer time slot.
+            </p>
           </div>
 
           {/* Event Date Section: Simple Compact Month Calendar with Month Toggle */}
@@ -924,7 +915,7 @@ export function ExternalBookingEntry() {
             disabled={!projectName.trim() || (projectFormat === "onsite" && !venueLocation.trim())}
             onClick={() => setStep("review")}
           >
-            <span>Continue to Contact & Agreement</span>
+            <span>{isClient ? "Continue to Agreement" : "Continue to Contact & Agreement"}</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
 
@@ -948,69 +939,73 @@ export function ExternalBookingEntry() {
         <div className="flex-1 px-4 py-6 max-w-xl mx-auto w-full space-y-5">
           <div>
             <h2 className="font-display text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Contact & Agreement
+              {isClient ? "Agreement" : "Contact & Agreement"}
             </h2>
             <p className="text-xs font-body mt-0.5 text-[var(--color-text-secondary)]">
-              Provide your contact details for booking notifications and accept the escrow terms.
+              {isClient
+                ? "Review and accept the Monologg service agreement and escrow terms."
+                : "Provide your contact details for booking notifications and accept the escrow terms."}
             </p>
           </div>
 
-          {/* Contact Details Card */}
-          <div
-            className="p-5 rounded-2xl border space-y-4"
-            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
-          >
-            <div>
-              <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
-                Your contact details
-              </h3>
-              <p className="text-xs font-body text-[var(--color-text-tertiary)] mt-0.5">
-                We'll use these details to send project updates, check-in alerts, and your Monologg sign-in link.
-              </p>
-            </div>
-
-            <div className="space-y-3">
+          {/* Contact Details Card — Only shown for guest bookings (clients have pre-registered profiles) */}
+          {!isClient && (
+            <div
+              className="p-5 rounded-2xl border space-y-4"
+              style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", boxShadow: "var(--shadow-card)" }}
+            >
               <div>
-                <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                  Your name *
-                </label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your full name"
-                  className="text-sm font-body"
-                />
+                <h3 className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>
+                  Your contact details
+                </h3>
+                <p className="text-xs font-body text-[var(--color-text-tertiary)] mt-0.5">
+                  We'll use these details to send project updates, check-in alerts, and your Monologg sign-in link.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                    Email address *
+                    Your name *
                   </label>
                   <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your full name"
                     className="text-sm font-body"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
-                    Phone number *
-                  </label>
-                  <Input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+234 800 000 0000"
-                    className="text-sm font-body"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                      Email address *
+                    </label>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@company.com"
+                      className="text-sm font-body"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-1 font-body text-[var(--color-text-secondary)]">
+                      Phone number *
+                    </label>
+                    <Input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+234 800 000 0000"
+                      className="text-sm font-body"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Clean Service Agreement Card */}
           <div
@@ -1064,7 +1059,7 @@ export function ExternalBookingEntry() {
 
           <Button
             className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
-            disabled={!name.trim() || !email.trim() || !email.includes("@") || !phone.trim() || !agreedToTerms}
+            disabled={!agreedToTerms || (!isClient && (!name.trim() || !email.trim() || !email.includes("@") || !phone.trim()))}
             onClick={() => setStep("payment")}
           >
             <span>Proceed to Payment</span>
@@ -1446,26 +1441,28 @@ export function ExternalBookingEntry() {
           </div>
         </div>
 
-        {/* Muted Account Surfacing Card */}
-        <div
-          className="p-4 rounded-2xl flex items-start gap-3 text-left border"
-          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
-        >
+        {/* Muted Account Surfacing Card — Only for guest checkouts */}
+        {!isClient && (
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-            style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+            className="p-4 rounded-2xl flex items-start gap-3 text-left border"
+            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
           >
-            <Mail className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-              We've created your Monologg account
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+              style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
+            >
+              <Mail className="w-4 h-4" />
             </div>
-            <div className="text-xs font-body mt-0.5 text-[var(--color-text-tertiary)] leading-relaxed">
-              Check <span className="font-semibold text-[var(--color-text-secondary)]">{email || "your inbox"}</span> for a secure sign-in link to set your password and access your Order Room to approve deliverables.
+            <div>
+              <div className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                We've created your Monologg account
+              </div>
+              <div className="text-xs font-body mt-0.5 text-[var(--color-text-tertiary)] leading-relaxed">
+                Check <span className="font-semibold text-[var(--color-text-secondary)]">{email || "your inbox"}</span> for a secure sign-in link to set your password and access your Order Room to approve deliverables.
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Clean, unified navigation buttons */}
         <div className="flex flex-col gap-2 pt-1">
@@ -1476,8 +1473,12 @@ export function ExternalBookingEntry() {
             <span>Enter Order Room</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
-          <Button variant="secondary" className="w-full h-11 text-xs font-medium cursor-pointer" onClick={() => navigate(`/${handle || ""}`)}>
-            Back to Storefront
+          <Button
+            variant="secondary"
+            className="w-full h-11 text-xs font-medium cursor-pointer"
+            onClick={() => navigate(isClient ? "/client" : `/${handle || ""}`)}
+          >
+            {isClient ? "Back to Client Portal" : "Back to Storefront"}
           </Button>
         </div>
       </motion.div>

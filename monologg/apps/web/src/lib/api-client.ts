@@ -764,7 +764,33 @@ export const apiClient = {
    * owner-scoped to the logged-in talent), used by a CLIENT picking a service
    * to book on someone else's storefront. */
   async getCreatorRateCardsPublic(creatorId: string): Promise<PublicRateCard[]> {
-    if (API_MODE !== "live") return mocks.PUBLIC_RATE_CARDS;
+    if (API_MODE !== "live") {
+      const matched = mocks.TALENTS.find(
+        (t) => t.id === creatorId || t.name.toLowerCase().replace(/\s+/g, "-") === creatorId.toLowerCase()
+      );
+      if (matched) {
+        const baseNum = parseInt(matched.price.replace(/[^\d]/g, ""), 10) || 50000;
+        return [
+          {
+            id: `rc-${matched.id}-1`,
+            title: `${matched.role} Standard Booking`,
+            price: matched.price,
+            basePriceAmount: baseNum * 100,
+            basePriceCurrency: "NGN",
+            delivery: "48 Hours",
+          },
+          {
+            id: `rc-${matched.id}-2`,
+            title: `${matched.role} Priority / Rush`,
+            price: `₦${Math.round(baseNum * 1.5).toLocaleString()}`,
+            basePriceAmount: Math.round(baseNum * 1.5) * 100,
+            basePriceCurrency: "NGN",
+            delivery: "Same Day",
+          },
+        ];
+      }
+      return mocks.PUBLIC_RATE_CARDS;
+    }
     return request(`/creators/${creatorId}/rate-cards`);
   },
 
@@ -775,6 +801,40 @@ export const apiClient = {
   // for its own public creator sub-resource).
   async getPublicStorefront(handle: string): Promise<PublicStorefront> {
     if (API_MODE !== "live") {
+      const matched = mocks.TALENTS.find(
+        (t) => t.id === handle || t.name.toLowerCase().replace(/\s+/g, "-") === handle.toLowerCase()
+      );
+      if (matched) {
+        const baseNum = parseInt(matched.price.replace(/[^\d]/g, ""), 10) || 50000;
+        return {
+          ...mocks.PUBLIC_STOREFRONT,
+          id: matched.id,
+          name: matched.name,
+          bio: `Professional ${matched.role} based in ${matched.location}. Specializing in stage and camera performance, voice-over productions, and commercial storytelling.`,
+          location: `${matched.location}, Nigeria`,
+          nicheLabel: matched.role,
+          styleTags: matched.tags && matched.tags.length > 0 ? matched.tags : mocks.PUBLIC_STOREFRONT.styleTags,
+          verified: matched.verified,
+          rateCards: [
+            {
+              id: `rc-${matched.id}-1`,
+              title: `${matched.role} Standard Booking`,
+              price: matched.price,
+              basePriceAmount: baseNum * 100,
+              basePriceCurrency: "NGN",
+              delivery: "48 Hours",
+            },
+            {
+              id: `rc-${matched.id}-2`,
+              title: `${matched.role} Priority / Rush`,
+              price: `₦${Math.round(baseNum * 1.5).toLocaleString()}`,
+              basePriceAmount: Math.round(baseNum * 1.5) * 100,
+              basePriceCurrency: "NGN",
+              delivery: "Same Day",
+            },
+          ],
+        };
+      }
       const tState = appStateSync.getTalentProfile();
       return {
         ...mocks.PUBLIC_STOREFRONT,

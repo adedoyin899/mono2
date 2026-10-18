@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
+**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,28 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 113: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup (Session 154)
+
+Addressed user feedback across booking entry copy, client role flow alignment, and talent search filters:
+- **Streamlined Booking Header & Subtext Copy:**
+  - Removed the green escrow badge pill (`Escrow protected booking · 100% Milestone-Gated`) and desktop right creator chip in Step 1, leaving only the clean header `<h1>Book {creator?.name}</h1>` and subtitle `<p>Select your event date and preferred performer time slot.</p>`.
+  - Harmonized typography and concise copy across all 5 steps.
+- **Client Role Booking Experience Alignment:**
+  - Integrated `isClient = searchParams.get("role") === "client"`.
+  - Automatically prefilled client contact identity from the active profile (`FilmCraft Studios`, `client@filmcraft.ng`, phone).
+  - On Step 3 for clients: completely hid the contact input fields (name, email, phone) and displayed only the `Service agreement & escrow terms` card with mandatory agreement checkbox.
+  - Adjusted step label to `Agreement` (stepper) and `Continue to Agreement` (Step 2 CTA button).
+  - On Step 5 for clients: hid the guest account creation notice, provided immediate CTA to `Enter Order Room`, and set up an automatic transition to `/order/:id?role=client`.
+- **Streamlined Discovery Filters:**
+  - Cleaned up `ATTRIBUTE_FILTER_FIELDS` in `ClientDashboard.tsx` to eliminate physical attributes (Height, Build, Complexion, Hair).
+  - Maintained strictly: Category / Craft Role, Budget Rate Card Slider (`₦0` to `₦150k+`), Gender (`genderPresentation`: MASCULINE, FEMININE, ANDROGYNOUS, NON_BINARY), Age Range, and Location.
+  - Updated `ClientDashboard.test.tsx` assertions to validate Gender and MASCULINE queries.
+- **External Public Profile Navigation:**
+  - Configured performer card click in Find Performers and Shortlist to open the performer's public storefront profile in a new browser window/tab (`window.open('/' + talent.id + '?role=client', '_blank')`).
+  - Preserved `&role=client` query parameter from `PublicStorefront.tsx` Book Now action into `/book/:creatorId`.
+  - Expanded mock resolution in `api-client.ts` to support all performers in `mocks.TALENTS`.
+  - Added vitest automated test verifying the entire client booking flow in `ExternalBookingEntry.test.tsx`.
 
 ### Step 112: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade (Session 153)
 

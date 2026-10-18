@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
+**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 101. Client Discovery Filter Visual Clutter and Booking Flow Misalignment Across Client Roles
+- **Severity:** Medium / Design Alignment & Workflow Parity
+- **What happened:**
+  1. The "Filter Performers" modal panel in `ClientDashboard.tsx` was cluttered with detailed physical attributes (Height, Build, Complexion, Hair) that did not align with the streamlined discovery filters requested by the user.
+  2. The booking entry flow in `ExternalBookingEntry.tsx` forced registered clients to fill out their contact details (name, email, phone) on Step 3, despite the user already having an authenticated/active client profile.
+  3. On completion of escrow deposit, registered clients were shown a guest account creation card (`We've created your Monologg account`) rather than directly transitioning to their active Order Room.
+  4. Performer cards in Find Performers and the Shortlist tab opened internal modals or separate flows instead of opening the performer's public storefront profile in a new browser page/tab.
+  5. Step 1 of the booking flow displayed a redundant green escrow pill badge and creator identity chip that cluttered the screen above the header and subtitle.
+- **Root Cause:**
+  - `ExternalBookingEntry.tsx` was originally designed as a logged-out guest flow and did not check `role=client` to hide contact forms, adjust step labels to "Agreement", or direct to the Order Room.
+  - `ClientDashboard.tsx` statically registered physical attributes in `ATTRIBUTE_FILTER_FIELDS` without providing a clean subset of Gender, Age, Rate Card, and Location.
+- **Fix:**
+  - Removed Height, Build, Complexion, and Hair from `ATTRIBUTE_FILTER_FIELDS`, keeping only Gender, Age Range, Budget Slider, and Location.
+  - Parameterized `ExternalBookingEntry.tsx` with `isClient`: hid contact inputs for registered clients, prefilled their profile, labeled Step 3 "Agreement", hid the guest account creation card, and added a direct CTA + auto-redirect to `/order/:id?role=client`.
+  - Removed the green escrow badge pill and right creator identity chip on Step 1, leaving only the clean header and subtext.
+  - Updated card click handlers to open `window.open('/' + talent.id + '?role=client', '_blank')` and forwarded role parameters in `PublicStorefront.tsx`.
+- **Resolution:** Validated with clean TypeScript compilation, 128/128 web vitest tests passing, and 580/580 API tests passing.
 
 ### 100. External Booking Entry Stepper Track Bleed, Progress Bar Overshoot, and Raw Inline Trust Badge Artifacts
 - **Severity:** Medium / Design Parity & Visual Layout Defect

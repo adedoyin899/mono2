@@ -34,10 +34,10 @@ describe("ClientDashboard — attribute filters", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await renderDiscoverTab();
-    expect(screen.queryByText("Build")).not.toBeInTheDocument();
+    expect(screen.queryByText("Gender")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText("Filter performers"));
-    expect(await screen.findByText("Build")).toBeInTheDocument();
+    expect(await screen.findByText("Gender")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -50,13 +50,13 @@ describe("ClientDashboard — attribute filters", () => {
 
     await renderDiscoverTab();
     fireEvent.click(screen.getByLabelText("Filter performers"));
-    await screen.findByText("Build");
+    await screen.findByText("Gender");
 
-    fireEvent.click(screen.getByText("ATHLETIC"));
+    fireEvent.click(screen.getByText("MASCULINE"));
 
     await waitFor(() => {
       const calledUrls = fetchMock.mock.calls.map((c) => String(c[0]));
-      expect(calledUrls.some((u) => u.includes("build=ATHLETIC"))).toBe(true);
+      expect(calledUrls.some((u) => u.includes("genderPresentation=MASCULINE"))).toBe(true);
     });
   });
 
@@ -69,15 +69,15 @@ describe("ClientDashboard — attribute filters", () => {
 
     await renderDiscoverTab();
     fireEvent.click(screen.getByLabelText("Filter performers"));
-    await screen.findByText("Build");
-    fireEvent.click(screen.getByText("ATHLETIC"));
+    await screen.findByText("Gender");
+    fireEvent.click(screen.getByText("MASCULINE"));
     await screen.findByText("Clear attribute filters");
 
     fireEvent.click(screen.getByText("Clear attribute filters"));
 
     await waitFor(() => {
       const lastUrl = String(fetchMock.mock.calls.at(-1)?.[0]);
-      expect(lastUrl).not.toContain("build=");
+      expect(lastUrl).not.toContain("genderPresentation=");
     });
   });
 });

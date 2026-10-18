@@ -1,11 +1,31 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–152 + Session 153 External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade.
+**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–153 + Session 154 Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup.
 
 ---
 
 ## ✅ Done
+
+### Session 154 — Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup
+- [x] **Streamlined Booking Entry Header (`ExternalBookingEntry.tsx`)**:
+  - Removed green escrow chip pill and right creator identity chip on Step 1, leaving only clean `<h1>Book {creator?.name}</h1>` and subtitle `<p>Select your event date and preferred performer time slot.</p>`.
+  - Harmonized typography and header copy across steps 1 through 5.
+- [x] **Client Role Booking Alignment (`ExternalBookingEntry.tsx`)**:
+  - Detected `isClient = searchParams.get("role") === "client"`.
+  - Prefilled registered client contact identity (`name`, `email`, `phone`).
+  - Step 3 displays only the `Service agreement & escrow terms` card for clients (contact form hidden), with mandatory agreement checkbox.
+  - Step label updated to `Agreement` (stepper) and `Continue to Agreement` (Step 2 CTA button).
+  - Step 5 hides guest account creation card for clients and provides direct CTA plus auto-redirect to `/order/:id?role=client`.
+- [x] **Discovery Filters Cleanup (`ClientDashboard.tsx`)**:
+  - Removed physical attributes: Height, Build, Complexion, Hair.
+  - Retained clean filter set: Category / Craft Role, Budget Rate Card Slider (`₦0` to `₦150k+`), Gender (`genderPresentation`: MASCULINE, FEMININE, ANDROGYNOUS, NON_BINARY), Age Range, and Location.
+  - Updated `ClientDashboard.test.tsx` assertions to validate Gender / MASCULINE filter queries.
+- [x] **External Profile Navigation (`ClientDashboard.tsx`, `PublicStorefront.tsx`, `api-client.ts`)**:
+  - Performer card click in Find Performers and Shortlist opens public profile in new window/tab (`window.open('/' + talent.id + '?role=client', '_blank')`).
+  - Forwarded `role=client` from `PublicStorefront.tsx` Book Now into `/book/:creatorId`.
+  - Expanded mock resolution in `api-client.ts` to support all performers in `mocks.TALENTS`.
+  - Added vitest test in `ExternalBookingEntry.test.tsx` covering the client booking flow.
 
 ### Session 153 — External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade
 - [x] **Stepper Precision Layout Architecture (`ExternalBookingEntry.tsx`)**:

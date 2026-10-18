@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 153: External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade)
+**Last updated:** 2026-10-18 (Session 154: Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,33 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 153 (2026-10-18) — External Booking Entry Stepper Precision Alignment, Progress Bar Overflow Bug Fix, and High-Trust Escrow Header Visual Upgrade
+## Session 154 (2026-10-18) — Streamlined Booking Header, Client Portal External Booking Alignment, and Filter Attributes Cleanup
+
+**Goal:** Execute user requests to streamline copy and visual clutter in external booking, align the client booking experience with registered profiles, cleanup talent discovery filters, and open public profiles in a new page:
+1. **Streamlined Step 1 Booking Header (`ExternalBookingEntry.tsx`):**
+   - Removed the green escrow badge pill (`Escrow protected booking · 100% Milestone-Gated`) and desktop right creator chip, leaving a clean `<h1>Book {creator?.name}</h1>` and subtitle `<p>Select your event date and preferred performer time slot.</p>`.
+   - Unified copy consistency across all steps (`Event & Slot` -> `Project Brief` -> `Agreement` -> `Payment` -> `Booking Confirmed!`).
+2. **Client Role Booking Alignment (`ExternalBookingEntry.tsx`):**
+   - Parameterized client role detection via `isClient = searchParams.get("role") === "client"`.
+   - Pre-filled registered client identity from `appStateSync.getClientProfile()` (`FilmCraft Studios`, `client@filmcraft.ng`).
+   - In Step 3: For clients, hidden the contact details input card completely and rendered only the `Service agreement & escrow terms` card with the mandatory agreement checkbox. Step label set to `Agreement` (stepper) and `Continue to Agreement` (Step 2 CTA button).
+   - In Step 4: Retained unified escrow deposit options (Card vs Paystack).
+   - In Step 5: For clients, hidden the guest account creation card (`We've created your Monologg account`) and added smooth auto-transition plus direct CTA to the Order Room (`/order/:id?role=client`).
+3. **Talent Discovery Filters Cleanup (`ClientDashboard.tsx`):**
+   - Removed all physical attributes (Height, Build, Complexion, Hair) from `ATTRIBUTE_FILTER_FIELDS`.
+   - Kept strictly: Category / Craft Role, Budget Rate Card Slider (`₦0` to `₦150k+`), Gender (`genderPresentation`: MASCULINE, FEMININE, ANDROGYNOUS, NON_BINARY), Age Range (`18–25` through `65+`), and Location.
+   - Updated `ClientDashboard.test.tsx` assertions from `Build` / `ATHLETIC` to `Gender` / `MASCULINE`.
+4. **External Public Profile Navigation (`ClientDashboard.tsx`, `PublicStorefront.tsx`, `api-client.ts`):**
+   - In `ClientDashboard.tsx`, clicking on any performer card in Find Performers or the Shortlist tab now opens their public profile in a new window/tab (`window.open('/' + talent.id + '?role=client', '_blank')`).
+   - Modal "Open Public Storefront" and "Book Now" actions open their profile/booking page in a new window with `role=client`.
+   - In `PublicStorefront.tsx`, "Book Now" preserves `&role=client` so client users enter the streamlined client booking flow.
+   - In `api-client.ts`, enhanced mock mode for `getPublicStorefront` and `getCreatorRateCardsPublic` to resolve against any talent in `mocks.TALENTS` by ID or slug.
+   - Added automated vitest test in `ExternalBookingEntry.test.tsx` covering the client booking flow.
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across workspace).
+- `npm test` passed: all 25 test files (128/128 tests) passing cleanly.
+- `apps/api` test suite passed: 56 test files (580/580 tests) passing cleanly.
 
 **Goal:** Resolve visual layout flaws, progress bar overshoots, and aesthetic limitations in the external booking flow (`ExternalBookingEntry.tsx`) identified from user screenshots of Step 1 and Step 4:
 1. **Stepper Precision Alignment & Overflow Fix (`ExternalBookingEntry.tsx`):**

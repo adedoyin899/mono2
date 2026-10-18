@@ -392,7 +392,12 @@ export function PublicStorefront() {
                           </div>
                           <Button
                             className="w-full h-10 text-xs font-semibold gap-2"
-                            onClick={() => navigate(`/book/${profile.id}?rateCard=${service.id}`)}
+                            onClick={() => {
+                              const roleParam = searchParams.get("role");
+                              const params = new URLSearchParams({ rateCard: service.id });
+                              if (roleParam) params.set("role", roleParam);
+                              navigate(`/book/${profile.id}?${params.toString()}`);
+                            }}
                           >
                             Book Now <ArrowRight className="w-3.5 h-3.5" />
                           </Button>

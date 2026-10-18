@@ -369,11 +369,7 @@ const NICHES = ["All", "Actor", "Voice-Over", "Comedian", "Compere", "Speaker", 
 // field, which is a bigger backend change than this UI pass. Flagged, not
 // silently narrowed.
 const ATTRIBUTE_FILTER_FIELDS: Array<{ key: keyof TalentFilters; label: string; options: string[] }> = [
-  { key: "heightRange", label: "Height", options: ["UNDER_150CM", "CM_150_160", "CM_160_170", "CM_170_180", "CM_180_190", "OVER_190CM"] },
-  { key: "build", label: "Build", options: ["SLIM", "ATHLETIC", "AVERAGE", "CURVY", "PLUS_SIZE", "MUSCULAR"] },
-  { key: "complexion", label: "Complexion", options: ["FAIR", "LIGHT", "MEDIUM", "TAN", "DARK", "DEEP"] },
-  { key: "hairColor", label: "Hair", options: ["BLACK", "BROWN", "BLONDE", "RED", "GREY", "WHITE", "DYED_OTHER"] },
-  { key: "genderPresentation", label: "Presentation", options: ["MASCULINE", "FEMININE", "ANDROGYNOUS", "NON_BINARY"] },
+  { key: "genderPresentation", label: "Gender", options: ["MASCULINE", "FEMININE", "ANDROGYNOUS", "NON_BINARY"] },
 ];
 
 const CLIENT_NAV_ITEMS: SidebarNavItem<Tab>[] = [
@@ -1471,7 +1467,7 @@ export function ClientDashboard() {
                             Filter Performers
                           </h3>
                           <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                            Filter by craft niche, budget rate card, physical attributes, and demographics
+                            Filter by craft niche, budget rate card, gender, age, and location
                           </p>
                         </div>
                       </div>
@@ -1718,7 +1714,7 @@ export function ClientDashboard() {
                         key={talent.id}
                         className="p-4 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                        onClick={() => { setSelectedApplicantForProfile(null); setSelectedTalent(talent); }}
+                        onClick={() => { window.open(`/${talent.id}?role=client`, "_blank"); }}
                       >
                         <div className="flex items-start gap-3 mb-3">
                           <Avatar className="w-12 h-12 text-base" background="var(--color-accent-glow)" color="var(--color-accent)">
@@ -3662,8 +3658,8 @@ export function ClientDashboard() {
                           </button>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="secondary" className="flex-1 h-9 text-sm" onClick={() => setSelectedTalent(talent)}>View Profile</Button>
-                          <Button className="flex-1 h-9 text-sm" onClick={() => navigate("/checkout", { state: { creatorId: talent.id, creatorName: talent.name } })}>Book Now</Button>
+                          <Button variant="secondary" className="flex-1 h-9 text-sm" onClick={() => window.open(`/${talent.id}?role=client`, "_blank")}>View Profile</Button>
+                          <Button className="flex-1 h-9 text-sm" onClick={() => window.open(`/book/${talent.id}?role=client`, "_blank")}>Book Now</Button>
                         </div>
                       </div>
                     ))}
@@ -5170,7 +5166,7 @@ export function ClientDashboard() {
                             onClick={() => {
                               setSelectedTalent(null);
                               setSelectedApplicantForProfile(null);
-                              navigate(`/${selectedTalent.id}`);
+                              window.open(`/${selectedTalent.id}?role=client`, "_blank");
                             }}
                           >
                             <span>Open Public Storefront</span>
@@ -5442,10 +5438,9 @@ export function ClientDashboard() {
                               className="flex-1 h-11 text-xs font-bold whitespace-nowrap"
                               onClick={() => {
                                 const talentId = selectedTalent.id;
-                                const talentName = selectedTalent.name;
                                 setSelectedTalent(null);
                                 setSelectedApplicantForProfile(null);
-                                navigate("/checkout", { state: { creatorId: talentId, creatorName: talentName } });
+                                window.open(`/book/${talentId}?role=client`, "_blank");
                               }}
                             >
                               Book Now →
