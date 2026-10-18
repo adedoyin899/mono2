@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
+**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 103. Wallet Hero Visual Clutter & Missing Privacy Balance Masking on Client and Performer Portals
+- **Severity:** Low / UX Privacy & Visual Noise Reduction
+- **What happened:**
+  1. In `ClientDashboard.tsx`, the wallet hero card displayed confusing dual balances (`Available: ₦200,000`, `Escrow Locked: ₦250,000`), an `Escrow Ledger` secondary button, and 3 secondary telemetry cards (`Active Briefs`, `Cast Talent`, `100% Protected`) that added visual noise, with no way for clients to hide/mask their financial balance on screen.
+  2. In `TalentDashboard.tsx`, the balance card contained 3 bottom sub-metric cards (`IN ACTIVE ESCROW`, `COMPLETED BOOKINGS`, `PLATFORM TRUST RATING`) and a subtitle row (`+18% vs last month · Next auto-withdrawal`) that crowded the hero, without a privacy toggle to hide earnings.
+- **Root Cause:**
+  - Initial redesign of both dashboard balance heroes included excessive telemetry and breakdown cards rather than a clean, privacy-aware balance display.
+- **Fix:**
+  - In `ClientDashboard.tsx`, simplified the hero to `Wallet Balance` with an interactive `Eye` / `EyeOff` show/hide toggle, retaining only `+ Fund Wallet` as the sole CTA and removing unnecessary metrics.
+  - In `TalentDashboard.tsx`, added the `Eye` / `EyeOff` show/hide privacy toggle, retained `Withdraw Funds` and `Analytics`, and removed all extraneous sub-metrics and trend subtitle lines.
+- **Resolution:** Validated with clean TypeScript compilation, all 25 web test files passing (128/128 tests), and 56 API test files passing (580/580 tests).
 
 ### 102. Dark Mode Contrast Accessibility Inversion in Order Room Modals, Analytics Metric Cards Parity, and Discovery Filter Modalization
 - **Severity:** Medium / Accessibility (WCAG AA) & Design System Parity

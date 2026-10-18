@@ -18,7 +18,7 @@ import {
   ChevronRight, Play, X, Check, AlertCircle, TrendingUp,
   CreditCard, ArrowLeft, Clock, MapPin, Lock, FileText,
   Layers, Copy, FileDown, Folder, Calendar, Share2,
-  CheckCircle2, PlayCircle, Eye, HelpCircle, Edit3,
+  CheckCircle2, PlayCircle, Eye, EyeOff, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
   Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe,
   Zap, Pause, Volume2
@@ -461,6 +461,7 @@ export function ClientDashboard() {
     const bal = appStateSync.getBalance().available;
     return bal > 0 ? bal : 850000;
   });
+  const [showBalance, setShowBalance] = useState(true);
   const [showFundWalletModal, setShowFundWalletModal] = useState(false);
   const [fundAmountInput, setFundAmountInput] = useState("50,000");
   const [isFunding, setIsFunding] = useState(false);
@@ -1098,88 +1099,53 @@ export function ClientDashboard() {
                   </div>
                 </motion.div>
 
-                {/* HERO — Executive Financial & Escrow Command Center */}
+                {/* HERO — Executive Financial Command Center (Simplified Wallet Balance) */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}
-                  className="relative overflow-hidden mb-6 p-6 lg:p-7 rounded-[28px] bg-gradient-to-br from-[#1C0E35] via-[#2A1052] to-[#150727] text-white shadow-xl border border-purple-500/20"
+                  className="relative overflow-hidden mb-6 p-6 sm:p-7 rounded-[28px] bg-gradient-to-br from-[#1C0E35] via-[#2A1052] to-[#150727] text-white shadow-xl border border-purple-500/20"
                 >
                   {/* Subtle blurred purple glow rings in background */}
                   <div className="absolute -top-24 -right-12 w-72 h-72 rounded-full bg-purple-500/15 blur-3xl pointer-events-none" />
                   <div className="absolute -bottom-20 -left-12 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
-                  <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    {/* Left: Balance & Actions (7 cols) */}
-                    <div className="lg:col-span-7 space-y-3">
+                  <div className="relative">
+                    {/* Top status bar */}
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-body font-semibold text-purple-200 uppercase tracking-wider">
-                          Wallet &amp; Escrow Balance
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[11px] font-mono tracking-wider uppercase text-purple-200 font-semibold">
+                          Wallet Balance
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          <ShieldCheck className="w-3 h-3" /> Paystack Secured
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowBalance(!showBalance)}
+                          className="p-1 rounded-md text-purple-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                          aria-label={showBalance ? "Hide balance" : "Show balance"}
+                        >
+                          {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-body text-purple-200">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Paystack Secured</span>
+                      </div>
+                    </div>
+
+                    {/* Primary balance row & sole Fund Wallet CTA */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div>
+                        <div className="font-display font-black text-white tnum leading-tight text-4xl sm:text-5xl tracking-tight">
+                          {showBalance ? (isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`) : "••••••••"}
+                        </div>
                       </div>
 
-                      <div className="font-display font-black text-white tnum leading-tight text-4xl sm:text-5xl tracking-tight">
-                        {isNewUser ? "₦0" : `₦${walletBalance.toLocaleString()}`}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-body bg-white/10 border border-white/10 text-purple-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                          Available: <strong>₦200,000</strong>
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-body bg-white/10 border border-white/10 text-purple-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                          Escrow Locked: <strong>₦250,000</strong>
-                        </span>
-                      </div>
-
-                      <div className="pt-2 flex flex-wrap items-center gap-3">
+                      <div className="pt-1 sm:pt-0">
                         <button
                           onClick={() => setShowFundWalletModal(true)}
                           className="h-10 px-5 rounded-full text-xs font-bold font-body transition-all active:scale-95 bg-white text-[#7B00FE] shadow-md hover:bg-white/90 inline-flex items-center gap-1.5 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" /> Fund Wallet
                         </button>
-                        <button
-                          onClick={() => navigate("/transactions?role=client")}
-                          className="h-10 px-4 rounded-full text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 text-white hover:bg-white/20 border border-white/20 inline-flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <CreditCard className="w-3.5 h-3.5" /> Escrow Ledger
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Right: Production Telemetry Cards (5 cols) */}
-                    <div className="lg:col-span-5 grid grid-cols-3 gap-2.5">
-                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
-                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-purple-200 mb-2">
-                          <Briefcase className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="text-xl font-display font-black text-white">{isNewUser ? "0" : "4"}</div>
-                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Active Briefs</div>
-                        </div>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
-                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-purple-200 mb-2">
-                          <Users className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="text-xl font-display font-black text-white">{isNewUser ? "0" : "12"}</div>
-                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Cast Talent</div>
-                        </div>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs flex flex-col justify-between">
-                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-emerald-300 mb-2">
-                          <Lock className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="text-xl font-display font-black text-emerald-300">100%</div>
-                          <div className="text-[11px] font-body text-purple-200/80 leading-tight mt-0.5">Protected</div>
-                        </div>
                       </div>
                     </div>
                   </div>

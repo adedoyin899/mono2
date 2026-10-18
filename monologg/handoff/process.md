@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
+**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,19 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 115: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle (Session 156)
+
+Simplified the financial command heroes across both client and performer portal views, focusing strictly on balance and primary CTAs while adding privacy masking:
+- **Client Dashboard Hero Simplification (`ClientDashboard.tsx`):**
+  - Standardized title to `Wallet Balance` in uppercase/monospace hierarchy.
+  - Added interactive show/hide icon button (`Eye` / `EyeOff`) to mask balance as `••••••••` for privacy during screen shares or public casting.
+  - Constrained action CTAs strictly to `+ Fund Wallet`, removing `Escrow Ledger`.
+  - Removed secondary telemetry metrics (`Active Briefs`, `Cast Talent`, `100% Protected`) and dual chips (`Available` / `Escrow Locked`).
+- **Performer Dashboard Hero Simplification (`TalentDashboard.tsx`):**
+  - Retained `Available Balance` with green status dot and added interactive show/hide icon toggle (`Eye` / `EyeOff`) to mask earnings (`••••••••` vs `₦148,000`).
+  - Retained primary `Withdraw Funds` (or `Setup Payouts`) CTA and secondary `Analytics` button.
+  - Removed extraneous sub-metric breakdown cards (`In Active Escrow`, `Completed Bookings`, `Platform Trust Rating`) and subtitle trend line (`+18% vs last month · Next auto-withdrawal`).
 
 ### Step 114: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog (Session 155)
 

@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
+**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 156 (2026-10-18) — Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle
+
+**Goal:** Simplify wallet hero cards on both client and performer portals, removing unnecessary secondary metrics, sub-metrics, and redundant CTAs, while introducing interactive show/hide privacy toggles for balance masking:
+1. **Client Portal Wallet Balance Simplification (`ClientDashboard.tsx`):**
+   - **Title & Privacy Toggle:** Replaced `WALLET & ESCROW BALANCE` with `Wallet Balance` in uppercase/monospaced tracking. Added an interactive show/hide icon button (`Eye` / `EyeOff`) that toggles `showBalance` between `true` and `false` (`••••••••` when masked, `₦450,000` or `₦0` when unmasked).
+   - **Sole CTA (`+ Fund Wallet`):** Retained only the primary white/purple `+ Fund Wallet` CTA button. Removed the redundant `Escrow Ledger` button.
+   - **Clutter & Metrics Purge:** Removed the 3 right telemetry cards (`Active Briefs`, `Cast Talent`, `100% Protected`) and secondary status chips (`Available: ₦200,000`, `Escrow Locked: ₦250,000`), converting the card into a balanced, uncluttered executive hero layout. Retained the subtle `Paystack Secured` trust badge.
+2. **Performer Portal Available Balance Simplification (`TalentDashboard.tsx`):**
+   - **Title & Privacy Toggle:** Maintained `Available Balance` with green status pulse indicator and added an interactive show/hide icon button (`Eye` / `EyeOff`) to toggle `showBalance` (`••••••••` vs `₦148,000` or `₦0`).
+   - **Streamlined Actions:** Retained the primary red `Withdraw Funds` (or `Setup Payouts`) CTA button and the secondary `Analytics` button (`BarChart2`).
+   - **Clutter & Metrics Purge:** Removed the bottom 3 sub-metric cards (`IN ACTIVE ESCROW ₦120,000`, `COMPLETED BOOKINGS 8 projects`, `PLATFORM TRUST RATING 100% (Clean)`) and the trend subtitle row (`+18% vs last month · Next auto-withdrawal: Fri 24 Oct`), delivering a focused, noise-free balance hero matching the client portal's architectural layout.
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across `packages/types`, `apps/api`, `apps/web`).
+- `npm test` passed: all 25 test files (128/128 tests) passing cleanly.
 
 ---
 

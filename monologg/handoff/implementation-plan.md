@@ -1,11 +1,24 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 155: Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–154 + Session 155 Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog.
+**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–155 + Session 156 Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle.
 
 ---
 
 ## ✅ Done
+
+### Session 156 — Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle
+- [x] **Client Portal Wallet Balance Simplification (`ClientDashboard.tsx`)**:
+  - Replaced title `WALLET & ESCROW BALANCE` with `Wallet Balance`.
+  - Added interactive show/hide icon toggle (`Eye` / `EyeOff`) that masks balance as `••••••••`.
+  - Restricted hero CTAs strictly to `+ Fund Wallet` (removed `Escrow Ledger`).
+  - Purged redundant secondary metrics (right 3 telemetry cards and available/escrow locked chips) into a clean, focused executive hero.
+- [x] **Performer Portal Available Balance Simplification (`TalentDashboard.tsx`)**:
+  - Kept title `Available Balance` with pulse indicator and added interactive show/hide icon toggle (`Eye` / `EyeOff`) to mask balance.
+  - Kept `Withdraw Funds` and `Analytics` action CTAs.
+  - Removed bottom 3 sub-metric cards (`In Active Escrow`, `Completed Bookings`, `Platform Trust Rating`) and trend subtitle line.
+- [x] **Automated Test Validation**:
+  - Validated typecheck (0 errors) and all 25 web test files (128/128 tests passing).
 
 ### Session 155 — Dark Mode Text Accessibility, Client Analytics Performer Parity, and Filter Modal Dialog
 - [x] **Dark Mode Text Accessibility in Order Room Modals (`OrderRoom.tsx`)**:
