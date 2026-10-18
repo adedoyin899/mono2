@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
+**Last updated:** 2026-10-18 (Session 151: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,23 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 110: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup (Session 151)
+
+Addressed user visual feedback and UX refinements across 3 key interfaces:
+- **Edit Profile Details Form Contrast Resolution (`Settings.tsx` & `TalentDashboard.tsx`):**
+  - Resolved low-contrast nested inputs where `--color-bg-surface-2` blended into container `--color-bg-elevated`.
+  - Upgraded inputs (`Performer Name`, `Stage Title`, `Location`, `Add a new tag`, and 6 social media handles: IG, YT, TT, X, IN, SP) with crisp `!bg-white dark:!bg-zinc-900 !border-zinc-300 dark:!border-zinc-700 !text-zinc-900 dark:!text-zinc-100 placeholder:!text-zinc-400 dark:placeholder:!text-zinc-500 shadow-2xs focus:!border-[var(--color-accent)]`.
+  - Upgraded `Performer Bio & Summary` textarea with high-contrast styling and `shadow-2xs`.
+  - Upgraded section labels to `text-xs font-bold uppercase tracking-wider mb-1.5 font-body text-zinc-900 dark:text-zinc-100` (WCAG AAA contrast > 7:1).
+  - Upgraded Availability Status pills and Banner Theme Presets with elevated contrast borders and crisp interactive states.
+- **Casting & Physical Specifications UX Copy Polish (`Settings.tsx`):**
+  - Replaced dry legalistic disclaimer with user-centric, empowering copy: *"Help casting directors match you to roles that fit your look. All fields are 100% optional, and you control your visibility: keep any detail **Private** (hidden), **Searchable** (matched anonymously in casting filters), or **Public** (featured on your storefront)."*
+- **Order Lifecycle Phase Redundancy Cleanup (`TalentDashboard.tsx`, `ClientDashboard.tsx`, `OrderRoom.tsx`, `mocks/orders.ts`):**
+  - Removed redundant top header declaring "Production Phase" and duplicate phase label from active orders in `TalentDashboard.tsx`.
+  - Removed obsolete "Briefing" step from the active order milestone bar in `TalentDashboard.tsx` and `ClientDashboard.tsx`, leaving a clean 3-part milestone bar: `Deliverables` → `Review` → `Complete`.
+  - Removed "Briefing" from `PHASES` constant in `OrderRoom.tsx` so the workspace lifecycle is consistently Deliverables, Review & Inspection, and Complete & Payout.
+  - Updated `mocks/orders.ts` so `ORD-003` begins in `Deliverables`.
 
 ### Step 109: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture (Session 150)
 

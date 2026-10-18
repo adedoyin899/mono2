@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
+**Last updated:** 2026-10-18 (Session 151: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 151 (2026-10-18) — Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup
+
+**Goal:** Address user visual feedback and UX refinements across 3 targeted touchpoints:
+1. **Edit Profile Details Form Contrast Resolution (`Settings.tsx` & `TalentDashboard.tsx`):**
+   - Fixed poor contrast where form inputs blended into the elevated card background (`--color-bg-elevated`).
+   - Upgraded all input fields (`Performer Name`, `Stage Title / Primary Craft`, `Location`, `Add a new tag`, and all 6 social media handles: IG, YT, TT, X, IN, SP) with crisp high-contrast styling: `!bg-white dark:!bg-zinc-900 !border-zinc-300 dark:!border-zinc-700 !text-zinc-900 dark:!text-zinc-100 placeholder:!text-zinc-400 dark:placeholder:!text-zinc-500 shadow-2xs focus:!border-[var(--color-accent)]`.
+   - Upgraded the `Performer Bio & Summary` textarea with crisp `bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs`.
+   - Replaced washed-out label text (`color: var(--color-text-secondary)`) with bold, high-contrast labels: `text-xs font-bold uppercase tracking-wider mb-1.5 font-body text-zinc-900 dark:text-zinc-100`.
+   - Upgraded Availability Status pills: "Available" with rich emerald treatment and ping animation, and "Booked" with crisp white/zinc background (`bg-white dark:bg-zinc-900 text-zinc-600 border-zinc-300`) when inactive, and rich amber treatment when active.
+   - Upgraded Banner Theme Preset buttons and "Upload Custom Banner" with crisp borders, clear text, and subtle shadows.
+2. **Casting & Physical Specifications UX Copy Polish (`Settings.tsx`):**
+   - Replaced verbose, robotic legal-style disclaimer with an empowering, value-driven, and concise UX copy:
+     *"Help casting directors match you to roles that fit your look. All fields are 100% optional, and you control your visibility: keep any detail **Private** (hidden), **Searchable** (matched anonymously in casting filters), or **Public** (featured on your storefront)."*
+3. **Order Lifecycle Phase Redundancy Cleanup (`TalentDashboard.tsx`, `ClientDashboard.tsx`, `OrderRoom.tsx`, `mocks/orders.ts`):**
+   - Removed the redundant top header row `<span className="font-semibold text-[var(--color-text-primary)]">Production Phase</span>` and duplicate phase name from the active order progress card in `TalentDashboard.tsx`.
+   - Removed the obsolete and redundant "Briefing" step from the order progress milestone bars across both `TalentDashboard.tsx` and `ClientDashboard.tsx`, streamlining the progress bar to 3 active production milestones: `Deliverables` → `Review` → `Complete`.
+   - Removed "Briefing" from the `PHASES` constant in `OrderRoom.tsx`, aligning the Order Room workflow cards with the real 3-stage lifecycle (`deliverables` → `review` → `complete`).
+   - Updated `mocks/orders.ts` so `ORD-003` begins directly in the active production phase `Deliverables`.
+
+**Files Changed:**
+- `apps/web/src/app/pages/Settings.tsx`
+- `apps/web/src/app/pages/TalentDashboard.tsx`
+- `apps/web/src/app/pages/ClientDashboard.tsx`
+- `apps/web/src/app/pages/OrderRoom.tsx`
+- `apps/web/src/mocks/orders.ts`
+
+**Technical Context:**
+- `npm run typecheck` passed (0 errors).
+- All 25 test files and 127/127 tests passed cleanly (`npm test`).
 
 ---
 

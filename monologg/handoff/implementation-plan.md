@@ -1,11 +1,26 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–149 + Session 150 Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture.
+**Last updated:** 2026-10-18 (Session 151: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–150 + Session 151 Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup.
 
 ---
 
 ## ✅ Done
+
+### Session 151 — Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup
+- [x] **Edit Profile Details Form Contrast Resolution (`Settings.tsx` & `TalentDashboard.tsx`)**:
+  - Upgraded inputs (`Performer Name`, `Stage Title`, `Location`, `Add a new tag`, and 6 social media handles: IG, YT, TT, X, IN, SP) with crisp white/dark background, defined border (`border-zinc-300 dark:border-zinc-700`), high-contrast text, and `shadow-2xs`.
+  - Upgraded `Performer Bio & Summary` textarea with high-contrast background and borders.
+  - Replaced low-contrast label colors with `text-xs font-bold uppercase tracking-wider mb-1.5 font-body text-zinc-900 dark:text-zinc-100`.
+  - Upgraded Availability Status buttons with rich emerald and amber active treatments and crisp contrast inactive states.
+  - Upgraded Banner Theme Preset buttons and custom banner upload button with elevated contrast.
+- [x] **Casting & Physical Specifications UX Copy Polish (`Settings.tsx`)**:
+  - Replaced verbose disclaimer with empowering, concise copy explaining the three privacy controls (Private, Searchable, Public) and performer role matching value.
+- [x] **Order Lifecycle Phase Redundancy Cleanup (`TalentDashboard.tsx`, `ClientDashboard.tsx`, `OrderRoom.tsx`, `mocks/orders.ts`)**:
+  - Removed redundant "Production Phase" card header and duplicate phase label from active orders in `TalentDashboard.tsx`.
+  - Removed obsolete "Briefing" step from the active order progress bar, leaving a clean 3-phase milestone bar: `Deliverables` → `Review` → `Complete` in both `TalentDashboard.tsx` and `ClientDashboard.tsx`.
+  - Removed "Briefing" from `PHASES` constant in `OrderRoom.tsx` so the workspace lifecycle is consistently Deliverables, Review & Inspection, and Complete & Payout.
+  - Updated `mocks/orders.ts` so `ORD-003` begins in `Deliverables`.
 
 ### Session 150 — Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture
 - [x] **Performer Filter UI Alignment (`ClientDashboard.tsx`)**:

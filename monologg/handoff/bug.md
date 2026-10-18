@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 150: Client-Performer Feature Parity, Performer Filter UI Alignment, and Client Project Detail Escrow Architecture)
+**Last updated:** 2026-10-18 (Session 151: Edit Profile Form Contrast Resolution, Casting Specifications UX Copy Polish, and Order Lifecycle Phase Redundancy Cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 98. Low Input Contrast in Edit Profile Modal, Verbose Casting Specifications Guidance Copy, and Redundant Production Phase/Briefing Indicators in Active Orders
+- **Severity:** Medium / Accessibility Contrast & Flow Streamlining
+- **What happened:**
+  1. In both `Settings.tsx` and `TalentDashboard.tsx`, the Edit Profile Details form inputs inherited a default background (`--color-bg-surface-2`) and border (`--color-border-default`) that had virtually zero perceptible contrast against the card's elevated background (`--color-bg-elevated`, `#EFEFEA`), looking washed out and muddy. Section labels were in small, low-contrast secondary text.
+  2. The guidance copy in the Casting & Physical Specifications card (`Settings.tsx`) was verbose, legalistic, and clunky, explaining granular privacy levels without communicating the core performer value of getting matched to casting briefs.
+  3. The active orders card in `TalentDashboard.tsx` had a redundant top line declaring "Production Phase" alongside the active phase name, and included "Briefing" as an active milestone step despite briefs being completed and submitted prior to booking and order creation.
+- **Root Cause:**
+  - Token stacking without explicit surface-level overrides for nested inputs inside elevated containers.
+  - Initial implementation of the physical attributes guidance copy was written from a privacy compliance framing rather than user-centric UX copy.
+  - Legacy 4-phase prototype schema retained "Briefing" in order lifecycle indicators.
+- **Fix:**
+  - Upgraded all Edit Profile form inputs, textareas, tags, social media inputs, and preset buttons with crisp white/dark backgrounds, defined borders (`border-zinc-300 dark:border-zinc-700`), high-contrast text, and bold labels (`text-zinc-900 dark:text-zinc-100`).
+  - Rewrote the Casting & Physical Specifications copy to be punchy, value-centric, and clear regarding privacy settings.
+  - Removed "Production Phase" header row and removed "Briefing" from active order milestone bars across `TalentDashboard.tsx`, `ClientDashboard.tsx`, `OrderRoom.tsx`, and `mocks/orders.ts`.
+- **Resolution:** Validated with clean TypeScript compilation and 25/25 test suites passing (127/127 tests).
 
 ### 97. Cross-Portal Filter UI Disparity and Missing Client-Side Escrow Guarantee Architecture in Project Details
 - **Severity:** Medium / Cross-Portal UX Parity & Trust Architecture

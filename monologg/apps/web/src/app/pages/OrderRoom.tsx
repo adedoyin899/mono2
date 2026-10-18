@@ -37,7 +37,6 @@ export type ExtendedOrderMessage = OrderMessage & {
 
 /* ─── Constants ─────────────────────────────────────────────── */
 const PHASES: { id: Phase; label: string; description: string }[] = [
-  { id: "briefing", label: "Briefing", description: "Script, requirements & expectations confirmed." },
   { id: "deliverables", label: "Deliverables", description: "Digital assets or verified live event performance." },
   { id: "review", label: "Review & Inspection", description: "48-hour client review window with auto-release protection." },
   { id: "complete", label: "Complete & Payout", description: "Escrow released to performer and order finalized." },

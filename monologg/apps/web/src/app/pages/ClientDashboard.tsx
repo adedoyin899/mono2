@@ -3499,8 +3499,9 @@ export function ClientDashboard() {
                       </div>
 
                       <div className="flex items-center gap-2 mb-4">
-                        {["Briefing", "Deliverables", "Review", "Complete"].map((phase, i) => {
-                          const current = ["Briefing", "Deliverables", "Review", "Complete"].indexOf(order.phase);
+                        {["Deliverables", "Review", "Complete"].map((phase, i) => {
+                          const phases = ["Deliverables", "Review", "Complete"];
+                          const current = phases.indexOf(order.phase === "Briefing" ? "Deliverables" : order.phase);
                           const isDone = i < current;
                           const isActive = i === current;
                           return (
@@ -3512,13 +3513,13 @@ export function ClientDashboard() {
                               }}>
                                 {isDone ? "✓" : i + 1}
                               </div>
-                              {i < 3 && <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-border-default)" }} />}
+                              {i < 2 && <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-border-default)" }} />}
                             </React.Fragment>
                           );
                         })}
                       </div>
                       <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                        Current phase: <strong>{order.phase}</strong>
+                        Current phase: <strong>{order.phase === "Briefing" ? "Deliverables" : order.phase}</strong>
                       </div>
                       <Button className="w-full h-10 text-sm gap-2">
                         Enter Order Room <ChevronRight className="w-4 h-4" />
