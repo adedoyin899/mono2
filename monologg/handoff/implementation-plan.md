@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–156 + Session 157 Google OAuth Flow Resolution.
+**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–157 + Session 158 Backend Profile Tracking & Notification Center.
 
 ---
 
 ## ✅ Done
+
+### Session 158 — Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center
+- [x] **Backend User Activity Tracking & Profile Enrichment (`authSupabase.ts`)**:
+  - Integrated `logActivity` from `services/activity.ts` into `/session/sync` endpoint.
+  - Automatically writes `ACCOUNT_REGISTERED` and `USER_LOGGED_IN` activities with IP, user-agent, and auth provider.
+  - Automatically synchronizes Google name and avatar to `Creator` and `Client` profiles on login.
+  - Returns `name`, `avatarUrl`, and `isNewUser` in `/session/sync` response.
+- [x] **Onboarding Draft Persistence & Progress Resumption**:
+  - Extended `AuthUser` in `api-client.ts` with `name` and `avatarUrl`.
+  - Added draft storage and restoration in `CreatorOnboarding.tsx` (`monologg_creator_onboarding_draft`).
+  - Added draft storage and restoration in `ClientOnboarding.tsx` (`monologg_client_onboarding_draft`).
+  - Updated `AuthCallback.tsx` to detect in-progress drafts and route users back to onboarding to resume.
+- [x] **FAANG UX Notification Center (`NotificationCenterModal.tsx`)**:
+  - Built slide-out drawer with blur backdrop, spring animations, and theme-adaptive tokens.
+  - Category filtering tabs: `All`, `Action Required` (with badge), `Order Room`, `Escrow & Payments`, `Applications/Casting`, `System`.
+  - Unread toggle filter (`Filter` button).
+  - Rich notification cards with actor avatars, role chips, timestamps, timeline context boxes, and Naira amounts.
+  - Inline action CTA buttons (`Review Deliverable`, `Review Audition`, `View Escrow Ledger`, `Join Google Meet ↗`).
+  - Integrated into both `ClientDashboard.tsx` and `TalentDashboard.tsx`.
+- [x] **Automated Test Validation**:
+  - Validated typecheck (0 errors across `packages/types`, `apps/api`, `apps/web`).
+  - Validated 25 web test files (132/132 tests) and 56 API test files (580/580 tests).
 
 ### Session 157 — Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing
 - [x] **Supabase GoTrue CSRF State Clean-Up (`AuthFlow.tsx`)**:

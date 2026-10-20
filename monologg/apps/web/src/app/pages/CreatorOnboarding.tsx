@@ -109,7 +109,33 @@ interface RateCardItem {
   delivery: string;
 }
 
+const ONBOARDING_DRAFT_KEY = "monologg_creator_onboarding_draft";
+
+interface CreatorOnboardingDraft {
+  step: number;
+  gender: string;
+  dob: string;
+  location: string;
+  selectedNiche: string | null;
+  tags: string[];
+  aiSummary: string;
+  rateCards: RateCardItem[];
+}
+
+function loadSavedOnboardingDraft(): CreatorOnboardingDraft | null {
+  try {
+    if (typeof window === "undefined") return null;
+    if (import.meta.env.MODE === "test") return null;
+    const raw = window.localStorage.getItem(ONBOARDING_DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function CreatorOnboarding() {
+  const savedDraft = useMemo(() => loadSavedOnboardingDraft(), []);
+
   // Step 1: Personal Details (Gender, DOB, Location)
   // Step 2: Craft (6 Categories)
   // Step 3: Showcase Reel Upload (Anti-AI)
@@ -118,7 +144,7 @@ export function CreatorOnboarding() {
   // Step 6: Rate Cards
   // Step 7: Connect your calendar (Google Calendar Sync)
   // Step 8: Performer Terms & Payout Agreement
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => savedDraft?.step ?? 1);
 
   // Step 7: Connect your calendar State
   const currentUser = appStateSync.getLoggedInUser();
@@ -132,18 +158,18 @@ export function CreatorOnboarding() {
   const [connectingCalendar, setConnectingCalendar] = useState(false);
 
   // Step 1: Personal Details
-  const [gender, setGender] = useState("Female");
-  const [dob, setDob] = useState("2000-05-15");
+  const [gender, setGender] = useState(() => savedDraft?.gender ?? "Female");
+  const [dob, setDob] = useState(() => savedDraft?.dob ?? "2000-05-15");
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarViewYear, setCalendarViewYear] = useState(2000);
   const [calendarViewMonth, setCalendarViewMonth] = useState(4); // May (0-indexed)
 
-  const [location, setLocation] = useState("Ikeja");
-  const [locationInput, setLocationInput] = useState("Ikeja");
+  const [location, setLocation] = useState(() => savedDraft?.location ?? "Ikeja");
+  const [locationInput, setLocationInput] = useState(() => savedDraft?.location ?? "Ikeja");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   // Step 2: Craft Selection
-  const [selectedNiche, setSelectedNiche] = useState<string | null>("actors");
+  const [selectedNiche, setSelectedNiche] = useState<string | null>(() => savedDraft?.selectedNiche ?? "actors");
 
   // Step 3: Showcase Reel Upload
   const [file, setFile] = useState<File | null>(null);
@@ -151,7 +177,7 @@ export function CreatorOnboarding() {
   const [antiAiCertified, setAntiAiCertified] = useState(true);
 
   // Step 5: AI Summary & Style Tags
-  const [tags, setTags] = useState<string[]>(DEFAULT_STYLE_TAGS);
+  const [tags, setTags] = useState<string[]>(() => savedDraft?.tags ?? DEFAULT_STYLE_TAGS);
   const [suggestedTags, setSuggestedTags] = useState<string[]>([
     "Conversational",
     "Expressive",
@@ -166,10 +192,10 @@ export function CreatorOnboarding() {
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
   const [editingTagValue, setEditingTagValue] = useState("");
   const [newTagInput, setNewTagInput] = useState("");
-  const [aiSummary, setAiSummary] = useState(DEFAULT_SUMMARIES.actors);
+  const [aiSummary, setAiSummary] = useState(() => savedDraft?.aiSummary ?? DEFAULT_SUMMARIES.actors);
 
   // Step 6: Rate Cards State (Alpha limit: max 2 rate cards)
-  const [rateCards, setRateCards] = useState<RateCardItem[]>([
+  const [rateCards, setRateCards] = useState<RateCardItem[]>(() => savedDraft?.rateCards ?? [
     {
       id: "card-1",
       title: "Feature Film Audition",
@@ -180,6 +206,27 @@ export function CreatorOnboarding() {
     },
   ]);
   const [refiningCardId, setRefiningCardId] = useState<string | null>(null);
+
+  // Auto-save draft progress so the user can carry on from where they left off
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        ONBOARDING_DRAFT_KEY,
+        JSON.stringify({
+          step,
+          gender,
+          dob,
+          location,
+          selectedNiche,
+          tags,
+          aiSummary,
+          rateCards,
+        }),
+      );
+    } catch {
+      // Ignore storage errors in restricted contexts
+    }
+  }, [step, gender, dob, location, selectedNiche, tags, aiSummary, rateCards]);
 
   // Step 8: Performer Terms & Payout Agreement State
   const initialAgreement = appStateSync.getPerformerAgreement();
@@ -245,6 +292,11 @@ export function CreatorOnboarding() {
       performanceSummary: aiSummary || undefined,
       craftTags: tags.length > 0 ? tags : undefined,
     });
+    try {
+      window.localStorage.removeItem(ONBOARDING_DRAFT_KEY);
+    } catch {
+      // ignore
+    }
     navigate("/dashboard");
   };
 

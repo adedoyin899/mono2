@@ -11,6 +11,7 @@ import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { apiClient, type TalentFilters } from "../../lib/api-client";
 import { appStateSync, type BillingCard } from "../../lib/state-sync";
+import { NotificationCenterModal } from "../components/notifications/NotificationCenterModal";
 import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talent } from "@monologg/types";
 import {
   Home, Search, Briefcase, MessageSquare, Bell,
@@ -4058,55 +4059,15 @@ export function ClientDashboard() {
               </Modal>
             )}
           </AnimatePresence>
-          {/* Notifications Modal */}
+          {/* Notifications Drawer (FAANG Architecture) */}
           <AnimatePresence>
             {showNotifications && (
-              <Modal onClose={() => setShowNotifications(false)} align="right">
-                <motion.div
-                  initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-                  className="w-full max-w-sm h-full p-6 flex flex-col"
-                  style={{ background: "var(--color-bg-surface)", borderLeft: "1px solid var(--color-border-default)" }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-display text-xl">Notifications</h3>
-                    <button onClick={() => setShowNotifications(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto space-y-4">
-                    {notifications.length === 0 && (
-                      <p className="text-sm text-center py-8" style={{ color: "var(--color-text-tertiary)" }}>
-                        No notifications yet.
-                      </p>
-                    )}
-                    {notifications.map((n) => (
-                      <button
-                        key={n.id}
-                        onClick={() => {
-                          appStateSync.markNotificationRead(n.id);
-                          setNotifications(appStateSync.getNotifications());
-                          setShowNotifications(false);
-                          setActiveTab("activity");
-                        }}
-                        className="w-full text-left p-4 rounded-[var(--radius-md)] border relative"
-                        style={{
-                          background: "var(--color-bg-elevated)",
-                          borderColor: !n.readAt ? "var(--color-accent)" : "var(--color-border-default)",
-                        }}
-                      >
-                        <div className="text-xs font-semibold mb-1" style={{ color: "var(--color-accent)" }}>
-                          {n.kind.replace(/_/g, " ")}
-                        </div>
-                        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>{n.payload.clientName ?? n.payload.creatorName ?? "Update available"}</p>
-                        <div className="text-xs mt-2" style={{ color: "var(--color-text-tertiary)" }}>
-                          {new Date(n.createdAt).toLocaleDateString()}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              </Modal>
+              <NotificationCenterModal
+                isOpen={showNotifications}
+                onClose={() => setShowNotifications(false)}
+                role="client"
+                onNavigateToTab={(tab) => setActiveTab(tab as Tab)}
+              />
             )}
           </AnimatePresence>
 

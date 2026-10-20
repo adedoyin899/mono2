@@ -56,6 +56,8 @@ export interface AuthUser {
   userId: string;
   email: string;
   userType: "TALENT" | "CLIENT";
+  name?: string;
+  avatarUrl?: string;
 }
 
 // Auth endpoints get their own minimal fetch helper, deliberately not routed through
@@ -428,19 +430,18 @@ export const apiClient = {
       provider: opts.provider ?? "GOOGLE",
     });
     setSession(data);
+    const resolvedName = data.user.name || opts.name || data.user.email.split("@")[0];
+    const resolvedAvatar = data.user.avatarUrl ?? opts.avatarUrl;
     appStateSync.setLoggedInUser({
       id: data.user.userId,
       email: data.user.email,
-      // A real signed-in user's own name/email — never the mock-mode demo
-      // personas above, which would otherwise leak into a real account whenever
-      // the Supabase provider didn't hand back a name (e.g. some magic-link/OTP flows).
-      name: opts.name || data.user.email.split("@")[0],
+      name: resolvedName,
       userType: data.user.userType,
       authProvider: opts.provider ?? "GOOGLE",
       isNewUser: data.user.isNewUser ?? true,
-      avatarUrl: opts.avatarUrl,
+      avatarUrl: resolvedAvatar,
     });
-    return data.user;
+    return { ...data.user, name: resolvedName, avatarUrl: resolvedAvatar };
   },
 
   /**

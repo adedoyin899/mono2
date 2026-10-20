@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
+**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 117: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center (Session 158)
+
+Implemented automated backend audit activity logging, synced Google user metadata (name, profile avatar) into persistent user records, added cross-session onboarding progress saving and resumption, and conducted a comprehensive FAANG-grade UX overhaul of the Notification Center:
+- **Automatic User Profile & Activity Tracking on Backend:**
+  - Integrated `logActivity()` in `/session/sync` (`authSupabase.ts`), automatically persisting `ACCOUNT_REGISTERED` and `USER_LOGGED_IN` activities with metadata (IP address, user-agent, provider).
+  - Automatically synced Google profile name and avatar to `Creator` and `Client` database records upon login.
+- **Onboarding Progress Resumption Across Logins:**
+  - Implemented draft persistence with auto-save in `CreatorOnboarding.tsx` (`monologg_creator_onboarding_draft`) and `ClientOnboarding.tsx` (`monologg_client_onboarding_draft`).
+  - Updated `AuthCallback.tsx` to detect in-progress drafts and route users directly to their exact onboarding step, so users never lose progress after re-authenticating.
+- **FAANG Notification Center UX Overhaul (`NotificationCenterModal.tsx`):**
+  - Designed and built an interactive slide-out drawer featuring category filtering tabs (`All`, `Action Required`, `Order Room`, `Escrow & Payments`, `Applications/Casting`, `System`) and unread toggle pills.
+  - Implemented rich event cards displaying actor avatars, role pills, formatted timestamps, timeline activity context boxes, and Naira amounts.
+  - Added direct inline action buttons (`Review Deliverable`, `Review Audition`, `View Escrow Ledger`, `Join Google Meet ↗`).
+  - Integrated into `ClientDashboard.tsx` and `TalentDashboard.tsx`.
 
 ### Step 116: Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing (Session 157)
 

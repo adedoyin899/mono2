@@ -110,15 +110,21 @@ export function AuthCallback() {
         // Also push into local profile state immediately, so Settings/sidebar
         // show the real Google identity right away instead of the
         // "Emeka Johnson"/"Sarah Jenkins" demo defaults a fresh browser starts with.
+        const effectiveName = user.name || name || email.split("@")[0];
+        const effectiveAvatar = user.avatarUrl ?? avatarUrl;
+
         if (user.userType === "CLIENT") {
-          appStateSync.updateClientProfile({ name: name || email.split("@")[0], email, avatarUrl });
+          appStateSync.updateClientProfile({ name: effectiveName, email, avatarUrl: effectiveAvatar });
         } else {
-          appStateSync.updateTalentProfile({ name: name || email.split("@")[0], email, avatarUrl });
+          appStateSync.updateTalentProfile({ name: effectiveName, email, avatarUrl: effectiveAvatar });
         }
 
-        // Brand-new accounts land on the first onboarding step for their role;
-        // returning accounts go straight to their home screen.
-        if (user.isNewUser) {
+        // Check if an onboarding draft exists so users carry on from where they left off
+        const hasTalentDraft = typeof window !== "undefined" && !!window.localStorage.getItem("monologg_creator_onboarding_draft");
+        const hasClientDraft = typeof window !== "undefined" && !!window.localStorage.getItem("monologg_client_onboarding_draft");
+        const shouldResumeOnboarding = user.isNewUser || (user.userType === "CLIENT" ? hasClientDraft : hasTalentDraft);
+
+        if (shouldResumeOnboarding) {
           navigate(user.userType === "CLIENT" ? "/onboarding/client" : "/onboarding", { replace: true });
         } else {
           navigate(user.userType === "CLIENT" ? "/client" : "/dashboard", { replace: true });

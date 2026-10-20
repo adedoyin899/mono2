@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
+**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 105. Missing User Activity Audit Logging on Login, Stale Onboarding State Loss & Notification Clutter
+- **Severity:** Medium / Backend Activity Tracking & User Progress Retention
+- **What happened:**
+  1. Returning users logging in through Google OAuth or session sync were not having their login activities recorded in the `UserActivity` table, making security audits and user session monitoring difficult.
+  2. If a user dropped out midway through onboarding (e.g. at step 3 or 4) and closed their tab or re-authenticated, their progress was discarded because the backend set `isNewUser: false` on initial user row creation, dumping them onto an empty dashboard with no profile setup.
+  3. The notification drawer was previously an unstyled plain modal without categorization, missing critical platform events (deliverable submissions, review requests, escrow release status, calendar meet calls).
+- **Root Cause:**
+  - `/session/sync` route in `apps/api/src/routes/authSupabase.ts` was not wired to `logActivity()`, and did not return the resolved `name` and `avatarUrl` from the underlying user record.
+  - Onboarding pages lacked client-side draft auto-saving with step resumption.
+- **Fix:**
+  - Integrated `logActivity(appUser.id, "USER_LOGGED_IN", ...)` and `logActivity(..., "ACCOUNT_REGISTERED", ...)` directly into `/session/sync`.
+  - Enriched `/session/sync` response with `name` and `avatarUrl`, updating client and creator profile tables from Google metadata.
+  - Added onboarding draft persistence and step recovery in `CreatorOnboarding.tsx` and `ClientOnboarding.tsx`, with `AuthCallback.tsx` checking for active drafts to resume users.
+  - Replaced the basic notification modal with a FAANG-grade `NotificationCenterModal` supporting category tabs, unread filters, timeline context boxes, and direct action CTAs.
+- **Resolution:** Validated with all 25 web test suites passing (132/132 tests) and 56 API test suites passing (580/580 tests).
 
 ### 104. Google OAuth Redirect Failure Due to Supabase GoTrue CSRF State Clobbering & Missing PKCE Code Exchange
 - **Severity:** High / Authentication & OAuth Handshake

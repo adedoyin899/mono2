@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
+**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,7 +9,29 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 157 (2026-10-20) — Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing
+## Session 158 (2026-10-20) — Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center
+
+**Goal:** Implement automated backend user profile tracking, sync full user details (name, avatar, profile data) from Google OAuth, persist and resume onboarding progress seamlessly across logins, and conduct a comprehensive FAANG-grade UX redesign of the Notification Center across Client and Performer portals based on user visual references:
+1. **Backend User Activity Tracking & Profile Enrichment (`authSupabase.ts`):**
+   - Connected `logActivity` from `../services/activity.js` to `/session/sync`. Automatically logs an `ACCOUNT_REGISTERED` activity entry on new user registration and a `USER_LOGGED_IN` activity entry on returning sign-ins, recording the auth provider (`GOOGLE`), client IP, and user agent.
+   - Profile Sync: Automatically updates `Creator.name` and `Client.name` with the Google profile name if previously unset or default, while persistently maintaining `avatarUrl` from Google OAuth.
+   - Enriched the `/session/sync` API response to return the resolved `name`, `avatarUrl`, and `isNewUser` flags directly to the client.
+2. **Onboarding Progress Resumption & Google Profile Integration:**
+   - In `api-client.ts`: Extended `AuthUser` interface with `name` and `avatarUrl`. Populated `appStateSync.setLoggedInUser` with the Google profile identity on session sync.
+   - In `CreatorOnboarding.tsx`: Added auto-save draft persistence (`monologg_creator_onboarding_draft`) caching `step`, `gender`, `dob`, `location`, `selectedNiche`, `tags`, `aiSummary`, and `rateCards`. Users who disconnect or navigate away resume exactly where they left off. Draft is automatically purged upon onboarding completion (`handleFinishOnboarding`).
+   - In `ClientOnboarding.tsx`: Added client onboarding draft persistence (`monologg_client_onboarding_draft`) caching `step`, `brandName`, `category`, `website`, `selectedCategories`, and `hiringFrequency`, clearing upon completion.
+   - In `AuthCallback.tsx`: Updated post-OAuth routing to inspect in-progress onboarding drafts (`monologg_creator_onboarding_draft` or `monologg_client_onboarding_draft`). If a draft exists, routes the user back to `/onboarding/creator` or `/onboarding/client` to continue seamlessly rather than landing on a bare dashboard.
+3. **FAANG UX Notification Center Architecture (`NotificationCenterModal.tsx`):**
+   - Built a slide-out drawer with high-blur backdrop (`backdrop-blur-md`), dark mode tokens, and smooth spring entry transitions.
+   - **Filter Taxonomy & Category Tabs:** Implemented interactive category filtering pills: `All`, `Action Required` (with badge counter), `Order Room`, `Escrow & Payments`, `Applications/Casting`, and `System`, plus a quick `unreadOnly` filter toggle.
+   - **Rich Event Cards & FAANG Activity Timeline:** Each notification displays the actor avatar or categorized gradient icon pill, actor role, relative timestamp, headline title, contextual activity box (summarizing deliverable notes, scene numbers, or escrow IDs), and formatted Naira transaction amounts.
+   - **Inline Action CTAs:** Integrated primary action buttons directly on the cards (`Review Deliverable`, `Review Audition`, `View Escrow Ledger`, `Join Google Meet ↗`, `View Booking Request`) allowing instant action without hunting through dashboard menus.
+   - Integrated seamlessly into `ClientDashboard.tsx` and `TalentDashboard.tsx`, maintaining backward compatibility with live notification read endpoints (`/api/v1/notifications/:id/read`).
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across `packages/types`, `apps/api`, `apps/web`).
+- `npm test` in `apps/web` passed: all 25 test files (132/132 tests) passing cleanly.
+- `npm test` in `apps/api` passed: all 56 test files (580/580 tests) passing cleanly.
 
 **Goal:** Diagnose and resolve failure in Google Authentication (OAuth) across `AuthFlow.tsx`, `AuthCallback.tsx`, and `@supabase/supabase-js` PKCE integration:
 1. **Eliminated Supabase CSRF/PKCE State Collision (`AuthFlow.tsx`):**

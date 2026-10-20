@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -50,14 +50,56 @@ const HIRING_FREQUENCIES = [
   "I'm exploring",
 ];
 
+const CLIENT_ONBOARDING_DRAFT_KEY = "monologg_client_onboarding_draft";
+
+interface ClientOnboardingDraft {
+  step: Step;
+  brandName: string;
+  category: string;
+  website: string;
+  selectedCategories: string[];
+  hiringFrequency: string;
+}
+
+function loadSavedClientDraft(): ClientOnboardingDraft | null {
+  try {
+    if (typeof window === "undefined") return null;
+    if (import.meta.env.MODE === "test") return null;
+    const raw = window.localStorage.getItem(CLIENT_ONBOARDING_DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function ClientOnboarding() {
-  const [step, setStep] = useState<Step>(1);
-  const [brandName, setBrandName] = useState("");
-  const [category, setCategory] = useState("agency");
-  const [website, setWebsite] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(["actors"]);
-  const [hiringFrequency, setHiringFrequency] = useState("Monthly");
+  const savedDraft = useMemo(() => loadSavedClientDraft(), []);
+  const [step, setStep] = useState<Step>(() => savedDraft?.step ?? 1);
+  const [brandName, setBrandName] = useState(() => savedDraft?.brandName ?? "");
+  const [category, setCategory] = useState(() => savedDraft?.category ?? "agency");
+  const [website, setWebsite] = useState(() => savedDraft?.website ?? "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => savedDraft?.selectedCategories ?? ["actors"]);
+  const [hiringFrequency, setHiringFrequency] = useState(() => savedDraft?.hiringFrequency ?? "Monthly");
   const navigate = useNavigate();
+
+  // Auto-save draft progress so the client can carry on from where they left off
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        CLIENT_ONBOARDING_DRAFT_KEY,
+        JSON.stringify({
+          step,
+          brandName,
+          category,
+          website,
+          selectedCategories,
+          hiringFrequency,
+        }),
+      );
+    } catch {
+      // Ignore storage errors in restricted contexts
+    }
+  }, [step, brandName, category, website, selectedCategories, hiringFrequency]);
 
   const toggleCategory = (id: string) => {
     setSelectedCategories((prev) =>
@@ -77,6 +119,11 @@ export function ClientOnboarding() {
       targetCategories: selectedCategories,
       hiringFrequency: hiringFrequency,
     });
+    try {
+      window.localStorage.removeItem(CLIENT_ONBOARDING_DRAFT_KEY);
+    } catch {
+      // ignore
+    }
     navigate("/client");
   };
 

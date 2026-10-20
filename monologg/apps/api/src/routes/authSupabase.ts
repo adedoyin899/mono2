@@ -23,6 +23,7 @@ import {
 import { notifyProvider } from "../providers/index.js";
 import { supabaseAuthProvider } from "../providers/index.js";
 import { cacheProvider } from "../providers/cache.js";
+import { logActivity } from "../services/activity.js";
 import { CURRENT_TERMS_VERSION } from "@monologg/types";
 
 // ── Validation schemas ──────────────────────────────────────────────────────
@@ -204,14 +205,28 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
         await prisma.user.update({ where: { id: appUser.id }, data: { isNewUser: false } });
       }
 
-      // Keep the avatar current with Google on every returning sign-in too
-      // (not just at signup) — Google photos change; never clears an existing
+      // Keep the avatar and name current with Google on every returning sign-in too
+      // (not just at signup) — Google photos/names change; never clears an existing
       // one just because this particular sign-in method didn't supply one.
-      if (avatarUrl && eventType !== "signup_success") {
+      if (eventType !== "signup_success") {
         if (appUser.creator) {
-          await prisma.creator.update({ where: { id: appUser.creator.id }, data: { avatarUrl } });
+          const updateData: { avatarUrl?: string; name?: string } = {};
+          if (avatarUrl) updateData.avatarUrl = avatarUrl;
+          if (name && (!appUser.creator.name || appUser.creator.name === email.split("@")[0])) {
+            updateData.name = name;
+          }
+          if (Object.keys(updateData).length > 0) {
+            await prisma.creator.update({ where: { id: appUser.creator.id }, data: updateData });
+          }
         } else if (appUser.client) {
-          await prisma.client.update({ where: { id: appUser.client.id }, data: { avatarUrl } });
+          const updateData: { avatarUrl?: string; name?: string } = {};
+          if (avatarUrl) updateData.avatarUrl = avatarUrl;
+          if (name && (!appUser.client.name || appUser.client.name === email.split("@")[0])) {
+            updateData.name = name;
+          }
+          if (Object.keys(updateData).length > 0) {
+            await prisma.client.update({ where: { id: appUser.client.id }, data: updateData });
+          }
         }
       }
 
@@ -244,17 +259,26 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
         },
       });
 
-      // ── 5. SIGNIN_NOTICE notification ─────────────────────────────────────
+      // ── 5. Log UserActivity audit entry ──────────────────────────────────
+      await logActivity(
+        appUser.id,
+        eventType === "signup_success" ? "ACCOUNT_REGISTERED" : "USER_LOGGED_IN",
+        `Signed in via ${provider.toLowerCase()} with Google profile sync`,
+      ).catch(() => {});
+
+      // ── 6. SIGNIN_NOTICE notification ─────────────────────────────────────
       // Fires on every Supabase Auth sign-in (new + returning) — security notice.
-      const displayName = appUser.creator?.name ?? appUser.client?.name ?? email;
+      const resolvedName = appUser.creator?.name ?? appUser.client?.name ?? name ?? email.split("@")[0];
+      const resolvedAvatar = appUser.creator?.avatarUrl ?? appUser.client?.avatarUrl ?? avatarUrl;
+
       await notifyProvider.email(email, "signin_notice", {
-        name: displayName,
+        name: resolvedName,
         provider,
         userAgent,
       });
       await notifyProvider.inApp(appUser.id, {
         kind: "SIGNIN_NOTICE",
-        message: `New sign-in via ${provider.replace("_", " ").toLowerCase()}. Wasn't you? Secure your account.`,
+        message: `New sign-in via ${provider.replace("_", " ").toLowerCase()}. Google profile and activity synced.`,
         link: `${process.env.CORS_ORIGIN ?? "http://localhost:5173"}/settings`,
         provider,
       });
@@ -266,6 +290,8 @@ export async function supabaseAuthRoutes(app: FastifyInstance): Promise<void> {
           userId: appUser.id,
           email: appUser.email,
           userType: appUser.userType,
+          name: resolvedName,
+          avatarUrl: resolvedAvatar,
           isNewUser,
         },
       });
