@@ -1,11 +1,37 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
+**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 157 (2026-10-20) — Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing
+
+**Goal:** Diagnose and resolve failure in Google Authentication (OAuth) across `AuthFlow.tsx`, `AuthCallback.tsx`, and `@supabase/supabase-js` PKCE integration:
+1. **Eliminated Supabase CSRF/PKCE State Collision (`AuthFlow.tsx`):**
+   - **Root Cause:** In `AuthFlow.tsx`, `signInWithOAuth` previously passed `queryParams: { state: btoa(JSON.stringify({ userType: ... })) }`. In Supabase GoTrue, the `state` parameter is strictly reserved for cryptographic CSRF tokens and PKCE correlation. Passing custom `queryParams.state` overwrote GoTrue's CSRF token, causing Google's redirect back to Supabase (`https://<project-ref>.supabase.co/auth/v1/callback`) to fail CSRF verification with invalid state errors.
+   - **Fix:** Removed `queryParams: { state: ... }`. Appended `userType` directly into `redirectTo` (`${appUrl}/auth/callback?userType=${userTypeParam}`), which matches the query parameter extraction in `AuthCallback.tsx` and mirrors how magic-links route. Added a defensive `window.localStorage.setItem("monologg_oauth_role", userTypeParam)` fallback in case third-party browsers or provider hops strip URL search parameters.
+2. **Explicit PKCE Authorization Code Exchange (`AuthCallback.tsx`):**
+   - **Root Cause:** In PKCE flows, Supabase redirects the browser to `/auth/callback?code=...`. Calling `supabase.auth.getSession()` synchronously on mount can return `{ data: { session: null } }` if asynchronous URL detection has not finished. This resulted in an immediate unhandled `"No Supabase session found"` failure and premature redirect back to `/auth`.
+   - **Fix:** Enhanced `AuthCallback.tsx` to detect `searchParams.get("code")` and explicitly invoke `await supabase.auth.exchangeCodeForSession(code)` whenever an initial active session is absent.
+3. **URL Error Surfacing & Metadata Extraction Resilience (`AuthCallback.tsx`):**
+   - Added checks for OAuth error query parameters (`searchParams.get("error_description") || searchParams.get("error")`), rendering meaningful provider error messages rather than silently failing with a generic sign-in error.
+   - Added fallback reading of `window.localStorage.getItem("monologg_oauth_role")` (clearing it upon consumption) to ensure role continuity (Talent vs Client) even if URL query parameters are absent.
+   - Enhanced user name extraction from Google `user_metadata` to handle `given_name` + `family_name` combinations when `full_name` or `name` is omitted by Google.
+4. **Comprehensive Automated Test Coverage (`AuthCallback.test.tsx`):**
+   - Added unit test verifying `exchangeCodeForSession` is invoked for PKCE `code` parameters when `getSession()` is initially null.
+   - Added unit test verifying fallback to `localStorage` role when `userType` query parameter is missing.
+   - Added unit test verifying URL OAuth errors (`error_description`) are caught and displayed to the user.
+   - Added unit test verifying split `given_name` and `family_name` extraction into the user profile.
+
+**Verification:**
+- `npm run typecheck` passed (0 errors across `packages/types`, `apps/api`, `apps/web`).
+- `npm test` in `apps/web` passed: all 25 test files (132/132 tests) passing cleanly.
+- `npm test` in `apps/api` passed: all 56 test files (580/580 tests) passing cleanly.
 
 ---
 

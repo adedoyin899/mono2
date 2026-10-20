@@ -1,11 +1,26 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–155 + Session 156 Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle.
+**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–156 + Session 157 Google OAuth Flow Resolution.
 
 ---
 
 ## ✅ Done
+
+### Session 157 — Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing
+- [x] **Supabase GoTrue CSRF State Clean-Up (`AuthFlow.tsx`)**:
+  - Removed `queryParams: { state: ... }` override from `signInWithOAuth` call to preserve Supabase's internal CSRF/PKCE correlation tokens.
+  - Passed `userType` directly in `redirectTo` (`${appUrl}/auth/callback?userType=${userTypeParam}`).
+  - Added localStorage role caching (`monologg_oauth_role`) as a defensive fallback.
+- [x] **Authorization Code Exchange & Error Handling (`AuthCallback.tsx`)**:
+  - Added explicit check for URL OAuth error params (`error_description` / `error`) with actionable user-facing messages.
+  - Implemented PKCE authorization code exchange via `supabase.auth.exchangeCodeForSession(code)` when `getSession()` does not yield an active session on mount.
+  - Fallback role retrieval from `localStorage` if URL query parameter is absent.
+  - Expanded Google metadata parsing to support `given_name` + `family_name` combinations.
+- [x] **Automated Test Validation**:
+  - Added 4 unit tests in `AuthCallback.test.tsx` (11/11 passing).
+  - Validated typecheck (0 errors across `packages/types`, `apps/api`, `apps/web`).
+  - Validated 25 web test files (132/132 tests) and 56 API test files (580/580 tests).
 
 ### Session 156 — Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle
 - [x] **Client Portal Wallet Balance Simplification (`ClientDashboard.tsx`)**:

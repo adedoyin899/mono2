@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
+**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 104. Google OAuth Redirect Failure Due to Supabase GoTrue CSRF State Clobbering & Missing PKCE Code Exchange
+- **Severity:** High / Authentication & OAuth Handshake
+- **What happened:**
+  1. Clicking "Continue with Google" or "Sign in with Google" in `AuthFlow.tsx` triggered an OAuth redirect to Google, but upon callback to Supabase auth service, the flow failed with CSRF mismatch / invalid state errors or aborted.
+  2. If the user landed on `/auth/callback?code=...`, `AuthCallback.tsx` called `supabase.auth.getSession()` synchronously on initial render before asynchronous PKCE code detection completed, returning null and throwing `"No Supabase session found"`, prematurely bouncing the user back to `/auth`.
+  3. OAuth callback errors (such as `?error=access_denied&error_description=...`) were completely unparsed and swallowed, displaying generic sign-in failures instead of actionable error messages.
+- **Root Cause:**
+  - In `AuthFlow.tsx`, `signInWithOAuth` passed `queryParams: { state: btoa(JSON.stringify({ userType: ... })) }`. In GoTrue, the `state` query parameter is strictly reserved for internal CSRF validation tokens. Overriding `state` broke Supabase's correlation between the initial OAuth redirect and Google's callback.
+  - In `AuthCallback.tsx`, the component did not inspect `searchParams.get("code")` to execute `supabase.auth.exchangeCodeForSession(code)` when `getSession()` did not yet return an active session.
+- **Fix:**
+  - In `AuthFlow.tsx`: Removed `queryParams: { state: ... }`. Appended `?userType=${userTypeParam}` directly to `redirectTo`, and added `window.localStorage.setItem("monologg_oauth_role", userTypeParam)` as a persistent fallback.
+  - In `AuthCallback.tsx`: Added explicit check for URL error parameters (`error_description` / `error`), invoked `supabase.auth.exchangeCodeForSession(code)` if session is not yet active, added localStorage fallback for role resolution, and extended Google user metadata parsing to resolve split `given_name` + `family_name`.
+- **Resolution:** Validated with 4 new unit tests in `AuthCallback.test.tsx` (11/11 passing), all 25 web test suites passing (132/132 tests), and 56 API test suites passing (580/580 tests).
 
 ### 103. Wallet Hero Visual Clutter & Missing Privacy Balance Masking on Client and Performer Portals
 - **Severity:** Low / UX Privacy & Visual Noise Reduction

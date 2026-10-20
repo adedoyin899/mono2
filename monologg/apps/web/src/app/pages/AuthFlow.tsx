@@ -116,13 +116,17 @@ export function AuthFlow() {
       return;
     }
     setGoogleAuthLoading(true);
+    const userTypeParam = role === "talent" ? "TALENT" : "CLIENT";
+    try {
+      window.localStorage.setItem("monologg_oauth_role", userTypeParam);
+    } catch {
+      // Ignore storage errors in restricted browser modes
+    }
     const appUrl = window.location.origin;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${appUrl}/auth/callback`,
-        // Echo userType back through the state param so /auth/callback knows which role
-        queryParams: { state: btoa(JSON.stringify({ userType: role === "talent" ? "TALENT" : "CLIENT" })) },
+        redirectTo: `${appUrl}/auth/callback?userType=${userTypeParam}`,
       },
     });
     if (oauthError) setError(oauthError.message);

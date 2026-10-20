@@ -32,10 +32,22 @@ export function AuthCallback() {
 
     void (async () => {
       try {
-        // The userType was packed into the state param by AuthFlow before the
-        // OAuth redirect. Supabase echoes it back in the URL hash after the
-        // callback. We fall back to "TALENT" if it's absent (e.g. magic-link).
-        const userTypeParam = searchParams.get("userType");
+        // First check if OAuth returned an error in URL query parameters
+        const urlError = searchParams.get("error_description") || searchParams.get("error");
+        if (urlError) {
+          throw new Error(urlError);
+        }
+
+        // The userType was passed via query parameter or localStorage backup.
+        // We fall back to "TALENT" if both are absent (e.g. direct nav or magic-link).
+        let storedRole: string | null = null;
+        try {
+          storedRole = window.localStorage.getItem("monologg_oauth_role");
+          window.localStorage.removeItem("monologg_oauth_role");
+        } catch {
+          // Ignore storage access errors
+        }
+        const userTypeParam = searchParams.get("userType") || storedRole;
         const userType: "TALENT" | "CLIENT" =
           userTypeParam === "CLIENT" ? "CLIENT" : "TALENT";
 
@@ -46,26 +58,43 @@ export function AuthCallback() {
           return;
         }
 
-        // Exchange the OAuth code for a session. Supabase puts the code in
-        // the URL hash/query; getSession() handles both PKCE and implicit flows.
-        const { data, error: sessionError } = await supabase.auth.getSession();
+        // Exchange the OAuth code for a session. getSession() checks the URL
+        // or stored tokens. In PKCE flows, exchangeCodeForSession explicitly exchanges
+        // any 'code' parameter if a session is not already active.
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        let session = sessionData?.session;
 
-        if (sessionError || !data.session) {
+        if (!session && !sessionError) {
+          const code = searchParams.get("code");
+          if (code && typeof supabase.auth.exchangeCodeForSession === "function") {
+            const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+            if (exchangeError) {
+              throw new Error(exchangeError.message);
+            }
+            session = exchangeData.session;
+          }
+        }
+
+        if (sessionError || !session) {
           throw new Error(sessionError?.message ?? "No Supabase session found");
         }
 
-        const supabaseAccessToken = data.session.access_token;
+        const supabaseAccessToken = session.access_token;
         // Google (via Supabase) puts the real profile under a few different
         // possible keys depending on the flow — check them all rather than
         // trusting a single one, so a real name/avatar is never silently
         // dropped in favor of a fallback.
-        const metadata = data.session.user.user_metadata ?? {};
-        const name = (metadata["full_name"] ?? metadata["name"]) as string | undefined;
+        const metadata = session.user.user_metadata ?? {};
+        const name = (metadata["full_name"] ??
+          metadata["name"] ??
+          (metadata["given_name"]
+            ? `${metadata["given_name"]} ${metadata["family_name"] ?? ""}`.trim()
+            : undefined)) as string | undefined;
         const avatarUrl = (metadata["avatar_url"] ?? metadata["picture"]) as string | undefined;
-        const email = data.session.user.email ?? "";
+        const email = session.user.email ?? "";
 
         // Determine which Supabase provider was used
-        const provider = data.session.user.app_metadata?.["provider"];
+        const provider = session.user.app_metadata?.["provider"];
         const syncProvider =
           provider === "google" ? "GOOGLE" : provider === "email" ? "EMAIL_OTP" : "MAGIC_LINK";
 

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
+**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 116: Google OAuth Flow Resolution: PKCE Code Exchange, CSRF State Fix & Resilient Role Routing (Session 157)
+
+Diagnosed and fixed the end-to-end Google OAuth sign-in flow between `AuthFlow.tsx`, Supabase GoTrue, and `AuthCallback.tsx`:
+- **Fixed GoTrue CSRF Validation Breakdown:**
+  - Removed custom `queryParams.state` from `supabase.auth.signInWithOAuth()`. Supabase reserves `state` strictly for CSRF and PKCE flow correlation; overriding it caused Google's redirect back to Supabase to fail verification.
+  - Routed role intent via `redirectTo: ${appUrl}/auth/callback?userType=${userTypeParam}` and supplemented with defensive `localStorage.setItem("monologg_oauth_role")` storage.
+- **Added Explicit PKCE Code Exchange in Callback:**
+  - Updated `AuthCallback.tsx` to handle OAuth authorization codes (`?code=...`) via `supabase.auth.exchangeCodeForSession(code)` whenever an initial active session is absent on mount.
+  - Surfaced provider errors (`error_description` / `error`) directly into the callback interface rather than failing silently.
+  - Enhanced Google metadata extraction to resolve split `given_name` and `family_name` combinations.
 
 ### Step 115: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle (Session 156)
 

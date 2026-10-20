@@ -4,8 +4,9 @@ import { MemoryRouter } from "react-router";
 import React from "react";
 
 // ── Mock supabase module — mutable so individual tests can flip between
-// null (ALL-MOCK mode) and a fake real client (getSession) ─────────────────
+// null (ALL-MOCK mode) and a fake real client (getSession / exchangeCodeForSession) ─
 const mockGetSession = vi.fn();
+const mockExchangeCodeForSession = vi.fn();
 vi.mock("../../lib/supabase", () => ({
   get supabase() {
     return mockSupabaseClient();
@@ -14,7 +15,14 @@ vi.mock("../../lib/supabase", () => ({
 }));
 let supabaseIsNull = true;
 function mockSupabaseClient() {
-  return supabaseIsNull ? null : { auth: { getSession: mockGetSession } };
+  return supabaseIsNull
+    ? null
+    : {
+        auth: {
+          getSession: mockGetSession,
+          exchangeCodeForSession: mockExchangeCodeForSession,
+        },
+      };
 }
 
 // ── Mock api-client (inline to avoid hoisting issues) ───────────────────────
@@ -181,6 +189,98 @@ describe("AuthCallback", () => {
         email: "ada@gmail.com",
         avatarUrl: "https://lh3.googleusercontent.com/a/ada.jpg",
       });
+    });
+  });
+
+  it("exchanges PKCE code via exchangeCodeForSession when getSession() has no session initially", async () => {
+    supabaseIsNull = false;
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+    mockExchangeCodeForSession.mockResolvedValue(fakeSession({ name: "PKCE Performer" }));
+    mockSessionSync.mockResolvedValue({ userId: "usr-5", email: "pkce@monologg.dev", userType: "TALENT", isNewUser: false });
+
+    render(
+      <MemoryRouter initialEntries={["/auth/callback?code=pkce-auth-code-123&userType=TALENT"]}>
+        <AuthCallback />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockExchangeCodeForSession).toHaveBeenCalledWith("pkce-auth-code-123");
+      expect(mockNavigate).toHaveBeenCalledWith("/dashboard", { replace: true });
+    });
+  });
+
+  it("falls back to localStorage role when userType query param is absent", async () => {
+    supabaseIsNull = false;
+    window.localStorage.setItem("monologg_oauth_role", "CLIENT");
+    mockGetSession.mockResolvedValue(fakeSession());
+    mockSessionSync.mockResolvedValue({ userId: "usr-6", email: "client@gmail.com", userType: "CLIENT", isNewUser: false });
+
+    render(
+      <MemoryRouter initialEntries={["/auth/callback"]}>
+        <AuthCallback />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockSessionSync).toHaveBeenCalledWith(
+        "fake-supabase-jwt",
+        "CLIENT",
+        expect.anything(),
+      );
+      expect(mockNavigate).toHaveBeenCalledWith("/client", { replace: true });
+    });
+    expect(window.localStorage.getItem("monologg_oauth_role")).toBeNull();
+  });
+
+  it("renders error message and schedules redirect when URL contains OAuth error", async () => {
+    supabaseIsNull = false;
+
+    render(
+      <MemoryRouter initialEntries={["/auth/callback?error=access_denied&error_description=User%20declined%20consent"]}>
+        <AuthCallback />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain("User declined consent");
+    });
+    expect(mockSessionSync).not.toHaveBeenCalled();
+  });
+
+  it("extracts given_name and family_name when full_name is absent in user_metadata", async () => {
+    supabaseIsNull = false;
+    const sessionWithSplitNames = {
+      data: {
+        session: {
+          access_token: "fake-jwt",
+          user: {
+            email: "split.name@gmail.com",
+            user_metadata: {
+              given_name: "Jane",
+              family_name: "Doe",
+            },
+            app_metadata: { provider: "google" },
+          },
+        },
+      },
+      error: null,
+    };
+    mockGetSession.mockResolvedValue(sessionWithSplitNames);
+    mockSessionSync.mockResolvedValue({ userId: "usr-7", email: "split.name@gmail.com", userType: "TALENT", isNewUser: true });
+
+    render(
+      <MemoryRouter initialEntries={["/auth/callback?userType=TALENT"]}>
+        <AuthCallback />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(mockSessionSync).toHaveBeenCalledWith(
+        "fake-jwt",
+        "TALENT",
+        expect.objectContaining({ name: "Jane Doe" }),
+      );
     });
   });
 });

@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-18 (Session 156: Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–155 + Session 156 Client & Performer Wallet Balance Hero Simplification with Show/Hide Toggle.
+**Last updated:** 2026-10-20 (Session 157: Google OAuth Flow Resolution — PKCE Code Exchange, CSRF State Fix & Resilient Role Routing)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–156 + Session 157 Google OAuth Flow Resolution.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -46,7 +46,7 @@ The original PRD described a large product; `features.md` extended it further (r
 | WEB-04 (Product Overview) | `ProductPage.tsx` at `/product` | Built Session 74 (4 Core Pillars: Bio Link, Thespian AI, Escrow, Analytics) |
 | WEB-05 (Pricing & Split Calculator) | `PricingPage.tsx` at `/pricing` | Built Session 74 (16% Split Protocol, 7% Performer / 9% Client Breakdown) |
 | WEB-06 (Resources & Knowledge Hub) | `ResourcesPage.tsx` at `/resources` | Built Session 74 (Performer Playbooks, Casting Guides, Escrow Protocol) |
-| PWA-01 (Welcome/Register/Sign In/Forgot) | `AuthFlow.tsx` | Real auth as of Phase 4 (see Section 4) |
+| PWA-01 (Welcome/Register/Sign In/Forgot) | `AuthFlow.tsx` & `AuthCallback.tsx` | Real auth as of Phase 4; Supabase Auth identity bridge in Phase 12B; resolved in Session 157 with PKCE authorization code exchange (`exchangeCodeForSession`), GoTrue CSRF `state` parameter clean-up, and localStorage fallback role persistence |
 | PWA-02–06 (Niche, Upload, AI processing, Tags, Rate Cards) | `CreatorOnboarding.tsx` | Real KYC + AI style-tagging as two independent systems as of Phase 7 — the old scripted "Thespian AI" animation is gone in `live` mode |
 | PWA-07 (Storefront & Earnings / Withdrawals) | Embedded inside `TalentDashboard.tsx` ("My Storefront" and "Earnings & Analytics" tabs) **plus** a fully public, logged-out version at `/[handle]` (`PublicStorefront.tsx`, Phase 15) | Built; overhauled in Session 146 with Apple/Linear Deep Slate obsidian fintech card (`bg-zinc-900 border border-zinc-800/80 shadow-xl`) with ambient Monologg red glow, emerald status pulse dot, `Escrow Protected Payouts` badge, large `₦148,000` balance display; simplified in Session 156 to focus exclusively on Available Balance with interactive `Eye` / `EyeOff` show/hide toggle, sole `Withdraw Funds` and `Analytics` CTAs, and removal of extraneous sub-metrics and trend lines (Sessions 100–101, 134–136, 146, 156) |
 | PWA-08 (Scheduling) | Embedded inside `TalentDashboard.tsx` ("Availability" tab) | Real, server-authoritative day-detail + slot editor as of Phase 13 (default-free rule, recurring templates, `getOpenSlots`) |
