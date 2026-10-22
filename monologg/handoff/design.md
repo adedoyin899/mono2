@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–160 + Session 161 Tranche 3 Mobile Responsiveness.
+**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–161 + Session 162 Full-Bleed 16-Inch Auth Redesign.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -121,7 +121,15 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 
 ## 4. Auth flow reality (detail)
 
-`src/app/pages/AuthFlow.tsx` implements four in-page views (`splash`, `register`, `login`, `forgot`) as local component state, not real routes. As of Phase 4 (Session 14), these call real endpoints through `apiClient` — but **only when `VITE_API_MODE=live`**; the default `mock` mode reproduces the exact original prototype behavior below, so nothing about running the app locally changed unless you explicitly flip the mode.
+`src/app/pages/AuthFlow.tsx` implements four in-page views (`splash`, `register`, `login`, `forgot`) plus Supabase OTP/Magic Link handlers as local component state, not real routes. As of Session 162, the interface is implemented as a full-bleed 16-inch responsive split-screen layout inspired by the Wandar aesthetic:
+- **Left Authentication Canvas (`1fr` column):** Frictionless white/dark canvas containing the minimal top bar (`Logo` + theme toggle), segmented Performer/Client pill switcher, Google OAuth button, unified pill inputs (`rounded-full h-12`), native brand buttons (`#F13030` for Performer, `#7B00FE` for Client), and footer links to `/legal/privacy` and `/legal/terms`.
+- **Right Atmospheric Showcase (`1.25fr` column):** Full-bleed ambient radial gradient + backdrop overlay (`/auth-backdrop.png`), clean unhighlighted editorial copy:
+  - Client POV: `Lets help you` / `Find performers, Finish your project`
+  - Performer POV: `lets help you` / `Find gigs, finish your project`
+  - Grounded device mockup (`/auth-performer-device.png` and `/auth-client-device.png`), strictly maintaining native `489 / 1024` aspect ratio, positioned `200px` down (`translate-y-[200px]`) for a cropped editorial aesthetic, with zero artificial CSS drop-shadow halos.
+- **Mobile Degradation:** On screens smaller than `lg` (e.g. mobile devices), the right showcase pane is completely hidden (`hidden lg:flex`), allowing the auth pane to expand to 100% width with centered ergonomics.
+
+As of Phase 4 (Session 14), these call real endpoints through `apiClient` — but **only when `VITE_API_MODE=live`**; the default `mock` mode reproduces the exact original prototype behavior below, so nothing about running the app locally changed unless you explicitly flip the mode.
 
 - **Register:** collects name/email/password/role (Talent or Client) + a terms checkbox client-side. `mock` mode: routes to `/onboarding` (Talent) or `/onboarding/client` (Client) immediately, no network call — unchanged from before. `live` mode: calls `POST /api/v1/auth/register` (argon2id-hashes the password server-side, creates the `User` + matching `Creator`/`Client` row, sends a mock verification email), then navigates the same way on success or shows an inline error on failure (e.g. email already registered). The form only ever collects name/email/password/role — `location`/`niche`/`orgName`/`orgType` are optional server-side (default to empty/`CONTENT_CREATOR`) since they're actually collected later in `CreatorOnboarding.tsx`/`ClientOnboarding.tsx`, which aren't wired to the backend yet (Phase 5+).
 - **Login:** `mock` mode: same email-substring rule as before (`"client"`/`"brand"` → `/client`, else `/dashboard`), no network call. `live` mode: calls `POST /api/v1/auth/login`, which returns a short-lived access token + a rotating refresh token on success (or a generic "Invalid email or password" on failure — no user-enumeration signal); the returned user's real `userType` decides the redirect. Tokens: access token in memory only (cleared on reload), refresh token in `localStorage` (`monologg_refresh_token`) so it survives a reload.

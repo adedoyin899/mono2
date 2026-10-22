@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
+**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 109. Device Squashing, Artificial CSS Shadow Halos & Inconsistent Input Radii in Auth Redesign
+- **Severity:** Medium / Visual Fidelity & Layout Distortion
+- **What happened:**
+  1. In the initial auth split-screen layout, device screenshot PNGs were squashed inside flex containers because no fixed aspect-ratio was enforced, distorting the mobile app UI.
+  2. A CSS `filter: drop-shadow(...)` applied to the transparent PNG device frame created a muddy, irregular dark halo around the bezels.
+  3. Form input fields used inconsistent corner radii (`rounded-xl` mixed with `rounded-full`).
+  4. The desktop auth container was clamped to a fixed max width (`max-w-[1260px]`), producing letterboxed margins on 16-inch laptops instead of covering the entire screen.
+- **Root Cause:**
+  - Lack of explicit CSS `aspectRatio: "489 / 1024"` and `object-contain`, artificial CSS drop-shadow filters on alpha bezels, ad-hoc input radius classes, and fixed container constraints.
+- **Fix:**
+  - Locked device aspect ratio strictly to `489 / 1024` with `object-contain`.
+  - Removed artificial `drop-shadow` CSS filter so the device chassis sits crisp and natural on the gradient.
+  - Positioned device grounded at bottom with `translate-y-[200px]` for the requested cropped editorial vibe.
+  - Standardized all form inputs to uniform pill shapes (`rounded-full h-12`).
+  - Overhauled container to full-bleed responsive grid (`min-h-screen w-full lg:grid lg:grid-cols-[1fr_1.25fr]`) and hid showcase pane completely on mobile (`hidden lg:flex`).
+- **Resolution:** Validated across desktop and mobile; all 25 test suites (132/132 tests) passing cleanly, 0 typecheck errors.
 
 ### 108. Header Collision, Viewport Overflow & Touch Target Degradation in System, Settings & Marketing Pages
 - **Severity:** Medium / Mobile UX & Viewport Collision

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
+**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 121: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase (Session 162)
+
+Overhauled the authentication experience (`AuthFlow.tsx`) inspired by the Wandar split-screen aesthetic, integrating high-resolution device assets and optimizing layout responsiveness:
+- **High-Resolution Device Mockups:** Integrated the user's high-definition mobile screenshots (`auth-performer-device.png` and `auth-client-device.png`) along with the ambient sky backdrop (`auth-backdrop.png`).
+- **Full-Bleed 16-Inch Layout:** Refactored the outer container to a full-bleed `100vw` / `min-h-screen` split grid (`min-h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_1.25fr]`), eliminating letterboxing borders on large displays.
+- **Cropped Editorial Device Showcase:** Locked device aspect ratio to `489 / 1024` with `object-contain`, translated 200px down (`translate-y-[200px]`), and removed artificial `drop-shadow` CSS halos so the phone bezels sit naturally against the soft gradient.
+- **Harmonized Pill Inputs & Brand Theming:** Unified all text, email, password, and OTP fields to pill geometry (`rounded-full h-12`), aligned action buttons to native brand colors (`#F13030` Performer-red and `#7B00FE` Client-purple), and integrated Google OAuth.
+- **Unhighlighted Editorial Copy:** Displayed un-highlighted copy (`Lets help you / Find performers, Finish your project` for Client, `lets help you / Find gigs, finish your project` for Performer).
+- **Graceful Mobile Degradation:** Completely hid the right showcase pane on mobile devices (`hidden lg:flex`), allowing the auth form to expand to full width with centered thumb ergonomics.
 
 ### Step 120: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement (Session 161)
 

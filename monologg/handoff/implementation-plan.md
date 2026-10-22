@@ -1,11 +1,35 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–160 + Session 161 Tranche 3 Mobile Responsiveness.
+**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–161 + Session 162 Full-Bleed 16-Inch Auth Redesign.
 
 ---
 
 ## ✅ Done
+
+### Session 162 — Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase
+- [x] **High-Resolution Device Mockup Integration**:
+  - Replaced device mockup assets with user's crisp high-resolution screenshots: `auth-performer-device.png` and `auth-client-device.png`.
+  - Added ambient atmospheric sky overlay: `auth-backdrop.png`.
+- [x] **Full-Bleed 16-Inch Responsive Split Layout (`AuthFlow.tsx`)**:
+  - Overhauled container into a responsive split grid (`min-h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_1.25fr]`) spanning full viewport width without letterboxing on 16-inch displays.
+- [x] **Cropped Editorial Device Presentation**:
+  - Locked aspect ratio strictly to `489 / 1024` with `object-contain` to eliminate device squashing.
+  - Positioned the device grounded at the bottom with `translate-y-[200px]` for the cropped editorial visual vibe.
+  - Removed artificial CSS `filter: drop-shadow(...)` halo, preserving natural chassis edges against the ambient gradient.
+- [x] **Harmonized Pill Input Ergonomics & Role Styling**:
+  - Standardized all text, email, password, and code inputs to pill shapes (`rounded-full h-12`).
+  - Aligned action buttons to native role brand colors (`#F13030` Performer-red and `#7B00FE` Client-purple).
+  - Maintained Google OAuth, terms links, and demo switchers.
+- [x] **Unhighlighted Casual Flow Editorial Copy**:
+  - Client POV: `Lets help you` / `Find performers, Finish your project`
+  - Performer POV: `lets help you` / `Find gigs, finish your project`
+- [x] **Seamless Mobile Degradation**:
+  - Hid showcase pane on mobile screens (`hidden lg:flex`), allowing the auth form to expand cleanly with centered thumb ergonomics.
+- [x] **Automated Test & Typecheck Validation**:
+  - Verified `AuthFlow.test.tsx` and `authFlowStress.test.tsx`.
+  - Validated full test suite: 25/25 files (132/132 tests passing cleanly).
+  - Validated typecheck: 0 errors across all 3 workspace projects.
 
 ### Session 161 — Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement
 - [x] **Transaction & Earnings Ledger Polish (`TransactionHistory.tsx`)**:

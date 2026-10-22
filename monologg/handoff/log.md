@@ -1,11 +1,45 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
+**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 162 (2026-10-22) — Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase
+
+**Goal:** Complete the visual and responsive overhaul of the Monologg Authentication flow (`AuthFlow.tsx`) inspired by the Wandar split-screen design reference, incorporating the user's high-resolution dashboard screenshots, cropped editorial device placement, full-bleed screen coverage for 16-inch displays, and harmonized pill input aesthetics:
+1. **High-Resolution Asset Migration:**
+   - Integrated the user's high-definition mobile device screenshots directly into the production assets:
+     - `monologg/apps/web/public/auth-performer-device.png` (Performer Dashboard with Available Balance, Rate Cards, and Live Bookings).
+     - `monologg/apps/web/public/auth-client-device.png` (Client Dashboard with Wallet Balance, Find Performers, and Escrow Locked).
+     - `monologg/apps/web/public/auth-backdrop.png` (Soft ambient sky backdrop overlay).
+   - Removed obsolete duplicate preview files.
+2. **Full-Bleed 16-Inch Responsive Layout Overhaul (`AuthFlow.tsx`):**
+   - Transformed the container from a constrained, letterboxed box into a full-bleed `100vw` / `min-h-screen` responsive split grid (`min-h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_1.25fr]`).
+   - Scales smoothly across standard laptops and large 16-inch screens without black letterbox borders or squashing.
+3. **Cropped Editorial Device Showcase:**
+   - Locked aspect ratio strictly to `489 / 1024` with `object-contain`, eliminating device squashing.
+   - Positioned the device grounded at the bottom of the showcase pane with `translate-y-[200px]` to deliver the requested cropped editorial aesthetic.
+   - Removed artificial CSS `filter: drop-shadow(...)` which previously cast a muddy dark halo around the device bezels, allowing the chassis to blend cleanly with the ambient gradient.
+4. **Editorial Unhighlighted Copy & Typography:**
+   - Displayed clean, un-highlighted copy adhering to brand fonts:
+     - Client POV: `Lets help you` / `Find performers, Finish your project`
+     - Performer POV: `lets help you` / `Find gigs, finish your project`
+   - Omitted decorative icon marks and heavy contrast badges for an uncluttered, nimble appearance.
+5. **Harmonized Pill Input Ergonomics & Role Accents:**
+   - Standardized all text, email, password, and code inputs to unified pill shapes (`rounded-full h-12`) with consistent padding.
+   - Implemented native role button themes (`#F13030` Performer-red and `#7B00FE` Client-purple).
+   - Maintained full support for Google OAuth redirects, email/password registration, login, password reset, OTP verification, and quick-demo preview shortcuts.
+6. **Graceful Mobile Degradation:**
+   - Completely hid the right showcase pane on mobile devices (`hidden lg:flex`), allowing the left authentication form to expand to full width with centered thumb ergonomics.
+
+**Verification:**
+- `npm run typecheck`: 0 errors across all 3 workspace projects (`packages/types`, `apps/api`, `apps/web`).
+- `npm --prefix apps/web test`: 25/25 test files passed (132/132 tests passing cleanly), including `AuthFlow.test.tsx` and `authFlowStress.test.tsx`.
 
 ---
 
