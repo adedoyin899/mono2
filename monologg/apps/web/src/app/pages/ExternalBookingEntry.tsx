@@ -400,10 +400,10 @@ export function ExternalBookingEntry() {
   };
 
   const STEP_ITEMS = [
-    { id: 1, label: "Event & Slot", key: "slot" as Step },
-    { id: 2, label: "Project Brief", key: "brief" as Step },
-    { id: 3, label: isClient ? "Agreement" : "Contact & Agreement", key: "review" as Step },
-    { id: 4, label: "Escrow Payment", key: "payment" as Step },
+    { id: 1, label: "Event & Slot", mobileLabel: "Slot", key: "slot" as Step },
+    { id: 2, label: "Project Brief", mobileLabel: "Brief", key: "brief" as Step },
+    { id: 3, label: isClient ? "Agreement" : "Contact & Agreement", mobileLabel: "Agreement", key: "review" as Step },
+    { id: 4, label: "Escrow Payment", mobileLabel: "Payment", key: "payment" as Step },
   ];
 
   const header = (onBack: () => void) => {
@@ -439,10 +439,9 @@ export function ExternalBookingEntry() {
                       else if (item.id === 3) setStep("review");
                       else if (item.id === 4 && agreedToTerms && (isClient || (name.trim() && email.trim() && phone.trim()))) setStep("payment");
                     }}
-                    className={`flex flex-col items-center group relative z-10 shrink-0 ${
+                    className={`flex flex-col items-center group relative z-10 shrink-0 w-14 sm:w-20 ${
                       item.id <= currentStepNum ? "cursor-pointer" : "cursor-not-allowed opacity-45"
                     }`}
-                    style={{ width: "68px" }}
                   >
                     {/* Circle Node with glowing halo ring on active step */}
                     <div
@@ -467,7 +466,8 @@ export function ExternalBookingEntry() {
                           : "text-zinc-400 dark:text-zinc-500 font-normal"
                       }`}
                     >
-                      {item.label}
+                      <span className="hidden sm:inline">{item.label}</span>
+                      <span className="sm:hidden">{item.mobileLabel}</span>
                     </span>
                   </button>
 
@@ -697,8 +697,13 @@ export function ExternalBookingEntry() {
             </div>
           </div>
 
-          <Button className="w-full h-12 text-sm font-bold gap-2 cursor-pointer" onClick={handleProceedFromSlot}>
-            <span>Continue to Project Brief</span>
+          <Button
+            className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
+            onClick={handleProceedFromSlot}
+            aria-label="Continue to Project Brief"
+          >
+            <span className="hidden sm:inline">Continue to Project Brief</span>
+            <span className="sm:hidden">Continue</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
@@ -914,8 +919,10 @@ export function ExternalBookingEntry() {
             className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
             disabled={!projectName.trim() || (projectFormat === "onsite" && !venueLocation.trim())}
             onClick={() => setStep("review")}
+            aria-label={isClient ? "Continue to Agreement" : "Continue to Contact & Agreement"}
           >
-            <span>{isClient ? "Continue to Agreement" : "Continue to Contact & Agreement"}</span>
+            <span className="hidden sm:inline">{isClient ? "Continue to Agreement" : "Continue to Contact & Agreement"}</span>
+            <span className="sm:hidden">{isClient ? "Continue" : "Continue to Agreement"}</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
 
@@ -1309,8 +1316,10 @@ export function ExternalBookingEntry() {
               type="button"
               className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
               onClick={() => setShowPaystackModal(true)}
+              aria-label={`Pay ${money(total)} with Paystack`}
             >
-              <span>Pay {money(total)} with Paystack</span>
+              <span className="hidden sm:inline">Pay {money(total)} with Paystack</span>
+              <span className="sm:hidden">Pay {money(total)}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           ) : (
@@ -1319,15 +1328,18 @@ export function ExternalBookingEntry() {
               className="w-full h-12 text-sm font-bold gap-2 cursor-pointer"
               disabled={submitting}
               onClick={handlePay}
+              aria-label={submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}
             >
               <Lock className="w-4 h-4" />
-              <span>{submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}</span>
+              <span className="hidden sm:inline">{submitting ? "Confirming escrow…" : `Confirm & Deposit ${money(total)}`}</span>
+              <span className="sm:hidden">{submitting ? "Depositing…" : `Deposit ${money(total)}`}</span>
             </Button>
           )}
 
           <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-tertiary)] pt-1">
-            <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>256-bit SSL encryption · PCI-DSS compliant Paystack escrow</span>
+            <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="hidden sm:inline">256-bit SSL encryption · PCI-DSS compliant Paystack escrow</span>
+            <span className="sm:hidden">256-bit SSL · Paystack Escrow</span>
           </div>
         </div>
 

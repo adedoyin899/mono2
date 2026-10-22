@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
+**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 119: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation (Session 160)
+
+Optimized the booking and checkout wizard funnels (`ProjectBrief.tsx`, `Checkout.tsx`, `ExternalBookingEntry.tsx`) to deliver an uncompromised mobile experience:
+- **Project Brief Sticky Bottom Action Bar (`ProjectBrief.tsx`):**
+  - Eliminated awkward 3-line wrapped labels on 50/50 flex split buttons (`flex-1`) by implementing responsive microcopy (`Continue to Budget & Payment` $\rightarrow$ `Continue`, `Pay ₦X with Paystack` $\rightarrow$ `Pay ₦X`, `Publish Project` $\rightarrow$ `Publish`).
+  - Switched Timeline and Location selectors from rigid 2 columns to responsive `grid-cols-1 sm:grid-cols-2`.
+- **Checkout Sheet & Slot Picker Ergonomics (`Checkout.tsx`):**
+  - Condensed header progress subtitle to `<span className="sm:hidden">Escrow Protected</span>`.
+  - Refined slot selection grid to `grid-cols-3 sm:grid-cols-4` and streamlined bottom payment button copy.
+- **External Visitor 4-Step Stepper & Flow Polish (`ExternalBookingEntry.tsx`):**
+  - Replaced rigid 68px stepper button constraint with responsive `w-14 sm:w-20` nodes.
+  - Added concise `mobileLabel` values (`Slot`, `Brief`, `Agreement`, `Payment`), completely eliminating horizontal overflow and 3-line label wraps on mobile screens.
+  - Added responsive microcopy and canonical `aria-label` attributes across all 4 step action buttons.
 
 ### Step 118: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure (Session 159)
 

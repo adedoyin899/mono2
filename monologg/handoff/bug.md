@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
+**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 107. Multi-Line Button Wrapping, Stepper Overflow & Layout Crowding in Booking & Checkout Wizards
+- **Severity:** Medium / Mobile UX & Layout Overflow
+- **What happened:**
+  1. In `ProjectBrief.tsx`, bottom sticky navigation buttons split 50/50 (`flex-1`) caused long button labels like "Continue to Budget & Payment" (29 chars) and "Pay ₦150,000 with Paystack" (24 chars) to wrap into 2–3 awkward lines on 360px–390px mobile viewports.
+  2. In `ProjectBrief.tsx` Step 2, rigid 2-column layout (`grid grid-cols-2`) for Timeline and Location squeezed the dropdown and interactive location search input into narrow 150px columns.
+  3. In `Checkout.tsx`, the header progress subtitle (`Escrow Protected · Paystack Escrow` - 34 chars) wrapped or squeezed the title container, and long action button labels crowded the bottom sheet.
+  4. In `ExternalBookingEntry.tsx`, the 4-step stepper buttons used a fixed width `width: 68px`. Verbose step labels ("Contact & Agreement" - 19 chars, "Escrow Payment" - 14 chars) wrapped into 3 lines or overflowed horizontally on narrow viewports, displacing the segmented connector lines.
+- **Root Cause:**
+  - Hardcoded desktop button strings and fixed-width stepper nodes lacked viewport-responsive microcopy adaptation.
+- **Fix:**
+  - Implemented responsive microcopy across all wizard CTAs (`hidden sm:inline` and `sm:hidden`), shortening verbose action buttons on mobile while retaining canonical `aria-label` attributes for accessibility.
+  - Refactored `ProjectBrief.tsx` Timeline and Location grid to `grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4`.
+  - Adapted `ExternalBookingEntry.tsx` stepper with `mobileLabel` values (`Slot`, `Brief`, `Agreement`, `Payment`) and responsive button width `w-14 sm:w-20`.
+- **Resolution:** Validated with clean passes on `ProjectBrief.test.tsx` (2/2 tests), `ExternalBookingEntry.test.tsx` (2/2 tests), and the full web test suite (25/25 files, 132/132 tests).
 
 ### 106. Mobile Viewport Clutter, Horizontal Overflow & Deep Workspace Stacking in Core Dashboards & Order Room
 - **Severity:** Medium / Mobile UX & Layout Overflow

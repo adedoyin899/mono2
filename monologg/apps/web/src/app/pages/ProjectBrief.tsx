@@ -489,7 +489,7 @@ export function ProjectBrief() {
                 </div>
               </FormField>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField label="Timeline">
                   <select
                     className="w-full h-[54px] px-4 rounded-[var(--radius-lg)] text-base font-body border appearance-none"
@@ -918,16 +918,40 @@ export function ProjectBrief() {
               className="flex-1 h-12 font-bold"
               disabled={!canAdvance() || publishing}
               onClick={handleNext}
+              aria-label={
+                step === 5
+                  ? (fundingSource === "card"
+                      ? `Pay ₦${budgetAmount.toLocaleString()} with Paystack`
+                      : (publishing ? "Publishing…" : "Publish Project"))
+                  : (step === 4 ? "Continue to Budget & Payment" : "Continue")
+              }
               style={{
                 background: step === 5 && fundingSource === "card" ? "#0BA4DB" : undefined,
                 color: step === 5 && fundingSource === "card" ? "#FFFFFF" : undefined,
               }}
             >
-              {step === 5
-                ? (fundingSource === "card"
-                    ? `Pay ₦${budgetAmount.toLocaleString()} with Paystack`
-                    : (publishing ? "Publishing…" : "Publish Project"))
-                : (step === 4 ? "Continue to Budget & Payment" : "Continue")}
+              {step === 5 ? (
+                fundingSource === "card" ? (
+                  <>
+                    <span className="hidden sm:inline">Pay ₦{budgetAmount.toLocaleString()} with Paystack</span>
+                    <span className="sm:hidden">Pay ₦{budgetAmount.toLocaleString()}</span>
+                  </>
+                ) : publishing ? (
+                  "Publishing…"
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Publish Project</span>
+                    <span className="sm:hidden">Publish</span>
+                  </>
+                )
+              ) : step === 4 ? (
+                <>
+                  <span className="hidden sm:inline">Continue to Budget & Payment</span>
+                  <span className="sm:hidden">Continue</span>
+                </>
+              ) : (
+                "Continue"
+              )}
             </Button>
           </div>
 

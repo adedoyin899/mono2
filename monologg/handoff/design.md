@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–158 + Session 159 Tranche 1 Mobile Responsiveness.
+**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–159 + Session 160 Tranche 2 Mobile Responsiveness.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -220,6 +220,10 @@ Key token groups:
   - **Responsive Microcopy:** Text lengths adapt dynamically across viewport breakpoints (`hidden sm:inline` and `sm:hidden`), preventing awkward multi-line button wrapping on 360px–390px screens (e.g. "Launch Meet" vs "Launch Google Meet", "Protected" vs "Escrow Protected Payouts", "Secured" vs "Paystack Secured", "Mark all" vs "Mark all as read").
   - **Thumb Ergonomics:** Bottom CTAs and hero action buttons transition from fixed-width inline flex elements to full-width touch targets (`flex-1 sm:flex-none`) on mobile viewports for thumb reach.
   - **Accessibility Contract Preservation:** All responsive microcopy buttons retain explicit `aria-label` attributes corresponding to full canonical action names, preserving 100% test compatibility and screen-reader accessibility.
+- **Booking & Checkout Wizards Mobile Stepper & Microcopy Adaptation (`ProjectBrief.tsx`, `Checkout.tsx`, `ExternalBookingEntry.tsx` — Session 160):**
+  - **Fluid Stepper Dimensions:** Replaced fixed `68px` stepper button constraints with fluid `w-14 sm:w-20` nodes and concise `mobileLabel` values (`Slot`, `Brief`, `Agreement`, `Payment`), eliminating multi-line awkward text wrapping and connector bar distortion on narrow viewports.
+  - **Sticky Action Bar Microcopy:** Streamlined verbose multi-action CTA buttons (e.g. "Continue to Budget & Payment" $\rightarrow$ "Continue", "Pay ₦X with Paystack" $\rightarrow$ "Pay ₦X", "Confirm & Deposit ₦X" $\rightarrow$ "Deposit ₦X") on 50/50 flex splits (`flex-1`) while retaining explicit canonical `aria-label` accessibility attributes.
+  - **Form Grid Fluidity:** Replaced rigid 2-column inputs (`grid-cols-2`) for Timeline and Location dropdowns with responsive `grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4` for comfortable full-width mobile inputs.
 - **Financial Metric Semantics & Analytics Metric Elevation (`TalentDashboard.tsx` — Session 148):**
   - Eradicated alarming red typography on accumulated positive performer income (`₦1,240,000` total earnings) and completed projects (`28`), restoring them to high-contrast neutral text (`var(--color-text-primary)`) accompanied by positive emerald growth indicators (`↑ +₦240,000 this month`, `100% on-time delivery`).
   - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards for visual cohesion, and updated Rate Card prices to high-contrast neutral text.

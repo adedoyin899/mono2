@@ -1,11 +1,38 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
+**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 160 (2026-10-22) — Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation
+
+**Goal:** Execute Tranche 2 of the platform-wide mobile responsiveness audit, applying FAANG-grade mobile UX principles across booking workflows, checkout sheets, and external visitor funnels (`ProjectBrief.tsx`, `Checkout.tsx`, `ExternalBookingEntry.tsx`):
+1. **Client Project Brief Wizard Mobile Polish (`ProjectBrief.tsx`):**
+   - **Sticky Bottom Action Bar Microcopy:** Optimized multi-line wrapped labels on 50/50 flex buttons (`flex-1`). On Step 4, converted "Continue to Budget & Payment" (29 chars) to responsive microcopy (`<span className="hidden sm:inline">...</span><span className="sm:hidden">Continue</span>`). On Step 5 with card gateway, converted "Pay ₦X with Paystack" (24 chars) to "Pay ₦X" on mobile. On Step 5 with wallet balance, converted "Publish Project" to "Publish" on mobile. Preserved canonical `aria-label` for 100% accessibility and test compatibility.
+   - **Step 2 Form Layout Flexibility:** Refactored Timeline and Location selector from rigid 2 columns (`grid-cols-2`) to responsive `grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4`, giving full width to location search inputs on 360px–390px screens.
+2. **Client Checkout Sheet Mobile Polish (`Checkout.tsx`):**
+   - **Progress Header Subtitle:** Condensed `Escrow Protected · Paystack Escrow` (34 chars) on mobile viewports to `<span className="sm:hidden">Escrow Protected</span>`, preventing header height inflation and awkward text wrapping.
+   - **Time Slot Grid Spacing:** Refined candidate slot hours grid to `grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6` for thumb ergonomics across mobile and tablet screens.
+   - **Action Buttons & Security Footnote:** Added responsive microcopy to "Continue to Review & Agreement" (`Continue to Review` on mobile), Paystack CTA (`Pay ₦X` on mobile), and footnote encryption copy (`256-bit SSL · Paystack Escrow` on mobile).
+3. **External Visitor Booking Entry Stepper & Wizard Overhaul (`ExternalBookingEntry.tsx`):**
+   - **4-Step Stepper Mobile Adaptation:** Replaced fixed `style={{ width: "68px" }}` button width with responsive `w-14 sm:w-20`. Added concise `mobileLabel` values to `STEP_ITEMS` (`Slot`, `Brief`, `Agreement`, `Payment`), completely resolving horizontal overflow, connector line misalignment, and 3-line label wraps on mobile screens.
+   - **Responsive Step CTAs:** Added responsive microcopy and explicit `aria-label` attributes across all 4 steps:
+     - Step 1: `Continue to Project Brief` $\rightarrow$ `Continue` on mobile.
+     - Step 2: `Continue to Contact & Agreement` $\rightarrow$ `Continue to Agreement` on mobile.
+     - Step 4 Paystack CTA: `Pay ₦X with Paystack` $\rightarrow$ `Pay ₦X` on mobile.
+     - Step 4 Direct CTA: `Confirm & Deposit ₦X` $\rightarrow$ `Deposit ₦X` on mobile.
+   - **Footnote:** Condensed `256-bit SSL encryption · PCI-DSS compliant Paystack escrow` to `256-bit SSL · Paystack Escrow` on mobile.
+
+**Verification:**
+- `npx vitest run src/app/pages/ProjectBrief.test.tsx`: 2/2 passed.
+- `npx vitest run src/app/pages/ExternalBookingEntry.test.tsx`: 2/2 passed.
+- `npm test` across `apps/web`: 25/25 test files passed (132/132 tests passing cleanly).
+- `npm run typecheck`: 0 errors across all workspace packages.
 
 ---
 

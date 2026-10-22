@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–158 + Session 159 Tranche 1 Mobile Responsiveness.
+**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–159 + Session 160 Tranche 2 Mobile Responsiveness.
 
 ---
 
 ## ✅ Done
+
+### Session 160 — Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation
+- [x] **Client Project Brief Wizard Mobile Polish (`ProjectBrief.tsx`)**:
+  - Optimized bottom sticky CTA bar microcopy on mobile (`Continue` vs `Continue to Budget & Payment`, `Pay ₦X` vs `Pay ₦X with Paystack`, `Publish` vs `Publish Project`) preventing 3-line wrapping.
+  - Made Timeline and Location grid responsive (`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4`).
+- [x] **Client Checkout Sheet Mobile Polish (`Checkout.tsx`)**:
+  - Condensed header progress subtitle to `<span className="sm:hidden">Escrow Protected</span>`.
+  - Expanded candidate slot hours grid to `grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6`.
+  - Added responsive microcopy for Step 1 review button, Paystack button, and encryption footnote.
+- [x] **External Visitor Booking Entry Stepper & Wizard Overhaul (`ExternalBookingEntry.tsx`)**:
+  - Overhauled 4-step stepper with `mobileLabel` values (`Slot`, `Brief`, `Agreement`, `Payment`) and responsive node button widths (`w-14 sm:w-20`), eliminating horizontal overflow.
+  - Added responsive microcopy across all 4 steps with canonical `aria-label` attributes (`Continue to Project Brief` $\rightarrow$ `Continue`, `Continue to Contact & Agreement` $\rightarrow$ `Continue to Agreement`, `Pay ₦X with Paystack` $\rightarrow$ `Pay ₦X`, `Confirm & Deposit ₦X` $\rightarrow$ `Deposit ₦X`).
+  - Condensed security footnote to `256-bit SSL · Paystack Escrow` on mobile.
+- [x] **Automated Test Validation**:
+  - Validated `ProjectBrief.test.tsx` (2/2 passed) and `ExternalBookingEntry.test.tsx` (2/2 passed).
+  - Validated full test suite: 25/25 files (132/132 tests passing cleanly).
+  - Validated typecheck: 0 errors.
 
 ### Session 159 — Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure
 - [x] **Order Room Mobile Workspace Overhaul (`OrderRoom.tsx`)**:

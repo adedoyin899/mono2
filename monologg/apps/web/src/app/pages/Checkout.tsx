@@ -301,7 +301,7 @@ export function Checkout() {
           {loadingSlots ? (
             <p className="text-sm font-body text-center py-10" style={{ color: "var(--color-text-tertiary)" }}>Checking availability…</p>
           ) : (
-            <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6">
               {CANDIDATE_SLOT_HOURS.map((h) => {
                 const start = toTimeStr(h * 60);
                 const fits = slotFits(start);
@@ -529,7 +529,9 @@ export function Checkout() {
             {step === "summary" ? "Booking Details" : step === "review" ? "Review & Agreement" : "Payment"}
           </div>
           <div className="text-xs font-body flex items-center gap-1" style={{ color: "var(--color-success)" }}>
-            <Lock className="w-3 h-3" /> {isLive ? "Escrow Protected" : "Escrow Protected · Paystack Escrow"}
+            <Lock className="w-3 h-3 shrink-0" />
+            <span className="hidden sm:inline">{isLive ? "Escrow Protected" : "Escrow Protected · Paystack Escrow"}</span>
+            <span className="sm:hidden">Escrow Protected</span>
           </div>
         </div>
         {/* 3-step progress */}
@@ -859,8 +861,10 @@ export function Checkout() {
                 className="w-full h-12 text-base font-semibold"
                 disabled={!projectTitle.trim() || (projectFormat === "onsite" && !venueLocation.trim())}
                 onClick={() => setStep("review")}
+                aria-label="Continue to Review &amp; Agreement"
               >
-                <span>Continue to Review &amp; Agreement</span>
+                <span className="hidden sm:inline">Continue to Review &amp; Agreement</span>
+                <span className="sm:hidden">Continue to Review</span>
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <button
@@ -1094,14 +1098,17 @@ export function Checkout() {
                     className="h-11 px-5 font-bold shadow-md cursor-pointer whitespace-nowrap"
                     style={{ background: "#0BA4DB", color: "#FFFFFF" }}
                     onClick={() => setShowPaystackModal(true)}
+                    aria-label={`Pay ${money(TOTAL)} with Paystack`}
                   >
-                    <span>Pay {money(TOTAL)} with Paystack</span>
+                    <span className="hidden sm:inline">Pay {money(TOTAL)} with Paystack</span>
+                    <span className="sm:hidden">Pay {money(TOTAL)}</span>
                     <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] pt-1" style={{ color: "var(--color-text-tertiary)" }}>
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span>Click above to open Paystack's official interface. Certified PCI-DSS Level 1 · 256-Bit SSL.</span>
+                  <span className="hidden sm:inline">Click above to open Paystack's official interface. Certified PCI-DSS Level 1 · 256-Bit SSL.</span>
+                  <span className="sm:hidden">Official Paystack interface · 256-Bit SSL Escrow.</span>
                 </div>
               </div>
 
