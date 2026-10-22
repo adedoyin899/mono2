@@ -342,7 +342,7 @@ function MonologgEscrowCalculator() {
   };
 
   return (
-    <div className="p-6 md:p-8 rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4 relative">
+    <div className="p-4 min-[400px]:p-6 md:p-8 rounded-[24px] sm:rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4 relative">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="w-2.5 h-2.5 rounded-full bg-[#F13030] animate-pulse shrink-0" />
@@ -362,12 +362,12 @@ function MonologgEscrowCalculator() {
           <span>Client Pays Total Contract</span>
           <span className="font-mono">Paystack Locked</span>
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-1 text-2xl font-bold font-mono text-[#F5F5F0]">
             <span>{selectedCurr.symbol}</span>
             <input
               type="text"
-              className="bg-transparent font-bold font-mono text-[#F5F5F0] focus:outline-none w-full max-w-[200px] border-b border-transparent focus:border-white/20 transition-colors"
+              className="bg-transparent font-bold font-mono text-[#F5F5F0] focus:outline-none w-full max-w-[130px] min-[400px]:max-w-[200px] border-b border-transparent focus:border-white/20 transition-colors"
               value={clientTotalInputStr}
               onChange={handleClientTotalInputChange}
               onFocus={handleClientTotalInputFocus}
@@ -830,7 +830,7 @@ export function LandingPage() {
       </div>
 
       {/* ── Fixed Sticky Header ── */}
-      <header className="h-[68px] sticky top-0 z-50 px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md relative">
+      <header className="h-[68px] sticky top-0 z-50 px-4 sm:px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md relative">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
         </div>
@@ -850,7 +850,7 @@ export function LandingPage() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={toggle}
             className="w-9 h-9 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors active:scale-95"
@@ -933,10 +933,11 @@ export function LandingPage() {
 
               <Button
                 variant="red"
-                className="h-10 px-5 text-xs font-bold"
+                className="h-9 sm:h-10 px-3.5 sm:px-5 text-xs font-bold"
                 onClick={() => navigate("/auth")}
               >
-                Create Your Profile
+                <span className="sm:hidden">Get Started</span>
+                <span className="hidden sm:inline">Create Your Profile</span>
               </Button>
             </>
           )}
@@ -945,7 +946,7 @@ export function LandingPage() {
 
       <main className="flex-1">
         {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Status Quo Grid Reveal) ── */}
-        <section className="relative pt-24 pb-32 px-6 md:px-16 overflow-hidden min-h-[85vh] flex items-center">
+        <section className="relative pt-16 sm:pt-24 pb-20 sm:pb-32 px-4 sm:px-6 md:px-16 overflow-hidden min-h-[80vh] flex items-center">
           <WebGLHeroCanvas opacityMultiplier={0.05} />
 
           <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
@@ -955,7 +956,7 @@ export function LandingPage() {
             </div>
 
             {/* Oversized Display Headline with Red Squiggle Underline */}
-            <h1 className="font-wise-sans text-[48px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.92] text-[var(--color-text-primary)] max-w-5xl mx-auto">
+            <h1 className="font-wise-sans text-[36px] min-[400px]:text-[46px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.94] text-[var(--color-text-primary)] max-w-5xl mx-auto">
               Your craft on your terms.<br />
               <span className="relative inline-block text-[#F13030] dark:text-[#FF4D4D]">
                 Instantly booked.
@@ -1050,8 +1051,8 @@ export function LandingPage() {
         </section>
 
         {/* ── FEATURED TALENT ROSTER CAROUSEL (Infinite Auto-Looping with Edge Fade Masks) ── */}
-        <section id="talent-roster" className="py-24 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
-          <div className="max-w-6xl mx-auto px-6 md:px-16 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <section id="talent-roster" className="py-16 sm:py-24 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-16 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
               <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
                 Verified Performer Marketplace
@@ -1069,20 +1070,20 @@ export function LandingPage() {
         </section>
 
         {/* ── MONOLOGG ESCROW CALCULATOR SECTION ── */}
-        <section id="escrow-calculator" className="relative py-24 px-6 md:px-16 bg-[#0D0D0F] text-white overflow-hidden">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
+        <section id="escrow-calculator" className="relative py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[#0D0D0F] text-white overflow-hidden">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#F13030] text-white">
                 <Shield className="w-3.5 h-3.5 fill-current" />
                 <span>Monologg Escrow Protocol</span>
               </div>
 
-              <h2 className="font-wise-sans text-4xl md:text-6xl font-bold uppercase tracking-tight leading-[0.95] text-white">
+              <h2 className="font-wise-sans text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-tight leading-[0.95] text-white">
                 PAYMENT SECURITY.<br />
                 <span className="text-[#FF4D4D]">AUTOMATED IN ESCROW.</span>
               </h2>
 
-              <p className="text-base text-white/80 leading-relaxed font-body">
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed font-body">
                 Contracts are held securely in escrow by our payment partner, Paystack prior to recording or performance. Talent works with 100% confidence, and clients enjoy automated deliverable signoff.
               </p>
 
@@ -1115,8 +1116,8 @@ export function LandingPage() {
         </section>
 
         {/* ── HOW IT WORKS (High Contrast Dark Mode Cards) ── */}
-        <section id="how-it-works" className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
-          <div className="max-w-6xl mx-auto space-y-16">
+        <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-canvas)]">
+          <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16">
             <div className="text-center space-y-3">
               <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
                 Simple Workflow
@@ -1126,11 +1127,11 @@ export function LandingPage() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
               {STEPS.map((step, idx) => (
                 <div
                   key={idx}
-                  className="p-8 rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
+                  className="p-6 sm:p-8 rounded-[24px] sm:rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
                 >
                   <div className="w-12 h-12 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] font-mono font-bold text-lg flex items-center justify-center">
                     {step.num}
@@ -1148,8 +1149,8 @@ export function LandingPage() {
         </section>
 
         {/* ── SCI-FI INTERACTIVE GLOBAL TRUST MAP ── */}
-        <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-t border-[var(--color-hairline)]">
-          <div className="max-w-6xl mx-auto space-y-16">
+        <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-t border-[var(--color-hairline)]">
+          <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16">
             <div className="text-center space-y-3">
               <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
                 Endorsed by Performers &amp; Brands
@@ -1164,7 +1165,7 @@ export function LandingPage() {
         </section>
 
         {/* ── FAQ ACCORDION (High Contrast Dark Mode Fix) ── */}
-        <section className="py-24 px-6 md:px-16 bg-[var(--color-bg-canvas)]">
+        <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-canvas)]">
           <div className="max-w-3xl mx-auto space-y-12">
             <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase text-center tracking-tight text-[var(--color-text-primary)]">
               Frequently Asked Questions
@@ -1199,25 +1200,25 @@ export function LandingPage() {
         </section>
 
         {/* ── FINAL CONVERSION CTA ── */}
-        <section className="relative py-28 px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
+        <section className="relative py-16 sm:py-28 px-4 sm:px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
           <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-            <h2 className="font-wise-sans text-4xl md:text-7xl font-bold tracking-tight leading-[0.92] text-white">
+            <h2 className="font-wise-sans text-3xl min-[400px]:text-4xl md:text-7xl font-bold tracking-tight leading-[0.94] text-white">
               Take control of your craft.
             </h2>
-            <p className="text-base text-white/80 max-w-xl mx-auto font-body">
+            <p className="text-sm sm:text-base text-white/80 max-w-xl mx-auto font-body">
               Join over 3,200 verified actors, voice talent, and comperes getting booked directly with zero commission on their first booking.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3.5 sm:gap-4 pt-4">
               <Button
                 variant="red"
-                className="h-12 px-8 text-sm font-bold shadow-xl"
+                className="h-11 sm:h-12 px-8 text-sm font-bold shadow-xl w-full sm:w-auto"
                 onClick={() => navigate("/auth")}
               >
                 Create Your Profile Free
               </Button>
               <Button
                 variant="outline-pill"
-                className="h-12 px-8 text-sm font-bold border-white/30 text-white hover:bg-white/10"
+                className="h-11 sm:h-12 px-8 text-sm font-bold border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
                 onClick={() => navigate("/auth")}
               >
                 Post a Project Brief
@@ -1231,7 +1232,7 @@ export function LandingPage() {
       <QRCodeModal isOpen={showQrModal} onClose={() => setShowQrModal(false)} />
 
       {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
-      <footer className="pt-20 pb-12 px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
+      <footer className="pt-14 sm:pt-20 pb-10 sm:pb-12 px-4 sm:px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
         <WebGLHeroCanvas opacityMultiplier={0.05} />
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 text-sm">

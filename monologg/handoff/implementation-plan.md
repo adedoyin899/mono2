@@ -1,11 +1,39 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–159 + Session 160 Tranche 2 Mobile Responsiveness.
+**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–160 + Session 161 Tranche 3 Mobile Responsiveness.
 
 ---
 
 ## ✅ Done
+
+### Session 161 — Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement
+- [x] **Transaction & Earnings Ledger Polish (`TransactionHistory.tsx`)**:
+  - Resolved 360px top bar collision: added `min-w-0 flex-1 pr-2 truncate` to title container, responsive title microcopy (`Transactions` on mobile vs full title on desktop), and condensed badge to `Verified` on mobile.
+  - Scaled hero balance font size (`text-2xl min-[400px]:text-3xl sm:text-4xl`) and enabled edge-to-edge category chips scrolling (`-mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none`).
+  - Added `max-h-[90vh] overflow-y-auto` and `p-5 sm:p-6` to Withdrawal, Safeguard Gate, and Success confirmation modals; removed rigid `whitespace-nowrap` on SLA notices and made action buttons ergonomic (`min-h-[44px]`).
+- [x] **Account Settings & KYC Management (`Settings.tsx`)**:
+  - Added `min-w-0 flex-1` and `truncate` to sticky section title in settings header.
+  - Refactored Personal Details intro card to responsive flex direction with full-width button on mobile.
+  - Refined craft category buttons (`min-h-[96px] sm:min-h-[110px] p-3 sm:p-4`) with scaled icons (`w-6 h-6 sm:w-7 sm:h-7`).
+  - Converted bank editing buttons to `flex-col sm:flex-row` with full-width buttons.
+  - Added `max-h-[90vh] overflow-y-auto` and `p-5 sm:p-6` to Add Card, Share, and Delete Account modals; adjusted live credit card preview tracking for small phone screens.
+- [x] **Public Performer Storefront (`PublicStorefront.tsx`)**:
+  - Streamlined visitor header actions (`px-4 sm:px-5`), condensed "Share" to icon-only on mobile with `aria-label="Share profile link"`, hid secondary "Sign In" on mobile while elevating "Join Free".
+  - Adjusted avatar size (`w-20 h-20 sm:w-28 sm:h-28`), cover banner height (`h-36 sm:h-52`), and made "Share Profile" a full-width mobile button.
+  - Enhanced rate card "Book Now" buttons with minimum 44px touch targets (`min-h-[44px] h-11 sm:h-10`).
+- [x] **Platform Landing Page (`LandingPage.tsx`)**:
+  - Adjusted sticky header padding (`px-4 sm:px-6 md:px-16`) and CTA microcopy (`Get Started` on mobile vs `Create Your Profile`).
+  - Fluidly scaled oversized headline (`text-[36px] min-[400px]:text-[46px] sm:text-[72px] md:text-[96px] leading-[0.94]`).
+  - Optimized Escrow Calculator card padding (`p-4 min-[400px]:p-6 md:p-8`), currency dropdown, and input widths.
+  - Harmonized section vertical paddings (`py-16 sm:py-24`) and made conversion CTAs full-width on mobile.
+- [x] **Automated Test Validation**:
+  - Validated `TransactionHistory.test.tsx` (9/9 passed).
+  - Validated `Settings.test.tsx` (14/14 passed).
+  - Validated `PublicStorefront.test.tsx` (5/5 passed).
+  - Validated `LandingPageHeader.test.tsx` (3/3 passed).
+  - Validated full test suite: 25/25 files (132/132 tests passing cleanly).
+  - Validated typecheck: 0 errors.
 
 ### Session 160 — Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation
 - [x] **Client Project Brief Wizard Mobile Polish (`ProjectBrief.tsx`)**:

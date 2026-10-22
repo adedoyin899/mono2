@@ -701,13 +701,13 @@ export function Settings() {
         <button
           aria-label={section === "main" ? "Go back" : "Back to settings"}
           onClick={section === "main" ? () => navigate(-1) : sectionBack}
-          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
+          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shrink-0"
           style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <div className="flex-1">
-          <div className="text-sm font-semibold font-display" style={s.text}>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold font-display truncate" style={s.text}>
             {section === "main" && (isClient ? "Client Settings" : "Settings")}
             {section === "profile" && (isClient ? "Profile" : "Edit Profile")}
             {section === "craft_details" && "Personal Details"}
@@ -1590,28 +1590,30 @@ export function Settings() {
             >
               {/* Introduction Card */}
               <div
-                className="p-4 rounded-[var(--radius-xl)] flex items-start gap-3.5 border"
+                className="p-4 rounded-[var(--radius-xl)] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border"
                 style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
               >
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
-                >
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold font-display" style={s.text}>
-                    Personal Details
+                <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                  >
+                    <Sparkles className="w-5 h-5" />
                   </div>
-                  <p className="text-xs font-body mt-0.5 leading-relaxed" style={s.secondary}>
-                    Your basic details, craft category, and voice & performance style tags.
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold font-display" style={s.text}>
+                      Personal Details
+                    </div>
+                    <p className="text-xs font-body mt-0.5 leading-relaxed" style={s.secondary}>
+                      Your basic details, craft category, and voice &amp; performance style tags.
+                    </p>
+                  </div>
                 </div>
                 {!isEditingCraftDetails ? (
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 shrink-0 font-semibold"
+                    className="h-9 sm:h-8 px-3.5 sm:px-3 text-xs gap-1.5 shrink-0 font-semibold w-full sm:w-auto justify-center"
                     onClick={() => setIsEditingCraftDetails(true)}
                   >
                     <Edit2 className="w-3 h-3" /> Edit Details
@@ -1620,7 +1622,7 @@ export function Settings() {
                   <Button
                     variant="primary"
                     size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 shrink-0 font-semibold"
+                    className="h-9 sm:h-8 px-3.5 sm:px-3 text-xs gap-1.5 shrink-0 font-semibold w-full sm:w-auto justify-center"
                     onClick={handleSaveCraftDetails}
                   >
                     <Check className="w-3.5 h-3.5" /> Save Changes
@@ -1871,7 +1873,7 @@ export function Settings() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                       {CRAFT_CATEGORIES.map((craft) => {
                         const isSel = selectedCraft.toLowerCase() === craft.id.toLowerCase();
                         const CraftIcon = craft.icon;
@@ -1885,7 +1887,7 @@ export function Settings() {
                                 setPerformanceSummary(CRAFT_DEFAULT_SUMMARIES[craft.id]);
                               }
                             }}
-                            className={`p-4 rounded-[20px] text-center flex flex-col items-center justify-center gap-2.5 transition-all relative border min-h-[110px] ${
+                            className={`p-3 sm:p-4 rounded-[18px] sm:rounded-[20px] text-center flex flex-col items-center justify-center gap-2 sm:gap-2.5 transition-all relative border min-h-[96px] sm:min-h-[110px] ${
                               isSel
                                 ? "border-[#F13030] bg-[#F13030]/10 text-[#F13030] shadow-sm shadow-[#F13030]/10"
                                 : "border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-zinc-300"
@@ -1896,7 +1898,7 @@ export function Settings() {
                                 <Check className="w-3 h-3 stroke-[3]" />
                               </div>
                             )}
-                            <CraftIcon className={`w-7 h-7 ${isSel ? "text-[#F13030]" : "opacity-75"}`} />
+                            <CraftIcon className={`w-6 h-6 sm:w-7 sm:h-7 ${isSel ? "text-[#F13030]" : "opacity-75"}`} />
                             <span className="text-xs font-bold font-body">{craft.label}</span>
                           </button>
                         );
@@ -2492,10 +2494,10 @@ export function Settings() {
 
                     {/* Action Buttons */}
                     {editingBank ? (
-                      <div className="flex gap-2.5 pt-2">
+                      <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
                         <Button
                           variant="secondary"
-                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
+                          className="w-full sm:flex-1 h-11 text-xs font-semibold rounded-xl"
                           onClick={() => {
                             setEditingBank(false);
                             setBankName(bankDetails.bankName);
@@ -2508,7 +2510,7 @@ export function Settings() {
                           Cancel
                         </Button>
                         <Button
-                          className="flex-1 h-11 text-xs font-semibold rounded-xl"
+                          className="w-full sm:flex-1 h-11 text-xs font-semibold rounded-xl"
                           disabled={accountNumber.length !== 10 || bankLookupStatus !== "name_matches"}
                           onClick={() => {
                             appStateSync.updateBankDetails({ bankName, accountNumber, accountName, phoneNumber });
@@ -2525,7 +2527,7 @@ export function Settings() {
                       <div className="pt-2">
                         <Button
                           variant="secondary"
-                          className="h-11 px-5 text-xs font-semibold gap-2 rounded-xl border"
+                          className="w-full sm:w-auto h-11 px-5 text-xs font-semibold gap-2 rounded-xl border justify-center"
                           onClick={() => {
                             setEditingBank(true);
                             setBankName(bankDetails.bankName || "GTBank (Guaranty Trust Bank)");
@@ -2698,7 +2700,7 @@ export function Settings() {
                   {showAddCardModal && (
                     <Modal onClose={() => setShowAddCardModal(false)}>
                       <div
-                        className="w-full max-w-md rounded-[24px] p-6 space-y-5"
+                        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[24px] p-5 sm:p-6 space-y-5"
                         style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -2726,7 +2728,7 @@ export function Settings() {
 
                         {/* Interactive Live Card Preview */}
                         <div
-                          className="relative p-5 rounded-2xl text-white shadow-xl overflow-hidden border border-white/10"
+                          className="relative p-4 sm:p-5 rounded-2xl text-white shadow-xl overflow-hidden border border-white/10"
                           style={{
                             background: "linear-gradient(135deg, #181820 0%, #2A183C 60%, #15151D 100%)",
                           }}
@@ -2742,7 +2744,7 @@ export function Settings() {
                           </div>
 
                           {/* Card Number display */}
-                          <div className="font-mono text-lg sm:text-xl font-bold tracking-[0.18em] mb-4 text-zinc-100">
+                          <div className="font-mono text-base sm:text-xl font-bold tracking-[0.12em] sm:tracking-[0.18em] mb-4 text-zinc-100">
                             {newCardNumber.trim() ? formatCardNumber(newCardNumber) : "•••• •••• •••• ••••"}
                           </div>
 
@@ -3051,7 +3053,7 @@ export function Settings() {
               initial={{ y: 20, scale: 0.95 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 20, scale: 0.95 }}
-              className="w-full max-w-sm rounded-[var(--radius-xl)] p-6"
+              className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] p-5 sm:p-6"
               style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -3111,7 +3113,7 @@ export function Settings() {
               initial={{ y: 20, scale: 0.95 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 20, scale: 0.95 }}
-              className="w-full max-w-md rounded-[var(--radius-xl)] p-6"
+              className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] p-5 sm:p-6"
               style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)" }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -3158,7 +3160,7 @@ export function Settings() {
                       </div>
                       <div className="text-xs font-body flex-1">
                         <strong className="block font-semibold mb-0.5 text-sm" style={{ color: "var(--color-text-primary)" }}>
-                          Profile & Content Removed
+                          Profile &amp; Content Removed
                         </strong>
                         <p className="leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                           Your profile, videos, client reviews, and messages will be permanently deleted and cannot be recovered.
@@ -3203,17 +3205,17 @@ export function Settings() {
                     />
                   </div>
 
-                  <div className="flex gap-2.5">
+                  <div className="flex flex-col sm:flex-row gap-2.5">
                     <Button
                       variant="secondary"
-                      className="flex-1 h-11 text-xs font-semibold"
+                      className="w-full sm:flex-1 h-11 text-xs font-semibold"
                       disabled={deletingAccount}
                       onClick={() => setShowDeleteAccountModal(false)}
                     >
                       Keep Account
                     </Button>
                     <Button
-                      className="flex-1 h-11 text-xs font-semibold transition-colors"
+                      className="w-full sm:flex-1 h-11 text-xs font-semibold transition-colors"
                       style={{
                         background: deleteConfirmText.trim().toUpperCase() === "DELETE" ? "var(--color-error)" : "var(--color-bg-elevated)",
                         color: deleteConfirmText.trim().toUpperCase() === "DELETE" ? "#fff" : "var(--color-text-tertiary)",

@@ -1,11 +1,44 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
+**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 161 (2026-10-22) — Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement
+
+**Goal:** Complete Tranche 3 of the platform-wide mobile responsiveness audit, applying FAANG-grade mobile UX principles across system, configuration, public storefront, and marketing surfaces (`TransactionHistory.tsx`, `Settings.tsx`, `PublicStorefront.tsx`, `LandingPage.tsx`):
+1. **Transaction & Earnings Ledger Polish (`TransactionHistory.tsx`):**
+   - **Sticky Top Bar Collision Resolution:** Fixed header component collision on 360px viewports (Back button, 32-character title, and 24-character badge). Added `min-w-0 flex-1 pr-2 truncate` to the title container, responsive title microcopy (`<span className="sm:hidden">Transactions</span><span className="hidden sm:inline">...</span>` keeping exact test matches), and condensed the right-side badge to `<span className="sm:hidden">Verified</span><span className="hidden sm:inline">Monologg Escrow Verified</span>`.
+   - **Financial Summary & Category Scroll:** Refined card padding (`p-5 sm:p-6`) and typography scaling (`text-2xl min-[400px]:text-3xl sm:text-4xl`). Enabled smooth negative-margin edge-to-edge scrolling for category filter chips (`-mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none`).
+   - **Withdrawal & Ledger Modals:** Added `max-h-[90vh] overflow-y-auto` and `p-5 sm:p-6` to the Withdrawal flow, Live Projects safeguard gate, and Success confirmation modals. Replaced rigid `whitespace-nowrap` on SLA notices and project listings with fluid, wrapping typography and full-width thumb-friendly buttons (`min-h-[44px]`).
+2. **Account Settings & KYC Management (`Settings.tsx`):**
+   - **Sticky Sub-navigation Header:** Added `min-w-0 flex-1` and `truncate` to section title, preventing right-side action buttons ("Save", "Edit") from being pushed off-canvas on narrow screens.
+   - **Personal Details Intro Card:** Refactored intro banner to responsive flex direction (`flex-col sm:flex-row sm:items-center justify-between gap-3.5`) with full-width action button on mobile (`w-full sm:w-auto`).
+   - **Craft Selection Grid:** Refined card dimensions (`min-h-[96px] sm:min-h-[110px] p-3 sm:p-4 gap-2 sm:gap-2.5`) with scaled icons (`w-6 h-6 sm:w-7 sm:h-7`) for comfortable thumb tapping on 360px screens.
+   - **Payout Bank Actions:** Converted inline editing buttons to `flex-col sm:flex-row` with full-width primary button (`w-full sm:w-auto h-11 justify-center`).
+   - **Add Card & Account Modals:** Added `max-h-[90vh] overflow-y-auto` and `p-5 sm:p-6` to Add Card, Share, and Delete Account modals. Refined live credit card preview typography tracking (`tracking-[0.12em] sm:tracking-[0.18em] text-base sm:text-xl`) to eliminate card number clipping on small phones.
+3. **Public Performer Storefront (`PublicStorefront.tsx`):**
+   - **Visitor Header Overcrowding Fix:** Streamlined unauthenticated header actions (`px-4 sm:px-5`), condensed "Share" button to icon-only on mobile with explicit `aria-label="Share profile link"`, hid secondary "Sign In" button on mobile while elevating "Join Free" to primary CTA.
+   - **Profile Hero & Action Layout:** Adjusted avatar size (`w-20 h-20 sm:w-28 sm:h-28`), banner height (`h-36 sm:h-52`), and transformed "Share Profile" into a full-width mobile button (`w-full sm:w-auto`).
+   - **Rate Cards Touch Ergonomics:** Set "Book Now" action buttons to minimum 44px tap targets (`min-h-[44px] h-11 sm:h-10`).
+4. **Platform Landing Page (`LandingPage.tsx`):**
+   - **Fixed Header Adaptation:** Adjusted header padding (`px-4 sm:px-6 md:px-16`) and CTA microcopy (`<span className="sm:hidden">Get Started</span><span className="hidden sm:inline">Create Your Profile</span>`).
+   - **Hero Headline Fluid Scaling:** Scaled oversized Wise Sans headline (`text-[36px] min-[400px]:text-[46px] sm:text-[72px] md:text-[96px] leading-[0.94]`) to prevent ugly 4-line wrapping on mobile devices.
+   - **Escrow Calculator Optimization:** Adjusted card padding (`p-4 min-[400px]:p-6 md:p-8`), currency dropdown, and input widths (`max-w-[130px] min-[400px]:max-w-[200px]`) for clean rendering on 360px viewports.
+   - **Section Rhythm & CTAs:** Harmonized section vertical paddings (`py-16 sm:py-24`) and converted bottom conversion CTAs to full-width mobile flex buttons (`w-full sm:w-auto h-11 sm:h-12`).
+
+**Verification:**
+- `npm --prefix apps/web test TransactionHistory.test.tsx`: 9/9 passed.
+- `npm --prefix apps/web test Settings.test.tsx`: 14/14 passed.
+- `npm --prefix apps/web test PublicStorefront.test.tsx`: 5/5 passed.
+- `npm --prefix apps/web test LandingPageHeader.test.tsx`: 3/3 passed.
+- `npm test` across `apps/web`: 25/25 test files passed (132/132 tests passing cleanly).
+- `npm run typecheck`: 0 errors across all workspace packages.
 
 ---
 

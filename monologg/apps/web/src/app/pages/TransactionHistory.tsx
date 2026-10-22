@@ -208,26 +208,41 @@ export function TransactionHistory() {
   return (
     <div className={`${isClient ? "role-client" : "role-talent"} min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body`}>
       {/* Sticky Fixed Top Navigation Bar */}
-      <div className="h-16 flex items-center justify-between px-5 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="h-16 flex items-center justify-between px-4 sm:px-6 md:px-8 sticky top-0 z-40 backdrop-blur-xl bg-[var(--color-bg-glass)] border-b border-[var(--color-hairline)] shadow-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 pr-2">
           <button
             aria-label="Go back"
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all active:scale-95"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all active:scale-95 shrink-0"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="text-base font-bold font-display text-[var(--color-text-primary)]">
-            {isClient ? "Client Transactions & Escrow" : "Earnings & Transaction History"}
+          <div className="text-sm sm:text-base font-bold font-display text-[var(--color-text-primary)] truncate">
+            {isClient ? (
+              <>
+                <span className="sm:hidden">Transactions</span>
+                <span className="hidden sm:inline">Client Transactions &amp; Escrow</span>
+              </>
+            ) : (
+              <>
+                <span className="sm:hidden">Transactions</span>
+                <span className="hidden sm:inline">Earnings &amp; Transaction History</span>
+              </>
+            )}
           </div>
         </div>
 
-        <Badge tone="accent">Monologg Escrow Verified</Badge>
+        <div className="shrink-0">
+          <Badge tone="accent">
+            <span className="sm:hidden">Verified</span>
+            <span className="hidden sm:inline">Monologg Escrow Verified</span>
+          </Badge>
+        </div>
       </div>
 
-      <div className="flex-1 px-4 sm:px-6 py-8 max-w-3xl mx-auto w-full space-y-6">
+      <div className="flex-1 px-4 sm:px-6 py-6 sm:py-8 max-w-3xl mx-auto w-full space-y-6">
         {/* Dynamic Financial Summary Card */}
-        <div className="p-6 rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
+        <div className="p-5 sm:p-6 rounded-[22px] sm:rounded-[24px] bg-[#16161A] text-white border border-[#26262E] shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
           {/* Subtle ambient lighting accent */}
           <div
             className="absolute -right-16 -top-16 w-48 h-48 rounded-full blur-3xl pointer-events-none"
@@ -304,7 +319,7 @@ export function TransactionHistory() {
         </select>
 
         {/* 4-Chip Filter Taxonomy: All | Payout | Escrow | Dispute */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
           {CATEGORY_TABS.map((tab) => {
             const isSelected = activeCategory === tab.id && !stateFilter;
             return (
@@ -574,7 +589,7 @@ export function TransactionHistory() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="p-6 max-w-md w-full rounded-[24px] space-y-5"
+              className="p-5 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto rounded-[24px] space-y-5"
               style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -587,7 +602,7 @@ export function TransactionHistory() {
                     <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)]">
                       Withdraw Funds
                     </h3>
-                    <p className="text-xs font-body text-[var(--color-text-secondary)] whitespace-nowrap">
+                    <p className="text-xs font-body text-[var(--color-text-secondary)] leading-tight">
                       Transfer available funds to your personal bank
                     </p>
                   </div>
@@ -705,7 +720,7 @@ export function TransactionHistory() {
                 {/* 24-hour SLA notice (Clean, High Contrast, Accessible) */}
                 <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
-                  <span className="text-xs font-medium text-purple-900 dark:text-purple-200 whitespace-nowrap">
+                  <span className="text-xs font-medium text-purple-900 dark:text-purple-200 leading-snug">
                     Funds will reach your personal account within 24 hours.
                   </span>
                 </div>
@@ -740,7 +755,7 @@ export function TransactionHistory() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="p-6 max-w-lg w-full rounded-[24px] space-y-5"
+              className="p-5 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-[24px] space-y-5"
               style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -833,7 +848,7 @@ export function TransactionHistory() {
                   Cancel &amp; Keep Live
                 </Button>
                 <Button
-                  className="flex-1 h-11 text-xs font-bold text-white shadow-md whitespace-nowrap flex items-center justify-center gap-1.5 px-3"
+                  className="flex-1 min-h-[44px] text-xs font-bold text-white shadow-md flex items-center justify-center gap-1.5 px-3 text-center"
                   style={{ background: "linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)" }}
                   disabled={isProcessingWithdrawal}
                   onClick={() => {
@@ -856,7 +871,7 @@ export function TransactionHistory() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="p-6 max-w-md w-full rounded-[24px] space-y-5 text-center"
+              className="p-5 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto rounded-[24px] space-y-5 text-center"
               style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
               onClick={(e) => e.stopPropagation()}
             >

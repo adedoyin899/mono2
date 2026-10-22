@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-22 (Session 160: Tranche 2: Booking & Checkout Wizards FAANG Mobile Responsiveness & Stepper Adaptation)
+**Last updated:** 2026-10-22 (Session 161: Tranche 3: System & Marketing Surfaces FAANG Mobile Responsiveness & Layout Refinement)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 108. Header Collision, Viewport Overflow & Touch Target Degradation in System, Settings & Marketing Pages
+- **Severity:** Medium / Mobile UX & Viewport Collision
+- **What happened:**
+  1. In `TransactionHistory.tsx`, the sticky top navigation bar collided on 360px–390px mobile viewports: the 40px back button, 32-character title ("Earnings & Transaction History"), and 24-character badge ("Monologg Escrow Verified") exceeded the total screen width, causing layout wrapping or badge collision.
+  2. In `TransactionHistory.tsx` withdrawal modals, rigid `whitespace-nowrap` on SLA notices and 38-character confirmation button copy ("Move 3 Projects to Draft & Withdraw") caused text clipping or container overflow on small phone screens.
+  3. In `Settings.tsx`, the sub-navigation sticky header lacked truncation, allowing section titles to push "Save" / "Edit" action buttons off-canvas. In the payment section, editing action buttons were arranged side-by-side with long text ("Save Payout Bank Account"), crowding touch targets.
+  4. In `PublicStorefront.tsx`, visitor header actions ("Share", "Sign In", "Join Free") took up ~240px, squeezing against the logo and overflowing narrow screens.
+  5. In `LandingPage.tsx`, the fixed header CTA ("Create Your Profile" - 19 chars) crowded mobile screens, and the oversized 96px headline wrapped across 4 awkward lines on small viewports.
+- **Root Cause:**
+  - Hardcoded non-wrapping strings, rigid desktop horizontal headers, and oversized display fonts without mobile responsive breakpoint adaptation.
+- **Fix:**
+  - Added `min-w-0 flex-1 pr-2 truncate` and responsive microcopy (`<span className="sm:hidden">...</span><span className="hidden sm:inline">...</span>`) to `TransactionHistory.tsx` and `Settings.tsx` headers.
+  - Implemented `max-h-[90vh] overflow-y-auto` and full-width thumb-friendly buttons (`min-h-[44px]`) across modals.
+  - Streamlined `PublicStorefront.tsx` unauthenticated header actions, condensed "Share" to an accessible icon button on mobile, and elevated "Join Free".
+  - Fluidly scaled `LandingPage.tsx` headline (`text-[36px] min-[400px]:text-[46px] sm:text-[72px] md:text-[96px]`), added responsive header CTA microcopy ("Get Started" on mobile), and optimized Escrow Calculator layout.
+- **Resolution:** Validated with clean passes on `TransactionHistory.test.tsx` (9/9), `Settings.test.tsx` (14/14), `PublicStorefront.test.tsx` (5/5), `LandingPageHeader.test.tsx` (3/3), and the entire web test suite (25/25 files, 132/132 tests).
 
 ### 107. Multi-Line Button Wrapping, Stepper Overflow & Layout Crowding in Booking & Checkout Wizards
 - **Severity:** Medium / Mobile UX & Layout Overflow

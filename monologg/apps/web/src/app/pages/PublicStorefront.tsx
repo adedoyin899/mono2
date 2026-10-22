@@ -146,20 +146,26 @@ export function PublicStorefront() {
     <div className={`${roleThemeClass} min-h-screen flex flex-col`} style={{ background: "var(--color-bg-canvas)" }}>
       {/* ── Branded header — trust starts here ── */}
       <header
-        className="h-14 sticky top-0 z-50 px-5 flex items-center justify-between backdrop-blur-xl"
+        className="h-14 sticky top-0 z-50 px-4 sm:px-5 flex items-center justify-between backdrop-blur-xl"
         style={{ background: "color-mix(in srgb, var(--color-bg-canvas) 72%, transparent)", borderBottom: "1px solid var(--color-hairline)" }}
       >
-        <Link to="/" aria-label="Monologg home">
+        <Link to="/" aria-label="Monologg home" className="shrink-0">
           <Logo className="h-5 w-auto" style={{ color: "var(--color-text-primary)" }} />
         </Link>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" className="h-9 px-3 text-sm gap-1.5" onClick={handleShareStorefront}>
-            <Share2 className="w-3.5 h-3.5" /> {copiedStorefrontLink ? "Copied!" : "Share"}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Button
+            variant="secondary"
+            className="h-9 px-2.5 sm:px-3 text-xs sm:text-sm gap-1.5"
+            onClick={handleShareStorefront}
+            aria-label="Share profile link"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{copiedStorefrontLink ? "Copied!" : "Share"}</span>
           </Button>
-          <Button variant="ghost" className="h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
+          <Button variant="ghost" className="hidden sm:inline-flex h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
             Sign In
           </Button>
-          <Button className="h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
+          <Button className="h-9 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold" onClick={() => navigate("/auth")}>
             Join Free
           </Button>
         </div>
@@ -167,12 +173,12 @@ export function PublicStorefront() {
 
       {/* ── Main content: matches exact profile width & content ── */}
       <main className="flex-1">
-        <div className="max-w-5xl mx-auto px-4 py-6 lg:px-8 lg:py-8">
+        <div className="max-w-5xl mx-auto px-3.5 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="rounded-[28px] overflow-hidden border shadow-sm transition-all"
+            className="rounded-[24px] sm:rounded-[28px] overflow-hidden border shadow-sm transition-all"
             style={{
               background: "var(--color-bg-surface)",
               borderColor: "var(--color-border-default)",
@@ -181,7 +187,7 @@ export function PublicStorefront() {
           >
             {/* Hero Cover Banner */}
             <div
-              className="h-44 sm:h-52 w-full relative transition-all group overflow-hidden"
+              className="h-36 sm:h-52 w-full relative transition-all group overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, #8B0000 0%, #DC2626 50%, #450A0A 100%)",
               }}
@@ -189,12 +195,12 @@ export function PublicStorefront() {
               <div className="absolute inset-0 bg-black/15" />
             </div>
 
-            <div className="px-6 pb-8">
+            <div className="px-4 sm:px-6 pb-6 sm:pb-8">
               {/* Avatar & Badges Header */}
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
-                <div className="flex items-end gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3.5 sm:gap-4 -mt-10 sm:-mt-14 mb-4">
+                <div className="flex items-end gap-3.5 sm:gap-4">
                   <div
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 overflow-hidden shrink-0 shadow-lg relative group"
+                    className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 overflow-hidden shrink-0 shadow-lg relative group"
                     style={{
                       borderColor: "var(--color-bg-surface)",
                       background: "var(--color-bg-elevated)",
@@ -221,8 +227,8 @@ export function PublicStorefront() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="sm" className="gap-2 text-xs h-9" onClick={handleShareStorefront}>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button variant="secondary" size="sm" className="gap-2 text-xs h-9 w-full sm:w-auto justify-center" onClick={handleShareStorefront}>
                     <Share2 className="w-3.5 h-3.5" /> {copiedStorefrontLink ? "Copied!" : "Share Profile"}
                   </Button>
                 </div>
@@ -391,7 +397,7 @@ export function PublicStorefront() {
                             </span>
                           </div>
                           <Button
-                            className="w-full h-10 text-xs font-semibold gap-2"
+                            className="w-full h-11 sm:h-10 text-xs font-semibold gap-2 min-h-[44px]"
                             onClick={() => {
                               const roleParam = searchParams.get("role");
                               const params = new URLSearchParams({ rateCard: service.id });
