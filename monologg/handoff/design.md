@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–157 + Session 158 Backend Profile Tracking & Notification Center.
+**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–158 + Session 159 Tranche 1 Mobile Responsiveness.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -215,6 +215,11 @@ Key token groups:
   - Replaced awkward centered dots with 4 discrete auto-advancing OTP digit boxes with auto-forward, backspace back-navigation, paste distribution, active focus rings, and real-time PIN validation against `CLIENT_GENERATED_PIN` ("4821") with emerald success badge.
   - Corrected inspection window copy: states `₦111,600 net` (after 7% platform fee) auto-releases to balance instead of inaccurate gross deposit ₦120,000.
   - Eliminated washed-out disabled pink button, establishing a clean disabled button state (`bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed`) that transitions to vivid Monologg crimson CTA on verification.
+- **Mobile UX Responsive Architecture & Progressive Disclosure (`OrderRoom.tsx`, `TalentDashboard.tsx`, `ClientDashboard.tsx`, `NotificationCenterModal.tsx` — Session 159):**
+  - **Progressive Disclosure:** Large multi-column cards (e.g. pending attendance checkin metadata) collapse on mobile by default to prevent pushing primary workspace features below the fold, cutting initial vertical footprint by ~50% (~140px vs ~310px) while maintaining a clean "Details" / "Hide" accordion.
+  - **Responsive Microcopy:** Text lengths adapt dynamically across viewport breakpoints (`hidden sm:inline` and `sm:hidden`), preventing awkward multi-line button wrapping on 360px–390px screens (e.g. "Launch Meet" vs "Launch Google Meet", "Protected" vs "Escrow Protected Payouts", "Secured" vs "Paystack Secured", "Mark all" vs "Mark all as read").
+  - **Thumb Ergonomics:** Bottom CTAs and hero action buttons transition from fixed-width inline flex elements to full-width touch targets (`flex-1 sm:flex-none`) on mobile viewports for thumb reach.
+  - **Accessibility Contract Preservation:** All responsive microcopy buttons retain explicit `aria-label` attributes corresponding to full canonical action names, preserving 100% test compatibility and screen-reader accessibility.
 - **Financial Metric Semantics & Analytics Metric Elevation (`TalentDashboard.tsx` — Session 148):**
   - Eradicated alarming red typography on accumulated positive performer income (`₦1,240,000` total earnings) and completed projects (`28`), restoring them to high-contrast neutral text (`var(--color-text-primary)`) accompanied by positive emerald growth indicators (`↑ +₦240,000 this month`, `100% on-time delivery`).
   - Added subtle top-right telemetry badges (Eye, CheckCircle2, DollarSign) across metric cards for visual cohesion, and updated Rate Card prices to high-contrast neutral text.

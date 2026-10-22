@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
+**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 118: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure (Session 159)
+
+Audited and overhauled the mobile viewport experience across core workspaces and dashboards (`OrderRoom.tsx`, `TalentDashboard.tsx`, `ClientDashboard.tsx`, `NotificationCenterModal.tsx`), adhering to FAANG mobile UX standards:
+- **Progressive Disclosure in Order Room (`OrderRoom.tsx`):**
+  - Added a collapsible "Details" toggle (`checkinDetailsExpanded`) for the pending attendance verification card, hiding 3-column venue and event details on mobile by default to prevent pushing the message feed and composer below the fold.
+  - Condensed header title truncation, subtitle metadata, and action bar buttons to prevent awkward line breaks on 360px–390px screens.
+  - Streamlined Google Meet banner padding and microcopy with responsive action CTAs (`Launch Meet` on mobile, `Launch Google Meet` on desktop with `aria-label="Launch Google Meet"`).
+- **Performer & Client Dashboard Top Bar Ergonomics (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+  - Added text truncation for titles and greetings to prevent header overflowing on narrow screens.
+  - Scaled demo/new-user toggle badges to compact dot pills on `< sm`.
+  - Expanded wallet action CTAs ("Withdraw Funds", "Analytics", "Fund Wallet") into full-width touch targets on mobile for natural thumb reach.
+- **Notification Drawer Mobile Polish (`NotificationCenterModal.tsx`):**
+  - Updated drawer to full viewport width on mobile with `scrollbar-none` horizontal category pills and condensed "Mark all" label.
 
 ### Step 117: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center (Session 158)
 

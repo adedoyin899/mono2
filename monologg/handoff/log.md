@@ -1,11 +1,36 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
+**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 159 (2026-10-22) — Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure
+
+**Goal:** Execute Tranche 1 of the platform-wide mobile responsiveness audit, applying FAANG-grade mobile UX principles (progressive disclosure, copy optimization, thumb ergonomics, clean information hierarchy, and layout adaptation) across core workspaces and dashboards (`OrderRoom.tsx`, `TalentDashboard.tsx`, `ClientDashboard.tsx`, `NotificationCenterModal.tsx`):
+1. **Order Room Mobile Workspace Overhaul (`OrderRoom.tsx`):**
+   - **Header & Action Bar Ergonomics:** Applied responsive truncation to project title (`max-w-[130px] xs:max-w-[190px] sm:max-w-none`), condensed secondary metadata (`· {curOrderId}` hidden on `< sm` while preserving the escrow badge), streamlined demo role switcher ("Talent" on mobile vs "Performer" on desktop), and condensed "Order Info" CTA to `<span className="hidden sm:inline">Order </span>Info`.
+   - **Pending Attendance Verification Card Progressive Disclosure:** Introduced a dedicated mobile toggle (`checkinDetailsExpanded`, "Details" / "Hide") collapsing the 3-column venue/client/date metadata on `< sm` by default. Cuts initial card height by ~50% (~140px vs ~310px), immediately revealing the messaging thread on mobile without pushing the chat feed below the fold. Streamlined action button copy ("Can't make it" and "I'm confirmed").
+   - **Google Meet Introduction Banner:** Streamlined card padding (`px-3.5 sm:px-5 py-3.5 sm:py-4`), tightened explanatory microcopy, responsive action CTA microcopy (`Launch Google Meet` on desktop with `Launch Meet` on mobile and explicit `aria-label="Launch Google Meet"` ensuring 100% test & accessibility parity, `Copy Link`, and `Done` / `Mark Done`).
+   - **Deliverables & OTP Verification Form:** Optimized 4-digit PIN verification boxes and modal padding for small mobile viewports (360px–390px).
+2. **Performer Command Center Mobile Polish (`TalentDashboard.tsx`):**
+   - **Mobile Top Bar:** Enhanced flex spacing (`px-4 sm:px-5`), added title and greeting truncation, streamlined the demo/new user toggle pill to dot-only on mobile (`<span className="hidden sm:inline">{isNewUser ? "New User" : "Demo"}</span>`), adjusted touch targets (`w-9 h-9 sm:w-10 sm:h-10`).
+   - **Available Balance Hero:** Shortened "Escrow Protected Payouts" badge on mobile (`<span className="hidden sm:inline">Escrow Protected Payouts</span><span className="sm:hidden">Protected</span>`), made "Withdraw Funds" and "Analytics" CTAs full-width flex items on mobile (`flex-1 sm:flex-none`) for ergonomic thumb reach.
+3. **Client Executive Command Center Mobile Polish (`ClientDashboard.tsx`):**
+   - **Mobile Top Bar:** Applied responsive padding, title truncation, streamlined demo switcher pill on mobile, touch-friendly notification & profile buttons.
+   - **Executive Wallet Hero:** Shortened "Paystack Secured" badge to "Secured" on mobile, expanded "Fund Wallet" CTA to full width on `< sm`.
+4. **FAANG Notification Center Mobile Adaptation (`NotificationCenterModal.tsx`):**
+   - Set drawer to fluid full-width on mobile (`w-full max-w-full sm:max-w-md md:max-w-lg`).
+   - Condensed "Mark all as read" button to "Mark all" on `< sm`.
+   - Ensured horizontal category filter pills scroll smoothly without ugly scrollbars (`scrollbar-none`).
+
+**Verification:**
+- `npx vitest run src/app/pages/dashboardParity.test.tsx` passed: 4/4 tests passing.
+- `npm test` in `apps/web` passed: all 25 test files (132/132 tests) passing cleanly.
 
 ---
 

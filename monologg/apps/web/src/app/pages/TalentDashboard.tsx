@@ -1149,23 +1149,23 @@ export function TalentDashboard() {
 
       {/* Mobile top bar */}
       <div
-        className="lg:hidden flex items-center justify-between px-5 py-2.5 sticky top-0 z-40 glass-panel"
+        className="lg:hidden flex items-center justify-between px-4 sm:px-5 py-2.5 sticky top-0 z-40 glass-panel"
         style={{ borderLeft: "none", borderRight: "none", borderTop: "none" }}
       >
-        <div className="min-w-0">
-          <div className="text-[11px] font-body tracking-normal" style={{ color: "var(--color-text-tertiary)" }}>Good morning, {firstName}</div>
-          <div className="font-display text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
+        <div className="min-w-0 flex-1 mr-2">
+          <div className="text-[11px] font-body tracking-normal truncate" style={{ color: "var(--color-text-tertiary)" }}>Good morning, {firstName}</div>
+          <div className="font-display text-base sm:text-lg leading-tight truncate" style={{ color: "var(--color-text-primary)" }}>{screenTitle}</div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={() => setIsNewUser(!isNewUser)}
-            className="text-xs px-2.5 py-1 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
+            className="text-xs px-2 sm:px-2.5 py-1 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors text-[var(--color-text-secondary)] flex items-center gap-1.5 font-body"
             title="Toggle between New User empty state and Active Demo state"
           >
             <span className={`w-2 h-2 rounded-full ${isNewUser ? "bg-amber-500" : "bg-emerald-500"}`} />
-            {isNewUser ? "New User" : "Demo"}
+            <span className="hidden sm:inline">{isNewUser ? "New User" : "Demo"}</span>
           </button>
-          <button aria-label="View notifications" onClick={openNotifications} className="w-10 h-10 rounded-full flex items-center justify-center relative hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }}>
+          <button aria-label="View notifications" onClick={openNotifications} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center relative hover:opacity-80 transition-opacity" style={{ background: "var(--color-bg-elevated)" }}>
             <Bell className="w-[18px] h-[18px]" style={{ color: "var(--color-text-secondary)" }} />
             {unreadCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2" style={{ background: "var(--color-accent)", "--tw-ring-color": "var(--color-bg-surface)" } as React.CSSProperties}></span>
@@ -1173,7 +1173,7 @@ export function TalentDashboard() {
           </button>
           <button
             aria-label="Go to settings"
-            className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm font-body hover:opacity-80 transition-opacity"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm font-body hover:opacity-80 transition-opacity"
             style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
             onClick={() => navigate("/settings")}
           >
@@ -1570,22 +1570,23 @@ export function TalentDashboard() {
 
                   <div className="relative">
                     {/* Top status bar */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-[11px] font-mono tracking-wider uppercase text-zinc-400 font-semibold">Available Balance</span>
+                    <div className="flex items-center justify-between mb-3 gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        <span className="text-[11px] font-mono tracking-wider uppercase text-zinc-400 font-semibold truncate">Available Balance</span>
                         <button
                           type="button"
                           onClick={() => setShowBalance(!showBalance)}
-                          className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0"
                           aria-label={showBalance ? "Hide balance" : "Show balance"}
                         >
                           {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-body text-zinc-300">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Escrow Protected Payouts</span>
+                      <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-body text-zinc-300 shrink-0">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span className="hidden sm:inline">Escrow Protected Payouts</span>
+                        <span className="sm:hidden">Protected</span>
                       </div>
                     </div>
 
@@ -1597,10 +1598,10 @@ export function TalentDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
+                      <div className="flex items-center gap-2.5 pt-1 sm:pt-0 w-full sm:w-auto">
                         <button
                           onClick={() => setActiveTab("earnings")}
-                          className="h-10 px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center gap-1.5 cursor-pointer hover:opacity-95"
+                          className="h-10 px-4 sm:px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:opacity-95 flex-1 sm:flex-none"
                           style={{ background: "var(--color-accent)" }}
                         >
                           <ArrowUpRight className="w-4 h-4" />
@@ -1608,7 +1609,7 @@ export function TalentDashboard() {
                         </button>
                         <button
                           onClick={() => setActiveTab("earnings")}
-                          className="h-10 px-4 rounded-xl text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 flex items-center gap-1.5 cursor-pointer"
+                          className="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
                         >
                           <BarChart2 className="w-3.5 h-3.5" />
                           <span>Analytics</span>

@@ -152,7 +152,7 @@ export function NotificationCenterModal({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 28, stiffness: 280 }}
-        className="w-full max-w-md sm:max-w-lg h-full flex flex-col shadow-2xl relative"
+        className="w-full max-w-full sm:max-w-md md:max-w-lg h-full flex flex-col shadow-2xl relative"
         style={{
           background: "var(--color-bg-surface)",
           borderLeft: "1px solid var(--color-hairline)",
@@ -161,25 +161,26 @@ export function NotificationCenterModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Top Header ─────────────────────────────────────────── */}
-        <div className="p-5 pb-3 border-b border-[var(--color-hairline)] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <h3 className="font-display text-xl font-bold tracking-tight">Notifications</h3>
+        <div className="p-4 sm:p-5 pb-3 border-b border-[var(--color-hairline)] flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-display text-lg sm:text-xl font-bold tracking-tight truncate">Notifications</h3>
             {unreadCount > 0 && (
-              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[var(--color-accent-subtle)] text-[var(--color-accent)] border border-[var(--color-hairline)]">
+              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[var(--color-accent-subtle)] text-[var(--color-accent)] border border-[var(--color-hairline)] shrink-0">
                 {unreadCount} unread
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-[var(--color-bg-elevated)]"
+                className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md hover:bg-[var(--color-bg-elevated)]"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
-                <span>Mark all as read</span>
+                <span className="hidden sm:inline">Mark all as read</span>
+                <span className="sm:hidden">Mark all</span>
               </button>
             )}
             <button
@@ -194,7 +195,7 @@ export function NotificationCenterModal({
         </div>
 
         {/* ── Category Filters & Unread Toggle ──────────────────── */}
-        <div className="px-4 py-2.5 border-b border-[var(--color-hairline)] bg-[var(--color-bg-canvas)] flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        <div className="px-3 sm:px-4 py-2 border-b border-[var(--color-hairline)] bg-[var(--color-bg-canvas)] flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-1.5 shrink-0">
             {categories.map((c) => {
               const active = activeCategory === c.id;

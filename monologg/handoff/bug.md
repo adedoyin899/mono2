@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
+**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 106. Mobile Viewport Clutter, Horizontal Overflow & Deep Workspace Stacking in Core Dashboards & Order Room
+- **Severity:** Medium / Mobile UX & Layout Overflow
+- **What happened:**
+  1. In `OrderRoom.tsx`, the pending attendance verification card rendered a tall 3-column event metadata block on top of the workspace. On mobile viewports (360px–390px), this pushed the primary chat feed completely below the fold (~310px tall), forcing users to scroll past static event data to access the conversation or message composer.
+  2. Long project titles caused text wrapping or clipped controls in the mobile header, and verbose action buttons ("Launch Google Meet", "Order Info", "Can't make it", "Yes, I'm confirmed") wrapped across multiple awkward lines on smaller screens.
+  3. In `TalentDashboard.tsx` and `ClientDashboard.tsx`, wallet action CTAs were left-aligned desktop buttons rather than full-width thumb-friendly mobile buttons, and demo/new-user toggle badges consumed excessive horizontal width in the sticky top bar.
+  4. In `NotificationCenterModal.tsx`, drawer max-width on mobile restricted drawer fluidity, and verbose button copy ("Mark all as read") caused overflow on 360px screens.
+- **Root Cause:**
+  - Components were designed desktop-first and relied on vertical stacking without mobile progressive disclosure or responsive microcopy adaptations.
+- **Fix:**
+  - Added progressive disclosure toggle (`checkinDetailsExpanded`) to `OrderRoom.tsx`, collapsing the 3-column event grid on mobile by default to cut card height by 50% while preserving a 1-tap "Details" expansion.
+  - Implemented responsive microcopy across header titles, metadata rows, and action CTAs using `hidden sm:inline` and `sm:hidden` pairings, with explicit `aria-label` attributes to ensure test and accessibility contracts remain intact.
+  - Adapted dashboard wallet hero buttons to `flex-1 sm:flex-none` full-width mobile touch targets.
+  - Streamlined `NotificationCenterModal.tsx` to `w-full max-w-full sm:max-w-md md:max-w-lg` with `scrollbar-none` and condensed button labels.
+- **Resolution:** Validated with `dashboardParity.test.tsx` (4/4 tests passing) and all 25 web test suites passing (132/132 tests).
 
 ### 105. Missing User Activity Audit Logging on Login, Stale Onboarding State Loss & Notification Clutter
 - **Severity:** Medium / Backend Activity Tracking & User Progress Retention

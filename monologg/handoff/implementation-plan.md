@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-20 (Session 158: Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–157 + Session 158 Backend Profile Tracking & Notification Center.
+**Last updated:** 2026-10-22 (Session 159: Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–158 + Session 159 Tranche 1 Mobile Responsiveness.
 
 ---
 
 ## ✅ Done
+
+### Session 159 — Tranche 1: Core Workspaces & Dashboards FAANG Mobile Responsiveness & Progressive Disclosure
+- [x] **Order Room Mobile Workspace Overhaul (`OrderRoom.tsx`)**:
+  - Implemented responsive truncation for project title (`max-w-[130px] xs:max-w-[190px] sm:max-w-none`) and condensed order ID metadata on `< sm`.
+  - Added progressive disclosure toggle (`checkinDetailsExpanded`, "Details" / "Hide") for pending attendance verification card, collapsing multi-column event cards by default on mobile to reveal chat feed.
+  - Streamlined Google Meet banner padding and copy, with responsive action CTA microcopy (`Launch Google Meet` on desktop, `Launch Meet` on mobile with accessible `aria-label`).
+  - Optimized 4-digit PIN verification boxes and modal padding for small mobile viewports (360px–390px).
+- [x] **Performer Command Center Mobile Polish (`TalentDashboard.tsx`)**:
+  - Refined mobile top bar padding, truncation, and icon-only demo toggle pill on `< sm`.
+  - Shortened "Escrow Protected Payouts" badge to "Protected" on mobile.
+  - Adapted "Withdraw Funds" and "Analytics" CTAs to full-width flex items on mobile for thumb ergonomics.
+- [x] **Client Executive Command Center Mobile Polish (`ClientDashboard.tsx`)**:
+  - Refined mobile top bar padding, truncation, and compact demo toggle.
+  - Shortened "Paystack Secured" badge to "Secured" on mobile.
+  - Expanded "Fund Wallet" CTA to full width on mobile viewports.
+- [x] **FAANG Notification Center Mobile Adaptation (`NotificationCenterModal.tsx`)**:
+  - Set drawer to fluid full-width on mobile (`w-full max-w-full sm:max-w-md md:max-w-lg`).
+  - Condensed "Mark all as read" button to "Mark all" on mobile.
+  - Applied `scrollbar-none` to horizontal category filter pills.
+- [x] **Automated Test Validation**:
+  - Validated `dashboardParity.test.tsx` (4/4 passing).
+  - Validated all 25 web test files (132/132 tests passing cleanly).
 
 ### Session 158 — Backend User Profile Activity Tracking, Google Info Sync, Onboarding Progress Resumption & FAANG UX Notification Center
 - [x] **Backend User Activity Tracking & Profile Enrichment (`authSupabase.ts`)**:
