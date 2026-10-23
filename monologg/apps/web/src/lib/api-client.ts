@@ -802,8 +802,13 @@ export const apiClient = {
   // for its own public creator sub-resource).
   async getPublicStorefront(handle: string): Promise<PublicStorefront> {
     if (API_MODE !== "live") {
+      const cleanHandle = handle.toLowerCase().replace(/^seed-creator-/, "").replace(/[^a-z0-9]/g, "");
       const matched = mocks.TALENTS.find(
-        (t) => t.id === handle || t.name.toLowerCase().replace(/\s+/g, "-") === handle.toLowerCase()
+        (t) =>
+          t.id === handle ||
+          t.name.toLowerCase().replace(/\s+/g, "-") === handle.toLowerCase() ||
+          t.name.toLowerCase().replace(/[^a-z0-9]/g, "") === cleanHandle ||
+          (cleanHandle.length > 2 && t.name.toLowerCase().includes(cleanHandle))
       );
       if (matched) {
         const baseNum = parseInt(matched.price.replace(/[^\d]/g, ""), 10) || 50000;

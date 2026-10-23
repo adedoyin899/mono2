@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
+**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 166 (2026-10-23) — Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication
+
+**Goal:** Execute FAANG UX designer refinements across Client casting pipeline and Performer project detail views: enable seamless separate-tab profile inspection for clients while preserving fast modal audition controls, redesign the 3-pillar escrow guarantee into a sleek horizontal responsive grid, deduplicate sidebar metrics (suppressing pre-application stats once applied), and add a 2-step confirmation to application withdrawal.
+
+1. **Separate-Tab Storefront Discovery (`ClientDashboard.tsx`, `ClientDashboard.test.tsx`):**
+   - Updated `viewTalentProfile` in `ClientDashboard.tsx` to launch the performer's public profile in a separate tab (`window.open(`/${slug}?role=client`, "_blank")`) while concurrently opening the audition pitch modal for streamlined review and rapid casting decisions.
+   - Enhanced applicant pipeline action buttons with clear external-link indicators (`View Profile & Reels` with `ExternalLink` ↗ icon).
+   - Added an explicit "Open in new tab" shortcut to the Featured Audio / Video Reel header and wired clicks on the reel showcase to open the performer's profile in a new tab.
+   - Updated `ClientDashboard.test.tsx` with `window.open` test spy to verify separate-tab navigation.
+2. **Resilient Public Storefront Handle Resolution (`api-client.ts`):**
+   - Enhanced `getPublicStorefront(handle)` in mock mode to normalize incoming handles by stripping `seed-creator-` prefixes, comparing normalized alphanumeric slugs, and falling back to case-insensitive name fragments.
+   - Eliminates potential 404s when navigating directly via seed IDs or hyphenated creator slugs (`/adaeze-obi` vs `seed-creator-adaeze`).
+3. **Responsive 3-Column Escrow & Settlement Layout (`TalentDashboard.tsx`):**
+   - Transformed the Escrow Protection & Settlement Guarantee card from 3 vertically stacked full-width boxes into a responsive 3-column horizontal grid (`grid grid-cols-1 md:grid-cols-3 gap-3`).
+   - Each pillar (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`) is presented as a clean card with an emerald icon container, status pill, and concise guarantee microcopy, reducing vertical height by >400px.
+4. **Information Hierarchy & Sidebar Deduplication (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+   - Shortened tab label `My Application & Pitch` to `My Application` with status badge to prevent horizontal tab overflow on smaller desktop viewports.
+   - Pruned sidebar redundancy in Performer View: suppressed pre-application capacity stats (`Applicant Capacity 8/10 filled · 2 spots remaining`) once an application has been submitted, keeping the performer focused on their pitch and contract state.
+   - Replaced redundant "Monologg Escrow Protection" sidebar card in Client View with a concise 1-line trust pill (`100% Escrow Protected · 24/7 Casting Concierge`).
+   - Simplified on-site project notice microcopy: only displayed when physical attendance is required, with clear instruction on 4-digit check-in code.
+5. **Withdrawal Safety 2-Step Confirmation (`TalentDashboard.tsx`):**
+   - Added `confirmingWithdraw` local state and 2-step confirmation dialog with explicit warning ("Withdraw your pitch? You can't re-apply to this project.") before triggering `handleWithdrawApplication`, preventing accidental pitch deletion.
+6. **Automated Test & Type Validation:**
+   - `npm run typecheck`: 0 errors across packages/types, apps/web, apps/api.
+   - `@monologg/web`: 25/25 test files passed (132/132 tests).
+   - Monorepo Total: **712 / 712 tests passing cleanly**.
 
 ---
 

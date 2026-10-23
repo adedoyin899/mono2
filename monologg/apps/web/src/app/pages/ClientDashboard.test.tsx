@@ -192,13 +192,18 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     }, { timeout: 3000 });
   });
 
-  it("view profile & reels opens performer storefront modal with casting CTAs", async () => {
+  it("view profile & reels opens performer storefront modal with casting CTAs and launches profile in separate tab", async () => {
+    const openMock = vi.fn();
+    window.open = openMock;
     await renderProjectsTab();
     fireEvent.click(screen.getAllByText("View Project →")[0]!);
     await screen.findByText("Adaeze Obi");
 
     const viewProfileBtns = screen.getAllByRole("button", { name: /view profile & reels/i });
     fireEvent.click(viewProfileBtns[0]!);
+
+    // Confirms profile launched in separate tab
+    expect(openMock).toHaveBeenCalledWith(expect.stringContaining("adaeze-obi"), "_blank");
 
     // Storefront modal mounts
     expect(screen.getByText("Open Public Storefront")).toBeInTheDocument();

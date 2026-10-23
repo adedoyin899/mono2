@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
+**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 125: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication (Session 166)
+
+Delivered FAANG-grade UX optimizations across Client casting pipeline and Performer project detail views:
+- **Separate-Tab Talent Profile Discovery:** Configured `viewTalentProfile` in `ClientDashboard.tsx` to launch the performer's public storefront profile in a new browser tab (`window.open('/{slug}?role=client', '_blank')`), while keeping the audition proposal modal active in the main window for immediate casting actions.
+- **Direct Reel Showcase Tab Trigger:** Added "Open in new tab ↗" shortcut to the Featured Audio / Video Reel player header and wired reel preview card clicks to open the talent's profile in a separate tab.
+- **Resilient Handle Resolution:** Enhanced mock handle lookup in `api-client.ts` to normalize incoming IDs, strip `seed-creator-` prefixes, match alphanumeric slugs, and match case-insensitive name fragments, preventing 404s.
+- **Horizontal 3-Column Escrow Grid:** Transformed the 3 escrow pillars on Performer project details from large vertical stacked boxes into a responsive 3-column horizontal grid (`grid grid-cols-1 md:grid-cols-3 gap-3`), cutting over 400px of scrolling while preserving trust assurances.
+- **Deduplicated Sidebar Telemetry:** Suppressed pre-application capacity stats (`Applicant Capacity 8/10 filled`) in the performer sidebar once a pitch has been submitted, and replaced the bulky client sidebar escrow box with a concise 1-line trust pill.
+- **Defensive Application Withdrawal:** Added a 2-step confirmation dialog with explicit warning before pitch withdrawal to prevent accidental data loss.
+- **Verification:** Updated `ClientDashboard.test.tsx` with `window.open` test spy; 0 type errors; 712/712 unit and integration tests passing monorepo-wide.
 
 ### Step 124: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry (Session 165)
 

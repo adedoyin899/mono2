@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
+**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 113. Performer Profile Separate-Tab Discovery Deficit & Accidental Application Withdrawal Vulnerability
+- **Severity:** Low / Usability & Defensive UX Defect
+- **What happened:**
+  1. In the client casting pipeline, clicking "View Profile & Reels" or listening to audition reels only displayed a compact modal without launching the performer's complete portfolio in a dedicated browser tab.
+  2. Public storefront handle resolution in mock mode was brittle (`t.id === handle || t.name.toLowerCase().replace(/\s+/g, "-") === handle.toLowerCase()`), risking 404s when navigating with seed IDs like `seed-creator-adaeze` vs slug `/adaeze-obi`.
+  3. In `TalentDashboard`, clicking "Withdraw Application" immediately triggered deletion of the applicant's pitch with zero confirmation prompt, presenting a risk of accidental pitch loss.
+  4. The Escrow Protection card rendered 3 massive vertically stacked boxes, and pre-application applicant capacity ("8/10 filled") remained visible in the sidebar even after applying.
+- **Root Cause:**
+  - Missing `window.open` invocation on profile review triggers; strict exact-match handle lookup in `api-client.ts`; absence of local confirmation state on destructive withdrawal action; unpruned sidebar metrics.
+- **Fix:**
+  - Wired `viewTalentProfile` and reel preview click handlers to trigger `window.open('/{slug}?role=client', '_blank')` while maintaining in-modal audition proposal review and casting buttons.
+  - Enhanced `api-client.ts` to normalize handles by stripping `seed-creator-` prefixes and matching alphanumeric slugs and name fragments.
+  - Added a defensive 2-step confirmation dialog ("Withdraw your pitch? You can't re-apply to this project.") with `Keep it` and `Withdraw` buttons.
+  - Transformed the 3 escrow pillars into a responsive 3-column horizontal grid, and suppressed applicant capacity metrics once an application has been submitted.
 
 ### 112. Project Detail Fake Deliverables Bloat, Infinite Vertical Scrolling & Mental Model Asymmetry
 - **Severity:** Medium / UX Hierarchy & Information Redundancy Defect

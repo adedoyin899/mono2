@@ -490,6 +490,7 @@ export function TalentDashboard() {
 
   const navigate = useNavigate();
   const [projectDetailTab, setProjectDetailTab] = useState<"overview" | "requirements" | "sides" | "escrow" | "application">("overview");
+  const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
 
   // Availability Check-in state
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
@@ -3702,7 +3703,7 @@ export function TalentDashboard() {
                         ? [
                             {
                               id: "application",
-                              label: "My Application & Pitch",
+                              label: "My Application",
                               icon: Sparkles,
                               badge: APPLICATION_STATUS_LABEL[selectedProject.myApplication.status],
                             },
@@ -4098,7 +4099,7 @@ export function TalentDashboard() {
                             </p>
                           </div>
 
-                          {/* Escrow Guarantee 3-Pillar Security Architecture (Vertical Layout) */}
+                          {/* Escrow Guarantee 3-Pillar Security Architecture (Horizontal 3-Column FAANG Layout) */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
@@ -4118,74 +4119,74 @@ export function TalentDashboard() {
                               </span>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               {/* Pillar 1: Locked Upfront */}
                               <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
                                 style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                               >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
-                                  <Shield className="w-4 h-4" />
-                                </div>
-                                <div className="space-y-1 min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                <div className="space-y-2">
+                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+                                    <Shield className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
                                       1. Locked Upfront
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
                                       100% Funded
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                    100% of the compensation is held securely with Paystack before you confirm your booking or record.
-                                  </p>
                                 </div>
+                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  100% of compensation is held in escrow before you confirm your booking or record.
+                                </p>
                               </div>
 
                               {/* Pillar 2: 48h Auto-Release */}
                               <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
                                 style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                               >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
-                                  <Clock className="w-4 h-4" />
-                                </div>
-                                <div className="space-y-1 min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                <div className="space-y-2">
+                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+                                    <Clock className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
                                       2. 48h Auto-Release
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
                                       Guaranteed Window
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                    Client has a 48-hour inspection window. Funds automatically release if no revisions are requested.
-                                  </p>
                                 </div>
+                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  Client has 48 hours to review files. Funds release automatically if no revisions are requested.
+                                </p>
                               </div>
 
                               {/* Pillar 3: Direct Payout */}
                               <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
+                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
                                 style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
                               >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
-                                  <CheckCircle2 className="w-4 h-4" />
-                                </div>
-                                <div className="space-y-1 min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                <div className="space-y-2">
+                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
                                       3. Direct Payout
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
                                       Instant Disbursement
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                    Net earnings are disbursed directly into your designated local bank account with zero chargeback risk.
-                                  </p>
                                 </div>
+                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  Net earnings are disbursed straight into your designated local bank account with zero chargeback risk.
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -4419,7 +4420,7 @@ export function TalentDashboard() {
                         {/* Budget & 3-line fee breakdown */}
                         <div>
                           <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                            Project compensation
+                            Your earnings
                           </div>
                           {(() => {
                             const numBudget = Number(selectedProject.budget?.replace(/\D/g, "")) || 0;
@@ -4442,39 +4443,39 @@ export function TalentDashboard() {
                               </div>
                             );
                           })()}
-                          <div className="flex items-center gap-1.5 mt-2.5 text-xs font-body font-medium text-emerald-600 dark:text-emerald-400">
-                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                            <span>100% Escrow Funded · Direct bank payout</span>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setProjectDetailTab("escrow")}
+                            className="flex items-center gap-1.5 mt-2.5 text-xs font-body font-medium text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                          >
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
+                            <span>Held in escrow · Paid to your bank on approval</span>
+                          </button>
                         </div>
 
-                        {/* Applicant spots */}
-                        <div
-                          className="p-4 rounded-2xl border space-y-2.5"
-                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                        >
-                          <div className="flex items-center justify-between text-xs font-body">
-                            <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>Applicant Capacity</span>
-                            <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>
-                              {selectedProject.applicantCount} / {selectedProject.applicantCap || 10} filled
-                            </span>
+                        {/* Applicant spots — only relevant before you apply */}
+                        {!selectedProject.myApplication && selectedProject.applicationsOpen && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs font-body">
+                              <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>Applicants</span>
+                              <span className="font-semibold font-mono" style={{ color: "var(--color-text-primary)" }}>
+                                {selectedProject.applicantCount} / {selectedProject.applicantCap || 10}
+                              </span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all"
+                                style={{
+                                  width: `${Math.min(100, (selectedProject.applicantCount / (selectedProject.applicantCap || 10)) * 100)}%`,
+                                  background: "var(--color-accent)",
+                                }}
+                              />
+                            </div>
+                            <div className="text-[11px] font-body font-medium text-amber-600 dark:text-amber-400">
+                              {Math.max(0, (selectedProject.applicantCap || 10) - selectedProject.applicantCount)} spots left
+                            </div>
                           </div>
-                          <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{
-                                width: `${Math.min(100, (selectedProject.applicantCount / (selectedProject.applicantCap || 10)) * 100)}%`,
-                                background: selectedProject.applicationsOpen ? "var(--color-accent)" : "var(--color-text-tertiary)",
-                              }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                            <span>Audition window active</span>
-                            <span className="font-medium text-amber-600 dark:text-amber-400">
-                              {Math.max(0, (selectedProject.applicantCap || 10) - selectedProject.applicantCount)} spots remaining
-                            </span>
-                          </div>
-                        </div>
+                        )}
 
                         {/* Action Center */}
                         {applyError && (
@@ -4486,7 +4487,7 @@ export function TalentDashboard() {
                           </div>
                         )}
 
-                        {/* State 1: Already Applied — Unchoked & Clean */}
+                        {/* State 1: Already Applied — single status-aware card */}
                         {selectedProject.myApplication ? (
                           <div
                             className="p-4 sm:p-5 rounded-2xl border space-y-3.5"
@@ -4503,7 +4504,7 @@ export function TalentDashboard() {
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                Application Status
+                                Your application
                               </span>
                               <Badge
                                 tone={
@@ -4521,10 +4522,14 @@ export function TalentDashboard() {
 
                             <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                               {selectedProject.myApplication.status === "SELECTED"
-                                ? `You were hired by ${selectedProject.clientName}! Escrow is funded.`
+                                ? `You're hired. ${selectedProject.clientName} has funded escrow — kick off in the Order Room.`
                                 : selectedProject.myApplication.status === "SHORTLISTED"
-                                ? `You are on the shortlist! Casting is reviewing final reels.`
-                                : `Submitted to ${selectedProject.clientName}. Tap below to view your full pitch & status.`}
+                                ? `You're on the shortlist. ${selectedProject.clientName} is making a final decision.`
+                                : selectedProject.myApplication.status === "REJECTED"
+                                ? `${selectedProject.clientName} went with another performer this time.`
+                                : selectedProject.myApplication.status === "WITHDRAWN"
+                                ? "You withdrew this application."
+                                : `Sent to ${selectedProject.clientName}. We'll notify you as soon as they decide.`}
                             </p>
 
                             {selectedProject.myApplication.status === "SELECTED" ? (
@@ -4537,22 +4542,57 @@ export function TalentDashboard() {
                               >
                                 Open Order Room <ChevronRight className="w-4 h-4" />
                               </Button>
+                            ) : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN" ? (
+                              <Button
+                                variant="secondary"
+                                className="w-full h-10 text-xs font-semibold"
+                                onClick={() => setSelectedProject(null)}
+                              >
+                                Browse open projects
+                              </Button>
+                            ) : confirmingWithdraw ? (
+                              <div className="space-y-2 pt-1">
+                                <p className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  Withdraw your pitch? You can't re-apply to this project.
+                                </p>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="secondary"
+                                    className="flex-1 h-9 text-xs"
+                                    onClick={() => setConfirmingWithdraw(false)}
+                                  >
+                                    Keep it
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    className="flex-1 h-9 text-xs text-rose-500 border-rose-500/30 hover:bg-rose-500/10"
+                                    onClick={() => {
+                                      handleWithdrawApplication(selectedProject.myApplication!.id);
+                                      setConfirmingWithdraw(false);
+                                    }}
+                                  >
+                                    Withdraw
+                                  </Button>
+                                </div>
+                              </div>
                             ) : (
-                              <div className="flex flex-col gap-2">
-                                <Button
-                                  variant="outline-pill"
-                                  className="w-full h-10 text-xs font-semibold border border-[var(--color-border-default)]"
-                                  onClick={() => setProjectDetailTab("application")}
-                                >
-                                  View Full Pitch &amp; Status →
-                                </Button>
+                              <div className="flex flex-col gap-1.5">
+                                {projectDetailTab !== "application" && (
+                                  <Button
+                                    variant="secondary"
+                                    className="w-full h-10 text-xs font-semibold"
+                                    onClick={() => setProjectDetailTab("application")}
+                                  >
+                                    View my pitch
+                                  </Button>
+                                )}
                                 <button
                                   type="button"
-                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
-                                  className="text-center text-xs font-body hover:underline py-1 transition-colors"
+                                  onClick={() => setConfirmingWithdraw(true)}
+                                  className="text-center text-xs font-body hover:underline hover:text-rose-500 py-1 transition-colors cursor-pointer"
                                   style={{ color: "var(--color-text-tertiary)" }}
                                 >
-                                  Withdraw Application
+                                  Withdraw application
                                 </button>
                               </div>
                             )}
@@ -4567,7 +4607,7 @@ export function TalentDashboard() {
                               color: "var(--color-text-secondary)",
                             }}
                           >
-                            Applications closed — this project has reached its maximum applicant cap.
+                            This project is no longer accepting applications.
                           </div>
                         ) : !isProfileComplete ? (
                           /* State 3: Incomplete Profile */
@@ -4614,28 +4654,16 @@ export function TalentDashboard() {
                         ) : (
                           /* State 4: Ready to Pitch */
                           <div className="space-y-3">
-                            {/* Onsite vs Online Information Banner */}
-                            <div
-                              className={`p-3.5 rounded-xl border flex items-start gap-2.5 ${
-                                isProjectOnline(selectedProject)
-                                  ? "bg-sky-500/10 border-sky-500/30 text-sky-800 dark:text-sky-200"
-                                  : "bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-100"
-                              }`}
-                            >
-                              {isProjectOnline(selectedProject) ? (
-                                <Globe className="w-4 h-4 shrink-0 mt-0.5 text-sky-500" />
-                              ) : (
+                            {/* On-site requirement (online gigs need no extra explanation) */}
+                            {!isProjectOnline(selectedProject) && (
+                              <div className="p-3.5 rounded-xl border flex items-start gap-2.5 bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-100">
                                 <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
-                              )}
-                              <div className="text-xs font-body leading-relaxed">
-                                <span className="font-bold">
-                                  {isProjectOnline(selectedProject) ? "Online Project:" : "On-site Project:"}
-                                </span>{" "}
-                                {isProjectOnline(selectedProject)
-                                  ? "This gig is 100% remote. All performances and audition materials are submitted digitally through Monologg."
-                                  : `This gig requires physical on-site presence at ${selectedProject.location || "the client's venue in Lagos"}. On-site payouts require entering the client's 4-digit check-in code upon physical arrival.`}
+                                <div className="text-xs font-body leading-relaxed">
+                                  <span className="font-bold">In-person.</span>{" "}
+                                  You'll need to be at {selectedProject.location || "the client's venue"} and enter the client's 4-digit check-in code on arrival to unlock payout.
+                                </div>
                               </div>
-                            </div>
+                            )}
 
                             <div>
                               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 font-body" style={{ color: "var(--color-text-secondary)" }}>

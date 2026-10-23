@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–164 + Session 165 FAANG UX/UI Flow Harmonization.
+**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–165 + Session 166 FAANG Discovery & Escrow Grid.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -254,6 +254,19 @@ Key token groups:
   - **Dedicated Project Scope & Production Format Card:** Introduced clean structured cards featuring gig format (`Online / Remote (Digital Deliverables)` vs `On-site / In-person Session`), location, production timeline, and upfront Paystack escrow backing.
   - **Contract Immutability:** Inline editing triggers are strictly locked to `draft` status, preserving escrow trust and contract terms on active, hired, or completed orders.
   - **Synchronized Draft Stepper:** Replaced passive indicators with 4 interactive stepper tiles (`Overview`, `Roles`, `Audition Sides`, `Materials`) that directly toggle and highlight the active editing tab.
+- **Separate-Tab Performer Profile Discovery & Audition Modal Architecture (`ClientDashboard.tsx` — Session 166):**
+  - **Dual-Surface Review Model:** Clicking `View Profile & Reels` or clicking the featured audio/video reel launches the performer's full public storefront profile in a new browser tab (`window.open('/{slug}?role=client', '_blank')`), giving the client an unconstrained portfolio view.
+  - Concurrently, the audition proposal modal remains mounted in the primary window so the client can immediately review the specific pitch text, quote, and take casting actions (`Hire`, `Interview`, `Decline`) without losing context.
+  - Added an explicit "Open in new tab ↗" header shortcut on the reel player to make this capability immediately discoverable.
+- **Horizontal 3-Column Escrow Protection Grid (`TalentDashboard.tsx` — Session 166):**
+  - Redesigned the 3 Paystack escrow pillars (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`) from large vertical blocks into a 3-column responsive grid (`grid grid-cols-1 md:grid-cols-3 gap-3`).
+  - Emerald icon badges, status chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`), and concise microcopy provide instant trust reassurance while reducing vertical height by >400px.
+- **Context-Adaptive Sidebar Telemetry & Defensive Confirmation (`TalentDashboard.tsx`, `ClientDashboard.tsx` — Session 166):**
+  - Suppressed pre-application capacity stats (`Applicant Capacity 8/10 filled`) in the performer sidebar once a pitch has been submitted, preventing obsolete metrics from cluttering the contract overview.
+  - Added a defensive 2-step confirmation dialog with explicit warning for pitch withdrawal to prevent accidental data deletion.
+  - Replaced the bulky, duplicate client sidebar escrow box with a clean 1-line trust pill (`100% Escrow Protected · 24/7 Casting Concierge`).
+
+
 
 
 

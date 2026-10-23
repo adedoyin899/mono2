@@ -1,11 +1,34 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–164 + Session 165 FAANG UX/UI Flow Harmonization.
+**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–165 + Session 166 FAANG Discovery & Escrow Grid.
 
 ---
 
 ## ✅ Done
+
+### Session 166 — Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication
+- [x] **Separate-Tab Talent Profile Discovery (`ClientDashboard.tsx`, `ClientDashboard.test.tsx`)**:
+  - `viewTalentProfile` triggers `window.open('/{slug}?role=client', '_blank')` to launch the talent's storefront in a new tab for deep inspection.
+  - Keeps in-modal audition proposal and fast casting controls active in the primary client window.
+  - Updated applicant card action CTA with `ExternalLink` icon (`View Profile & Reels ↗`).
+  - Added "Open in new tab ↗" shortcut to the Featured Audio / Video Reel header and wired reel preview clicks to open the profile in a new tab.
+  - Added unit test assertion in `ClientDashboard.test.tsx` verifying separate-tab window launch.
+- [x] **Resilient Public Storefront Handle Resolution (`api-client.ts`)**:
+  - Normalized mock handle lookup to strip `seed-creator-` prefixes, match alphanumeric slugs, and match case-insensitive name fragments.
+- [x] **Responsive 3-Column Escrow Layout (`TalentDashboard.tsx`)**:
+  - Converted the Escrow Protection & Settlement Guarantee card from 3 vertically stacked boxes into a clean 3-column horizontal grid (`grid grid-cols-1 md:grid-cols-3 gap-3`).
+  - Slashes over 400px of scrolling while maintaining all 3 trust pillars (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`).
+- [x] **Information Hierarchy & Sidebar Deduplication (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+  - Shortened tab label `My Application & Pitch` to `My Application` with status badge to prevent tab bar overflow.
+  - Suppressed pre-application capacity stats (`Applicant Capacity 8/10 filled`) in performer sidebar once application is submitted.
+  - Condensed client sidebar escrow box into an elegant 1-line trust pill (`100% Escrow Protected · 24/7 Casting Concierge`).
+  - Streamlined on-site gig instructions to only show check-in code guidance when physical attendance is required.
+- [x] **Application Withdrawal 2-Step Safety Confirmation (`TalentDashboard.tsx`)**:
+  - Replaced immediate unconfirmed withdrawal action with a safe 2-step confirmation dialog to prevent accidental pitch deletion.
+- [x] **Test & Quality Validation**:
+  - Verified `npm run typecheck`: 0 errors.
+  - Verified full test suite: 25/25 web test files (132/132 tests passing), 56/56 api test files (580/580 tests passing) — **712/712 total tests passing**.
 
 ### Session 165 — FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry
 - [x] **Quick Demo Links Restored (`AuthFlow.tsx`, `auth-preview.html`)**:

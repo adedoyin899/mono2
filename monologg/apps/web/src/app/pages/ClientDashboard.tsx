@@ -754,6 +754,16 @@ export function ClientDashboard() {
         reviews: 18,
       });
     }
+
+    // Open performer storefront profile in separate tab for in-depth inspection
+    const slug = (creator.name || creator.id).toLowerCase().replace(/\s+/g, "-");
+    try {
+      if (typeof window !== "undefined" && typeof window.open === "function") {
+        window.open(`/${slug}?role=client`, "_blank");
+      }
+    } catch {
+      // test environment or popup blocker safeguard
+    }
   };
 
   const refreshApplicants = () => {
@@ -2387,10 +2397,10 @@ export function ClientDashboard() {
                                               <button
                                                 type="button"
                                                 onClick={() => viewTalentProfile(app.creator, app)}
-                                                className="text-xs font-semibold font-body hover:underline flex items-center gap-1 text-[var(--color-accent)] whitespace-nowrap cursor-pointer"
+                                                className="text-xs font-semibold font-body hover:underline flex items-center gap-1.5 text-[var(--color-accent)] whitespace-nowrap cursor-pointer"
                                               >
                                                 <span>View Profile &amp; Reels</span>
-                                                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                                               </button>
 
                                               <div className="flex items-center gap-2">
@@ -3488,17 +3498,9 @@ export function ClientDashboard() {
                             </div>
 
                             {/* Escrow Guarantee Footer Note */}
-                            <div
-                              className="p-3.5 rounded-2xl border text-xs font-body leading-relaxed space-y-1"
-                              style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                            >
-                              <div className="flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400">
-                                <Lock className="w-3.5 h-3.5" />
-                                <span>Monologg Escrow Protection</span>
-                              </div>
-                              <p className="text-[11px] leading-normal" style={{ color: "var(--color-text-tertiary)" }}>
-                                Funds are held securely in Nigerian banking escrow until you approve final deliverables. 24/7 Casting Concierge support available.
-                              </p>
+                            <div className="flex items-center justify-center gap-1.5 text-xs font-body text-emerald-600 dark:text-emerald-400 py-1">
+                              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                              <span className="text-[11px] font-medium">100% Escrow Protected · 24/7 Casting Concierge</span>
                             </div>
                           </div>
                         </div>
@@ -5409,9 +5411,8 @@ export function ClientDashboard() {
                             variant="secondary"
                             className="h-9 px-3.5 text-xs font-semibold gap-1.5 whitespace-nowrap rounded-xl shadow-xs hover:border-[var(--color-accent)] transition-all"
                             onClick={() => {
-                              setSelectedTalent(null);
-                              setSelectedApplicantForProfile(null);
-                              window.open(`/${selectedTalent.id}?role=client`, "_blank");
+                              const slug = (selectedTalent.name || selectedTalent.id).toLowerCase().replace(/\s+/g, "-");
+                              window.open(`/${slug}?role=client`, "_blank");
                             }}
                           >
                             <span>Open Public Storefront</span>
@@ -5483,13 +5484,29 @@ export function ClientDashboard() {
                           <label className="text-xs font-bold uppercase tracking-wider font-body text-[var(--color-text-tertiary)]">
                             Featured Audio / Video Reel
                           </label>
-                          <span className="text-[11px] font-mono font-medium text-emerald-500 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Broadcast Master
-                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const slug = (selectedTalent.name || selectedTalent.id).toLowerCase().replace(/\s+/g, "-");
+                              window.open(`/${slug}?role=client`, "_blank");
+                            }}
+                            className="text-[11px] font-semibold text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>Open in new tab</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </button>
                         </div>
                         <div
-                          onClick={() => setIsPlayingReel(!isPlayingReel)}
+                          onClick={() => {
+                            setIsPlayingReel(!isPlayingReel);
+                            const slug = (selectedTalent.name || selectedTalent.id).toLowerCase().replace(/\s+/g, "-");
+                            try {
+                              if (typeof window !== "undefined" && typeof window.open === "function") {
+                                window.open(`/${slug}?role=client`, "_blank");
+                              }
+                            } catch {}
+                          }}
                           className="relative rounded-2xl overflow-hidden cursor-pointer group border border-purple-500/25 bg-gradient-to-br from-[#0B0616] via-[#140B28] to-[#07030E] text-white p-4 shadow-xl select-none transition-all hover:border-purple-500/50"
                         >
                           {/* Studio Ambient Glow */}
