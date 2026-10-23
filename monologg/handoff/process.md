@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
+**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 122: Auth Flow Viewport Height Lock & Light/Dark Copy Polish (Session 163)
+
+Refined the split-screen authentication flow to lock viewport dimensions and enhance theme contrast:
+- **Copy Contrast & Colors:** Explicitly set light and dark copy colors across both panels. Set showcase subtitle to `#475569` in light mode and `rgba(255, 255, 255, 0.70)` in dark mode; headline to `#09090b` in light mode and `#FFFFFF` in dark mode.
+- **Dark Mode Backdrop Masking:** Modulated ambient sky backdrop (`auth-backdrop.png`) to `opacity-15 mix-blend-overlay` in dark mode, preventing the light clouds from washing out dark backgrounds and preserving high contrast for white text.
+- **Fixed & Static 100vh Height:** Locked container to `h-screen h-[100dvh] max-h-screen overflow-hidden` to eliminate body-level scrolling.
+- **Pruned Unnecessary Elements:** Removed redundant bottom footer (`© 2026 Monologg Privacy Terms`), top `< Back` buttons on Register and Login views, and obsolete quick-demo rows.
 
 ### Step 121: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase (Session 162)
 

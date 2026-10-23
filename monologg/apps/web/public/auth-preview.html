@@ -122,7 +122,8 @@
     /* ── Full-Bleed 100vw / 100vh Layout (Covers 16-Inch Screens Gracefully) ── */
     .fullbleed-viewport {
       width: 100vw;
-      min-height: calc(100vh - 45px); /* minus controller */
+      height: calc(100vh - 45px); /* fixed static height */
+      max-height: calc(100vh - 45px);
       display: grid;
       grid-template-columns: 1fr 1.25fr;
       position: relative;
@@ -133,14 +134,16 @@
     /* ── Left Pane: Clean Auth Form (Centered with generous breathing room) ── */
     .auth-left-pane {
       background: #FFFFFF;
-      padding: 48px clamp(32px, 5vw, 96px);
+      padding: 32px clamp(32px, 5vw, 96px);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       position: relative;
       z-index: 10;
-      min-height: 100%;
+      height: 100%;
+      max-height: 100%;
+      overflow-y: auto;
     }
 
     .form-wrapper {
@@ -567,15 +570,6 @@
           <span>Escrow Protected &bull; Paystack Verified</span>
         </div>
       </div>
-
-      <!-- Clean Footer -->
-      <footer class="auth-footer">
-        <span>&copy; 2026 Monologg</span>
-        <div class="auth-footer-links">
-          <a href="#privacy">Privacy</a>
-          <a href="#terms">Terms</a>
-        </div>
-      </footer>
     </section>
 
     <!-- ── Right Pane: Full-Bleed Atmospheric Stage (Cropped ~200px Down) ── -->

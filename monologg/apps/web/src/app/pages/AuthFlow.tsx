@@ -245,22 +245,22 @@ export function AuthFlow() {
 
   return (
     <div
-      className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_1.25fr] relative overflow-hidden`}
+      className={`${role === "client" ? "role-client" : "role-talent"} h-screen h-[100dvh] max-h-screen w-full flex flex-col lg:grid lg:grid-cols-[1fr_1.25fr] relative overflow-hidden`}
       style={s.canvas}
     >
       <WebGLHeroCanvas opacityMultiplier={0.03} />
 
       {/* ── Left panel: Clean Frictionless Auth Form ── */}
-      <div className="flex-1 flex flex-col justify-between px-6 sm:px-12 lg:px-14 xl:px-18 py-6 lg:py-10 bg-[var(--color-bg-surface)] min-h-screen relative z-10">
+      <div className="flex-1 flex flex-col justify-between px-6 sm:px-12 lg:px-14 xl:px-18 py-6 lg:py-8 bg-[var(--color-bg-surface)] h-full max-h-screen overflow-y-auto relative z-10">
         {/* Top bar inside left form */}
-        <div className="w-full max-w-[400px] mx-auto flex items-center justify-between mb-6">
+        <div className="w-full max-w-[400px] mx-auto flex items-center justify-between mb-4 shrink-0">
           <Link to="/" aria-label="Monologg">
             <Logo className="h-5 w-auto" style={s.primary} />
           </Link>
           <button
             onClick={toggle}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className="w-10 h-10 rounded-full flex items-center justify-center border transition-colors active:scale-[0.97]"
+            className="w-9 h-9 rounded-full flex items-center justify-center border transition-colors active:scale-[0.97]"
             style={{ borderColor: "var(--color-hairline)", background: "var(--color-bg-surface)", color: "var(--color-text-secondary)" }}
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -268,13 +268,13 @@ export function AuthFlow() {
         </div>
 
         {/* Center Form Container */}
-        <div className="w-full max-w-[400px] mx-auto my-auto py-4">
+        <div className="w-full max-w-[400px] mx-auto my-auto py-2">
           {/* Single Unified Role Switcher */}
-          <div className="flex p-1 mb-7 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] w-full">
+          <div className="flex p-1 mb-6 rounded-full bg-[var(--color-bg-surface-2)] border border-[var(--color-hairline)] w-full">
             <button
               type="button"
               onClick={() => setRole("talent")}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-full transition-all ${
+              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
                 role === "talent"
                   ? "bg-[#F13030] text-white shadow-sm"
                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -285,7 +285,7 @@ export function AuthFlow() {
             <button
               type="button"
               onClick={() => setRole("client")}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-full transition-all ${
+              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${
                 role === "client"
                   ? "bg-[#7B00FE] text-white shadow-sm"
                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -306,10 +306,10 @@ export function AuthFlow() {
                 exit={{ opacity: 0, y: -16 }}
                 className="flex flex-col"
               >
-                <h1 className="font-display text-[30px] sm:text-[34px] font-bold leading-[1.1] tracking-[-0.025em] mb-2 text-[var(--color-text-primary)]">
+                <h1 className="font-display text-[28px] sm:text-[32px] font-bold leading-[1.15] tracking-tight mb-2 text-[var(--color-text-primary)]">
                   Welcome to Monologg
                 </h1>
-                <p className="text-sm font-body mb-7 text-[var(--color-text-secondary)] leading-relaxed">
+                <p className="text-sm font-body mb-6 text-[var(--color-text-secondary)] leading-relaxed">
                   Sign in or create a free {role === "talent" ? "Performer" : "Client"} account to continue.
                 </p>
                 <div className="flex flex-col gap-3">
@@ -328,49 +328,6 @@ export function AuthFlow() {
                     Sign In
                   </Button>
                 </div>
-
-                {/* Clean demo row */}
-                <div className="mt-8 pt-5 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
-                  <span className="font-body">Explore demo preview:</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-talent",
-                          email: "emeka@example.com",
-                          name: "Emeka Johnson",
-                          userType: "TALENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/dashboard");
-                      }}
-                      className="px-3 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#F13030]/40 hover:bg-[#F13030]/10 hover:text-[#F13030] transition-colors"
-                    >
-                      Performer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-client",
-                          email: "sarah@filmcraft.com",
-                          name: "Sarah Jenkins",
-                          userType: "CLIENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/client");
-                      }}
-                      className="px-3 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#7B00FE]/40 hover:bg-[#7B00FE]/10 hover:text-[#7B00FE] transition-colors"
-                    >
-                      Client
-                    </button>
-                  </div>
-                </div>
               </motion.div>
             )}
 
@@ -383,17 +340,7 @@ export function AuthFlow() {
                 exit={{ opacity: 0, x: -20 }}
                 className="flex flex-col"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setView("splash")}
-                    className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
-                  >
-                    <ChevronLeft className="w-4 h-4" /> Back
-                  </button>
-                </div>
-
-                <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                <h2 className="font-display text-2xl sm:text-[28px] font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
                   Create account
                 </h2>
                 <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
@@ -535,17 +482,7 @@ export function AuthFlow() {
                 exit={{ opacity: 0, x: -20 }}
                 className="flex flex-col"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setView("splash")}
-                    className="flex items-center gap-1 text-xs font-medium font-body text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors -ml-1 p-1 rounded-lg"
-                  >
-                    <ChevronLeft className="w-4 h-4" /> Back
-                  </button>
-                </div>
-
-                <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
+                <h2 className="font-display text-2xl sm:text-[28px] font-bold tracking-tight mb-1 text-[var(--color-text-primary)]">
                   Welcome back
                 </h2>
                 <p className="text-sm font-body mb-5 text-[var(--color-text-secondary)]">
@@ -639,7 +576,7 @@ export function AuthFlow() {
                   </Button>
                 </form>
 
-                <p className="text-sm text-center mt-5 font-body text-[var(--color-text-secondary)]">
+                <p className="text-sm text-center mt-4 font-body text-[var(--color-text-secondary)]">
                   New here?{" "}
                   <button
                     type="button"
@@ -649,49 +586,6 @@ export function AuthFlow() {
                     Create free account
                   </button>
                 </p>
-
-                {/* Clean demo row */}
-                <div className="mt-6 pt-4 border-t border-[var(--color-hairline)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
-                  <span className="font-body">Quick demo:</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-talent",
-                          email: "emeka@example.com",
-                          name: "Emeka Johnson",
-                          userType: "TALENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/dashboard");
-                      }}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#F13030]/40 hover:bg-[#F13030]/10 hover:text-[#F13030] transition-colors"
-                    >
-                      Performer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem("monologg_is_new_user", "false");
-                        appStateSync.setLoggedInUser({
-                          id: "usr-demo-client",
-                          email: "sarah@filmcraft.com",
-                          name: "Sarah Jenkins",
-                          userType: "CLIENT",
-                          authProvider: "EMAIL",
-                          isNewUser: false,
-                        });
-                        navigate("/client");
-                      }}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--color-hairline)] hover:border-[#7B00FE]/40 hover:bg-[#7B00FE]/10 hover:text-[#7B00FE] transition-colors"
-                    >
-                      Client
-                    </button>
-                  </div>
-                </div>
               </motion.div>
             )}
 
@@ -881,19 +775,11 @@ export function AuthFlow() {
           </AnimatePresence>
         </div>
 
-        {/* Bottom minimal footer */}
-        <footer className="w-full max-w-[400px] mx-auto flex items-center justify-between pt-6 border-t border-[var(--color-hairline)] text-xs text-[var(--color-text-tertiary)] mt-auto">
-          <span>&copy; 2026 Monologg</span>
-          <div className="flex gap-4">
-            <Link to="/legal/privacy" className="hover:text-[var(--color-text-primary)] transition-colors">Privacy</Link>
-            <Link to="/legal/terms" className="hover:text-[var(--color-text-primary)] transition-colors">Terms</Link>
-          </div>
-        </footer>
       </div>
 
       {/* ── Right panel: Atmospheric Showcase (Full-Bleed, Casual Flow Copy, Cropped Device) ── */}
       <div 
-        className="hidden lg:flex flex-col justify-between items-center relative overflow-hidden pt-12 xl:pt-16 px-8 min-h-screen"
+        className="hidden lg:flex flex-col justify-between items-center relative overflow-hidden pt-8 xl:pt-12 px-8 h-full max-h-screen"
         style={{
           background: isDark 
             ? "radial-gradient(130% 95% at 50% 8%, #1A1325 0%, #100E17 50%, #0A090D 100%)"
@@ -901,7 +787,9 @@ export function AuthFlow() {
         }}
       >
         <div 
-          className="absolute inset-0 pointer-events-none opacity-85"
+          className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+            isDark ? "opacity-15 mix-blend-overlay" : "opacity-90"
+          }`}
           style={{
             backgroundImage: "url('/auth-backdrop.png')",
             backgroundSize: "cover",
@@ -910,11 +798,21 @@ export function AuthFlow() {
         />
 
         {/* Casual Flow Editorial Copy */}
-        <div className="relative z-10 text-center max-w-[520px] mb-6">
-          <div className="text-base lg:text-lg font-medium text-slate-600 dark:text-zinc-400 mb-1 tracking-tight font-body">
+        <div className="relative z-10 text-center max-w-[520px] mb-4">
+          <div 
+            className="text-base lg:text-lg font-medium mb-1 tracking-tight font-body transition-colors"
+            style={{
+              color: isDark ? "rgba(255, 255, 255, 0.70)" : "#475569"
+            }}
+          >
             {role === "talent" ? "lets help you" : "Lets help you"}
           </div>
-          <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight font-display">
+          <h2 
+            className="text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight leading-tight font-display transition-colors"
+            style={{
+              color: isDark ? "#FFFFFF" : "#09090b"
+            }}
+          >
             {role === "talent" ? "Find gigs, finish your project" : "Find performers, Finish your project"}
           </h2>
         </div>
@@ -924,7 +822,7 @@ export function AuthFlow() {
           <img
             src={role === "talent" ? "/auth-performer-device.png" : "/auth-client-device.png"}
             alt={role === "talent" ? "Monologg Performer App" : "Monologg Client App"}
-            className="w-[340px] xl:w-[400px] max-w-[420px] h-auto object-contain block select-none pointer-events-none transition-all duration-300 translate-y-[200px]"
+            className="w-[330px] xl:w-[380px] max-w-[420px] h-auto object-contain block select-none pointer-events-none transition-all duration-300 translate-y-[200px]"
             style={{ aspectRatio: "489 / 1024" }}
           />
         </div>

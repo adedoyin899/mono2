@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–161 + Session 162 Full-Bleed 16-Inch Auth Redesign.
+**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–162 + Session 163 100vh Auth Polish.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -121,11 +121,13 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
 
 ## 4. Auth flow reality (detail)
 
-`src/app/pages/AuthFlow.tsx` implements four in-page views (`splash`, `register`, `login`, `forgot`) plus Supabase OTP/Magic Link handlers as local component state, not real routes. As of Session 162, the interface is implemented as a full-bleed 16-inch responsive split-screen layout inspired by the Wandar aesthetic:
-- **Left Authentication Canvas (`1fr` column):** Frictionless white/dark canvas containing the minimal top bar (`Logo` + theme toggle), segmented Performer/Client pill switcher, Google OAuth button, unified pill inputs (`rounded-full h-12`), native brand buttons (`#F13030` for Performer, `#7B00FE` for Client), and footer links to `/legal/privacy` and `/legal/terms`.
+`src/app/pages/AuthFlow.tsx` implements four in-page views (`splash`, `register`, `login`, `forgot`) plus Supabase OTP/Magic Link handlers as local component state, not real routes. As of Session 162 and refined in Session 163, the interface is implemented as a fixed, static 100vh split-screen layout (`h-screen h-[100dvh] max-h-screen overflow-hidden`) inspired by the Wandar aesthetic:
+- **Left Authentication Canvas (`1fr` column):** Frictionless white/dark canvas containing the minimal top bar (`Logo` + theme toggle), segmented Performer/Client pill switcher, Google OAuth button, unified pill inputs (`rounded-full h-11`/`h-12`), native brand buttons (`#F13030` for Performer, `#7B00FE` for Client), and direct in-form Terms/Privacy acceptance. Pruned redundant bottom footer, `< Back` button, and demo rows for a distraction-free static frame.
 - **Right Atmospheric Showcase (`1.25fr` column):** Full-bleed ambient radial gradient + backdrop overlay (`/auth-backdrop.png`), clean unhighlighted editorial copy:
   - Client POV: `Lets help you` / `Find performers, Finish your project`
   - Performer POV: `lets help you` / `Find gigs, finish your project`
+  - Color contrast: Subtitle `#475569` in light mode, `rgba(255, 255, 255, 0.70)` in dark mode; Headline `#09090b` in light mode, `#FFFFFF` in dark mode.
+  - Backdrop image dynamically uses `opacity-15 mix-blend-overlay` in dark mode so the rich dark cosmic gradient is preserved without washing out dark mode contrast, and `opacity-90` in light mode.
   - Grounded device mockup (`/auth-performer-device.png` and `/auth-client-device.png`), strictly maintaining native `489 / 1024` aspect ratio, positioned `200px` down (`translate-y-[200px]`) for a cropped editorial aesthetic, with zero artificial CSS drop-shadow halos.
 - **Mobile Degradation:** On screens smaller than `lg` (e.g. mobile devices), the right showcase pane is completely hidden (`hidden lg:flex`), allowing the auth pane to expand to 100% width with centered ergonomics.
 

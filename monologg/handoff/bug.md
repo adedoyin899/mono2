@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
+**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 110. Dark Mode Auth Copy Low Contrast & 100vh Viewport Overflow
+- **Severity:** Medium / Visual Contrast & Viewport Scrolling Defect
+- **What happened:**
+  1. In Dark Mode, the ambient sky backdrop image (`auth-backdrop.png`) was displayed with static `opacity-85`, washing out the dark radial background into a bright haze and rendering white editorial headline copy virtually illegible.
+  2. The auth container used `min-h-screen` and accumulated extra vertical height from the bottom footer, redundant top `< Back` buttons, and demo rows, causing the screen to exceed `100vh` and forcing vertical window scrolling.
+- **Root Cause:**
+  - Hardcoded non-theme-aware backdrop opacity and lack of fixed static `100vh` frame constraints (`h-screen max-h-screen overflow-hidden`).
+- **Fix:**
+  - Modulated `auth-backdrop.png` to `opacity-15 mix-blend-overlay` in dark mode and `opacity-90` in light mode, preserving deep background colors and crystal-clear text contrast.
+  - Set subtitle copy to `#475569` in light mode and `rgba(255, 255, 255, 0.70)` in dark mode; headline copy to `#09090b` in light mode and `#FFFFFF` in dark mode.
+  - Locked container and split panes to `h-screen h-[100dvh] max-h-screen overflow-hidden`.
+  - Pruned unnecessary bottom footer, redundant top `< Back` buttons, and obsolete demo rows.
+- **Resolution:** Validated across light and dark modes, all 25 test suites (132/132 tests) passing cleanly, production build green.
 
 ### 109. Device Squashing, Artificial CSS Shadow Halos & Inconsistent Input Radii in Auth Redesign
 - **Severity:** Medium / Visual Fidelity & Layout Distortion

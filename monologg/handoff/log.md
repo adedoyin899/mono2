@@ -1,11 +1,34 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
+**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 163 (2026-10-23) — Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning
+
+**Goal:** Refine the split-screen authentication experience (`AuthFlow.tsx` and `auth-preview.html`) to enforce a fixed, static 100vh viewport height without outer scrolling, fix copy contrast in both light and dark modes, and prune non-essential layout elements (footer, `< Back` button, demo rows):
+1. **Light & Dark Mode Copy Color & Contrast Enhancement:**
+   - **Showcase Editorial Copy:**
+     - Subtitle (`Lets help you` / `lets help you`): explicit `#475569` (`text-slate-600`) in light mode, `rgba(255, 255, 255, 0.70)` (`text-zinc-300`) in dark mode.
+     - Headline (`Find performers, Finish your project` / `Find gigs, finish your project`): deep obsidian `#09090b` (`text-slate-950`) in light mode, pure crisp `#FFFFFF` in dark mode.
+   - **Dark Mode Ambient Backdrop Fix:** Fixed a critical visual defect where `auth-backdrop.png` (a light-colored clouds image) had a static `opacity-85` across both themes, washing out the dark radial gradient in dark mode and rendering white text invisible. Dynamically modulated backdrop to `opacity-15 mix-blend-overlay` in dark mode while keeping `opacity-90` in light mode, allowing the deep cosmic gradient to anchor the right pane.
+2. **Fixed & Static 100vh Viewport Height:**
+   - Locked root container to `h-screen h-[100dvh] max-h-screen w-full overflow-hidden`, preventing window-level scrolling and body bounce.
+   - Set left form canvas and right showcase pane to `h-full max-h-screen overflow-hidden` (with inner vertical overflow safety on small screens).
+3. **Pruned Unnecessary Elements:**
+   - Removed bottom footer (`© 2026 Monologg Privacy Terms`) which previously occupied vertical height and forced page overflow. Terms and Privacy Policy remain fully linked within the registration agreement checkbox.
+   - Removed redundant top `< Back` buttons on Register and Login views, letting users switch cleanly between views via the standard bottom action links ("Already have an account? Sign in" and "New here? Create free account").
+   - Removed obsolete quick-demo rows from splash and login forms for an uncluttered, distraction-free authentication experience.
+
+**Verification:**
+- `npm run typecheck`: 0 errors across all 3 workspace projects (`packages/types`, `apps/api`, `apps/web`).
+- `npm --prefix apps/web test`: 25/25 test files passed (132/132 tests passing cleanly).
+- Production build: `npm --prefix apps/web run build` completed cleanly in 2.59s.
 
 ---
 

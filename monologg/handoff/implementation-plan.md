@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-22 (Session 162: Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–161 + Session 162 Full-Bleed 16-Inch Auth Redesign.
+**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–162 + Session 163 100vh Auth Polish.
 
 ---
 
 ## ✅ Done
+
+### Session 163 — Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning
+- [x] **Light & Dark Mode Copy Color & Contrast Enhancement**:
+  - Showcase Subtitle: Explicit `#475569` in light mode, `rgba(255, 255, 255, 0.70)` in dark mode.
+  - Showcase Headline: Deep obsidian `#09090b` in light mode, pure crisp `#FFFFFF` in dark mode.
+  - Backdrop Clouds: Dynamically modulated to `opacity-15 mix-blend-overlay` in dark mode (preventing washed-out background) and `opacity-90` in light mode.
+- [x] **Fixed & Static 100vh Viewport Height**:
+  - Container locked to `h-screen h-[100dvh] max-h-screen w-full overflow-hidden`.
+  - Both split panes locked to `h-full max-h-screen overflow-hidden` with zero window scrolling.
+- [x] **Pruned Non-Essential Elements**:
+  - Removed bottom footer (`© 2026 Monologg Privacy Terms`) to save 60px+ vertical height.
+  - Removed top `< Back` buttons on Register and Login views, utilizing standard switch links.
+  - Removed redundant quick demo rows from splash and login forms.
+- [x] **Automated Test Validation**:
+  - Verified full test suite: 25/25 files (132/132 tests passing cleanly).
+  - Verified typecheck: 0 errors across all 3 workspace projects.
+  - Verified production build: completed in 2.59s with 0 errors.
 
 ### Session 162 — Full-Bleed 16-Inch Responsive Auth Redesign with Cropped Editorial Device Showcase
 - [x] **High-Resolution Device Mockup Integration**:
