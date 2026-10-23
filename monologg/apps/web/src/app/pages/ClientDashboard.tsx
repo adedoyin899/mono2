@@ -22,7 +22,7 @@ import {
   CheckCircle2, PlayCircle, Eye, EyeOff, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
   Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe,
-  Zap, Pause, Volume2, List, LayoutGrid
+  Zap, Pause, Volume2, List, LayoutGrid, Video
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -50,6 +50,21 @@ function minutesOf(time: string): number {
 }
 function addMinutes(time: string, minutes: number): string {
   return toTimeStr(minutesOf(time) + minutes);
+}
+
+export function isProjectOnline(project?: { location?: string; description?: string; name?: string; projectName?: string } | null): boolean {
+  if (!project) return false;
+  const loc = (project.location || "").toLowerCase();
+  const desc = (project.description || "").toLowerCase();
+  const name = ((project as any).name || project.projectName || "").toLowerCase();
+  return (
+    loc.includes("online") ||
+    loc.includes("remote") ||
+    desc.includes("online") ||
+    desc.includes("remote") ||
+    name.includes("voiceover") ||
+    name.includes("voice-over")
+  );
 }
 
 export function getSplinePath(points: { x: number; y: number }[]): string {
@@ -420,6 +435,7 @@ export function ClientDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<ClientNotificationItem[]>(() => appStateSync.getNotifications());
   const [selectedProjectDetail, setSelectedProjectDetail] = useState<ClientProject | null>(null);
+  const [clientProjectTab, setClientProjectTab] = useState<"applicants" | "overview" | "requirements" | "sides" | "escrow">("applicants");
   const [isEditingProjectInfo, setIsEditingProjectInfo] = useState(false);
   const [editingSection, setEditingSection] = useState<"overview" | "roles" | "sides" | "deliverables" | "assets" | null>(null);
   const [editedProjectName, setEditedProjectName] = useState("");
@@ -701,6 +717,8 @@ export function ClientDashboard() {
     setIsEditingProjectInfo(false);
     setEditingSynopsisInline(false);
     setEditingSection(null);
+    const initialTab = (project.status === "draft" || projectStateOverrides[project.id] === "draft") ? "overview" : "applicants";
+    setClientProjectTab(initialTab);
     setApplicantsProject(project);
     setApplicantActionError(null);
     setLoadingApplicants(true);
@@ -1730,6 +1748,8 @@ export function ClientDashboard() {
                   const effectiveScript = projectDetails.scriptSample;
                   const effectiveDeliverables = projectDetails.deliverables;
                   const effectiveAssets = projectDetails.assets;
+                  const effectiveLocation = projectDetails.location;
+                  const effectiveTimeline = projectDetails.timeline;
                   const applicantCapNumber = selectedProjectDetail.applicantCap || 10;
                   const applicantCountNumber = currentStatus === "draft" ? 0 : (applicants.length || selectedProjectDetail.applicants || 0);
                   const capPercentage = currentStatus === "draft" ? 0 : currentStatus === "in_progress" || currentStatus === "review" || currentStatus === "completed" ? 100 : Math.min(100, Math.round((applicantCountNumber / applicantCapNumber) * 100));
@@ -1914,15 +1934,20 @@ export function ClientDashboard() {
                             </span>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1.5 px-3 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit whitespace-nowrap shrink-0"
-                            style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>{editingSection === "overview" ? "Close Section Editor" : "Edit Brief Info"}</span>
-                          </button>
+                          {currentStatus === "draft" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setClientProjectTab("overview");
+                                setEditingSection(editingSection === "overview" ? null : "overview");
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1.5 px-3 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit whitespace-nowrap shrink-0 cursor-pointer"
+                              style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>{editingSection === "overview" ? "Close Section Editor" : "Edit Draft Info"}</span>
+                            </button>
+                          )}
                         </div>
 
                         <h1
@@ -2027,26 +2052,24 @@ export function ClientDashboard() {
                             </div>
                           </div>
 
-                          {/* 5 Stepper Step Tiles */}
-                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                          {/* 4 Stepper Step Tiles */}
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             {[
-                              { id: "overview", num: "01", title: "Overview", desc: "Title & Synopsis", targetId: "section-overview" },
-                              { id: "roles", num: "02", title: "Roles", desc: "Craft Niches", targetId: "section-roles" },
-                              { id: "sides", num: "03", title: "Sides", desc: "Audition Script", targetId: "section-sides" },
-                              { id: "deliverables", num: "04", title: "Milestones", desc: "Deliverables", targetId: "section-deliverables" },
-                              { id: "assets", num: "05", title: "Assets", desc: "Reference Files", targetId: "section-assets" },
+                              { id: "overview", num: "01", title: "Overview", desc: "Title & Synopsis", tab: "overview", section: "overview" },
+                              { id: "roles", num: "02", title: "Roles", desc: "Craft Niches", tab: "requirements", section: "roles" },
+                              { id: "sides", num: "03", title: "Audition Sides", desc: "Audition Script", tab: "sides", section: "sides" },
+                              { id: "assets", num: "04", title: "Materials", desc: "Reference Files", tab: "sides", section: "assets" },
                             ].map((step) => {
-                              const isEditing = editingSection === step.id;
+                              const isEditing = editingSection === step.section && clientProjectTab === step.tab;
                               return (
                                 <button
                                   key={step.id}
                                   type="button"
                                   onClick={() => {
-                                    setEditingSection(isEditing ? null : (step.id as any));
-                                    const el = document.getElementById(step.targetId);
-                                    el?.scrollIntoView({ behavior: "smooth" });
+                                    setClientProjectTab(step.tab as any);
+                                    setEditingSection(isEditing ? null : (step.section as any));
                                   }}
-                                  className={`p-3 rounded-2xl border text-left transition-all ${
+                                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                                     isEditing
                                       ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm"
                                       : "border-[var(--color-hairline)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-bg-elevated)]"
@@ -2076,650 +2099,1011 @@ export function ClientDashboard() {
                         </div>
                       )}
 
+                      {/* Airbnb / Binance / Upwork Segmented Tabs */}
+                      <div
+                        className="flex items-center gap-1 p-1 rounded-xl border overflow-x-auto no-scrollbar shadow-2xs"
+                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
+                      >
+                        {[
+                          {
+                            id: "applicants",
+                            label: "Applicants & Casting",
+                            icon: Users,
+                            badge: currentStatus !== "draft" ? `${applicants.length}` : "Draft",
+                          },
+                          { id: "overview", label: "Overview & Brief", icon: FileText },
+                          { id: "requirements", label: "Roles & Requirements", icon: CheckCircle2 },
+                          { id: "sides", label: "Script & Materials", icon: Layers },
+                          { id: "escrow", label: "Escrow & Protection", icon: ShieldCheck },
+                        ].map((tab) => {
+                          const Icon = tab.icon;
+                          const isActive = clientProjectTab === tab.id;
+                          return (
+                            <button
+                              key={tab.id}
+                              type="button"
+                              onClick={() => setClientProjectTab(tab.id as any)}
+                              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                                isActive
+                                  ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] font-semibold shadow-xs"
+                                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)]/50"
+                              }`}
+                            >
+                              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`} />
+                              <span>{tab.label}</span>
+                              {tab.badge && (
+                                <span
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    tab.id === "applicants" && currentStatus !== "draft" && applicants.length > 0
+                                      ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                                      : "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-hairline)]"
+                                  }`}
+                                >
+                                  {tab.badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
                       {/* Two-Column Grid: Left (8 cols) Information & Applicants, Right (4 cols) Sticky Actions */}
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                         {/* ── Left Column: Information & Applicants ── */}
                         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
 
-                          {/* 1. Creative Brief & Synopsis (Inline Editable) */}
-                          <div
-                            id="section-overview"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Creative Brief &amp; Synopsis
-                                </h2>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
-                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
+                          {/* ── Tab 1: Applicants & Casting Pipeline ── */}
+                          {clientProjectTab === "applicants" && (
+                            <motion.div
+                              key="tab-applicants"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="space-y-6"
+                            >
+                              <div
+                                id="applicant-pipeline-section"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-5"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
                               >
-                                {editingSection === "overview" ? "Done" : "Edit Overview"}
-                              </button>
-                            </div>
-
-                            {editingSection === "overview" ? (
-                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Edit overview &amp; synopsis details
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                   <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Project Title
-                                    </label>
-                                    <Input
-                                      value={editedProjectName}
-                                      onChange={(e) => setEditedProjectName(e.target.value)}
-                                      placeholder="Project Title"
-                                    />
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Applicant Pipeline &amp; Casting {currentStatus !== "draft" ? `(${applicants.length})` : ""}
+                                    </h2>
+                                    <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                      {currentStatus === "draft"
+                                        ? "Casting submissions will appear here once this brief is published to performers."
+                                        : "Review submissions, shortlist favorites, and hire performers with escrow protection."}
+                                    </p>
                                   </div>
-                                  <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Fixed Budget (Escrow)
-                                    </label>
-                                    <Input
-                                      value={editedProjectBudget}
-                                      onChange={(e) => setEditedProjectBudget(e.target.value)}
-                                      placeholder="Budget (e.g. ₦200,000)"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Location / Venue
-                                    </label>
-                                    <Input
-                                      value={editedProjectLocation}
-                                      onChange={(e) => setEditedProjectLocation(e.target.value)}
-                                      placeholder="e.g. Lagos, NG (Hybrid/Remote)"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Project Timeline
-                                    </label>
-                                    <Input
-                                      value={editedProjectTimeline}
-                                      onChange={(e) => setEditedProjectTimeline(e.target.value)}
-                                      placeholder="e.g. 7 Days Delivery"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Creative Brief &amp; Synopsis
-                                  </label>
-                                  <textarea
-                                    value={editedProjectSynopsis}
-                                    onChange={(e) => setEditedProjectSynopsis(e.target.value)}
-                                    rows={4}
-                                    className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
-                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                  />
-                                </div>
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="h-8 text-xs px-3 whitespace-nowrap"
-                                    onClick={() => {
-                                      setSelectedProjectDetail((prev) => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || prev.niche } : null);
-                                      setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || p.niche } : p));
-                                      setProjectOverridesInfo((prev) => ({
-                                        ...prev,
-                                        [selectedProjectDetail.id]: {
-                                          ...(prev[selectedProjectDetail.id] || {}),
-                                          description: editedProjectSynopsis,
-                                          location: editedProjectLocation,
-                                          timeline: editedProjectTimeline,
-                                        },
-                                      }));
-                                      setEditingSection(null);
-                                    }}
-                                  >
-                                    Save Overview
-                                  </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                {effectiveSynopsis}
-                              </p>
-                            )}
-                          </div>
 
-                          {/* 2. Role Requirements (Inline Editable) */}
-                          <div
-                            id="section-roles"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-5"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Role &amp; Craft Requirements
-                                </h2>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setEditingSection(editingSection === "roles" ? null : "roles")}
-                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
-                              >
-                                {editingSection === "roles" ? "Done" : "Edit Requirements"}
-                              </button>
-                            </div>
-
-                            {editingSection === "roles" ? (
-                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Select target craft niches
-                                </div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {["VO_ARTIST", "ACTOR", "COMPERE", "COMEDIAN", "SPEAKER_PASTOR", "CREATOR"].map((nicheOption) => {
-                                    const active = editedRoleNiches.includes(nicheOption);
-                                    return (
-                                      <button
-                                        key={nicheOption}
-                                        type="button"
-                                        onClick={() => {
-                                          setEditedRoleNiches((prev) =>
-                                            active ? prev.filter((n) => n !== nicheOption) : [...prev, nicheOption]
-                                          );
-                                        }}
-                                        className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                                          active
-                                            ? "bg-[#7C3AED] text-white shadow-sm"
-                                            : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)]"
-                                        }`}
-                                        style={{ borderColor: active ? "transparent" : "var(--color-hairline)" }}
-                                      >
-                                        {nicheOption.replace(/_/g, " ")}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                                <div>
-                                  <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Performer Guidelines &amp; Quality Standards
-                                  </label>
-                                  <textarea
-                                    value={editedRoleGuidelines}
-                                    onChange={(e) => setEditedRoleGuidelines(e.target.value)}
-                                    rows={3}
-                                    className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
-                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                    placeholder="Specify acoustic requirements, prior experience, or casting criteria..."
-                                  />
-                                </div>
-
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="h-8 text-xs px-3 whitespace-nowrap"
-                                    onClick={() => {
-                                      setProjectOverridesInfo((prev) => ({
-                                        ...prev,
-                                        [selectedProjectDetail.id]: {
-                                          ...(prev[selectedProjectDetail.id] || {}),
-                                          nicheReq: editedRoleNiches,
-                                          additionalNotes: editedRoleGuidelines,
-                                        },
-                                      }));
-                                      setEditingSection(null);
-                                    }}
-                                  >
-                                    Save Requirements
-                                  </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div>
-                                  <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Target craft niches
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    {projectDetails.nicheReq.map((n) => (
-                                      <Badge key={n} tone="neutral" size="md" className="capitalize">
-                                        {n.replace(/_/g, " ")}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                  <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Performer guidelines &amp; quality standards
-                                  </div>
-                                  <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                                    {projectDetails.additionalNotes}
-                                  </p>
-                                  <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                                    <li>Must have verified profile and demo samples matching requested crafts.</li>
-                                    <li>Access to professional recording acoustics or studio space.</li>
-                                    <li>Prompt communication and adherence to production delivery milestones.</li>
-                                  </ul>
-                                </div>
-                              </>
-                            )}
-                          </div>
-
-                          {/* 3. Audition Sides & Script Excerpt (Inline Editable) */}
-                          <div
-                            id="section-sides"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Audition Sides &amp; Script Excerpt
-                                </h2>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(effectiveScript);
-                                    setCopiedScript(true);
-                                    setTimeout(() => setCopiedScript(false), 2000);
-                                  }}
-                                  className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] whitespace-nowrap"
-                                  style={{
-                                    borderColor: "var(--color-border-default)",
-                                    color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
-                                  }}
-                                >
-                                  {copiedScript ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                      <span className="text-emerald-500 whitespace-nowrap">Copied!</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Copy className="w-3.5 h-3.5 shrink-0" />
-                                      <span className="whitespace-nowrap">Copy Script</span>
-                                    </>
-                                  )}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingSection(editingSection === "sides" ? null : "sides")}
-                                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
-                                >
-                                  {editingSection === "sides" ? "Done" : "Edit Script"}
-                                </button>
-                              </div>
-                            </div>
-
-                            {editingSection === "sides" ? (
-                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Audition copy / sides
-                                </div>
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Performers auditioning will read and record this sides excerpt for their audition pitch:
-                                </p>
-                                <textarea
-                                  value={editedProjectScript}
-                                  onChange={(e) => setEditedProjectScript(e.target.value)}
-                                  rows={4}
-                                  className="w-full p-3.5 rounded-2xl border font-mono text-xs sm:text-sm resize-y outline-none"
-                                  style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                  placeholder="Sides / Script Excerpt..."
-                                />
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="h-8 text-xs px-3 whitespace-nowrap"
-                                    onClick={() => {
-                                      setProjectOverridesInfo((prev) => ({
-                                        ...prev,
-                                        [selectedProjectDetail.id]: {
-                                          ...(prev[selectedProjectDetail.id] || {}),
-                                          scriptSample: editedProjectScript,
-                                        },
-                                      }));
-                                      setEditingSection(null);
-                                    }}
-                                  >
-                                    Save Audition Sides
-                                  </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  This excerpt is presented to auditioning performers for their sample take or pitch video:
-                                </p>
-
-                                <div
-                                  className="p-5 sm:p-6 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)] relative overflow-hidden bg-slate-950 text-slate-100 shadow-inner"
-                                  style={{
-                                    borderColor: "var(--color-hairline)",
-                                  }}
-                                >
-                                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-purple-300/70 mb-3 pb-2 border-b border-white/10 select-none">
-                                    <span>Sides // Script Excerpt</span>
-                                    <span>48kHz Studio Mic Take</span>
-                                  </div>
-                                  {effectiveScript}
-                                </div>
-                              </>
-                            )}
-                          </div>
-
-                          {/* 4. Deliverables & Licensing Milestones (Inline Editable) */}
-                          <div
-                            id="section-deliverables"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Deliverables &amp; Licensing Milestones
-                                </h2>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setEditingSection(editingSection === "deliverables" ? null : "deliverables")}
-                                className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
-                              >
-                                {editingSection === "deliverables" ? "Done" : "Edit Deliverables"}
-                              </button>
-                            </div>
-
-                            {editingSection === "deliverables" ? (
-                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Manage milestone deliverables
-                                </div>
-                                <div className="space-y-2">
-                                  {editedDeliverables.map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-2">
+                                  {currentStatus !== "draft" && (
+                                    <div className="relative w-full sm:w-56">
+                                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
                                       <input
                                         type="text"
-                                        value={item}
-                                        onChange={(e) => {
-                                          const val = e.target.value;
-                                          setEditedDeliverables((prev) => prev.map((d, i) => i === idx ? val : d));
-                                        }}
-                                        className="flex-1 p-2.5 rounded-xl border text-xs font-body outline-none"
+                                        value={applicantSearchQuery}
+                                        onChange={(e) => setApplicantSearchQuery(e.target.value)}
+                                        placeholder="Search applicants..."
+                                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border text-xs font-body outline-none"
+                                        style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* State Specific Spotlight Banner or Inactive Draft Mode */}
+                                {currentStatus === "draft" ? (
+                                  <div className="text-center py-12 px-6 rounded-3xl border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] relative overflow-hidden">
+                                    <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-md bg-[var(--color-accent-soft)] text-[var(--color-accent)] ring-4 ring-purple-500/10">
+                                      <FileText className="w-7 h-7" />
+                                    </div>
+                                    <h3 className="text-base sm:text-lg font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
+                                      Casting Pipeline Inactive
+                                    </h3>
+                                    <p className="text-xs sm:text-sm font-body text-[var(--color-text-secondary)] max-w-md mx-auto mt-1.5 mb-5 leading-relaxed">
+                                      This project brief is saved as a private draft and is not visible in performer discovery. Publish and fund escrow to start receiving audition pitches.
+                                    </p>
+                                    <Button
+                                      className="h-10 px-6 text-xs font-bold gap-2 whitespace-nowrap shadow-md shadow-purple-500/20 mx-auto"
+                                      onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
+                                    >
+                                      <Sparkles className="w-4 h-4 shrink-0" />
+                                      <span>Publish &amp; Fund Escrow</span>
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {currentStatus === "in_progress" && selectedHiredPerformer && (
+                                      <div
+                                        className="p-4 sm:p-5 rounded-2xl border space-y-3"
+                                        style={{ background: "rgba(124, 58, 237, 0.06)", borderColor: "rgba(124, 58, 237, 0.25)" }}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7C3AED]">
+                                            <Sparkles className="w-3.5 h-3.5 shrink-0" /> Hired Performer in Production
+                                          </span>
+                                          <Badge tone="accent" size="sm">Active Contract</Badge>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                                          <div className="flex items-center gap-3">
+                                            <Avatar className="w-10 h-10 text-sm" background="var(--color-accent-glow)" color="var(--color-accent)">
+                                              {selectedHiredPerformer.creator.avatar}
+                                            </Avatar>
+                                            <div>
+                                              <div className="flex items-center gap-1.5 font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
+                                                <span>{selectedHiredPerformer.creator.name}</span>
+                                                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                                              </div>
+                                              <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                                                {selectedHiredPerformer.creator.role} · {selectedHiredPerformer.creator.location}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <Button
+                                            className="h-9 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap"
+                                            onClick={() => navigate("/order/ORD-001?role=client")}
+                                          >
+                                            <span>Open Order Room</span>
+                                            <ChevronRight className="w-4 h-4 ml-0.5 shrink-0" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {currentStatus === "review" && (
+                                      <div
+                                        className="p-4 sm:p-5 rounded-2xl border space-y-2"
+                                        style={{ background: "rgba(245, 158, 11, 0.08)", borderColor: "rgba(245, 158, 11, 0.3)" }}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                            <AlertCircle className="w-4 h-4 shrink-0" /> Deliverables Ready for Inspection
+                                          </span>
+                                          <span className="text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
+                                            ⏱️ 41h : 22m auto-release
+                                          </span>
+                                        </div>
+                                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                          Final broadcast audio master WAV files were uploaded by the performer. Inspect files in the Order Room to release payment.
+                                        </p>
+                                        <Button
+                                          className="h-8 px-3 text-xs font-semibold gap-1.5 mt-1 whitespace-nowrap"
+                                          onClick={() => navigate("/order/ORD-001?role=client")}
+                                        >
+                                          <span>Inspect in Order Room</span>
+                                          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                        </Button>
+                                      </div>
+                                    )}
+
+                                    {currentStatus === "completed" && (
+                                      <div
+                                        className="p-4 sm:p-5 rounded-2xl border space-y-2"
+                                        style={{ background: "rgba(16, 185, 129, 0.08)", borderColor: "rgba(16, 185, 129, 0.3)" }}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                            <CheckCircle2 className="w-4 h-4 shrink-0" /> Collaboration Completed
+                                          </span>
+                                          <span className="text-xs font-semibold text-amber-500">★ 5.0 Rating</span>
+                                        </div>
+                                        <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                                          All milestones approved and escrow of {selectedProjectDetail.budget} disbursed. Order closed successfully.
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {/* Filter Chips Bar */}
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                      {[
+                                        { id: "all", label: `All (${applicants.length})` },
+                                        { id: "shortlisted", label: `Shortlisted (${applicants.filter((a) => a.status === "SHORTLISTED").length})` },
+                                        { id: "selected", label: `Selected (${applicants.filter((a) => a.status === "SELECTED").length})` },
+                                        { id: "applied", label: `Applied (${applicants.filter((a) => a.status === "APPLIED").length})` },
+                                        { id: "rejected", label: `Rejected (${applicants.filter((a) => a.status === "REJECTED").length})` },
+                                      ].map((tab) => (
+                                        <button
+                                          key={tab.id}
+                                          type="button"
+                                          onClick={() => setApplicantFilterTab(tab.id as any)}
+                                          className={`px-3 py-1 rounded-xl text-xs font-semibold font-body whitespace-nowrap transition-all ${
+                                            applicantFilterTab === tab.id
+                                              ? "bg-[#7C3AED] text-white shadow-sm"
+                                              : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]"
+                                          }`}
+                                          style={{
+                                            borderColor: applicantFilterTab === tab.id ? "transparent" : "var(--color-hairline)",
+                                          }}
+                                        >
+                                          {tab.label}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    {/* Applicants Feed */}
+                                    {loadingApplicants ? (
+                                      <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Loading applicants…
+                                      </div>
+                                    ) : filteredApplicants.length === 0 ? (
+                                      <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                        No candidates match the current filter.
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-4">
+                                        {filteredApplicants.map((app) => (
+                                          <div
+                                            key={app.applicationId}
+                                            className="p-4 sm:p-5 rounded-2xl border transition-all"
+                                            style={{
+                                              background: "var(--color-bg-elevated)",
+                                              borderColor: app.status === "SELECTED" ? "rgba(124, 58, 237, 0.4)" : "var(--color-hairline)",
+                                            }}
+                                          >
+                                            <div className="flex items-start justify-between gap-3 mb-2.5">
+                                              <div className="flex items-center gap-3">
+                                                <Avatar className="w-11 h-11 text-sm shrink-0" background="var(--color-accent-glow)" color="var(--color-accent)">
+                                                  {app.creator.avatar}
+                                                </Avatar>
+                                                <div>
+                                                  <div className="flex items-center gap-1.5">
+                                                    <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
+                                                      {app.creator.name}
+                                                    </span>
+                                                    {app.creator.verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                                                  </div>
+                                                  <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                                    {app.creator.role} · {app.creator.location}
+                                                    {app.creator.price && ` · ${app.creator.price}`}
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                              <Badge
+                                                tone={app.status === "SELECTED" ? "success" : app.status === "SHORTLISTED" ? "accent" : app.status === "REJECTED" ? "error" : "neutral"}
+                                                size="sm"
+                                              >
+                                                {APPLICANT_STATUS_LABEL[app.status] ?? app.status}
+                                              </Badge>
+                                            </div>
+
+                                            {app.pitch && (
+                                              <div
+                                                className="text-xs font-body italic my-3 p-3 rounded-xl border leading-relaxed"
+                                                style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
+                                              >
+                                                "{app.pitch}"
+                                              </div>
+                                            )}
+
+                                            {/* Action Bar */}
+                                            <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                              <button
+                                                type="button"
+                                                onClick={() => viewTalentProfile(app.creator, app)}
+                                                className="text-xs font-semibold font-body hover:underline flex items-center gap-1 text-[var(--color-accent)] whitespace-nowrap cursor-pointer"
+                                              >
+                                                <span>View Profile &amp; Reels</span>
+                                                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                              </button>
+
+                                              <div className="flex items-center gap-2">
+                                                {currentStatus === "active" ? (
+                                                  <>
+                                                    {app.status === "APPLIED" && (
+                                                      <Button
+                                                        variant="secondary"
+                                                        className="h-8 px-3 text-xs whitespace-nowrap"
+                                                        onClick={() => handleShortlist(app.applicationId)}
+                                                      >
+                                                        Shortlist
+                                                      </Button>
+                                                    )}
+                                                    {app.status === "REJECTED" ? (
+                                                      <Button
+                                                        variant="secondary"
+                                                        className="h-8 px-3 text-xs whitespace-nowrap"
+                                                        onClick={() => handleShortlist(app.applicationId)}
+                                                      >
+                                                        Move to Shortlist
+                                                      </Button>
+                                                    ) : (
+                                                      app.status !== "SELECTED" && (
+                                                        <Button
+                                                          variant="secondary"
+                                                          className="h-8 px-3 text-xs text-rose-500 border-rose-500/20 hover:bg-rose-500/10 whitespace-nowrap"
+                                                          onClick={() => handleRejectApplicant(app.applicationId)}
+                                                        >
+                                                          Reject
+                                                        </Button>
+                                                      )
+                                                    )}
+                                                    {app.status === "SELECTED" ? (
+                                                      <Button
+                                                        className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
+                                                        onClick={() => navigate("/order/ORD-001?role=client")}
+                                                      >
+                                                        <span>Open Order Room</span>
+                                                        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                      </Button>
+                                                    ) : (
+                                                      <Button
+                                                        className="h-8 px-3 text-xs font-semibold whitespace-nowrap"
+                                                        onClick={() => handleSelectAndHireApplicant(app)}
+                                                      >
+                                                        Select / Hire
+                                                      </Button>
+                                                    )}
+                                                  </>
+                                                ) : (
+                                                  app.status === "SELECTED" ? (
+                                                    <Button
+                                                      className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
+                                                      onClick={() => navigate("/order/ORD-001?role=client")}
+                                                    >
+                                                      <span>Open Order Room</span>
+                                                      <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+                                                    </Button>
+                                                  ) : (
+                                                    <span
+                                                      className="text-xs px-2.5 py-1 rounded-lg font-body"
+                                                      style={{ background: "var(--color-bg-surface)", color: "var(--color-text-tertiary)" }}
+                                                    >
+                                                      Casting Concluded
+                                                    </span>
+                                                  )
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {/* ── Tab 2: Overview & Creative Brief ── */}
+                          {clientProjectTab === "overview" && (
+                            <motion.div
+                              key="tab-overview"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="space-y-6"
+                            >
+                              {/* 1. Creative Brief & Synopsis (Inline Editable for Draft) */}
+                              <div
+                                id="section-overview"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="w-4 h-4 text-[var(--color-accent)]" />
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Creative Brief &amp; Synopsis
+                                    </h2>
+                                  </div>
+                                  {currentStatus === "draft" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
+                                      className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
+                                    >
+                                      {editingSection === "overview" ? "Done" : "Edit Overview"}
+                                    </button>
+                                  )}
+                                </div>
+
+                                {editingSection === "overview" ? (
+                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Edit overview &amp; synopsis details
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                      <div>
+                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                          Project Title
+                                        </label>
+                                        <Input
+                                          value={editedProjectName}
+                                          onChange={(e) => setEditedProjectName(e.target.value)}
+                                          placeholder="Project Title"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                          Fixed Budget (Escrow)
+                                        </label>
+                                        <Input
+                                          value={editedProjectBudget}
+                                          onChange={(e) => setEditedProjectBudget(e.target.value)}
+                                          placeholder="Budget (e.g. ₦200,000)"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                      <div>
+                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                          Location / Venue
+                                        </label>
+                                        <Input
+                                          value={editedProjectLocation}
+                                          onChange={(e) => setEditedProjectLocation(e.target.value)}
+                                          placeholder="e.g. Lagos, NG (Hybrid/Remote)"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                          Project Timeline
+                                        </label>
+                                        <Input
+                                          value={editedProjectTimeline}
+                                          onChange={(e) => setEditedProjectTimeline(e.target.value)}
+                                          placeholder="e.g. 7 Days Delivery"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Creative Brief &amp; Synopsis
+                                      </label>
+                                      <textarea
+                                        value={editedProjectSynopsis}
+                                        onChange={(e) => setEditedProjectSynopsis(e.target.value)}
+                                        rows={4}
+                                        className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
                                         style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                                       />
-                                      <button
-                                        type="button"
-                                        onClick={() => setEditedDeliverables((prev) => prev.filter((_, i) => i !== idx))}
-                                        className="p-2 rounded-xl text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all shrink-0"
-                                        title="Remove deliverable"
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        className="h-8 text-xs px-3 whitespace-nowrap"
+                                        onClick={() => {
+                                          setSelectedProjectDetail((prev) => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || prev.niche } : null);
+                                          setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || p.niche } : p));
+                                          setProjectOverridesInfo((prev) => ({
+                                            ...prev,
+                                            [selectedProjectDetail.id]: {
+                                              ...(prev[selectedProjectDetail.id] || {}),
+                                              description: editedProjectSynopsis,
+                                              location: editedProjectLocation,
+                                              timeline: editedProjectTimeline,
+                                            },
+                                          }));
+                                          setEditingSection(null);
+                                        }}
                                       >
-                                        <X className="w-4 h-4" />
-                                      </button>
+                                        Save Overview
+                                      </Button>
+                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                        Cancel
+                                      </Button>
                                     </div>
-                                  ))}
-                                </div>
-
-                                <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                  <input
-                                    type="text"
-                                    value={newDeliverableInput}
-                                    onChange={(e) => setNewDeliverableInput(e.target.value)}
-                                    placeholder="Add deliverable milestone (e.g. 1x 30s broadcast master WAV)..."
-                                    className="flex-1 p-2.5 rounded-xl border text-xs font-body outline-none"
-                                    style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                  />
-                                  <Button
-                                    size="sm"
-                                    className="h-9 px-3 text-xs whitespace-nowrap"
-                                    onClick={() => {
-                                      if (newDeliverableInput.trim()) {
-                                        setEditedDeliverables((prev) => [...prev, newDeliverableInput.trim()]);
-                                        setNewDeliverableInput("");
-                                      }
-                                    }}
-                                  >
-                                    Add
-                                  </Button>
-                                </div>
-
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="h-8 text-xs px-3 whitespace-nowrap"
-                                    onClick={() => {
-                                      setProjectOverridesInfo((prev) => ({
-                                        ...prev,
-                                        [selectedProjectDetail.id]: {
-                                          ...(prev[selectedProjectDetail.id] || {}),
-                                          deliverables: editedDeliverables,
-                                        },
-                                      }));
-                                      setEditingSection(null);
-                                    }}
-                                  >
-                                    Save Deliverables
-                                  </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="space-y-2.5">
-                                {effectiveDeliverables.map((item, idx) => (
-                                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-sm font-body text-[var(--color-text-secondary)]">
-                                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                                      <Check className="w-3.5 h-3.5" />
-                                    </div>
-                                    <span className="leading-snug">{item}</span>
                                   </div>
-                                ))}
+                                ) : (
+                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                    {effectiveSynopsis}
+                                  </p>
+                                )}
                               </div>
-                            )}
-                          </div>
 
-                          {/* 5. Project Assets & Reference Files (Inline Editable) */}
-                          <div
-                            id="section-assets"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2">
-                                <Folder className="w-4 h-4 text-[var(--color-accent)]" />
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Project Assets &amp; Reference Files
-                                </h2>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-tertiary)" }}>
-                                  {effectiveAssets.length} files attached
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingSection(editingSection === "assets" ? null : "assets")}
-                                  className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap"
-                                >
-                                  {editingSection === "assets" ? "Done" : "Manage Assets"}
-                                </button>
-                              </div>
-                            </div>
-
-                            {editingSection === "assets" ? (
-                              <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  Attached Project Files
+                              {/* Project Scope & Production Format */}
+                              <div
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                                  <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                    Project Format &amp; Production Details
+                                  </h2>
                                 </div>
-                                <div className="space-y-2">
-                                  {editedAssets.map((asset, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-body"
-                                      style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-body">
+                                  <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Project Format</span>
+                                    <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                      {isProjectOnline(selectedProjectDetail) ? (
+                                        <>
+                                          <Video className="w-4 h-4 text-sky-500" />
+                                          <span>Online / Remote (Digital Deliverables)</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <MapPin className="w-4 h-4 text-amber-500" />
+                                          <span>On-site / In-person Session</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Location &amp; Venue</span>
+                                    <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                      <MapPin className="w-4 h-4 text-[var(--color-accent)]" />
+                                      <span>{effectiveLocation || (isProjectOnline(selectedProjectDetail) ? "Remote Recording Session" : "Lagos, Nigeria")}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Production Timeline</span>
+                                    <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                      <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                                      <span>{effectiveTimeline || "Auditions open · Production timeline agreed upon hire"}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                    <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Escrow Settlement</span>
+                                    <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
+                                      <Lock className="w-4 h-4" />
+                                      <span>100% Upfront Paystack Escrow ({selectedProjectDetail.budget})</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {/* ── Tab 3: Roles & Requirements ── */}
+                          {clientProjectTab === "requirements" && (
+                            <motion.div
+                              key="tab-requirements"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="space-y-6"
+                            >
+                              <div
+                                id="section-roles"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-5"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-[var(--color-accent)]" />
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Role &amp; Craft Requirements
+                                    </h2>
+                                  </div>
+                                  {currentStatus === "draft" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingSection(editingSection === "roles" ? null : "roles")}
+                                      className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                     >
-                                      <div className="flex items-center gap-2.5 truncate">
-                                        <FileText className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                                        <span className="font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{asset.name}</span>
-                                        <span className="text-[11px] font-mono text-[var(--color-text-tertiary)]">({asset.type} · {asset.size})</span>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => setEditedAssets((prev) => prev.filter((_, i) => i !== idx))}
-                                        className="text-rose-500 hover:text-rose-600 p-1 shrink-0"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
+                                      {editingSection === "roles" ? "Done" : "Edit Requirements"}
+                                    </button>
+                                  )}
+                                </div>
+
+                                {editingSection === "roles" ? (
+                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Select target craft niches
                                     </div>
-                                  ))}
-                                </div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      {["VO_ARTIST", "ACTOR", "COMPERE", "COMEDIAN", "SPEAKER_PASTOR", "CREATOR"].map((nicheOption) => {
+                                        const active = editedRoleNiches.includes(nicheOption);
+                                        return (
+                                          <button
+                                            key={nicheOption}
+                                            type="button"
+                                            onClick={() => {
+                                              setEditedRoleNiches((prev) =>
+                                                active ? prev.filter((n) => n !== nicheOption) : [...prev, nicheOption]
+                                              );
+                                            }}
+                                            className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                                              active
+                                                ? "bg-[#7C3AED] text-white shadow-sm"
+                                                : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)]"
+                                            }`}
+                                            style={{ borderColor: active ? "transparent" : "var(--color-hairline)" }}
+                                          >
+                                            {nicheOption.replace(/_/g, " ")}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
 
-                                <div className="p-3 rounded-xl border space-y-2.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-                                  <div className="text-[11px] font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Attach New Reference File
-                                  </div>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <input
-                                      type="text"
-                                      value={newAssetName}
-                                      onChange={(e) => setNewAssetName(e.target.value)}
-                                      placeholder="File Name (e.g. Campaign_Moodboard.pdf)"
-                                      className="p-2 rounded-xl border text-xs font-body outline-none"
-                                      style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                    />
-                                    <input
-                                      type="text"
-                                      value={newAssetType}
-                                      onChange={(e) => setNewAssetType(e.target.value)}
-                                      placeholder="File Type (e.g. Style Guide)"
-                                      className="p-2 rounded-xl border text-xs font-body outline-none"
-                                      style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                    />
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    className="h-8 px-3 text-xs whitespace-nowrap"
-                                    onClick={() => {
-                                      if (newAssetName.trim()) {
-                                        setEditedAssets((prev) => [
-                                          ...prev,
-                                          { name: newAssetName.trim(), type: newAssetType.trim() || "Brief Document", size: "1.8 MB" },
-                                        ]);
-                                        setNewAssetName("");
-                                      }
-                                    }}
-                                  >
-                                    Attach File
-                                  </Button>
-                                </div>
+                                    <div>
+                                      <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Performer Guidelines &amp; Quality Standards
+                                      </label>
+                                      <textarea
+                                        value={editedRoleGuidelines}
+                                        onChange={(e) => setEditedRoleGuidelines(e.target.value)}
+                                        rows={3}
+                                        className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
+                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                        placeholder="Specify acoustic requirements, prior experience, or casting criteria..."
+                                      />
+                                    </div>
 
-                                <div className="flex gap-2">
-                                  <Button
-                                    className="h-8 text-xs px-3 whitespace-nowrap"
-                                    onClick={() => {
-                                      setProjectOverridesInfo((prev) => ({
-                                        ...prev,
-                                        [selectedProjectDetail.id]: {
-                                          ...(prev[selectedProjectDetail.id] || {}),
-                                          assets: editedAssets,
-                                        },
-                                      }));
-                                      setEditingSection(null);
-                                    }}
-                                  >
-                                    Save Assets
-                                  </Button>
-                                  <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                    Cancel
-                                  </Button>
-                                </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        className="h-8 text-xs px-3 whitespace-nowrap"
+                                        onClick={() => {
+                                          setProjectOverridesInfo((prev) => ({
+                                            ...prev,
+                                            [selectedProjectDetail.id]: {
+                                              ...(prev[selectedProjectDetail.id] || {}),
+                                              nicheReq: editedRoleNiches,
+                                              additionalNotes: editedRoleGuidelines,
+                                            },
+                                          }));
+                                          setEditingSection(null);
+                                        }}
+                                      >
+                                        Save Requirements
+                                      </Button>
+                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div>
+                                      <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Target craft niches
+                                      </div>
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        {projectDetails.nicheReq.map((n) => (
+                                          <Badge key={n} tone="neutral" size="md" className="capitalize">
+                                            {n.replace(/_/g, " ")}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                      <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Performer guidelines &amp; quality standards
+                                      </div>
+                                      <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                                        {projectDetails.additionalNotes}
+                                      </p>
+                                      <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                                        <li>Must have verified profile and demo samples matching requested crafts.</li>
+                                        <li>Access to professional recording acoustics or studio space.</li>
+                                        <li>Prompt communication and adherence to production delivery milestones.</li>
+                                      </ul>
+                                    </div>
+                                  </>
+                                )}
                               </div>
-                            ) : (
-                              <div className="space-y-2.5">
-                                {effectiveAssets.map((asset, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all group"
-                                    style={{ borderColor: "var(--color-hairline)" }}
-                                  >
-                                    <div className="flex items-center gap-3.5 min-w-0">
-                                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform">
-                                        <FileText className="w-5 h-5" />
-                                      </div>
-                                      <div className="truncate">
-                                        <div className="font-semibold text-xs sm:text-sm truncate text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
-                                          {asset.name}
-                                        </div>
-                                        <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] mt-0.5">
-                                          {asset.type} · {asset.size}
-                                        </div>
-                                      </div>
-                                    </div>
+                            </motion.div>
+                          )}
 
-                                    <div className="flex items-center gap-2 shrink-0">
+                          {/* ── Tab 4: Script & Materials (Sides + Attached Reference Files) ── */}
+                          {clientProjectTab === "sides" && (
+                            <motion.div
+                              key="tab-sides"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="space-y-6"
+                            >
+                              {/* Audition Sides & Script Excerpt */}
+                              <div
+                                id="section-sides"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <Layers className="w-4 h-4 text-[var(--color-accent)]" />
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Audition Sides &amp; Script Excerpt
+                                    </h2>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(effectiveScript);
+                                        setCopiedScript(true);
+                                        setTimeout(() => setCopiedScript(false), 2000);
+                                      }}
+                                      className="h-8 px-3 rounded-xl border text-xs font-semibold font-body flex items-center gap-1.5 transition-all hover:bg-[var(--color-bg-elevated)] whitespace-nowrap cursor-pointer"
+                                      style={{
+                                        borderColor: "var(--color-border-default)",
+                                        color: copiedScript ? "var(--color-success)" : "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      {copiedScript ? (
+                                        <>
+                                          <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                          <span className="text-emerald-500 whitespace-nowrap">Copied!</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Copy className="w-3.5 h-3.5 shrink-0" />
+                                          <span className="whitespace-nowrap">Copy Script</span>
+                                        </>
+                                      )}
+                                    </button>
+                                    {currentStatus === "draft" && (
                                       <button
                                         type="button"
-                                        onClick={() => alert(`Previewing ${asset.name}`)}
-                                        className="px-3 py-1.5 rounded-xl border text-xs font-semibold hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs"
-                                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                                        onClick={() => setEditingSection(editingSection === "sides" ? null : "sides")}
+                                        className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                       >
-                                        Preview
+                                        {editingSection === "sides" ? "Done" : "Edit Script"}
                                       </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => alert(`Downloading ${asset.name} (${asset.size})`)}
-                                        className="p-2 rounded-xl border hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs"
-                                        style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
-                                        title="Download asset"
+                                    )}
+                                  </div>
+                                </div>
+
+                                {editingSection === "sides" ? (
+                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Audition copy / sides
+                                    </div>
+                                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Performers auditioning will read and record this sides excerpt for their audition pitch:
+                                    </p>
+                                    <textarea
+                                      value={editedProjectScript}
+                                      onChange={(e) => setEditedProjectScript(e.target.value)}
+                                      rows={4}
+                                      className="w-full p-3.5 rounded-2xl border font-mono text-xs sm:text-sm resize-y outline-none"
+                                      style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                      placeholder="Sides / Script Excerpt..."
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        className="h-8 text-xs px-3 whitespace-nowrap"
+                                        onClick={() => {
+                                          setProjectOverridesInfo((prev) => ({
+                                            ...prev,
+                                            [selectedProjectDetail.id]: {
+                                              ...(prev[selectedProjectDetail.id] || {}),
+                                              scriptSample: editedProjectScript,
+                                            },
+                                          }));
+                                          setEditingSection(null);
+                                        }}
                                       >
-                                        <Download className="w-4 h-4" />
-                                      </button>
+                                        Save Audition Sides
+                                      </Button>
+                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                        Cancel
+                                      </Button>
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                                ) : (
+                                  <>
+                                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      This excerpt is presented to auditioning performers for their sample take or pitch video:
+                                    </p>
 
-                          {/* 6. Escrow Protection & Settlement Guarantee (Client POV Vertical Layout) */}
-                          <div
-                            className="p-6 sm:p-7 rounded-3xl border space-y-4"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
+                                    <div
+                                      className="p-5 sm:p-6 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)] relative overflow-hidden bg-slate-950 text-slate-100 shadow-inner"
+                                      style={{
+                                        borderColor: "var(--color-hairline)",
+                                      }}
+                                    >
+                                      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-purple-300/70 mb-3 pb-2 border-b border-white/10 select-none">
+                                        <span>Sides // Script Excerpt</span>
+                                        <span>48kHz Studio Mic Take</span>
+                                      </div>
+                                      {effectiveScript}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Project Assets & Reference Files */}
+                              <div
+                                id="section-assets"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <Folder className="w-4 h-4 text-[var(--color-accent)]" />
+                                    <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                      Project Assets &amp; Reference Files
+                                    </h2>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-tertiary)" }}>
+                                      {effectiveAssets.length} files attached
+                                    </span>
+                                    {currentStatus === "draft" && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditingSection(editingSection === "assets" ? null : "assets")}
+                                        className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
+                                      >
+                                        {editingSection === "assets" ? "Done" : "Manage Assets"}
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {editingSection === "assets" ? (
+                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
+                                    <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Attached Project Files
+                                    </div>
+                                    <div className="space-y-2">
+                                      {editedAssets.map((asset, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-body"
+                                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+                                        >
+                                          <div className="flex items-center gap-2.5 truncate">
+                                            <FileText className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                                            <span className="font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{asset.name}</span>
+                                            <span className="text-[11px] font-mono text-[var(--color-text-tertiary)]">({asset.type} · {asset.size})</span>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditedAssets((prev) => prev.filter((_, i) => i !== idx))}
+                                            className="text-rose-500 hover:text-rose-600 p-1 shrink-0 cursor-pointer"
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+
+                                    <div className="p-3 rounded-xl border space-y-2.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+                                      <div className="text-[11px] font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                        Attach New Reference File
+                                      </div>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <input
+                                          type="text"
+                                          value={newAssetName}
+                                          onChange={(e) => setNewAssetName(e.target.value)}
+                                          placeholder="File Name (e.g. Campaign_Moodboard.pdf)"
+                                          className="p-2 rounded-xl border text-xs font-body outline-none"
+                                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                        />
+                                        <input
+                                          type="text"
+                                          value={newAssetType}
+                                          onChange={(e) => setNewAssetType(e.target.value)}
+                                          placeholder="File Type (e.g. Style Guide)"
+                                          className="p-2 rounded-xl border text-xs font-body outline-none"
+                                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                                        />
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        className="h-8 px-3 text-xs whitespace-nowrap"
+                                        onClick={() => {
+                                          if (newAssetName.trim()) {
+                                            setEditedAssets((prev) => [
+                                              ...prev,
+                                              { name: newAssetName.trim(), type: newAssetType.trim() || "Brief Document", size: "1.8 MB" },
+                                            ]);
+                                            setNewAssetName("");
+                                          }
+                                        }}
+                                      >
+                                        Attach File
+                                      </Button>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                      <Button
+                                        className="h-8 text-xs px-3 whitespace-nowrap"
+                                        onClick={() => {
+                                          setProjectOverridesInfo((prev) => ({
+                                            ...prev,
+                                            [selectedProjectDetail.id]: {
+                                              ...(prev[selectedProjectDetail.id] || {}),
+                                              assets: editedAssets,
+                                            },
+                                          }));
+                                          setEditingSection(null);
+                                        }}
+                                      >
+                                        Save Assets
+                                      </Button>
+                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2.5">
+                                    {effectiveAssets.map((asset, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-body bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all group"
+                                        style={{ borderColor: "var(--color-hairline)" }}
+                                      >
+                                        <div className="flex items-center gap-3.5 min-w-0">
+                                          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                                            <FileText className="w-5 h-5" />
+                                          </div>
+                                          <div className="truncate">
+                                            <div className="font-semibold text-xs sm:text-sm truncate text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                                              {asset.name}
+                                            </div>
+                                            <div className="text-[11px] font-mono text-[var(--color-text-tertiary)] mt-0.5">
+                                              {asset.type} · {asset.size}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          <button
+                                            type="button"
+                                            onClick={() => alert(`Previewing ${asset.name}`)}
+                                            className="px-3 py-1.5 rounded-xl border text-xs font-semibold hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs cursor-pointer"
+                                            style={{ borderColor: "var(--color-border-default)", color: "var(--color-text-secondary)" }}
+                                          >
+                                            Preview
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => alert(`Downloading ${asset.name} (${asset.size})`)}
+                                            className="p-2 rounded-xl border hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-accent)] transition-all whitespace-nowrap shadow-2xs cursor-pointer"
+                                            style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
+                                            title="Download asset"
+                                          >
+                                            <Download className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {/* ── Tab 5: Escrow & Protection ── */}
+                          {clientProjectTab === "escrow" && (
+                            <motion.div
+                              key="tab-escrow"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="space-y-6"
+                            >
+                              <div
+                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                style={{
+                                  background: "var(--color-bg-surface)",
+                                  borderColor: "var(--color-border-default)",
+                                }}
+                              >
                             <div className="flex items-center justify-between gap-3 flex-wrap">
                               <div className="flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-emerald-500" />
@@ -2803,316 +3187,9 @@ export function ClientDashboard() {
                               </div>
                             </div>
                           </div>
-
-                          {/* 7. Applicant Pipeline & Casting Management */}
-                          <div
-                            id="applicant-pipeline-section"
-                            className="p-6 sm:p-7 rounded-3xl border space-y-5"
-                            style={{
-                              background: "var(--color-bg-surface)",
-                              borderColor: "var(--color-border-default)",
-                            }}
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                              <div>
-                                <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                  Applicant Pipeline &amp; Casting {currentStatus !== "draft" ? `(${applicants.length})` : ""}
-                                </h2>
-                                <p className="text-xs font-body mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                  {currentStatus === "draft"
-                                    ? "Casting submissions will appear here once this brief is published to performers."
-                                    : "Review submissions, shortlist favorites, and hire performers with escrow protection."}
-                                </p>
-                              </div>
-
-                              {currentStatus !== "draft" && (
-                                <div className="relative w-full sm:w-56">
-                                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
-                                  <input
-                                    type="text"
-                                    value={applicantSearchQuery}
-                                    onChange={(e) => setApplicantSearchQuery(e.target.value)}
-                                    placeholder="Search applicants..."
-                                    className="w-full pl-8 pr-3 py-1.5 rounded-xl border text-xs font-body outline-none"
-                                    style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)", color: "var(--color-text-primary)" }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* State Specific Spotlight Banner or Inactive Draft Mode */}
-                            {currentStatus === "draft" ? (
-                              <div className="text-center py-12 px-6 rounded-3xl border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-elevated)] relative overflow-hidden">
-                                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-md bg-[var(--color-accent-soft)] text-[var(--color-accent)] ring-4 ring-purple-500/10">
-                                  <FileText className="w-7 h-7" />
-                                </div>
-                                <h3 className="text-base sm:text-lg font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
-                                  Casting Pipeline Inactive
-                                </h3>
-                                <p className="text-xs sm:text-sm font-body text-[var(--color-text-secondary)] max-w-md mx-auto mt-1.5 mb-5 leading-relaxed">
-                                  This project brief is saved as a private draft and is not visible in performer discovery. Publish and fund escrow to start receiving audition pitches.
-                                </p>
-                                <Button
-                                  className="h-10 px-6 text-xs font-bold gap-2 whitespace-nowrap shadow-md shadow-purple-500/20 mx-auto"
-                                  onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
-                                >
-                                  <Sparkles className="w-4 h-4 shrink-0" />
-                                  <span>Publish &amp; Fund Escrow</span>
-                                </Button>
-                              </div>
-                            ) : (
-                              <>
-                                {currentStatus === "in_progress" && selectedHiredPerformer && (
-                                  <div
-                                    className="p-4 sm:p-5 rounded-2xl border space-y-3"
-                                    style={{ background: "rgba(124, 58, 237, 0.06)", borderColor: "rgba(124, 58, 237, 0.25)" }}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7C3AED]">
-                                        <Sparkles className="w-3.5 h-3.5 shrink-0" /> Hired Performer in Production
-                                      </span>
-                                      <Badge tone="accent" size="sm">Active Contract</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                                      <div className="flex items-center gap-3">
-                                        <Avatar className="w-10 h-10 text-sm" background="var(--color-accent-glow)" color="var(--color-accent)">
-                                          {selectedHiredPerformer.creator.avatar}
-                                        </Avatar>
-                                        <div>
-                                          <div className="flex items-center gap-1.5 font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-                                            <span>{selectedHiredPerformer.creator.name}</span>
-                                            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                                          </div>
-                                          <div className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
-                                            {selectedHiredPerformer.creator.role} · {selectedHiredPerformer.creator.location}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      <Button
-                                        className="h-9 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap"
-                                        onClick={() => navigate("/order/ORD-001?role=client")}
-                                      >
-                                        <span>Open Order Room</span>
-                                        <ChevronRight className="w-4 h-4 ml-0.5 shrink-0" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {currentStatus === "review" && (
-                                  <div
-                                    className="p-4 sm:p-5 rounded-2xl border space-y-2"
-                                    style={{ background: "rgba(245, 158, 11, 0.08)", borderColor: "rgba(245, 158, 11, 0.3)" }}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                                        <AlertCircle className="w-4 h-4 shrink-0" /> Deliverables Ready for Inspection
-                                      </span>
-                                      <span className="text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
-                                        ⏱️ 41h : 22m auto-release
-                                      </span>
-                                    </div>
-                                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                      Final broadcast audio master WAV files were uploaded by the performer. Inspect files in the Order Room to release payment.
-                                    </p>
-                                    <Button
-                                      className="h-8 px-3 text-xs font-semibold gap-1.5 mt-1 whitespace-nowrap"
-                                      onClick={() => navigate("/order/ORD-001?role=client")}
-                                    >
-                                      <span>Inspect in Order Room</span>
-                                      <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                                    </Button>
-                                  </div>
-                                )}
-
-                                {currentStatus === "completed" && (
-                                  <div
-                                    className="p-4 sm:p-5 rounded-2xl border space-y-2"
-                                    style={{ background: "rgba(16, 185, 129, 0.08)", borderColor: "rgba(16, 185, 129, 0.3)" }}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                                        <CheckCircle2 className="w-4 h-4 shrink-0" /> Collaboration Completed
-                                      </span>
-                                      <span className="text-xs font-semibold text-amber-500">★ 5.0 Rating</span>
-                                    </div>
-                                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                      All milestones approved and escrow of {selectedProjectDetail.budget} disbursed. Order closed successfully.
-                                    </p>
-                                  </div>
-                                )}
-
-                                {/* Filter Chips Bar */}
-                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                                  {[
-                                    { id: "all", label: `All (${applicants.length})` },
-                                    { id: "shortlisted", label: `Shortlisted (${applicants.filter((a) => a.status === "SHORTLISTED").length})` },
-                                    { id: "selected", label: `Selected (${applicants.filter((a) => a.status === "SELECTED").length})` },
-                                    { id: "applied", label: `Applied (${applicants.filter((a) => a.status === "APPLIED").length})` },
-                                    { id: "rejected", label: `Rejected (${applicants.filter((a) => a.status === "REJECTED").length})` },
-                                  ].map((tab) => (
-                                    <button
-                                      key={tab.id}
-                                      type="button"
-                                      onClick={() => setApplicantFilterTab(tab.id as any)}
-                                      className={`px-3 py-1 rounded-xl text-xs font-semibold font-body whitespace-nowrap transition-all ${
-                                        applicantFilterTab === tab.id
-                                          ? "bg-[#7C3AED] text-white shadow-sm"
-                                          : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]"
-                                      }`}
-                                      style={{
-                                        borderColor: applicantFilterTab === tab.id ? "transparent" : "var(--color-hairline)",
-                                      }}
-                                    >
-                                      {tab.label}
-                                    </button>
-                                  ))}
-                                </div>
-
-                                {/* Applicants Feed */}
-                                {loadingApplicants ? (
-                                  <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    Loading applicants…
-                                  </div>
-                                ) : filteredApplicants.length === 0 ? (
-                                  <div className="py-8 text-center text-sm font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                    No candidates match the current filter.
-                                  </div>
-                                ) : (
-                                  <div className="space-y-4">
-                                    {filteredApplicants.map((app) => (
-                                      <div
-                                        key={app.applicationId}
-                                        className="p-4 sm:p-5 rounded-2xl border transition-all"
-                                        style={{
-                                          background: "var(--color-bg-elevated)",
-                                          borderColor: app.status === "SELECTED" ? "rgba(124, 58, 237, 0.4)" : "var(--color-hairline)",
-                                        }}
-                                      >
-                                        <div className="flex items-start justify-between gap-3 mb-2.5">
-                                          <div className="flex items-center gap-3">
-                                            <Avatar className="w-11 h-11 text-sm shrink-0" background="var(--color-accent-glow)" color="var(--color-accent)">
-                                              {app.creator.avatar}
-                                            </Avatar>
-                                            <div>
-                                              <div className="flex items-center gap-1.5">
-                                                <span className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>
-                                                  {app.creator.name}
-                                                </span>
-                                                {app.creator.verified && <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
-                                              </div>
-                                              <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                                {app.creator.role} · {app.creator.location}
-                                                {app.creator.price && ` · ${app.creator.price}`}
-                                              </div>
-                                            </div>
-                                          </div>
-
-                                          <Badge
-                                            tone={app.status === "SELECTED" ? "success" : app.status === "SHORTLISTED" ? "accent" : app.status === "REJECTED" ? "error" : "neutral"}
-                                            size="sm"
-                                          >
-                                            {APPLICANT_STATUS_LABEL[app.status] ?? app.status}
-                                          </Badge>
-                                        </div>
-
-                                        {app.pitch && (
-                                          <div
-                                            className="text-xs font-body italic my-3 p-3 rounded-xl border leading-relaxed"
-                                            style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-secondary)" }}
-                                          >
-                                            "{app.pitch}"
-                                          </div>
-                                        )}
-
-                                        {/* Action Bar */}
-                                        <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                          <button
-                                            type="button"
-                                            onClick={() => viewTalentProfile(app.creator, app)}
-                                            className="text-xs font-semibold font-body hover:underline flex items-center gap-1 text-[var(--color-accent)] whitespace-nowrap"
-                                          >
-                                            <span>View Profile &amp; Reels</span>
-                                            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                                          </button>
-
-                                          <div className="flex items-center gap-2">
-                                            {currentStatus === "active" ? (
-                                              <>
-                                                {app.status === "APPLIED" && (
-                                                  <Button
-                                                    variant="secondary"
-                                                    className="h-8 px-3 text-xs whitespace-nowrap"
-                                                    onClick={() => handleShortlist(app.applicationId)}
-                                                  >
-                                                    Shortlist
-                                                  </Button>
-                                                )}
-                                                {app.status === "REJECTED" ? (
-                                                  <Button
-                                                    variant="secondary"
-                                                    className="h-8 px-3 text-xs whitespace-nowrap"
-                                                    onClick={() => handleShortlist(app.applicationId)}
-                                                  >
-                                                    Move to Shortlist
-                                                  </Button>
-                                                ) : (
-                                                  app.status !== "SELECTED" && (
-                                                    <Button
-                                                      variant="secondary"
-                                                      className="h-8 px-3 text-xs text-rose-500 border-rose-500/20 hover:bg-rose-500/10 whitespace-nowrap"
-                                                      onClick={() => handleRejectApplicant(app.applicationId)}
-                                                    >
-                                                      Reject
-                                                    </Button>
-                                                  )
-                                                )}
-                                                {app.status === "SELECTED" ? (
-                                                  <Button
-                                                    className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
-                                                    onClick={() => navigate("/order/ORD-001?role=client")}
-                                                  >
-                                                    <span>Open Order Room</span>
-                                                    <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                                                  </Button>
-                                                ) : (
-                                                  <Button
-                                                    className="h-8 px-3 text-xs font-semibold whitespace-nowrap"
-                                                    onClick={() => handleSelectAndHireApplicant(app)}
-                                                  >
-                                                    Select / Hire
-                                                  </Button>
-                                                )}
-                                              </>
-                                            ) : (
-                                              app.status === "SELECTED" ? (
-                                                <Button
-                                                  className="h-8 px-3 text-xs font-semibold gap-1 whitespace-nowrap"
-                                                  onClick={() => navigate("/order/ORD-001?role=client")}
-                                                >
-                                                  <span>Open Order Room</span>
-                                                  <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                                                </Button>
-                                              ) : (
-                                                <span
-                                                  className="text-xs px-2.5 py-1 rounded-lg font-body"
-                                                  style={{ background: "var(--color-bg-surface)", color: "var(--color-text-tertiary)" }}
-                                                >
-                                                  Casting Concluded
-                                                </span>
-                                              )
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
+                        </motion.div>
+                      )}
+                    </div>
 
                         {/* ── Right Column: Sticky Compensation, Status & Action Sidebar ── */}
                         <div className="lg:col-span-5 xl:col-span-4">
@@ -3282,6 +3359,7 @@ export function ClientDashboard() {
                                   <Button
                                     className="w-full h-10 text-xs font-semibold gap-1 whitespace-nowrap"
                                     onClick={() => {
+                                      setClientProjectTab("applicants");
                                       const el = document.getElementById("applicant-pipeline-section");
                                       el?.scrollIntoView({ behavior: "smooth" });
                                     }}

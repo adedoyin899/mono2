@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
+**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 165 (2026-10-23) — FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry
+
+**Goal:** Execute an in-depth UX/UI flow review inspired by FAANG design principles: remove redundancy, establish clear visual hierarchy, align project detail cards with real 5-step inputs from `ProjectBrief.tsx`, eliminate fake hardcoded deliverables, and introduce a unified tabbed mental model across both Client and Performer views.
+
+1. **Quick Demo Links Restored (`AuthFlow.tsx`, `auth-preview.html`):**
+   - Restored subtle, high-utility 1-click Performer & Client demo access buttons on both login and register screens to guarantee friction-free testing and review.
+2. **Project Details Harmonization (Performer POV — `TalentDashboard.tsx`):**
+   - Replaced bloated, stacked cards with a responsive 5-tab Segmented Control:
+     - `overview`: Creative Brief & Synopsis + dedicated **Project Scope & Production Details** card (Format [Online/Remote vs On-site], Location, Production Timeline, Escrow Settlement).
+     - `requirements`: Craft Niches & Role Requirements.
+     - `sides`: Audition Sides & Script Excerpt + Attached Project Reference Files (dropping fake deliverables).
+     - `escrow`: 3 Paystack Escrow Protection Pillars (100% Upfront, 48h Inspection Window, Milestone Release Control).
+     - `application`: Elevated "My Application & Pitch" tab showing application status, submission date, pitch text quote, and Order Room access.
+   - Cleaned up the right sidebar: streamlined client verification badge, star rating, and budget summary without duplicate blocks.
+3. **Project Details Harmonization (Client POV — `ClientDashboard.tsx`):**
+   - Replaced 7 stacked vertical cards with a responsive 5-tab Segmented Control matching the performer mental model:
+     - `applicants`: **Applicants & Casting Pipeline** (default tab for active/in-progress projects for immediate casting actions without scrolling).
+     - `overview`: **Creative Brief & Synopsis** (inline editable in draft mode) + dedicated **Project Format & Production Details** card (Format [Online/On-site], Location, Timeline, Upfront Escrow).
+     - `requirements`: **Role & Craft Requirements** (inline editable in draft mode).
+     - `sides`: **Script & Materials** combining Audition Sides and Attached Reference Files (zero fake/mock deliverables).
+     - `escrow`: **Escrow & Protection** detailing Paystack escrow security pillars.
+   - Preserved contract immutability: inline edit triggers strictly locked on active/hired projects to safeguard escrow terms.
+   - Updated Draft Stepper into 4 clickable tiles (`Overview`, `Roles`, `Audition Sides`, `Materials`) switching tabs directly.
+   - Wired sticky right-sidebar Action Center CTAs ("Review Applicants", "Edit Brief Info") to switch active tabs seamlessly.
+4. **Automated Test & Type Validation:**
+   - Updated `ClientDashboard.test.tsx` to test tabbed navigation and real brief fields.
+   - `npm run typecheck`: 0 errors.
+   - Full test suite: 25/25 web test files passed (132/132 tests passing), 56/56 api test files passed (580/580 tests passing) — **712/712 total tests passing**.
+
+**Files Touched:**
+- `monologg/apps/web/public/auth-preview.html`
+- `monologg/apps/web/src/app/pages/AuthFlow.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.test.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
+**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 112. Project Detail Fake Deliverables Bloat, Infinite Vertical Scrolling & Mental Model Asymmetry
+- **Severity:** Medium / UX Hierarchy & Information Redundancy Defect
+- **What happened:**
+  1. Both Client and Performer project detail views featured vertically stacked cards (up to 7 cards deep) resulting in high cognitive fatigue and excessive scrolling to reach essential casting and pitch submission actions.
+  2. The brief views included fake hardcoded deliverables ("2x 30s broadcast WAV master audio files (24-bit/48kHz)...") that were disconnected from the real 5-step brief creation flow in `ProjectBrief.tsx` (where gigs are defined by format, location, timeline, script, and reference assets).
+  3. Editing brief terms was accidentally exposed in client view even for active/hired projects, which could jeopardize escrow integrity.
+- **Root Cause:**
+  - Lack of segmented navigation tabs on project detail views; presence of legacy placeholder deliverable mockups instead of true brief inputs.
+- **Fix:**
+  - Designed symmetric 5-tab Segmented Control across Client (`applicants`, `overview`, `requirements`, `sides`, `escrow`) and Performer (`overview`, `requirements`, `sides`, `escrow`, `application`).
+  - Added dedicated **Project Format & Production Details** card matching real brief inputs (`Online / Remote` vs `On-site`, Location, Timeline, Upfront Escrow).
+  - Completely excised fake deliverable mockups in favor of unified Script & Materials.
+  - Locked brief inline editing strictly to `draft` status.
+  - Elevated Performer's "My Application & Pitch" into a dedicated review tab.
 
 ### 111. Order Room Stacked Card Density & Scalability for 10+ Orders
 - **Severity:** Medium / Usability & Scalability Issue

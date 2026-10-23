@@ -114,34 +114,34 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(screen.getAllByText("Nike Q1 Campaign").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("₦200,000")).toBeInTheDocument();
 
-    // Check Creative Brief & Synopsis
+    // Check Applicant Pipeline & Casting on default active tab
+    expect(screen.getByText(/Applicant Pipeline & Casting/i)).toBeInTheDocument();
+    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
+    expect(screen.getByText("Amara Diallo")).toBeInTheDocument();
+    expect(screen.getByText("Project Action Center")).toBeInTheDocument();
+
+    // Check Overview & Brief tab
+    fireEvent.click(screen.getByRole("button", { name: /overview & brief/i }));
     expect(screen.getByText("Creative Brief & Synopsis")).toBeInTheDocument();
     expect(
       screen.getByText(/Seeking a commanding, resonant voiceover artist/i),
     ).toBeInTheDocument();
+    expect(screen.getByText("Project Format & Production Details")).toBeInTheDocument();
 
-    // Check Role & Craft Requirements
+    // Check Roles & Requirements tab
+    fireEvent.click(screen.getByRole("button", { name: /roles & requirements/i }));
     expect(screen.getByText("Role & Craft Requirements")).toBeInTheDocument();
     expect(screen.getByText("VO ARTIST")).toBeInTheDocument();
 
-    // Check Audition Sides & Script Excerpt
+    // Check Script & Materials tab
+    fireEvent.click(screen.getByRole("button", { name: /script & materials/i }));
     expect(screen.getByText("Audition Sides & Script Excerpt")).toBeInTheDocument();
-
-    // Check Deliverables & Licensing Milestones
-    expect(screen.getByText("Deliverables & Licensing Milestones")).toBeInTheDocument();
-    expect(screen.getByText(/2x 30s broadcast WAV master audio files/i)).toBeInTheDocument();
-
-    // Check Project Assets & Reference Files
     expect(screen.getByText("Project Assets & Reference Files")).toBeInTheDocument();
     expect(screen.getByText("Nike_Q1_Campaign_Creative_Brief.pdf")).toBeInTheDocument();
 
-    // Check Applicant Pipeline & Casting
-    expect(screen.getByText(/Applicant Pipeline & Casting/i)).toBeInTheDocument();
-    expect(screen.getByText("Adaeze Obi")).toBeInTheDocument();
-    expect(screen.getByText("Amara Diallo")).toBeInTheDocument();
-
-    // Check Project Action Center
-    expect(screen.getByText("Project Action Center")).toBeInTheDocument();
+    // Check Escrow & Protection tab
+    fireEvent.click(screen.getByRole("button", { name: /escrow & protection/i }));
+    expect(screen.getByText("Escrow Protection & Settlement Guarantee")).toBeInTheDocument();
   });
 
   it("state switcher preview updates status badges and contextual Action Center CTAs", async () => {
@@ -225,6 +225,7 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
 
     await renderProjectsTab();
     fireEvent.click(screen.getAllByText("View Project →")[0]!);
+    fireEvent.click(screen.getByRole("button", { name: /script & materials/i }));
     await screen.findByText("Audition Sides & Script Excerpt");
 
     const copyBtn = screen.getByRole("button", { name: /copy script/i });
@@ -276,7 +277,8 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(screen.getByText("Craft Niches")).toBeInTheDocument();
     expect(screen.getByText("Audition Script")).toBeInTheDocument();
 
-    // Click "Edit Overview"
+    // Switch to Overview tab to edit
+    fireEvent.click(screen.getByRole("button", { name: /overview & brief/i }));
     const editOverviewBtn = screen.getByRole("button", { name: "Edit Overview" });
     fireEvent.click(editOverviewBtn);
 
@@ -293,20 +295,18 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(screen.queryByText("Edit overview & synopsis details")).not.toBeInTheDocument();
     expect(screen.getAllByText("Updated Nike Master Spot").length).toBeGreaterThanOrEqual(1);
 
-    // Test Deliverables inline edit transformation
-    const editDelivBtn = screen.getByRole("button", { name: "Edit Deliverables" });
-    fireEvent.click(editDelivBtn);
-    expect(screen.getByText("Manage milestone deliverables")).toBeInTheDocument();
+    // Test Audition Sides inline edit transformation via stepper tile
+    const sidesTile = screen.getByRole("button", { name: /audition sides/i });
+    fireEvent.click(sidesTile);
+    expect(screen.getByText("Audition copy / sides")).toBeInTheDocument();
 
-    const addDelivInput = screen.getByPlaceholderText(/Add deliverable milestone/i);
-    fireEvent.change(addDelivInput, { target: { value: "1x Dolby Atmos Spatial Master" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add" }));
-    expect(screen.getByDisplayValue("1x Dolby Atmos Spatial Master")).toBeInTheDocument();
+    const scriptInput = screen.getByDisplayValue(/Sides \/ Script Excerpt/i);
+    fireEvent.change(scriptInput, { target: { value: "Updated Audition Script: 1x Dolby Atmos Take" } });
 
-    // Save Deliverables
-    fireEvent.click(screen.getByRole("button", { name: "Save Deliverables" }));
-    expect(screen.queryByText("Manage milestone deliverables")).not.toBeInTheDocument();
-    expect(screen.getByText("1x Dolby Atmos Spatial Master")).toBeInTheDocument();
+    // Save Audition Sides
+    fireEvent.click(screen.getByRole("button", { name: "Save Audition Sides" }));
+    expect(screen.queryByText("Audition copy / sides")).not.toBeInTheDocument();
+    expect(screen.getByText(/Updated Audition Script: 1x Dolby Atmos Take/i)).toBeInTheDocument();
   });
 });
 

@@ -470,6 +470,53 @@ export function AuthFlow() {
                     Sign in
                   </button>
                 </p>
+
+                {/* Quick Demo Access (Session 165 Restoration) */}
+                <div className="mt-5 pt-3.5 border-t border-[var(--color-hairline)] flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-medium font-body text-[var(--color-text-tertiary)] flex items-center gap-1">
+                    <span>⚡</span> Quick Demo:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-talent",
+                          email: "emeka@example.com",
+                          name: "Emeka Johnson",
+                          userType: "TALENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/dashboard");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F13030]/10 text-[#F13030] hover:bg-[#F13030]/20 transition-all border border-[#F13030]/20 cursor-pointer active:scale-95"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F13030]" />
+                      Performer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-client",
+                          email: "sarah@filmcraft.com",
+                          name: "Sarah Jenkins",
+                          userType: "CLIENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/client");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#7B00FE]/10 text-[#7B00FE] hover:bg-[#7B00FE]/20 transition-all border border-[#7B00FE]/20 cursor-pointer active:scale-95"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#7B00FE]" />
+                      Client
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -586,6 +633,53 @@ export function AuthFlow() {
                     Create free account
                   </button>
                 </p>
+
+                {/* Quick Demo Access (Session 165 Restoration) */}
+                <div className="mt-5 pt-3.5 border-t border-[var(--color-hairline)] flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-medium font-body text-[var(--color-text-tertiary)] flex items-center gap-1">
+                    <span>⚡</span> Quick Demo:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-talent",
+                          email: "emeka@example.com",
+                          name: "Emeka Johnson",
+                          userType: "TALENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/dashboard");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F13030]/10 text-[#F13030] hover:bg-[#F13030]/20 transition-all border border-[#F13030]/20 cursor-pointer active:scale-95"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F13030]" />
+                      Performer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem("monologg_is_new_user", "false");
+                        appStateSync.setLoggedInUser({
+                          id: "usr-demo-client",
+                          email: "sarah@filmcraft.com",
+                          name: "Sarah Jenkins",
+                          userType: "CLIENT",
+                          authProvider: "EMAIL",
+                          isNewUser: false,
+                        });
+                        navigate("/client");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#7B00FE]/10 text-[#7B00FE] hover:bg-[#7B00FE]/20 transition-all border border-[#7B00FE]/20 cursor-pointer active:scale-95"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#7B00FE]" />
+                      Client
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
 

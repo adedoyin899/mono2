@@ -1,11 +1,33 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–163 + Session 164 Orders Scalability.
+**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–164 + Session 165 FAANG UX/UI Flow Harmonization.
 
 ---
 
 ## ✅ Done
+
+### Session 165 — FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry
+- [x] **Quick Demo Links Restored (`AuthFlow.tsx`, `auth-preview.html`)**:
+  - Restored clean 1-click Performer & Client demo access buttons on both login and register screens.
+- [x] **Performer Project Detail Harmonization (`TalentDashboard.tsx`)**:
+  - Replaced stacked cards with 5 segmented tabs (`overview`, `requirements`, `sides`, `escrow`, `application`).
+  - Added dedicated **Project Format & Production Details** card (Format [Online vs On-site], Location, Timeline, Escrow).
+  - Merged Audition Sides and Project Reference Files; dropped fake hardcoded deliverables.
+  - Added spacious, dedicated "My Application & Pitch" review tab for applied projects.
+  - Pruned redundant sidebar blocks to create a clean, sticky client info overview.
+- [x] **Client Project Detail Harmonization (`ClientDashboard.tsx`)**:
+  - Replaced 7 stacked vertical cards with matching 5 segmented tabs (`applicants`, `overview`, `requirements`, `sides`, `escrow`).
+  - `applicants` default for active/in-progress projects for immediate casting actions without scrolling.
+  - Added dedicated **Project Format & Production Details** card matching the performer view.
+  - Merged Audition Sides and Project Assets in Tab 4 (`sides`) with zero fake deliverables.
+  - Preserved contract escrow integrity: locked inline editing to `currentStatus === "draft"`.
+  - Updated Draft Stepper into 4 clickable tiles (`Overview`, `Roles`, `Audition Sides`, `Materials`) switching tabs directly.
+  - Wired Action Center CTAs ("Review Applicants", "Edit Brief Info") to active tab state.
+- [x] **Test & Quality Validation**:
+  - Updated `ClientDashboard.test.tsx` to validate tabbed flow and real brief fields.
+  - Verified `npm run typecheck`: 0 errors.
+  - Verified full test suite: 25/25 web files (132/132 tests), 56/56 api files (580/580 tests) — **712/712 tests passing cleanly**.
 
 ### Session 164 — Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface
 - [x] **Order Room Header Simplification (`OrderRoom.tsx`)**:

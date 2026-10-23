@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
+**Last updated:** 2026-10-23 (Session 165: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,18 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 124: FAANG UX/UI Project Details Redesign & Client/Performer Flow Symmetry (Session 165)
+
+Overhauled project detail views across both Client and Performer portals to eliminate information redundancy, remove fake hardcoded deliverables, and establish a symmetric, FAANG-caliber tabbed hierarchy:
+- **Quick Demo Access Restored:** Added subtle 1-click Performer & Client demo access buttons on both login and register screens in `AuthFlow.tsx` and `auth-preview.html`.
+- **Symmetric 5-Tab Segmented Control:** Replaced up to 7 stacked cards with clean, responsive segmented controls:
+  - *Client:* `Applicants & Casting` (default for active/in-progress projects), `Overview & Brief`, `Roles & Requirements`, `Script & Materials`, `Escrow & Protection`.
+  - *Performer:* `Overview & Brief`, `Roles & Requirements`, `Script & Materials`, `Escrow & Protection`, `My Application & Pitch`.
+- **Aligned with Real 5-Step Inputs:** Added dedicated **Project Format & Production Details** card displaying Gig Format (`Online / Remote` vs `On-site`), Location, Timeline, and Upfront Escrow. Dropped legacy fake deliverables ("2x 30s broadcast WAV master audio files (24-bit/48kHz)...").
+- **Contract Immutability:** Enforced inline edit guards strictly gating brief modifications to `currentStatus === "draft"`.
+- **Synchronized Draft Stepper:** Replaced static stepper indicators with 4 interactive tiles (`Overview`, `Roles`, `Audition Sides`, `Materials`) toggling tabs directly.
+- **Comprehensive Verification:** Updated test suite in `ClientDashboard.test.tsx`; verified 0 type errors; 712/712 total unit and integration tests passing cleanly across the monorepo.
 
 ### Step 123: Order Room Header Streamlining, Card Minimization & Scalable Chat/Inbox Orders (Session 164)
 

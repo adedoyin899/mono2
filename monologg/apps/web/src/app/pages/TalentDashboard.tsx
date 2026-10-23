@@ -21,7 +21,8 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound, Eye, EyeOff,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
-  Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle, Minus, List, LayoutGrid
+  Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle, Minus, List, LayoutGrid,
+  Sparkles, Video, Download, Headphones
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -488,7 +489,7 @@ export function TalentDashboard() {
   }, []);
 
   const navigate = useNavigate();
-  const [projectDetailTab, setProjectDetailTab] = useState<"overview" | "requirements" | "sides" | "escrow">("overview");
+  const [projectDetailTab, setProjectDetailTab] = useState<"overview" | "requirements" | "sides" | "escrow" | "application">("overview");
 
   // Availability Check-in state
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
@@ -3695,8 +3696,18 @@ export function TalentDashboard() {
                     {[
                       { id: "overview", label: "Overview & Brief", icon: FileText },
                       { id: "requirements", label: "Roles & Requirements", icon: Users },
-                      { id: "sides", label: "Audition Sides & Script", icon: Layers },
+                      { id: "sides", label: "Script & Materials", icon: Layers },
                       { id: "escrow", label: "Client & Escrow", icon: ShieldCheck },
+                      ...(selectedProject.myApplication
+                        ? [
+                            {
+                              id: "application",
+                              label: "My Application & Pitch",
+                              icon: Sparkles,
+                              badge: APPLICATION_STATUS_LABEL[selectedProject.myApplication.status],
+                            },
+                          ]
+                        : []),
                     ].map((tab) => {
                       const Icon = tab.icon;
                       const isActive = projectDetailTab === tab.id;
@@ -3711,8 +3722,13 @@ export function TalentDashboard() {
                               : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)]/50"
                           }`}
                         >
-                          <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-tertiary)]"}`} />
+                          <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`} />
                           <span>{tab.label}</span>
+                          {(tab as any).badge && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-accent)] text-white shadow-2xs">
+                              {(tab as any).badge}
+                            </span>
+                          )}
                         </button>
                       );
                     })}
@@ -3723,7 +3739,7 @@ export function TalentDashboard() {
                     {/* Left Column (8 cols): Clean Tab Content */}
                     <div className="lg:col-span-7 xl:col-span-8 space-y-6">
 
-                      {/* Tab 1: Overview & Brief + Deliverables */}
+                      {/* Tab 1: Overview & Brief (Mirrors ProjectBrief.tsx inputs) */}
                       {projectDetailTab === "overview" && (
                         <motion.div
                           key="tab-overview"
@@ -3748,11 +3764,11 @@ export function TalentDashboard() {
                             </div>
                             <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                               {selectedProject.description ||
-                                "Client is seeking professional performers for a high-profile production campaign. Selected performer will work directly with the creative direction team for studio recording, rehearsals, and post-production revisions."}
+                                "Seeking a commanding, resonant voiceover artist for Nike's Q1 regional multimedia campaign celebrating Nigerian grassroots athletics across digital, broadcast, and social channels."}
                             </p>
                           </div>
 
-                          {/* Deliverables & Licensing */}
+                          {/* Project Scope & Production Format */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
@@ -3763,24 +3779,51 @@ export function TalentDashboard() {
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-[var(--color-accent)]" />
                               <h2 className="font-display text-base font-bold" style={{ color: "var(--color-text-primary)" }}>
-                                Deliverables &amp; Licensing
+                                Project Format &amp; Production Details
                               </h2>
                             </div>
 
-                            <div className="space-y-2.5">
-                              {(
-                                selectedProject.deliverables || [
-                                  "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
-                                  "1x 15s social media cutdown variation",
-                                  "Raw vocal tracks and room-tone stems",
-                                  "Full commercial usage rights for digital and broadcast media",
-                                ]
-                              ).map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-2.5 text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                  <span>{item}</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-body">
+                              <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Project Format</span>
+                                <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                  {isProjectOnline(selectedProject) ? (
+                                    <>
+                                      <Video className="w-4 h-4 text-sky-500" />
+                                      <span>Online / Remote (Digital Deliverables)</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <MapPin className="w-4 h-4 text-amber-500" />
+                                      <span>On-site / In-person Session</span>
+                                    </>
+                                  )}
                                 </div>
-                              ))}
+                              </div>
+
+                              <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Location &amp; Venue</span>
+                                <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                  <MapPin className="w-4 h-4 text-[var(--color-accent)]" />
+                                  <span>{selectedProject.location || (isProjectOnline(selectedProject) ? "Remote Recording Session" : "Lagos, Nigeria")}</span>
+                                </div>
+                              </div>
+
+                              <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Production Timeline</span>
+                                <div className="flex items-center gap-2 font-medium" style={{ color: "var(--color-text-primary)" }}>
+                                  <Clock className="w-4 h-4 text-[var(--color-accent)]" />
+                                  <span>{selectedProject.timeline || "Auditions close Oct 24 · Delivery Nov 2026"}</span>
+                                </div>
+                              </div>
+
+                              <div className="p-3.5 rounded-2xl border space-y-1" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <span className="text-[10px] uppercase font-semibold text-[var(--color-text-tertiary)] block">Escrow Settlement</span>
+                                <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
+                                  <Lock className="w-4 h-4" />
+                                  <span>100% Upfront Paystack Escrow</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -3824,14 +3867,14 @@ export function TalentDashboard() {
 
                             <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
                               <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                Performer guidelines &amp; quality standards
+                                Performer guidelines &amp; notes from client
                               </div>
                               <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
                                 {selectedProject.additionalNotes ||
-                                  "Auditions must be recorded in studio acoustics with minimal room reflection. Professional vocal delivery and prompt turnaround are expected."}
+                                  "Audition must be recorded with a professional condenser microphone. No reverb or room acoustics in background tone. Authentic, inspiring, and grounded Nigerian accent / African cadence desired."}
                               </p>
                               <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                                <li>Must have verified profile and demo samples matching requested crafts.</li>
+                                <li>Must have verified performer profile and relevant portfolio demo clips.</li>
                                 <li>Access to professional recording acoustics or studio space.</li>
                                 <li>Prompt communication and adherence to production delivery milestones.</li>
                               </ul>
@@ -3840,7 +3883,7 @@ export function TalentDashboard() {
                         </motion.div>
                       )}
 
-                      {/* Tab 3: Audition Sides & Script Excerpt */}
+                      {/* Tab 3: Script & Materials (Sides + Attached Reference Files) */}
                       {projectDetailTab === "sides" && (
                         <motion.div
                           key="tab-sides"
@@ -3860,7 +3903,7 @@ export function TalentDashboard() {
 
                             return (
                               <div
-                                className="p-6 sm:p-7 rounded-3xl border space-y-4"
+                                className="p-6 sm:p-7 rounded-3xl border space-y-5"
                                 style={{
                                   background: "var(--color-bg-surface)",
                                   borderColor: "var(--color-border-default)",
@@ -3902,7 +3945,7 @@ export function TalentDashboard() {
                                 </div>
 
                                 <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  Use this excerpt for your audition take or pitch video recording:
+                                  Use this script excerpt for your audition take or pitch video recording:
                                 </p>
 
                                 <div
@@ -3915,6 +3958,50 @@ export function TalentDashboard() {
                                   }}
                                 >
                                   {cleanScript}
+                                </div>
+
+                                {/* Attached Files from Project Brief Step 3 */}
+                                <div className="pt-4 border-t space-y-3" style={{ borderColor: "var(--color-hairline)" }}>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      Project Reference Files
+                                    </span>
+                                    <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      3 files attached
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    {[
+                                      { name: "Nike_Q1_Campaign_Creative_Brief.pdf", size: "2.4 MB", type: "PDF Document" },
+                                      { name: "Brand_Audio_Identity_Guidelines.pdf", size: "1.8 MB", type: "Style Guide" },
+                                      { name: "Reference_Tone_Scratch_Track.wav", size: "14.2 MB", type: "Audio Reference" },
+                                    ].map((file, fIdx) => (
+                                      <div
+                                        key={fIdx}
+                                        className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs font-body transition-colors hover:bg-[var(--color-bg-elevated)]"
+                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-[var(--color-accent)] flex items-center justify-center shrink-0">
+                                            <FileText className="w-4 h-4" />
+                                          </div>
+                                          <div className="min-w-0">
+                                            <div className="font-semibold truncate" style={{ color: "var(--color-text-primary)" }}>{file.name}</div>
+                                            <div className="text-[11px]" style={{ color: "var(--color-text-tertiary)" }}>{file.type} · {file.size}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => alert(`Downloading reference file: ${file.name}`)}
+                                          className="p-2 rounded-lg hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors shrink-0"
+                                          title="Download attachment"
+                                        >
+                                          <Download className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
                             );
@@ -4104,6 +4191,219 @@ export function TalentDashboard() {
                           </div>
                         </motion.div>
                       )}
+
+                      {/* Tab 5: My Application & Pitch (Elevated FAANG Treatment) */}
+                      {projectDetailTab === "application" && selectedProject.myApplication && (
+                        <motion.div
+                          key="tab-application"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="space-y-6"
+                        >
+                          <div
+                            className="p-6 sm:p-8 rounded-3xl border space-y-6"
+                            style={{
+                              background: "var(--color-bg-surface)",
+                              borderColor: "var(--color-border-default)",
+                              boxShadow: "var(--shadow-card)",
+                            }}
+                          >
+                            {/* Status Header & Stage Pipeline */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Sparkles className="w-4 h-4 text-[var(--color-accent)]" />
+                                  <span className="text-xs font-semibold uppercase tracking-wider font-body text-[var(--color-accent)]">
+                                    Your Application
+                                  </span>
+                                </div>
+                                <h2 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                                  Audition Pitch to {selectedProject.clientName}
+                                </h2>
+                              </div>
+                              <Badge
+                                tone={
+                                  selectedProject.myApplication.status === "SELECTED"
+                                    ? "success"
+                                    : selectedProject.myApplication.status === "REJECTED" || selectedProject.myApplication.status === "WITHDRAWN"
+                                    ? "error"
+                                    : "accent"
+                                }
+                                size="lg"
+                              >
+                                {APPLICATION_STATUS_LABEL[selectedProject.myApplication.status]}
+                              </Badge>
+                            </div>
+
+                            {/* Visual Application Journey Timeline */}
+                            <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl" style={{ background: "var(--color-bg-elevated)" }}>
+                              <div className="text-center sm:text-left space-y-1">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>1. Submitted</span>
+                                </div>
+                                <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  {(selectedProject.myApplication as any).appliedAt || "Oct 22, 2026"}
+                                </div>
+                              </div>
+
+                              <div className="text-center sm:text-left space-y-1">
+                                <div className={`flex items-center gap-1.5 text-xs font-semibold ${
+                                  selectedProject.myApplication.status === "SELECTED" || selectedProject.myApplication.status === "SHORTLISTED"
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-amber-500"
+                                }`}>
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>2. Client Review</span>
+                                </div>
+                                <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  {selectedProject.myApplication.status === "SELECTED" ? "Accepted" : "In Progress"}
+                                </div>
+                              </div>
+
+                              <div className="text-center sm:text-left space-y-1">
+                                <div className={`flex items-center gap-1.5 text-xs font-semibold ${
+                                  selectedProject.myApplication.status === "SELECTED"
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-zinc-400"
+                                }`}>
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>3. Final Contract</span>
+                                </div>
+                                <div className="text-[11px] font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  {selectedProject.myApplication.status === "SELECTED" ? "Hired & Funded" : "Pending"}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Quoted Pitch Statement */}
+                            <div className="space-y-2">
+                              <div className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                Your Submitted Pitch Note
+                              </div>
+                              <div
+                                className="p-5 sm:p-6 rounded-2xl border font-body text-base leading-relaxed border-l-4 italic"
+                                style={{
+                                  background: "var(--color-bg-elevated)",
+                                  borderColor: "var(--color-hairline)",
+                                  borderLeftColor: "var(--color-accent)",
+                                  color: "var(--color-text-primary)",
+                                }}
+                              >
+                                &ldquo;{selectedProject.myApplication.pitch || "I've voiced three prior Nike regional spots."}&rdquo;
+                              </div>
+                            </div>
+
+                            {/* Performance Reel & Sample Take */}
+                            <div className="space-y-2">
+                              <div className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                Audition Take / Demo Sample
+                              </div>
+                              <div className="p-4 rounded-2xl border flex items-center justify-between gap-4 flex-wrap" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-[var(--color-accent)] flex items-center justify-center shrink-0">
+                                    <Headphones className="w-5 h-5" />
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold text-sm font-body" style={{ color: "var(--color-text-primary)" }}>
+                                      Audition_Take_Master.mp3
+                                    </div>
+                                    <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                      24-bit · 48kHz WAV Export · 3.2 MB
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                  Delivered to Client
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Status Specific Outcome Box & Action Buttons */}
+                            {selectedProject.myApplication.status === "SELECTED" ? (
+                              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-4">
+                                <div className="flex items-start gap-3">
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                  <div>
+                                    <div className="font-display font-bold text-base text-emerald-700 dark:text-emerald-300">
+                                      You have been selected for this project!
+                                    </div>
+                                    <p className="text-sm font-body text-emerald-800 dark:text-emerald-200 mt-1">
+                                      {selectedProject.clientName} has approved your pitch and funded the full escrow deposit. Your Order Room is now active.
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  className="w-full sm:w-auto h-11 px-6 text-sm font-bold gap-2 shadow-sm"
+                                  onClick={() => {
+                                    setSelectedProject(null);
+                                    navigate("/order/ORD-001?role=talent");
+                                  }}
+                                >
+                                  Enter Order Room <ChevronRight className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
+                              <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-4">
+                                <div className="flex items-start gap-3">
+                                  <Star className="w-5 h-5 text-amber-500 fill-amber-400 shrink-0 mt-0.5" />
+                                  <div>
+                                    <div className="font-display font-bold text-base text-amber-800 dark:text-amber-200">
+                                      You are on the client&apos;s shortlist!
+                                    </div>
+                                    <p className="text-sm font-body text-amber-700 dark:text-amber-300 mt-1">
+                                      The casting director has shortlisted your audition and will make the final hire decision before auditions close.
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="secondary"
+                                  className="h-10 px-5 text-xs font-semibold"
+                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
+                                >
+                                  Withdraw Application
+                                </Button>
+                              </div>
+                            ) : selectedProject.myApplication.status === "APPLIED" ? (
+                              <div className="p-5 rounded-2xl border space-y-4" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-start gap-3">
+                                  <Clock className="w-5 h-5 text-[var(--color-accent)] shrink-0 mt-0.5" />
+                                  <div>
+                                    <div className="font-display font-bold text-sm" style={{ color: "var(--color-text-primary)" }}>
+                                      Application under review
+                                    </div>
+                                    <p className="text-xs font-body mt-1 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                      Your pitch is in queue. {selectedProject.clientName} is reviewing applicant reels. You will receive an immediate notification when a decision is made.
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="secondary"
+                                  className="h-10 px-5 text-xs font-semibold"
+                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
+                                >
+                                  Withdraw Application
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="p-5 rounded-2xl border space-y-4" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}>
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  This application is inactive.
+                                </p>
+                                <Button
+                                  variant="secondary"
+                                  className="h-10 px-5 text-xs font-semibold"
+                                  onClick={() => setSelectedProject(null)}
+                                >
+                                  Browse Other Open Projects
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+
                     </div>
 
                     {/* Right Column (4 cols): Sticky Compensation & Action Card */}
@@ -4186,10 +4486,10 @@ export function TalentDashboard() {
                           </div>
                         )}
 
-                        {/* State 1: Already Applied */}
+                        {/* State 1: Already Applied — Unchoked & Clean */}
                         {selectedProject.myApplication ? (
                           <div
-                            className="p-4 rounded-2xl border space-y-3.5"
+                            className="p-4 sm:p-5 rounded-2xl border space-y-3.5"
                             style={{
                               background:
                                 selectedProject.myApplication.status === "SELECTED"
@@ -4219,91 +4519,41 @@ export function TalentDashboard() {
                               </Badge>
                             </div>
 
-                            {selectedProject.myApplication.pitch && (
-                              <div
-                                className="p-3 rounded-xl border text-xs font-body italic"
-                                style={{
-                                  background: "var(--color-bg-surface)",
-                                  borderColor: "var(--color-hairline)",
-                                  color: "var(--color-text-secondary)",
-                                }}
-                              >
-                                &ldquo;{selectedProject.myApplication.pitch}&rdquo;
-                              </div>
-                            )}
+                            <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                              {selectedProject.myApplication.status === "SELECTED"
+                                ? `You were hired by ${selectedProject.clientName}! Escrow is funded.`
+                                : selectedProject.myApplication.status === "SHORTLISTED"
+                                ? `You are on the shortlist! Casting is reviewing final reels.`
+                                : `Submitted to ${selectedProject.clientName}. Tap below to view your full pitch & status.`}
+                            </p>
 
                             {selectedProject.myApplication.status === "SELECTED" ? (
-                              <div className="space-y-3">
-                                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-body flex items-start gap-2">
-                                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
-                                  <span>
-                                    Congratulations! {selectedProject.clientName} selected you. Escrow deposit is funded and your Order Room is active.
-                                  </span>
-                                </div>
-                                <Button
-                                  className="w-full h-11 text-xs font-semibold gap-1.5"
-                                  onClick={() => {
-                                    setSelectedProject(null);
-                                    navigate("/order/ORD-001?role=talent");
-                                  }}
-                                >
-                                  Open Order Room <ChevronRight className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            ) : selectedProject.myApplication.status === "SHORTLISTED" ? (
-                              <div className="space-y-3">
-                                <div className="p-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-300/30 text-xs font-body flex items-start gap-2">
-                                  <Star className="w-4 h-4 shrink-0 fill-amber-400 text-amber-500 mt-0.5" />
-                                  <span>
-                                    You&apos;re on the shortlist! The casting team is reviewing your profile and performance reel.
-                                  </span>
-                                </div>
-                                <Button
-                                  variant="secondary"
-                                  className="w-full h-10 text-xs font-semibold"
-                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
-                                >
-                                  Withdraw Application
-                                </Button>
-                              </div>
-                            ) : selectedProject.myApplication.status === "APPLIED" ? (
-                              <div className="space-y-3">
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
-                                  Submitted to {selectedProject.clientName}. You&apos;ll be notified when the client reviews your pitch.
-                                </p>
-                                <Button
-                                  variant="secondary"
-                                  className="w-full h-10 text-xs font-semibold"
-                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
-                                >
-                                  Withdraw Application
-                                </Button>
-                              </div>
-                            ) : selectedProject.myApplication.status === "REJECTED" ? (
-                              <div className="space-y-3">
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  The client chose another performer for this campaign. Keep pitching for upcoming roles!
-                                </p>
-                                <Button
-                                  variant="secondary"
-                                  className="w-full h-10 text-xs font-semibold"
-                                  onClick={() => setSelectedProject(null)}
-                                >
-                                  Browse Other Projects
-                                </Button>
-                              </div>
+                              <Button
+                                className="w-full h-11 text-xs font-semibold gap-1.5"
+                                onClick={() => {
+                                  setSelectedProject(null);
+                                  navigate("/order/ORD-001?role=talent");
+                                }}
+                              >
+                                Open Order Room <ChevronRight className="w-4 h-4" />
+                              </Button>
                             ) : (
-                              <div className="space-y-3">
-                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                  You withdrew your application for this project.
-                                </p>
+                              <div className="flex flex-col gap-2">
                                 <Button
-                                  variant="secondary"
-                                  className="w-full h-10 text-xs font-semibold"
-                                  onClick={() => setSelectedProject(null)}
+                                  variant="outline-pill"
+                                  className="w-full h-10 text-xs font-semibold border border-[var(--color-border-default)]"
+                                  onClick={() => setProjectDetailTab("application")}
                                 >
-                                  Browse Other Projects
+                                  View Full Pitch &amp; Status →
                                 </Button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleWithdrawApplication(selectedProject.myApplication!.id)}
+                                  className="text-center text-xs font-body hover:underline py-1 transition-colors"
+                                  style={{ color: "var(--color-text-tertiary)" }}
+                                >
+                                  Withdraw Application
+                                </button>
                               </div>
                             )}
                           </div>
