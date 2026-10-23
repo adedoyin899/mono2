@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
+**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 111. Order Room Stacked Card Density & Scalability for 10+ Orders
+- **Severity:** Medium / Usability & Scalability Issue
+- **What happened:**
+  1. Active Orders in `TalentDashboard` and `ClientDashboard` rendered each order as a massive ~350px tall card with repetitive progress bars, redundant fee calculations (`Base ₦X · 7% platform fee (-₦Y)`), and large buttons. For performers with 5–10+ concurrent bookings, the list required excessive scrolling and lacked quick scannability.
+  2. The `OrderRoom` header displayed a secondary metadata row (`clientName · orderId · ₦X net`) that cluttered the mobile and desktop navigation bar, and the Online/Onsite badge was hidden on small screens (`hidden sm:inline-flex`).
+  3. Milestone attendance verification banners occupied large vertical space (~200px) with no ability to collapse or minimize while remaining informed.
+- **Root Cause:**
+  - Card-centric layout designed for low order counts (1–3 orders) without compact list/inbox paradigms, redundant commission breakdown display, and lack of progressive collapse state on notification cards.
+- **Fix:**
+  - Redesigned Active Orders into a scalable Chat / Inbox List interface with avatar presence indicators, project title, `Online` / `Onsite` badge, counterpart preview, due date, phase badge, and direct click-to-room navigation.
+  - Added real-time order search filtering and view switcher.
+  - Pruned redundant fee calculations from performer order cards.
+  - Simplified `OrderRoom` navbar to strictly project title and permanent `Online` / `Onsite` badge.
+  - Added minimize buttons to attendance cards in `OrderRoom` and `TalentDashboard` collapsing into 1-line interactive ribbons.
 
 ### 110. Dark Mode Auth Copy Low Contrast & 100vh Viewport Overflow
 - **Severity:** Medium / Visual Contrast & Viewport Scrolling Defect

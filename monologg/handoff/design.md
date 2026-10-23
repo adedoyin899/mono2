@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–162 + Session 163 100vh Auth Polish.
+**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–163 + Session 164 Orders Scalability.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -246,7 +246,11 @@ Key token groups:
 - **Vertical Escrow Security Layout & Project Detail Typographic Standardization (`TalentDashboard.tsx` — Session 149):**
   - Converted the Escrow Protection & Settlement Guarantee 3-pillar card grid into a full-width vertical stacked layout (`space-y-3`) with dedicated left emerald icon badges (`Shield`, `Clock`, `CheckCircle2`), step titles (`1. Locked Upfront`, `2. 48h Auto-Release`, `3. Direct Payout`), and trust chips (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`).
   - Standardized the typographic scale across Project Detail cards: card headers strictly `font-display text-base font-bold` (16px), narrative descriptions strictly `text-sm font-body leading-relaxed` (14px), telemetry numbers `font-display text-sm font-bold` (14px), and subtitles `text-xs font-body` (12px).
-  - Cleaned up the Performer portal project tab bar to strictly display `Browse Projects` and `My Applications`, removing the "Search Performers" button that belongs in the client view.
+- **Order Room Header Streamlining & Scalable Orders Chat/Inbox Surface (`OrderRoom.tsx`, `TalentDashboard.tsx`, `ClientDashboard.tsx` — Session 164):**
+  - **Minimal Navbar Density:** Reduced the `OrderRoom` header to project title and a permanent `Online` / `Onsite` badge, removing redundant secondary lines (`client · orderId · net price`) for clean distraction-free mobile & desktop workspaces.
+  - **Notification Ribbon Minimization:** Introduced collapse/minimize toggles (`Minus` icon) to attendance cards, shrinking 200px banners into 1-line compact ribbons while retaining one-click confirmation and instant expansion.
+  - **Scalable Chat/Inbox Architecture:** Transitioned Active Orders from bloated 350px cards into an inbox-style list layout with live collaboration presence indicators, search filtering, and instant entry into rooms, solving usability issues for 10+ concurrent orders.
+
 
 
 ### Shared components (`src/app/components/ui/`)

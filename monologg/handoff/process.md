@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
+**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 123: Order Room Header Streamlining, Card Minimization & Scalable Chat/Inbox Orders (Session 164)
+
+Rethought and modernized the Order Room and Active Orders surface for multi-order scalability:
+- **Simplified Order Room Navbar:** Stripped secondary metadata row (`clientName · orderId · net price`), displaying strictly the project title and permanent `Online` / `Onsite` badge on both desktop and mobile viewports.
+- **Notification Card Minimization:** Added collapse/minimize toggles to attendance verification cards in `OrderRoom.tsx` and `TalentDashboard.tsx`, shrinking tall banners into compact 1-line actionable ribbons (`Gate 2/3 due Oct 14 · Confirm attendance · [Confirm] [Expand]`).
+- **Scalable Chat / Inbox List Interface:** Transformed stacked order cards into an inbox/chat conversation list for both Performers and Clients. Integrated counterpart avatars with live presence dots, project titles, gig type badges, contextual chat snippets, phase tags, real-time search filtering, and view mode switching.
+- **Pruned Redundant Commission Copy:** Removed redundant `Base ₦X · 7% platform fee (-₦Y)` subtext from performer cards.
 
 ### Step 122: Auth Flow Viewport Height Lock & Light/Dark Copy Polish (Session 163)
 

@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
+**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 164 (2026-10-23) — Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface
+
+**Goal:** Address user feedback regarding Order Room UI density, card vertical footprint, and order list scalability for 5–20+ active bookings:
+1. **Order Room Header Simplification (`OrderRoom.tsx`):**
+   - Cleaned up the top navigation bar to display only the project title and the Online/Onsite badge (`Online` / `Onsite`).
+   - Removed the redundant secondary subtitle line (`clientOrg · curOrderId · ₦X net / escrow`) per user direction ("just keep the name of the proejct and if its onsite or online, thats enough").
+   - Made the gig type badge (`Online` / `Onsite`) permanently visible across all viewports (`inline-flex` instead of `hidden sm:inline-flex`).
+2. **Attendance / Confirmation Card Minimization (`OrderRoom.tsx` & `TalentDashboard.tsx`):**
+   - Added minimize buttons (`Minus` icon) to attendance verification cards in both `OrderRoom.tsx` and the top dashboard banner in `TalentDashboard.tsx`.
+   - Clicking minimize collapses the tall (~200px) card into a compact single-line ribbon (`Gate 2/3 due Oct 14 · Confirm attendance for Sahara Media Group · [Confirm] [Expand]`), drastically conserving vertical screen real estate while retaining quick-action capability.
+   - Expand button (`ChevronDown`) allows expanding back to the detailed event summary grid anytime.
+   - Pruned redundant `Base ₦...` subtext from the top dashboard check-in card.
+3. **Active Orders Scalable Chat / Inbox Interface (`TalentDashboard.tsx` & `ClientDashboard.tsx`):**
+   - Replaced bloated, vertically stacked ~350px tall order cards with a modern, scalable Chat / Inbox List interface designed to gracefully handle 5, 10, or 20+ active order rooms.
+   - Each order row is formatted as an interactive chat conversation item:
+     - Avatar with counterpart initials and active collaboration green presence indicator dot.
+     - Top line: Project title, `Online` / `Onsite` badge, and Order ID.
+     - Bottom line: Counterpart name with contextual status / chat preview snippet.
+     - Right: Due date, current phase badge (`Deliverables`, `Review`, `Complete`), and chevron / Enter Room CTA.
+     - Clicking anywhere on the row provides instant, zero-friction navigation into the Order Room (`/order/:id`).
+   - Pruned redundant fee calculation / discount breakdown (`Base ₦X · 7% platform fee (-₦Y)`) on performer cards.
+   - Added real-time Search filter input (`Search orders or clients...`) allowing instant filtering across projects and counterparts.
+   - Added View Mode toggle (`Chat / List View` [default] vs `Detailed Cards View`) for user preference.
+
+**Files Touched:**
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
+
+**Verification:**
+- `npm run typecheck`: 0 errors across all workspace packages.
+- `npm test`: 25/25 test files passed (132/132 tests passing cleanly).
 
 ---
 

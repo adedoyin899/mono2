@@ -22,7 +22,7 @@ import {
   CheckCircle2, PlayCircle, Eye, EyeOff, HelpCircle, Edit3,
   Trash2, Sparkles, ShieldCheck, Download, ExternalLink,
   Upload, FileCheck, ArrowRight, SlidersHorizontal, Globe,
-  Zap, Pause, Volume2
+  Zap, Pause, Volume2, List, LayoutGrid
 } from "lucide-react";
 
 // features.md Phase 14 (PWA-17) — the same fixed-hour slot-picker pattern
@@ -599,6 +599,8 @@ export function ClientDashboard() {
       ]
     : stats;
   const navigate = useNavigate();
+  const [orderSearchQuery, setOrderSearchQuery] = useState("");
+  const [orderViewMode, setOrderViewMode] = useState<"chat" | "cards">("chat");
 
   const handleOpenPublishEscrow = (project?: ClientProject | null) => {
     const target = project || selectedProjectDetail;
@@ -3500,76 +3502,250 @@ export function ClientDashboard() {
             {/* ── Orders Tab ── */}
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
-                {effectiveOrders.length === 0 ? (
-                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
-                      <MessageSquare className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Collaborations</h3>
-                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      You don't have any active bookings or performer hires right now. Search the performer marketplace or review project applications to start an order.
+                {/* Header & Controls */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">
+                      Active Orders
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-0.5">
+                      Direct collaboration and chat rooms with your hired performers.
                     </p>
-                    <div className="flex gap-3">
-                      <Button onClick={() => setActiveTab("discover")} className="gap-2">
-                        <Search className="w-4 h-4" /> Discover Performers
-                      </Button>
-                      <Button variant="secondary" onClick={() => navigate("/brief")} className="gap-2">
-                        <Plus className="w-4 h-4" /> Post Project Brief
-                      </Button>
-                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {effectiveOrders.map(order => (
-                    <div
-                      key={order.id}
-                      className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
-                      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                      onClick={() => navigate(`/order/${order.id}?role=client`)}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</div>
-                          <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
-                          <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Performer: {order.counterpart}</p>
+
+                  {effectiveOrders.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1 sm:w-64">
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" />
+                        <input
+                          type="text"
+                          value={orderSearchQuery}
+                          onChange={(e) => setOrderSearchQuery(e.target.value)}
+                          placeholder="Search orders or performers..."
+                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
+                        />
+                      </div>
+                      <div className="flex items-center p-0.5 rounded-lg border border-[var(--color-hairline)] bg-[var(--color-bg-surface)]">
+                        <button
+                          type="button"
+                          onClick={() => setOrderViewMode("chat")}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            orderViewMode === "chat"
+                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                          }`}
+                          title="Chat / List View"
+                          aria-label="Chat / List View"
+                        >
+                          <List className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOrderViewMode("cards")}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            orderViewMode === "cards"
+                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                          }`}
+                          title="Detailed Cards View"
+                          aria-label="Detailed Cards View"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {(() => {
+                  const filteredOrders = effectiveOrders.filter((o) => {
+                    if (!orderSearchQuery.trim()) return true;
+                    const q = orderSearchQuery.toLowerCase();
+                    return (
+                      o.project.toLowerCase().includes(q) ||
+                      o.counterpart.toLowerCase().includes(q) ||
+                      o.id.toLowerCase().includes(q)
+                    );
+                  });
+
+                  if (effectiveOrders.length === 0) {
+                    return (
+                      <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                          <MessageSquare className="w-8 h-8" />
                         </div>
-                        <div className="text-right">
-                          <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
-                          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Due {order.due}</div>
+                        <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Collaborations</h3>
+                        <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                          You don't have any active bookings or performer hires right now. Search the performer marketplace or review project applications to start an order.
+                        </p>
+                        <div className="flex gap-3">
+                          <Button onClick={() => setActiveTab("discover")} className="gap-2">
+                            <Search className="w-4 h-4" /> Discover Performers
+                          </Button>
+                          <Button variant="secondary" onClick={() => navigate("/brief")} className="gap-2">
+                            <Plus className="w-4 h-4" /> Post Project Brief
+                          </Button>
                         </div>
                       </div>
+                    );
+                  }
 
-                      <div className="flex items-center gap-2 mb-4">
-                        {["Deliverables", "Review", "Complete"].map((phase, i) => {
-                          const phases = ["Deliverables", "Review", "Complete"];
-                          const current = phases.indexOf(order.phase === "Briefing" ? "Deliverables" : order.phase);
-                          const isDone = i < current;
-                          const isActive = i === current;
+                  if (filteredOrders.length === 0) {
+                    return (
+                      <div className="text-center py-12 px-4 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-secondary)]">
+                        No orders match &ldquo;{orderSearchQuery}&rdquo;.
+                      </div>
+                    );
+                  }
+
+                  if (orderViewMode === "chat") {
+                    return (
+                      <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] divide-y divide-[var(--color-hairline)] overflow-hidden shadow-xs">
+                        {filteredOrders.map((order) => {
+                          const isCancelled = appStateSync.isBookingCancelled(order.id);
+                          const pLower = order.project.toLowerCase();
+                          const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
+                          const initials = order.counterpart
+                            .split(" ")
+                            .map((w) => w[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase() || "PF";
+
                           return (
-                            <React.Fragment key={phase}>
-                              <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono" style={{
-                                background: isDone ? "var(--color-success-bg)" : isActive ? "var(--color-accent-glow)" : "var(--color-bg-elevated)",
-                                color: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-text-tertiary)",
-                                border: `1px solid ${isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-border-default)"}`,
-                              }}>
-                                {isDone ? "✓" : i + 1}
+                            <div
+                              key={order.id}
+                              onClick={() => navigate(`/order/${order.id}?role=client`)}
+                              className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                            >
+                              {/* Avatar with active presence dot */}
+                              <div className="relative shrink-0">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                                  {initials}
+                                </div>
+                                {!isCancelled && (
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900 absolute bottom-0 right-0" />
+                                )}
                               </div>
-                              {i < 2 && <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-border-default)" }} />}
-                            </React.Fragment>
+
+                              {/* Middle preview content */}
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
+                                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                                    {order.project}
+                                  </h3>
+                                  <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                    {isGigOnsite ? "Onsite" : "Online"}
+                                  </span>
+                                  <span className="font-mono text-[10px] text-[var(--color-text-tertiary)] hidden xs:inline">
+                                    {order.id}
+                                  </span>
+                                  {isCancelled && (
+                                    <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded">
+                                      Cancelled
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary)] truncate">
+                                  <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
+                                  <span className="text-[var(--color-text-tertiary)]">&middot;</span>
+                                  <span className="truncate text-[var(--color-text-tertiary)]">
+                                    {isCancelled
+                                      ? "Booking cancelled & funds refunded to wallet"
+                                      : order.phase === "Review"
+                                      ? "Deliverables submitted · Inspection active"
+                                      : "Active room · Tap to chat & review"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Right status & action */}
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="text-right hidden sm:block">
+                                  <div className="text-[11px] font-semibold text-[var(--color-text-tertiary)]">
+                                    Due {order.due}
+                                  </div>
+                                  <div className="text-[10px] font-medium text-[var(--color-accent)] mt-0.5">
+                                    {order.phase}
+                                  </div>
+                                </div>
+                                <span className="hidden md:inline-flex items-center text-xs font-semibold text-[var(--color-accent)] group-hover:underline">
+                                  Enter Room
+                                </span>
+                                <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
-                      <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                        Current phase: <strong>{order.phase === "Briefing" ? "Deliverables" : order.phase}</strong>
-                      </div>
-                      <Button className="w-full h-10 text-sm gap-2">
-                        Enter Order Room <ChevronRight className="w-4 h-4" />
-                      </Button>
+                    );
+                  }
+
+                  // Cards view
+                  return (
+                    <div className="space-y-4">
+                      {filteredOrders.map(order => {
+                        const pLower = order.project.toLowerCase();
+                        const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
+
+                        return (
+                          <div
+                            key={order.id}
+                            className="p-5 rounded-[var(--radius-lg)] cursor-pointer hover:scale-[1.01] transition-transform"
+                            style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                            onClick={() => navigate(`/order/${order.id}?role=client`)}
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>{order.id}</span>
+                                  <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                                    {isGigOnsite ? "Onsite" : "Online"}
+                                  </span>
+                                </div>
+                                <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{order.project}</h3>
+                                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Performer: {order.counterpart}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{order.amount}</div>
+                                <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Due {order.due}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-4">
+                              {["Deliverables", "Review", "Complete"].map((phase, i) => {
+                                const phases = ["Deliverables", "Review", "Complete"];
+                                const current = phases.indexOf(order.phase === "Briefing" ? "Deliverables" : order.phase);
+                                const isDone = i < current;
+                                const isActive = i === current;
+                                return (
+                                  <React.Fragment key={phase}>
+                                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono" style={{
+                                      background: isDone ? "var(--color-success-bg)" : isActive ? "var(--color-accent-glow)" : "var(--color-bg-elevated)",
+                                      color: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-text-tertiary)",
+                                      border: `1px solid ${isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-border-default)"}`,
+                                    }}>
+                                      {isDone ? "✓" : i + 1}
+                                    </div>
+                                    {i < 2 && <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-border-default)" }} />}
+                                  </React.Fragment>
+                                );
+                              })}
+                            </div>
+                            <div className="text-xs font-body mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                              Current phase: <strong>{order.phase === "Briefing" ? "Deliverables" : order.phase}</strong>
+                            </div>
+                            <Button className="w-full h-10 text-sm gap-2">
+                              Enter Order Room <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-                )}
+                  );
+                })()}
               </motion.div>
             )}
 

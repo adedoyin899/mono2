@@ -1,11 +1,30 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-23 (Session 163: Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–162 + Session 163 100vh Auth Polish.
+**Last updated:** 2026-10-23 (Session 164: Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–163 + Session 164 Orders Scalability.
 
 ---
 
 ## ✅ Done
+
+### Session 164 — Order Room Header Simplification, Card Minimization & Scalable Chat/Inbox Orders Interface
+- [x] **Order Room Header Simplification (`OrderRoom.tsx`)**:
+  - Pruned secondary subtitle row (`clientName · orderId · ₦X net/escrow`).
+  - Preserved only project title and `Online` / `Onsite` badge, making badge visible on all screen sizes (`inline-flex`).
+- [x] **Attendance & Confirmation Card Minimization**:
+  - Added minimize button (`Minus` icon) to pending and confirmed attendance check-in cards in `OrderRoom.tsx`.
+  - Added minimize button (`Minus` icon) to the top check-in card in `TalentDashboard.tsx`.
+  - Collapses cards into a sleek 1-line ribbon with quick `Confirm` and `Expand` actions.
+  - Removed redundant `Base ₦...` subtext from the dashboard card.
+- [x] **Scalable Chat / Inbox Orders Interface (`TalentDashboard.tsx` & `ClientDashboard.tsx`)**:
+  - Re-engineered Active Orders from tall stacked cards into a compact, scalable chat/inbox list capable of scaling to 10–20+ order rooms without infinite scrolling.
+  - Added counterpart avatar with initials and active collaboration presence indicator dot.
+  - Displayed project title, `Online` / `Onsite` badge, order ID, counterpart snippet, due date, and phase badge.
+  - Pruned redundant fee calculation / discount breakdown (`Base ₦X · 7% platform fee (-₦Y)`).
+  - Integrated real-time Search filter bar and View Mode switcher (Chat List [default] vs Detailed Cards).
+- [x] **Automated Test & Type Validation**:
+  - Verified full test suite: 25/25 files (132/132 tests passing cleanly).
+  - Verified typecheck: 0 errors across all 3 workspace projects.
 
 ### Session 163 — Auth Flow 100vh Static Height Lock, Light/Dark Mode Contrast & Element Pruning
 - [x] **Light & Dark Mode Copy Color & Contrast Enhancement**:

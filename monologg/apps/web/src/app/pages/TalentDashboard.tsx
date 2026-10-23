@@ -21,7 +21,7 @@ import {
   BarChart2, Award, Repeat, Briefcase, Search, Send, KeyRound, Eye, EyeOff,
   Camera, Instagram, Youtube, Twitter, Linkedin, Globe, Music, AlertCircle, Check, Image,
   SlidersHorizontal, Star, FileText, Layers, Lock, ShieldCheck, Users, Copy, Mic,
-  Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle
+  Filter, ArrowRight, ArrowUpRight, Building2, AlertTriangle, Minus, List, LayoutGrid
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -493,9 +493,17 @@ export function TalentDashboard() {
   // Availability Check-in state
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
   const [checkinIndex, setCheckinIndex] = useState(1);
+  const [checkinBannerMinimized, setCheckinBannerMinimized] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [orderSearchQuery, setOrderSearchQuery] = useState("");
+  const [orderViewMode, setOrderViewMode] = useState<"chat" | "cards">("chat");
+
+  const handleConfirmCheckin = (checkinId: string) => {
+    appStateSync.confirmAvailabilityCheckin(checkinId);
+    setCheckins(appStateSync.getAvailabilityCheckins());
+  };
 
   // Withdraw Sheet & Payout Change Request state
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -1255,6 +1263,50 @@ export function TalentDashboard() {
             const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
             const isCancelled = appStateSync.isBookingCancelled(activeCheckin.bookingId);
 
+            if (checkinBannerMinimized && !isCancelled) {
+              return (
+                <div className="mb-6 px-4 py-2.5 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] flex items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${isConfirmed ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
+                    <Badge
+                      tone={isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                      size="sm"
+                    >
+                      {isConfirmed
+                        ? "Verified"
+                        : isOverdue
+                        ? "Action Required"
+                        : `Gate ${activeCheckin.stepIndex}/${activeCheckin.totalSteps}`}
+                    </Badge>
+                    <span className="font-semibold text-xs sm:text-sm text-[var(--color-text-primary)] truncate">
+                      {isConfirmed
+                        ? `Session Confirmed with ${activeCheckin.clientName}`
+                        : `Confirm attendance for ${activeCheckin.clientName}`}
+                    </span>
+                    <span className="text-xs text-[var(--color-text-tertiary)] hidden md:inline truncate">
+                      {isConfirmed ? "Confirmed for production" : `due ${activeCheckin.dueDate}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {!isConfirmed && (
+                      <Button size="sm" className="h-7 px-3 text-xs font-semibold" onClick={() => handleConfirmCheckin(activeCheckin.id)}>
+                        Confirm
+                      </Button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setCheckinBannerMinimized(false)}
+                      className="p-1 rounded-md hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+                      title="Expand attendance card"
+                      aria-label="Expand attendance card"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
@@ -1327,18 +1379,24 @@ export function TalentDashboard() {
                     </p>
                   </div>
 
-                  <div className="text-left sm:text-right shrink-0">
-                    <div className="text-[10px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold font-body">
-                      {isCancelled ? "Refund Processed" : "Net Take-Home"}
-                    </div>
-                    <div className={`font-mono font-black text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                      ₦{isCancelled ? activeCheckin.baseRate.toLocaleString() : activeCheckin.performerReceives.toLocaleString()}
-                    </div>
-                    {!isCancelled && (
-                      <div className="text-[10px] text-[var(--color-text-tertiary)] font-body">
-                        Base ₦{activeCheckin.baseRate.toLocaleString()}
+                  <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
+                    <div className="text-left sm:text-right shrink-0">
+                      <div className="text-[10px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold font-body">
+                        {isCancelled ? "Refund Processed" : "Net Take-Home"}
                       </div>
-                    )}
+                      <div className={`font-mono font-black text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                        ₦{isCancelled ? activeCheckin.baseRate.toLocaleString() : activeCheckin.performerReceives.toLocaleString()}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCheckinBannerMinimized(true)}
+                      className="p-1.5 rounded-lg border border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+                      title="Minimize notification"
+                      aria-label="Minimize notification"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -4646,138 +4704,301 @@ export function TalentDashboard() {
             {/* ── Orders Tab ── */}
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Active Orders</h2>
-                {effectiveOrders.length === 0 ? (
-                  <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
-                      <MessageSquare className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Orders</h3>
-                    <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
-                      You don't have any bookings in progress right now. Share your profile link or pitch to open projects to land client orders.
+                {/* Header & Controls */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">
+                      Active Orders
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-0.5">
+                      Direct chat rooms for all your live project collaborations.
                     </p>
-                    <div className="flex gap-3">
-                      <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="gap-2">
-                        <Briefcase className="w-4 h-4" /> Apply to Projects
-                      </Button>
-                      <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
-                        <Share2 className="w-4 h-4" /> Share Profile Link
-                      </Button>
-                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {effectiveOrders.map(order => {
-                      const isCancelled = appStateSync.isBookingCancelled(order.id);
-                      const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
-                      const symbol = order.amount.startsWith("$") ? "$" : order.amount.startsWith("£") ? "£" : order.amount.startsWith("€") ? "€" : "₦";
-                      const fee = Math.round(num * 0.07);
-                      const net = num - fee;
 
-                      return (
-                        <div
-                          key={order.id}
-                          className="p-5 sm:p-6 rounded-2xl cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border shadow-xs group"
-                          style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
-                          onClick={() => navigate(`/order/${order.id}`)}
+                  {effectiveOrders.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1 sm:w-64">
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" />
+                        <input
+                          type="text"
+                          value={orderSearchQuery}
+                          onChange={(e) => setOrderSearchQuery(e.target.value)}
+                          placeholder="Search orders or clients..."
+                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
+                        />
+                      </div>
+                      <div className="flex items-center p-0.5 rounded-lg border border-[var(--color-hairline)] bg-[var(--color-bg-surface)]">
+                        <button
+                          type="button"
+                          onClick={() => setOrderViewMode("chat")}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            orderViewMode === "chat"
+                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                          }`}
+                          title="Chat / List View"
+                          aria-label="Chat / List View"
                         >
-                          {/* Card Header */}
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1.5">
-                                <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-tertiary)]">
-                                  {order.id}
-                                </span>
-                                {isCancelled ? (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
-                                    Cancelled &amp; Refunded
-                                  </span>
-                                ) : (
-                                  <span className="text-xs font-body text-[var(--color-text-tertiary)]">
-                                    Due {order.due}
-                                  </span>
-                                )}
-                              </div>
-                              <h3 className="text-base sm:text-lg font-bold font-body group-hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]">
-                                {order.project}
-                              </h3>
-                              <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
-                                Client: <span className="font-semibold text-[var(--color-text-primary)]">{order.counterpart}</span>
-                              </p>
-                            </div>
+                          <List className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOrderViewMode("cards")}
+                          className={`p-1.5 rounded-md transition-colors ${
+                            orderViewMode === "cards"
+                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                          }`}
+                          title="Detailed Cards View"
+                          aria-label="Detailed Cards View"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                            <div className="text-left sm:text-right shrink-0">
-                              <div className="text-[10px] uppercase font-semibold tracking-wider text-[var(--color-text-tertiary)] font-body">
-                                {isCancelled ? "Refund Processed" : "Your Net Take-Home"}
-                              </div>
-                              <div className={`font-mono font-black text-xl leading-tight ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                                {symbol}{isCancelled ? num.toLocaleString() : net.toLocaleString()}
-                              </div>
-                              {!isCancelled && (
-                                <div className="text-[11px] text-[var(--color-text-tertiary)] font-body mt-0.5">
-                                  Base {symbol}{num.toLocaleString()} · 7% platform fee (-{symbol}{fee.toLocaleString()})
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                {(() => {
+                  const filteredOrders = effectiveOrders.filter((o) => {
+                    if (!orderSearchQuery.trim()) return true;
+                    const q = orderSearchQuery.toLowerCase();
+                    return (
+                      o.project.toLowerCase().includes(q) ||
+                      o.counterpart.toLowerCase().includes(q) ||
+                      o.id.toLowerCase().includes(q)
+                    );
+                  });
 
-                          {/* Phase Progress Bar (Segmented) */}
-                          <div className="my-4 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)]">
-                            <div className="grid grid-cols-3 gap-2">
-                              {["Deliverables", "Review", "Complete"].map((phase, i) => {
-                                const phases = ["Deliverables", "Review", "Complete"];
-                                const current = phases.indexOf(order.phase === "Briefing" ? "Deliverables" : order.phase);
-                                const isDone = i < current;
-                                const isActive = i === current;
-                                return (
-                                  <div key={phase} className="flex flex-col gap-1">
-                                    <div
-                                      className={`h-2 rounded-full transition-all ${
-                                        isDone
-                                          ? "bg-emerald-500"
-                                          : isActive
-                                          ? "bg-[var(--color-accent)]"
-                                          : "bg-zinc-200 dark:bg-zinc-700"
-                                      }`}
-                                    />
-                                    <span className={`text-[10px] font-body truncate ${
-                                      isDone ? "text-emerald-600 dark:text-emerald-400 font-semibold" : isActive ? "text-[var(--color-accent)] font-bold" : "text-[var(--color-text-tertiary)]"
-                                    }`}>
-                                      {phase} {isDone ? "✓" : ""}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Check-in Progress Strip */}
-                          {!isCancelled && (
-                            <div className="mb-4 p-3 rounded-xl border flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-                                  <Calendar className="w-4 h-4" />
-                                </div>
-                                <div className="min-w-0 truncate">
-                                  <div className="font-semibold text-[var(--color-text-primary)] truncate">Availability Milestone Gate 2 of 3</div>
-                                  <div className="text-[11px] text-[var(--color-text-tertiary)] truncate">7-day re-confirmation due Tue 14 Oct</div>
-                                </div>
-                              </div>
-                              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20 shrink-0 ml-2">
-                                Due Now
-                              </span>
-                            </div>
-                          )}
-
-                          <Button className="w-full h-10 text-xs font-bold gap-2 shadow-xs">
-                            <span>Enter Order Room</span>
-                            <ChevronRight className="w-4 h-4" />
+                  if (effectiveOrders.length === 0) {
+                    return (
+                      <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
+                          <MessageSquare className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-display text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>No Active Orders</h3>
+                        <p className="text-sm font-body text-[var(--color-text-secondary)] max-w-md mb-6 leading-relaxed">
+                          You don't have any bookings in progress right now. Share your profile link or pitch to open projects to land client orders.
+                        </p>
+                        <div className="flex gap-3">
+                          <Button onClick={() => { setActiveTab("projects"); setProjectsSubTab("browse"); }} className="gap-2">
+                            <Briefcase className="w-4 h-4" /> Apply to Projects
+                          </Button>
+                          <Button variant="secondary" onClick={() => setShowShare(true)} className="gap-2">
+                            <Share2 className="w-4 h-4" /> Share Profile Link
                           </Button>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                      </div>
+                    );
+                  }
+
+                  if (filteredOrders.length === 0) {
+                    return (
+                      <div className="text-center py-12 px-4 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-secondary)]">
+                        No orders match &ldquo;{orderSearchQuery}&rdquo;.
+                      </div>
+                    );
+                  }
+
+                  if (orderViewMode === "chat") {
+                    return (
+                      <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] divide-y divide-[var(--color-hairline)] overflow-hidden shadow-xs">
+                        {filteredOrders.map((order) => {
+                          const isCancelled = appStateSync.isBookingCancelled(order.id);
+                          const pLower = order.project.toLowerCase();
+                          const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
+                          const initials = order.counterpart
+                            .split(" ")
+                            .map((w) => w[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase() || "CL";
+
+                          return (
+                            <div
+                              key={order.id}
+                              onClick={() => navigate(`/order/${order.id}`)}
+                              className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                            >
+                              {/* Avatar with active presence dot */}
+                              <div className="relative shrink-0">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20">
+                                  {initials}
+                                </div>
+                                {!isCancelled && (
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900 absolute bottom-0 right-0" />
+                                )}
+                              </div>
+
+                              {/* Middle preview content */}
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
+                                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                                    {order.project}
+                                  </h3>
+                                  <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                    {isGigOnsite ? "Onsite" : "Online"}
+                                  </span>
+                                  <span className="font-mono text-[10px] text-[var(--color-text-tertiary)] hidden xs:inline">
+                                    {order.id}
+                                  </span>
+                                  {isCancelled && (
+                                    <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded">
+                                      Cancelled
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary)] truncate">
+                                  <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
+                                  <span className="text-[var(--color-text-tertiary)]">&middot;</span>
+                                  <span className="truncate text-[var(--color-text-tertiary)]">
+                                    {isCancelled
+                                      ? "Order cancelled & refunded to client"
+                                      : order.phase === "Review"
+                                      ? "Deliverables submitted · Under review"
+                                      : "Active collaboration room · Tap to chat"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Right status & action */}
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="text-right hidden sm:block">
+                                  <div className="text-[11px] font-semibold text-[var(--color-text-tertiary)]">
+                                    Due {order.due}
+                                  </div>
+                                  <div className="text-[10px] font-medium text-[var(--color-accent)] mt-0.5">
+                                    {order.phase}
+                                  </div>
+                                </div>
+                                <span className="hidden md:inline-flex items-center text-xs font-semibold text-[var(--color-accent)] group-hover:underline">
+                                  Enter Room
+                                </span>
+                                <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  }
+
+                  // Cards view (redundant fee breakdown removed!)
+                  return (
+                    <div className="space-y-4">
+                      {filteredOrders.map((order) => {
+                        const isCancelled = appStateSync.isBookingCancelled(order.id);
+                        const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
+                        const symbol = order.amount.startsWith("$") ? "$" : order.amount.startsWith("£") ? "£" : order.amount.startsWith("€") ? "€" : "₦";
+                        const net = Math.round(num * 0.93);
+                        const pLower = order.project.toLowerCase();
+                        const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
+
+                        return (
+                          <div
+                            key={order.id}
+                            className="p-5 sm:p-6 rounded-2xl cursor-pointer hover:border-[var(--color-accent)] transition-all bg-[var(--color-bg-surface)] border shadow-xs group"
+                            style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                            onClick={() => navigate(`/order/${order.id}`)}
+                          >
+                            {/* Card Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] text-[var(--color-text-tertiary)]">
+                                    {order.id}
+                                  </span>
+                                  <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                                    {isGigOnsite ? "Onsite" : "Online"}
+                                  </span>
+                                  {isCancelled ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                                      Cancelled &amp; Refunded
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs font-body text-[var(--color-text-tertiary)]">
+                                      Due {order.due}
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-base sm:text-lg font-bold font-body group-hover:text-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]">
+                                  {order.project}
+                                </h3>
+                                <p className="text-xs font-body text-[var(--color-text-secondary)] mt-0.5">
+                                  Client: <span className="font-semibold text-[var(--color-text-primary)]">{order.counterpart}</span>
+                                </p>
+                              </div>
+
+                              <div className="text-left sm:text-right shrink-0">
+                                <div className="text-[10px] uppercase font-semibold tracking-wider text-[var(--color-text-tertiary)] font-body">
+                                  {isCancelled ? "Refund Processed" : "Net Take-Home"}
+                                </div>
+                                <div className={`font-mono font-black text-xl leading-tight ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                                  {symbol}{isCancelled ? num.toLocaleString() : net.toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Phase Progress Bar (Segmented) */}
+                            <div className="my-4 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)]">
+                              <div className="grid grid-cols-3 gap-2">
+                                {["Deliverables", "Review", "Complete"].map((phase, i) => {
+                                  const phases = ["Deliverables", "Review", "Complete"];
+                                  const current = phases.indexOf(order.phase === "Briefing" ? "Deliverables" : order.phase);
+                                  const isDone = i < current;
+                                  const isActive = i === current;
+                                  return (
+                                    <div key={phase} className="flex flex-col gap-1">
+                                      <div
+                                        className={`h-2 rounded-full transition-all ${
+                                          isDone
+                                            ? "bg-emerald-500"
+                                            : isActive
+                                            ? "bg-[var(--color-accent)]"
+                                            : "bg-zinc-200 dark:bg-zinc-700"
+                                        }`}
+                                      />
+                                      <span className={`text-[10px] font-body truncate ${
+                                        isDone ? "text-emerald-600 dark:text-emerald-400 font-semibold" : isActive ? "text-[var(--color-accent)] font-bold" : "text-[var(--color-text-tertiary)]"
+                                      }`}>
+                                        {phase} {isDone ? "✓" : ""}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Check-in Progress Strip */}
+                            {!isCancelled && (
+                              <div className="mb-4 p-3 rounded-xl border flex items-center justify-between text-xs font-body" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                                    <Calendar className="w-4 h-4" />
+                                  </div>
+                                  <div className="min-w-0 truncate">
+                                    <div className="font-semibold text-[var(--color-text-primary)] truncate">Availability Milestone Gate 2 of 3</div>
+                                    <div className="text-[11px] text-[var(--color-text-tertiary)] truncate">7-day re-confirmation due Tue 14 Oct</div>
+                                  </div>
+                                </div>
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20 shrink-0 ml-2">
+                                  Due Now
+                                </span>
+                              </div>
+                            )}
+
+                            <Button className="w-full h-10 text-xs font-bold gap-2 shadow-xs">
+                              <span>Enter Order Room</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </motion.div>
             )}
 
