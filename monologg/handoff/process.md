@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
+**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 126: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish (Session 167)
+
+Conducted a design-system and visual audit of the Active Orders screens across Performer (`TalentDashboard.tsx`) and Client (`ClientDashboard.tsx`) portals:
+- **Single Canonical Page Header:** Removed the duplicate `<h2>Active Orders</h2>` heading and secondary subtexts from the orders tab container, resolving visual clutter and redundant typography below the top desktop `<h1>Active Orders</h1>` and sticky mobile bar.
+- **Controls Toolbar:** Integrated an order counter (`3 active orders` / `Showing X of Y orders` under active search), search bar with icon, and List/Grid view toggle.
+- **Streamlined Chat List Item Architecture:** Expanded breathing room (`p-4 sm:p-5`), standardized 44px–48px avatar circles with online presence dot, elevated the project title with format pill badges (`Online` / `Onsite`), replaced repetitive filler text ("Active collaboration room · Tap to chat") with contextual milestone summaries, and added distinct phase pills (`Deliverables`, `Review`, `Cancelled`), subtle due dates, and an animated navigation chevron arrow.
+- **Verification:** Added test suites in `ClientDashboard.test.tsx` and `TalentDashboardOrders.test.tsx`; 0 typecheck errors; 26/26 web test files passing (136/136 tests).
 
 ### Step 125: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication (Session 166)
 

@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–165 + Session 166 FAANG Discovery & Escrow Grid.
+**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–166 + Session 167 Active Orders Design Review Polish.
 
 ---
 
 ## ✅ Done
+
+### Session 167 — Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish
+- [x] **Header Deduplication & Information Hierarchy (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+  - Removed duplicate `<h2>Active Orders</h2>` and secondary subtexts from the orders tab container.
+  - Preserved single canonical desktop `<h1>Active Orders</h1>` and mobile top bar headers.
+  - Implemented clean controls toolbar featuring live order count indicator (`3 active orders` / `Showing X of Y orders`), search input, and view toggle.
+- [x] **Streamlined Chat / List Row Item Architecture (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+  - Enhanced breathing room with `p-4 sm:p-5` padding and generous row spacing.
+  - Standardized 44px–48px avatar circles with bottom-right presence indicators.
+  - Stripped repetitive boilerplate copy ("Active collaboration room · Tap to chat", "Active room · Tap to chat & review").
+  - Replaced technical order IDs with clean project title + format pill badge (`Online` / `Onsite`).
+  - Redesigned right-side status column with rounded phase badge pills (`Deliverables`, `Review`, `Cancelled`), subtle due date, and animated chevron arrow (removing clashing "Enter Room >" duplicate colored text).
+- [x] **Test & Quality Validation**:
+  - Added test suite in `ClientDashboard.test.tsx` verifying single header, clean toolbar, and streamlined list items.
+  - Created `TalentDashboardOrders.test.tsx` for performer view parity.
+  - Verified `npm run typecheck`: 0 errors.
+  - Verified `npm test`: 26/26 web test files passing (136/136 tests).
 
 ### Session 166 — Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication
 - [x] **Separate-Tab Talent Profile Discovery (`ClientDashboard.tsx`, `ClientDashboard.test.tsx`)**:

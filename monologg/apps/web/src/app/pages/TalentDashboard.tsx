@@ -4982,61 +4982,6 @@ export function TalentDashboard() {
             {/* ── Orders Tab ── */}
             {activeTab === "orders" && (
               <motion.div key="orders" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                {/* Header & Controls */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                  <div>
-                    <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">
-                      Active Orders
-                    </h2>
-                    <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-0.5">
-                      Direct chat rooms for all your live project collaborations.
-                    </p>
-                  </div>
-
-                  {effectiveOrders.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1 sm:w-64">
-                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" />
-                        <input
-                          type="text"
-                          value={orderSearchQuery}
-                          onChange={(e) => setOrderSearchQuery(e.target.value)}
-                          placeholder="Search orders or clients..."
-                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
-                        />
-                      </div>
-                      <div className="flex items-center p-0.5 rounded-lg border border-[var(--color-hairline)] bg-[var(--color-bg-surface)]">
-                        <button
-                          type="button"
-                          onClick={() => setOrderViewMode("chat")}
-                          className={`p-1.5 rounded-md transition-colors ${
-                            orderViewMode === "chat"
-                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
-                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
-                          }`}
-                          title="Chat / List View"
-                          aria-label="Chat / List View"
-                        >
-                          <List className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setOrderViewMode("cards")}
-                          className={`p-1.5 rounded-md transition-colors ${
-                            orderViewMode === "cards"
-                              ? "bg-[var(--color-accent)] text-white shadow-2xs"
-                              : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
-                          }`}
-                          title="Detailed Cards View"
-                          aria-label="Detailed Cards View"
-                        >
-                          <LayoutGrid className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {(() => {
                   const filteredOrders = effectiveOrders.filter((o) => {
                     if (!orderSearchQuery.trim()) return true;
@@ -5070,102 +5015,155 @@ export function TalentDashboard() {
                     );
                   }
 
-                  if (filteredOrders.length === 0) {
-                    return (
-                      <div className="text-center py-12 px-4 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-secondary)]">
-                        No orders match &ldquo;{orderSearchQuery}&rdquo;.
-                      </div>
-                    );
-                  }
+                  return (
+                    <>
+                      {/* Controls Toolbar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                        <div className="text-xs sm:text-sm font-medium text-[var(--color-text-secondary)]">
+                          {orderSearchQuery ? (
+                            <>
+                              Showing <span className="font-semibold text-[var(--color-text-primary)]">{filteredOrders.length}</span> of {effectiveOrders.length} {effectiveOrders.length === 1 ? "order" : "orders"}
+                            </>
+                          ) : (
+                            <>
+                              <span className="font-semibold text-[var(--color-text-primary)]">{effectiveOrders.length}</span> active {effectiveOrders.length === 1 ? "order" : "orders"}
+                            </>
+                          )}
+                        </div>
 
-                  if (orderViewMode === "chat") {
-                    return (
-                      <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] divide-y divide-[var(--color-hairline)] overflow-hidden shadow-xs">
-                        {filteredOrders.map((order) => {
-                          const isCancelled = appStateSync.isBookingCancelled(order.id);
-                          const pLower = order.project.toLowerCase();
-                          const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
-                          const initials = order.counterpart
-                            .split(" ")
-                            .map((w) => w[0])
-                            .filter(Boolean)
-                            .slice(0, 2)
-                            .join("")
-                            .toUpperCase() || "CL";
-
-                          return (
-                            <div
-                              key={order.id}
-                              onClick={() => navigate(`/order/${order.id}`)}
-                              className="flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                        <div className="flex items-center gap-2">
+                          <div className="relative flex-1 sm:w-64">
+                            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" />
+                            <input
+                              type="text"
+                              value={orderSearchQuery}
+                              onChange={(e) => setOrderSearchQuery(e.target.value)}
+                              placeholder="Search orders or clients..."
+                              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-[var(--color-accent)] transition-colors"
+                            />
+                          </div>
+                          <div className="flex items-center p-0.5 rounded-lg border border-[var(--color-hairline)] bg-[var(--color-bg-surface)]">
+                            <button
+                              type="button"
+                              onClick={() => setOrderViewMode("chat")}
+                              className={`p-1.5 rounded-md transition-colors ${
+                                orderViewMode === "chat"
+                                  ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                                  : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                              }`}
+                              title="Chat / List View"
+                              aria-label="Chat / List View"
                             >
-                              {/* Avatar with active presence dot */}
-                              <div className="relative shrink-0">
-                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20">
-                                  {initials}
-                                </div>
-                                {!isCancelled && (
-                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900 absolute bottom-0 right-0" />
-                                )}
-                              </div>
+                              <List className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOrderViewMode("cards")}
+                              className={`p-1.5 rounded-md transition-colors ${
+                                orderViewMode === "cards"
+                                  ? "bg-[var(--color-accent)] text-white shadow-2xs"
+                                  : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                              }`}
+                              title="Detailed Cards View"
+                              aria-label="Detailed Cards View"
+                            >
+                              <LayoutGrid className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
 
-                              {/* Middle preview content */}
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
-                                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
-                                    {order.project}
-                                  </h3>
-                                  <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
-                                    {isGigOnsite ? "Onsite" : "Online"}
-                                  </span>
-                                  <span className="font-mono text-[10px] text-[var(--color-text-tertiary)] hidden xs:inline">
-                                    {order.id}
-                                  </span>
-                                  {isCancelled && (
-                                    <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded">
-                                      Cancelled
-                                    </span>
+                      {filteredOrders.length === 0 ? (
+                        <div className="text-center py-12 px-4 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-xs text-[var(--color-text-secondary)]">
+                          No orders match &ldquo;{orderSearchQuery}&rdquo;.
+                        </div>
+                      ) : orderViewMode === "chat" ? (
+                        <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] divide-y divide-[var(--color-hairline)] overflow-hidden shadow-xs">
+                          {filteredOrders.map((order) => {
+                            const isCancelled = appStateSync.isBookingCancelled(order.id);
+                            const pLower = order.project.toLowerCase();
+                            const isGigOnsite = pLower.includes("compere") || pLower.includes("audition") || pLower.includes("onsite");
+                            const initials = order.counterpart
+                              .split(" ")
+                              .map((w) => w[0])
+                              .filter(Boolean)
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase() || "CL";
+
+                            const statusSummary = isCancelled
+                              ? "Order cancelled & refunded to client"
+                              : order.phase === "Review"
+                              ? "Deliverables submitted · Under review"
+                              : "Milestone in progress";
+
+                            return (
+                              <div
+                                key={order.id}
+                                onClick={() => navigate(`/order/${order.id}`)}
+                                className="flex items-center gap-3.5 sm:gap-4 p-4 sm:p-5 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                              >
+                                {/* Avatar with active presence dot */}
+                                <div className="relative shrink-0">
+                                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20">
+                                    {initials}
+                                  </div>
+                                  {!isCancelled && (
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900 absolute bottom-0.5 right-0.5" />
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary)] truncate">
-                                  <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
-                                  <span className="text-[var(--color-text-tertiary)]">&middot;</span>
-                                  <span className="truncate text-[var(--color-text-tertiary)]">
-                                    {isCancelled
-                                      ? "Order cancelled & refunded to client"
-                                      : order.phase === "Review"
-                                      ? "Deliverables submitted · Under review"
-                                      : "Active collaboration room · Tap to chat"}
-                                  </span>
+                                {/* Middle content: Project + Counterpart + Status */}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                                      {order.project}
+                                    </h3>
+                                    <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                      {isGigOnsite ? "Onsite" : "Online"}
+                                    </span>
+                                    {isCancelled && (
+                                      <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded shrink-0">
+                                        Cancelled
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <div className="flex items-center gap-2 text-xs sm:text-[13px] text-[var(--color-text-secondary)] truncate">
+                                    <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
+                                    <span className="text-[var(--color-text-tertiary)]">&middot;</span>
+                                    <span className="truncate text-[var(--color-text-tertiary)]">
+                                      {statusSummary}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Right status & action */}
+                                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                                  <div className="text-right flex flex-col items-end gap-1">
+                                    <span
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                        isCancelled
+                                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                          : order.phase === "Review"
+                                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                          : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                      }`}
+                                    >
+                                      {order.phase}
+                                    </span>
+                                    <div className="text-[11px] font-medium text-[var(--color-text-tertiary)]">
+                                      Due {order.due}
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
                                 </div>
                               </div>
-
-                              {/* Right status & action */}
-                              <div className="flex items-center gap-3 shrink-0">
-                                <div className="text-right hidden sm:block">
-                                  <div className="text-[11px] font-semibold text-[var(--color-text-tertiary)]">
-                                    Due {order.due}
-                                  </div>
-                                  <div className="text-[10px] font-medium text-[var(--color-accent)] mt-0.5">
-                                    {order.phase}
-                                  </div>
-                                </div>
-                                <span className="hidden md:inline-flex items-center text-xs font-semibold text-[var(--color-accent)] group-hover:underline">
-                                  Enter Room
-                                </span>
-                                <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  }
-
-                  // Cards view (redundant fee breakdown removed!)
-                  return (
-                    <div className="space-y-4">
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
                       {filteredOrders.map((order) => {
                         const isCancelled = appStateSync.isBookingCancelled(order.id);
                         const num = Number(order.amount.replace(/[^0-9]/g, "")) || 0;
@@ -5275,8 +5273,10 @@ export function TalentDashboard() {
                         );
                       })}
                     </div>
-                  );
-                })()}
+                  )}
+                </>
+              );
+            })()}
               </motion.div>
             )}
 

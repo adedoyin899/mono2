@@ -483,4 +483,59 @@ describe("ClientDashboard — Fund Client Wallet Modal & Paystack Integration", 
   });
 });
 
+describe("ClientDashboard — Active Orders Tab (Design Review Polish)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function renderOrdersTab() {
+    const { ClientDashboard } = await import("./ClientDashboard");
+    render(
+      <MemoryRouter>
+        <ClientDashboard />
+      </MemoryRouter>,
+    );
+    const ordersNavBtns = screen.getAllByText(/Active Orders/i);
+    // Click the sidebar navigation item for Active Orders
+    fireEvent.click(ordersNavBtns[0]!);
+    await screen.findByPlaceholderText("Search orders or performers...");
+  }
+
+  it("renders a single page header with no duplicate H2 and no redundant subtitle", async () => {
+    await renderOrdersTab();
+
+    // Exactly one h1 for page header
+    const headings = screen.getAllByRole("heading", { name: /Active Orders/i });
+    expect(headings.length).toBe(1);
+    expect(headings[0]!.tagName.toLowerCase()).toBe("h1");
+
+    // Redundant H2 subtitle is removed
+    expect(screen.queryByText("Direct collaboration and chat rooms with your hired performers.")).not.toBeInTheDocument();
+
+    // Canonical desktop subtitle exists
+    expect(screen.getByText("Track your active collaborations.")).toBeInTheDocument();
+  });
+
+  it("renders clean controls toolbar and streamlined list items without redundant boilerplate", async () => {
+    await renderOrdersTab();
+
+    // Clean toolbar with order count
+    const countEl = screen.getByText("3");
+    expect(countEl.parentElement?.textContent).toContain("3 active orders");
+    expect(screen.getByPlaceholderText("Search orders or performers...")).toBeInTheDocument();
+
+    // Redundant filler text removed
+    expect(screen.queryByText(/Active room · Tap to chat/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Active collaboration room/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Enter Room")).not.toBeInTheDocument();
+
+    // Clean phase status pills and due dates are rendered
+    expect(screen.getAllByText(/Due Dec/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Deliverables").length).toBeGreaterThan(0);
+  });
+});
+
+
 

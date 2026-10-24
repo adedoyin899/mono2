@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
+**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 114. Active Orders Screen Duplicate Header, Cluttered Chat Row Typography & Redundant Boilerplate Text
+- **Severity:** Low / UX Hierarchy & Information Redundancy Defect
+- **What happened:**
+  1. Both Performer (`TalentDashboard.tsx`) and Client (`ClientDashboard.tsx`) Active Orders screens rendered a duplicate `<h2>Active Orders</h2>` heading directly underneath the canonical `<h1>Active Orders</h1>` page header, with clashing subtexts ("Manage/Track your active collaborations" vs "Direct chat/collaboration rooms...").
+  2. Order list rows were cluttered with raw database IDs (`ORD-2024-001`) placed inline with the project title.
+  3. Every order row repeated meaningless, boilerplate instructional filler text ("Active collaboration room · Tap to chat" / "Active room · Tap to chat & review").
+  4. The right side of each order row crammed due dates, phase labels, and redundant colored text ("Enter Room >") into a tight, visually shouting cluster.
+- **Root Cause:**
+  - Double header declaration across dashboard layout shell and orders tab component; lack of dedicated toolbar component; excessive microcopy boilerplate in list items.
+- **Fix:**
+  - Removed duplicate `<h2>Active Orders</h2>` and subtitles from the orders tab, leaving the single canonical `<h1>Active Orders</h1>` and mobile top bar headers.
+  - Introduced a clean controls toolbar featuring live order count, search bar, and List/Grid view switcher.
+  - Streamlined list item typography: elevated project titles, removed raw order IDs, replaced boilerplate microcopy with contextual status descriptions, and replaced clashing "Enter Room >" text with clean phase pills (`Deliverables`, `Review`, `Cancelled`), subtle due dates, and an animated navigation chevron.
+  - Validated via new test suites in `ClientDashboard.test.tsx` and `TalentDashboardOrders.test.tsx`.
 
 ### 113. Performer Profile Separate-Tab Discovery Deficit & Accidental Application Withdrawal Vulnerability
 - **Severity:** Low / Usability & Defensive UX Defect

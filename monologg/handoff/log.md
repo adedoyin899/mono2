@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-23 (Session 166: Separate-Tab Talent Profile Discovery, 3-Column Escrow Grid & Action Deduplication)
+**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 167 (2026-10-24) — Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish
+
+**Goal:** Conduct a comprehensive gstack-guided design review and visual QA on both the Performer (`TalentDashboard.tsx`) and Client (`ClientDashboard.tsx`) Active Orders screens: eliminate the double header bug, prune noisy and repetitive microcopy boilerplate, introduce a clean count and control toolbar, and create a breathable, executive-caliber list item hierarchy.
+
+1. **Header Deduplication & Information Hierarchy (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+   - Eliminated the redundant secondary `<h2>Active Orders</h2>` heading and duplicate subtexts ("Direct chat rooms for all your live project collaborations." / "Direct collaboration and chat rooms with your hired performers.") inside the orders tab container.
+   - Preserved the single canonical desktop `<h1>Active Orders</h1>` page header and mobile top bar title, restoring a clear visual hierarchy.
+   - Introduced a balanced, clean controls toolbar directly above the orders content featuring a dynamic order count indicator (`3 active orders` or `Showing X of Y orders` during search), quick search input, and view mode toggle buttons (Chat/List vs Detailed Cards).
+2. **Streamlined Chat / List Row Item Architecture (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+   - Expanded vertical and horizontal breathing room with generous `p-4 sm:p-5` padding and refined spacing (`gap-3.5 sm:gap-4`).
+   - Sized avatar containers to a comfortable 44px–48px (`w-11 h-11 sm:w-12 sm:h-12`) with cleanly anchored online presence indicators.
+   - Purged repeated boilerplate filler text ("Active collaboration room · Tap to chat", "Active room · Tap to chat & review") across all order rows. Replaced with contextual status indicators ("Milestone in progress", "Deliverables submitted · Under review", "Deliverables submitted · Inspection active", "Cancelled & refunded").
+   - Removed raw technical ID clutter (`ORD-2024-001`) from the primary project title line, letting the project title and `Online` / `Onsite` format pill badge stand out clearly.
+   - Redesigned the right-side status area: replaced competing, clashing colored texts ("Due Dec 18", "Deliverables", "Enter Room >") with a distinct rounded phase badge pill (`Deliverables`, `Review`, `Cancelled`), subtle due date typography (`Due Dec 18`), and a smooth animated navigation chevron (`group-hover:translate-x-0.5`).
+3. **Automated Unit & Regression Tests (`ClientDashboard.test.tsx`, `TalentDashboardOrders.test.tsx`):**
+   - Added a dedicated test suite in `ClientDashboard.test.tsx` verifying single header rendering, toolbar order count display, absence of duplicate subtitles, and elimination of boilerplate copy.
+   - Created `TalentDashboardOrders.test.tsx` covering the same design and structural assertions on the Performer Active Orders view.
+   - Verified 0 type errors via `npm run typecheck`.
+   - Verified 26/26 web test files passing (136/136 tests).
 
 ---
 
