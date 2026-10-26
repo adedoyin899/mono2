@@ -1130,6 +1130,7 @@ export function TalentDashboard() {
     : activeTab === "calendar" ? "Availability"
     : activeTab === "projects" ? "Projects"
     : activeTab === "orders" ? "Active Orders"
+    : activeTab === "analytics" ? "Analytics"
     : "Earnings";
 
   const talentName = talentProfile.name || "Emeka Johnson";
@@ -1206,7 +1207,8 @@ export function TalentDashboard() {
                 {activeTab === "calendar" && "Availability"}
                 {activeTab === "projects" && "Projects"}
                 {activeTab === "orders" && "Active Orders"}
-                {activeTab === "earnings" && "Earnings & Analytics"}
+                {activeTab === "earnings" && "Earnings"}
+                {activeTab === "analytics" && "Performance & Analytics"}
               </h1>
               <p className="text-sm font-body mt-1" style={{ color: "var(--color-text-secondary)" }}>
                 {activeTab === "home" && "Here's what's happening with your career today."}
@@ -1216,6 +1218,7 @@ export function TalentDashboard() {
                 {activeTab === "projects" && "Find and apply to client projects."}
                 {activeTab === "orders" && "Manage your active collaborations."}
                 {activeTab === "earnings" && "Track your income and performance."}
+                {activeTab === "analytics" && `Track profile impressions, booking conversion, and earnings velocity for ${talentProfile.name}.`}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -1661,6 +1664,7 @@ export function TalentDashboard() {
                       <div className="flex items-center gap-2.5 pt-1 sm:pt-0 w-full sm:w-auto">
                         <button
                           onClick={() => setActiveTab("earnings")}
+                          aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}
                           className="h-10 px-4 sm:px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:opacity-95 flex-1 sm:flex-none"
                           style={{ background: "var(--color-accent)" }}
                         >
@@ -1668,10 +1672,11 @@ export function TalentDashboard() {
                           <span>{isNewUser ? "Setup Payouts" : "Withdraw Funds"}</span>
                         </button>
                         <button
-                          onClick={() => setActiveTab("earnings")}
+                          onClick={() => setActiveTab("analytics")}
+                          aria-label="View analytics"
                           className="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
                         >
-                          <BarChart2 className="w-3.5 h-3.5" />
+                          <TrendingUp className="w-3.5 h-3.5" />
                           <span>Analytics</span>
                         </button>
                       </div>
@@ -5503,7 +5508,7 @@ export function TalentDashboard() {
             {activeTab === "analytics" && (
               <motion.div key="analytics" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
+                  <div className="lg:hidden">
                     <h2 className="font-display text-2xl font-semibold" style={{ color: "var(--color-text-primary)" }}>Performer Performance &amp; Analytics</h2>
                     <p className="text-xs font-body mt-1" style={{ color: "var(--color-text-tertiary)" }}>
                       Track profile impressions, booking conversion, and earnings velocity for {talentProfile.name}.
@@ -5511,7 +5516,7 @@ export function TalentDashboard() {
                   </div>
 
                   {/* Period Selector (Matches ClientDashboard UX) */}
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <div className="flex items-center gap-2 self-start sm:self-auto sm:ml-auto">
                     <div
                       className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-lg)] border text-xs font-body shadow-xs"
                       style={{

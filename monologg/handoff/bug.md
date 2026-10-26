@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
+**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 115. Performer Dashboard Home Hero Analytics CTA Routing to Earnings Tab Instead of Analytics View
+- **Severity:** Low / Navigation & UX Hierarchy Defect
+- **What happened:**
+  1. On the Performer home dashboard (`TalentDashboard.tsx`), clicking the secondary hero action button labeled "Analytics" incorrectly routed the user to the Earnings tab (`activeTab === "earnings"`) instead of the dedicated Performance & Analytics view (`activeTab === "analytics"`).
+  2. The button utilized a mismatched icon (`BarChart2`, which is associated with Earnings) instead of `TrendingUp` (the established icon for Analytics across the sidebar).
+  3. `screenTitle` in the mobile sticky top bar lacked an explicit mapping for `activeTab === "analytics"`, falling through to "Earnings".
+  4. The desktop page header lacked a branch for `activeTab === "analytics"`, rendering empty `<h1>` and `<p>` tags on desktop while leaving a redundant `<h2>` inside the tab.
+- **Root Cause:**
+  - Hardcoded legacy `setActiveTab("earnings")` handler on the hero Analytics button from when Analytics and Earnings were coupled together in early beta; omitted `activeTab === "analytics"` branches in top-level header mappings.
+- **Fix:**
+  - Updated the button click handler to `onClick={() => setActiveTab("analytics")}` and switched icon to `<TrendingUp className="w-3.5 h-3.5" />`.
+  - Added accessible `aria-label="View analytics"` and `aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}`.
+  - Added `: activeTab === "analytics" ? "Analytics"` to `screenTitle` for the mobile bar.
+  - Added canonical desktop header `<h1>Performance & Analytics</h1>` with contextual subtitle, and applied `lg:hidden` to the inner tab `<h2>` to prevent duplicate desktop titles.
+  - Added dedicated unit test suite in `TalentDashboardAnalytics.test.tsx`.
 
 ### 114. Active Orders Screen Duplicate Header, Cluttered Chat Row Typography & Redundant Boilerplate Text
 - **Severity:** Low / UX Hierarchy & Information Redundancy Defect

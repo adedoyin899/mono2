@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–166 + Session 167 Active Orders Design Review Polish.
+**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–167 + Session 168 Performer Home Analytics Routing Fix.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -203,7 +203,7 @@ Key token groups:
 
 - **Deep Slate / Graphite Fintech Card (`TalentDashboard.tsx`):**
   - **Surface & Hierarchy:** Replaces the flat solid red banner with an obsidian slate container (`bg-zinc-900 border border-zinc-800/80 rounded-2xl shadow-xl`) incorporating subtle Monologg red ambient rim glow (`from-[#E50914]/15 via-transparent to-transparent`) and an emerald live pulse dot on an `Escrow Protected Payouts` badge.
-  - **Typography & CTA:** Big, authoritative balance typography (`₦148,000`, `text-3xl font-bold tracking-tight text-white`) with high-contrast emerald trend indicator (`+18% vs last month`). Features a white, tactile `Withdraw Funds` CTA with `ArrowUpRight` icon paired with a frosted glass `View Earnings` / `Analytics` button.
+  - **Typography & CTA:** Big, authoritative balance typography (`₦148,000`, `text-3xl font-bold tracking-tight text-white`) with high-contrast emerald trend indicator (`+18% vs last month`). Features a white, tactile `Withdraw Funds` CTA with `ArrowUpRight` icon paired with a frosted glass `Analytics` button with `TrendingUp` icon directly switching to the Performance & Analytics tab (Session 168).
   - **Telemetry Dock:** 3 integrated sub-metrics (`In Active Escrow`, `Completed Bookings`, `Platform Trust Rating` at 99.4%) anchored in a glass sub-shelf (`bg-zinc-950/40 border-t border-zinc-800/60`).
 - **Active Orders Screen Polish & Chat Hierarchy (`TalentDashboard.tsx`, `ClientDashboard.tsx` — Session 167):**
   - **Single Canonical Header:** Deduplicated layout structure by eliminating the secondary `<h2>Active Orders</h2>` and verbose subtexts inside the tab, leaving the single authoritative desktop `<h1>Active Orders</h1>` and sticky mobile header.

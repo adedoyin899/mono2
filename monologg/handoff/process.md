@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
+**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 127: Performer Home Analytics CTA Routing & Header Hierarchy Parity (Session 168)
+
+Resolved navigation routing and header structure across Performer dashboard surfaces (`TalentDashboard.tsx`):
+- **Hero Analytics Routing:** Repaired the home page balance card's Analytics button from misdirected `setActiveTab("earnings")` to `setActiveTab("analytics")`.
+- **Icon & Accessibility Parity:** Swapped `<BarChart2 />` with `<TrendingUp className="w-3.5 h-3.5" />` to align with the sidebar navigation identity, and added explicit `aria-label="View analytics"` and `aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}`.
+- **Header Structure & Deduplication:** Added `activeTab === "analytics"` to `screenTitle` for the sticky mobile bar, established canonical desktop `<h1>Performance & Analytics</h1>` with contextual subtitle, renamed desktop earnings header to clean `"Earnings"`, and added `lg:hidden` to the inner tab `<h2>` in the Analytics view to prevent duplicate desktop titles.
+- **Verification:** Created unit test suite in `TalentDashboardAnalytics.test.tsx`; 0 type errors; 27/27 web test files passing (138/138 tests); 56/56 API test files passing (580/580 tests) — 718/718 tests passing.
 
 ### Step 126: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish (Session 167)
 

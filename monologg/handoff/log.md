@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
+**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 168 (2026-10-26) — Performer Home Analytics CTA Routing & Header Hierarchy Parity
+
+**Goal:** Resolve navigation routing bug where the "Analytics" button on the Performer home dashboard balance hero incorrectly redirected users to the Earnings tab (`setActiveTab("earnings")`) instead of the dedicated Performance & Analytics view (`setActiveTab("analytics")`), synchronize header title hierarchy across desktop and mobile, and eliminate desktop heading duplication.
+
+1. **Performer Home Balance Hero Routing Fix (`TalentDashboard.tsx`):**
+   - Corrected the click handler on the home page balance card's Analytics button from `onClick={() => setActiveTab("earnings")}` to `onClick={() => setActiveTab("analytics")}`.
+   - Replaced legacy `<BarChart2 className="w-3.5 h-3.5" />` with native `<TrendingUp className="w-3.5 h-3.5" />`, establishing 100% visual parity with the `Analytics` navigation item in the Performer sidebar.
+   - Added explicit accessible labels (`aria-label="View analytics"` and `aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}`) to ensure accessibility and reliable test targeting.
+2. **Screen Title & Header Hierarchy Harmonization (`TalentDashboard.tsx`):**
+   - Updated `screenTitle` to map `activeTab === "analytics" ? "Analytics"` (preventing mobile top bar from falling back to `"Earnings"`).
+   - Added canonical desktop page header branch for `activeTab === "analytics"` rendering `<h1>Performance & Analytics</h1>` and subtitle `"Track profile impressions, booking conversion, and earnings velocity for {talentProfile.name}."`.
+   - Updated `activeTab === "earnings"` header title to `"Earnings"` (formerly `"Earnings & Analytics"` from before analytics was factored into its own dedicated tab).
+   - Added `lg:hidden` to the inner tab `<h2>` in the Analytics view to eliminate redundant double headings on desktop while keeping the Period selector smoothly aligned (`sm:ml-auto`).
+3. **Automated Testing & Regression Prevention (`TalentDashboardAnalytics.test.tsx`):**
+   - Created `TalentDashboardAnalytics.test.tsx` verifying:
+     - Clicking "View analytics" on the Home tab navigates to the Analytics tab, rendering the date range selector and metric cards (`Profile views`, `Projects completed`, `Average rating`) with zero earnings balance leakage.
+     - Clicking "Withdraw funds" on the Home tab navigates to the Earnings tab, rendering "Available for withdrawal" and suppressing analytics controls.
+   - Verified full monorepo typecheck: 0 errors across `packages/types`, `apps/api`, `apps/web`.
+   - Verified test suite: 27/27 web test files passing (138/138 tests) and 56/56 API test files passing (580/580 tests) — **718/718 total tests green**.
 
 ---
 

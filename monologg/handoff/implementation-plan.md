@@ -1,11 +1,26 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-24 (Session 167: Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–166 + Session 167 Active Orders Design Review Polish.
+**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–167 + Session 168 Performer Home Analytics Routing Fix.
 
 ---
 
 ## ✅ Done
+
+### Session 168 — Performer Home Analytics CTA Routing & Header Hierarchy Parity
+- [x] **Home Hero Analytics Routing Fix (`TalentDashboard.tsx`)**:
+  - Re-routed balance card Analytics button from `setActiveTab("earnings")` to `setActiveTab("analytics")`.
+  - Replaced `<BarChart2 />` with `<TrendingUp />` icon to align with the sidebar navigation identity.
+  - Added accessible `aria-label="View analytics"` and `aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}`.
+- [x] **Header & Screen Title Hierarchy Harmonization (`TalentDashboard.tsx`)**:
+  - Mapped `activeTab === "analytics" ? "Analytics"` in `screenTitle` for the mobile sticky top bar.
+  - Added dedicated desktop `<h1>Performance & Analytics</h1>` header and contextual subtitle.
+  - Updated desktop `earnings` header title to clean `"Earnings"` (removing legacy `"Earnings & Analytics"` text).
+  - Added `lg:hidden` to the inner tab `<h2>` in the Analytics view to avoid double desktop headers.
+- [x] **Automated Testing & Validation**:
+  - Created `TalentDashboardAnalytics.test.tsx` verifying hero button routing to Analytics and Earnings tabs respectively.
+  - Verified `npm run typecheck`: 0 errors monorepo-wide.
+  - Verified full test suites: 27/27 web test files (138/138 tests) and 56/56 API test files (580/580 tests) — **718/718 tests passing**.
 
 ### Session 167 — Active Orders Screen Header Deduplication, Streamlined Chat Hierarchy & Design Polish
 - [x] **Header Deduplication & Information Hierarchy (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
