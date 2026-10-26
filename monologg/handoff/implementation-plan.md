@@ -1,11 +1,19 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–168 + Session 169 Dashboard Polish & Escrow List Dividers.
+**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–169 + Session 170 Performer Dashboard Horizontal Quick Actions.
 
 ---
 
 ## ✅ Done
+
+### Session 170 — Performer Dashboard Horizontal Quick Action Layout Parity
+- [x] **Horizontal Quick Action Row Architecture (`TalentDashboard.tsx`)**:
+  - Converted Performer quick action cards (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`) from vertical column stack to horizontal row layout (`flex items-center gap-2.5 sm:gap-3`).
+  - Positioned icon on the left with text (`label` and `sub`) placed beside it horizontally, establishing 100% parity with `ClientDashboard.tsx`.
+  - Added `min-w-0 flex-1 truncate` to prevent text distortion on narrow screens.
+- [x] **Quality & Regression Check**:
+  - Verified 0 typecheck errors; `TalentDashboardAnalytics.test.tsx` passing.
 
 ### Session 169 — Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers
 - [x] **Quick Actions Tag Removal & Mobile Icon+Title Ergonomics (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:

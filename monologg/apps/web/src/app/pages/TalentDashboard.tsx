@@ -1687,14 +1687,14 @@ export function TalentDashboard() {
                     <button
                       key={i}
                       onClick={qa.action}
-                      className="p-3 sm:p-3.5 rounded-2xl border text-left transition-all hover:border-[var(--color-accent)] hover:shadow-sm bg-[var(--color-bg-surface)] group flex flex-col justify-between cursor-pointer"
-                      style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
+                      className="p-3 sm:p-3.5 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] hover:shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left flex items-center gap-2.5 sm:gap-3"
+                      style={{ boxShadow: "var(--shadow-card)" }}
                     >
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform mb-2 sm:mb-2.5">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
                         <qa.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <div>
-                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
                           {qa.label}
                         </div>
                         <div className="hidden sm:block text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">

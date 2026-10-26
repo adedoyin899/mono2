@@ -1,11 +1,25 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
+**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 170 (2026-10-26) — Performer Dashboard Horizontal Quick Action Layout Parity
+
+**Goal:** Align Performer quick action cards (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`) from a vertical stacked layout (`flex-col`) to a horizontal side-by-side layout (`flex items-center gap-2.5 sm:gap-3`) where the icon sits on the left and the title and subtitle sit beside it horizontally, establishing 100% layout parity with `ClientDashboard.tsx`.
+
+1. **Horizontal Card Layout (`TalentDashboard.tsx`):**
+   - Replaced vertical container classes (`flex flex-col justify-between`) with horizontal row classes (`flex items-center gap-2.5 sm:gap-3`).
+   - Removed bottom margin on icon container (`mb-2 sm:mb-2.5`), keeping it a crisp `shrink-0` element.
+   - Wrapped title and subtitle in `min-w-0 flex-1` with `truncate` on the title, ensuring proper alignment and preventing text wrap issues on tight viewports.
+2. **Automated Testing & Quality Gate:**
+   - Ran `npx vitest run src/app/pages/TalentDashboardAnalytics.test.tsx` (2/2 tests passed).
+   - Verified 0 type errors with `npm run typecheck` across `packages/types`, `apps/web`, and `apps/api`.
 
 ---
 

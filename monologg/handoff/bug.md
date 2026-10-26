@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
+**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 117. Performer Quick Action Vertical Stacking Layout Disparity
+- **Severity:** Low / Layout Parity & Mobile Ergonomics Defect
+- **What happened:**
+  - Quick action cards in `TalentDashboard.tsx` were configured with `flex flex-col justify-between`, placing the icon vertically on top and text below it.
+  - This contrasted with `ClientDashboard.tsx`'s horizontal row layout (`flex items-center`), creating inconsistency across the platform and awkward vertical heights on mobile screens.
+- **Root Cause:**
+  - Legacy flex-direction class discrepancy between `TalentDashboard.tsx` (`flex-col`) and `ClientDashboard.tsx` (`flex items-center`).
+- **Fix:**
+  - Standardized `TalentDashboard.tsx` to `flex items-center gap-2.5 sm:gap-3`, positioning the icon on the left and text (`min-w-0 flex-1 truncate`) beside it horizontally.
+  - Verified across test suite and monorepo typecheck.
 
 ### 116. Dashboard Quick Action Tag Clutter, Mobile Visual Cramming, Redundant Activity Subtext & Boxed Escrow Visual Fragmentation
 - **Severity:** Low / UI Ergonomics & Hierarchy Defect

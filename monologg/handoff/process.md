@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List)
+**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 129: Performer Dashboard Horizontal Quick Action Layout Parity (Session 170)
+
+Aligned Performer dashboard quick action cards (`TalentDashboard.tsx`) with the horizontal row layout established in the Client portal (`ClientDashboard.tsx`):
+- **Horizontal Row Alignment:** Replaced `flex flex-col justify-between` with `flex items-center gap-2.5 sm:gap-3`, placing the icon on the left (`shrink-0`) and the title/subtitle horizontally beside it (`min-w-0 flex-1 truncate`).
+- **Eliminated Vertical Margin Spacing:** Removed `mb-2 sm:mb-2.5` from the icon wrapper, ensuring crisp vertical centering.
+- **Verification:** Ran automated unit test suite `TalentDashboardAnalytics.test.tsx` (2/2 passing); verified 0 typecheck errors.
 
 ### Step 128: Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List (Session 169)
 

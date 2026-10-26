@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions & Escrow Hierarchy Parity)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–168 + Session 169 Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List.
+**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–169 + Session 170 Performer Dashboard Horizontal Quick Actions.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -278,6 +278,9 @@ Key token groups:
   - On mobile screens, quick action cards hide subtitles (`hidden sm:block`) and present a clean, spacious icon + title layout matching native mobile touch interfaces.
   - Pruned redundant filler subtitle below the `Recent Activity` section header.
   - Standardized hero balance card on performer dashboard with a single primary CTA (`Withdraw Funds` / `Setup Payouts`), removing the redundant secondary Analytics button that conflicted with sidebar navigation.
+- **Horizontal Quick Action Row Architecture Parity (`TalentDashboard.tsx` — Session 170):**
+  - Standardized Performer quick action buttons from vertical stacked cards (`flex-col`) to horizontal rows (`flex items-center gap-2.5 sm:gap-3`), matching `ClientDashboard.tsx`.
+  - Icon is anchored on the left (`shrink-0`), with text (`label` and `sub`) placed beside it horizontally (`min-w-0 flex-1 truncate`).
 
 
 
