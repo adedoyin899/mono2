@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
+**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 130: Onboarding Device Mockup Asset Refresh (Session 171)
+
+Updated the desktop onboarding and authentication showcase panel assets (`AuthFlow.tsx`, `auth-preview.html`):
+- **Asset Replacement:** Replaced `monologg/apps/web/public/auth-performer-device.png` and `monologg/apps/web/public/auth-client-device.png` with the user's latest 489x1024 high-definition mobile device captures.
+- **Visual Synchronization:** The new assets depict the upgraded dashboard states including the horizontal quick action layout, sole "Withdraw Funds" primary CTA on Performer balance hero, and streamlined activity feeds.
+- **Verification:** Ran `authFlowStress.test.tsx` (5/5 tests passing); verified 0 type errors across monorepo.
 
 ### Step 129: Performer Dashboard Horizontal Quick Action Layout Parity (Session 170)
 

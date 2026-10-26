@@ -1,11 +1,19 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–169 + Session 170 Performer Dashboard Horizontal Quick Actions.
+**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–170 + Session 171 Onboarding Device Mockup Refresh.
 
 ---
 
 ## ✅ Done
+
+### Session 171 — Onboarding Device Mockup Asset Refresh
+- [x] **Device Mockup Refresh (`public/auth-performer-device.png`, `public/auth-client-device.png`)**:
+  - Replaced device mockup assets on the onboarding/auth desktop hero split-screen (`AuthFlow.tsx`, `auth-preview.html`) with latest user-provided mobile captures.
+  - Performer mockup displays updated horizontal quick actions, single "Withdraw Funds" primary CTA, and recent gig activity.
+  - Client mockup displays ₦850,000 balance, horizontal quick actions, and project feeds.
+- [x] **Quality Gate**:
+  - Verified 489x1024 native resolution and transparency; ran `authFlowStress.test.tsx` (5/5 passing).
 
 ### Session 170 — Performer Dashboard Horizontal Quick Action Layout Parity
 - [x] **Horizontal Quick Action Row Architecture (`TalentDashboard.tsx`)**:

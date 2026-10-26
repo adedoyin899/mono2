@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–169 + Session 170 Performer Dashboard Horizontal Quick Actions.
+**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–170 + Session 171 Onboarding Device Mockup Refresh.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -128,7 +128,7 @@ There is also a page not in the original PRD at all: **`/design-system`** (`Desi
   - Performer POV: `lets help you` / `Find gigs, finish your project`
   - Color contrast: Subtitle `#475569` in light mode, `rgba(255, 255, 255, 0.70)` in dark mode; Headline `#09090b` in light mode, `#FFFFFF` in dark mode.
   - Backdrop image dynamically uses `opacity-15 mix-blend-overlay` in dark mode so the rich dark cosmic gradient is preserved without washing out dark mode contrast, and `opacity-90` in light mode.
-  - Grounded device mockup (`/auth-performer-device.png` and `/auth-client-device.png`), strictly maintaining native `489 / 1024` aspect ratio, positioned `200px` down (`translate-y-[200px]`) for a cropped editorial aesthetic, with zero artificial CSS drop-shadow halos.
+  - Grounded device mockup (`/auth-performer-device.png` and `/auth-client-device.png`), strictly maintaining native `489 / 1024` aspect ratio, positioned `200px` down (`translate-y-[200px]`) for a cropped editorial aesthetic, with zero artificial CSS drop-shadow halos. Updated in Session 171 with high-resolution mobile device captures reflecting the new horizontal quick action cards and single primary CTA hierarchy.
 - **Mobile Degradation:** On screens smaller than `lg` (e.g. mobile devices), the right showcase pane is completely hidden (`hidden lg:flex`), allowing the auth pane to expand to 100% width with centered ergonomics.
 
 As of Phase 4 (Session 14), these call real endpoints through `apiClient` — but **only when `VITE_API_MODE=live`**; the default `mock` mode reproduces the exact original prototype behavior below, so nothing about running the app locally changed unless you explicitly flip the mode.

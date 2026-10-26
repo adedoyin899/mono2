@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
+**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 118. Stale Onboarding Device Mockup Assets Reflecting Deprecated Dashboard UI
+- **Severity:** Low / Asset Parity & Visual Hierarchy Defect
+- **What happened:**
+  - Device mockups shown on the onboarding / authentication split screen (`AuthFlow.tsx`, `auth-preview.html`) showed obsolete UI states (such as older action tags and redundant buttons) that had been superseded in Sessions 169–170.
+- **Root Cause:**
+  - Static raster image files in `public/` required updating with current dashboard screenshots.
+- **Fix:**
+  - Replaced `monologg/apps/web/public/auth-performer-device.png` and `monologg/apps/web/public/auth-client-device.png` with user's updated 489x1024 iPhone captures displaying horizontal quick action cards and single primary CTA.
 
 ### 117. Performer Quick Action Vertical Stacking Layout Disparity
 - **Severity:** Low / Layout Parity & Mobile Ergonomics Defect

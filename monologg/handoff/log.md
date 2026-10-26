@@ -1,11 +1,25 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-26 (Session 170: Performer Dashboard Horizontal Quick Action Layout Parity)
+**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 171 (2026-10-26) — Onboarding Device Mockup Asset Refresh
+
+**Goal:** Refresh the high-resolution device mockup assets displayed on the onboarding and authentication stage (`AuthFlow.tsx`, `auth-preview.html`) with the latest user-provided mobile device captures reflecting recent design upgrades: horizontal quick actions, sole "Withdraw Funds" primary CTA, pruned filler copy, and updated recent activity streams.
+
+1. **Asset Replacement (`public/auth-performer-device.png`, `public/auth-client-device.png`):**
+   - Replaced `monologg/apps/web/public/auth-performer-device.png` with the new 489x1024 high-definition iPhone mockup showcasing the updated Performer dashboard with horizontal quick actions (`Public Storefront`, `Availability`, `Rate Cards`, `Active Orders`), bold ₦148,000 balance with sole "Withdraw Funds" CTA, and active bookings.
+   - Replaced `monologg/apps/web/public/auth-client-device.png` with the new 489x1024 high-definition iPhone mockup showcasing the updated Client dashboard with ₦850,000 wallet balance, "+ Fund Wallet" CTA, horizontal actions (`Post Project`, `Find Performers`, `My Projects`, `Active Orders`), and clean activity feed.
+2. **Quality & Test Validation:**
+   - Verified image aspect ratios (489 / 1024) and transparency decoding.
+   - Ran `authFlowStress.test.tsx` (5/5 tests passed).
+   - Ran `npm run typecheck` across all workspace packages (0 errors).
 
 ---
 
