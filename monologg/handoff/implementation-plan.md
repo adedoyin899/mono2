@@ -1,11 +1,26 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–167 + Session 168 Performer Home Analytics Routing Fix.
+**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–168 + Session 169 Dashboard Polish & Escrow List Dividers.
 
 ---
 
 ## ✅ Done
+
+### Session 169 — Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers
+- [x] **Quick Actions Tag Removal & Mobile Icon+Title Ergonomics (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+  - Removed cluttering badges (`Public`, `Sync`, `3 active`) from quick action cards.
+  - On mobile screens (`< sm`), hid verbose subtitles (`hidden sm:block`) so cards present cleanly with icon and title only.
+- [x] **Hero Balance CTA Simplification (`TalentDashboard.tsx`)**:
+  - Removed secondary Analytics button from balance hero card, leaving "Withdraw Funds" as the single primary action.
+- [x] **Recent Activity Header Subtext Pruning (`TalentDashboard.tsx`)**:
+  - Removed redundant filler text ("Real-time payouts, client bookings, and order updates") below Recent Activity.
+- [x] **Escrow Protection & Verification Divider List Layout (`TalentDashboard.tsx`, `ClientDashboard.tsx`)**:
+  - Re-architected 3 escrow guarantee boxes into a clean stacked list separated by dividers (`divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]`).
+  - Elevated Casting Client & Escrow Verification telemetry stats with divided container and border separator.
+- [x] **Automated Testing & Quality Gate**:
+  - Updated `TalentDashboardAnalytics.test.tsx` verifying sole Withdraw CTA, badge-free quick actions, and sidebar analytics routing.
+  - Verified 0 type errors across monorepo; 27/27 web tests and 56/56 API tests green (718/718 total tests passing).
 
 ### Session 168 — Performer Home Analytics CTA Routing & Header Hierarchy Parity
 - [x] **Home Hero Analytics Routing Fix (`TalentDashboard.tsx`)**:

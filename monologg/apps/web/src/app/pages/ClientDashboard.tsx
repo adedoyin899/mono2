@@ -1194,17 +1194,17 @@ export function ClientDashboard() {
                     <button
                       key={i}
                       onClick={qa.action}
-                      className="p-3.5 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] hover:shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left flex items-center gap-3"
+                      className="p-3 sm:p-3.5 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] hover:border-[var(--color-accent)] hover:shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left flex items-center gap-2.5 sm:gap-3"
                       style={{ boxShadow: "var(--shadow-card)" }}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
-                        <qa.icon className="w-5 h-5" />
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--color-accent-soft)] flex items-center justify-center shrink-0 text-[var(--color-accent)] group-hover:scale-105 transition-transform">
+                        <qa.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
                           {qa.label}
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
+                        <div className="hidden sm:block text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
                           {qa.sub}
                         </div>
                       </div>
@@ -3126,71 +3126,62 @@ export function ClientDashboard() {
                               </span>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]">
                               {/* Pillar 1: 100% Escrow Protection */}
-                              <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="py-4 first:pt-3 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                                   <Shield className="w-4 h-4" />
                                 </div>
-                                <div className="space-y-1 min-w-0 flex-1">
+                                <div className="min-w-0 flex-1 space-y-1">
                                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       1. 100% Escrow Protection
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       Funded Upfront
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
                                     Your project budget is held safely in Paystack escrow. Performers are never paid until you inspect and approve the final deliverables.
                                   </p>
                                 </div>
                               </div>
 
                               {/* Pillar 2: 48h Inspection Window */}
-                              <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="py-4 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                                   <Clock className="w-4 h-4" />
                                 </div>
-                                <div className="space-y-1 min-w-0 flex-1">
+                                <div className="min-w-0 flex-1 space-y-1">
                                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       2. 48h Inspection Window
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       Review Guarantee
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
                                     Upon deliverable submission, you have 48 hours to inspect high-resolution files, request milestone revisions, or verify broadcast quality.
                                   </p>
                                 </div>
                               </div>
 
                               {/* Pillar 3: Milestone Release Control */}
-                              <div
-                                className="p-4 rounded-2xl border flex items-start gap-3.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="py-4 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                                   <CheckCircle2 className="w-4 h-4" />
                                 </div>
-                                <div className="space-y-1 min-w-0 flex-1">
+                                <div className="min-w-0 flex-1 space-y-1">
                                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       3. Milestone Release Control
                                     </span>
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       Direct Approval
                                     </span>
                                   </div>
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
                                     Disbursement only triggers when you confirm satisfaction in the Order Room. In case of disputes, Monologg mediation protects your funds.
                                   </p>
                                 </div>

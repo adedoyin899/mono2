@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–167 + Session 168 Performer Home Analytics Routing Fix.
+**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions & Escrow Hierarchy Parity)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–168 + Session 169 Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -269,6 +269,15 @@ Key token groups:
   - Suppressed pre-application capacity stats (`Applicant Capacity 8/10 filled`) in the performer sidebar once a pitch has been submitted, preventing obsolete metrics from cluttering the contract overview.
   - Added a defensive 2-step confirmation dialog with explicit warning for pitch withdrawal to prevent accidental data deletion.
   - Replaced the bulky, duplicate client sidebar escrow box with a clean 1-line trust pill (`100% Escrow Protected · 24/7 Casting Concierge`).
+- **Divider-Separated Escrow Protection & Casting Client Dossier (`TalentDashboard.tsx`, `ClientDashboard.tsx` — Session 169):**
+  - Replaced isolated, chunky boxed containers with a unified list architecture separated by clean hairline dividers (`divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]`).
+  - Features 40px circular emerald icon badges (`Shield`, `Clock`, `CheckCircle2`), clean row-level alignment for title and status pills, and descriptive copy without bulky bounding box fatigue.
+  - Overhauled Casting Client Dossier telemetry stats with internal dividers (`divide-y sm:divide-y-0 sm:divide-x divide-[var(--color-border-default)]`) and a subtle separator before the bio.
+- **Streamlined Quick Actions & Mobile Hierarchy (`TalentDashboard.tsx`, `ClientDashboard.tsx` — Session 169):**
+  - Removed visual clutter badges/tags (`Public`, `Sync`, `3 active`) across quick action cards.
+  - On mobile screens, quick action cards hide subtitles (`hidden sm:block`) and present a clean, spacious icon + title layout matching native mobile touch interfaces.
+  - Pruned redundant filler subtitle below the `Recent Activity` section header.
+  - Standardized hero balance card on performer dashboard with a single primary CTA (`Withdraw Funds` / `Setup Payouts`), removing the redundant secondary Analytics button that conflicted with sidebar navigation.
 
 
 

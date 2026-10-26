@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
+**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 128: Dashboard Quick Actions, Sole Hero CTA & Divider Escrow List (Session 169)
+
+Executed an end-to-end dashboard UX and visual hierarchy cleanup across Performer (`TalentDashboard.tsx`) and Client (`ClientDashboard.tsx`) interfaces:
+- **Pruned Quick Action Badges & Tags:** Removed decorative visual badges (`Public`, `Sync`, `3 active`) from quick action cards on Performer dashboard, eliminating visual noise and awkward wrap on desktop.
+- **Mobile Icon + Title Quick Actions:** Refactored quick action cards on both Performer and Client portals to suppress subtitles on mobile viewports (`hidden sm:block`), displaying a clean, native-feeling icon and title row.
+- **Recent Activity Subtext Pruning:** Stripped redundant filler copy ("Real-time payouts, client bookings, and order updates") below the `Recent Activity` section header.
+- **Sole Primary Hero Balance CTA:** Removed the secondary Analytics button from the Performer home balance card on both desktop and mobile, establishing `Withdraw Funds` (or `Setup Payouts`) as the sole authoritative action while reserving analytics to the sidebar.
+- **Divider-Separated Escrow Protection:** Re-architected the 3-pillar Escrow Protection & Settlement Guarantee component on both Performer and Client project detail views from chunky isolated gray boxes into an integrated list separated by clean hairline dividers (`divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]`).
+- **Casting Client Dossier Telemetry Layout:** Replaced the heavy gray telemetry box with an integrated stats row with responsive internal dividers (`divide-y sm:divide-y-0 sm:divide-x divide-[var(--color-border-default)]`) and a subtle separator before the bio.
+- **Verification:** Updated automated tests in `TalentDashboardAnalytics.test.tsx` (2/2 passing); 0 type errors across monorepo; 27/27 web test files passing (138/138 tests).
 
 ### Step 127: Performer Home Analytics CTA Routing & Header Hierarchy Parity (Session 168)
 

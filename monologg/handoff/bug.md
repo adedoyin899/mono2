@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
+**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 116. Dashboard Quick Action Tag Clutter, Mobile Visual Cramming, Redundant Activity Subtext & Boxed Escrow Visual Fragmentation
+- **Severity:** Low / UI Ergonomics & Hierarchy Defect
+- **What happened:**
+  1. Quick action cards on the Performer dashboard displayed redundant pill badges (`Public`, `Sync`, `3 active`) that cluttered the desktop interface.
+  2. On mobile screens, quick action cards crowded icon, label, long subtext, and badge inside small touch targets, making them hard to scan and tap.
+  3. The "Recent Activity" header displayed verbose, unnecessary filler subtext ("Real-time payouts, client bookings, and order updates").
+  4. The home balance card had competing action buttons ("Withdraw Funds" and "Analytics") creating user confusion.
+  5. The 3-pillar Escrow Protection & Settlement Guarantee card rendered 3 disconnected chunky gray boxes with heavy borders instead of an integrated, readable list.
+- **Root Cause:**
+  - Nested card-in-card box patterns; unpruned badge and subtitle metadata; absence of mobile-first progressive disclosure hiding quick action subtext.
+- **Fix:**
+  - Removed badge tags from quick action definitions and hid subtexts on mobile (`hidden sm:block`) to show clean icon + title buttons.
+  - Removed secondary Analytics button from balance hero card, leaving "Withdraw Funds" as the sole primary CTA.
+  - Stripped redundant Recent Activity subtitle.
+  - Overhauled Escrow Protection into an elegant vertical list separated by clean dividers (`divide-y divide-[var(--color-border-default)] border-t`).
+  - Added structured internal dividers to the Casting Client telemetry dock.
+  - Verified across web test suite and typecheck.
 
 ### 115. Performer Dashboard Home Hero Analytics CTA Routing to Earnings Tab Instead of Analytics View
 - **Severity:** Low / Navigation & UX Hierarchy Defect

@@ -1665,19 +1665,11 @@ export function TalentDashboard() {
                         <button
                           onClick={() => setActiveTab("earnings")}
                           aria-label={isNewUser ? "Setup payouts" : "Withdraw funds"}
-                          className="h-10 px-4 sm:px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:opacity-95 flex-1 sm:flex-none"
+                          className="h-10 px-4 sm:px-5 rounded-xl text-xs font-bold font-body transition-all active:scale-95 text-white shadow-md flex items-center justify-center gap-1.5 cursor-pointer hover:opacity-95 w-full sm:w-auto"
                           style={{ background: "var(--color-accent)" }}
                         >
                           <ArrowUpRight className="w-4 h-4" />
                           <span>{isNewUser ? "Setup Payouts" : "Withdraw Funds"}</span>
-                        </button>
-                        <button
-                          onClick={() => setActiveTab("analytics")}
-                          aria-label="View analytics"
-                          className="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold font-body transition-all active:scale-95 bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
-                        >
-                          <TrendingUp className="w-3.5 h-3.5" />
-                          <span>Analytics</span>
                         </button>
                       </div>
                     </div>
@@ -1687,32 +1679,25 @@ export function TalentDashboard() {
                 {/* Quick-action structured navigation grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   {[
-                    { label: "Public Storefront", sub: "View & share profile", icon: User, action: () => setActiveTab("storefront"), badge: "Public" },
-                    { label: "Availability", sub: "Manage slots & dates", icon: Calendar, action: () => setActiveTab("calendar"), badge: "Sync" },
-                    { label: "Rate Cards", sub: "Edit service pricing", icon: DollarSign, action: () => setActiveTab("rates"), badge: "3 active" },
-                    { label: "Active Orders", sub: "Track live bookings", icon: MessageSquare, action: () => setActiveTab("orders"), badge: effectiveOrders.length > 0 ? `${effectiveOrders.length} active` : undefined },
+                    { label: "Public Storefront", sub: "View & share profile", icon: User, action: () => setActiveTab("storefront") },
+                    { label: "Availability", sub: "Manage slots & dates", icon: Calendar, action: () => setActiveTab("calendar") },
+                    { label: "Rate Cards", sub: "Edit service pricing", icon: DollarSign, action: () => setActiveTab("rates") },
+                    { label: "Active Orders", sub: "Track live bookings", icon: MessageSquare, action: () => setActiveTab("orders") },
                   ].map((qa, i) => (
                     <button
                       key={i}
                       onClick={qa.action}
-                      className="p-3.5 rounded-2xl border text-left transition-all hover:border-[var(--color-accent)] hover:shadow-sm bg-[var(--color-bg-surface)] group flex flex-col justify-between cursor-pointer"
+                      className="p-3 sm:p-3.5 rounded-2xl border text-left transition-all hover:border-[var(--color-accent)] hover:shadow-sm bg-[var(--color-bg-surface)] group flex flex-col justify-between cursor-pointer"
                       style={{ borderColor: "var(--color-border-default)", boxShadow: "var(--shadow-card)" }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform">
-                          <qa.icon className="w-5 h-5" />
-                        </div>
-                        {qa.badge && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] border border-[var(--color-hairline)]">
-                            {qa.badge}
-                          </span>
-                        )}
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-[var(--color-accent-soft)] text-[var(--color-accent)] group-hover:scale-105 transition-transform mb-2 sm:mb-2.5">
+                        <qa.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                       <div>
                         <div className="text-xs font-bold font-body text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
                           {qa.label}
                         </div>
-                        <div className="text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
+                        <div className="hidden sm:block text-[11px] font-body text-[var(--color-text-tertiary)] truncate mt-0.5">
                           {qa.sub}
                         </div>
                       </div>
@@ -1722,10 +1707,7 @@ export function TalentDashboard() {
 
                 {/* Recent activity */}
                 <div className="flex items-center justify-between mb-3 px-1">
-                  <div>
-                    <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Recent Activity</h3>
-                    <p className="text-xs font-body text-[var(--color-text-tertiary)]">Real-time payouts, client bookings, and order updates</p>
-                  </div>
+                  <h3 className="font-display text-lg font-bold" style={{ color: "var(--color-text-primary)" }}>Recent Activity</h3>
                   <button className="text-xs font-body font-semibold hover:underline flex items-center gap-1" style={{ color: "var(--color-accent)" }} onClick={() => setActiveTab("activity")}>
                     <span>View all</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -4080,31 +4062,31 @@ export function TalentDashboard() {
                             </div>
 
                             {/* Client Track Record Telemetry Dock */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-2xl" style={{ background: "var(--color-bg-elevated)" }}>
-                              <div className="text-center p-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[var(--color-border-default)] border border-[var(--color-border-default)] rounded-2xl bg-[var(--color-bg-elevated)] overflow-hidden">
+                              <div className="text-center p-3 sm:p-3.5">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Projects</span>
                                 <span className="font-display text-sm font-bold" style={{ color: "var(--color-text-primary)" }}>{selectedProject.clientReviews ?? 18} funded</span>
                               </div>
-                              <div className="text-center p-2">
+                              <div className="text-center p-3 sm:p-3.5">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Rating</span>
                                 <span className="font-display text-sm font-bold text-amber-500">{selectedProject.clientRating ?? 4.9} ★★★★★</span>
                               </div>
-                              <div className="text-center p-2">
+                              <div className="text-center p-3 sm:p-3.5">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Release Speed</span>
                                 <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">&lt; 2 hours</span>
                               </div>
-                              <div className="text-center p-2">
+                              <div className="text-center p-3 sm:p-3.5">
                                 <span className="text-[10px] uppercase font-semibold font-body block" style={{ color: "var(--color-text-tertiary)" }}>Escrow Status</span>
                                 <span className="font-display text-sm font-bold text-emerald-600 dark:text-emerald-400">100% Secured</span>
                               </div>
                             </div>
 
-                            <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                            <p className="text-sm font-body leading-relaxed pt-2 border-t border-[var(--color-hairline)]" style={{ color: "var(--color-text-secondary)" }}>
                               Premier West African casting partner with a flawless escrow release track record on Monologg. Known for transparent briefs, prompt feedback, and instant bank disbursement upon deliverable approval.
                             </p>
                           </div>
 
-                          {/* Escrow Guarantee 3-Pillar Security Architecture (Horizontal 3-Column FAANG Layout) */}
+                          {/* Escrow Guarantee 3-Pillar Security Architecture (List with Dividers) */}
                           <div
                             className="p-6 sm:p-7 rounded-3xl border space-y-4"
                             style={{
@@ -4124,74 +4106,65 @@ export function TalentDashboard() {
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]">
                               {/* Pillar 1: Locked Upfront */}
-                              <div
-                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="space-y-2">
-                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
-                                    <Shield className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
+                              <div className="py-4 first:pt-3 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Shield className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       1. Locked Upfront
                                     </span>
-                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       100% Funded
                                     </span>
                                   </div>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
+                                    100% of compensation is held in escrow before you confirm your booking or record.
+                                  </p>
                                 </div>
-                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  100% of compensation is held in escrow before you confirm your booking or record.
-                                </p>
                               </div>
 
                               {/* Pillar 2: 48h Auto-Release */}
-                              <div
-                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="space-y-2">
-                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
-                                    <Clock className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
+                              <div className="py-4 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <Clock className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       2. 48h Auto-Release
                                     </span>
-                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       Guaranteed Window
                                     </span>
                                   </div>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
+                                    Client has 48 hours to review files. Funds release automatically if no revisions are requested.
+                                  </p>
                                 </div>
-                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  Client has 48 hours to review files. Funds release automatically if no revisions are requested.
-                                </p>
                               </div>
 
                               {/* Pillar 3: Direct Payout */}
-                              <div
-                                className="p-4 rounded-2xl border flex flex-col justify-between gap-2.5 transition-all"
-                                style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
-                              >
-                                <div className="space-y-2">
-                                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className="font-display text-sm font-bold block text-emerald-600 dark:text-emerald-400">
+                              <div className="py-4 last:pb-1 flex items-start gap-3.5 sm:gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                  <CheckCircle2 className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="font-display text-sm font-bold text-[var(--color-text-primary)]">
                                       3. Direct Payout
                                     </span>
-                                    <span className="text-[10px] font-semibold text-[var(--color-text-tertiary)] block">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                       Instant Disbursement
                                     </span>
                                   </div>
+                                  <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--color-text-secondary)]">
+                                    Net earnings are disbursed straight into your designated local bank account with zero chargeback risk.
+                                  </p>
                                 </div>
-                                <p className="text-xs font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                  Net earnings are disbursed straight into your designated local bank account with zero chargeback risk.
-                                </p>
                               </div>
                             </div>
                           </div>

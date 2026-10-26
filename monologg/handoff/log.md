@@ -1,11 +1,34 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-26 (Session 168: Performer Home Analytics CTA Routing & Header Hierarchy Parity)
+**Last updated:** 2026-10-26 (Session 169: Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 169 (2026-10-26) — Dashboard Quick Actions Tag Removal, Mobile Icon+Title Ergonomics, Activity Subtext Pruning & Escrow List Dividers
+
+**Goal:** Execute comprehensive audio- and visual-directed UX refinements across Performer (`TalentDashboard.tsx`) and Client (`ClientDashboard.tsx`) dashboards: strip noisy quick action badge tags, implement clean icon+title ergonomics on mobile quick actions, prune redundant recent activity subtext, remove secondary hero CTA to keep "Withdraw Funds" as the single primary action, and re-architect the 3-pillar escrow guarantee from isolated boxes into an elegant list separated by dividers.
+
+1. **Quick Actions Visual Simplification (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+   - Removed all cluttering badge tags (`Public`, `Sync`, `3 active`) from Performer quick actions.
+   - On mobile viewports (`< sm`), hid verbose subtext (`hidden sm:block`) to show only the prominent icon and clean title, drastically improving mobile thumb ergonomics and eliminating card squashing.
+   - Harmonized icon container dimensions (`w-9 h-9 sm:w-10 sm:h-10`) across both Client and Performer portals.
+2. **Hero Balance CTA Streamlining (`TalentDashboard.tsx`):**
+   - Removed the secondary Analytics button from the Performer home balance card on both desktop and mobile, establishing "Withdraw Funds" (or "Setup Payouts") as the single, unambiguous primary CTA to eliminate user cognitive overload.
+3. **Recent Activity Header Pruning (`TalentDashboard.tsx`):**
+   - Removed redundant explanatory filler subtext ("Real-time payouts, client bookings, and order updates"), leaving a bold, clean `<h3>Recent Activity</h3>` header directly aligned with the "View all →" action.
+4. **Escrow Protection & Verification Divider List Architecture (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+   - Overhauled the 3-pillar Escrow Protection & Settlement Guarantee card from 3 disconnected chunky gray boxes (`grid grid-cols-1 md:grid-cols-3 gap-3`) into a unified list separated by clean, subtle dividers (`divide-y divide-[var(--color-border-default)] border-t border-[var(--color-border-default)]`).
+   - Each pillar features a 40px rounded emerald container (`Shield`, `Clock`, `CheckCircle2`), bold pillar title, subtle status badge pill (`100% Funded`, `Guaranteed Window`, `Instant Disbursement`), and clear explanatory copy.
+   - Elevated the Casting Client & Escrow Verification telemetry dock with a structured bordered container with internal dividers (`divide-y sm:divide-y-0 sm:divide-x divide-[var(--color-border-default)]`) and a subtle divider above the agency bio.
+5. **Automated Testing & Quality Gate:**
+   - Updated `TalentDashboardAnalytics.test.tsx` to assert on sole "Withdraw Funds" hero CTA, tag-free quick actions, and sidebar analytics navigation.
+   - Verified 0 type errors via `npm run typecheck` across all 3 workspace packages.
+   - Verified 27/27 web test files passing (138/138 tests) and 56/56 API test files passing (580/580 tests) — **718/718 total tests green**.
 
 ---
 
