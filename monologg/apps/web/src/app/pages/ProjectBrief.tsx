@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { FormField } from "../components/ui/FormField";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
+import { appStateSync, getProjectDetails } from "../../lib/state-sync";
+import type { ClientProject } from "@monologg/types";
 import { CURRENCIES, convertCurrency, CODE_TO_SYMBOL, getRandomLimitError, LimitError } from "../../lib/currency";
 import { Modal } from "../components/ui/Modal";
 import { PaystackModal } from "../components/ui/PaystackModal";
@@ -14,12 +15,13 @@ import {
   ChevronLeft, FileText, Users, DollarSign, UploadCloud,
   Check, Mic, Video, AlertTriangle, AlertCircle,
   Drama, AudioLines, Laugh, Headphones, MapPin, X,
-  Shield, CreditCard, Wallet, ShieldCheck
+  Shield, CreditCard, Wallet, ShieldCheck, Save, Sparkles
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
 const NICHES = [
+  { id: "vo", label: "Voice-Over", icon: Mic },
   { id: "actors", label: "Actors", icon: Drama },
   { id: "public_speakers", label: "Public speakers", icon: AudioLines },
   { id: "comperes", label: "Comperes", icon: Mic },
@@ -29,8 +31,9 @@ const NICHES = [
 ];
 
 // Maps this form's local niche ids to the real Niche enum (features.md Phase 2/5) —
-// supports both the standard 6 performer categories and legacy identifiers.
+// supports both the standard performer categories and legacy identifiers.
 const NICHE_TO_ENUM: Record<string, string> = {
+  vo: "VO_ARTIST",
   actors: "ACTOR",
   public_speakers: "SPEAKER_PASTOR",
   comperes: "COMPERE",
@@ -38,12 +41,21 @@ const NICHE_TO_ENUM: Record<string, string> = {
   artists: "MUSICIAN",
   creators: "CONTENT_CREATOR",
   actor: "ACTOR",
-  vo: "VO_ARTIST",
   comedian: "COMEDIAN",
   compere: "COMPERE",
   speaker: "SPEAKER_PASTOR",
   musician: "MUSICIAN",
   creator: "CONTENT_CREATOR",
+};
+
+const ENUM_TO_NICHE_ID: Record<string, string> = {
+  VO_ARTIST: "vo",
+  ACTOR: "actors",
+  COMPERE: "comperes",
+  SPEAKER_PASTOR: "public_speakers",
+  COMEDIAN: "comedians",
+  MUSICIAN: "artists",
+  CONTENT_CREATOR: "creators",
 };
 
 interface LocationItem {
@@ -102,16 +114,85 @@ const STEPS = [
 ];
 
 export function ProjectBrief() {
-  const [step, setStep] = useState<Step>(1);
-  const [projectName, setProjectName] = useState("");
-  const [projectType, setProjectType] = useState("");
-  const [projectFormat, setProjectFormat] = useState<"online" | "onsite">("online");
-  const [venueLocation, setVenueLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
-  const [timeline, setTimeline] = useState("");
-  const [location, setLocation] = useState("");
-  const [locationInput, setLocationInput] = useState("");
+  const navigate = useNavigate();
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  // Retrieve project ID from router params, query search params, or state navigation
+  const editId =
+    params.id ||
+    searchParams.get("id") ||
+    searchParams.get("projectId") ||
+    searchParams.get("edit") ||
+    searchParams.get("draft") ||
+    (location.state as any)?.projectId ||
+    null;
+
+  // Hydrate initial draft data when editing or resuming
+  const initialDraft = React.useMemo(() => {
+    if (!editId) return null;
+    const project =
+      appStateSync.getClientProject(editId) ||
+      appStateSync.getClientProjects().find((p) => p.id === editId) ||
+      null;
+    if (!project) return null;
+    const details = getProjectDetails(project);
+    return { project, details };
+  }, [editId]);
+
+  // Determine starting step: essentially where the user stopped last in their draft action
+  const [step, setStep] = useState<Step>(() => {
+    const paramStep = searchParams.get("step");
+    if (paramStep && Number(paramStep) >= 1 && Number(paramStep) <= 5) {
+      return Number(paramStep) as Step;
+    }
+    if (initialDraft?.project.draftStep && initialDraft.project.draftStep >= 1 && initialDraft.project.draftStep <= 5) {
+      return initialDraft.project.draftStep as Step;
+    }
+    if (initialDraft?.details.draftStep && initialDraft.details.draftStep >= 1 && initialDraft.details.draftStep <= 5) {
+      return initialDraft.details.draftStep as Step;
+    }
+    return 1;
+  });
+
+  const [projectName, setProjectName] = useState(() => initialDraft?.project.name || "");
+  const [projectType, setProjectType] = useState(() => {
+    if (initialDraft?.project.projectType) return initialDraft.project.projectType;
+    if (initialDraft?.project.niche === "Voice-Over") return "Commercial / Ad Campaign";
+    if (initialDraft?.project.niche === "Compere") return "Corporate Event";
+    return initialDraft ? "Commercial / Ad Campaign" : "";
+  });
+  const [projectFormat, setProjectFormat] = useState<"online" | "onsite">(() => {
+    if (initialDraft?.project.projectFormat) return initialDraft.project.projectFormat;
+    const loc = initialDraft?.details.location?.toLowerCase() || "";
+    if (loc.includes("on-site") || loc.includes("on-set") || loc.includes("onsite")) return "onsite";
+    return "online";
+  });
+  const [venueLocation, setVenueLocation] = useState(
+    () => initialDraft?.project.venueLocation || (initialDraft?.details.location && !initialDraft.details.location.toLowerCase().includes("remote") ? initialDraft.details.location : "") || ""
+  );
+  const [description, setDescription] = useState(() => initialDraft?.project.description || initialDraft?.details.description || "");
+  const [auditionSides, setAuditionSides] = useState(() => initialDraft?.project.scriptSample || initialDraft?.details.scriptSample || "");
+  const [draftAssets, setDraftAssets] = useState<{ name: string; size: string; type: string }[]>(() => initialDraft?.project.assets || initialDraft?.details.assets || []);
+  const [selectedNiches, setSelectedNiches] = useState<string[]>(() => {
+    if (initialDraft?.project.selectedNiches && initialDraft.project.selectedNiches.length > 0) {
+      return initialDraft.project.selectedNiches;
+    }
+    if (initialDraft?.details.nicheReq) {
+      const mapped = initialDraft.details.nicheReq.map((n) => ENUM_TO_NICHE_ID[n] || n.toLowerCase()).filter(Boolean);
+      if (mapped.length > 0) return mapped;
+    }
+    if (initialDraft?.project.niche) {
+      if (initialDraft.project.niche === "Voice-Over") return ["vo"];
+      const match = NICHES.find((n) => n.label.toLowerCase().includes(initialDraft.project.niche.toLowerCase()) || initialDraft.project.niche.toLowerCase().includes(n.id));
+      if (match) return [match.id];
+    }
+    return [];
+  });
+  const [timeline, setTimeline] = useState(() => initialDraft?.project.timeline || initialDraft?.details.timeline || "");
+  const [locationValue, setLocationValue] = useState(() => initialDraft?.project.location || initialDraft?.details.location || "");
+  const [locationInput, setLocationInput] = useState(() => initialDraft?.project.location || initialDraft?.details.location || "");
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   const filteredLocations = React.useMemo(() => {
@@ -125,15 +206,25 @@ export function ProjectBrief() {
   }, [locationInput]);
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [additionalNotes, setAdditionalNotes] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState(() => initialDraft?.project.additionalNotes || initialDraft?.details.additionalNotes || "");
   const [selectedCurrency, setSelectedCurrency] = useState("NGN");
-  const [budgetAmount, setBudgetAmount] = useState(150000);
+  const [budgetAmount, setBudgetAmount] = useState(() => {
+    if (initialDraft?.project.budget) {
+      const parsed = parseInt(initialDraft.project.budget.replace(/\D/g, ""), 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+    return 150000;
+  });
   const [sliderMax, setSliderMax] = useState(2000000);
-  const [budgetInputStr, setBudgetInputStr] = useState("150,000");
+  const [budgetInputStr, setBudgetInputStr] = useState(() => {
+    if (initialDraft?.project.budget) {
+      const parsed = parseInt(initialDraft.project.budget.replace(/\D/g, ""), 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed.toLocaleString("en-US");
+    }
+    return "150,000";
+  });
   const [limitError, setLimitError] = useState<LimitError | null>(null);
-  // features.md Phase 14 (X4): empty = uncapped, matching the server's own
-  // "null = uncapped" convention (routes/briefs.ts).
-  const [applicantCap, setApplicantCap] = useState("");
+  const [applicantCap, setApplicantCap] = useState(() => (initialDraft?.project.applicantCap ? String(initialDraft.project.applicantCap) : ""));
   const [fundingSource, setFundingSource] = useState<"wallet" | "card">("wallet");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [walletBalance, setWalletBalance] = useState(() => appStateSync.getBalance().available);
@@ -143,15 +234,14 @@ export function ProjectBrief() {
   const [showPaystackModal, setShowPaystackModal] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const navigate = useNavigate();
 
-  const activeCurr = CURRENCIES.find(c => c.code === selectedCurrency) || CURRENCIES[0];
+  const activeCurr = CURRENCIES.find((c) => c.code === selectedCurrency) || CURRENCIES[0];
 
   // Sync sliderMax when currency changes
   React.useEffect(() => {
-    const active = CURRENCIES.find(c => c.code === selectedCurrency);
+    const active = CURRENCIES.find((c) => c.code === selectedCurrency);
     if (active) {
-      setSliderMax(prev => Math.max(prev, active.max));
+      setSliderMax((prev) => Math.max(prev, active.max));
     }
   }, [selectedCurrency]);
 
@@ -161,7 +251,7 @@ export function ProjectBrief() {
   }, [budgetAmount]);
 
   const toggleNiche = (id: string) => {
-    setSelectedNiches(prev => prev.includes(id) ? prev.filter(n => n !== id) : [...prev, id]);
+    setSelectedNiches((prev) => (prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]));
   };
 
   const canAdvance = () => {
@@ -182,15 +272,15 @@ export function ProjectBrief() {
   const handleBudgetInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     const numericStr = rawVal.replace(/\D/g, "");
-    
+
     if (numericStr.length > 15 || (numericStr.length === 15 && parseInt(numericStr, 10) > 999999999999999)) {
       const isMobile = window.innerWidth < 500;
       setLimitError(getRandomLimitError(isMobile));
       return;
     }
-    
+
     setBudgetInputStr(numericStr);
-    
+
     const numericVal = numericStr ? parseInt(numericStr, 10) : 0;
     setBudgetAmount(numericVal);
     if (numericVal > sliderMax) {
@@ -210,8 +300,51 @@ export function ProjectBrief() {
     const val = Number(e.target.value);
     setBudgetAmount(val);
     if (val >= sliderMax * 0.95) {
-      setSliderMax(prev => Math.round(prev * 1.5));
+      setSliderMax((prev) => Math.round(prev * 1.5));
     }
+  };
+
+  // Draft persistence action: save progress & prefilled values at current step
+  const handleSaveDraft = () => {
+    const currentBudgetStr = `₦${budgetAmount.toLocaleString("en-US")}`;
+    const primaryNicheLabel =
+      selectedNiches.length > 0
+        ? NICHES.find((n) => n.id === selectedNiches[0])?.label || "Voice-Over"
+        : initialDraft?.project.niche || "Voice-Over";
+
+    const draftData: ClientProject = {
+      id: editId || `P-${Date.now()}`,
+      name: projectName.trim() || "Untitled Project Brief",
+      niche: primaryNicheLabel,
+      budget: currentBudgetStr,
+      status: "draft",
+      applicants: initialDraft?.project.applicants || 0,
+      applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
+      applicationsOpen: false,
+      posted: initialDraft?.project.posted || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      draftStep: step,
+      projectType,
+      projectFormat,
+      venueLocation,
+      description,
+      selectedNiches,
+      timeline,
+      location: projectFormat === "onsite" ? venueLocation || "Lagos, NG (On-site)" : locationValue || "Remote (Online)",
+      scriptSample: auditionSides,
+      additionalNotes,
+      assets: draftAssets,
+    };
+
+    appStateSync.saveClientDraft(draftData);
+
+    appStateSync.addNotification({
+      id: `notif-${Date.now()}`,
+      kind: "PROJECT_APPLICATION",
+      createdAt: new Date().toISOString(),
+      payload: { clientName: `Draft saved: ${draftData.name} (Step ${step} of ${STEPS.length})` },
+    });
+
+    navigate("/client", { state: { savedDraftId: draftData.id, savedStep: step } });
   };
 
   const executePublish = async () => {
@@ -224,12 +357,42 @@ export function ProjectBrief() {
       await apiClient.createBrief({
         projectName,
         projectType,
-        nicheReq: selectedNiches.map(id => NICHE_TO_ENUM[id]).filter(Boolean),
+        nicheReq: selectedNiches.map((id) => NICHE_TO_ENUM[id]).filter(Boolean),
         budgetAmount: Math.round(budgetAmount * 100),
         budgetCurrency: selectedCurrency,
         applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
         status: "ACTIVE",
       });
+
+      // Transition draft to active if editing or publishing a saved brief
+      if (editId) {
+        appStateSync.updateClientProject(editId, {
+          name: projectName,
+          status: "active",
+          applicationsOpen: true,
+          budget: `₦${budgetAmount.toLocaleString("en-US")}`,
+          applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
+          description,
+          scriptSample: auditionSides,
+          additionalNotes,
+        });
+      } else {
+        appStateSync.saveClientDraft({
+          id: `P-${Date.now()}`,
+          name: projectName,
+          niche: selectedNiches.length > 0 ? NICHES.find((n) => n.id === selectedNiches[0])?.label || "Voice-Over" : "Voice-Over",
+          budget: `₦${budgetAmount.toLocaleString("en-US")}`,
+          status: "active",
+          applicants: 0,
+          applicantCap: applicantCap.trim() ? Number(applicantCap) : null,
+          applicationsOpen: true,
+          posted: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          description,
+          scriptSample: auditionSides,
+          additionalNotes,
+        });
+      }
+
       appStateSync.addNotification({
         id: `notif-${Date.now()}`,
         kind: "PROJECT_APPLICATION",
@@ -271,11 +434,26 @@ export function ProjectBrief() {
             <strong className="text-base" style={{ color: "var(--color-accent)" }}>{projectName || "Your Project"}</strong>
           </p>
           <p className="text-sm font-body mb-8" style={{ color: "var(--color-text-secondary)" }}>
-            Your brief is now live. Verified performers will start applying shortly. You can also browse and invite specific performers.
+            Your brief is now live with escrow reserved. Verified performers will start applying shortly. You can also browse and invite specific performers.
           </p>
           <div className="flex flex-col gap-3">
             <Button className="w-full h-12" onClick={() => navigate("/client")}>View My Projects</Button>
-            <Button variant="secondary" className="w-full h-12" onClick={() => { setStep(1); setSubmitSuccess(false); setProjectName(""); setProjectType(""); setSelectedNiches([]); setSelectedCurrency("NGN"); setBudgetAmount(150000); setSliderMax(2000000); setBudgetInputStr("150,000"); setApplicantCap(""); }}>
+            <Button
+              variant="secondary"
+              className="w-full h-12"
+              onClick={() => {
+                setStep(1);
+                setSubmitSuccess(false);
+                setProjectName("");
+                setProjectType("");
+                setSelectedNiches([]);
+                setSelectedCurrency("NGN");
+                setBudgetAmount(150000);
+                setSliderMax(2000000);
+                setBudgetInputStr("150,000");
+                setApplicantCap("");
+              }}
+            >
               Post Another Project
             </Button>
           </div>
@@ -293,17 +471,52 @@ export function ProjectBrief() {
       >
         <button
           aria-label="Go back"
-          onClick={() => step === 1 ? navigate("/client") : setStep((step - 1) as Step)}
-          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
+          onClick={() => (step === 1 ? navigate("/client") : setStep((step - 1) as Step))}
+          className="w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all cursor-pointer"
           style={{ background: "var(--color-bg-elevated)" }}
         >
           <ChevronLeft className="w-5 h-5" style={{ color: "var(--color-text-secondary)" }} />
         </button>
-        <div className="flex-1">
-          <div className="text-sm font-semibold font-display" style={{ color: "var(--color-text-primary)" }}>Create Project Brief</div>
-          <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Step {step} of {STEPS.length}</div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold font-display truncate" style={{ color: "var(--color-text-primary)" }}>
+              {editId ? "Edit Project Brief" : "Create Project Brief"}
+            </span>
+            {editId && (
+              <span className="text-[10px] uppercase font-bold font-mono tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 whitespace-nowrap">
+                Draft Mode
+              </span>
+            )}
+          </div>
+          <div className="text-xs font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>
+            {editId
+              ? `Continuing from where you left off · Step ${step} of ${STEPS.length}`
+              : `Step ${step} of ${STEPS.length}`}
+          </div>
         </div>
-        <button onClick={() => navigate("/client")} className="text-sm font-body px-3 py-2 rounded-[var(--radius-full)] hover:opacity-80 active:scale-95 transition-all" style={{ color: "var(--color-text-tertiary)" }}>Cancel</button>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleSaveDraft}
+            className="h-9 px-3 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs"
+            title="Save draft and return to dashboard"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Save Draft</span>
+            <span className="sm:hidden">Save</span>
+          </Button>
+
+          <button
+            onClick={() => navigate("/client")}
+            className="text-sm font-body px-3 py-2 rounded-[var(--radius-full)] hover:opacity-80 active:scale-95 transition-all cursor-pointer"
+            style={{ color: "var(--color-text-tertiary)" }}
+          >
+            Exit
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}
@@ -317,40 +530,41 @@ export function ProjectBrief() {
       </div>
 
       {/* Steps indicator */}
-      <div className="px-4 py-4 flex items-center gap-2">
+      <div className="px-4 py-4 flex items-center gap-2 overflow-x-auto">
         {STEPS.map((s, i) => {
           const isDone = s.num < step;
           const isActive = s.num === step;
           return (
             <React.Fragment key={s.num}>
-              <div
-                className="flex items-center gap-1.5 shrink-0"
+              <button
+                type="button"
+                onClick={() => setStep(s.num)}
+                className="flex items-center gap-1.5 shrink-0 cursor-pointer text-left focus:outline-none"
               >
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-transform active:scale-90"
                   style={{
                     background: isDone ? "var(--color-success)" : isActive ? "var(--color-accent)" : "var(--color-bg-elevated)",
-                    /* dark on gold ~10:1, white on green ~16:1, tertiary on elevated ~4:1 */
                     color: isDone ? "var(--color-text-inverse)" : isActive ? "var(--color-accent-on)" : "var(--color-text-tertiary)",
                   }}
                 >
                   {isDone ? "✓" : s.num}
                 </div>
-                <span className="hidden sm:block text-xs font-body" style={{ color: isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-text-tertiary)" }}>
+                <span className="hidden sm:block text-xs font-body font-medium" style={{ color: isActive ? "var(--color-accent)" : isDone ? "var(--color-success)" : "var(--color-text-tertiary)" }}>
                   {s.label}
                 </span>
-              </div>
+              </button>
               {i < STEPS.length - 1 && (
-                <div className="flex-1 h-px" style={{ background: isDone ? "var(--color-success)" : "var(--color-hairline)" }} />
+                <div className="flex-1 h-px min-w-4" style={{ background: isDone ? "var(--color-success)" : "var(--color-hairline)" }} />
               )}
             </React.Fragment>
           );
         })}
       </div>
 
-      <div className="flex-1 px-4 pt-2 pb-40 max-w-xl mx-auto w-full">
+      {/* Content */}
+      <div className="flex-1 max-w-xl mx-auto w-full px-4 py-6">
         <AnimatePresence mode="wait">
-
           {/* Step 1 — Project Details */}
           {step === 1 && (
             <motion.div
@@ -362,24 +576,26 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Project Details</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Tell us about the work you need done.</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Give your casting brief a clear, recognizable name.</p>
               </div>
 
               <FormField label="Project Name *">
                 <Input
+                  className="h-12 text-base"
                   placeholder="e.g., Nike Q1 Campaign Voice-Over"
                   value={projectName}
-                  onChange={e => setProjectName(e.target.value)}
+                  onChange={(e) => setProjectName(e.target.value)}
                 />
               </FormField>
 
               <FormField label="Project Type *">
                 <div className="grid grid-cols-2 gap-2">
-                  {PROJECT_TYPES.map(type => (
+                  {PROJECT_TYPES.map((type) => (
                     <button
                       key={type}
+                      type="button"
                       onClick={() => setProjectType(type)}
-                      className="px-3 py-2.5 rounded-xl text-left text-sm font-body transition-all"
+                      className="p-3.5 rounded-xl text-left text-sm font-body transition-all"
                       style={{
                         background: projectType === type ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                         border: `1px solid ${projectType === type ? "var(--color-accent)" : "var(--color-hairline)"}`,
@@ -393,54 +609,54 @@ export function ProjectBrief() {
               </FormField>
 
               <FormField label="Project Format *">
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setProjectFormat("online")}
-                    className="p-3.5 rounded-xl border text-left transition-all cursor-pointer"
+                    className="p-4 rounded-2xl text-left border transition-all cursor-pointer"
                     style={{
                       background: projectFormat === "online" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                       border: `1px solid ${projectFormat === "online" ? "var(--color-accent)" : "var(--color-hairline)"}`,
                     }}
                   >
                     <div className="flex items-center gap-2 mb-1" style={{ color: projectFormat === "online" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                      <Video className="w-4 h-4 shrink-0" />
-                      <span className="text-sm font-semibold font-body">Online / Remote</span>
+                      <Video className="w-5 h-5" />
+                      <span className="font-semibold text-sm font-display">Online / Remote</span>
                     </div>
-                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                      Digital deliverables, voiceover recordings, remote sessions.
+                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Performers record and deliver deliverables digitally from anywhere.
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setProjectFormat("onsite")}
-                    className="p-3.5 rounded-xl border text-left transition-all cursor-pointer"
+                    className="p-4 rounded-2xl text-left border transition-all cursor-pointer"
                     style={{
                       background: projectFormat === "onsite" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                       border: `1px solid ${projectFormat === "onsite" ? "var(--color-accent)" : "var(--color-hairline)"}`,
                     }}
                   >
                     <div className="flex items-center gap-2 mb-1" style={{ color: projectFormat === "onsite" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                      <MapPin className="w-4 h-4 shrink-0" />
-                      <span className="text-sm font-semibold font-body">On-site / In-person</span>
+                      <MapPin className="w-5 h-5" />
+                      <span className="font-semibold text-sm font-display">On-site Event</span>
                     </div>
-                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                      Physical event presence, shoot location, stage performance.
+                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Requires in-person attendance at a specific venue in Nigeria.
                     </p>
                   </button>
                 </div>
               </FormField>
 
               {projectFormat === "onsite" && (
-                <FormField label="Event Venue & Physical Location *">
+                <FormField label="Venue Location *">
                   <div className="relative">
-                    <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-accent)" }} />
+                    <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-accent)" }} />
                     <Input
                       className="pl-9 text-sm"
                       placeholder="e.g., Eko Hotel Grand Ballroom, Victoria Island, Lagos"
                       value={venueLocation}
-                      onChange={e => setVenueLocation(e.target.value)}
+                      onChange={(e) => setVenueLocation(e.target.value)}
                     />
                   </div>
                 </FormField>
@@ -459,25 +675,26 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Performer Requirements</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>What type of performer are you looking for?</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>What craft category are you looking to cast?</p>
               </div>
 
               <FormField label="Creative Niche * (select all that apply)">
                 <div className="grid grid-cols-2 gap-2">
-                  {NICHES.map(niche => {
+                  {NICHES.map((niche) => {
                     const selected = selectedNiches.includes(niche.id);
                     return (
                       <button
                         key={niche.id}
+                        type="button"
                         onClick={() => toggleNiche(niche.id)}
-                        className="flex items-center gap-2.5 p-3.5 rounded-xl text-left transition-all relative"
+                        className="flex items-center gap-2.5 p-3.5 rounded-xl text-left transition-all relative cursor-pointer"
                         style={{
                           background: selected ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                           border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-hairline)"}`,
                         }}
                       >
                         <niche.icon className="w-5 h-5 shrink-0" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-tertiary)" }} />
-                        <span className="text-sm font-body" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-secondary)" }}>{niche.label}</span>
+                        <span className="text-sm font-body font-medium" style={{ color: selected ? "var(--color-accent)" : "var(--color-text-secondary)" }}>{niche.label}</span>
                         {selected && (
                           <div className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
                             <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
@@ -494,7 +711,7 @@ export function ProjectBrief() {
                   <select
                     className="w-full h-[54px] px-4 rounded-[var(--radius-lg)] text-base font-body border appearance-none"
                     value={timeline}
-                    onChange={e => setTimeline(e.target.value)}
+                    onChange={(e) => setTimeline(e.target.value)}
                     style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                   >
                     <option value="">Select...</option>
@@ -505,20 +722,21 @@ export function ProjectBrief() {
                     <option>Flexible</option>
                   </select>
                 </FormField>
+
                 <div className="relative">
                   <label className="block text-xs font-semibold uppercase tracking-wider font-body mb-2" style={{ color: "var(--color-text-secondary)" }}>
-                    Location
+                    Audition Location Focus
                   </label>
                   <div className="relative">
                     <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-accent)" }} />
                     <Input
                       className="pl-9 pr-8 h-[54px] text-sm"
-                      placeholder="e.g., Lagos or Remote"
+                      placeholder="e.g., Lagos, Abuja, or Remote"
                       value={locationInput}
                       onFocus={() => setShowLocationDropdown(true)}
-                      onChange={e => {
+                      onChange={(e) => {
                         setLocationInput(e.target.value);
-                        setLocation(e.target.value);
+                        setLocationValue(e.target.value);
                         setShowLocationDropdown(true);
                       }}
                     />
@@ -527,9 +745,9 @@ export function ProjectBrief() {
                         type="button"
                         onClick={() => {
                           setLocationInput("");
-                          setLocation("");
+                          setLocationValue("");
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -545,17 +763,17 @@ export function ProjectBrief() {
                         border: "1px solid var(--color-hairline)",
                       }}
                     >
-                      {filteredLocations.map(item => (
+                      {filteredLocations.map((item) => (
                         <button
                           key={item.city}
                           type="button"
-                          onMouseDown={e => {
+                          onMouseDown={(e) => {
                             e.preventDefault();
                             setLocationInput(item.city);
-                            setLocation(item.city);
+                            setLocationValue(item.city);
                             setShowLocationDropdown(false);
                           }}
-                          className="w-full text-left px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors flex items-baseline justify-between gap-3"
+                          className="w-full text-left px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors flex items-baseline justify-between gap-3 cursor-pointer"
                         >
                           <span className="text-sm font-body font-medium" style={{ color: "var(--color-text-primary)" }}>{item.city}</span>
                           <span className="text-[11px] font-body shrink-0" style={{ color: "var(--color-text-tertiary)" }}>{item.state}</span>
@@ -579,22 +797,68 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Assets</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Review your project description, upload scripts, briefs, or reference materials.</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  Review your project synopsis, audition script sides, and attached reference materials.
+                </p>
               </div>
 
-              <FormField label="Project Description">
+              <FormField label="Project Description & Synopsis">
                 <textarea
                   className="w-full px-4 py-3 rounded-2xl text-sm font-body border resize-none transition-colors"
                   rows={4}
                   placeholder="Describe your project, goals, and what you're looking for in a performer..."
                   value={description}
-                  onChange={e => setDescription(e.target.value)}
+                  onChange={(e) => setDescription(e.target.value)}
                   style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                 />
               </FormField>
 
+              <FormField label="Audition Sides & Script Excerpt">
+                <textarea
+                  className="w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-mono border resize-none transition-colors"
+                  rows={4}
+                  placeholder="Paste sides / script excerpt for auditioning talent to read and submit takes for..."
+                  value={auditionSides}
+                  onChange={(e) => setAuditionSides(e.target.value)}
+                  style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
+                />
+              </FormField>
+
+              {/* Attached Reference Files */}
+              {draftAssets.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Attached Project Reference Files ({draftAssets.length})
+                  </label>
+                  <div className="space-y-2">
+                    {draftAssets.map((asset, idx) => (
+                      <div
+                        key={asset.name + idx}
+                        className="flex items-center justify-between p-3 rounded-xl border text-xs font-body"
+                        style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)" }}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <FileText className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
+                          <div className="truncate">
+                            <span className="font-semibold text-[var(--color-text-primary)] block truncate">{asset.name}</span>
+                            <span className="text-[var(--color-text-tertiary)]">{asset.type} · {asset.size}</span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDraftAssets((prev) => prev.filter((_, i) => i !== idx))}
+                          className="text-rose-500 hover:underline px-2 py-1 cursor-pointer shrink-0"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div
-                className="relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-10 text-center cursor-pointer hover:opacity-80 transition-opacity"
+                className="relative border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:opacity-80 transition-opacity"
                 style={{
                   borderColor: uploadedFile ? "var(--color-success)" : "var(--color-hairline)",
                   background: uploadedFile ? "var(--color-success-bg)" : "var(--color-bg-elevated)",
@@ -603,30 +867,42 @@ export function ProjectBrief() {
                 <input
                   type="file"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  accept=".pdf,.doc,.docx,.txt,.mp3,.mp4"
-                  onChange={e => setUploadedFile(e.target.files?.[0] || null)}
+                  accept=".pdf,.doc,.docx,.txt,.mp3,.mp4,.wav"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setUploadedFile(f);
+                      setDraftAssets((prev) => [
+                        ...prev,
+                        { name: f.name, size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`, type: f.type.includes("pdf") ? "PDF Document" : "Reference File" },
+                      ]);
+                    }
+                  }}
                 />
                 {!uploadedFile ? (
                   <>
-                    <UploadCloud className="w-12 h-12 mb-4" style={{ color: "var(--color-text-tertiary)" }} />
+                    <UploadCloud className="w-10 h-10 mb-3" style={{ color: "var(--color-text-tertiary)" }} />
                     <p className="text-sm font-body mb-1" style={{ color: "var(--color-text-secondary)" }}>
-                      Drag & drop or click to upload
+                      Attach script, brief document, or audio reference
                     </p>
                     <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                      PDF, DOC, DOCX, TXT, MP3, MP4 · Max 50MB
+                      PDF, DOC, DOCX, TXT, MP3, WAV, MP4 · Max 50MB
                     </p>
                   </>
                 ) : (
                   <>
-                    <FileText className="w-12 h-12 mb-4" style={{ color: "var(--color-success)" }} />
+                    <FileText className="w-10 h-10 mb-3" style={{ color: "var(--color-success)" }} />
                     <p className="text-sm font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{uploadedFile.name}</p>
                     <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
                       {(uploadedFile.size / 1024 / 1024).toFixed(1)} MB
                     </p>
                     <button
-                      className="mt-3 text-xs font-body hover:underline relative z-10"
+                      className="mt-2 text-xs font-body hover:underline relative z-10"
                       style={{ color: "var(--color-error)" }}
-                      onClick={e => { e.stopPropagation(); setUploadedFile(null); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUploadedFile(null);
+                      }}
                     >
                       Remove file
                     </button>
@@ -634,20 +910,20 @@ export function ProjectBrief() {
                 )}
               </div>
 
-              <FormField label="Additional Notes for Performers">
+              <FormField label="Additional Notes & Guidelines for Performers">
                 <textarea
                   className="w-full px-4 py-3 rounded-xl text-sm font-body border resize-none"
-                  rows={5}
-                  placeholder="Any specific requirements, tone preferences, reference examples, or important context the performer should know..."
+                  rows={4}
+                  placeholder="Any specific delivery format, tone preferences, acoustics, or performer instructions..."
                   value={additionalNotes}
-                  onChange={e => setAdditionalNotes(e.target.value)}
+                  onChange={(e) => setAdditionalNotes(e.target.value)}
                   style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
                 />
               </FormField>
             </motion.div>
           )}
 
-          {/* Step 4 — Review & Agreement (Penultimate step) */}
+          {/* Step 4 — Review & Agreement */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -658,7 +934,7 @@ export function ProjectBrief() {
             >
               <div>
                 <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Review &amp; Agreement</h2>
-                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Please review booking terms before proceeding to payment:</p>
+                <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Please review booking terms and your prefilled draft details:</p>
               </div>
 
               {/* Review & Agreement Card */}
@@ -685,12 +961,6 @@ export function ProjectBrief() {
                     </strong>
                     If a performer fails any confirmation check ins or cancels, you receive a refund of your booking amount, minus payment processing charges capped at NGN 5,000.
                   </div>
-                  <div className="pt-2">
-                    <strong className="font-semibold block mb-0.5" style={{ color: "var(--color-text-primary)" }}>
-                      On-Site Attendance:
-                    </strong>
-                    You will be issued a 4-digit verification code to provide to the talent upon arrival to confirm physical attendance.
-                  </div>
                 </div>
 
                 <div className="pt-3 border-t" style={{ borderColor: "var(--color-hairline)" }}>
@@ -698,7 +968,7 @@ export function ProjectBrief() {
                     <input
                       type="checkbox"
                       checked={agreedToTerms}
-                      onChange={e => setAgreedToTerms(e.target.checked)}
+                      onChange={(e) => setAgreedToTerms(e.target.checked)}
                       className="mt-0.5 w-4 h-4 rounded text-[var(--color-accent)] focus:ring-[var(--color-accent)] cursor-pointer"
                     />
                     <span className="text-xs font-semibold font-body leading-normal" style={{ color: "var(--color-text-primary)" }}>
@@ -718,12 +988,13 @@ export function ProjectBrief() {
                     { label: "Name", value: projectName || "—" },
                     { label: "Type", value: projectType || "—" },
                     { label: "Format", value: projectFormat === "onsite" ? `On-site (${venueLocation || "Venue TBD"})` : "Online / Remote" },
-                    { label: "Categories", value: selectedNiches.map(n => NICHES.find(nn => nn.id === n)?.label).join(", ") || "—" },
-                    { label: "Timeline", value: timeline || "Flexible" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex justify-between gap-4">
+                    { label: "Craft Niches", value: selectedNiches.length > 0 ? selectedNiches.map((id) => NICHES.find((n) => n.id === id)?.label || id).join(", ") : "—" },
+                    { label: "Audition Sides", value: auditionSides ? `${auditionSides.slice(0, 70)}…` : "Not provided" },
+                    { label: "Reference Files", value: `${draftAssets.length + (uploadedFile ? 1 : 0)} attached` },
+                  ].map((item) => (
+                    <div key={item.label} className="flex justify-between items-baseline gap-4 py-1 border-b last:border-0" style={{ borderColor: "var(--color-hairline)" }}>
                       <span style={{ color: "var(--color-text-tertiary)" }}>{item.label}</span>
-                      <span className="text-right font-medium truncate" style={{ color: "var(--color-text-secondary)" }}>{item.value}</span>
+                      <span className="font-medium text-right truncate max-w-[240px]" style={{ color: "var(--color-text-primary)" }}>{item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -731,174 +1002,150 @@ export function ProjectBrief() {
             </motion.div>
           )}
 
-          {/* Step 5 — Budget & Payment (Final step) */}
+          {/* Step 5 — Budget & Publish */}
           {step === 5 && (
             <motion.div
               key="step5"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-5"
+              className="space-y-6"
             >
               <div>
-                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Budget &amp; Escrow Payment</h2>
+                <h2 className="font-display text-2xl mb-1" style={{ color: "var(--color-text-primary)" }}>Budget &amp; Escrow Deposit</h2>
                 <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>Set your project budget range to attract the right performers.</p>
               </div>
 
-              <FormField label="Budget Amount (NGN) *">
-                <div className="space-y-4">
-                  <div className="relative flex items-center">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono font-semibold text-sm pointer-events-none z-10" style={{ color: "var(--color-text-secondary)" }}>
-                      ₦
-                    </span>
-                    <Input
-                      className="pl-8 pr-4 font-mono tnum w-full"
+              {/* Currency selector */}
+              <div className="flex gap-2">
+                {CURRENCIES.map((c) => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => setSelectedCurrency(c.code)}
+                    className="flex-1 py-2 px-3 rounded-xl text-xs font-semibold font-body border transition-all cursor-pointer"
+                    style={{
+                      background: selectedCurrency === c.code ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                      border: `1px solid ${selectedCurrency === c.code ? "var(--color-accent)" : "var(--color-hairline)"}`,
+                      color: selectedCurrency === c.code ? "var(--color-accent)" : "var(--color-text-secondary)",
+                    }}
+                  >
+                    {c.flag} {c.code}
+                  </button>
+                ))}
+              </div>
+
+              {/* Budget amount input & slider */}
+              <div
+                className="p-5 rounded-2xl space-y-4"
+                style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                    Total Budget ({activeCurr.code})
+                  </span>
+                  <div className="flex items-center gap-1 font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>
+                    <span>{symbol}</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
                       value={budgetInputStr}
                       onChange={handleBudgetInputChange}
                       onFocus={handleBudgetInputFocus}
                       onBlur={handleBudgetInputBlur}
+                      className="bg-transparent border-b border-[var(--color-hairline)] w-36 text-right font-display text-2xl font-bold focus:outline-none focus:border-[var(--color-accent)]"
+                      style={{ color: "var(--color-text-primary)" }}
                     />
                   </div>
-                  <input
-                    type="range"
-                    min={5000}
-                    max={sliderMax}
-                    step={5000}
-                    value={budgetAmount}
-                    onChange={handleSliderChange}
-                    className="w-full accent-[#7B00FE] cursor-pointer"
+                </div>
+
+                <input
+                  type="range"
+                  min={10000}
+                  max={sliderMax}
+                  step={5000}
+                  value={budgetAmount}
+                  onChange={handleSliderChange}
+                  className="w-full accent-[var(--color-accent)] cursor-pointer"
+                />
+
+                <div className="flex justify-between text-xs font-mono" style={{ color: "var(--color-text-tertiary)" }}>
+                  <span>{symbol}10,000</span>
+                  <span>{symbol}{sliderMax.toLocaleString("en-US")}+</span>
+                </div>
+              </div>
+
+              {/* Applicant Cap */}
+              <FormField label="Target Applicant Cap (Optional)">
+                <div className="relative">
+                  <Users className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-tertiary)" }} />
+                  <Input
+                    className="pl-9 text-sm"
+                    placeholder="e.g., 10 (Leave blank for unlimited applicants)"
+                    value={applicantCap}
+                    onChange={(e) => setApplicantCap(e.target.value.replace(/\D/g, ""))}
                   />
                 </div>
               </FormField>
 
-              <FormField label="Maximum applicants (optional)">
-                <Input
-                  type="number"
-                  min={1}
-                  placeholder="e.g. 10 — leave blank for unlimited"
-                  value={applicantCap}
-                  onChange={e => setApplicantCap(e.target.value.replace(/\D/g, ""))}
-                />
-                <p className="text-xs font-body mt-1.5" style={{ color: "var(--color-text-tertiary)" }}>
-                  Applications close automatically once this many performers have applied — you still choose who to hire from the pool.
-                </p>
-              </FormField>
+              {/* Escrow Payment Method Selection */}
+              <div className="space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-secondary)" }}>
+                  Escrow Deposit Funding Method
+                </label>
 
-              {/* Funding Source Selector */}
-              <FormField label="Select Funding Source *">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setFundingSource("wallet")}
-                    className="p-3.5 rounded-2xl border text-left transition-all relative cursor-pointer"
+                    className="p-4 rounded-2xl text-left border transition-all cursor-pointer"
                     style={{
                       background: fundingSource === "wallet" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
                       border: `1px solid ${fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-hairline)"}`,
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <Wallet className="w-4 h-4" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-secondary)" }} />
-                      <span className="text-sm font-semibold font-body" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
-                        Wallet Balance
-                      </span>
+                    <div className="flex items-center gap-2 mb-1" style={{ color: fundingSource === "wallet" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                      <Wallet className="w-4 h-4" />
+                      <span className="font-semibold text-sm font-display">Client Wallet</span>
                     </div>
-                    <div className="text-xs font-mono font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                      Available: ₦{walletBalance.toLocaleString()}
-                    </div>
-                    {fundingSource === "wallet" && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--color-accent)" }}>
-                        <Check className="w-2.5 h-2.5" style={{ color: "var(--color-accent-on)" }} />
-                      </div>
-                    )}
+                    <p className="text-xs font-body font-mono" style={{ color: "var(--color-text-secondary)" }}>
+                      Balance: ₦{walletBalance.toLocaleString()}
+                    </p>
                   </button>
 
-                  {/* Paystack Pill Card — styled exactly like Image 4 */}
                   <button
                     type="button"
                     onClick={() => setFundingSource("card")}
-                    className="px-5 py-3 rounded-full border-2 text-left transition-all flex items-center gap-3 relative cursor-pointer"
+                    className="p-4 rounded-2xl text-left border transition-all cursor-pointer"
                     style={{
-                      borderColor: fundingSource === "card" ? "#0052FF" : "var(--color-hairline)",
-                      background: fundingSource === "card" ? "rgba(0, 82, 255, 0.05)" : "var(--color-bg-elevated)",
-                      boxShadow: fundingSource === "card" ? "0 0 0 1px #0052FF" : "none",
+                      background: fundingSource === "card" ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                      border: `1px solid ${fundingSource === "card" ? "var(--color-accent)" : "var(--color-hairline)"}`,
                     }}
                   >
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                      style={{
-                        background: "rgba(123, 0, 254, 0.12)",
-                        color: "#7B00FE",
-                      }}
-                    >
-                      <ShieldCheck className="w-5 h-5" />
+                    <div className="flex items-center gap-2 mb-1" style={{ color: fundingSource === "card" ? "var(--color-accent)" : "var(--color-text-primary)" }}>
+                      <CreditCard className="w-4 h-4" />
+                      <span className="font-semibold text-sm font-display">Paystack Card</span>
                     </div>
-                    <div className="min-w-0 pr-2">
-                      <div className="text-sm font-bold font-body" style={{ color: "var(--color-text-primary)" }}>Paystack</div>
-                      <div className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>Card, Transfer, USSD</div>
-                    </div>
-                    {fundingSource === "card" && (
-                      <div className="ml-auto w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "#0052FF" }}>
-                        <Check className="w-2.5 h-2.5 text-white" />
-                      </div>
-                    )}
+                    <p className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      Debit card or bank transfer
+                    </p>
                   </button>
                 </div>
-              </FormField>
 
-              {fundingSource === "wallet" && walletBalance < budgetAmount && (
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs font-body space-y-2.5">
-                  <div className="flex items-center gap-2 font-bold">
-                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Insufficient Wallet Balance</span>
-                  </div>
-                  <p className="leading-relaxed">
-                    You have <strong className="font-mono">₦{walletBalance.toLocaleString()}</strong> available, but this project budget is <strong className="font-mono">₦{budgetAmount.toLocaleString()}</strong> (short by ₦{(budgetAmount - walletBalance).toLocaleString()}). Please fund your wallet or switch to Paystack.
-                  </p>
-                  <div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
-                      onClick={() => setShowFundModal(true)}
-                    >
-                      <DollarSign className="w-3.5 h-3.5" />
-                      <span>+ Fund Wallet with Paystack</span>
+                {fundingSource === "wallet" && walletBalance < budgetAmount && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>Wallet balance is lower than project budget</span>
+                    </div>
+                    <Button size="sm" className="h-7 px-2.5 text-xs font-semibold" onClick={() => setShowFundModal(true)}>
+                      Top Up Wallet
                     </Button>
                   </div>
-                </div>
-              )}
-
-              {/* Summary card */}
-              <div className="p-4 rounded-2xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-hairline)" }}>
-                <div className="text-xs font-medium uppercase tracking-wider mb-3 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                  Payment Summary
-                </div>
-                <div className="space-y-2 text-sm font-body">
-                  <div className="flex justify-between gap-4">
-                    <span style={{ color: "var(--color-text-tertiary)" }}>Base Project Budget</span>
-                    <span className="font-mono font-medium" style={{ color: "var(--color-text-primary)" }}>₦{budgetAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span style={{ color: "var(--color-text-tertiary)" }}>Escrow Protection Fee (12%)</span>
-                    <span className="font-mono text-zinc-500 font-medium">+₦{Math.round(budgetAmount * 0.12).toLocaleString()}</span>
-                  </div>
-                  <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
-                  <div className="flex justify-between gap-4 font-semibold">
-                    <span style={{ color: "var(--color-text-primary)" }}>Total Escrow Deposit</span>
-                    <span className="font-mono font-bold text-purple-600 dark:text-purple-400">₦{(budgetAmount + Math.round(budgetAmount * 0.12)).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between gap-4 pt-1">
-                    <span style={{ color: "var(--color-text-tertiary)" }}>Payment Gateway</span>
-                    <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>
-                      {fundingSource === "wallet" ? "Monologg Wallet" : "Paystack (Card, Transfer, USSD)"}
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
             </motion.div>
           )}
-
         </AnimatePresence>
       </div>
 
@@ -910,20 +1157,24 @@ export function ProjectBrief() {
         <div className="max-w-xl mx-auto w-full">
           <div className="flex gap-3">
             {step > 1 && (
-              <Button variant="secondary" className="flex-1 h-12" onClick={() => setStep((step - 1) as Step)}>
+              <Button variant="secondary" className="flex-1 h-12 cursor-pointer" onClick={() => setStep((step - 1) as Step)}>
                 Back
               </Button>
             )}
             <Button
-              className="flex-1 h-12 font-bold"
+              className="flex-1 h-12 font-bold cursor-pointer"
               disabled={!canAdvance() || publishing}
               onClick={handleNext}
               aria-label={
                 step === 5
-                  ? (fundingSource === "card"
-                      ? `Pay ₦${budgetAmount.toLocaleString()} with Paystack`
-                      : (publishing ? "Publishing…" : "Publish Project"))
-                  : (step === 4 ? "Continue to Budget & Payment" : "Continue")
+                  ? fundingSource === "card"
+                    ? `Pay ₦${budgetAmount.toLocaleString()} with Paystack`
+                    : publishing
+                    ? "Publishing…"
+                    : "Publish Project"
+                  : step === 4
+                  ? "Continue to Budget & Payment"
+                  : "Continue"
               }
               style={{
                 background: step === 5 && fundingSource === "card" ? "#0BA4DB" : undefined,
@@ -946,7 +1197,7 @@ export function ProjectBrief() {
                 )
               ) : step === 4 ? (
                 <>
-                  <span className="hidden sm:inline">Continue to Budget & Payment</span>
+                  <span className="hidden sm:inline">Continue to Budget &amp; Payment</span>
                   <span className="sm:hidden">Continue</span>
                 </>
               ) : (
@@ -955,15 +1206,29 @@ export function ProjectBrief() {
             </Button>
           </div>
 
-          {step < 4 && (
+          <div className="flex items-center justify-between mt-2.5">
+            {step < 4 ? (
+              <button
+                className="text-xs font-body hover:opacity-80 transition-opacity cursor-pointer"
+                style={{ color: "var(--color-text-tertiary)" }}
+                onClick={() => setStep((step + 1) as Step)}
+              >
+                Skip this step
+              </button>
+            ) : (
+              <span />
+            )}
+
             <button
-              className="w-full text-sm text-center mt-2.5 font-body hover:opacity-80 transition-opacity cursor-pointer"
-              style={{ color: "var(--color-text-tertiary)" }}
-              onClick={() => setStep((step + 1) as Step)}
+              type="button"
+              onClick={handleSaveDraft}
+              className="text-xs font-body hover:underline cursor-pointer inline-flex items-center gap-1.5"
+              style={{ color: "var(--color-text-secondary)" }}
             >
-              Skip this step
+              <Save className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+              <span>Save draft &amp; finish later</span>
             </button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -982,8 +1247,8 @@ export function ProjectBrief() {
 
       {limitError && (
         <Modal onClose={() => setLimitError(null)} align="center" strength="strong">
-          <div 
-            onClick={(e) => e.stopPropagation()} 
+          <div
+            onClick={(e) => e.stopPropagation()}
             className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-[28px] p-6 max-w-sm w-full text-center space-y-6 shadow-2xl relative"
           >
             <div className="w-16 h-16 mx-auto rounded-full bg-[#F13030]/10 flex items-center justify-center text-[#F13030]">
@@ -999,7 +1264,7 @@ export function ProjectBrief() {
             </div>
             <button
               onClick={() => setLimitError(null)}
-              className="w-full py-3 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all shadow-lg active:scale-95"
+              className="w-full py-3 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all shadow-lg active:scale-95 cursor-pointer"
             >
               Adjust Amount
             </button>
@@ -1010,7 +1275,7 @@ export function ProjectBrief() {
       {showFundModal && (
         <Modal onClose={() => setShowFundModal(false)} align="center" strength="strong">
           <div
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative"
           >
             <div className="flex items-center justify-between">
@@ -1033,7 +1298,7 @@ export function ProjectBrief() {
               </label>
               <Input
                 value={fundAmount}
-                onChange={e => {
+                onChange={(e) => {
                   const raw = e.target.value.replace(/\D/g, "");
                   setFundAmount(raw ? Number(raw).toLocaleString() : "");
                 }}
@@ -1042,7 +1307,7 @@ export function ProjectBrief() {
               />
             </div>
             <div className="flex gap-2">
-              {[50000, 100000, 200000].map(amt => (
+              {[50000, 100000, 200000].map((amt) => (
                 <button
                   key={amt}
                   type="button"
@@ -1054,7 +1319,7 @@ export function ProjectBrief() {
               ))}
             </div>
             <Button
-              className="w-full h-11 text-xs font-bold gap-2"
+              className="w-full h-11 text-xs font-bold gap-2 cursor-pointer"
               disabled={fundingProcessing || !fundAmount}
               onClick={() => {
                 const num = parseInt(fundAmount.replace(/\D/g, ""), 10);

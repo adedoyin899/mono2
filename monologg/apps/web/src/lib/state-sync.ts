@@ -501,6 +501,40 @@ class StateSyncBus {
     return [...this.clientProjects];
   }
 
+  getClientProject(id: string): ClientProject | undefined {
+    return this.clientProjects.find((p) => p.id === id);
+  }
+
+  saveClientDraft(draft: Partial<ClientProject> & { name: string; id?: string }): ClientProject {
+    const existingIndex = draft.id ? this.clientProjects.findIndex((p) => p.id === draft.id) : -1;
+    if (existingIndex >= 0) {
+      const updated: ClientProject = {
+        ...this.clientProjects[existingIndex]!,
+        ...draft,
+        status: "draft",
+      };
+      this.clientProjects[existingIndex] = updated;
+      this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+      this.notify();
+      return updated;
+    }
+    const newProject: ClientProject = {
+      id: draft.id || `P-${String(this.clientProjects.length + 1).padStart(3, "0")}`,
+      niche: draft.niche || "Voice-Over",
+      budget: draft.budget || "₦150,000",
+      status: "draft",
+      applicants: 0,
+      applicantCap: draft.applicantCap ?? null,
+      applicationsOpen: false,
+      posted: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      ...draft,
+    };
+    this.clientProjects = [newProject, ...this.clientProjects];
+    this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+    this.notify();
+    return newProject;
+  }
+
   updateClientProject(id: string, updates: Partial<ClientProject>): ClientProject | null {
     const idx = this.clientProjects.findIndex((p) => p.id === id);
     if (idx === -1) return null;
@@ -1059,3 +1093,4 @@ class StateSyncBus {
 }
 
 export const appStateSync = new StateSyncBus();
+export { DEFAULT_PROJECT_DETAILS, getProjectDetails, type ProjectDetailedInfo } from "../mocks/clientProjects";

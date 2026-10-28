@@ -1,13 +1,31 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–170 + Session 171 Onboarding Device Mockup Refresh.
+**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–171 + Session 172 Client Project Edit Stepper Unification.
 
 ---
 
 ## ✅ Done
 
-### Session 171 — Onboarding Device Mockup Asset Refresh
+### Session 172 — Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption
+- [x] **Client Project Edit Stepper Unification (`ClientDashboard.tsx`)**:
+  - Removed disparate inline 4-tile Draft Setup Stepper and all inline section editing forms (`Edit Overview`, `Edit Requirements`, `Edit Script`, `Manage Assets`).
+  - Restored clean view mode across Overview, Roles & Requirements, Audition Sides & Script, and Project Assets.
+  - Implemented sleek Draft Brief Setup status banner with "Continue Draft Stepper →" CTA (`navigate('/brief?id=...')`).
+  - Added "Resume Draft Stepper" in header, "Resume Draft in Stepper" in sidebar Action Center, and "Resume Draft" secondary card action in My Projects list.
+- [x] **Draft Slot Prefill & Resumption Stepper (`ProjectBrief.tsx`, `routes.tsx`)**:
+  - Added `/brief/:id` routing support alongside `/brief?id=...`.
+  - Hydrated all project slots (name, type, format, location, niches, timeline, synopsis, script sides, attached files, applicant cap, budget) from existing draft project.
+  - Resumed starting step directly at the user's last saved progress (`draftStep` / `savedStep`).
+  - Integrated Audition Sides & Script Excerpt and attached reference files management into Step 3 ("Assets").
+  - Implemented persistent "Save Draft" in header and footer across all steps via `appStateSync.saveClientDraft(...)`, redirecting smoothly to `/client`.
+- [x] **Type Safety & Data Architecture (`clientProject.ts`, `clientProjects.ts`, `state-sync.ts`)**:
+  - Extended `ClientProjectSchema` with optional draft metadata slots.
+  - Implemented `getClientProject` and `saveClientDraft` in `StateSyncBus` with local storage persistence and mock boundary re-exports.
+- [x] **Quality Gate & Automated Tests**:
+  - Updated `ClientDashboard.test.tsx` (17/17 passing) to verify draft status banner and stepper navigation.
+  - Added draft prefill, step resumption, and save draft tests in `ProjectBrief.test.tsx` (4/4 passing).
+  - Verified 0 type errors across monorepo (`npm run typecheck`) and 720/720 tests passing green (`npm test`).
 - [x] **Device Mockup Refresh (`public/auth-performer-device.png`, `public/auth-client-device.png`)**:
   - Replaced device mockup assets on the onboarding/auth desktop hero split-screen (`AuthFlow.tsx`, `auth-preview.html`) with latest user-provided mobile captures.
   - Performer mockup displays updated horizontal quick actions, single "Withdraw Funds" primary CTA, and recent gig activity.

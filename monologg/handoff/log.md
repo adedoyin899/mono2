@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
+**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 172 (2026-10-28) — Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption
+
+**Goal:** Replace the disparate inline Draft Setup Stepper and inline form fields in the project details view with the normal create project flow (`ProjectBrief.tsx` / `/brief`), prefilled with saved project slots and resuming execution directly at the step where the user last stopped in their draft action.
+
+1. **Schema Extension (`packages/types/src/clientProject.ts`):**
+   - Extended `ClientProjectSchema` and `ClientProject` type with optional draft slots: `draftStep`, `projectType`, `projectFormat`, `venueLocation`, `description`, `selectedNiches`, `timeline`, `location`, `scriptSample`, `additionalNotes`, and `assets`.
+2. **State & Mock Architecture (`apps/web/src/mocks/clientProjects.ts`, `apps/web/src/lib/state-sync.ts`):**
+   - Defined `ProjectDetailedInfo`, `DEFAULT_PROJECT_DETAILS`, and `getProjectDetails(...)` to unify project metadata hydration between the dashboard and the stepper.
+   - Added `getClientProject(id)` and `saveClientDraft(draft)` to `StateSyncBus` in `state-sync.ts` with local storage persistence and state notifications.
+   - Re-exported project details helpers from `state-sync.ts` to uphold the mock import boundary (`no-direct-mock-imports.test.ts`).
+3. **Route Configuration (`apps/web/src/app/routes.tsx`):**
+   - Added route `{ path: "brief/:id", Component: protect(ProjectBrief) }` while also supporting query param `/brief?id=:id`.
+4. **Project View Simplification (`apps/web/src/app/pages/ClientDashboard.tsx`):**
+   - Removed the 4-tile inline Draft Setup Stepper and all inline section edit forms (`Edit Overview`, `Edit Requirements`, `Edit Script`, `Manage Assets`), restoring clean read-only view mode across all tabs.
+   - Added a sleek Draft Brief Setup banner directing clients to continue the draft in the stepper (`navigate('/brief?id=...')`).
+   - Wired header CTA ("Resume Draft Stepper"), sidebar Action Center CTA ("Resume Draft in Stepper"), and project card action ("Resume Draft") to the unified stepper route.
+5. **Prefilled Stepper Resumption (`apps/web/src/app/pages/ProjectBrief.tsx`):**
+   - Hydrated all project slots (title, project type, format, venue/remote location, niches, timeline, description/synopsis, audition script excerpt, attached files, applicant cap, budget) from the existing draft project.
+   - Resumed stepper progress at the exact step where the user left off (`project.draftStep` or `savedStep`).
+   - Added global "Save Draft" CTAs in the header and action buttons, persisting state via `appStateSync.saveClientDraft(...)` and navigating back to `/client`.
+   - Integrated Audition Sides & Script Excerpt and attached reference files management into Step 3 ("Assets").
+6. **Automated Testing & Type Safety:**
+   - Updated `ClientDashboard.test.tsx` to verify draft banner rendering, absence of inline form editors, and navigation to `/brief?id=P-001`.
+   - Updated `ProjectBrief.test.tsx` with dedicated tests for draft slot prefill, starting at the saved step (`Step 4 of 5`), and "Save Draft" persistence.
+   - Verified 0 TypeScript errors across monorepo (`npm run typecheck`) and 720/720 tests passing green (`npm test`).
 
 ---
 

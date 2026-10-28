@@ -10,7 +10,7 @@ import { EASE_OUT } from "../../lib/motionTokens";
 import { Sidebar, type SidebarNavItem } from "../components/ui/Sidebar";
 import { BottomNav } from "../components/ui/BottomNav";
 import { apiClient, type TalentFilters } from "../../lib/api-client";
-import { appStateSync, type BillingCard } from "../../lib/state-sync";
+import { appStateSync, type BillingCard, DEFAULT_PROJECT_DETAILS, getProjectDetails, type ProjectDetailedInfo } from "../../lib/state-sync";
 import { NotificationCenterModal } from "../components/notifications/NotificationCenterModal";
 import type { Applicant, ClientProject, Order, PublicRateCard, StatMetric, Talent } from "@monologg/types";
 import {
@@ -217,122 +217,7 @@ export const CLIENT_ANALYTICS_DATA: Record<
   },
 };
 
-interface ProjectDetailedInfo {
-  description: string;
-  timeline: string;
-  location: string;
-  nicheReq: string[];
-  deliverables: string[];
-  scriptSample: string;
-  additionalNotes: string;
-  assets: { name: string; size: string; type: string }[];
-}
 
-const DEFAULT_PROJECT_DETAILS: Record<string, ProjectDetailedInfo> = {
-  "P-001": {
-    description:
-      "Seeking a commanding, resonant voiceover artist for Nike's Q1 regional multimedia campaign. The project involves recording two 30-second commercial spots celebrating Nigerian grassroots athletics across digital, broadcast, and social channels.",
-    timeline: "Auditions close Oct 24 · Studio Recording: Nov 4–6 · Final Deliverables: Nov 12",
-    location: "Lagos, NG (Hybrid/Remote)",
-    nicheReq: ["VO_ARTIST"],
-    deliverables: [
-      "2x 30s broadcast WAV master audio files (24-bit / 48kHz)",
-      "1x 15s social media cutdown variation",
-      "Raw uncompressed vocal stems with room-tone tracks",
-      "Full digital & broadcast commercial usage rights for 1 year",
-    ],
-    scriptSample:
-      "Sides / Script Excerpt:\n'They told you impossible is a standard. We tell you it's a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.'",
-    additionalNotes:
-      "Audition must be recorded with a professional condenser microphone. No reverberant acoustics or background hiss. Authoritative, inspiring, and grounded Nigerian/West African cadence desired.",
-    assets: [
-      { name: "Nike_Q1_Campaign_Creative_Brief.pdf", size: "2.4 MB", type: "PDF Document" },
-      { name: "Brand_Audio_Identity_Guidelines.pdf", size: "1.2 MB", type: "Style Guide" },
-      { name: "Reference_Tone_Scratch_Track.wav", size: "14.8 MB", type: "Audio Reference" },
-    ],
-  },
-  "P-002": {
-    description:
-      "Seeking an engaging, polished keynote compere / master of ceremonies for a high-profile 2-day technological innovation summit holding at the International Conference Centre, Abuja.",
-    timeline: "Event Dates: Nov 18–19 · Rehearsal / Briefing: Nov 17",
-    location: "Abuja, NG (On-site)",
-    nicheReq: ["COMPERE", "SPEAKER_PASTOR"],
-    deliverables: [
-      "Live stage moderation for 12 panel sessions across 2 days",
-      "Speaker introductions and audience engagement activities",
-      "Strict adherence to event run-of-show schedule",
-    ],
-    scriptSample:
-      "Opening Keynote Excerpt:\n'Distinguished guests, founders, and innovators from across the continent: welcome to the Nexus 2026 Summit. Today we don't just discuss the future—we build it.'",
-    additionalNotes:
-      "Sharp stage presence, fluent English diction (bilingual French is an added advantage), and executive corporate composure required.",
-    assets: [
-      { name: "Nexus_Summit_Run_of_Show.pdf", size: "3.1 MB", type: "Schedule & Brief" },
-      { name: "Speaker_Bios_and_Protocols.pdf", size: "1.8 MB", type: "Reference" },
-    ],
-  },
-  "P-003": {
-    description:
-      "Production of an audio commercial spot introducing an instant multi-currency diaspora remittance wallet for West Africa. Looking for a warm, trustworthy narrator.",
-    timeline: "Draft Brief · Audition window opens immediately upon publishing",
-    location: "Remote (Online)",
-    nicheReq: ["VO_ARTIST"],
-    deliverables: [
-      "1x 45s radio broadcast commercial (master WAV)",
-      "2x 15s digital bumper cuts for social advertising",
-      "Full radio & broadcast buyout rights for 12 months",
-    ],
-    scriptSample:
-      "Sides / Script Excerpt:\n'Sending money back home should feel like love, not a headache. Fast. Zero hidden fees. Direct to any bank in seconds.'",
-    additionalNotes:
-      "Warm, conversational, modern Nigerian vocal cadence. Broadcast acoustics required.",
-    assets: [
-      { name: "Fintech_Radio_Ad_Copy.pdf", size: "950 KB", type: "Script Document" },
-    ],
-  },
-  "P-004": {
-    description:
-      "Casting for lead dramatic and supporting ensemble roles in an upcoming feature film produced by General Casting Co. Actors must be capable of intense emotional range.",
-    timeline: "Auditions closed · Callbacks: Feb 2–5 · Principal Photography: March 2025",
-    location: "Lagos, NG (On-set)",
-    nicheReq: ["ACTOR"],
-    deliverables: [
-      "Full table reads and rehearsal attendance in Lagos",
-      "12 shoot days on-set in Lagos",
-      "Post-production ADR vocal dubbing if required",
-    ],
-    scriptSample:
-      "Sides / Script Excerpt:\n'You think this town forgot what happened? I didn't forget. Every shadow on Marina road remembers your name, Femi. Look at me and say it was worth it.'",
-    additionalNotes:
-      "Prior Nollywood or stage drama experience preferred. Monologue sides will be provided to shortlisted applicants.",
-    assets: [
-      { name: "Scene_3_Monologue_Sides.pdf", size: "1.4 MB", type: "Sides" },
-      { name: "Character_Breakdown_Marina_Road.pdf", size: "2.8 MB", type: "Character Guide" },
-    ],
-  },
-};
-
-function getProjectDetails(project: ClientProject): ProjectDetailedInfo {
-  if (DEFAULT_PROJECT_DETAILS[project.id]) {
-    return DEFAULT_PROJECT_DETAILS[project.id];
-  }
-  return {
-    description: `Looking for professional ${project.niche || "performing arts"} performers for ${project.name}. Requires high quality deliverables and prompt communication.`,
-    timeline: "Auditions open · Production timeline agreed upon hire",
-    location: "Lagos, NG (Hybrid/Remote)",
-    nicheReq: [project.niche.toUpperCase().replace(/\s+/g, "_") || "ACTOR"],
-    deliverables: [
-      "Master deliverables in broadcast quality",
-      "1 round of minor revisions or pickups",
-      "Full commercial usage rights for agreed production term",
-    ],
-    scriptSample: `Sides / Audition Sample for ${project.name}:\n'Welcome to the audition. Please deliver your performance take with energy, clarity, and authentic stage or vocal presence.'`,
-    additionalNotes: "Verified Monologg profile required. Must submit audition reel or tape with application pitch.",
-    assets: [
-      { name: `${project.name.replace(/\s+/g, "_")}_Brief.pdf`, size: "1.5 MB", type: "Brief Document" },
-    ],
-  };
-}
 
 const DEFAULT_FALLBACK_APPLICANTS: Record<string, Applicant[]> = {
   "P-001": [
@@ -1947,15 +1832,12 @@ export function ClientDashboard() {
                           {currentStatus === "draft" && (
                             <button
                               type="button"
-                              onClick={() => {
-                                setClientProjectTab("overview");
-                                setEditingSection(editingSection === "overview" ? null : "overview");
-                              }}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1.5 px-3 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit whitespace-nowrap shrink-0 cursor-pointer"
+                              onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}`)}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold font-body py-1.5 px-3 rounded-xl border transition-all hover:bg-[var(--color-bg-elevated)] w-fit whitespace-nowrap shrink-0 cursor-pointer shadow-2xs"
                               style={{ borderColor: "var(--color-border-default)", color: "var(--color-accent)" }}
                             >
                               <Edit3 className="w-3.5 h-3.5" />
-                              <span>{editingSection === "overview" ? "Close Section Editor" : "Edit Draft Info"}</span>
+                              <span>Resume Draft Stepper</span>
                             </button>
                           )}
                         </div>
@@ -2017,94 +1899,48 @@ export function ClientDashboard() {
                         </div>
                       </div>
 
-                      {/* ── Guided Draft Stepper (Prominent in Draft Mode) ── */}
+                      {/* ── Guided Draft Stepper (Direct Stepper Resume) ── */}
                       {currentStatus === "draft" && (
                         <div
-                          className="p-5 sm:p-6 rounded-3xl border space-y-4"
+                          className="p-5 sm:p-6 rounded-3xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                           style={{
                             background: "var(--color-bg-surface)",
                             borderColor: "var(--color-border-default)",
                             boxShadow: "var(--shadow-card)",
                           }}
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)] font-body">
-                                  Draft Setup Stepper
-                                </span>
-                              </div>
-                              <h2 className="text-base sm:text-lg font-bold font-display mt-0.5" style={{ color: "var(--color-text-primary)" }}>
-                                Complete project brief sections before publishing to performers
-                              </h2>
-                            </div>
-
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span
-                                className="text-xs font-semibold px-3 py-1 rounded-full font-mono border whitespace-nowrap"
-                                style={{
-                                  background: "var(--color-bg-elevated)",
-                                  borderColor: "var(--color-hairline)",
-                                  color: "var(--color-text-secondary)",
-                                }}
-                              >
-                                5/5 Sections Ready
+                              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                              <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)] font-body">
+                                Draft Setup Stepper · Continuing from where you left off
                               </span>
-                              <Button
-                                size="sm"
-                                className="h-8 px-3.5 text-xs font-semibold whitespace-nowrap shadow-sm"
-                                onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
-                              >
-                                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                                <span>Publish &amp; Fund Escrow</span>
-                              </Button>
                             </div>
+                            <h2 className="text-base sm:text-lg font-bold font-display" style={{ color: "var(--color-text-primary)" }}>
+                              Complete project brief sections in the stepper before publishing
+                            </h2>
+                            <p className="text-xs font-body max-w-xl" style={{ color: "var(--color-text-secondary)" }}>
+                              Resume the normal create project flow prefilled with your saved data (Step {selectedProjectDetail.draftStep || 3} of 5) to finalize details, audition sides, and escrow terms.
+                            </p>
                           </div>
 
-                          {/* 4 Stepper Step Tiles */}
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                            {[
-                              { id: "overview", num: "01", title: "Overview", desc: "Title & Synopsis", tab: "overview", section: "overview" },
-                              { id: "roles", num: "02", title: "Roles", desc: "Craft Niches", tab: "requirements", section: "roles" },
-                              { id: "sides", num: "03", title: "Audition Sides", desc: "Audition Script", tab: "sides", section: "sides" },
-                              { id: "assets", num: "04", title: "Materials", desc: "Reference Files", tab: "sides", section: "assets" },
-                            ].map((step) => {
-                              const isEditing = editingSection === step.section && clientProjectTab === step.tab;
-                              return (
-                                <button
-                                  key={step.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setClientProjectTab(step.tab as any);
-                                    setEditingSection(isEditing ? null : (step.section as any));
-                                  }}
-                                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                                    isEditing
-                                      ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm"
-                                      : "border-[var(--color-hairline)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-bg-elevated)]"
-                                  }`}
-                                  style={{
-                                    background: isEditing ? "var(--color-bg-elevated)" : "var(--color-bg-surface)",
-                                  }}
-                                >
-                                  <div className="flex items-center justify-between mb-1.5">
-                                    <span className="font-mono text-[11px] font-bold text-[var(--color-accent)]">
-                                      {step.num}
-                                    </span>
-                                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                      {isEditing ? "Editing" : "Ready"}
-                                    </span>
-                                  </div>
-                                  <div className="text-xs font-bold font-body truncate" style={{ color: "var(--color-text-primary)" }}>
-                                    {step.title}
-                                  </div>
-                                  <div className="text-[11px] font-body truncate" style={{ color: "var(--color-text-tertiary)" }}>
-                                    {step.desc}
-                                  </div>
-                                </button>
-                              );
-                            })}
+                          <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                            <Button
+                              variant="secondary"
+                              className="h-10 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap cursor-pointer"
+                              onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}`)}
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Continue Draft Stepper →</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-10 px-4 text-xs font-semibold whitespace-nowrap shadow-sm gap-1.5 cursor-pointer"
+                              onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
+                            >
+                              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                              <span>Publish &amp; Fund Escrow</span>
+                            </Button>
                           </div>
                         </div>
                       )}
@@ -2509,105 +2345,17 @@ export function ClientDashboard() {
                                   {currentStatus === "draft" && (
                                     <button
                                       type="button"
-                                      onClick={() => setEditingSection(editingSection === "overview" ? null : "overview")}
+                                      onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}&step=3`)}
                                       className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                     >
-                                      {editingSection === "overview" ? "Done" : "Edit Overview"}
+                                      Edit in Stepper →
                                     </button>
                                   )}
                                 </div>
 
-                                {editingSection === "overview" ? (
-                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Edit overview &amp; synopsis details
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                      <div>
-                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                          Project Title
-                                        </label>
-                                        <Input
-                                          value={editedProjectName}
-                                          onChange={(e) => setEditedProjectName(e.target.value)}
-                                          placeholder="Project Title"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                          Fixed Budget (Escrow)
-                                        </label>
-                                        <Input
-                                          value={editedProjectBudget}
-                                          onChange={(e) => setEditedProjectBudget(e.target.value)}
-                                          placeholder="Budget (e.g. ₦200,000)"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                      <div>
-                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                          Location / Venue
-                                        </label>
-                                        <Input
-                                          value={editedProjectLocation}
-                                          onChange={(e) => setEditedProjectLocation(e.target.value)}
-                                          placeholder="e.g. Lagos, NG (Hybrid/Remote)"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                          Project Timeline
-                                        </label>
-                                        <Input
-                                          value={editedProjectTimeline}
-                                          onChange={(e) => setEditedProjectTimeline(e.target.value)}
-                                          placeholder="e.g. 7 Days Delivery"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                        Creative Brief &amp; Synopsis
-                                      </label>
-                                      <textarea
-                                        value={editedProjectSynopsis}
-                                        onChange={(e) => setEditedProjectSynopsis(e.target.value)}
-                                        rows={4}
-                                        className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
-                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                      />
-                                    </div>
-                                    <div className="flex gap-2">
-                                      <Button
-                                        className="h-8 text-xs px-3 whitespace-nowrap"
-                                        onClick={() => {
-                                          setSelectedProjectDetail((prev) => prev ? { ...prev, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || prev.niche } : null);
-                                          setProjects((prev) => prev.map((p) => p.id === selectedProjectDetail.id ? { ...p, name: editedProjectName, budget: editedProjectBudget, niche: editedProjectNiche || p.niche } : p));
-                                          setProjectOverridesInfo((prev) => ({
-                                            ...prev,
-                                            [selectedProjectDetail.id]: {
-                                              ...(prev[selectedProjectDetail.id] || {}),
-                                              description: editedProjectSynopsis,
-                                              location: editedProjectLocation,
-                                              timeline: editedProjectTimeline,
-                                            },
-                                          }));
-                                          setEditingSection(null);
-                                        }}
-                                      >
-                                        Save Overview
-                                      </Button>
-                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                                    {effectiveSynopsis}
-                                  </p>
-                                )}
+                                <p className="text-sm font-body leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                                  {effectiveSynopsis}
+                                </p>
                               </div>
 
                               {/* Project Scope & Production Format */}
@@ -2698,110 +2446,40 @@ export function ClientDashboard() {
                                   {currentStatus === "draft" && (
                                     <button
                                       type="button"
-                                      onClick={() => setEditingSection(editingSection === "roles" ? null : "roles")}
+                                      onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}&step=2`)}
                                       className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                     >
-                                      {editingSection === "roles" ? "Done" : "Edit Requirements"}
+                                      Edit in Stepper →
                                     </button>
                                   )}
                                 </div>
 
-                                {editingSection === "roles" ? (
-                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Select target craft niches
-                                    </div>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      {["VO_ARTIST", "ACTOR", "COMPERE", "COMEDIAN", "SPEAKER_PASTOR", "CREATOR"].map((nicheOption) => {
-                                        const active = editedRoleNiches.includes(nicheOption);
-                                        return (
-                                          <button
-                                            key={nicheOption}
-                                            type="button"
-                                            onClick={() => {
-                                              setEditedRoleNiches((prev) =>
-                                                active ? prev.filter((n) => n !== nicheOption) : [...prev, nicheOption]
-                                              );
-                                            }}
-                                            className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                                              active
-                                                ? "bg-[#7C3AED] text-white shadow-sm"
-                                                : "border text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)]"
-                                            }`}
-                                            style={{ borderColor: active ? "transparent" : "var(--color-hairline)" }}
-                                          >
-                                            {nicheOption.replace(/_/g, " ")}
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-
-                                    <div>
-                                      <label className="block text-[11px] font-semibold uppercase tracking-wider mb-1 font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                        Performer Guidelines &amp; Quality Standards
-                                      </label>
-                                      <textarea
-                                        value={editedRoleGuidelines}
-                                        onChange={(e) => setEditedRoleGuidelines(e.target.value)}
-                                        rows={3}
-                                        className="w-full p-3.5 rounded-2xl border text-sm font-body resize-y outline-none"
-                                        style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                        placeholder="Specify acoustic requirements, prior experience, or casting criteria..."
-                                      />
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                      <Button
-                                        className="h-8 text-xs px-3 whitespace-nowrap"
-                                        onClick={() => {
-                                          setProjectOverridesInfo((prev) => ({
-                                            ...prev,
-                                            [selectedProjectDetail.id]: {
-                                              ...(prev[selectedProjectDetail.id] || {}),
-                                              nicheReq: editedRoleNiches,
-                                              additionalNotes: editedRoleGuidelines,
-                                            },
-                                          }));
-                                          setEditingSection(null);
-                                        }}
-                                      >
-                                        Save Requirements
-                                      </Button>
-                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                        Cancel
-                                      </Button>
-                                    </div>
+                                <div>
+                                  <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Target craft niches
                                   </div>
-                                ) : (
-                                  <>
-                                    <div>
-                                      <div className="text-xs font-semibold font-body tracking-normal mb-2.5" style={{ color: "var(--color-text-tertiary)" }}>
-                                        Target craft niches
-                                      </div>
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        {projectDetails.nicheReq.map((n) => (
-                                          <Badge key={n} tone="neutral" size="md" className="capitalize">
-                                            {n.replace(/_/g, " ")}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    {projectDetails.nicheReq.map((n) => (
+                                      <Badge key={n} tone="neutral" size="md" className="capitalize">
+                                        {n.replace(/_/g, " ")}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
 
-                                    <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
-                                      <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
-                                        Performer guidelines &amp; quality standards
-                                      </div>
-                                      <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
-                                        {projectDetails.additionalNotes}
-                                      </p>
-                                      <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
-                                        <li>Must have verified profile and demo samples matching requested crafts.</li>
-                                        <li>Access to professional recording acoustics or studio space.</li>
-                                        <li>Prompt communication and adherence to production delivery milestones.</li>
-                                      </ul>
-                                    </div>
-                                  </>
-                                )}
+                                <div className="pt-2 border-t" style={{ borderColor: "var(--color-hairline)" }}>
+                                  <div className="text-xs font-semibold font-body tracking-normal mb-2" style={{ color: "var(--color-text-tertiary)" }}>
+                                    Performer guidelines &amp; quality standards
+                                  </div>
+                                  <p className="text-sm font-body leading-relaxed mb-3" style={{ color: "var(--color-text-secondary)" }}>
+                                    {projectDetails.additionalNotes}
+                                  </p>
+                                  <ul className="text-sm font-body space-y-2 pl-4 list-disc" style={{ color: "var(--color-text-secondary)" }}>
+                                    <li>Must have verified profile and demo samples matching requested crafts.</li>
+                                    <li>Access to professional recording acoustics or studio space.</li>
+                                    <li>Prompt communication and adherence to production delivery milestones.</li>
+                                  </ul>
+                                </div>
                               </div>
                             </motion.div>
                           )}
@@ -2861,72 +2539,31 @@ export function ClientDashboard() {
                                     {currentStatus === "draft" && (
                                       <button
                                         type="button"
-                                        onClick={() => setEditingSection(editingSection === "sides" ? null : "sides")}
+                                        onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}&step=3`)}
                                         className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                       >
-                                        {editingSection === "sides" ? "Done" : "Edit Script"}
+                                        Edit in Stepper →
                                       </button>
                                     )}
                                   </div>
                                 </div>
 
-                                {editingSection === "sides" ? (
-                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                    <div className="text-xs tracking-normal font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Audition copy / sides
-                                    </div>
-                                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Performers auditioning will read and record this sides excerpt for their audition pitch:
-                                    </p>
-                                    <textarea
-                                      value={editedProjectScript}
-                                      onChange={(e) => setEditedProjectScript(e.target.value)}
-                                      rows={4}
-                                      className="w-full p-3.5 rounded-2xl border font-mono text-xs sm:text-sm resize-y outline-none"
-                                      style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                      placeholder="Sides / Script Excerpt..."
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button
-                                        className="h-8 text-xs px-3 whitespace-nowrap"
-                                        onClick={() => {
-                                          setProjectOverridesInfo((prev) => ({
-                                            ...prev,
-                                            [selectedProjectDetail.id]: {
-                                              ...(prev[selectedProjectDetail.id] || {}),
-                                              scriptSample: editedProjectScript,
-                                            },
-                                          }));
-                                          setEditingSection(null);
-                                        }}
-                                      >
-                                        Save Audition Sides
-                                      </Button>
-                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      This excerpt is presented to auditioning performers for their sample take or pitch video:
-                                    </p>
+                                <p className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                                  This excerpt is presented to auditioning performers for their sample take or pitch video:
+                                </p>
 
-                                    <div
-                                      className="p-5 sm:p-6 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)] relative overflow-hidden bg-slate-950 text-slate-100 shadow-inner"
-                                      style={{
-                                        borderColor: "var(--color-hairline)",
-                                      }}
-                                    >
-                                      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-purple-300/70 mb-3 pb-2 border-b border-white/10 select-none">
-                                        <span>Sides // Script Excerpt</span>
-                                        <span>48kHz Studio Mic Take</span>
-                                      </div>
-                                      {effectiveScript}
-                                    </div>
-                                  </>
-                                )}
+                                <div
+                                  className="p-5 sm:p-6 rounded-2xl border font-mono text-xs sm:text-sm leading-relaxed whitespace-pre-wrap select-text border-l-4 border-l-[var(--color-accent)] relative overflow-hidden bg-slate-950 text-slate-100 shadow-inner"
+                                  style={{
+                                    borderColor: "var(--color-hairline)",
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-purple-300/70 mb-3 pb-2 border-b border-white/10 select-none">
+                                    <span>Sides // Script Excerpt</span>
+                                    <span>48kHz Studio Mic Take</span>
+                                  </div>
+                                  {effectiveScript}
+                                </div>
                               </div>
 
                               {/* Project Assets & Reference Files */}
@@ -2952,105 +2589,16 @@ export function ClientDashboard() {
                                     {currentStatus === "draft" && (
                                       <button
                                         type="button"
-                                        onClick={() => setEditingSection(editingSection === "assets" ? null : "assets")}
+                                        onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}&step=3`)}
                                         className="text-xs font-semibold text-[var(--color-accent)] hover:underline whitespace-nowrap cursor-pointer"
                                       >
-                                        {editingSection === "assets" ? "Done" : "Manage Assets"}
+                                        Edit in Stepper →
                                       </button>
                                     )}
                                   </div>
                                 </div>
 
-                                {editingSection === "assets" ? (
-                                  <div className="space-y-4 p-4 rounded-2xl border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
-                                    <div className="text-xs uppercase tracking-wider font-semibold font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                      Attached Project Files
-                                    </div>
-                                    <div className="space-y-2">
-                                      {editedAssets.map((asset, idx) => (
-                                        <div
-                                          key={idx}
-                                          className="p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-body"
-                                          style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
-                                        >
-                                          <div className="flex items-center gap-2.5 truncate">
-                                            <FileText className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                                            <span className="font-medium truncate" style={{ color: "var(--color-text-primary)" }}>{asset.name}</span>
-                                            <span className="text-[11px] font-mono text-[var(--color-text-tertiary)]">({asset.type} · {asset.size})</span>
-                                          </div>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditedAssets((prev) => prev.filter((_, i) => i !== idx))}
-                                            className="text-rose-500 hover:text-rose-600 p-1 shrink-0 cursor-pointer"
-                                          >
-                                            <X className="w-4 h-4" />
-                                          </button>
-                                        </div>
-                                      ))}
-                                    </div>
-
-                                    <div className="p-3 rounded-xl border space-y-2.5" style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}>
-                                      <div className="text-[11px] font-semibold uppercase tracking-wider font-body" style={{ color: "var(--color-text-tertiary)" }}>
-                                        Attach New Reference File
-                                      </div>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        <input
-                                          type="text"
-                                          value={newAssetName}
-                                          onChange={(e) => setNewAssetName(e.target.value)}
-                                          placeholder="File Name (e.g. Campaign_Moodboard.pdf)"
-                                          className="p-2 rounded-xl border text-xs font-body outline-none"
-                                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                        />
-                                        <input
-                                          type="text"
-                                          value={newAssetType}
-                                          onChange={(e) => setNewAssetType(e.target.value)}
-                                          placeholder="File Type (e.g. Style Guide)"
-                                          className="p-2 rounded-xl border text-xs font-body outline-none"
-                                          style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-hairline)", color: "var(--color-text-primary)" }}
-                                        />
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        className="h-8 px-3 text-xs whitespace-nowrap"
-                                        onClick={() => {
-                                          if (newAssetName.trim()) {
-                                            setEditedAssets((prev) => [
-                                              ...prev,
-                                              { name: newAssetName.trim(), type: newAssetType.trim() || "Brief Document", size: "1.8 MB" },
-                                            ]);
-                                            setNewAssetName("");
-                                          }
-                                        }}
-                                      >
-                                        Attach File
-                                      </Button>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                      <Button
-                                        className="h-8 text-xs px-3 whitespace-nowrap"
-                                        onClick={() => {
-                                          setProjectOverridesInfo((prev) => ({
-                                            ...prev,
-                                            [selectedProjectDetail.id]: {
-                                              ...(prev[selectedProjectDetail.id] || {}),
-                                              assets: editedAssets,
-                                            },
-                                          }));
-                                          setEditingSection(null);
-                                        }}
-                                      >
-                                        Save Assets
-                                      </Button>
-                                      <Button variant="secondary" className="h-8 text-xs px-2.5 whitespace-nowrap" onClick={() => setEditingSection(null)}>
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="space-y-2.5">
+                                <div className="space-y-2.5">
                                     {effectiveAssets.map((asset, idx) => (
                                       <div
                                         key={idx}
@@ -3093,7 +2641,6 @@ export function ClientDashboard() {
                                       </div>
                                     ))}
                                   </div>
-                                )}
                               </div>
                             </motion.div>
                           )}
@@ -3333,10 +2880,11 @@ export function ClientDashboard() {
                                   </Button>
                                   <Button
                                     variant="secondary"
-                                    className="w-full h-9 text-xs font-semibold whitespace-nowrap shadow-2xs"
-                                    onClick={() => setIsEditingProjectInfo(true)}
+                                    className="w-full h-9 text-xs font-semibold whitespace-nowrap shadow-2xs gap-1.5 cursor-pointer"
+                                    onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}`)}
                                   >
-                                    Edit Brief Info
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span>Resume Draft in Stepper</span>
                                   </Button>
                                   <button
                                     type="button"
@@ -3549,9 +3097,21 @@ export function ClientDashboard() {
                                   : `${project.applicants}${project.applicantCap ? `/${project.applicantCap}` : ""} applicants${!project.applicationsOpen && project.status === "active" ? " · closed" : ""}`}
                               </span>
                             </div>
-                            <Button className="h-9 px-4 text-xs font-semibold" onClick={() => openProjectDetail(project)}>
-                              View Project →
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              {project.status === "draft" && (
+                                <Button
+                                  variant="secondary"
+                                  className="h-9 px-3 text-xs font-semibold gap-1.5 cursor-pointer"
+                                  onClick={() => navigate(`/brief?id=${project.id}`)}
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                  <span>Resume Draft</span>
+                                </Button>
+                              )}
+                              <Button className="h-9 px-4 text-xs font-semibold cursor-pointer" onClick={() => openProjectDetail(project)}>
+                                View Project →
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}

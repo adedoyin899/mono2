@@ -2,6 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const mockNavigate = vi.fn();
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual<typeof import("react-router")>("react-router");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
 // features.md Phase 5: ProjectBrief.tsx's "Publish Project" now calls apiClient.createBrief
 // in live mode, but must stay visually/behaviorally identical to the original mock-only
 // prototype in the default mock mode (AnimatePresence delays the next view, so each step
@@ -91,5 +100,42 @@ describe("ProjectBrief", () => {
       expect(screen.getByText("Project Published!")).toBeInTheDocument();
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("draft edit mode: pre-fills project slots and resumes at the saved draft step", async () => {
+    const { ProjectBrief } = await import("./ProjectBrief");
+    render(
+      <MemoryRouter initialEntries={["/brief?id=P-001"]}>
+        <ProjectBrief />
+      </MemoryRouter>,
+    );
+
+    // Initial draft step for P-001 is step 4 (Review & Agreement)
+    expect(await screen.findByRole("heading", { name: "Review & Agreement" })).toBeInTheDocument();
+    expect(screen.getByText(/Step 4 of 5/i)).toBeInTheDocument();
+
+    // Verify prefilled slot data is presented in review card
+    expect(screen.getByText("Nike Q1 Campaign")).toBeInTheDocument();
+    expect(screen.getByText("Commercial / Ad Campaign")).toBeInTheDocument();
+  });
+
+  it("saving draft persists the current step and navigates back to /client", async () => {
+    mockNavigate.mockClear();
+    const { ProjectBrief } = await import("./ProjectBrief");
+    render(
+      <MemoryRouter initialEntries={["/brief?id=P-001"]}>
+        <ProjectBrief />
+      </MemoryRouter>,
+    );
+
+    await screen.findByRole("heading", { name: "Review & Agreement" });
+
+    // Click "Save Draft" in the top bar
+    const saveDraftBtns = screen.getAllByRole("button", { name: /save draft/i });
+    fireEvent.click(saveDraftBtns[0]!);
+
+    expect(mockNavigate).toHaveBeenCalledWith("/client", expect.objectContaining({
+      state: expect.objectContaining({ savedDraftId: "P-001", savedStep: 4 }),
+    }));
   });
 });

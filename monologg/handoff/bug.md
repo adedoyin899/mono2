@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
+**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 119. Inconsistent Draft Editing Experience & Disjointed Inline Form State in Project Detailed View
+- **Severity:** Medium / UX Fragmentation & Form Redundancy Defect
+- **What happened:**
+  - In draft mode, the project detailed view in `ClientDashboard.tsx` previously rendered a 4-tile inline "Draft Setup Stepper" and converted page sections into raw inline input and textarea form editors (`Edit Overview`, `Edit Requirements`, `Edit Script`, `Manage Assets`).
+  - This differed completely from the standard 5-step project creation flow (`ProjectBrief.tsx`), causing jarring UX fragmentation where users could not resume their draft where they left off in the creation flow, nor experience consistent validation, asset management, and budget escrow calculation.
+- **Root Cause:**
+  - The project detailed view had accumulated inline form editing state handlers and local draft toggles independent of the main `ProjectBrief.tsx` stepper.
+- **Fix:**
+  - Removed the inline setup stepper and all inline form toggle editors from `ClientDashboard.tsx`, restoring clean, polished read-only views for all project tabs.
+  - Added a draft setup status banner and routed all draft editing actions ("Continue Draft Stepper →", "Resume Draft Stepper", "Resume Draft in Stepper") directly to `/brief?id=${project.id}`.
+  - Rewrote `ProjectBrief.tsx` to prefill all project slots and resume at the exact step where the user stopped last (`draftStep`), with persistent "Save Draft" capability saving to `appStateSync.saveClientDraft`.
+  - Added test coverage in `ClientDashboard.test.tsx` and `ProjectBrief.test.tsx` validating stepper routing, slot pre-filling, and save/exit persistence.
 
 ### 118. Stale Onboarding Device Mockup Assets Reflecting Deprecated Dashboard UI
 - **Severity:** Low / Asset Parity & Visual Hierarchy Defect

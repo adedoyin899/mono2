@@ -51,6 +51,7 @@ export const routeTree = [
       { path: "client", Component: protect(ClientDashboard) },
       { path: "order/:id", Component: protect(OrderRoom) },
       { path: "brief", Component: protect(ProjectBrief) },
+      { path: "brief/:id", Component: protect(ProjectBrief) },
       { path: "checkout", Component: protect(Checkout) },
       { path: "settings", Component: protect(Settings) },
       { path: "transactions", Component: protect(TransactionHistory) },

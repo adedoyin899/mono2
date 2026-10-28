@@ -15,5 +15,24 @@ export const ClientProjectSchema = z.object({
   applicantCap: z.number().int().nullable(),
   applicationsOpen: z.boolean(),
   posted: z.string(),
+  draftStep: z.number().int().optional(),
+  projectType: z.string().optional(),
+  projectFormat: z.enum(["online", "onsite"]).optional(),
+  venueLocation: z.string().optional(),
+  description: z.string().optional(),
+  selectedNiches: z.array(z.string()).optional(),
+  timeline: z.string().optional(),
+  location: z.string().optional(),
+  scriptSample: z.string().optional(),
+  additionalNotes: z.string().optional(),
+  assets: z
+    .array(
+      z.object({
+        name: z.string(),
+        size: z.string(),
+        type: z.string(),
+      })
+    )
+    .optional(),
 });
 export type ClientProject = z.infer<typeof ClientProjectSchema>;

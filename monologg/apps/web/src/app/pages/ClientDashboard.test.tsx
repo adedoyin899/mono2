@@ -2,6 +2,15 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const mockNavigate = vi.fn();
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual<typeof import("react-router")>("react-router");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
 // features.md Phase 12A.3 — PWA-10 attribute filters. Only the new filter
 // behavior is covered here, not a full ClientDashboard suite (none existed
 // before this phase).
@@ -267,7 +276,8 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     expect(screen.queryByText("Role & Craft Requirements")).not.toBeInTheDocument();
   });
 
-  it("renders the 5-step draft setup stepper and transforms sections into inline inputs that save back to view mode", async () => {
+  it("renders draft status banner with stepper resumption CTAs and navigates to the brief stepper", async () => {
+    mockNavigate.mockClear();
     await renderProjectsTab();
     fireEvent.click(screen.getAllByText("View Project →")[0]!);
     await screen.findByText("P-001");
@@ -275,43 +285,24 @@ describe("ClientDashboard — Projects Detailed View (Client POV)", () => {
     // Switch to Draft mode
     fireEvent.click(screen.getByRole("button", { name: "Draft" }));
 
-    // Check Stepper renders
-    expect(screen.getByText("Draft Setup Stepper")).toBeInTheDocument();
-    expect(screen.getByText("5/5 Sections Ready")).toBeInTheDocument();
-    expect(screen.getByText("Title & Synopsis")).toBeInTheDocument();
-    expect(screen.getByText("Craft Niches")).toBeInTheDocument();
-    expect(screen.getByText("Audition Script")).toBeInTheDocument();
+    // Verify Draft banner and Stepper resumption CTA render
+    expect(screen.getByText(/Continuing from where you left off/i)).toBeInTheDocument();
+    expect(screen.getByText("Continue Draft Stepper →")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /resume draft stepper/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /resume draft in stepper/i })).toBeInTheDocument();
 
-    // Switch to Overview tab to edit
-    fireEvent.click(screen.getByRole("button", { name: /overview & brief/i }));
-    const editOverviewBtn = screen.getByRole("button", { name: "Edit Overview" });
-    fireEvent.click(editOverviewBtn);
+    // Verify sections stay in clean view mode without inline form editors
+    expect(screen.queryByText("Draft Setup Stepper")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Edit Overview" })).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Project Title")).not.toBeInTheDocument();
 
-    // Section transforms into form with inputs
-    expect(screen.getByText("Edit overview & synopsis details")).toBeInTheDocument();
-    const titleInput = screen.getByPlaceholderText("Project Title");
-    fireEvent.change(titleInput, { target: { value: "Updated Nike Master Spot" } });
+    // Clicking "Continue Draft Stepper →" navigates to the brief creation flow with the project id
+    fireEvent.click(screen.getByText("Continue Draft Stepper →"));
+    expect(mockNavigate).toHaveBeenCalledWith("/brief?id=P-001");
 
-    // Save Overview
-    const saveBtn = screen.getByRole("button", { name: "Save Overview" });
-    fireEvent.click(saveBtn);
-
-    // Form transforms back to view mode with updated title
-    expect(screen.queryByText("Edit overview & synopsis details")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Updated Nike Master Spot").length).toBeGreaterThanOrEqual(1);
-
-    // Test Audition Sides inline edit transformation via stepper tile
-    const sidesTile = screen.getByRole("button", { name: /audition sides/i });
-    fireEvent.click(sidesTile);
-    expect(screen.getByText("Audition copy / sides")).toBeInTheDocument();
-
-    const scriptInput = screen.getByDisplayValue(/Sides \/ Script Excerpt/i);
-    fireEvent.change(scriptInput, { target: { value: "Updated Audition Script: 1x Dolby Atmos Take" } });
-
-    // Save Audition Sides
-    fireEvent.click(screen.getByRole("button", { name: "Save Audition Sides" }));
-    expect(screen.queryByText("Audition copy / sides")).not.toBeInTheDocument();
-    expect(screen.getByText(/Updated Audition Script: 1x Dolby Atmos Take/i)).toBeInTheDocument();
+    // Clicking header "Resume Draft Stepper" also navigates to the brief creation flow
+    fireEvent.click(screen.getByRole("button", { name: /resume draft stepper/i }));
+    expect(mockNavigate).toHaveBeenCalledWith("/brief?id=P-001");
   });
 });
 

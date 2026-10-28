@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-26 (Session 171: Onboarding Device Mockup Asset Refresh)
+**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 131: Client Project Edit Stepper Unification & Prefilled Resumption Flow (Session 172)
+
+Unified the project edit phase on the client portal with the standard project creation flow (`ProjectBrief.tsx`), eliminating disjointed inline form inputs and setup steppers in the dashboard:
+- **Project View Clean-Up:** Removed the 4-tile inline Draft Setup Stepper and inline form toggles (`Edit Overview`, `Edit Requirements`, `Edit Script`, `Manage Assets`) in `ClientDashboard.tsx`. All project tabs remain in clean, elegant read-only view.
+- **Unified Stepper Navigation:** Configured a Draft Brief Setup banner and action buttons ("Continue Draft Stepper →", "Resume Draft Stepper", "Resume Draft in Stepper") routing to `/brief?id=${project.id}`.
+- **Draft Prefill & Resumption:** `ProjectBrief.tsx` hydrates all project slots (title, type, format, location, niches, timeline, synopsis, script sides, attached files, applicant cap, budget) and resumes execution at the step where the client left off (`draftStep`).
+- **Persistent Save Draft:** Integrated "Save Draft" in header and footer across all stepper steps, persisting updates via `appStateSync.saveClientDraft` and returning smoothly to `/client`.
+- **Quality & Test Validation:** Updated `ClientDashboard.test.tsx` and `ProjectBrief.test.tsx` (720/720 tests passing green across monorepo; 0 TypeScript errors).
 
 ### Step 130: Onboarding Device Mockup Asset Refresh (Session 171)
 
