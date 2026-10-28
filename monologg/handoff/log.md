@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
+**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 173 (2026-10-28) — Order Room UX/UI Overhaul (2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
+
+**Goal:** Elevate the Order Room (`OrderRoom.tsx`) across both Performer and Client roles by drawing structural inspiration from Upwork, Fiverr, and Braintrust while preserving Monologg's unique domain features (Attendance Gates, Escrow Protection, Onsite 4-digit PIN Handshake, and Client Purple vs. Performer Red identity).
+
+1. **Counterparty-Anchored Header (`apps/web/src/app/pages/OrderRoom.tsx`):**
+   - Added counterparty avatar with live green presence dot, partner name (`FilmCraft Studios` or `Emeka Johnson`), active status, local timezone (`Lagos (WAT)`), Order ID chip (`ORD-001`), role switcher with subtle role accent indicators, and desktop Inspector Rail toggle (`PanelRightClose` / `PanelRightOpen`).
+2. **Braintrust-Style Slim Contract Command Bar with Progressive Disclosure (`OrderRoom.tsx`):**
+   - Replaced the tall stacked cards above the chat stream with a single compact Contract Command Bar featuring the Gate status pill (`Gate 2/3`), attendance title, inline `Can't make it` / `I'm confirmed` actions, and an on-demand `Details` / `Hide Details` toggle that expands/collapses the 3-column event metadata grid (`EVENT`, `DATE & TIME`, `LOCATION`).
+   - Consolidated the Client Google Meet reminder into a single-line progressive-disclosure bar (`Schedule Google Meet with Emeka Johnson`, `Launch Google Meet`, `Copy Link`, `Mark Done`, and `Dismiss`).
+3. **Calibrated High-Contrast Purple & Red Chat System (`OrderRoom.tsx`):**
+   - Replaced harsh neon `#E50914` red and `#7B00FE` electric purple bubble fills with calibrated executive gradients: **Deep Studio Crimson** (`#991B1B` → `#7F1D1D`) for Performer outgoing bubbles and **Royal Plum** (`#5B21B6` → `#4C1D95`) for Client outgoing bubbles (WCAG AAA contrast > 8.5:1).
+   - Styled incoming bubbles on clean elevated surfaces with a 4px role-colored left accent border (`#B91C1C` for Performer, `#5B21B6` for Client) and explicit sender header rows (`You` / Counterparty Name + `Performer` / `Client` badge + timestamp).
+   - Upgraded embedded file attachment cards (`Nike_Campaign_Brief_v2.pdf`) inside outgoing bubbles to high-contrast white cards so text and download actions never blend into the bubble fill.
+4. **Upwork / Fiverr Responsive 2-Pane Workspace & Collapsible Inspector Rail (`OrderRoom.tsx`):**
+   - Introduced a persistent, collapsible Right Inspector Rail on desktop (`lg+`) housing: (1) Counterparty Profile & Rating summary card (`★ 4.9`, `< 1 hour` response), (2) Escrow Deposit / Net Take-Home card with expandable `Fee breakdown`, (3) Upwork-style connected vertical `Activity Timeline` stepper, and (4) collapsible `Script & Brief Assets` teleprompter with 1-click `Copy Script`.
+5. **Unified Multi-Row Composer Dock (`OrderRoom.tsx`):**
+   - Consolidated the detached full-width bottom action bar and single-line input into a cohesive multi-row Composer container with top auto-expanding textarea and bottom action toolbar containing `Paperclip`, integrated `Submit Deliverable` / `Enter Code & Verify` quick-action button, escrow trust badge, `Dispute` trigger, and role-synced `Send` button (fixing Performer's send button to Crimson `#B91C1C` and Client's to Royal Plum `#5B21B6`).
+6. **Automated Testing & Verification (`OrderRoom.test.tsx`, `dashboardParity.test.tsx`):**
+   - Added `OrderRoom.test.tsx` (4/4 passing) and verified `dashboardParity.test.tsx` (4/4 passing) and `npm run typecheck` (0 errors).
 
 ---
 

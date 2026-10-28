@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
+**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 132: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Chat Contrast (Session 173)
+
+Executed a Senior FAANG UX/UI overhaul of the Order Room (`OrderRoom.tsx`) across both Performer (`talent`) and Client (`client`) perspectives, drawing structural patterns from Upwork, Fiverr, and Braintrust while preserving Monologg's escrow, attendance check-in, and onsite PIN flows:
+- **Counterparty-Anchored Top Header:** Added partner avatar + online dot, counterparty name, `Lagos (WAT)` timezone, Order ID, Format badge, role/mode switchers, `Order Info` button, and desktop Inspector Rail toggle.
+- **Slim Contract Command Bar & Progressive Disclosure:** Replaced the stacked vertical attendance and Google Meet banners with a compact Braintrust-style Command Bar featuring inline `I'm confirmed` / `Can't make it` CTAs, an on-demand `Details` / `Hide Details` drawer for the 3-column event grid, and a single-line Google Meet bar for Clients (`Launch Google Meet`, `Copy Link`, `Mark Done`, `Dismiss`).
+- **Calibrated High-Contrast Purple & Red Chat System:** Refined outgoing Performer bubbles to **Deep Studio Crimson** (`from-[#991B1B] to-[#7F1D1D]`) and outgoing Client bubbles to **Royal Plum** (`from-[#5B21B6] to-[#4C1D95]`), gave incoming bubbles a clean white surface with a 4px role-accent left border, added explicit sender header rows, and styled file attachments inside outgoing bubbles as crisp white sub-cards (`bg-white text-zinc-900`) for immediate legibility.
+- **Unified Multi-Row Composer Dock:** Consolidated the detached full-width bottom `Submit Deliverable` button into an integrated multi-row composer dock with contextual quick-action pills (`Submit Deliverable`, `Enter Code & Verify`) and role-synced `Send` buttons (`#B91C1C` Performer / `#5B21B6` Client).
+- **2-Pane Desktop Workspace & Right Contextual Inspector Rail:** Added a collapsible 320px/340px right-hand `Order Inspector Panel` (`lg+`) displaying the Counterparty Dossier, Escrow & Payout Summary with progressive `Fee breakdown` drawer, vertical `Activity Timeline`, and `Script & Brief Assets`.
+- **Verification:** Created `OrderRoom.test.tsx` (4/4 tests passing) + `dashboardParity.test.tsx` (4/4 passing); 0 TypeScript errors across monorepo.
 
 ### Step 131: Client Project Edit Stepper Unification & Prefilled Resumption Flow (Session 172)
 

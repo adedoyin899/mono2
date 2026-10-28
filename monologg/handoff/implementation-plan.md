@@ -1,11 +1,25 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–171 + Session 172 Client Project Edit Stepper Unification.
+**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–172 + Session 173 Order Room UX/UI Overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 173 — Order Room UX/UI Overhaul (Upwork / Fiverr / Braintrust Inspired)
+- [x] **Slim Progressive-Disclosure Contract Command Bar (`OrderRoom.tsx`)**:
+  - Replaced tall stacked attendance and video call cards with a sleek single-row Contract Command Bar (`Gate 2/3`, inline `I'm confirmed` / `Can't make it` buttons, and on-demand `Details` / `Hide Details` toggle for event metadata).
+  - Streamlined Client Google Meet prompt into a single-line progressive-disclosure bar (`Launch Google Meet`, `Copy Link`, `Mark Done`, `Dismiss`).
+- [x] **Calibrated High-Contrast Purple & Red Chat System (`OrderRoom.tsx`)**:
+  - Updated Performer outgoing bubbles to Deep Studio Crimson (`#991B1B` → `#7F1D1D`) and Client outgoing bubbles to Royal Plum (`#5B21B6` → `#4C1D95`) for WCAG AAA legibility without neon glare.
+  - Styled incoming bubbles with role-colored 4px left accent bars, sender name + `Performer` / `Client` role badges, and high-contrast white file attachment sub-cards.
+- [x] **Responsive 2-Pane Desktop Workspace & Inspector Rail (`OrderRoom.tsx`)**:
+  - Added collapsible Right Contextual Inspector Rail (`lg+`) with Counterparty Profile card, Escrow/Net Take-Home summary with expandable fee math, Upwork-style vertical `Activity Timeline`, and collapsible `Script & Brief Assets`.
+- [x] **Unified Multi-Row Composer Dock (`OrderRoom.tsx`)**:
+  - Integrated `Submit Deliverable` / `Enter Code & Verify` quick-action pills directly inside a unified multi-row composer toolbar and synced the `Send` button color to Performer Red (`#B91C1C`) vs. Client Purple (`#5B21B6`).
+- [x] **Quality Gate & Automated Tests (`OrderRoom.test.tsx`, `dashboardParity.test.tsx`)**:
+  - Created `OrderRoom.test.tsx` (4/4 passing) and verified `dashboardParity.test.tsx` (4/4 passing) with 0 TypeScript errors.
 
 ### Session 172 — Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption
 - [x] **Client Project Edit Stepper Unification (`ClientDashboard.tsx`)**:

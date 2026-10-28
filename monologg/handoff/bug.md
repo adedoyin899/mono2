@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-28 (Session 172: Client Project Edit Phase Stepper Unification & Draft Slot Prefill Resumption)
+**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 120. Order Room Above-the-Fold Banner Bloat, Neon Chat Bubble Glare & Mismatched Performer Send Button
+- **Severity:** Medium / UX Hierarchy, Contrast & Role-Theming Defect
+- **What happened:**
+  - In `OrderRoom.tsx`, stacking the full Attendance Verification card, Google Meet card, and workspace tabs consumed over 55% of desktop viewport height and 75%+ of mobile viewport height before showing the first message.
+  - Outgoing chat bubbles used hyper-saturated `#E50914` red and `#7B00FE` electric purple fills that caused visual glare and low-contrast embedded file cards, while Performer view erroneously rendered a purple Send button (`from-purple-600 to-indigo-600`).
+- **Root Cause:**
+  - Lack of progressive disclosure on top status banners, uncalibrated saturation on multi-line chat bubbles, and hardcoded purple gradient on the composer send button.
+- **Fix:**
+  - Consolidated top banners into a Braintrust-inspired slim Contract Command Bar with on-demand `Details` progressive disclosure and a single-line Google Meet strip.
+  - Introduced a responsive 2-pane desktop layout with a collapsible Right Inspector Rail (Counterparty Profile, Escrow Breakdown, Vertical Activity Timeline, and Script/Brief Assets).
+  - Calibrated chat bubble fills to Deep Studio Crimson (`#991B1B` → `#7F1D1D`) for Performer and Royal Plum (`#5B21B6` → `#4C1D95`) for Client with crisp white attachment sub-cards, 4px role-accented incoming bubbles, and a unified multi-row composer with role-synced Send buttons.
 
 ### 119. Inconsistent Draft Editing Experience & Disjointed Inline Form State in Project Detailed View
 - **Severity:** Medium / UX Fragmentation & Form Redundancy Defect
