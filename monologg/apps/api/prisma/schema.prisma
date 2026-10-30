@@ -764,3 +764,30 @@ model WithdrawalOtp {
   @@index([withdrawalRequestId, createdAt])
   @@index([userId, createdAt])
 }
+
+// =============================================================================
+// Session 174 — Supabase-First Product Analytics & Event Telemetry
+// =============================================================================
+// Captures page views, UI/CTA click streams, and business funnel milestones
+// across Performer, Client, and Guest flows. Designed for direct Supabase
+// querying and zero-friction forwarding to PostHog or external BI sinks.
+// Money rule preserved: no Float or Decimal columns; any monetary telemetry
+// inside `properties` uses integer minor units or formatted strings.
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  eventName   String
+  category    String
+  userId      String?
+  anonymousId String
+  sessionId   String
+  userRole    String?
+  path        String
+  properties  Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  @@index([eventName, createdAt])
+  @@index([category, createdAt])
+  @@index([userId, createdAt])
+  @@index([sessionId, createdAt])
+}

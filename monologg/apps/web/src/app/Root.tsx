@@ -1,5 +1,6 @@
-import { Outlet } from "react-router";
-import { useState, createContext, useContext, useEffect } from "react";
+import { Outlet, useLocation } from "react-router";
+import { useState, createContext, useContext, useEffect, useRef } from "react";
+import { trackEvent, trackPageView } from "../lib/analytics";
 
 interface ThemeContextType {
   isDark: boolean;
@@ -30,6 +31,7 @@ export function useThemeState() {
     const next = !isDark;
     setIsDark(next);
     try { localStorage.setItem("monologg-theme", next ? "dark" : "light"); } catch {}
+    trackEvent("theme_toggled", { theme: next ? "dark" : "light" }, "engagement");
   };
 
   return { isDark, toggle };
@@ -37,12 +39,87 @@ export function useThemeState() {
 
 export function Root() {
   const { isDark, toggle } = useThemeState();
+  const location = useLocation();
+  const pageEnteredAtRef = useRef<number>(Date.now());
+  const prevPathRef = useRef<string | null>(null);
+  const sessionTrackedRef = useRef<boolean>(false);
+
+  // 1. Track session_started once on mount
+  useEffect(() => {
+    if (!sessionTrackedRef.current) {
+      sessionTrackedRef.current = true;
+      const width = typeof window !== "undefined" ? window.innerWidth : 1280;
+      const viewport = width < 640 ? "mobile" : width < 1024 ? "tablet" : "desktop";
+      trackEvent(
+        "session_started",
+        {
+          entryPath: location.pathname,
+          viewport,
+        },
+        "navigation",
+      );
+    }
+  }, [location.pathname]);
+
+  // 2. Track page_viewed & page_leave dwell time on route changes
+  useEffect(() => {
+    const now = Date.now();
+    if (prevPathRef.current && prevPathRef.current !== location.pathname) {
+      const durationMs = Math.max(0, now - pageEnteredAtRef.current);
+      trackEvent(
+        "page_leave",
+        {
+          fromPath: prevPathRef.current,
+          toPath: location.pathname,
+          durationMs,
+        },
+        "navigation",
+      );
+    }
+    pageEnteredAtRef.current = now;
+    prevPathRef.current = location.pathname;
+    trackPageView(location.pathname, {
+      search: location.search || undefined,
+    });
+  }, [location.pathname, location.search]);
+
+  // 3. Delegated click tracking across all buttons, links, tabs, and [data-analytics] elements
+  const handleGlobalClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    try {
+      const target = e.target as HTMLElement | null;
+      if (!target || typeof target.closest !== "function") return;
+      const interactive = target.closest(
+        'button, a, [role="button"], [role="tab"], [data-analytics]',
+      ) as HTMLElement | null;
+      if (!interactive) return;
+
+      const analyticsAttr = interactive.getAttribute("data-analytics");
+      const ariaLabel = interactive.getAttribute("aria-label");
+      const rawText = (interactive.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
+      const label = analyticsAttr || ariaLabel || rawText || interactive.tagName.toLowerCase();
+      const tag = interactive.tagName.toLowerCase();
+      const href = tag === "a" ? interactive.getAttribute("href") || undefined : undefined;
+
+      trackEvent(
+        analyticsAttr ? "cta_clicked" : "ui_click",
+        {
+          label,
+          analyticsId: analyticsAttr || undefined,
+          elementTag: tag,
+          href,
+          path: location.pathname,
+        },
+        "ui_interaction",
+      );
+    } catch {}
+  };
 
   return (
     <ThemeContext.Provider value={{ isDark, toggle }}>
       <div
         className={isDark ? "dark" : ""}
         style={{ minHeight: "100vh", background: "var(--color-bg-canvas)", color: "var(--color-text-primary)" }}
+        onClickCapture={handleGlobalClickCapture}
       >
         {/* T3: Skip-to-content link — visible only on keyboard focus */}
         <a

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
+**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 133: Supabase-First Product Analytics, Delegated Click Stream & Stakeholder Telemetry (Session 174)
+
+Implemented end-to-end product analytics and interaction tracking across the web application and backend API, anchored in Supabase Postgres with a forward-compatible PostHog bridge:
+- **Supabase `AnalyticsEvent` Model & Migration:** Added `AnalyticsEvent` to `apps/api/prisma/schema.prisma` and created migration `20261030101500_add_analytics_events/migration.sql` with RLS append-only insert permissions for Supabase clients and composite indexes on `eventName`, `category`, `userId`, and `sessionId`.
+- **Backend Analytics Endpoints (`apps/api/src/routes/analytics.ts`):** Added `POST /api/v1/analytics/events` (single/batch ingestion with recursive PII/secret scrubbing) and `GET /api/v1/analytics/summary` (stakeholder funnel and category aggregation).
+- **Frontend Analytics SDK (`apps/web/src/lib/analytics.ts`):** Created a 44+ event taxonomy across 10 categories (`ANALYTICS_TAXONOMY`) dispatching to Supabase (`AnalyticsEvent`), `/api/v1/analytics/events`, a 500-event local ring buffer, and `window.posthog` when present.
+- **Global Auto-Capture & Funnel Hooks (`Root.tsx`, `state-sync.ts`, `OrderRoom.tsx`):** Added automatic `session_started`, `page_viewed`, `page_leave` dwell timing, and delegated `onClickCapture` across all interactive elements in `Root.tsx`, plus explicit funnel telemetry across `appStateSync` and `OrderRoom.tsx`.
+- **Stakeholder Reference (`handoff/analytics.md`) & Verification:** Authored `monologg/handoff/analytics.md` with full event dictionary and Supabase SQL queries; verified `analytics.test.ts` (web + API), `schema.test.ts`, and `npm run typecheck` (0 errors).
 
 ### Step 132: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Chat Contrast (Session 173)
 

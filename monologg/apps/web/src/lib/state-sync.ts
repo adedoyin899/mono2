@@ -1,5 +1,6 @@
 import { PROJECTS, SERVICES, TRANSACTIONS, SUPPORT_TICKETS, CLIENT_PROJECTS } from "../mocks";
 import type { Project, ServiceRateCard, Transaction, SupportTicket, Applicant, ClientProject } from "@monologg/types";
+import { trackEvent, identifyAnalyticsUser } from "./analytics";
 
 export interface BillingCard {
   id: string;
@@ -376,6 +377,7 @@ class StateSyncBus {
     this.transactions = [newTx, ...this.transactions];
     this.save(STORAGE_KEYS.BALANCE, this.balance);
     this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    trackEvent("withdrawal_completed", { amountKobo: amountNaira * 100, portal: "talent", bankName: this.bankDetails.bankName }, "payout");
     this.notify();
     return true;
   }
@@ -403,6 +405,7 @@ class StateSyncBus {
     this.transactions = [newTx, ...this.transactions];
     this.save(STORAGE_KEYS.BALANCE, this.balance);
     this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    trackEvent("wallet_funded", { amountKobo: amountNaira * 100 }, "escrow_payment");
     this.notify();
     return true;
   }
@@ -430,6 +433,7 @@ class StateSyncBus {
     this.transactions = [newTx, ...this.transactions];
     this.save(STORAGE_KEYS.BALANCE, this.balance);
     this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    trackEvent("escrow_payment_completed", { amountKobo: amountNaira * 100, description: description ?? "wallet_escrow", bookingRef: ref }, "escrow_payment");
     this.notify();
     return true;
   }
@@ -515,6 +519,7 @@ class StateSyncBus {
       };
       this.clientProjects[existingIndex] = updated;
       this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+      trackEvent("project_brief_draft_saved", { projectId: updated.id, draftStep: updated.draftStep ?? 1, isUpdate: true }, "booking");
       this.notify();
       return updated;
     }
@@ -531,6 +536,7 @@ class StateSyncBus {
     };
     this.clientProjects = [newProject, ...this.clientProjects];
     this.save(STORAGE_KEYS.CLIENT_PROJECTS, this.clientProjects);
+    trackEvent("project_brief_draft_saved", { projectId: newProject.id, draftStep: newProject.draftStep ?? 1, isUpdate: false }, "booking");
     this.notify();
     return newProject;
   }
@@ -593,6 +599,7 @@ class StateSyncBus {
     this.transactions = [newTx, ...this.transactions];
     this.save(STORAGE_KEYS.BALANCE, this.balance);
     this.save(STORAGE_KEYS.TRANSACTIONS, this.transactions);
+    trackEvent("withdrawal_completed", { amountKobo: amountNaira * 100, portal: "client", bankName: bankDetails.bankName }, "payout");
     this.notify();
     return { success: true, transaction: newTx };
   }
@@ -664,6 +671,11 @@ class StateSyncBus {
 
     this.projects = [newProject, ...this.projects];
     this.save(STORAGE_KEYS.PROJECTS, this.projects);
+    trackEvent(
+      "project_brief_published",
+      { projectId: newProject.id, projectType: newProject.projectType, budgetAmount: newProject.budgetAmount },
+      "booking",
+    );
     this.notify();
     return newProject;
   }
@@ -680,6 +692,7 @@ class StateSyncBus {
     projectApplicants[idx]!.status = status;
     this.applicants[projectId] = projectApplicants;
     this.save(STORAGE_KEYS.APPLICANTS, this.applicants);
+    trackEvent("applicant_status_updated", { projectId, applicationId, status }, "booking");
     this.notify();
     return true;
   }
@@ -712,6 +725,7 @@ class StateSyncBus {
 
     this.save(STORAGE_KEYS.PROJECTS, this.projects);
     this.save(STORAGE_KEYS.APPLICANTS, this.applicants);
+    trackEvent("project_application_submitted", { projectId, hasPitch: Boolean(pitch) }, "booking");
     this.notify();
     return true;
   }
@@ -774,6 +788,7 @@ class StateSyncBus {
     if (typeof window === "undefined") return;
     if (user) {
       localStorage.setItem(STORAGE_KEYS.USER_SESSION, JSON.stringify(user));
+      identifyAnalyticsUser(user);
       if (user.isNewUser) {
         this.addNotification({
           id: `notif-welcome-${Date.now()}`,
@@ -784,6 +799,7 @@ class StateSyncBus {
       }
     } else {
       localStorage.removeItem(STORAGE_KEYS.USER_SESSION);
+      trackEvent("auth_signout_clicked", {}, "acquisition");
     }
     this.notify();
   }
@@ -924,6 +940,14 @@ class StateSyncBus {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEYS.AVAILABILITY_CHECKINS, JSON.stringify(nextList));
     }
+    if (updated) {
+      const confirmedItem = updated as AvailabilityCheckin;
+      trackEvent(
+        "order_attendance_confirmed",
+        { checkinId, bookingId: confirmedItem.bookingId, stepLabel: confirmedItem.stepLabel },
+        "order_room",
+      );
+    }
     this.notify();
     return updated;
   }
@@ -1029,6 +1053,7 @@ class StateSyncBus {
       },
     });
 
+    trackEvent("order_attendance_declined", { bookingId, reasonLength: reason ? reason.length : 0 }, "order_room");
     this.notify();
   }
 
@@ -1063,6 +1088,7 @@ class StateSyncBus {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEYS.PAYOUT_CHANGE_REQUEST, JSON.stringify(newRequest));
     }
+    trackEvent("payout_bank_change_requested", { bankName: req.bankName }, "payout");
     this.notify();
     return newRequest;
   }

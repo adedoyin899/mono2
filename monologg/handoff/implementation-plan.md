@@ -1,11 +1,23 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–172 + Session 173 Order Room UX/UI Overhaul.
+**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–173 + Session 174 Supabase Product Analytics & Stakeholder Telemetry.
 
 ---
 
 ## ✅ Done
+
+### Session 174 — Supabase-First Product Analytics, Delegated Click Tracking & Stakeholder Telemetry
+- [x] **Supabase `AnalyticsEvent` Schema & RLS Migration (`schema.prisma`, `20261030101500_add_analytics_events/migration.sql`)**:
+  - Added `AnalyticsEvent` model with indexes on `eventName`, `category`, `userId`, and `sessionId` plus RLS append-only insert policy for Supabase client ingestion.
+- [x] **Backend Ingestion & Stakeholder Summary Endpoints (`apps/api/src/routes/analytics.ts`, `analytics.test.ts`)**:
+  - Built `POST /api/v1/analytics/events` (single/batch ingestion + recursive PII scrubbing) and `GET /api/v1/analytics/summary` (category, role, top events, and conversion funnel aggregation).
+- [x] **Unified Frontend Analytics SDK & PostHog Bridge (`apps/web/src/lib/analytics.ts`, `analytics.test.ts`)**:
+  - Defined 44+ canonical events across 10 categories in `ANALYTICS_TAXONOMY`, with Supabase direct insert, API fallback, 500-event local ring buffer, and zero-config `window.posthog` forwarding.
+- [x] **Global Delegated Click Tracking & Funnel Instrumentation (`Root.tsx`, `state-sync.ts`, `OrderRoom.tsx`)**:
+  - Automatic `session_started`, `page_viewed`, `page_leave` (`durationMs`), `theme_toggled`, and delegated `ui_click`/`cta_clicked` capture in `Root.tsx` plus explicit funnel milestones across `state-sync.ts` and `OrderRoom.tsx`.
+- [x] **Stakeholder Analytics Reference (`handoff/analytics.md`)**:
+  - Documented full taxonomy, KPI dictionary, privacy guardrails, and ready-to-run Supabase SQL queries.
 
 ### Session 173 — Order Room UX/UI Overhaul (Upwork / Fiverr / Braintrust Inspired)
 - [x] **Slim Progressive-Disclosure Contract Command Bar (`OrderRoom.tsx`)**:

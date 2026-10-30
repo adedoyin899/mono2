@@ -8,6 +8,7 @@ import { Badge } from "../components/ui/Badge";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient } from "../../lib/api-client";
 import { appStateSync, type AvailabilityCheckin } from "../../lib/state-sync";
+import { trackEvent } from "../../lib/analytics";
 import type { OrderMessage } from "@monologg/types";
 import {
   ChevronLeft, ChevronRight, Shield, Send, Paperclip, CheckCircle2,
@@ -181,6 +182,14 @@ export function OrderRoom() {
 
   /* ── Data loading ── */
   useEffect(() => {
+    trackEvent(
+      "order_room_viewed",
+      { orderId: curOrderId, role, mode: gigType },
+      "order_room",
+    );
+  }, [curOrderId, role, gigType]);
+
+  useEffect(() => {
     apiClient.getOrderMessages(orderId ?? "unknown").then(msgs => {
       const initialMsgs = msgs as ExtendedOrderMessage[];
       const syncedMsgs = appStateSync.getOrderMessages(curOrderId) as ExtendedOrderMessage[];
@@ -273,6 +282,11 @@ export function OrderRoom() {
 
     setSavedReview(reviewData);
     setRatingEditing(false);
+    trackEvent(
+      "order_review_submitted",
+      { orderId: curOrderId, role, stars: ratingStars, tag: effectiveTag },
+      "order_room",
+    );
 
     setMessages(prev => [
       ...prev,
@@ -296,6 +310,11 @@ export function OrderRoom() {
     const text = inputText.trim();
     if (!text) return;
     setInputText("");
+    trackEvent(
+      "order_message_sent",
+      { orderId: curOrderId, role, messageLength: text.length },
+      "order_room",
+    );
     const sent = orderId ? await apiClient.sendOrderMessage(orderId, text) : null;
     const newMsg: ExtendedOrderMessage = sent ?? {
       id: `local-${messages.length + 1}`,
@@ -329,6 +348,11 @@ export function OrderRoom() {
     setShowSubmitModal(false);
     advancePhase("review");
     setTimerSeconds(48 * 3600);
+    trackEvent(
+      "order_deliverable_submitted",
+      { orderId: curOrderId, role, fileName: finalFile.name, mode: "remote" },
+      "order_room",
+    );
     setMessages(prev => [
       ...prev,
       {
@@ -353,6 +377,11 @@ export function OrderRoom() {
     setShowSubmitModal(false);
     advancePhase("review");
     setTimerSeconds(48 * 3600);
+    trackEvent(
+      "order_onsite_pin_verified",
+      { orderId: curOrderId, role, venue: "Comedy Night, Eko Hotel" },
+      "order_room",
+    );
     const evidence: OnsiteEvidence = {
       venue: "Comedy Night, Eko Hotel",
       coords: "6.5244° N, 3.3792° E · Lagos",
@@ -390,6 +419,11 @@ export function OrderRoom() {
     setShowReleaseModal(false);
     setPaymentReleased(true);
     setPhase("complete");
+    trackEvent(
+      "order_payment_released",
+      { orderId: curOrderId, role, amountKobo: 12000000 },
+      "order_room",
+    );
     setMessages(prev => [
       ...prev,
       {
@@ -405,6 +439,11 @@ export function OrderRoom() {
     if (!revisionNotes.trim()) return;
     setShowRevisionModal(false);
     setPhase("deliverables");
+    trackEvent(
+      "order_revision_requested",
+      { orderId: curOrderId, role, notesLength: revisionNotes.trim().length },
+      "order_room",
+    );
     setMessages(prev => [
       ...prev,
       {

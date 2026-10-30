@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
+**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 174 (2026-10-30) — Supabase-First Product Analytics, Delegated Click Tracking & Stakeholder Telemetry
+
+**Goal:** Ensure all clicks, route transitions, dwell times, and key user funnel metrics across Performer (`TALENT`), Client (`CLIENT`), and Guest (`GUEST`) flows are systematically tracked using our primary Supabase architecture (`AnalyticsEvent` table + `/api/v1/analytics/*`) with a zero-config PostHog forward bridge and comprehensive stakeholder documentation.
+
+1. **Database Schema & Migration (`apps/api/prisma/schema.prisma`, `apps/api/prisma/migrations/20261030101500_add_analytics_events/migration.sql`):**
+   - Added `model AnalyticsEvent` (`id`, `eventName`, `category`, `userId`, `anonymousId`, `sessionId`, `userRole`, `path`, `properties`, `createdAt`) with composite indexes on `(eventName, createdAt)`, `(category, createdAt)`, `(userId, createdAt)`, and `(sessionId, createdAt)`.
+   - Enabled Row-Level Security (RLS) with append-only `INSERT` policy for Supabase `anon`/`authenticated` clients while keeping read access restricted to backend `service_role` and Supabase Studio.
+   - Preserved the schema-wide Money Rule (`prisma/schema.test.ts` 17/17 passing — zero `Float` or `Decimal` columns).
+2. **Backend Analytics Ingestion & Stakeholder Summary API (`apps/api/src/routes/analytics.ts`, `apps/api/src/routes/index.ts`, `apps/api/src/routes/analytics.test.ts`):**
+   - Built `POST /api/v1/analytics/events` supporting single and batched event ingestion (1–100 events) with recursive PII/secret scrubbing (`sanitizeAnalyticsProperties`).
+   - Built `GET /api/v1/analytics/summary` returning stakeholder-ready category breakdowns, role splits (`TALENT` / `CLIENT` / `GUEST`), top 15 events, and end-to-end conversion funnel counts.
+3. **Unified Frontend Analytics Engine (`apps/web/src/lib/analytics.ts`, `apps/web/src/lib/analytics.test.ts`):**
+   - Defined `ANALYTICS_TAXONOMY` covering 44+ canonical events across 10 categories (`navigation`, `ui_interaction`, `acquisition`, `onboarding`, `discovery`, `booking`, `escrow_payment`, `order_room`, `payout`, `engagement`) with stakeholder KPI mappings.
+   - Implemented `trackEvent`, `trackPageView`, `trackClick`, `identifyAnalyticsUser`, `getBufferedEvents`, and `getStakeholderSummary` with triple-sink dispatch: (1) direct Supabase `AnalyticsEvent` insert when `SUPABASE_MODE === "real"`, (2) `/api/v1/analytics/events` in `live` API mode, (3) 500-event local ring buffer, and (4) automatic `window.posthog` bridge.
+4. **Global Auto-Capture & Funnel Instrumentation (`apps/web/src/app/Root.tsx`, `apps/web/src/lib/state-sync.ts`, `apps/web/src/app/pages/OrderRoom.tsx`):**
+   - Wired `Root.tsx` to automatically track `session_started` (with viewport size classification), `page_viewed` on every route change, `page_leave` with `durationMs` dwell time, `theme_toggled`, and delegated `onClickCapture` across all `<button>`, `<a>`, `[role="button"]`, `[role="tab"]`, and `[data-analytics]` elements.
+   - Instrumented `appStateSync` and `OrderRoom.tsx` to emit explicit funnel events on draft saves, brief publishing, project applications, applicant shortlisting, wallet top-ups, escrow payments, attendance confirmations/declines, onsite PIN verifications, deliverable submissions, revisions, escrow releases, star reviews, and payout withdrawals.
+5. **Stakeholder Reference Documentation (`handoff/analytics.md`):**
+   - Authored `monologg/handoff/analytics.md` with full event taxonomy tables, stakeholder KPI definitions, and ready-to-run Supabase Studio SQL queries.
 
 ---
 

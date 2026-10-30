@@ -98,3 +98,4 @@ describe("OrderRoom — Senior FAANG UX/UI Redesign (Performer & Client Views)",
     expect(await screen.findByText(/Rate your experience with/i)).toBeInTheDocument();
   });
 });
+

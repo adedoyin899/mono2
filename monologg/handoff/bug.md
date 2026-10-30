@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-28 (Session 173: Order Room UX/UI Overhaul — 2-Pane Workspace, Slim Command Bar & Calibrated Purple/Red Contrast)
+**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 121. Missing Frontend Click-Stream, Route Dwell & Funnel Telemetry Pipeline in Supabase
+- **Severity:** Medium / Product Observability & Stakeholder Analytics Gap
+- **What happened:**
+  - While backend routes logged discrete account activity (`UserActivity` and `AuthEvent`), there was no unified frontend telemetry capturing page views, screen dwell times, button/CTA clicks, or step-by-step funnel conversions (draft saves, brief publication, attendance confirmations, deliverable handovers, escrow releases) in Supabase.
+- **Root Cause:**
+  - Frontend interactions and `StateSyncBus` mutations were not wired to a structured analytics SDK or a dedicated `AnalyticsEvent` table in Supabase Postgres.
+- **Fix:**
+  - Added `AnalyticsEvent` to `prisma/schema.prisma` with migration `20261030101500_add_analytics_events`, created `/api/v1/analytics/events` and `/api/v1/analytics/summary`, built `apps/web/src/lib/analytics.ts` (Supabase direct + API + local buffer + PostHog bridge with automatic PII scrubbing), attached global route/dwell/click auto-capture in `Root.tsx`, instrumented `state-sync.ts` and `OrderRoom.tsx`, and documented the full taxonomy and SQL queries in `monologg/handoff/analytics.md`.
 
 ### 120. Order Room Above-the-Fold Banner Bloat, Neon Chat Bubble Glare & Mismatched Performer Send Button
 - **Severity:** Medium / UX Hierarchy, Contrast & Role-Theming Defect
