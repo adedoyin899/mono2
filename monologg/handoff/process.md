@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
+**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 136: 1-for-1 Figma Resources Page Implementation (Session 177)
+
+Implemented the Figma Resources Page (`178359:18325`) 1-for-1 on the `web-update` branch:
+- **Design Context & Visual Target:** Analyzed high-resolution screenshot from `get_screenshot` and sublayer context from `get_design_context` (`178359:18384` and `178359:18473`).
+- **Asset Acquisition:** Downloaded 10 official SVG assets into `monologg/apps/web/public/assets/social/` (`gavel.svg`, `question.svg`, `gmail.svg`, `linkedin.svg`, `producthunt.svg`, `twitter.svg`, `twitch.svg`, `telegram.svg`, `tiktok.svg`, `instagram.svg`).
+- **Master Resources Card (`ResourcesPage.tsx`):** Built the 2-tier card (`1000px` max-width) with centered `Terms of Service` pill with gavel icon, 2-column Escrow Guarantee Policy vs. Fair Trade Contracts with vertical divider, horizontal `#e8e8e8` divider, centered `Support & Community` pill with question icon, 2-column 24/7 Creator Helpdesk vs. Onboarding & EPK Guides, and bottom bar with `hello@monologg.co` mail link and 7 circular social avatar buttons.
+- **Become an Investor Section:** Built the 2-column investor acquisition layout with `RAISING SOON!` eyebrow, 48px heading, and interactive application card (`First Name`, `Last Name`, `Email`, `phone no`, `Please tell us who you are` select, `Message` textarea, and `Submit Application` button with feedback state).
+- **Quality Gate & Testing:** Created `ResourcesPage.test.tsx` (3/3 passing), verified monorepo typecheck (0 errors), and confirmed live rendering on `http://localhost:5173/resources`.
 
 ### Step 135: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation (Session 176)
 

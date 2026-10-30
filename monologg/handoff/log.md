@@ -1,11 +1,41 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
+**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 177 (2026-10-30) — 1-for-1 Figma Resources Page Implementation
+
+**Goal:** Implement a strict 1-for-1 implementation of the Figma Resources Page (`178359:18325`) on the `web-update` branch.
+
+1. **Figma Design Retrieval (`kClJDAgWsmMGhtuXsccAz0`, Node `178359:18325`):**
+   - Retrieved full visual screenshot via `get_screenshot` and sublayer context via `get_design_context` for `178359:18384` (Resources grid card) and `178359:18473` (Become an Investor section).
+   - Downloaded official SVG icons directly to `public/assets/social/`: `gavel.svg`, `question.svg`, `gmail.svg`, `linkedin.svg`, `producthunt.svg`, `twitter.svg`, `twitch.svg`, `telegram.svg`, `tiktok.svg`, and `instagram.svg`.
+2. **1-for-1 Resources Page Implementation (`apps/web/src/app/pages/ResourcesPage.tsx`):**
+   - **Page Chrome:** `#16161a` top announcement bar, sticky 68px header with active `Resources` red dot indicator and avatar menu, and `<WebsiteFooter />`.
+   - **Section 1: Master Resources Card (`178359:18384` & `178359:18409`):**
+     - Centered `Terms of Service` pill with Gavel icon linking to `/legal/terms`.
+     - 2-column row: `Escrow Guarantee Policy` (centered) and `Fair Trade Contracts` (centered), divided by a vertical line.
+     - Horizontal `#e8e8e8` divider.
+     - Centered `Support & Community` pill with Question icon linking to `/support`.
+     - 2-column row: `24/7 Creator Helpdesk` (centered) and `Onboarding & EPK Guides` (centered), divided by a vertical line.
+     - Bottom bar (`178359:18448`) with `hello@monologg.co` mailto link and 7 circular social avatar buttons (`LinkedIn`, `Product Hunt`, `Twitter / X`, `Twitch`, `Telegram`, `TikTok`, `Instagram`).
+   - **Section 2: Become an Investor Section (`178359:18473` & `178359:18474`):**
+     - Left column: `RAISING SOON!` monospace eyebrow, 48px `Become an Investor` heading, and description.
+     - Right column: `bg-white border border-[#e5e7eb] rounded-[18px]` application form:
+       - `First Name` ("John") + `Last Name` ("Doe")
+       - `Email` ("name@email.com") + `phone no` ("+234 567 2907 67")
+       - `Please tell us who you are` custom dropdown select
+       - `Message` ("Leave us a message...") textarea
+       - Full-width `Submit Application` red button with `ArrowRight` icon and interactive submission confirmation banner.
+3. **Automated Unit Testing & Quality Gate (`ResourcesPage.test.tsx`):**
+   - Created `apps/web/src/app/pages/ResourcesPage.test.tsx` testing top chrome, master resources card, and investor application submission (3/3 passing).
+   - Validated `npx tsc --noEmit` (0 errors) and confirmed dev server running on `http://localhost:5173/resources`.
 
 ---
 

@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–175 + Session 176 Figma Legal Pages on `web-update`.
+**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–176 + Session 177 Figma Resources Page on `web-update`.
 
 ---
 
 ## ✅ Done
+
+### Session 177 — 1-for-1 Figma Resources Page Implementation
+- [x] **1-for-1 Resources Master Card (`ResourcesPage.tsx`, Node `178359:18384` & `178359:18409`)**:
+  - Implemented the master card with centered `Terms of Service` pill with Gavel icon, 2-column Escrow Guarantee Policy vs. Fair Trade Contracts with vertical divider, horizontal divider, `Support & Community` pill with Question icon, 2-column 24/7 Creator Helpdesk vs. Onboarding & EPK Guides, and lower bar (`178359:18448`) with `hello@monologg.co` link and 7 circular social buttons (LinkedIn, Product Hunt, Twitter/X, Twitch, Telegram, TikTok, Instagram).
+- [x] **1-for-1 Become an Investor Section (`ResourcesPage.tsx`, Node `178359:18473` & `178359:18474`)**:
+  - Built 2-column layout with `RAISING SOON!` monospace eyebrow, 48px `Become an Investor` heading, and right-hand application form card (`First Name`, `Last Name`, `Email`, `phone no`, `Please tell us who you are` select, `Message` textarea, and `Submit Application` button with feedback state).
+- [x] **Asset Integration & Verification**:
+  - Downloaded 10 Figma SVG icons into `monologg/apps/web/public/assets/social/`.
+  - Created `apps/web/src/app/pages/ResourcesPage.test.tsx` (3/3 tests passing) and confirmed `npx tsc --noEmit` (0 errors).
 
 ### Session 176 — 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation
 - [x] **1-for-1 Terms of Service (`LegalPage.tsx`, Node `178382:17926`)**:

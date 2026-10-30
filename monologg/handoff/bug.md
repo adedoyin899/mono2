@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
+**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 124. Resources Page Hero Divergence & Missing "Become an Investor" Section vs Figma Node 178359:18325
+- **Severity:** Medium / Design Parity & Marketing Conversion Defect
+- **What happened:**
+  - `ResourcesPage.tsx` previously contained a generic placeholder hero ("Resources & Legal"), a different FAQ accordion section, and omitted the official Figma master resources card format and the entire "Become an Investor" (`RAISING SOON!`) application form section (`178359:18473`).
+- **Root Cause:**
+  - Early scaffolding in Session 175 had implemented an interim layout before the full high-fidelity sublayers of node `178359:18325` were fetched and analyzed.
+- **Fix:**
+  - Replaced the page layout with the exact 1-for-1 Figma structure:
+    1. Master resources card (`178359:18409`): `Terms of Service` pill with gavel icon, 2-column Escrow Guarantee vs. Fair Trade Contracts with vertical divider, horizontal divider, `Support & Community` pill with question icon, 2-column 24/7 Creator Helpdesk vs. Onboarding & EPK Guides, and bottom bar with `hello@monologg.co` + 7 social avatar buttons.
+    2. "Become an Investor" section (`178359:18473`): `RAISING SOON!` eyebrow, 48px heading, description, and interactive 5-input application form with submission feedback state.
+    3. Reusable `<WebsiteFooter />`.
+  - Added unit test coverage in `ResourcesPage.test.tsx` (3/3 passing).
 
 ### 123. Placeholder Draft Legal Copy & Missing `/legal/cookies` Route vs. Figma Legal Specifications
 - **Severity:** Medium / Legal Compliance & Design Parity Gap
