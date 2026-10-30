@@ -18,6 +18,7 @@ import { DesignSystem } from "./pages/DesignSystem";
 import { MediaKitManagement } from "./pages/MediaKitManagement";
 import { VerificationVideo } from "./pages/VerificationVideo";
 import { PublicStorefront } from "./pages/PublicStorefront";
+import { ProductPage } from "./pages/ProductPage";
 import { PricingPage } from "./pages/PricingPage";
 import { ResourcesPage } from "./pages/ResourcesPage";
 import { ExternalBookingEntry } from "./pages/ExternalBookingEntry";
@@ -67,6 +68,7 @@ export const routeTree = [
       { path: "cookies", Component: () => <LegalPage type="cookies" /> },
       { path: "privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },
+      { path: "product", Component: ProductPage },
       { path: "pricing", Component: PricingPage },
       { path: "resources", Component: ResourcesPage },
       // features.md Phase 16 (FA-5) stub entry point — public, no auth; see

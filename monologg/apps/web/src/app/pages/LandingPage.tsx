@@ -176,7 +176,7 @@ export function LandingPage() {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/product")}
             className="px-4 py-2 rounded-full text-xs font-semibold text-[#16161A] hover:bg-[#F5F5F3] transition-colors"
           >
             Product

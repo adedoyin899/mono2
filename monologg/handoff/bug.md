@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 178: 1-for-1 Figma Pricing Page Implementation)
+**Last updated:** 2026-10-30 (Session 179: 1-for-1 Figma Product Page Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 126. Missing Dedicated `/product` Marketing Route & Risk of Asset Artboard Duplication vs. Figma Node 178359:17305
+- **Severity:** Medium / UX Navigation & Design Parity Defect
+- **What happened:**
+  - The application previously routed `Product` navigation clicks back to `/` rather than a dedicated `/product` page corresponding to the official Figma Product page (`178359:17305`). Additionally, the static Figma canvas included a grid of 7 asset artboards underneath `Frame 10` (`178359:17481`) which, if rendered directly, would duplicate the content of the 7-step interactive showcase.
+- **Root Cause:**
+  - The Figma canvas laid out static frame variations to host vector assets for animation states, which can easily be mistaken for standalone content sections if not properly analyzed alongside product intent.
+- **Fix:**
+  - Registered `/product` in `routes.tsx` and created `ProductPage.tsx` strictly following the single interactive 7-step showcase structure (with dynamic smartphone mockup switching on the right) without duplicating the underlying asset artboards as a separate section.
+  - Updated all marketing headers (`LandingPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`) so `Product` links directly to `/product`.
+  - Added unit test coverage in `ProductPage.test.tsx` (5/5 passing).
 
 ### 125. Pricing Page Truncated Comparison Tables & Generic FAQ vs. Figma Node 178359:17960
 - **Severity:** Medium / Design Parity & Marketing Conversion Defect

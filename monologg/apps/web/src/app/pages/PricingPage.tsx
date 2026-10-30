@@ -364,7 +364,7 @@ export function PricingPage() {
           </div>
           <nav className="hidden md:flex gap-[4px] items-center">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/product")}
               className="px-[16px] py-[6px] rounded-full font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
             >
               Product
