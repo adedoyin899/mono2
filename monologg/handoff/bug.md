@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
+**Last updated:** 2026-10-30 (Session 178: 1-for-1 Figma Pricing Page Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 125. Pricing Page Truncated Comparison Tables & Generic FAQ vs. Figma Node 178359:17960
+- **Severity:** Medium / Design Parity & Marketing Conversion Defect
+- **What happened:**
+  - `PricingPage.tsx` previously contained an abbreviated 7-row Performer table, an incomplete 5-row Client table missing the 5 distinct categorized section subheaders ("Discover Trusted Performers", "Move Faster with Thespian AI", etc.), lacked the 6 studio badge logos (`Vimeo`, `Netflix`, `Amazon`, `Disney+`, `Hulu`, `Twitch`), and displayed a generic 4-question FAQ instead of the full 10 questions specified in Figma.
+- **Root Cause:**
+  - Early scaffolding in Session 175 had implemented a prototype placeholder before all sublayers and SVG assets of node `178359:17960` were downloaded and cataloged.
+- **Fix:**
+  - Replaced the page layout with the exact 1-for-1 Figma structure:
+    1. Top announcement bar (`178359:17961`) and sticky 68px header (`178359:17973`) with active red dot on Pricing.
+    2. Hero section with `Get started for free` button and segmented toggle pill (`178359:18032`).
+    3. Complete "For Performers" section (`178359:18031`) with 6 performer avatars, 9 comparison rows, Coming Soon badge, and bottom CTA.
+    4. Complete "For Clients" section (`178359:18130`) with 6 studio badges, 18 comparison rows with 5 categorized section subheaders, and Coming Soon badge.
+    5. Complete 10-item FAQ accordion (`178359:18323`) with Plus/X toggles.
+    6. Reusable `<WebsiteFooter />`.
+  - Added unit test coverage in `PricingPage.test.tsx` (5/5 passing).
 
 ### 124. Resources Page Hero Divergence & Missing "Become an Investor" Section vs Figma Node 178359:18325
 - **Severity:** Medium / Design Parity & Marketing Conversion Defect

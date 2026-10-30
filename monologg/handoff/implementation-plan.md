@@ -1,11 +1,29 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–176 + Session 177 Figma Resources Page on `web-update`.
+**Last updated:** 2026-10-30 (Session 178: 1-for-1 Figma Pricing Page Implementation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–177 + Session 178 Figma Pricing Page on `web-update`.
 
 ---
 
 ## ✅ Done
+
+### Session 178 — 1-for-1 Figma Pricing Page Implementation
+- [x] **1-for-1 Pricing Hero & Audience Toggle (`PricingPage.tsx`, Node `178359:18019` & `178359:18032`)**:
+  - Implemented top announcement bar (`178359:17961`) and sticky header (`178359:17973`) with active red dot on Pricing.
+  - Implemented hero section with `Pricing` title, subtitle, and `Get started for free` CTA button with `ArrowRight`.
+  - Built segmented pill controller with red dot active indicators for `Performers` and `Clients` supporting smooth scroll jumps.
+- [x] **1-for-1 For Performers Comparison Table (`PricingPage.tsx`, Node `178359:18031` & `178359:18050`)**:
+  - Rendered 6 overlapping performer avatars (`avatar-1.png` through `avatar-6.png`).
+  - Implemented 9-row comparison table with `Free Tier` vs. `Monologg Pro` (with red dot + `Coming Soon` badge).
+  - Added bottom CTA button `Get started for free` with `ArrowRight` icon.
+- [x] **1-for-1 For Clients Comparison Table (`PricingPage.tsx`, Node `178359:18130` & `178359:18148`)**:
+  - Rendered 6 circular client studio badges (`vimeo.svg`, `netflix.svg`, `amazon.svg`, `disney.svg`, `hulu.svg`, `twitch.svg`).
+  - Implemented 18-row comparison table with 5 categorized section row subheaders (`bg-[#f9f9f9]`): "Discover Trusted Performers", "Move Faster with Thespian AI", "Analytics & Reporting", "Engage & Contract Candidates", and "Collaborate & Management".
+- [x] **1-for-1 Frequently Asked Questions Accordion (`PricingPage.tsx`, Node `178359:18323`)**:
+  - Implemented 10 accordion FAQ cards matching exact Figma copy, toggling between `Plus` and `X` icons.
+- [x] **Automated Unit Testing & Verification (`PricingPage.test.tsx`)**:
+  - Created `apps/web/src/app/pages/PricingPage.test.tsx` (5/5 tests passing).
+  - Validated `npx tsc --noEmit` (0 errors) and dev server running on `http://localhost:5173/pricing`.
 
 ### Session 177 — 1-for-1 Figma Resources Page Implementation
 - [x] **1-for-1 Resources Master Card (`ResourcesPage.tsx`, Node `178359:18384` & `178359:18409`)**:

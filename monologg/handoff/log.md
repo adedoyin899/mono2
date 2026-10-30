@@ -1,11 +1,45 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
+**Last updated:** 2026-10-30 (Session 178: 1-for-1 Figma Pricing Page Implementation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 178 (2026-10-30) — 1-for-1 Figma Pricing Page Implementation
+
+**Goal:** Implement a strict 1-for-1 design-to-code implementation of the Figma Pricing Page (`kClJDAgWsmMGhtuXsccAz0`, Node `178359:17960`) on the `web-update` branch.
+
+1. **Figma Design Inspection (`kClJDAgWsmMGhtuXsccAz0`, Node `178359:17960`):**
+   - Retrieved full design context and visual target via Figma Desktop MCP (`get_design_context` and `get_screenshot`).
+   - Inspected sublayers for `178359:18019` (Hero), `178359:18031` (For Performers section and table), `178359:18130` (For Clients section and table), `178359:18323` (FAQ section with 10 questions and answers), and studio logos `178359:18133`.
+2. **Asset Acquisition & Self-Contained Storage:**
+   - Downloaded 6 client studio SVGs to `monologg/apps/web/public/assets/studios/`: `vimeo.svg`, `netflix.svg`, `amazon.svg`, `disney.svg`, `hulu.svg`, `twitch.svg`.
+   - Downloaded 6 performer avatars to `monologg/apps/web/public/assets/pricing/`: `avatar-1.png` through `avatar-6.png`.
+3. **1-for-1 Pricing Page Implementation (`apps/web/src/app/pages/PricingPage.tsx`):**
+   - **Announcement Bar (`178359:17961`):** `#16161a` top bar with pulsing red dot, `Monologg Marketplace v3.0 Live`, and `FINCRA Escrow Secured · 3,200+ Verified Talent Profiles`.
+   - **Sticky 68px Header (`178359:17973`):** Active red dot indicator on `Pricing`, theme toggle, and authenticated user menu / Sign In buttons.
+   - **Hero Section (`178359:18019`):** 5xl/7xl `Pricing` heading, transparent pricing subtitle, and `Get started for free` button with `ArrowRight` icon.
+   - **Segmented Toggle Pill (`178359:18032`):** Pill with red dot indicator for `Performers` and `Clients`, supporting quick switching and smooth scrolling.
+   - **For Performers Section (`178359:18031`):**
+     - 6 overlapping performer avatars (`size-[46px]`).
+     - Display heading `For Performers` and 93% earnings guarantee subtitle.
+     - 9-row comparison table: Completed Booking Fee (7% vs 5% with "Save a little over 28% on fees"), Bio Storefront & Media Hosting, Profile Analytics, Thespian AI Profile Agent, Audition & Calendar Bookings, Milestone Escrow, Interactive Line-Reader, EPK Generator, and Verified Artist Badge.
+     - `Monologg Pro` column header with red dot + `Coming Soon` badge.
+     - CTA button (`178359:18124`) `Get started for free` with `ArrowRight`.
+   - **For Clients Section (`178359:18130`):**
+     - 6 circular client studio badges (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`).
+     - Display heading `For Clients` and service fee subtitle.
+     - 18-row comparison table with 5 categorized section row subheaders (`bg-[#f9f9f9]`): "Discover Trusted Performers", "Move Faster with Thespian AI", "Analytics & Reporting", "Engage & Contract Candidates", and "Collaborate & Management".
+   - **Frequently Asked Questions Section (`178359:18323`):**
+     - 10 accordion FAQ cards matching exact Figma copy, toggling between `Plus` and `X` icons.
+   - **Global Website Footer (`WebsiteFooter.tsx`):** Complete `<WebsiteFooter />` with CTA banner and newsletter form.
+4. **Automated Unit Testing & Quality Gate (`PricingPage.test.tsx`):**
+   - Created `apps/web/src/app/pages/PricingPage.test.tsx` verifying announcement bar, hero, toggle pill, performers table, clients table, studio badges, and FAQ accordion (5/5 passing).
+   - Confirmed `npx tsc --noEmit` (0 errors) and dev server running on `http://localhost:5173/pricing`.
 
 ---
 

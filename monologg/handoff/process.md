@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-30 (Session 177: 1-for-1 Figma Resources Page Implementation)
+**Last updated:** 2026-10-30 (Session 178: 1-for-1 Figma Pricing Page Implementation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 137: 1-for-1 Figma Pricing Page Implementation (Session 178)
+
+Implemented the Figma Pricing Page (`178359:17960`) 1-for-1 on the `web-update` branch:
+- **Design Context & Visual Target:** Analyzed visual screenshot and node context from Figma Desktop MCP (`get_screenshot` and `get_design_context` on node `178359:17960` and sublayers `178359:18019`, `178359:18031`, `178359:18130`, and `178359:18323`).
+- **Asset Acquisition:** Downloaded 6 studio SVGs into `monologg/apps/web/public/assets/studios/` (`vimeo.svg`, `netflix.svg`, `amazon.svg`, `disney.svg`, `hulu.svg`, `twitch.svg`) and 6 performer avatars into `monologg/apps/web/public/assets/pricing/` (`avatar-1.png` through `avatar-6.png`).
+- **1-for-1 Layout Implementation (`PricingPage.tsx`):**
+  - **Header & Announcement Bar:** `#16161a` top announcement bar, sticky 68px header with active `Pricing` red dot indicator and authenticated user menu.
+  - **Hero & Segmented Switch:** `Pricing` heading, transparent pricing subtitle, `Get started for free` button, and segmented toggle pill (`Performers` / `Clients`) supporting active state tracking and smooth scrolling.
+  - **For Performers Section:** 6 overlapping performer avatars, 93% earnings guarantee subtitle, 9-row comparison table with `Free Tier` vs. `Monologg Pro` (`Coming Soon` red dot badge), and bottom CTA button.
+  - **For Clients Section:** 6 circular studio badges, 18-row comparison table with 5 categorized section row subheaders (`bg-[#f9f9f9]`): "Discover Trusted Performers", "Move Faster with Thespian AI", "Analytics & Reporting", "Engage & Contract Candidates", and "Collaborate & Management".
+  - **FAQ Section:** 10 accordion cards matching exact Figma copy, toggling between `Plus` and `X` icons.
+  - **Footer:** Global `<WebsiteFooter />`.
+- **Quality Gate & Testing:** Created `PricingPage.test.tsx` (5/5 passing), verified `tsc --noEmit` (0 errors), and confirmed live rendering on `http://localhost:5173/pricing`.
 
 ### Step 136: 1-for-1 Figma Resources Page Implementation (Session 177)
 
