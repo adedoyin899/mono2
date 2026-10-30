@@ -1,859 +1,205 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
-import { Avatar } from "../components/ui/Avatar";
 import { Logo } from "../components/ui/Logo";
-import { WebGLHeroCanvas } from "../components/ui/WebGLHeroCanvas";
+import { Avatar } from "../components/ui/Avatar";
+import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { useTheme } from "../Root";
-import { Modal } from "../components/ui/Modal";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
-  Star, Shield, Mic, Video, User,
-  Sun, Moon, Check, ChevronDown,
-  Menu, X, UploadCloud, Lock, RefreshCw, Sparkles, MessageSquare,
-  Play, Pause, ArrowRight, Smartphone, QrCode, DollarSign, Repeat, Zap, ExternalLink, ArrowUpRight, Copy, MapPin, Globe, Volume2, AlertTriangle,
-  LayoutDashboard, Settings as SettingsIcon, Receipt, FileText, LogOut,
+  Sun, Moon, ChevronDown, Check, ArrowRight, Copy, QrCode, Sparkles,
+  Shield, Mic, Video, User, Star, DollarSign, BarChart2, Plus, X,
+  LayoutDashboard, Settings as SettingsIcon, LogOut, Radio, Headphones,
+  Smile, Theater, Zap, ExternalLink, Calendar, FileText
 } from "lucide-react";
-import { CURRENCIES, convertCurrency, getRandomLimitError, LimitError } from "../../lib/currency";
 
-// ── 7 Curated Talent Profiles for Infinite Auto-Looping Carousel ──
-const CAROUSEL_TALENTS = [
-  {
-    id: "t1",
-    name: "Emeka Johnson",
-    category: "Dramatic Voice Artist",
-    location: "Lagos · Remote",
-    rate: "₦120,000 / day",
-    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80&fit=crop",
-    tags: ["Deep Tone", "Nollywood", "High Energy"],
-    rating: 4.98,
-    reviews: 142,
-    verified: true,
-  },
-  {
-    id: "t2",
-    name: "Amara Kalu",
-    category: "Commercial Lead Actor",
-    location: "Abuja · On-Site",
-    rate: "₦250,000 / day",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&fit=crop",
-    tags: ["Charismatic", "Lead Presence", "Brand Spot"],
-    rating: 5.0,
-    reviews: 98,
-    verified: true,
-  },
-  {
-    id: "t3",
-    name: "Tariq Mansoor",
-    category: "Live Event Compere",
-    location: "Accra · International",
-    rate: "₦180,000 / event",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&fit=crop",
-    tags: ["Stage Command", "Multilingual", "Corporate"],
-    rating: 4.95,
-    reviews: 84,
-    verified: true,
-  },
-  {
-    id: "t4",
-    name: "Zainab Bello",
-    category: "Stunt & Motion Performer",
-    location: "Kano · On-Location",
-    rate: "₦210,000 / day",
-    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80&fit=crop",
-    tags: ["Martial Arts", "High Agility", "Cinema"],
-    rating: 4.99,
-    reviews: 67,
-    verified: true,
-  },
-  {
-    id: "t5",
-    name: "David Osei",
-    category: "Radio & Podcast Host",
-    location: "Kumasi · Remote",
-    rate: "₦150,000 / episode",
-    img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600&q=80&fit=crop",
-    tags: ["Baritone", "Storytelling", "Live FM"],
-    rating: 4.92,
-    reviews: 115,
-    verified: true,
-  },
-  {
-    id: "t6",
-    name: "Chidinma Nwosu",
-    category: "High-Fashion Commercial Model",
-    location: "Lagos · International",
-    rate: "₦300,000 / day",
-    img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=80&fit=crop",
-    tags: ["Runway", "Editorial", "Vogue Africa"],
-    rating: 5.0,
-    reviews: 89,
-    verified: true,
-  },
-  {
-    id: "t7",
-    name: "Kofi Mensah",
-    category: "Afrobeat Stage Choreographer",
-    location: "Accra · Remote/On-Site",
-    rate: "₦190,000 / routine",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80&fit=crop",
-    tags: ["Stage Sync", "High Tempo", "Tour Ready"],
-    rating: 4.96,
-    reviews: 73,
-    verified: true,
-  },
+// Performer avatars for the Hero stack
+const HERO_AVATARS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=faces",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=faces",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=faces",
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&h=150&fit=crop&crop=faces",
+  "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&h=150&fit=crop&crop=faces",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=faces",
 ];
 
-// ── Sci-Fi Radar Nodes (Africa & Global Creative Hubs) ──
-const RADAR_NODES = [
-  {
-    id: "lagos",
-    city: "Lagos, Nigeria",
-    flag: "🇳🇬",
-    coords: { x: "50.8%", y: "52%" },
-    talentName: "Adaeze Obi",
-    category: "Senior Voice Artist",
-    quote: "Booked 12 Netflix voice-overs via Monologg Escrow with 0 commission.",
-    earnings: "₦3,800,000",
-    img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&q=80&fit=crop",
-  },
-  {
-    id: "accra",
-    city: "Accra, Ghana",
-    flag: "🇬🇭",
-    coords: { x: "48%", y: "53%" },
-    talentName: "Kwame Asante",
-    category: "Commercial Lead Actor",
-    quote: "International casting directors book me directly in USD & GHS.",
-    earnings: "$8,400 USD",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&fit=crop",
-  },
-  {
-    id: "nairobi",
-    city: "Nairobi, Kenya",
-    flag: "🇰🇪",
-    coords: { x: "59.5%", y: "56%" },
-    talentName: "Wanjiku Kimani",
-    category: "Documentary Narrator",
-    quote: "Thespian AI tagged my vocal range in 30 seconds. Seamless payouts.",
-    earnings: "KSh 420,000",
-    img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80&fit=crop",
-  },
-  {
-    id: "joburg",
-    city: "Johannesburg, SA",
-    flag: "🇿🇦",
-    coords: { x: "56.5%", y: "74%" },
-    talentName: "Sipho Dlamini",
-    category: "Film Stunt Lead",
-    quote: "Our payment partner Paystack locked full payment in escrow before I stepped on stage.",
-    earnings: "R 95,000",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&fit=crop",
-  },
-  {
-    id: "london",
-    city: "London, UK",
-    flag: "🇬🇧",
-    coords: { x: "48.5%", y: "28%" },
-    talentName: "Elena Vance",
-    category: "Global Brand Director",
-    quote: "Sourced 5 African voice talents for our campaign in 20 minutes.",
-    earnings: "80+ Hours Saved",
-    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80&fit=crop",
-  },
-  {
-    id: "newyork",
-    city: "New York, USA",
-    flag: "🇺🇸",
-    coords: { x: "28%", y: "34%" },
-    talentName: "Marcus Sterling",
-    category: "Ad Agency Producer",
-    quote: "Monologg's escrow protocol is lightyears ahead of traditional talent reps.",
-    earnings: "$24,000 Spent",
-    img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&q=80&fit=crop",
-  },
+// Categories for "YOU BELONG HERE"
+const CATEGORIES = [
+  { name: "Actors", icon: Theater },
+  { name: "Speakers", icon: Radio },
+  { name: "Comperes", icon: Mic },
+  { name: "Comedians", icon: Smile },
+  { name: "Artists", icon: Headphones },
+  { name: "Creators", icon: Video },
 ];
 
-// ── Vector World Map SVG Component (vector-map.svg Asset) ──
-function VectorWorldMap({ activeNode, onSelectNode }: { activeNode: number; onSelectNode: (idx: number) => void }) {
-  return (
-    <div className="relative w-full h-full flex items-center justify-center p-4 select-none">
-      {/* Real High-Resolution Vector World Map SVG Asset */}
-      <img
-        src="/vector-map.svg"
-        alt="Vector World Map"
-        className="w-full h-full object-contain opacity-50 dark:opacity-40 transition-opacity hover:opacity-75 pointer-events-none filter dark:invert"
-      />
-
-      {/* Interactive Location Pin Badges Over Geographic Coordinates */}
-      {RADAR_NODES.map((node, index) => {
-        const isActive = index === activeNode;
-        return (
-          <button
-            key={node.id}
-            onClick={() => onSelectNode(index)}
-            style={{ left: node.coords.x, top: node.coords.y }}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none transition-all duration-300 ${
-              isActive ? "z-30 scale-110" : "z-10 opacity-60 hover:opacity-100 hover:scale-110"
-            }`}
-          >
-            <span className="relative flex items-center justify-center">
-              {isActive ? (
-                <>
-                  <span className="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-[#F13030] opacity-60" />
-                  <span className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold font-mono bg-[#F13030] text-white border border-[#F13030] shadow-[0_0_24px_rgba(241,48,48,0.8)]">
-                    <span className="text-sm">{node.flag}</span>
-                    <span className="font-bold tracking-wide">{node.city.split(",")[0]}</span>
-                  </span>
-                </>
-              ) : (
-                <span className="relative flex items-center justify-center">
-                  <span className="w-8 h-8 rounded-full bg-[#16161A] border border-[#34343E] hover:border-[#F13030] text-sm flex items-center justify-center shadow-md transition-all group-hover:bg-[#F13030]/20">
-                    {node.flag}
-                  </span>
-                  {/* Subtle Tooltip on Hover for Inactive Pins */}
-                  <span className="absolute bottom-full mb-1.5 hidden group-hover:flex items-center px-2 py-0.5 rounded-md bg-[#16161A] text-[10px] font-semibold text-[#F5F5F0] border border-[#26262E] whitespace-nowrap shadow-xl">
-                    {node.city.split(",")[0]}
-                  </span>
-                </span>
-              )}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── 3-Step Process ──
-const STEPS = [
-  {
-    num: "01",
-    title: "Upload Reel & AI Vibe Scan",
-    body: "Upload your performance reel. Proprietary Thespian AI extracts tone, diction, and dramatic presence — building your verified style card in under 30 seconds.",
-  },
-  {
-    num: "02",
-    title: "Define Purchasable Rate Cards",
-    body: "Turn your craft into transparent booking packages. Set fixed prices for voice-overs, film appearances, commercial spots, and live hosting.",
-  },
-  {
-    num: "03",
-    title: "Instant Escrow Lock & Release",
-    body: "Clients book and lock funds into Monologg Escrow. Funds auto-release directly to your bank account upon deliverable signoff with zero chasing.",
-  },
-];
-
-// ── FAQ Accordion ──
+// 10 FAQ items matching Figma
 const FAQS = [
   {
-    q: "What fee does Monologg charge creators?",
-    a: "Monologg deducts a 7% platform fee on completed talent bookings before settlement. Profile creation, rate cards, and AI style tagging are 100% free forever.",
+    q: "What is Monologg and how does it work?",
+    a: "Monologg is like Upwork for Actors, Public speakers, Comperes, Comedians, Streamers, Artists, Musicians, and Creators. Performers get a personalized link to showcase their work, set prices, and manage bookings. Clients such as studios, directors, and event organizers use it to find verified talent, post jobs, and pay securely through the platform.",
   },
   {
-    q: "How does the Monologg Escrow Protocol work?",
-    a: "When a client places an order, full contract payment is held securely in escrow by our payment partner, Paystack. Talent works with complete peace of mind, and funds auto-release immediately when deliverables are approved.",
+    q: "What currency does Monologg support?",
+    a: "Currently, all transactions are processed in Nigerian Naira (₦) through secure payment gateways such as Paystack and Fincra. Future updates will include support for Dollar (USD) and Pound (GBP) payments.",
   },
   {
-    q: "How does Thespian AI Style Tagging work?",
-    a: "Upload any 30-90 second performance reel (audio or video up to 150MB). Thespian AI analyzes vocal resonance, pacing, and dramatic timbre to tag your profile automatically.",
+    q: "How does escrow payment protection work?",
+    a: "To ensure safety for all parties, clients deposit the agreed payment into an escrow account managed by Monologg before the performance begins. Once the job is completed and both parties provide feedback, the funds are released to the performer immediately.",
   },
   {
-    q: "Which countries and currencies are supported?",
-    a: "Monologg supports multi-currency escrow payouts in NGN (Nigerian Naira), GHS (Ghanaian Cedi), KES (Kenyan Shilling), ZAR (South African Rand), EUR, USD, and GBP.",
+    q: "What are the platform fees?",
+    a: "Monologg charges a total fee of 16% for each booking, divided between performers and clients: 7% deducted from performer earnings, which is less than the typical 20% to 25% taken by traditional agents; clients bear an additional 9% on their invoices to ensure payment protection.",
+  },
+  {
+    q: "How does Thespian AI work?",
+    a: "When performers upload their monologues or voice reels, Thespian AI analyzes the audio to identify key elements like accent, emotional tone, comedic timing, and performance style, automatically tagging the profile with relevant descriptors.",
+  },
+  {
+    q: "What data can performers see?",
+    a: "Performers are provided with a user-friendly dashboard that tracks metrics such as profile views, video plays, traffic sources (e.g., Instagram, TikTok), and revenue generated from various packages.",
+  },
+  {
+    q: "How does Monologg ensure safety for payments?",
+    a: "Monologg uses an escrow system to secure payments. Funds are held safely until the performer completes the job or delivers the shoutout, ensuring that clients only pay for work they approve.",
+  },
+  {
+    q: "What features does Monologg offer to performers?",
+    a: "Performers can create personalized profiles, upload portfolios, set their own rates, and manage bookings seamlessly. They can also receive feedback from clients and showcase their experience, increasing their visibility and opportunities.",
+  },
+  {
+    q: "How does Monologg support communication between clients and performers?",
+    a: "Monologg features an integrated messaging system that allows clients and performers to communicate directly, discuss project details, and finalize arrangements efficiently.",
+  },
+  {
+    q: "What type of gigs can clients post on Monologg?",
+    a: "Clients can post a variety of gigs ranging from acting roles, public speaking events, and comedy performances to music gigs and custom video requests, catering to diverse entertainment needs.",
   },
 ];
 
-// ── Multi-Currency Support Definitions ──
-
-function MonologgEscrowCalculator() {
-  const [selectedCurr, setSelectedCurr] = useState(CURRENCIES[0]);
-  const [amount, setAmount] = useState(CURRENCIES[0].defaultAmount);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [sliderMax, setSliderMax] = useState(CURRENCIES[0].max);
-  const platformFee = Math.round(amount * 0.07);
-  const youReceive = amount - platformFee;
-  const clientTotal = amount;
-
-  const [clientTotalInputStr, setClientTotalInputStr] = useState(
-    clientTotal.toLocaleString("en-US")
-  );
-
-  const [limitError, setLimitError] = useState<LimitError | null>(null);
-
-  // Sync sliderMax when selected currency changes
-  useEffect(() => {
-    setSliderMax(prev => Math.max(prev, selectedCurr.max));
-  }, [selectedCurr]);
-
-  // Sync string value when amount changes
-  useEffect(() => {
-    setClientTotalInputStr(clientTotal.toLocaleString("en-US"));
-  }, [amount]);
-
-  const handleCurrencySelect = (curr: typeof CURRENCIES[0]) => {
-    const converted = convertCurrency(amount, selectedCurr.code, curr.code);
-    setSelectedCurr(curr);
-    const roundedConverted = Math.round(converted);
-    setAmount(roundedConverted);
-    setSliderMax(Math.max(curr.max, roundedConverted));
-    setShowDropdown(false);
-  };
-
-  const handleClientTotalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value;
-    const numericStr = rawVal.replace(/\D/g, "");
-    
-    if (numericStr.length > 15 || (numericStr.length === 15 && parseInt(numericStr, 10) > 999999999999999)) {
-      const isMobile = window.innerWidth < 500;
-      setLimitError(getRandomLimitError(isMobile));
-      return;
-    }
-    
-    setClientTotalInputStr(numericStr);
-    
-    const totalVal = numericStr ? parseInt(numericStr, 10) : 0;
-    const baseVal = Math.round(totalVal / 1.12);
-    setAmount(baseVal);
-    if (baseVal > sliderMax) {
-      setSliderMax(baseVal);
-    }
-  };
-
-  const handleClientTotalInputFocus = () => {
-    setClientTotalInputStr(clientTotal === 0 ? "" : clientTotal.toString());
-  };
-
-  const handleClientTotalInputBlur = () => {
-    setClientTotalInputStr(clientTotal.toLocaleString("en-US"));
-  };
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
-    setAmount(val);
-    
-    // Auto-expand range if dragging near the edge (>= 95%)
-    if (val >= sliderMax * 0.95) {
-      setSliderMax(prev => Math.round(prev * 1.5));
-    }
-  };
-
-  return (
-    <div className="p-4 min-[400px]:p-6 md:p-8 rounded-[24px] sm:rounded-[28px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl space-y-4 relative">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F13030] animate-pulse shrink-0" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#F13030] truncate">
-            <span className="hidden min-[400px]:inline">Monologg Escrow Protocol</span>
-            <span className="inline min-[400px]:hidden">Escrow Protocol</span>
-          </span>
-        </div>
-        <div className="bg-[#F13030]/20 text-[#FF4D4D] px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold font-mono border border-[#F13030]/30 shrink-0">
-          <span className="hidden min-[400px]:inline">100% Guaranteed Payout</span>
-          <span className="inline min-[400px]:hidden">100% Payout</span>
-        </div>
-      </div>
-
-      <div className="bg-[#1B1B20] rounded-[18px] p-4 border border-[#26262E] space-y-1 relative">
-        <div className="flex justify-between items-center text-xs text-[#A6A6B0] font-medium">
-          <span>Client Pays Total Contract</span>
-          <span className="font-mono">Paystack Locked</span>
-        </div>
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-1 text-2xl font-bold font-mono text-[#F5F5F0]">
-            <span>{selectedCurr.symbol}</span>
-            <input
-              type="text"
-              className="bg-transparent font-bold font-mono text-[#F5F5F0] focus:outline-none w-full max-w-[130px] min-[400px]:max-w-[200px] border-b border-transparent focus:border-white/20 transition-colors"
-              value={clientTotalInputStr}
-              onChange={handleClientTotalInputChange}
-              onFocus={handleClientTotalInputFocus}
-              onBlur={handleClientTotalInputBlur}
-            />
-          </div>
-
-          {/* Interactive Multi-Currency Selector Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 bg-[#232329] hover:bg-[#2c2c34] px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0 border border-white/15 transition-all active:scale-95"
-            >
-              <span className="w-5 h-5 rounded-full bg-[#F13030] text-white text-[10px] flex items-center justify-center font-black">
-                {selectedCurr.flag}
-              </span>
-              <span>{selectedCurr.code}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Currency Menu Modal */}
-            {showDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-[#16161A] border border-[#34343E] rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 backdrop-blur-xl">
-                <div className="px-3 py-1.5 text-[10px] font-mono font-bold uppercase text-[#A6A6B0] border-b border-white/10">
-                  Select Currency
-                </div>
-                {CURRENCIES.map((curr) => (
-                  <button
-                    key={curr.code}
-                    onClick={() => handleCurrencySelect(curr)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
-                      selectedCurr.code === curr.code
-                        ? "bg-[#F13030] text-white font-bold"
-                        : "hover:bg-[#232329] text-[#F5F5F0]"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span>{curr.flag}</span>
-                      <span>{curr.code} ({curr.symbol})</span>
-                    </span>
-                    {selectedCurr.code === curr.code && <Check className="w-3.5 h-3.5" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2 px-2 text-xs text-white/80">
-        <div className="flex justify-between items-center py-2 border-b border-white/10">
-          <span className="text-[#A6A6B0]">Base rate</span>
-          <span className="font-mono font-bold text-[#FF4D4D]">
-            {selectedCurr.symbol}{amount.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-white/10">
-          <span className="text-[#A6A6B0]">Platform fee (7%)</span>
-          <span className="font-mono text-[#A6A6B0]">
-            -{selectedCurr.symbol}{platformFee.toLocaleString()}
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2">
-          <span className="font-bold text-white">You receive</span>
-          <span className="font-mono font-extrabold text-emerald-400 text-base">
-            {selectedCurr.symbol}{youReceive.toLocaleString()}
-          </span>
-        </div>
-      </div>
-
-      <div className="pt-2">
-        <div className="flex justify-between items-center text-[11px] text-[#FF4D4D] mb-1 font-mono">
-          <span>Adjust Booking Amount ({selectedCurr.code})</span>
-          <span>{selectedCurr.symbol}{amount.toLocaleString()}</span>
-        </div>
-        <input
-          type="range"
-          min={selectedCurr.min}
-          max={sliderMax}
-          step={selectedCurr.step}
-          value={amount}
-          onChange={handleSliderChange}
-          className="w-full accent-[#F13030] cursor-pointer"
-        />
-      </div>
-
-      <div className="pt-2">
-        <button className="w-full py-3.5 px-6 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all flex items-center justify-center gap-2 shadow-lg">
-          <Lock className="w-4 h-4 shrink-0" />
-          <span className="hidden min-[500px]:inline">Lock Contract in Monologg Escrow ({selectedCurr.code})</span>
-          <span className="inline min-[500px]:hidden">Lock in Escrow ({selectedCurr.code})</span>
-        </button>
-      </div>
-
-      {limitError && (
-        <Modal onClose={() => setLimitError(null)} align="center" strength="strong">
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            className="bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] rounded-[28px] p-6 max-w-sm w-full text-center space-y-6 shadow-2xl relative"
-          >
-            <div className="w-16 h-16 mx-auto rounded-full bg-[#F13030]/10 flex items-center justify-center text-[#F13030]">
-              <AlertTriangle className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold font-display text-[#16161A] dark:text-white">
-                {limitError.heading}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-[#A6A6B0] font-body leading-relaxed">
-                {limitError.subtext}
-              </p>
-            </div>
-            <button
-              onClick={() => setLimitError(null)}
-              className="w-full py-3 rounded-full bg-[#F13030] text-white font-bold text-sm hover:bg-[#d31f20] transition-all shadow-lg active:scale-95"
-            >
-              Adjust Amount
-            </button>
-          </div>
-        </Modal>
-      )}
-    </div>
-  );
-}
-
-// ── Sci-Fi Interactive Global Radar Map ──
-function SciFiTrustMap() {
-  const [activeNode, setActiveNode] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveNode((prev) => (prev + 1) % RADAR_NODES.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
-
-  const current = RADAR_NODES[activeNode];
-
-  return (
-    <div className="relative w-full max-w-5xl mx-auto rounded-[32px] bg-[#0D0D0F] border border-[#26262E] p-6 sm:p-10 overflow-hidden shadow-2xl text-white">
-      {/* Sci-Fi Grid Lines & Glowing Radar Rings */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="w-full h-full bg-[radial-gradient(#F13030_1px,transparent_1px)] [background-size:24px_24px]" />
-      </div>
-
-      <div className="relative z-10 flex flex-col lg:flex-row gap-10 items-center justify-between">
-        {/* Left Vector World Map Canvas Simulator (vector map.svg) */}
-        <div className="relative w-full lg:w-3/5 h-[360px] bg-[#16161A] rounded-[24px] border border-[#26262E] overflow-hidden">
-          <VectorWorldMap activeNode={activeNode} onSelectNode={setActiveNode} />
-
-          <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-mono text-white/90 flex items-center gap-2 border border-white/10 shadow-md">
-            <span className="w-2 h-2 rounded-full bg-[#F13030] animate-pulse" />
-            <span>GLOBAL RADAR: {current.flag} {current.city.toUpperCase()}</span>
-          </div>
-        </div>
-
-        {/* Right Popping Performer Sci-Fi Card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current.id}
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="w-full lg:w-2/5 p-6 rounded-[24px] bg-[#16161A] border border-[#26262E] space-y-4 shadow-xl"
-          >
-            <div className="flex items-center gap-3">
-              <img
-                src={current.img}
-                alt={current.talentName}
-                className="w-14 h-14 rounded-full object-cover border-2 border-[#F13030]"
-              />
-              <div>
-                <div className="font-bold text-lg font-display text-white flex items-center gap-1.5">
-                  {current.talentName}
-                  <Shield className="w-4 h-4 text-[#F13030]" />
-                </div>
-                <div className="text-xs text-gray-400 font-body flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-[#F13030]" />
-                  {current.flag} {current.city}
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs italic text-gray-300 leading-relaxed font-body">
-              "{current.quote}"
-            </p>
-
-            <div className="flex items-center justify-between pt-3 border-t border-[#26262E]">
-              <div>
-                <div className="text-[10px] text-gray-500 font-mono uppercase">Verified Payout</div>
-                <div className="text-sm font-bold font-mono text-[#FF4D4D]">{current.earnings}</div>
-              </div>
-              <div className="px-3 py-1 rounded-full bg-[#F13030]/20 text-[#FF4D4D] text-[10px] font-mono border border-[#F13030]/30 flex items-center gap-1">
-                <Volume2 className="w-3 h-3 animate-pulse" />
-                <span>Audio Reel Verified</span>
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-// ── Single Talent Card Component ──
-function TalentCardItem({ talent }: { talent: (typeof CAROUSEL_TALENTS)[0] }) {
-  const [playing, setPlaying] = useState(false);
-
-  return (
-    <div className="w-[280px] min-[400px]:w-[320px] sm:w-[360px] shrink-0 rounded-[24px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] p-3 min-[400px]:p-4 shadow-sm hover:shadow-xl transition-all duration-300">
-      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden mb-3 min-[400px]:mb-4 bg-gray-100 dark:bg-[#1B1B20]">
-        <img
-          src={talent.img}
-          alt={talent.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] min-[400px]:text-[11px] font-semibold text-white flex items-center gap-1.5 border border-white/20">
-          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
-          <span>{talent.rating}</span>
-          <span className="text-white/60">({talent.reviews})</span>
-        </div>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setPlaying(!playing);
-          }}
-          className="absolute bottom-3 right-3 w-8 h-8 min-[400px]:w-10 min-[400px]:h-10 rounded-full bg-[#F13030] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-        >
-          {playing ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
-        </button>
-      </div>
-
-      <div className="space-y-2 text-left">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-sm min-[400px]:text-base flex items-center gap-1.5 font-display text-[#16161A] dark:text-[#F5F5F0] truncate">
-            {talent.name}
-            {talent.verified && <Shield className="w-3.5 h-3.5 text-[#F13030] fill-[#F13030]/20 shrink-0" />}
-          </h3>
-          <span className="text-xs min-[400px]:text-sm font-bold font-mono text-[#F13030] dark:text-[#FF4D4D] shrink-0">
-            {talent.rate}
-          </span>
-        </div>
-
-        <p className="text-[10px] min-[400px]:text-xs text-gray-600 dark:text-[#A6A6B0] font-body truncate">
-          {talent.category} · {talent.location}
-        </p>
-
-        <div className="flex flex-wrap gap-1 min-[400px]:gap-1.5 pt-1">
-          {talent.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[9px] min-[400px]:text-[11px] font-semibold px-2 py-0.5 min-[400px]:px-2.5 min-[400px]:py-1 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/20"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Infinite Auto-Scrolling Talent Carousel with Edge Fade Gradient Masks ──
-function TalentCarousel() {
-  const [paused, setPaused] = useState(false);
-  const extendedTalents = [...CAROUSEL_TALENTS, ...CAROUSEL_TALENTS];
-
-  return (
-    <div
-      className="relative w-full overflow-hidden py-4"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {/* Edge Fade Mask Overlays */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[var(--color-bg-surface-2)] via-[var(--color-bg-surface-2)]/60 to-transparent z-20 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[var(--color-bg-surface-2)] via-[var(--color-bg-surface-2)]/60 to-transparent z-20 pointer-events-none" />
-
-      <motion.div
-        className="flex gap-6 w-max"
-        animate={{ x: paused ? undefined : ["0%", "-50%"] }}
-        transition={{
-          repeat: Infinity,
-          ease: "linear",
-          duration: 45,
-        }}
-      >
-        {extendedTalents.map((talent, idx) => (
-          <TalentCardItem key={`${talent.id}-${idx}`} talent={talent} />
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-// ── Interactive QR Code Scan Modal Overlay ──
-function QRCodeModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const navigate = useNavigate();
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-sm rounded-[28px] bg-[#16161A] text-white border border-[#26262E] p-6 text-center space-y-5 shadow-2xl"
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        <div className="space-y-1">
-          <h3 className="font-bold text-xl font-display text-white">Scan Monologg App QR</h3>
-          <p className="text-xs text-gray-400 font-body">Scan with your camera to open instant PWA web app.</p>
-        </div>
-
-        <div className="relative mx-auto w-52 h-52 bg-white p-3 rounded-[20px] flex items-center justify-center shadow-inner">
-          <QrCode className="w-full h-full text-[#16161A]" />
-          {/* Animated Sci-Fi Scanning Laser */}
-          <div className="absolute left-2 right-2 h-1 bg-[#F13030] shadow-[0_0_12px_#F13030] animate-bounce" />
-        </div>
-
-        <div className="space-y-2">
-          <Button
-            variant="red"
-            className="w-full h-11 text-xs font-bold"
-            onClick={() => {
-              onClose();
-              navigate("/auth");
-            }}
-          >
-            Launch Web App Profile Directly
-          </Button>
-          <div className="text-[11px] font-mono text-gray-500">Works on iOS &amp; Android Camera</div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-// ── Floating QR App Badge ──
-function FloatingQRBadge({ onClick }: { onClick: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={onClick}
-      className="fixed bottom-6 right-6 z-40 hidden lg:flex items-center gap-3 p-3 rounded-[18px] bg-[#16161A] text-white border border-[#26262E] shadow-2xl hover:scale-105 transition-transform cursor-pointer"
-    >
-      <div className="w-12 h-12 bg-white p-1 rounded-[12px] flex items-center justify-center shrink-0">
-        <QrCode className="w-full h-full text-[#16161A]" />
-      </div>
-      <div>
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#F13030]">
-          Get Monologg App
-        </div>
-        <div className="text-[10px] text-white/70">Click to scan QR code</div>
-      </div>
-    </motion.div>
-  );
-}
-
 export function LandingPage() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [showQrModal, setShowQrModal] = useState(false);
   const navigate = useNavigate();
   const { isDark, toggle } = useTheme();
 
-  // Signed-in state for the header — replaces Sign In / Launch Storefront
-  // with an avatar + account menu once a user session exists.
-  const [loggedInUser, setLoggedInUserState] = useState(() => appStateSync.getLoggedInUser());
-  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null | undefined>(null);
+  // Signed-in user session state
+  const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const syncUser = () => {
-      const u = appStateSync.getLoggedInUser();
-      setLoggedInUserState(u);
-      if (u) {
-        const profile = u.userType === "CLIENT" ? appStateSync.getClientProfile() : appStateSync.getTalentProfile();
-        setUserAvatarUrl(profile.avatarUrl);
-      }
-    };
-    syncUser();
-    return appStateSync.subscribe(syncUser);
-  }, []);
+  // Active feature index for timeline scroll/click
+  const [activeFeature, setActiveFeature] = useState(0);
+
+  // FAQ open item
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // Bio Link copy state
+  const [copiedBio, setCopiedBio] = useState(false);
+  const [bioUsername, setBioUsername] = useState("adeola_voice");
+
+  // Currency toggle in Rate Cards (₦ vs $)
+  const [currencyRate, setCurrencyRate] = useState<"NGN" | "USD">("NGN");
 
   useEffect(() => {
-    if (!showUserMenu) return;
-    const onClickOutside = (e: MouseEvent) => {
+    return appStateSync.subscribe(() => {
+      setLoggedInUser(appStateSync.getLoggedInUser());
+    });
+  }, []);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setShowUserMenu(false);
       }
     };
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, [showUserMenu]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSignOut = async () => {
+    try {
+      await apiClient.logout();
+    } catch {
+      // Continue even if network error
+    }
+    appStateSync.setLoggedInUser(null);
     setShowUserMenu(false);
-    await apiClient.logout();
     navigate("/");
   };
 
+  const handleCopyBio = () => {
+    navigator.clipboard.writeText(`https://monologg.co/@${bioUsername}`);
+    setCopiedBio(true);
+    setTimeout(() => setCopiedBio(false), 2500);
+  };
+
   const userInitials = loggedInUser?.name
-    ? loggedInUser.name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("")
+    ? loggedInUser.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : "U";
 
-  const userMenuItems = loggedInUser?.userType === "CLIENT"
-    ? [
-        { label: "Dashboard", icon: LayoutDashboard, path: "/client" },
-        { label: "Post a Project", icon: FileText, path: "/brief" },
-        { label: "Transactions", icon: Receipt, path: "/transactions?role=client" },
-        { label: "Settings", icon: SettingsIcon, path: "/settings?role=client" },
-      ]
-    : [
-        { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-        { label: "My Media Kit", icon: FileText, path: "/media-kit" },
-        { label: "Transactions", icon: Receipt, path: "/transactions?role=talent" },
-        { label: "Settings", icon: SettingsIcon, path: "/settings?role=talent" },
-      ];
+  const talentProfile = loggedInUser ? appStateSync.getTalentProfile() : null;
+  const userAvatarUrl = talentProfile?.avatarUrl;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) setSubmitted(true);
-  };
-
-  const handleCopyLink = () => {
-    const inviteUrl = window.location.origin;
-    navigator.clipboard.writeText(inviteUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
+  const userMenuItems = [
+    { label: "Dashboard", icon: LayoutDashboard, path: loggedInUser?.userType === "TALENT" ? "/dashboard" : "/client" },
+    { label: "Settings", icon: SettingsIcon, path: "/settings" },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-bg-canvas)] text-[var(--color-text-primary)] font-body text-base">
-      {/* ── Top Announcement Bar ── */}
-      <div className="h-[40px] bg-[#16161A] text-[#F5F5F0] flex items-center justify-between px-6 text-xs font-semibold border-b border-[#26262E] z-50">
+    <div className="min-h-screen flex flex-col bg-white text-[#16161A] font-sans antialiased selection:bg-[#F13030]/20 selection:text-[#F13030]">
+      {/* ── 1. Top Announcement Bar ── */}
+      <div className="h-10 bg-[#16161A] border-b border-[#26262E] px-4 sm:px-6 md:px-12 flex items-center justify-between text-xs text-white z-50">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#F13030] animate-ping" />
-          <span className="uppercase tracking-widest text-[10px] text-[#F13030]">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F13030] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F13030]"></span>
+          </span>
+          <span className="font-semibold uppercase tracking-wider text-[10px] text-[#F13030]">
             Monologg Marketplace v3.0 Live
           </span>
         </div>
-        <div className="flex items-center gap-4 text-white/80 text-[11px]">
-          <span>Paystack Escrow Secured</span>
-          <span className="hidden sm:inline">·</span>
-          <span className="hidden sm:inline font-mono">3,200+ Verified Talent Profiles</span>
+        <div className="flex items-center gap-2 sm:gap-4 text-white/80 text-[11px]">
+          <span className="font-medium">FINCRA Escrow Secured</span>
+          <span>·</span>
+          <span className="font-mono text-white/90">3,200+ Verified Talent Profiles</span>
         </div>
       </div>
 
-      {/* ── Fixed Sticky Header ── */}
-      <header className="h-[68px] sticky top-0 z-50 px-4 sm:px-6 md:px-16 flex items-center justify-between backdrop-blur-xl border-b border-[var(--color-hairline)] bg-[var(--color-bg-glass)] shadow-md relative">
+      {/* ── 2. Fixed Sticky Header ── */}
+      <header className="h-[68px] sticky top-0 z-40 px-4 sm:px-6 md:px-16 flex items-center justify-between backdrop-blur-xl bg-white/90 border-b border-[#ECECE8] shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        {/* Brand Logo */}
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-          <Logo className="h-6 w-auto text-[var(--color-text-primary)]" title="Monologg" />
+          <Logo className="h-6 w-auto text-[#16161A]" title="Monologg" />
         </div>
 
-        {/* Pill Navigation Bar — absolutely centered on the header itself, not
-            just flex-between'd against the logo/buttons either side of it,
-            since those two aren't the same width (optical centering). */}
-        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--color-bg-surface-2)] p-1.5 rounded-full border border-[var(--color-hairline)]">
-          {["Features", "Talent Roster", "How it Works", "Escrow Calculator"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-              className="px-4 py-1.5 rounded-full text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)] transition-all"
-            >
-              {item}
-            </a>
-          ))}
+        {/* Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 rounded-full text-xs font-semibold text-[#16161A] hover:bg-[#F5F5F3] transition-colors"
+          >
+            Product
+          </button>
+          <button
+            onClick={() => navigate("/pricing")}
+            className="px-4 py-2 rounded-full text-xs font-semibold text-[#6D6D75] hover:text-[#16161A] hover:bg-[#F5F5F3] transition-colors"
+          >
+            Pricing
+          </button>
+          <button
+            onClick={() => navigate("/resources")}
+            className="px-4 py-2 rounded-full text-xs font-semibold text-[#6D6D75] hover:text-[#16161A] hover:bg-[#F5F5F3] transition-colors"
+          >
+            Resources
+          </button>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right actions: Theme toggle + Sign In / User menu */}
+        <div className="flex items-center gap-3">
           <button
             onClick={toggle}
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors active:scale-95"
+            className="w-9 h-9 rounded-full flex items-center justify-center border border-[#ECECE8] bg-white text-[#6D6D75] hover:text-[#16161A] hover:bg-[#F9F9F9] transition-colors active:scale-95"
             aria-label="Toggle theme"
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -863,14 +209,14 @@ export function LandingPage() {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1 rounded-full p-0.5 pr-1.5 border border-[var(--color-hairline)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] transition-colors active:scale-95"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ECECE8] bg-white hover:bg-[#F9F9F9] transition-all active:scale-95 shadow-sm"
                 aria-label="Account menu"
                 aria-expanded={showUserMenu}
               >
-                <Avatar size="sm" src={userAvatarUrl ?? undefined} background="var(--color-accent-glow)" color="var(--color-accent)">
+                <Avatar size="sm" src={userAvatarUrl ?? undefined} background="#F13030" color="#FFFFFF">
                   {userInitials}
                 </Avatar>
-                <ChevronDown className={`w-3.5 h-3.5 text-[var(--color-text-tertiary)] transition-transform ${showUserMenu ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-[#6D6D75] transition-transform ${showUserMenu ? "rotate-180" : ""}`} />
               </button>
 
               <AnimatePresence>
@@ -880,16 +226,15 @@ export function LandingPage() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50"
-                    style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-hairline)" }}
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white border border-[#ECECE8]"
                   >
-                    <div className="flex items-center gap-3 p-4" style={{ borderBottom: "1px solid var(--color-hairline)" }}>
-                      <Avatar size="md" src={userAvatarUrl ?? undefined} background="var(--color-accent-glow)" color="var(--color-accent)">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#ECECE8]">
+                      <Avatar size="md" src={userAvatarUrl ?? undefined} background="#F13030" color="#FFFFFF">
                         {userInitials}
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold truncate font-body" style={{ color: "var(--color-text-primary)" }}>{loggedInUser.name}</div>
-                        <div className="text-xs truncate font-body" style={{ color: "var(--color-text-tertiary)" }}>{loggedInUser.email}</div>
+                        <div className="text-sm font-semibold truncate text-[#16161A]">{loggedInUser.name}</div>
+                        <div className="text-xs truncate text-[#6D6D75]">{loggedInUser.email}</div>
                       </div>
                     </div>
 
@@ -898,20 +243,18 @@ export function LandingPage() {
                         <button
                           key={item.label}
                           onClick={() => { setShowUserMenu(false); navigate(item.path); }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:bg-[var(--color-bg-elevated)] transition-colors"
-                          style={{ color: "var(--color-text-primary)" }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161A] hover:bg-[#F9F9F9] transition-colors"
                         >
-                          <item.icon className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
+                          <item.icon className="w-4 h-4 text-[#6D6D75]" />
                           {item.label}
                         </button>
                       ))}
                     </div>
 
-                    <div className="py-1.5" style={{ borderTop: "1px solid var(--color-hairline)" }}>
+                    <div className="py-1.5 border-t border-[#ECECE8]">
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-body text-left hover:bg-[var(--color-bg-elevated)] transition-colors"
-                        style={{ color: "var(--color-error)" }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#F13030] hover:bg-[#FFF5F5] transition-colors font-medium"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -922,389 +265,484 @@ export function LandingPage() {
               </AnimatePresence>
             </div>
           ) : (
-            <>
-              <Button
-                variant="outline-pill"
-                className="h-10 px-5 text-xs font-bold hidden sm:inline-flex"
-                onClick={() => navigate("/auth")}
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => navigate("/auth?mode=signin")}
+                className="h-10 px-5 rounded-full border border-[#DBDBD6] text-xs font-bold text-[#16161A] hover:bg-[#F9F9F9] transition-all"
               >
                 Sign In
-              </Button>
-
-              <Button
-                variant="red"
-                className="h-9 sm:h-10 px-3.5 sm:px-5 text-xs font-bold"
-                onClick={() => navigate("/auth")}
+              </button>
+              <button
+                onClick={() => navigate("/auth?mode=signup")}
+                className="h-10 px-5 rounded-full bg-[#F13030] hover:bg-[#D31F20] text-white text-xs font-bold shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95"
               >
-                <span className="sm:hidden">Get Started</span>
-                <span className="hidden sm:inline">Create Your Profile</span>
-              </Button>
-            </>
+                Sign up free
+              </button>
+            </div>
           )}
         </div>
       </header>
 
-      <main className="flex-1">
-        {/* ── HERO SECTION (Refined Kerning, SVG Red Squiggle & Status Quo Grid Reveal) ── */}
-        <section className="relative pt-16 sm:pt-24 pb-20 sm:pb-32 px-4 sm:px-6 md:px-16 overflow-hidden min-h-[80vh] flex items-center">
-          <WebGLHeroCanvas opacityMultiplier={0.05} />
+      <main className="flex-1 flex flex-col items-center w-full">
+        {/* ── 3. Hero Section (Figma Frame 178359:16911) ── */}
+        <section className="w-full flex flex-col items-center pt-16 sm:pt-24 pb-16 px-6 lg:px-12 bg-white relative overflow-hidden">
+          {/* Subtle Ambient Background Glows */}
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[360px] bg-gradient-to-b from-[#FFF2F2]/60 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030]/30 shadow-sm">
-              <Zap className="w-3.5 h-3.5 fill-current text-[#F13030]" />
-              <span>The first brief-to-booking pipeline for performing arts</span>
-            </div>
-
-            {/* Oversized Display Headline with Red Squiggle Underline */}
-            <h1 className="font-wise-sans text-[36px] min-[400px]:text-[46px] sm:text-[72px] md:text-[96px] font-black tracking-[-0.04em] leading-[0.94] text-[var(--color-text-primary)] max-w-5xl mx-auto">
-              Your craft on your terms.<br />
-              <span className="relative inline-block text-[#F13030] dark:text-[#FF4D4D]">
-                Instantly booked.
-                <svg
-                  className="absolute left-0 -bottom-2 w-full h-4 text-[#F13030] pointer-events-none"
-                  viewBox="0 0 300 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M5 15Q75 2 150 15T295 12"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-            </h1>
-
-            <p className="text-base sm:text-lg md:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto font-body leading-relaxed font-normal">
-              Verified performer profiles, Monologg Escrow Protocol, and proprietary Thespian AI vibe scanner. Zero middlemen, zero gatekeeping.
-            </p>
-
-            {/* Email Form with Working Copy Link Button & High-Contrast Dark Mode Inputs */}
-            <div className="max-w-lg mx-auto pt-2">
-              {!submitted ? (
-                <form
-                  onSubmit={handleSubmit}
-                  className="p-1.5 min-[480px]:p-2 rounded-[24px] min-[480px]:rounded-full bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] shadow-xl flex flex-col min-[480px]:flex-row items-stretch min-[480px]:items-center gap-2"
-                >
-                  <input
-                    type="email"
-                    placeholder="Enter email for instant invite"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="flex-1 px-4 py-2.5 min-[480px]:px-5 min-[480px]:py-3 text-sm bg-transparent outline-none text-[#16161A] dark:text-[#F5F5F0] placeholder:text-gray-400 dark:placeholder:text-[#A6A6B0] text-center min-[480px]:text-left"
-                  />
-                  <Button
-                    type="submit"
-                    variant="red"
-                    className="h-11 px-6 text-xs font-bold w-full min-[480px]:w-auto rounded-full shrink-0"
-                  >
-                    Get Early Access <ArrowRight className="w-4 h-4 ml-1 inline" />
-                  </Button>
-                </form>
-              ) : (
-                <div className="p-3 px-5 rounded-[24px] min-[480px]:rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] border border-[#F13030] flex flex-col min-[480px]:flex-row items-center justify-between gap-3 shadow-md">
-                  <div className="flex items-center gap-2 text-xs font-bold truncate">
-                    <Check className="w-4 h-4 text-[#F13030] shrink-0" />
-                    <span className="truncate">You're #347 in queue!</span>
-                  </div>
-                  <button
-                    onClick={handleCopyLink}
-                    className="px-3 py-1 rounded-full bg-[#F13030] text-white text-xs font-bold hover:bg-[#d31f20] transition-all flex items-center gap-1.5 shrink-0 w-full min-[480px]:w-auto justify-center"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copied ? "Copied Link!" : "Copy Invite Link"}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 3-Column Stats */}
-            <div className="grid grid-cols-3 gap-2 min-[400px]:gap-6 max-w-3xl mx-auto pt-12 border-t border-[var(--color-hairline)] text-center">
-              <div>
-                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
-                  97%
-                </div>
-                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
-                  On-Time Delivery Rate
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
-                  2.9 hrs
-                </div>
-                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
-                  Avg Brief to Booking
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl min-[400px]:text-3xl md:text-5xl font-black font-mono text-[#F13030] dark:text-[#FF4D4D]">
-                  3,200+
-                </div>
-                <div className="text-[10px] min-[400px]:text-xs text-[var(--color-text-secondary)] font-medium mt-1 leading-tight">
-                  Verified Talent Profiles
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── FEATURED TALENT ROSTER CAROUSEL (Infinite Auto-Looping with Edge Fade Masks) ── */}
-        <section id="talent-roster" className="py-16 sm:py-24 bg-[var(--color-bg-surface-2)] border-y border-[var(--color-hairline)]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-16 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
-                Verified Performer Marketplace
-              </span>
-              <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
-                Discover &amp; Book Top Performing Artists Instantly
-              </h2>
-            </div>
-            <Button variant="outline-pill" className="h-10 px-5 text-xs font-bold shrink-0" onClick={() => navigate("/auth")}>
-              Explore Directory (3,200+)
-            </Button>
-          </div>
-
-          <TalentCarousel />
-        </section>
-
-        {/* ── MONOLOGG ESCROW CALCULATOR SECTION ── */}
-        <section id="escrow-calculator" className="relative py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[#0D0D0F] text-white overflow-hidden">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#F13030] text-white">
-                <Shield className="w-3.5 h-3.5 fill-current" />
-                <span>Monologg Escrow Protocol</span>
-              </div>
-
-              <h2 className="font-wise-sans text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-tight leading-[0.95] text-white">
-                PAYMENT SECURITY.<br />
-                <span className="text-[#FF4D4D]">AUTOMATED IN ESCROW.</span>
-              </h2>
-
-              <p className="text-sm sm:text-base text-white/80 leading-relaxed font-body">
-                Contracts are held securely in escrow by our payment partner, Paystack prior to recording or performance. Talent works with 100% confidence, and clients enjoy automated deliverable signoff.
-              </p>
-
-              <div className="space-y-4 pt-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#F13030] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-base text-white">Zero Non-Payment Risk for Talent</h4>
-                    <p className="text-sm text-white/70">Escrow funds are locked securely prior to project kickoff.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#F13030] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-base text-white">Instant Payouts on Approval</h4>
-                    <p className="text-sm text-white/70">Direct bank transfer release within 24 hours of client signoff.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <MonologgEscrowCalculator />
-            </div>
-          </div>
-        </section>
-
-        {/* ── HOW IT WORKS (High Contrast Dark Mode Cards) ── */}
-        <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-canvas)]">
-          <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16">
-            <div className="text-center space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
-                Simple Workflow
-              </span>
-              <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
-                Go Live in 3 Easy Steps
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-              {STEPS.map((step, idx) => (
+          <div className="w-full max-w-[1040px] flex flex-col items-center text-center relative z-10">
+            {/* Overlapping Performer Avatars */}
+            <div className="flex items-center justify-center -space-x-3 mb-6">
+              {HERO_AVATARS.map((src, idx) => (
                 <div
                   key={idx}
-                  className="p-6 sm:p-8 rounded-[24px] sm:rounded-[28px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] space-y-4 relative shadow-sm hover:shadow-xl transition-shadow"
+                  className="size-11 sm:size-12 rounded-full ring-2 ring-white overflow-hidden shadow-sm transition-transform hover:scale-110 hover:z-20"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#FFECEC] text-[#F13030] dark:bg-[#F13030]/20 dark:text-[#FF4D4D] font-mono font-bold text-lg flex items-center justify-center">
-                    {step.num}
-                  </div>
-                  <h3 className="font-bold text-lg font-display text-[#16161A] dark:text-[#F5F5F0]">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-[#A6A6B0] leading-relaxed font-body">
-                    {step.body}
-                  </p>
+                  <img src={src} alt="Performer avatar" className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* ── SCI-FI INTERACTIVE GLOBAL TRUST MAP ── */}
-        <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-surface-2)] border-t border-[var(--color-hairline)]">
-          <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16">
-            <div className="text-center space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#F13030] dark:text-[#FF4D4D]">
-                Endorsed by Performers &amp; Brands
-              </span>
-              <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase tracking-tight text-[var(--color-text-primary)]">
-                Trusted Across the Continent
-              </h2>
-            </div>
-
-            <SciFiTrustMap />
-          </div>
-        </section>
-
-        {/* ── FAQ ACCORDION (High Contrast Dark Mode Fix) ── */}
-        <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-16 bg-[var(--color-bg-canvas)]">
-          <div className="max-w-3xl mx-auto space-y-12">
-            <h2 className="font-wise-sans text-3xl md:text-5xl font-bold uppercase text-center tracking-tight text-[var(--color-text-primary)]">
-              Frequently Asked Questions
-            </h2>
-
-            <div className="space-y-4">
-              {FAQS.map((faq, i) => (
-                <div
-                  key={i}
-                  className="rounded-[18px] bg-white dark:bg-[#16161A] border border-gray-200 dark:border-[#26262E] overflow-hidden shadow-sm"
-                >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full p-6 flex items-center justify-between text-left font-bold text-base text-[#16161A] dark:text-[#F5F5F0]"
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown
-                      className={`w-5 h-5 transition-transform duration-200 shrink-0 text-gray-400 dark:text-[#A6A6B0] ${
-                        openFaq === i ? "rotate-180 text-[#F13030] dark:text-[#FF4D4D]" : ""
-                      }`}
-                    />
-                  </button>
-                  {openFaq === i && (
-                    <div className="px-6 pb-6 text-sm text-gray-600 dark:text-[#A6A6B0] leading-relaxed border-t border-gray-100 dark:border-[#26262E] pt-4 font-body">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FINAL CONVERSION CTA ── */}
-        <section className="relative py-16 sm:py-28 px-4 sm:px-6 md:px-16 bg-[#16161A] text-white text-center border-t border-white/10 overflow-hidden">
-          <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-            <h2 className="font-wise-sans text-3xl min-[400px]:text-4xl md:text-7xl font-bold tracking-tight leading-[0.94] text-white">
-              Take control of your craft.
-            </h2>
-            <p className="text-sm sm:text-base text-white/80 max-w-xl mx-auto font-body">
-              Join over 3,200 verified actors, voice talent, and comperes getting booked directly with zero commission on their first booking.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3.5 sm:gap-4 pt-4">
-              <Button
-                variant="red"
-                className="h-11 sm:h-12 px-8 text-sm font-bold shadow-xl w-full sm:w-auto"
-                onClick={() => navigate("/auth")}
-              >
-                Create Your Profile Free
-              </Button>
-              <Button
-                variant="outline-pill"
-                className="h-11 sm:h-12 px-8 text-sm font-bold border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
-                onClick={() => navigate("/auth")}
-              >
-                Post a Project Brief
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <FloatingQRBadge onClick={() => setShowQrModal(true)} />
-      <QRCodeModal isOpen={showQrModal} onClose={() => setShowQrModal(false)} />
-
-      {/* ── OVERSIZED LOGOTYPE FOOTER ── */}
-      <footer className="pt-14 sm:pt-20 pb-10 sm:pb-12 px-4 sm:px-6 md:px-16 bg-[#0D0D0F] text-white border-t border-white/10 relative overflow-hidden">
-        <WebGLHeroCanvas opacityMultiplier={0.05} />
-        <div className="max-w-7xl mx-auto space-y-16 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 text-sm">
-            <div className="col-span-2 space-y-4">
-              <div className="flex items-center gap-2">
-                <Logo className="h-7 w-auto text-white" />
-              </div>
-              <p className="text-xs text-white/60 max-w-xs leading-relaxed font-body">
-                The world's first brief-to-booking pipeline for performing arts and the creator economy.
-              </p>
-              <div className="text-xs font-mono text-[#FF4D4D] pt-2">
-                hello@monologg.app
-              </div>
-              <div className="flex items-center gap-3 pt-2 text-white/70">
-                <a href="#" className="hover:text-white flex items-center gap-1 text-xs">
-                  <span>X (Twitter)</span> <ArrowUpRight className="w-3 h-3" />
-                </a>
-                <a href="#" className="hover:text-white flex items-center gap-1 text-xs">
-                  <span>LinkedIn</span> <ArrowUpRight className="w-3 h-3" />
-                </a>
-                <a href="#" className="hover:text-white flex items-center gap-1 text-xs">
-                  <span>Instagram</span> <ArrowUpRight className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider text-white/50 font-mono">Product</h4>
-              <ul className="space-y-2 text-xs text-white/70 font-body">
-                <li><a href="#talent-roster" className="hover:text-white transition-colors">Talent Directory</a></li>
-                <li><a href="#escrow-calculator" className="hover:text-white transition-colors">Monologg Escrow</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition-colors">Thespian AI Scanner</a></li>
-                <li><a href="/design-system" className="hover:text-white transition-colors">Design System</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider text-white/50 font-mono">Solutions</h4>
-              <ul className="space-y-2 text-xs text-white/70 font-body">
-                <li><a href="/auth" className="hover:text-white transition-colors">For Voice Talent</a></li>
-                <li><a href="/auth" className="hover:text-white transition-colors">For Lead Actors</a></li>
-                <li><a href="/auth" className="hover:text-white transition-colors">For Event Comperes</a></li>
-                <li><a href="/auth" className="hover:text-white transition-colors">For Brand Directors</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider text-white/50 font-mono">Company &amp; Legal</h4>
-              <ul className="space-y-2 text-xs text-white/70 font-body">
-                <li><a href="/legal/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="/legal/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">NDPA Data Protection</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Paystack Compliance</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs text-white/50 font-mono gap-4">
-            <div>© {new Date().getFullYear()} Monologg Inc. All rights reserved.</div>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">✓ NDPA Compliant</span>
-              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">✓ Paystack Escrow Verified</span>
-            </div>
-          </div>
-
-          <div className="pt-8 text-center select-none overflow-hidden">
-            <h1 className="font-wise-sans text-[64px] sm:text-[120px] md:text-[180px] font-black uppercase tracking-tighter leading-none text-white/10 hover:text-white/20 transition-colors pointer-events-none">
-              MONOLOGG
+            {/* Display Headline */}
+            <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-semibold text-[#16161A] tracking-[-0.03em] leading-[1.08] max-w-[720px] mb-6 font-display">
+              Find Performers<span className="text-[#F13030] animate-pulse">|</span> <br />
+              Finish Your Project.
             </h1>
+
+            {/* Subtitle */}
+            <p className="text-base sm:text-lg text-[#6D6D75] max-w-[640px] leading-relaxed mb-8">
+              Discover the performing arts’ best-kept secrets. Connect directly with directors, studios, agencies, brand managers, and live event organizers.
+            </p>
+
+            {/* Hero CTA Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-16">
+              <button
+                onClick={() => navigate("/auth?mode=signup")}
+                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-full bg-[#F13030] hover:bg-[#D31F20] text-white text-sm font-semibold shadow-md transition-all active:scale-95"
+              >
+                <span>Find Performers</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => navigate("/auth?mode=signup")}
+                className="inline-flex items-center justify-center h-11 px-6 rounded-full bg-white hover:bg-[#F9F9F9] border border-[#E8E8E8] text-[#16161A] text-sm font-medium transition-colors shadow-sm"
+              >
+                Find Gigs
+              </button>
+            </div>
+
+            {/* Centered iPhone 15 Device Mockup */}
+            <div className="relative w-full max-w-[360px] sm:max-w-[385px] mx-auto rounded-[52px] p-3.5 bg-[#1F1F24] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.1)_inset]">
+              {/* Dynamic Island */}
+              <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-30 flex items-center justify-end pr-2.5">
+                <span className="size-2.5 rounded-full bg-[#1A1A1A] ring-1 ring-white/10" />
+              </div>
+
+              {/* iPhone Screen Container */}
+              <div className="relative w-full aspect-[359/779] bg-white rounded-[40px] overflow-hidden shadow-inner flex flex-col justify-center items-center">
+                <img
+                  src="/auth-performer-device.png"
+                  alt="Monologg Performer Storefront preview on iPhone"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+
+            {/* ── YOU BELONG HERE Category Row ── */}
+            <div className="w-full mt-16 pt-8 border-t border-[#ECECE8]">
+              <div className="text-[11px] font-semibold tracking-[0.16em] uppercase text-[#6D6D75] mb-5">
+                YOU BELONG HERE
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-medium text-[#16161A]">
+                {CATEGORIES.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <div
+                      key={cat.name}
+                      onClick={() => navigate("/auth?mode=signup")}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F9F9F9] hover:bg-[#F0F0EE] border border-[#ECECE8] cursor-pointer transition-all hover:scale-105"
+                    >
+                      <Icon className="w-4 h-4 text-[#F13030]" />
+                      <span>{cat.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* ── 4. Stepper Features Section (Figma Frame 178359:16989) ── */}
+        <section id="features" className="w-full py-20 lg:py-28 px-6 lg:px-12 bg-[#FBFBFA] border-t border-[#ECECE8] flex justify-center">
+          <div className="w-full max-w-[1040px] flex flex-col items-center">
+            {/* Header */}
+            <div className="max-w-[760px] text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-semibold text-[#16161A] tracking-[-0.03em] leading-tight mb-4 font-display">
+                From audition tapes to instant payouts — all your operations in one place.
+              </h2>
+              <p className="text-base sm:text-lg text-[#6D6D75]">
+                Designed specifically for actors, voice talent, comperes, and content creators to build their brand and run bookings smoothly.
+              </p>
+            </div>
+
+            {/* Interactive 6-Feature Stepper / Layout */}
+            <div className="w-full grid lg:grid-cols-12 gap-10 items-start">
+              {/* Left Timeline Progress Rail */}
+              <div className="lg:col-span-5 sticky top-28 flex flex-col gap-3">
+                {[
+                  { title: "Share Your Stage Anywhere", desc: "Single master link & instant QR code" },
+                  { title: "Monetize Fan Shoutouts", desc: "Sell custom videos, voice drops & consultations" },
+                  { title: "Analyze your audience", desc: "Real-time traffic, profile visits & top earnings" },
+                  { title: "Custom Rate Cards", desc: "Upfront transparent Naira rates for quick booking" },
+                  { title: "Powered by Thespian AI", desc: "24/7 smart assistant answering scripts & calendars" },
+                  { title: "Bank-Grade Escrow", desc: "100% upfront booking funds held safely" },
+                ].map((item, index) => {
+                  const isActive = activeFeature === index;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setActiveFeature(index)}
+                      className={`w-full text-left p-4 rounded-2xl transition-all border ${
+                        isActive
+                          ? "bg-white border-[#F13030]/40 shadow-sm"
+                          : "bg-transparent border-transparent hover:bg-white/50 text-[#6D6D75]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`size-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
+                            isActive ? "bg-[#F13030] text-white" : "bg-[#ECECE8] text-[#6D6D75]"
+                          }`}
+                        >
+                          {index + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <h4 className={`text-sm font-semibold truncate ${isActive ? "text-[#16161A]" : "text-[#6D6D75]"}`}>
+                            {item.title}
+                          </h4>
+                          <p className="text-xs text-[#9E9EA7] truncate">{item.desc}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Feature Detail Cards */}
+              <div className="lg:col-span-7 flex flex-col gap-12">
+                {/* 1. Share Your Stage Anywhere */}
+                <div
+                  id="feature-1"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 0 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(0)}
+                >
+                  <h3 className="text-2xl font-semibold text-[#16161A] mb-3 font-display">
+                    Share Your Stage Anywhere
+                  </h3>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Join other performers using a single master link and instant QR code to share their portfolios, showreels, and press kits directly with casting directors, studios, agencies, brand managers, and live event organizers globally across all platforms.
+                  </p>
+
+                  <div className="p-6 rounded-2xl bg-[#FBFBFA] border border-[#ECECE8] flex flex-col sm:flex-row items-center gap-6">
+                    <div className="p-3 bg-white rounded-xl border border-[#ECECE8] shadow-sm flex flex-col items-center shrink-0">
+                      <QrCode className="size-20 text-[#16161A]" />
+                      <span className="text-[10px] font-mono text-[#6D6D75] mt-1">SCAN STAGE</span>
+                    </div>
+                    <div className="flex-1 w-full flex flex-col gap-3">
+                      <label className="text-xs font-medium text-[#6D6D75]">Your Performer Bio Link</label>
+                      <div className="flex items-center bg-white border border-[#E5E7EB] rounded-xl px-3 py-2 shadow-sm focus-within:border-[#F13030]">
+                        <span className="text-xs text-[#9E9EA7] select-none">monologg.co/@</span>
+                        <input
+                          type="text"
+                          value={bioUsername}
+                          onChange={(e) => setBioUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                          className="w-full text-xs font-semibold text-[#16161A] bg-transparent outline-none pl-1"
+                        />
+                      </div>
+                      <button
+                        onClick={handleCopyBio}
+                        className="self-start inline-flex items-center gap-1.5 text-xs font-medium text-[#F13030] hover:text-[#D31F20]"
+                      >
+                        {copiedBio ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedBio ? "Copied bio link!" : "Copy bio link"}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Monetize Fan Shoutouts & Micro-Deliverables */}
+                <div
+                  id="feature-2"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 1 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(1)}
+                >
+                  <h3 className="text-2xl font-semibold text-[#16161A] mb-3 font-display">
+                    Monetize Fan Shoutouts & Micro-Deliverables
+                  </h3>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Earn up to 93% of your rate by selling custom video shoutouts, voice drops, and private consultations directly from your bio link—on your own prices and delivery timelines.
+                  </p>
+
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    {[
+                      { title: "Video Shoutout", price: "₦35,000", time: "24h turn", icon: Video },
+                      { title: "Voice Reel Intro", price: "₦20,000", time: "48h turn", icon: Mic },
+                      { title: "1:1 Monologue Prep", price: "₦60,000", time: "Live session", icon: User },
+                    ].map((pkg, idx) => {
+                      const Icon = pkg.icon;
+                      return (
+                        <div key={idx} className="p-4 rounded-xl bg-[#FBFBFA] border border-[#ECECE8] flex flex-col justify-between">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="p-2 rounded-lg bg-white border border-[#ECECE8]">
+                              <Icon className="w-4 h-4 text-[#F13030]" />
+                            </span>
+                            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#FFECEC] text-[#F13030]">
+                              {pkg.time}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="text-xs text-[#6D6D75]">{pkg.title}</div>
+                            <div className="text-sm font-bold text-[#16161A] mt-0.5">{pkg.price}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. Analyze your audience */}
+                <div
+                  id="feature-3"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 2 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(2)}
+                >
+                  <h3 className="text-2xl font-semibold text-[#16161A] mb-3 font-display">
+                    Analyze your audience
+                  </h3>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Track your profile visits, and link clicks in real time to see exactly where your fans are coming from and which packages make you the most money.
+                  </p>
+
+                  <div className="p-6 rounded-2xl bg-[#FBFBFA] border border-[#ECECE8] flex flex-col gap-4">
+                    <div className="grid grid-cols-3 gap-4 border-b border-[#ECECE8] pb-4">
+                      <div>
+                        <div className="text-xs text-[#6D6D75]">Profile Views</div>
+                        <div className="text-xl font-bold font-mono text-[#16161A]">12,480</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-[#6D6D75]">Booking Rate</div>
+                        <div className="text-xl font-bold font-mono text-[#F13030]">14.2%</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-[#6D6D75]">Monthly Net</div>
+                        <div className="text-xl font-bold font-mono text-[#16161A]">₦1.85M</div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 pt-1 text-xs">
+                      <div className="flex justify-between text-[#6D6D75]">
+                        <span>Instagram Bio traffic</span>
+                        <span className="font-semibold text-[#16161A]">58%</span>
+                      </div>
+                      <div className="w-full bg-[#E5E7EB] h-2 rounded-full overflow-hidden">
+                        <div className="bg-[#F13030] h-full rounded-full" style={{ width: "58%" }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Set Transparent Custom Rate Cards */}
+                <div
+                  id="feature-4"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 3 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(3)}
+                >
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="text-2xl font-semibold text-[#16161A] font-display">
+                      Set Transparent Custom Rate Cards
+                    </h3>
+                    <div className="inline-flex items-center rounded-full bg-[#F5F5F3] p-0.5 border border-[#ECECE8] text-xs font-semibold">
+                      <button
+                        onClick={() => setCurrencyRate("NGN")}
+                        className={`px-2.5 py-1 rounded-full ${
+                          currencyRate === "NGN" ? "bg-white text-[#16161A] shadow-xs" : "text-[#6D6D75]"
+                        }`}
+                      >
+                        ₦ NGN
+                      </button>
+                      <button
+                        onClick={() => setCurrencyRate("USD")}
+                        className={`px-2.5 py-1 rounded-full ${
+                          currencyRate === "USD" ? "bg-white text-[#16161A] shadow-xs" : "text-[#6D6D75]"
+                        }`}
+                      >
+                        $ USD
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Stop wasting time emailing back and forth—set clear, upfront rates for auditions, hosting, voiceovers, or comedy sets so clients can book you instantly.
+                  </p>
+
+                  <div className="flex flex-col divide-y divide-[#ECECE8] rounded-2xl bg-[#FBFBFA] border border-[#ECECE8] p-4">
+                    {[
+                      { role: "Feature Film Day Rate", ngn: "₦250,000", usd: "$180", time: "per shoot day" },
+                      { role: "Corporate Event Compere", ngn: "₦180,000", usd: "$130", time: "up to 4 hours" },
+                      { role: "Commercial VO Broadcast", ngn: "₦120,000", usd: "$90", time: "30s spot" },
+                    ].map((rate, i) => (
+                      <div key={i} className="flex items-center justify-between py-3 first:pt-1 last:pb-1">
+                        <div>
+                          <div className="text-sm font-semibold text-[#16161A]">{rate.role}</div>
+                          <div className="text-xs text-[#6D6D75]">{rate.time}</div>
+                        </div>
+                        <div className="text-sm font-bold font-mono text-[#16161A]">
+                          {currencyRate === "NGN" ? rate.ngn : rate.usd}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 5. Powered by Thespian AI */}
+                <div
+                  id="feature-5"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 4 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(4)}
+                >
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFECEC] text-[#F13030] text-xs font-semibold mb-3">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Thespian AI Engine</span>
+                  </div>
+                  <h3 className="text-2xl font-semibold text-[#16161A] mb-3 font-display">
+                    Powered by Thespian AI
+                  </h3>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Get a 24/7 AI agent that automatically responds to questions on your behalf and books gigs onto your calendar while you sleep, and scans script PDFs to pitch your talent for open roles. Terms and Conditions apply.
+                  </p>
+
+                  <div className="p-5 rounded-2xl bg-[#16161A] text-white border border-[#26262E] flex flex-col gap-3">
+                    <div className="flex items-center justify-between text-xs text-white/70 border-b border-white/10 pb-3">
+                      <span className="flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
+                        <span>Thespian AI Assistant · Online</span>
+                      </span>
+                      <span className="font-mono text-white/50">Auto-Booking Active</span>
+                    </div>
+                    <div className="text-xs text-white/90 leading-relaxed font-mono bg-white/5 p-3 rounded-xl">
+                      &gt; "Audition script parsed: Romantic Comedy lead · Tone: charismatic, witty · Matched Elena's voice reel #2 · Availability verified for Tuesday 10:00 AM."
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Bank-Grade Escrow Protection */}
+                <div
+                  id="feature-6"
+                  className={`bg-white rounded-3xl p-8 sm:p-10 border transition-all ${
+                    activeFeature === 5 ? "border-[#F13030]/40 ring-1 ring-[#F13030]/20 shadow-md" : "border-[#ECECE8]"
+                  }`}
+                  onMouseEnter={() => setActiveFeature(5)}
+                >
+                  <h3 className="text-2xl font-semibold text-[#16161A] mb-3 font-display">
+                    Bank-Grade Escrow Protection
+                  </h3>
+                  <p className="text-base text-[#6D6D75] leading-relaxed mb-8">
+                    Never worry about late payments again—booking funds are safely held in escrow before you start working and sent straight to your bank account the moment you finish.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-2xl bg-[#FBFBFA] border border-[#ECECE8]">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-full bg-[#16161A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        1
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-[#16161A]">Client Funds Escrow</div>
+                        <div className="text-[11px] text-[#6D6D75]">Deposited prior to shoot</div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#6D6D75] hidden sm:block" />
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-full bg-[#16161A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        2
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-[#16161A]">Work Performed</div>
+                        <div className="text-[11px] text-[#6D6D75]">Shoot or file delivered</div>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#6D6D75] hidden sm:block" />
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-full bg-[#F13030] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        3
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-[#16161A]">Instant Bank Payout</div>
+                        <div className="text-[11px] text-[#6D6D75]">Via Fincra / Paystack</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 5. FAQ Section (Figma Frame 178359:17242) ── */}
+        <section id="faq" className="w-full py-20 lg:py-28 px-6 lg:px-12 bg-white flex justify-center">
+          <div className="w-full max-w-[910px] flex flex-col items-center">
+            {/* FAQ Header */}
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-semibold text-[#16161A] tracking-[-0.03em] mb-4 font-display">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-base text-[#6D6D75] max-w-[420px] mx-auto leading-relaxed">
+                Got questions about how payments, escrow, or Thespian AI work? Here are the answers.
+              </p>
+            </div>
+
+            {/* Accordion List */}
+            <div className="w-full flex flex-col gap-3">
+              {FAQS.map((faq, idx) => {
+                const isOpen = openFaq === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="border border-[#ECECE8] rounded-2xl bg-white overflow-hidden transition-all duration-200"
+                  >
+                    <button
+                      onClick={() => setOpenFaq(isOpen ? null : idx)}
+                      className="w-full py-5 px-6 flex items-center justify-between text-left gap-4 hover:bg-[#FBFBFA] transition-colors"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-base font-medium text-[#16161A]">
+                        {faq.q}
+                      </span>
+                      <span className="size-7 rounded-full flex items-center justify-center bg-[#F9F9F9] border border-[#ECECE8] text-[#16161A] shrink-0 transition-transform">
+                        {isOpen ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="px-6 pb-6 text-sm text-[#6D6D75] leading-relaxed border-t border-[#ECECE8]/60 pt-4">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 6. WebsiteFooter with CTA Banner (Figma Frame 178359:17243) ── */}
+        <WebsiteFooter />
+      </main>
     </div>
   );
 }

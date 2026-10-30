@@ -18,6 +18,8 @@ import { DesignSystem } from "./pages/DesignSystem";
 import { MediaKitManagement } from "./pages/MediaKitManagement";
 import { VerificationVideo } from "./pages/VerificationVideo";
 import { PublicStorefront } from "./pages/PublicStorefront";
+import { PricingPage } from "./pages/PricingPage";
+import { ResourcesPage } from "./pages/ResourcesPage";
 import { ExternalBookingEntry } from "./pages/ExternalBookingEntry";
 import { SetPassword } from "./pages/SetPassword";
 import { AuthCallback } from "./pages/AuthCallback";
@@ -61,6 +63,8 @@ export const routeTree = [
       { path: "legal/terms", Component: () => <LegalPage type="terms" /> },
       { path: "legal/privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },
+      { path: "pricing", Component: PricingPage },
+      { path: "resources", Component: ResourcesPage },
       // features.md Phase 16 (FA-5) stub entry point — public, no auth; see
       // ExternalBookingEntry.tsx's own doc comment. Declared before ":handle"
       // so "book" is never swallowed as someone's handle (React Router ranks

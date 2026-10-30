@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
+**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 175 (2026-10-30) — Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation
+
+**Goal:** Re-implement the public marketing Home Page (`LandingPage.tsx`), Website Footer (`WebsiteFooter.tsx`), and dedicated public routes (`PricingPage.tsx`, `ResourcesPage.tsx`) directly from the Figma Web Design canvas (`kClJDAgWsmMGhtuXsccAz0`, node `178359:16886`) on a dedicated `web-update` branch while maintaining test passing status across `LandingPageHeader.test.tsx` and monorepo TypeScript compliance.
+
+1. **Git Branching & Remote Setup (`web-update`):**
+   - Created and checked out new branch `web-update` (`git checkout -b web-update`).
+   - Pushed and configured upstream tracking with GitHub (`git push -u origin web-update`).
+2. **Local Figma Desktop MCP Integration:**
+   - Identified that the local Figma Desktop App runs an unauthenticated MCP server on `http://127.0.0.1:3845/mcp` during active Dev Mode (`Shift + D`).
+   - Configured `~/.gemini/config/mcp_config.json` with `"Figma Desktop": { "url": "http://127.0.0.1:3845/mcp" }`, bypassing external OAuth redirects (`GCXeV5mietjPHAN3Ox7j7biDM`) and retrieving high-fidelity design context and screenshots directly.
+3. **Figma Home Page Full Implementation (`apps/web/src/app/pages/LandingPage.tsx`):**
+   - **Announcement Bar (`178359:16887`):** `#16161A` dark bar with pulsing red dot `#F13030`, `MONOLOGG MARKETPLACE V3.0 LIVE` (10px uppercase tracking-wider), and `FINCRA Escrow Secured · 3,200+ Verified Talent Profiles` (11px white/80).
+   - **Header (`178359:16910`):** Sticky 68px header with `Logo`, centered navigation links (`Product`, `Pricing`, `Resources`), theme toggle, and authenticated session avatar menu (`aria-label="Account menu"`) with `Dashboard` navigation and `Sign Out` via `apiClient.logout()` (fully passing `LandingPageHeader.test.tsx` 3/3).
+   - **Hero Section (`178359:16911`):** 6 overlapping circular performer avatars, display typography `Find Performers| Finish Your Project.`, dual primary/secondary action buttons (`Find Performers` with `ArrowRight` and `Find Gigs`), centered iPhone 15 frame displaying `/auth-performer-device.png`, and "YOU BELONG HERE" 6-category bar (`Actors`, `Speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`).
+   - **Interactive 6-Step Features Showcase (`178359:16989`):** Left-side interactive timeline progress rail with 6 detailed feature cards:
+     1. `Share Your Stage Anywhere`: Single master link generator (`monologg.co/@username`) with live copy button and instant QR code preview.
+     2. `Monetize Fan Shoutouts & Micro-Deliverables`: Video shoutout, voice drop, and 1:1 consultation rate cards with delivery turnaround tags.
+     3. `Analyze your audience`: Real-time traffic, profile visits (12,480), conversion rate (14.2%), and referral breakdown (Instagram 58%).
+     4. `Set Transparent Custom Rate Cards`: Clear upfront rates with interactive ₦ NGN / $ USD currency switch.
+     5. `Powered by Thespian AI`: 24/7 smart AI agent script parsing and calendar auto-booking demonstration.
+     6. `Bank-Grade Escrow Protection`: 3-step escrow milestone visualizer (Client Funds Escrow → Work Performed → Instant Bank Payout via Fincra/Paystack).
+   - **Figma FAQ Accordion (`178359:17242`):** 10 interactive accordion items with `Plus` and `X` toggle icons covering platform concepts, escrow security, currency support, and Thespian AI.
+4. **WebsiteFooter Component (`apps/web/src/app/components/ui/WebsiteFooter.tsx`):**
+   - Extracted reusable footer featuring:
+     - Top CTA banner (`178190:29887`): "Finish Your Project today!" with "Get started for free" and "Become an investor" CTAs.
+     - Newsletter capture (`178151:49520`): Pill input with inline arrow submit button and subscribed feedback state.
+     - Brand Bio & Y Combinator attribution badge (`Backed by Y Combinator`).
+     - 3-column navigation: Product (`Performer Portal`, `Client Portal`, `Thespian AI` [new badge], `Pricing`), Resources (`Escrow Policy`, `Fair Trade Contracts`, `Support & Community`, `FAQ`, `Become an Investor`), and Social links (`hello@monologg.co`, `Instagram`, `X (Twitter)`, `Tiktok`, `Discord`, `Product Hunt`).
+     - Bottom copyright bar (`© 2026 Monologg. All rights reserved. Lagos, Nigeria 🇳🇬·`).
+5. **Public Routes & Router Registration (`apps/web/src/app/pages/PricingPage.tsx`, `ResourcesPage.tsx`, `apps/web/src/app/routes.tsx`):**
+   - Created `PricingPage.tsx` (`178359:17960`) with interactive Performers vs. Clients toggle and full feature comparison table (Free Tier vs. Monologg Pro).
+   - Created `ResourcesPage.tsx` (`178359:18325`) with Terms of Service, Escrow Guarantee Policy, Fair Trade Contracts, and 24/7 Helpdesk cards.
+   - Registered `/pricing` and `/resources` routes in `routeTree` prior to dynamic `:handle` wildcard.
+6. **Verification & Quality Gate:**
+   - Ran `npm test -- src/app/pages/LandingPageHeader.test.tsx` (3/3 passing).
+   - Ran `npm test -- src/app/RequireAuth.test.tsx src/app/pages/LegalPage.test.tsx src/app/pages/PublicStorefront.test.tsx` (10/10 passing).
+   - Ran `npx tsc --noEmit` across `@monologg/web` (0 errors).
 
 ---
 

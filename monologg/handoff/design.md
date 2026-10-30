@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–173 + Session 174 Supabase Product Analytics & Stakeholder Telemetry (see `handoff/analytics.md`).
+**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–174 + Session 175 Figma Home Page Redesign & Public Routes on `web-update`.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -42,10 +42,10 @@ The original PRD described a large product; `features.md` extended it further (r
 
 | PRD screen(s) | Implemented as | Status |
 |---|---|---|
-| WEB-01/02/03 (Landing, waitlist + live) | `LandingPage.tsx` | Built, redesigned Session 74 with high-contrast blocks, Upwork category grid, Linktree feature modules, escrow calculator, 10 FAQs |
-| WEB-04 (Product Overview) | `ProductPage.tsx` at `/product` | Built Session 74 (4 Core Pillars: Bio Link, Thespian AI, Escrow, Analytics) |
-| WEB-05 (Pricing & Split Calculator) | `PricingPage.tsx` at `/pricing` | Built Session 74 (16% Split Protocol, 7% Performer / 9% Client Breakdown) |
-| WEB-06 (Resources & Knowledge Hub) | `ResourcesPage.tsx` at `/resources` | Built Session 74 (Performer Playbooks, Casting Guides, Escrow Protocol) |
+| WEB-01/02/03 (Landing, waitlist + live) | `LandingPage.tsx` | Redesigned Session 175 directly from Figma canvas `WEB DESIGN` (`178359:16886`): announcement bar with live pulsing red dot, sticky header with avatar menu, 6-avatar hero with blinking cursor display typography, iPhone 15 device mockup frame, "YOU BELONG HERE" 6-category bar, 6-step interactive vertical timeline showcase, 10-item FAQ accordion, and `<WebsiteFooter />` |
+| WEB-04 (Website Footer) | `WebsiteFooter.tsx` | Extracted Session 175 (`178190:29887`, `178151:49520`): "Finish Your Project today!" CTA banner, newsletter capture with inline arrow submit, Y Combinator attribution badge, 3-column navigation (Product, Resources, Social), and copyright bar |
+| WEB-05 (Pricing & Split Calculator) | `PricingPage.tsx` at `/pricing` | Built Session 175 (`178359:17960`): Performers vs. Clients segmented switch, feature comparison table (Free Tier vs. Monologg Pro), 16% fee split breakdown, and pricing FAQ |
+| WEB-06 (Resources & Knowledge Hub) | `ResourcesPage.tsx` at `/resources` | Built Session 175 (`178359:18325`): Terms of Service, Escrow Guarantee Policy, Fair Trade Contracts, 24/7 Creator Helpdesk, and direct support links |
 | PWA-01 (Welcome/Register/Sign In/Forgot) | `AuthFlow.tsx` & `AuthCallback.tsx` | Real auth as of Phase 4; Supabase Auth identity bridge in Phase 12B; resolved in Session 157 with PKCE authorization code exchange (`exchangeCodeForSession`), GoTrue CSRF `state` parameter clean-up, and localStorage fallback role persistence |
 | PWA-02–06 (Niche, Upload, AI processing, Tags, Rate Cards) | `CreatorOnboarding.tsx` | Real KYC + AI style-tagging as two independent systems as of Phase 7 — the old scripted "Thespian AI" animation is gone in `live` mode |
 | PWA-07 (Storefront & Earnings / Withdrawals) | Embedded inside `TalentDashboard.tsx` ("My Storefront" and "Earnings & Analytics" tabs) **plus** a fully public, logged-out version at `/[handle]` (`PublicStorefront.tsx`, Phase 15) | Built; overhauled in Session 146 with Apple/Linear Deep Slate obsidian fintech card (`bg-zinc-900 border border-zinc-800/80 shadow-xl`) with ambient Monologg red glow, emerald status pulse dot, `Escrow Protected Payouts` badge, large `₦148,000` balance display; simplified in Session 156 to focus exclusively on Available Balance with interactive `Eye` / `EyeOff` show/hide toggle, sole `Withdraw Funds` and `Analytics` CTAs, and removal of extraneous sub-metrics and trend lines (Sessions 100–101, 134–136, 146, 156) |

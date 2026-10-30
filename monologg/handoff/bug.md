@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
+**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 122. Figma Remote MCP OAuth Redirect Roadblock & Local Server Discovery
+- **Severity:** High / Tooling & Design-to-Code Pipeline Block
+- **What happened:**
+  - Connecting to Figma's cloud MCP server (`https://mcp.figma.com/mcp`) prompted an OAuth browser flow requesting the user enter user code `GCXeV5mietjPHAN3Ox7j7biDM` at `https://antigravity.google/oauth-callback`. However, due to headless / local CLI proxy constraints, the callback could not finish the redirect handshake, preventing access to design nodes.
+- **Root Cause:**
+  - `https://mcp.figma.com/mcp` is a remote multi-tenant gateway that enforces OAuth tokens, whereas the local Figma Desktop App already hosts a local Dev Mode MCP server at `http://127.0.0.1:3845/mcp`.
+- **Fix:**
+  - Detected that port 3845 was actively listening on the host machine (`lsof -iTCP:3845`).
+  - Reconfigured `~/.gemini/config/mcp_config.json` with `"Figma Desktop": { "url": "http://127.0.0.1:3845/mcp" }`, bypassing OAuth entirely and allowing direct, authenticated-free inspection of nodes, vector metadata, and design screenshots.
 
 ### 121. Missing Frontend Click-Stream, Route Dwell & Funnel Telemetry Pipeline in Supabase
 - **Severity:** Medium / Product Observability & Stakeholder Analytics Gap

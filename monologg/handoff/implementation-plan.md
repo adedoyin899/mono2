@@ -1,11 +1,31 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–173 + Session 174 Supabase Product Analytics & Stakeholder Telemetry.
+**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 175 Figma Home Page Redesign & Public Routes on `web-update`.
 
 ---
 
 ## ✅ Done
+
+### Session 175 — Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation
+- [x] **Git Branching & Remote Setup (`web-update`)**:
+  - Created, checked out, and pushed new branch `web-update` with upstream tracking on GitHub.
+- [x] **Local Figma Desktop MCP Server Integration**:
+  - Connected local Figma Desktop App MCP endpoint on `http://127.0.0.1:3845/mcp`, bypassing browser OAuth redirect roadblocks.
+- [x] **Figma Home Page Full Implementation (`LandingPage.tsx`)**:
+  - Announcement Bar (`178359:16887`): `#16161A` dark bar with red pulsing dot, `MONOLOGG MARKETPLACE V3.0 LIVE`, and `FINCRA Escrow Secured · 3,200+ Verified Talent Profiles`.
+  - Header (`178359:16910`): Sticky 68px header with `Logo`, navigation (`Product`, `Pricing`, `Resources`), theme toggle, and authenticated session avatar dropdown (`aria-label="Account menu"`) with `Dashboard` shortcut and `Sign Out` via `apiClient.logout()` (passing `LandingPageHeader.test.tsx` 3/3).
+  - Hero Section (`178359:16911`): 6 overlapping circular performer avatars, display headline `Find Performers| Finish Your Project.`, dual CTAs (`Find Performers` with `ArrowRight` and `Find Gigs`), centered iPhone 15 frame displaying `/auth-performer-device.png`, and "YOU BELONG HERE" 6-category bar (`Actors`, `Speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`).
+  - Interactive 6-Step Stepper Showcase (`178359:16989`): Vertical progress rail with 6 interactive feature cards (Share Your Stage Anywhere with bio link copy + QR code, Monetize Fan Shoutouts & Micro-Deliverables, Analyze your audience with real-time metrics, Set Transparent Custom Rate Cards with ₦ NGN / $ USD toggle, Powered by Thespian AI with script parsing preview, and Bank-Grade Escrow Protection with 3-step milestone flow).
+  - 10-Item FAQ Accordion (`178359:17242`): Clean accordion with `Plus` and `X` toggle icons matching Figma copy.
+- [x] **Reusable WebsiteFooter Component (`WebsiteFooter.tsx`)**:
+  - Extracted `<WebsiteFooter />` with top CTA banner ("Finish Your Project today!"), newsletter email capture, Y Combinator attribution badge, 3-column navigation (Product, Resources, Social), and copyright bar.
+- [x] **Dedicated Public Routes (`PricingPage.tsx`, `ResourcesPage.tsx`, `routes.tsx`)**:
+  - Created `PricingPage.tsx` (`178359:17960`) with interactive Performers vs. Clients segmented switch and detailed feature comparison table.
+  - Created `ResourcesPage.tsx` (`178359:18325`) with Terms of Service, Escrow Guarantee Policy, Fair Trade Contracts, and Support Helpdesk.
+  - Registered `/pricing` and `/resources` in `apps/web/src/app/routes.tsx` ahead of `:handle`.
+- [x] **Verification & Test Passes**:
+  - Verified `LandingPageHeader.test.tsx` (3/3 passing), `RequireAuth.test.tsx`, `LegalPage.test.tsx`, `PublicStorefront.test.tsx` (10/10 passing), and `npx tsc --noEmit` (0 errors).
 
 ### Session 174 — Supabase-First Product Analytics, Delegated Click Tracking & Stakeholder Telemetry
 - [x] **Supabase `AnalyticsEvent` Schema & RLS Migration (`schema.prisma`, `20261030101500_add_analytics_events/migration.sql`)**:

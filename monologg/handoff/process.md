@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
+**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 134: Figma Home Page Redesign, WebsiteFooter Component & Public Routes Implementation (Session 175)
+
+Re-implemented the public marketing Home Page (`LandingPage.tsx`), Website Footer (`WebsiteFooter.tsx`), and dedicated public routes (`PricingPage.tsx`, `ResourcesPage.tsx`) directly from the Figma Web Design canvas (`kClJDAgWsmMGhtuXsccAz0`, node `178359:16886`) on a dedicated `web-update` branch:
+- **Git Branching:** Checked out and pushed tracking branch `web-update`.
+- **Figma Desktop MCP Server Integration:** Pointed Antigravity MCP configuration to the local Figma Desktop App Dev Mode listener (`http://127.0.0.1:3845/mcp`), avoiding OAuth callback blocks and enabling real-time frame inspection.
+- **Home Page Redesign (`LandingPage.tsx`):** Built the `#16161A` announcement bar, sticky 68px header with authenticated session avatar menu (`LandingPageHeader.test.tsx` 3/3 passing), 6-avatar hero with blinking cursor display typography, iPhone 15 frame displaying `/auth-performer-device.png`, "YOU BELONG HERE" 6-category bar, 6-step interactive vertical timeline showcase, and 10-item FAQ accordion with `Plus` and `X` toggle icons.
+- **Reusable WebsiteFooter Component (`WebsiteFooter.tsx`):** Extracted the bottom CTA banner ("Finish Your Project today!"), newsletter email capture, Y Combinator attribution badge, 3-column navigation, and copyright bar.
+- **Public Routes & Router Registration (`PricingPage.tsx`, `ResourcesPage.tsx`, `routes.tsx`):** Built `PricingPage.tsx` (`178359:17960`) with Performers vs. Clients switch and feature comparison table; built `ResourcesPage.tsx` (`178359:18325`) with Terms of Service, Escrow Guarantee, and Helpdesk cards; registered `/pricing` and `/resources` routes in `routeTree`.
+- **Quality Gate:** Verified `LandingPageHeader.test.tsx` (3/3 passing), `RequireAuth.test.tsx`, `LegalPage.test.tsx`, `PublicStorefront.test.tsx` (10/10 passing), and `npx tsc --noEmit` (0 errors).
 
 ### Step 133: Supabase-First Product Analytics, Delegated Click Stream & Stakeholder Telemetry (Session 174)
 
