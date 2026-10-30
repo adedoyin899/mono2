@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
+**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 123. Placeholder Draft Legal Copy & Missing `/legal/cookies` Route vs. Figma Legal Specifications
+- **Severity:** Medium / Legal Compliance & Design Parity Gap
+- **What happened:**
+  - `LegalPage.tsx` previously rendered a narrow `max-w-lg` mobile-only placeholder with a yellow warning banner ("Draft placeholder — this page has not been through legal review") and lacked the `Cookie Settings & Policy` (`178383:18857`) route and structured compliance tables from Figma (`178382:17926`).
+- **Root Cause:**
+  - Phase 10 originally scaffolded a minimal 4-paragraph placeholder prior to the finalized Figma legal specifications (`Terms of Service` and `Cookie Settings & Policy`).
+- **Fix:**
+  - Re-implemented `LegalPage.tsx` 1-for-1 against Figma nodes `178382:17926` (12-section Terms of Service with 2-column GDPR/NDPA compliance table) and `178383:18857` (7-section Cookie Settings & Policy with 5-column cookie table), registered `/legal/cookies`, `/terms`, `/cookies`, and `/privacy` in `routes.tsx`, guarded `window.scrollTo` for jsdom test compatibility, and updated `LegalPage.test.tsx` (3/3 passing).
 
 ### 122. Figma Remote MCP OAuth Redirect Roadblock & Local Server Discovery
 - **Severity:** High / Tooling & Design-to-Code Pipeline Block

@@ -1,11 +1,52 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
+**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 176 (2026-10-30) — 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation
+
+**Goal:** Implement a strict 1-for-1 design-to-code implementation of the Figma Terms of Service (`178382:17926`) and Cookie Settings & Policy (`178383:18857`) legal pages on the `web-update` branch.
+
+1. **Figma Design Retrieval (`kClJDAgWsmMGhtuXsccAz0`):**
+   - Inspected `178382:17926` (`Terms of Service`) and `178383:18857` (`Cookie Settings & Policy`) via the Figma Desktop MCP server (`get_design_context` with screenshots).
+2. **1-for-1 Legal Pages Implementation (`apps/web/src/app/pages/LegalPage.tsx`):**
+   - Replaced placeholder legal draft text with full 1-for-1 Figma pages sharing the `#16161a` top announcement bar (`Monologg Marketplace v3.0 Live` + `FINCRA Escrow Secured · 3,200+ Verified Talent Profiles`), sticky 68px header (`Product`, `Pricing`, `Resources`, theme toggle, `Sign In` / `Sign up free` / authenticated `Account menu`), and `<WebsiteFooter />`.
+   - **Terms of Service (`type="terms"`, Node `178382:17926`):**
+     - Hero header with `Last Updated: 29 Oct 2026` red eyebrow badge, 64px `Terms of Service` heading, and 2-paragraph intro.
+     - 12 structured `911px` max-width section cards (`rounded-[20px] p-[24px] gap-[40px]`):
+       1. `1. Eligibility & Account Responsibilities`
+       2. `2. Data Protection & Regulatory Compliance` (GDPR & Nigeria NDPA/NDPR intro, top/bottom `#e8e8e8` dividers, and 2-column `Compliance Area` vs. `Overview of Protections & Rights` table covering `Lawful Basis for Processing`, `Data Subject Rights`, `International Data Transfers`, and `Data Retention`)
+       3. `3. Prohibited Conduct & Acceptable Use` (6-item bulleted list)
+       4. `4. Intellectual Property Rights` (`#f9f9f9` soft grey card)
+       5. `5. User Content & Licensing`
+       6. `6. Subscriptions, Fees & Payment`
+       7. `7. Third-Party Links & Services`
+       8. `8. Disclaimers & Limitation of Liability`
+       9. `9. Indemnification`
+       10. `10. Suspension & Termination`
+       11. `11. Governing Law & Dispute Resolution` (bold `Governing Law:`, `Dispute Resolution:`, and `Mandatory Statutory Rights:` clauses under Federal Republic of Nigeria law)
+       12. `12. Modifications to Terms`
+   - **Cookie Settings & Policy (`type="cookies"` / `type="privacy"`, Node `178383:18857`):**
+     - Hero header with `Effective Date: October 29, 2026` red eyebrow badge, 64px `Cookie Settings & Policy` heading, and intro paragraph.
+     - 7 structured `911px` max-width section cards:
+       1. `1. Scope & Relationship to Terms of Service`
+       2. `2. What Are Cookies?` (`#f9f9f9` soft grey card)
+       3. `3. Cookie Categories & Settings` (4-category bulleted list: Strictly Necessary, Performance & Analytics, Functional, Targeting & Advertising)
+       4. `4. Summary of Cookies Used` (top/bottom `#e8e8e8` dividers and 5-column table: `Cookie Identifier`, `Category`, `Primary Purpose`, `Duration`, `type` for `__session_id`, `_csrf_token`, `pref_theme`, `_analytics_id`, and `_mkt_trkr`)
+       5. `5. Managing Your Preferences` (`In-App Consent Preferences` + `Web Browser Controls` for Chrome, Firefox, Safari, Edge)
+       6. `6. Third-Party Integrations`
+       7. `7. Updates to This Policy`
+3. **Route Registration & Navigation Wiring (`apps/web/src/app/routes.tsx`, `ResourcesPage.tsx`):**
+   - Registered `/legal/terms`, `/legal/cookies`, `/legal/privacy`, `/terms`, `/cookies`, and `/privacy` in `routeTree`.
+   - Added clickable `Terms of Service` (`/legal/terms`) and `Cookie Settings & Policy` (`/legal/cookies`) pills in `ResourcesPage.tsx`.
+4. **Tests & Verification (`apps/web/src/app/pages/LegalPage.test.tsx`):**
+   - Updated `LegalPage.test.tsx` to verify 1-for-1 Terms of Service and Cookie Settings & Policy rendering (3/3 passing, 0 stderr warnings, 0 TypeScript errors).
 
 ---
 

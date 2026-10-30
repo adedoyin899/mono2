@@ -1,11 +1,21 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 175 Figma Home Page Redesign & Public Routes on `web-update`.
+**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–175 + Session 176 Figma Legal Pages on `web-update`.
 
 ---
 
 ## ✅ Done
+
+### Session 176 — 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation
+- [x] **1-for-1 Terms of Service (`LegalPage.tsx`, Node `178382:17926`)**:
+  - Built full 12-card Terms of Service layout with `Last Updated: 29 Oct 2026` eyebrow badge, 2-column GDPR/NDPA compliance table, prohibited conduct bullets, `#f9f9f9` IP rights card, and Nigerian governing law clauses.
+- [x] **1-for-1 Cookie Settings & Policy (`LegalPage.tsx`, Node `178383:18857`)**:
+  - Built full 7-card Cookie Settings & Policy layout with `Effective Date: October 29, 2026` eyebrow badge, `#f9f9f9` cookie definition card, 4 cookie categories, 5-column cookie identifier summary table (`__session_id`, `_csrf_token`, `pref_theme`, `_analytics_id`, `_mkt_trkr`), and browser preference instructions.
+- [x] **Routes & Navigation (`routes.tsx`, `ResourcesPage.tsx`)**:
+  - Added `/legal/terms`, `/legal/cookies`, `/legal/privacy`, `/terms`, `/cookies`, and `/privacy` routes plus quick links in `ResourcesPage.tsx`.
+- [x] **Verification (`LegalPage.test.tsx`)**:
+  - Updated and verified `LegalPage.test.tsx` (3/3 passing) and `npx tsc --noEmit` (0 errors).
 
 ### Session 175 — Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation
 - [x] **Git Branching & Remote Setup (`web-update`)**:

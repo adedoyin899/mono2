@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-30 (Session 175: Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation)
+**Last updated:** 2026-10-30 (Session 176: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 135: 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation (Session 176)
+
+Implemented the Figma `Terms of Service` (`178382:17926`) and `Cookie Settings & Policy` (`178383:18857`) legal pages 1-for-1 on the `web-update` branch:
+- **Figma Inspection:** Retrieved full node hierarchy and visual screenshots via `get_design_context` from the Figma Desktop MCP server.
+- **Terms of Service (`LegalPage.tsx`, `type="terms"`):** Built the 12-card layout (`Last Updated: 29 Oct 2026`), including the 2-column GDPR & Nigeria NDPA/NDPR compliance table in Section 2, Prohibited Conduct bulleted list in Section 3, `#f9f9f9` Intellectual Property Rights card in Section 4, and Governing Law clauses in Section 11.
+- **Cookie Settings & Policy (`LegalPage.tsx`, `type="cookies"` / `type="privacy"`):** Built the 7-card layout (`Effective Date: October 29, 2026`), including `#f9f9f9` Section 2 card, 4 cookie categories in Section 3, 5-column cookie identifier summary table (`__session_id`, `_csrf_token`, `pref_theme`, `_analytics_id`, `_mkt_trkr`) in Section 4, and browser preference guides in Section 5.
+- **Routing & Quality Gate:** Registered `/legal/terms`, `/legal/cookies`, `/legal/privacy`, `/terms`, `/cookies`, and `/privacy` in `routes.tsx`, linked them in `ResourcesPage.tsx`, and verified `LegalPage.test.tsx` (3/3 passing) and `npx tsc --noEmit` (0 errors).
 
 ### Step 134: Figma Home Page Redesign, WebsiteFooter Component & Public Routes Implementation (Session 175)
 

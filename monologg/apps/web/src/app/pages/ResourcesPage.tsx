@@ -229,9 +229,21 @@ export function ResourcesPage() {
             <div className="w-full border border-[#E8E8E8] rounded-3xl overflow-hidden shadow-sm bg-white divide-y divide-[#E8E8E8]">
               {/* Terms of Service Header */}
               <div className="p-8 sm:p-10 flex flex-col gap-8">
-                <div className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F7F7] border border-[#ECECE8] text-xs font-semibold text-[#16161A]">
-                  <Gavel className="w-3.5 h-3.5 text-[#F13030]" />
-                  <span>Terms of Service</span>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    onClick={() => navigate("/legal/terms")}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F7F7] hover:bg-[#EFEFED] border border-[#ECECE8] text-xs font-semibold text-[#16161A] transition-colors"
+                  >
+                    <Gavel className="w-3.5 h-3.5 text-[#F13030]" />
+                    <span>Terms of Service</span>
+                  </button>
+                  <button
+                    onClick={() => navigate("/legal/cookies")}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F7F7] hover:bg-[#EFEFED] border border-[#ECECE8] text-xs font-semibold text-[#16161A] transition-colors"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-[#F13030]" />
+                    <span>Cookie Settings &amp; Policy</span>
+                  </button>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8 divide-y md:divide-y-0 md:divide-x divide-[#ECECE8]">
@@ -345,3 +357,4 @@ export function ResourcesPage() {
     </div>
   );
 }
+
