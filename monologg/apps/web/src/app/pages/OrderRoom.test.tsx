@@ -56,9 +56,18 @@ describe("OrderRoom — Senior FAANG UX/UI Redesign (Performer & Client Views)",
     expect(screen.getByText("Activity Timeline")).toBeInTheDocument();
     expect(screen.getByText("Script & Brief Assets")).toBeInTheDocument();
 
+    // No redundant Payment tab or top-bar Escrow/Take-Home pill duplicating the right rail
+    expect(screen.queryByRole("button", { name: /^Payment$/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Escrow:$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Take-Home:$/i)).not.toBeInTheDocument();
+
+    // No redundant "You" label on outgoing 1-on-1 chat messages
+    expect(screen.queryByText(/^You$/)).not.toBeInTheDocument();
+
     // Expand fee math in inspector rail
     fireEvent.click(screen.getByRole("button", { name: /Fee breakdown/i }));
     expect(screen.getByText("Escrow fee (12%)")).toBeInTheDocument();
+    expect(screen.getByText("Total deposit")).toBeInTheDocument();
 
     // Toggle inspector rail closed and open
     fireEvent.click(screen.getByRole("button", { name: /Hide Inspector Panel/i }));

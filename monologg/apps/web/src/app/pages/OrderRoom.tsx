@@ -87,7 +87,7 @@ export function OrderRoom() {
 
   // Desktop Contextual Inspector Rail visibility
   const [showInspectorRail, setShowInspectorRail] = useState(true);
-  const [railScriptExpanded, setRailScriptExpanded] = useState(true);
+  const [railScriptExpanded, setRailScriptExpanded] = useState(false);
   const [railFeeExpanded, setRailFeeExpanded] = useState(false);
 
   // Reciprocal rating system
@@ -115,8 +115,8 @@ export function OrderRoom() {
   const pin3Ref = useRef<HTMLInputElement>(null);
   const pinDigitRefs = [pin0Ref, pin1Ref, pin2Ref, pin3Ref];
 
-  // Workspace Navigation Tabs
-  const [workspaceTab, setWorkspaceTab] = useState<"chat" | "brief" | "escrow">("chat");
+  // Workspace Navigation Tabs (Payment lives in the static right-hand Inspector Rail)
+  const [workspaceTab, setWorkspaceTab] = useState<"chat" | "brief">("chat");
 
   // Availability check-in state
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
@@ -198,16 +198,6 @@ export function OrderRoom() {
         if (!combined.some(m => m.id === sm.id)) {
           combined.push(sm);
         }
-      }
-      const isCancelled = appStateSync.isBookingCancelled(curOrderId);
-      const hasDueNotice = combined.some(m => m.text?.includes("Check-in 2 of 3 is due"));
-      if (!hasDueNotice && !isCancelled) {
-        combined.push({
-          id: "chk-system-due-1",
-          from: "system" as const,
-          text: "Check-in 2 of 3 is due on Tue 14 Oct.",
-          time: "Yesterday",
-        });
       }
       setMessages(combined);
     });
@@ -856,10 +846,10 @@ export function OrderRoom() {
             })}
           </div>
 
-          {/* Order Info Modal Button (Always accessible, especially on mobile/tablet) */}
+          {/* Order Info Modal Button (Shown on mobile/tablet or when desktop inspector rail is hidden) */}
           <button
             onClick={() => setShowOrderInfoModal(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95"
+            className={`${showInspectorRail ? "lg:hidden" : "flex"} flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95`}
             aria-label="Order Info"
             title="View Project Phases & Escrow Details"
           >
@@ -868,7 +858,7 @@ export function OrderRoom() {
             <span>Info</span>
           </button>
 
-          {/* Desktop Inspector Rail Toggle (Upwork style) */}
+          {/* Desktop Inspector Rail Toggle */}
           <button
             type="button"
             onClick={() => setShowInspectorRail(prev => !prev)}
@@ -889,16 +879,15 @@ export function OrderRoom() {
         {/* ── LEFT / PRIMARY WORKSPACE COLUMN ── */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
 
-          {/* Compact Top Workspace Switcher + Slim Contract Command Bar Container */}
+          {/* Compact Top Workspace Switcher + Unified Contextual Status Bar */}
           <div className="px-3 sm:px-6 pt-3 space-y-2.5 shrink-0">
 
-            {/* Workspace View Switcher (Nimble on Mobile, Clean Segmented Pills) */}
+            {/* Workspace View Switcher (2 Primary Views: Messages & Brief — Payment lives in Right Rail) */}
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/50 w-full sm:w-auto">
+              <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/50 w-full sm:w-auto">
                 {[
                   { id: "chat", label: "Messages", icon: MessageSquare },
                   { id: "brief", label: "Brief & Files", icon: FileText },
-                  { id: "escrow", label: "Payment", icon: ShieldCheck },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = workspaceTab === tab.id;
@@ -906,8 +895,8 @@ export function OrderRoom() {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => setWorkspaceTab(tab.id as any)}
-                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      onClick={() => setWorkspaceTab(tab.id as "chat" | "brief")}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                         isActive
                           ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-semibold"
                           : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -923,25 +912,15 @@ export function OrderRoom() {
                   );
                 })}
               </div>
-
-              {/* Quick Financial & Escrow Pill on Desktop/Tablet */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] text-xs shadow-2xs">
-                <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="text-zinc-500 dark:text-zinc-400 font-medium">
-                  {role === "client" ? "Escrow:" : "Take-Home:"}
-                </span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                  ₦{role === "client" ? "134,400" : (activeCheckin?.performerReceives?.toLocaleString() || "111,600")}
-                </span>
-              </div>
             </div>
 
-            {/* ── Braintrust-Style Slim Contract Command Bar (Replaces Bloated Stacked Cards) ── */}
-            {(() => {
-              if (!activeCheckin && !isCancelled) return null;
+            {/* ── Unified Contextual Command & Alignment Bar (Shown in Messages View Only) ── */}
+            {workspaceTab === "chat" && (() => {
+              if (!activeCheckin && !isCancelled && !(role === "client" && !clientIntroDismissed)) return null;
 
               const isConfirmed = activeCheckin ? activeCheckin.status === "done" : false;
               const isOverdue = activeCheckin ? (activeCheckin.isOverdue || activeCheckin.status === "missed") : false;
+              const showClientMeetRow = role === "client" && !isCancelled && !clientIntroDismissed;
 
               if (isCancelled) {
                 return (
@@ -1013,112 +992,112 @@ export function OrderRoom() {
                         : "border-[var(--color-border-default)] shadow-2xs"
                   }`}
                 >
-                  {/* Single Compact Command Row */}
-                  <div className="px-3.5 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
-                    {/* Left: Gate Pill + Title + Subtitle */}
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      {!isConfirmed && role === "talent" && checkins.length > 1 && (
-                        <div className="hidden sm:flex items-center gap-0.5">
-                          <button
-                            type="button"
-                            aria-label="Previous check-in"
-                            onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
-                            className="w-5 h-5 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
-                          >
-                            <ChevronLeft className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Next check-in"
-                            onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
-                            className="w-5 h-5 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
-                          >
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
+                  {/* Attendance Check-in Gate Row */}
+                  {activeCheckin && (
+                    <div className="px-3.5 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        {!isConfirmed && role === "talent" && checkins.length > 1 && (
+                          <div className="hidden sm:flex items-center gap-0.5">
+                            <button
+                              type="button"
+                              aria-label="Previous check-in"
+                              onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
+                              className="w-5 h-5 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Next check-in"
+                              onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
+                              className="w-5 h-5 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer"
+                            >
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
 
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 border ${
-                          isConfirmed
-                            ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
-                            : role === "client"
-                              ? "bg-purple-50 dark:bg-purple-950/40 text-[#5B21B6] dark:text-purple-300 border-purple-200 dark:border-purple-800/50"
-                              : "bg-red-50 dark:bg-red-950/40 text-[#B91C1C] dark:text-red-300 border-red-200 dark:border-red-800/50"
-                        }`}
-                      >
-                        {isConfirmed
-                          ? `Gate ${activeCheckin?.stepIndex || 2}/${activeCheckin?.totalSteps || 3} Verified`
-                          : isOverdue
-                            ? "Action Required"
-                            : role === "client"
-                              ? "Attendance"
-                              : `Gate ${activeCheckin?.stepIndex || 2}/${activeCheckin?.totalSteps || 3}`}
-                      </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-semibold shrink-0 border ${
+                            isConfirmed
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
+                              : role === "client"
+                                ? "bg-purple-50 dark:bg-purple-950/40 text-[#5B21B6] dark:text-purple-300 border-purple-200 dark:border-purple-800/50"
+                                : "bg-red-50 dark:bg-red-950/40 text-[#B91C1C] dark:text-red-300 border-red-200 dark:border-red-800/50"
+                          }`}
+                        >
+                          {isConfirmed
+                            ? `Gate ${activeCheckin?.stepIndex || 2}/${activeCheckin?.totalSteps || 3} Verified`
+                            : isOverdue
+                              ? "Action Required"
+                              : role === "client"
+                                ? "Attendance"
+                                : `Gate ${activeCheckin?.stepIndex || 2}/${activeCheckin?.totalSteps || 3}`}
+                        </span>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-display text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                            {isConfirmed
-                              ? "Attendance Confirmed"
-                              : role === "client"
-                                ? "Performer Attendance Verification"
-                                : `Confirm attendance for ${activeCheckin?.clientName || clientOrg}`}
-                          </h3>
-                          <span className="text-[11px] text-zinc-400 dark:text-zinc-500 hidden md:inline shrink-0">
-                            · {isConfirmed
-                              ? `Milestone ${activeCheckin?.stepIndex || 2} of ${activeCheckin?.totalSteps || 3} locked in`
-                              : role === "client"
-                                ? `Awaiting check-in from ${talentName}`
-                                : `Due ${activeCheckin?.dueDate || "Tue 14 Oct"}`}
-                          </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-display text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                              {isConfirmed
+                                ? "Attendance Confirmed"
+                                : role === "client"
+                                  ? "Performer Attendance Verification"
+                                  : `Confirm attendance for ${activeCheckin?.clientName || clientOrg}`}
+                            </h3>
+                            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 hidden md:inline shrink-0">
+                              · {isConfirmed
+                                ? `Milestone ${activeCheckin?.stepIndex || 2} of ${activeCheckin?.totalSteps || 3} locked in`
+                                : role === "client"
+                                  ? `Awaiting check-in from ${talentName}`
+                                  : `Due ${activeCheckin?.dueDate || "Tue 14 Oct"}`}
+                            </span>
+                          </div>
                         </div>
                       </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                        {!isConfirmed && role === "talent" && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => { setSelectedCheckinToDecline(activeCheckin); setShowDeclineModal(true); }}
+                              className="h-7.5 px-2.5 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer"
+                            >
+                              Can&apos;t make it
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => activeCheckin && handleConfirmCheckin(activeCheckin.id)}
+                              className="h-7.5 px-3 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 shadow-2xs hover:opacity-95 active:scale-95 transition-all cursor-pointer"
+                              style={{ background: "#B91C1C" }}
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>I&apos;m confirmed</span>
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setCheckinDetailsExpanded(prev => !prev)}
+                          className="h-7 px-2 rounded-lg text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>{checkinDetailsExpanded ? "Hide Details" : "Details"}</span>
+                          {checkinDetailsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setCheckinCardMinimized(true)}
+                          className="p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                          title="Minimize notification"
+                          aria-label="Minimize notification"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-
-                    {/* Right: Inline Actions + Progressive Disclosure Details Toggle */}
-                    <div className="flex items-center gap-2 shrink-0 ml-auto">
-                      {!isConfirmed && role === "talent" && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => { setSelectedCheckinToDecline(activeCheckin); setShowDeclineModal(true); }}
-                            className="h-8 px-2.5 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer"
-                          >
-                            Can&apos;t make it
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => activeCheckin && handleConfirmCheckin(activeCheckin.id)}
-                            className="h-8 px-3 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 shadow-2xs hover:opacity-95 active:scale-95 transition-all cursor-pointer"
-                            style={{ background: "#B91C1C" }}
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>I&apos;m confirmed</span>
-                          </button>
-                        </>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => setCheckinDetailsExpanded(prev => !prev)}
-                        className="h-7 px-2 rounded-lg text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>{checkinDetailsExpanded ? "Hide Details" : "Details"}</span>
-                        {checkinDetailsExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setCheckinCardMinimized(true)}
-                        className="p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
-                        title="Minimize notification"
-                        aria-label="Minimize notification"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Progressive Disclosure: Event Details Grid (Expanded on Demand) */}
                   {checkinDetailsExpanded && (
@@ -1143,115 +1122,100 @@ export function OrderRoom() {
                       </div>
                     </div>
                   )}
+
+                  {/* Integrated Client Google Meet Row (Unified inside the same card to eliminate stacked banner clutter) */}
+                  {showClientMeetRow && (
+                    <div className="px-3.5 sm:px-4 py-2 border-t border-[var(--color-hairline)] bg-purple-50/30 dark:bg-purple-950/15 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Video className="w-3.5 h-3.5 text-[#5B21B6] dark:text-purple-400 shrink-0" />
+                        <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">
+                          Schedule Google Meet with {talentName}
+                        </span>
+                        <span className="hidden md:inline text-[11px] text-zinc-500 dark:text-zinc-400">
+                          · Align on creative tone &amp; deliverables
+                        </span>
+                      </div>
+
+                      {!clientIntroCollapsed && (
+                        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                          <a
+                            href="https://meet.google.com/new"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Launch Google Meet"
+                            onClick={() => setClientIntroScheduled(true)}
+                            className="h-7 px-2.5 rounded-lg text-[11px] font-semibold flex items-center gap-1 text-white transition-all cursor-pointer shadow-2xs hover:opacity-95"
+                            style={{ background: "#5B21B6" }}
+                          >
+                            <span>Launch Google Meet</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText("https://meet.google.com/new");
+                              setClientIntroCopied(true);
+                              setTimeout(() => setClientIntroCopied(false), 2000);
+                            }}
+                            className="h-7 px-2 rounded-lg text-[11px] font-medium border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>{clientIntroCopied ? "Copied" : "Copy Link"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setClientIntroScheduled(prev => !prev)}
+                            className={`h-7 px-2 rounded-lg text-[11px] font-medium border transition-all flex items-center gap-1 cursor-pointer ${
+                              clientIntroScheduled
+                                ? "border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30"
+                                : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+                            }`}
+                          >
+                            <Check className="w-3 h-3" />
+                            <span className="hidden sm:inline">{clientIntroScheduled ? "Done" : "Mark Done"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setClientIntroDismissed(true)}
+                            className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                            title="Dismiss"
+                            aria-label="Dismiss video call reminder"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })()}
-
-            {/* ── Compact Video Introduction Call Bar (Client Role, Single-Line Progressive Disclosure) ── */}
-            {role === "client" && !isCancelled && !clientIntroDismissed && (
-              <div className="rounded-xl border border-purple-200/70 dark:border-purple-800/40 bg-purple-50/40 dark:bg-purple-950/20 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 transition-all">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-[#5B21B6]/10 text-[#5B21B6] dark:text-purple-300 border border-[#5B21B6]/20">
-                    <Video className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                        Schedule Google Meet with {talentName}
-                      </span>
-                      <span className="hidden md:inline text-[11px] text-zinc-500 dark:text-zinc-400">
-                        · Align on creative tone &amp; deliverables
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {!clientIntroCollapsed && (
-                  <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-                    <a
-                      href="https://meet.google.com/new"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Launch Google Meet"
-                      onClick={() => setClientIntroScheduled(true)}
-                      className="h-7.5 px-3 rounded-lg text-[11px] font-bold flex items-center gap-1.5 text-white transition-all cursor-pointer shadow-2xs hover:opacity-95"
-                      style={{ background: "#5B21B6" }}
-                    >
-                      <span>Launch Google Meet</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText("https://meet.google.com/new");
-                        setClientIntroCopied(true);
-                        setTimeout(() => setClientIntroCopied(false), 2000);
-                      }}
-                      className="h-7.5 px-2.5 rounded-lg text-[11px] font-semibold border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                      <Copy className="w-3 h-3" />
-                      <span>{clientIntroCopied ? "Copied" : "Copy Link"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setClientIntroScheduled(prev => !prev)}
-                      className={`h-7.5 px-2.5 rounded-lg text-[11px] font-semibold border transition-all flex items-center gap-1 cursor-pointer ${
-                        clientIntroScheduled
-                          ? "border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30"
-                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
-                      }`}
-                    >
-                      <Check className="w-3 h-3" />
-                      <span className="hidden sm:inline">{clientIntroScheduled ? "Done" : "Mark Done"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setClientIntroDismissed(true)}
-                      className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
-                      title="Dismiss"
-                      aria-label="Dismiss video call reminder"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* ── TAB 1: Conversation Stream + Action Dock + Unified Composer ── */}
+          {/* ── TAB 1: 1-on-1 Conversation Stream + Action Dock + Unified Composer ── */}
           {workspaceTab === "chat" && (
             <div className="flex-1 flex flex-col min-h-0">
               {/* Messages Stream */}
-              <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3.5">
-                {/* Date & Security Divider (Upwork / Braintrust style) */}
-                <div className="flex items-center gap-3 my-1">
-                  <div className="h-px flex-1 bg-[var(--color-hairline)]" />
-                  <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 font-mono">
-                    Order Workspace · {curOrderId}
-                  </span>
-                  <div className="h-px flex-1 bg-[var(--color-hairline)]" />
-                </div>
-
-                {messages.map(msg => {
-                  /* System / Milestone Event Cards (Braintrust / Fiverr style) */
+              <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-2">
+                {messages.map((msg, idx) => {
+                  /* Sleek System / Milestone Pills */
                   if (msg.from === "system") {
                     const isEscrowMsg = msg.text?.toLowerCase().includes("escrow") || msg.text?.toLowerCase().includes("released");
                     const isWarningMsg = msg.text?.toLowerCase().includes("due") || msg.text?.toLowerCase().includes("revision");
 
                     return (
-                      <div key={msg.id} className="flex justify-center my-2">
+                      <div key={msg.id} className="flex justify-center my-2.5">
                         <div
-                          className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 max-w-md text-center shadow-2xs border font-medium ${
+                          className={`px-3 py-1 rounded-full text-[11px] inline-flex items-center gap-1.5 max-w-md text-center border font-medium ${
                             isEscrowMsg
-                              ? "bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-200/80 dark:border-emerald-800/50 text-emerald-900 dark:text-emerald-200"
+                              ? "bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-200/70 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-200"
                               : isWarningMsg
-                                ? "bg-amber-50/70 dark:bg-amber-950/25 border-amber-200/80 dark:border-amber-800/50 text-amber-900 dark:text-amber-200"
-                                : "bg-zinc-100/90 dark:bg-zinc-800/90 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-300"
+                                ? "bg-amber-50/70 dark:bg-amber-950/25 border-amber-200/70 dark:border-amber-800/50 text-amber-800 dark:text-amber-200"
+                                : "bg-zinc-100/80 dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/70 text-zinc-600 dark:text-zinc-300"
                           }`}
                         >
                           <CheckCircle2
-                            className={`w-3.5 h-3.5 shrink-0 ${
+                            className={`w-3 h-3 shrink-0 ${
                               isWarningMsg ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"
                             }`}
                           />
@@ -1264,74 +1228,77 @@ export function OrderRoom() {
                   const isMe = msg.from === role;
                   const isTalent = msg.from === "talent";
                   const senderName = isTalent ? talentName : clientOrg;
-                  const senderRoleLabel = isTalent ? "Performer" : "Client";
+                  const prevMsg = idx > 0 ? messages[idx - 1] : null;
+                  const isGrouped = prevMsg?.from === msg.from;
 
-                  // Calibrated High-Contrast Role Colors (Executive Royal Plum #5B21B6 for Client, Deep Studio Crimson #991B1B/#B91C1C for Performer)
+                  // Clean 1-on-1 bubble styling (no noisy role tags or heavy left stripe borders)
                   const bubbleClass = isMe
                     ? isTalent
-                      ? "bg-gradient-to-br from-[#991B1B] to-[#7F1D1D] text-white border border-[#B91C1C]/50 shadow-xs"
-                      : "bg-gradient-to-br from-[#5B21B6] to-[#4C1D95] text-white border border-[#7C3AED]/40 shadow-xs"
-                    : isTalent
-                      ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-red-200/80 dark:border-red-900/50 border-l-4 border-l-[#B91C1C] shadow-2xs"
-                      : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-purple-200/80 dark:border-purple-900/50 border-l-4 border-l-[#5B21B6] shadow-2xs";
+                      ? "bg-[#991B1B] text-white shadow-2xs"
+                      : "bg-[#5B21B6] text-white shadow-2xs"
+                    : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs";
 
                   return (
                     <motion.div
                       key={msg.id}
-                      initial={{ opacity: 0, y: 6 }}
+                      initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: DURATION_MED, ease: EASE_OUT }}
-                      className={`flex gap-2.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}
+                      className={`flex gap-2.5 ${isMe ? "justify-end" : "justify-start"} ${isGrouped ? "mt-1" : "mt-3.5"}`}
                     >
-                      <Avatar
-                        size="sm"
-                        className="w-8 h-8 text-[11px] shrink-0 mt-0.5 font-bold shadow-2xs"
-                        background={isTalent ? "rgba(185, 28, 28, 0.12)" : "rgba(91, 33, 182, 0.12)"}
-                        color={isTalent ? "#B91C1C" : "#5B21B6"}
-                      >
-                        {isTalent ? talentInitials : clientInitials}
-                      </Avatar>
-
-                      <div className={`max-w-[84%] sm:max-w-[74%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
-                        {/* Sender Name, Role Badge & Timestamp Row */}
-                        <div className={`flex items-center gap-1.5 mb-1 px-0.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
-                          <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
-                            {isMe ? "You" : senderName}
-                          </span>
-                          <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                              isTalent
-                                ? "bg-red-500/10 text-[#B91C1C] dark:text-red-400"
-                                : "bg-purple-500/10 text-[#5B21B6] dark:text-purple-400"
-                            }`}
+                      {/* Counterparty Avatar only on incoming messages (hidden on outgoing messages to reduce visual noise) */}
+                      {!isMe && (
+                        isGrouped ? (
+                          <div className="w-7 shrink-0" />
+                        ) : (
+                          <Avatar
+                            size="sm"
+                            className="w-7 h-7 text-[10px] shrink-0 mt-0.5 font-bold shadow-2xs"
+                            background={isTalent ? "rgba(185, 28, 28, 0.12)" : "rgba(91, 33, 182, 0.12)"}
+                            color={isTalent ? "#B91C1C" : "#5B21B6"}
                           >
-                            {senderRoleLabel}
-                          </span>
-                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
-                            {msg.time}
-                          </span>
-                        </div>
+                            {isTalent ? talentInitials : clientInitials}
+                          </Avatar>
+                        )
+                      )}
+
+                      <div className={`max-w-[84%] sm:max-w-[70%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
+                        {/* Minimal Header Only on First Message in a Group (No redundant CLIENT/PERFORMER/You tags) */}
+                        {!isGrouped && (
+                          <div className={`flex items-center gap-1.5 mb-1 px-0.5 ${isMe ? "justify-end" : "justify-start"}`}>
+                            {!isMe && (
+                              <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
+                                {senderName}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
+                              {msg.time}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Message Bubble */}
                         <div
-                          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all ${bubbleClass}`}
+                          className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed transition-all ${bubbleClass}`}
                           style={{
-                            borderRadius: isMe ? "16px 4px 16px 16px" : "4px 16px 16px 16px",
+                            borderRadius: isMe
+                              ? isGrouped ? "16px 6px 6px 16px" : "16px 4px 16px 16px"
+                              : isGrouped ? "6px 16px 16px 6px" : "4px 16px 16px 16px",
                           }}
                         >
                           <p className="whitespace-pre-wrap">{msg.text}</p>
 
-                          {/* High-Contrast File Attachment Sub-Card */}
+                          {/* File Attachment Sub-Card */}
                           {msg.attachment && (
                             <div
-                              className={`mt-2.5 p-3 rounded-xl flex items-center gap-3 border transition-colors ${
+                              className={`mt-2 p-2.5 rounded-xl flex items-center gap-3 border transition-colors ${
                                 isMe
-                                  ? "bg-white text-zinc-900 border-white/80 shadow-xs"
+                                  ? "bg-white text-zinc-900 border-white/80 shadow-2xs"
                                   : "bg-zinc-50 dark:bg-zinc-800/90 border-zinc-200/90 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
                               }`}
                             >
                               <div
-                                className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                                   isTalent
                                     ? "bg-red-50 text-[#B91C1C] dark:bg-red-950/50 dark:text-red-400"
                                     : "bg-purple-50 text-[#5B21B6] dark:bg-purple-950/50 dark:text-purple-400"
@@ -1345,7 +1312,7 @@ export function OrderRoom() {
                               </div>
                               <button
                                 type="button"
-                                className="p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
@@ -1667,92 +1634,19 @@ export function OrderRoom() {
             </div>
           )}
 
-          {/* ── TAB 3: Payment & Escrow (Dual Client / Performer Perspectives) ── */}
-          {workspaceTab === "escrow" && (
-            <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-5 space-y-5">
-              <div
-                className="p-5 rounded-2xl border space-y-3"
-                style={{
-                  background: paymentReleased ? "var(--color-success-bg)" : "var(--color-bg-surface)",
-                  borderColor: paymentReleased ? "var(--color-success)" : "var(--color-border-default)",
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider font-body">
-                    {role === "client" ? "Escrow Status" : "Payout Status"}
-                  </span>
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40">
-                    <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                    {paymentReleased ? "Released" : role === "client" ? "100% Secured" : "Secured in Escrow"}
-                  </span>
-                </div>
-                <div className="text-3xl font-bold font-mono text-zinc-900 dark:text-zinc-100 tracking-tight">
-                  {role === "client" ? "₦134,400" : "₦111,600"}
-                </div>
-                <p className="text-xs text-zinc-500 leading-relaxed">
-                  Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval.
-                </p>
-              </div>
-
-              {/* Three-line fee breakdown tailored to role */}
-              {role === "client" ? (
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 space-y-2 text-xs font-body">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Client Booking Summary</div>
-                  <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
-                    <span>Performer base rate</span>
-                    <span className="font-mono font-medium text-zinc-900 dark:text-zinc-100">₦120,000</span>
-                  </div>
-                  <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
-                    <span>Escrow protection fee (12%)</span>
-                    <span className="font-mono text-zinc-600 dark:text-zinc-300 font-medium">+₦14,400</span>
-                  </div>
-                  <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100">
-                    <span>Total escrow deposit</span>
-                    <span className="font-mono font-bold text-[#5B21B6] dark:text-purple-400">₦134,400</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 space-y-2 text-xs font-body">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Performer Payout Summary</div>
-                  <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
-                    <span>Base rate</span>
-                    <span className="font-mono font-medium text-zinc-900 dark:text-zinc-100">₦120,000</span>
-                  </div>
-                  <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
-                    <span>Platform fee (7%)</span>
-                    <span className="font-mono text-zinc-500 font-medium">-₦8,400</span>
-                  </div>
-                  <div className="flex justify-between items-center font-semibold pt-1 border-t border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100">
-                    <span>You receive</span>
-                    <span className="font-mono font-bold text-emerald-600">₦111,600</span>
-                  </div>
-                </div>
-              )}
-
-              {role === "client" && !paymentReleased && (
-                <Button
-                  className="w-full h-11 text-xs font-semibold gap-1.5"
-                  style={{ background: "#5B21B6" }}
-                  onClick={() => setShowReleaseModal(true)}
-                >
-                  <CheckCircle2 className="w-4 h-4" /> Release ₦120,000 from Escrow
-                </Button>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ══════════════════════════════════════════════════════════
-            RIGHT CONTEXTUAL INSPECTOR RAIL (Upwork & Fiverr Inspired)
+            RIGHT CONTEXTUAL INSPECTOR RAIL (Single Source of Truth for Deal & Status)
             Persistent on Desktop (lg+), Collapsible for Focus Mode
            ══════════════════════════════════════════════════════════ */}
         {showInspectorRail && (
           <aside
-            className="hidden lg:flex w-80 xl:w-88 shrink-0 flex-col border-l overflow-y-auto p-4 space-y-4"
+            className="hidden lg:flex w-80 xl:w-88 shrink-0 flex-col border-l overflow-y-auto p-4 space-y-3.5"
             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
             aria-label="Order Inspector Panel"
           >
-            {/* 1. Counterparty Profile Card (Fiverr / Upwork Partner Summary) */}
+            {/* 1. Counterparty Profile Card */}
             <div className="p-3.5 rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-bg-canvas)] space-y-3">
               <div className="flex items-center gap-3">
                 <Avatar
@@ -1793,7 +1687,7 @@ export function OrderRoom() {
               </div>
             </div>
 
-            {/* 2. Escrow & Payout Breakdown Card */}
+            {/* 2. Authoritative Escrow & Payout Card (Progressive Disclosure) */}
             <div className="p-3.5 rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-bg-canvas)] space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
@@ -1819,22 +1713,37 @@ export function OrderRoom() {
               </div>
 
               {railFeeExpanded && (
-                <div className="pt-2 border-t border-[var(--color-hairline)] space-y-1 text-xs">
+                <div className="pt-2 border-t border-[var(--color-hairline)] space-y-1.5 text-xs">
                   <div className="flex justify-between text-zinc-500">
                     <span>Base rate</span>
                     <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">₦120,000</span>
                   </div>
                   {role === "client" ? (
-                    <div className="flex justify-between text-zinc-500">
-                      <span>Escrow fee (12%)</span>
-                      <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">+₦14,400</span>
-                    </div>
+                    <>
+                      <div className="flex justify-between text-zinc-500">
+                        <span>Escrow fee (12%)</span>
+                        <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">+₦14,400</span>
+                      </div>
+                      <div className="flex justify-between font-semibold pt-1 border-t border-[var(--color-hairline)] text-zinc-900 dark:text-zinc-100">
+                        <span>Total deposit</span>
+                        <span className="font-mono text-[#5B21B6] dark:text-purple-400">₦134,400</span>
+                      </div>
+                    </>
                   ) : (
-                    <div className="flex justify-between text-zinc-500">
-                      <span>Platform fee (7%)</span>
-                      <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">-₦8,400</span>
-                    </div>
+                    <>
+                      <div className="flex justify-between text-zinc-500">
+                        <span>Platform fee (7%)</span>
+                        <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">-₦8,400</span>
+                      </div>
+                      <div className="flex justify-between font-semibold pt-1 border-t border-[var(--color-hairline)] text-zinc-900 dark:text-zinc-100">
+                        <span>You receive</span>
+                        <span className="font-mono text-emerald-600 dark:text-emerald-400">₦111,600</span>
+                      </div>
+                    </>
                   )}
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500 leading-relaxed pt-1">
+                    Held in escrow via Paystack · Auto-releases 48h after delivery.
+                  </p>
                 </div>
               )}
             </div>

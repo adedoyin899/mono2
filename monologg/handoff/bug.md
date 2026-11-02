@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
+**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 127. Quadruple Financial Duplication, Stacked Top Banners, and Redundant 1-on-1 Chat Role Badges in `OrderRoom.tsx`
+- **Severity:** Medium / Information Architecture & UX Clutter Defect
+- **What happened:**
+  - In `OrderRoom.tsx`, financial escrow/payout figures (`₦134,400` / `₦111,600`) were repeated in up to 4 places simultaneously: (1) a top-right `Escrow:` / `Take-Home:` pill next to the tabs, (2) a dedicated `Payment` center tab, (3) the persistent right-hand Inspector Rail (`Order Inspector Panel`), and (4) the `Order Info` modal button visible even when the right rail was open. Additionally, every 1-on-1 chat message displayed redundant `CLIENT` / `PERFORMER` role badges, `"You"` labels, and outgoing self-avatars, while stacked top banners (`Attendance` card + separate `Google Meet` card + `Order Workspace` divider + duplicate `Check-in 2 of 3 is due` system message) cluttered the viewport.
+- **Root Cause:**
+  - Incremental additions across earlier sessions added a right-hand Inspector Rail without pruning the legacy center `Payment` tab, top-right financial pill, or per-message role tags designed prior to the 2-pane workspace layout.
+- **Fix:**
+  - Removed the redundant `Payment` tab and top-right `Escrow:` / `Take-Home:` pill, making the Right-Hand Inspector Rail the single authoritative financial source of truth on desktop (with expanded `Fee breakdown` math and Paystack guarantee copy) and scoping the `Order Info` button to mobile/collapsed states.
+  - Unified the Attendance Gate and Client Google Meet strip into a single contextual card on the `Messages` tab, removed the duplicate `"Check-in 2 of 3 is due"` system message, and collapsed `Script & Brief Assets` by default.
+  - Stripped `PERFORMER` / `CLIENT` role badges, `"You"` labels, and outgoing self-avatars from 1-on-1 chat messages, and implemented consecutive message grouping.
 
 ### 121. Missing Frontend Click-Stream, Route Dwell & Funnel Telemetry Pipeline in Supabase
 - **Severity:** Medium / Product Observability & Stakeholder Analytics Gap

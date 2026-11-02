@@ -1,11 +1,27 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-10-30 (Session 174: Supabase-First Product Analytics, Delegated Click Tracking & PostHog Bridge)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–173 + Session 174 Supabase Product Analytics & Stakeholder Telemetry.
+**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul.
 
 ---
 
 ## ✅ Done
+
+### Session 180 — Order Room FAANG UX & Information Architecture Overhaul
+- [x] **Eliminated Financial & Tab Duplication (`OrderRoom.tsx`)**:
+  - Removed the redundant `Payment` tab (`workspaceTab === "escrow"`) and top-bar `Escrow: ₦134,400` / `Take-Home: ₦111,600` pill that duplicated the static right-hand Inspector Rail.
+  - Streamlined workspace navigation to two focused tabs: `Messages` and `Brief & Files`.
+  - Upgraded the Right-Hand Inspector Rail's Escrow/Payout card (`Fee breakdown` / `Hide math`) with complete line-item totals (`Total deposit` / `You receive`) and Paystack 48h auto-release guarantee note.
+  - Scoped the header `Order Info` modal button to mobile/tablet (`lg:hidden`) or when the desktop inspector rail is hidden.
+- [x] **Unified Contextual Command Bar & Progressive Disclosure (`OrderRoom.tsx`)**:
+  - Merged the Attendance Check-in Gate and Client Google Meet bar into a single unified card container (rendered only on the `Messages` tab) to eliminate stacked top banners.
+  - Removed the duplicate `"Check-in 2 of 3 is due on Tue 14 Oct."` system pill from the chat stream and removed the redundant `Order Workspace · ORD-003` divider.
+  - Collapsed `Script & Brief Assets` in the right rail by default (`railScriptExpanded = false`).
+- [x] **1-on-1 Chat Stream Clean Sweep (`OrderRoom.tsx`)**:
+  - Removed redundant `PERFORMER` and `CLIENT` role badges and `"You"` labels from 1-on-1 chat bubbles.
+  - Removed self-avatars on outgoing messages and added consecutive message grouping by sender.
+- [x] **Quality Gate & Testing (`OrderRoom.test.tsx`)**:
+  - Updated `OrderRoom.test.tsx` to verify the streamlined IA and progressive disclosure (9/9 tests passing across `OrderRoom.test.tsx`, `dashboardParity.test.tsx`, and `x3CopyAudit.test.ts`; `npx tsc --noEmit` 0 errors).
 
 ### Session 174 — Supabase-First Product Analytics, Delegated Click Tracking & Stakeholder Telemetry
 - [x] **Supabase `AnalyticsEvent` Schema & RLS Migration (`schema.prisma`, `20261030101500_add_analytics_events/migration.sql`)**:
