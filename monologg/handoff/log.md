@@ -1,11 +1,28 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
+**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 183 (2026-11-02) — Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets
+
+**Goal:** Implement a strict 1-for-1 update of the Pricing Page (`node-id=178359-17960`, `1440px × 6195.91px`) in `apps/web/src/app/pages/PricingPage.tsx`, extracting and self-hosting all 24 SVG and PNG assets from the Figma Desktop MCP server into `apps/web/public/assets/pricing/` and matching every section, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), and table row 1-for-1.
+
+1. **Extracted & Downloaded All 24 Local Figma Assets (`apps/web/public/assets/pricing/*`):**
+   - Called `get_design_context` across `178359:17960` and all child frames (`178359:17973`, `178359:18008`, `178359:18019`, `178359:18031`, `178359:18130`, `178359:18317`, `178359:18322`) and downloaded all 24 static SVG and PNG assets into `apps/web/public/assets/pricing/` (header masked Monologg logo & theme toggle SVG, ambient blurred gradient background SVGs, `ArrowRight` SVG, 6 performer composite PNG avatar stacks, 6 studio badge SVGs for `Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`, dashed horizontal divider SVG, and FAQ `Plus`/`X` SVGs).
+2. **1-for-1 Pricing Page Implementation (`apps/web/src/app/pages/PricingPage.tsx`):**
+   - **Announcement Bar & Header (`178359:17961`, `178359:17973`):** Implemented exact `40px` `#16161A` top bar (`Plus Jakarta Sans` + `JetBrains Mono`) and `68px` header with the masked Monologg SVG logo (`105.109×24px`), active `Pricing` nav item with `8px` red dot (`rgba(241,48,48,0.8)`, `border rgba(241,48,48,0.4)`) and `#F25757` text (`gap-[10px]`), `36×36px` theme toggle button, and `Sign In` / `Sign up free` pill buttons.
+   - **Hero Section (`178359:18019`):** Implemented the `64px` `Switzer` Medium `"Pricing"` title (`tracking-[-1.92px]`), `18px` `Inter Tight` subtitle (`max-w-[664px]`), and `200×40px` `#F13030` `"Get started for free"` CTA button (`rounded-[23px]` + `16×16` `ArrowRight` SVG).
+   - **For Performers Section (`178359:18031`):** Implemented the section-level `139×30px` audience pill (`Performers` active with `8px` red dot, `Clients` at `30%` opacity), 6 overlapping composite performer avatar circles (`46.457px` / `47.909px`, `mr-[-15px]`, `border-[0.363px] border-[#E5E5E5] bg-[#F8F8F6]`), `48px` `Switzer` Medium `"For Performers"` heading, `18px` `Inter Tight` subtitle, the `1040px` 3-column comparison table (`#F9F9F9` header row with `Switzer` `16px` column titles + `8px` red dot & `Geist Mono` `12px` uppercase `#F13030` `Coming Soon` label, and all 9 data rows in `Inter Tight` `14px`/`12.5px` separated by `#E8E8E8` and `rgba(15,42,38,0.1)` borders), and the bottom `"Get started for free"` CTA button (`178359:18124`).
+   - **For Clients Section (`178359:18130`):** Implemented the section-level `139×30px` audience pill (`Performers` at `30%` opacity, `Clients` active with `8px` red dot), 6 overlapping `46×46px` `#F8F8F6` studio logo badges (`22.646px` SVGs for `Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`), `48px` `Switzer` Medium `"For Clients"` heading, `18px` `Inter Tight` subtitle, the `1040px` 3-column comparison table with all 23 rows (3 core pricing rows + 5 `#F9F9F9` `Switzer` `14px` category header rows + 15 capability rows), and the bottom `"Get started for free"` CTA button (`178401:153027`).
+   - **Dashed Divider, Borderless FAQ & Footer (`178359:18317`, `178359:18323`, `178359:18324`):** Added the full-width dashed divider SVG (`dashed-divider.svg`), borderless `910px` 10-item FAQ accordion (`Switzer` `18px` questions, `Inter Tight` `16px` answers, rotated `24×24` `faq-plus.svg` / `faq-x.svg`), and `<WebsiteFooter />`.
+3. **Verification (`apps/web/src/app/pages/PricingPage.test.tsx`):**
+   - Verified `PricingPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
 
 ---
 

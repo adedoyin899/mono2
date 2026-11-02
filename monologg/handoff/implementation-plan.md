@@ -1,11 +1,18 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181–182 1-for-1 Figma Home & Product Pages.
+**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–183 1-for-1 Figma Home, Product & Pricing Pages.
 
 ---
 
 ## ✅ Done
+
+### Session 183 — Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets
+- [x] **Extracted & Self-Hosted All 24 Figma Pricing Page Assets (`apps/web/public/assets/pricing/*`)**:
+  - Downloaded all 24 static SVG and PNG assets from Figma node `178359:17960` (Monologg masked logo, theme toggle SVG, ambient blurred gradient background SVGs, `ArrowRight` SVG, 6 composite performer PNG avatar stacks, 6 studio badge SVGs, dashed horizontal divider SVG, and FAQ `Plus`/`X` SVGs).
+- [x] **1-for-1 Pricing Page Implementation (`apps/web/src/app/pages/PricingPage.tsx`)**:
+  - Rebuilt Header (`Pricing` active link with `8px` red dot and `#F25757` text), Hero (`Switzer` `64px` `"Pricing"`, `Inter Tight` `18px` subtitle, `Get started for free` button), **For Performers** section (role pill, 6 overlapping composite performer avatars, `Switzer` `48px` heading, `1040px` 3-column table with 9 rows and borderless `Geist Mono` `Coming Soon` indicator, bottom CTA button), **For Clients** section (role pill, 6 overlapping studio logo badges, `Switzer` `48px` heading, `1040px` 3-column table with all 23 rows including 5 `#F9F9F9` category headers, bottom CTA button), dashed divider, borderless 10-item FAQ accordion, and `<WebsiteFooter />`.
+  - Verified `PricingPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
 
 ### Session 182 — Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations
 - [x] **Extracted & Self-Hosted All 64 Figma Product Page Assets (`apps/web/public/assets/product/*`)**:

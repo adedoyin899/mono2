@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
+**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,12 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 142: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets (Session 183)
+
+Implemented a strict 1-for-1 port of the Figma Pricing Page (`node-id=178359-17960`) in `PricingPage.tsx`:
+- **Asset Extraction (`apps/web/public/assets/pricing/*`):** Downloaded all 24 static SVG and PNG assets directly from the Figma Desktop MCP server across `178359:17960` and its child frames.
+- **Performer & Client Comparison Tables:** Rebuilt both the **For Performers** section (role pill, 6 overlapping composite performer avatars, `Switzer` `48px` heading, `1040px` 3-column table with 9 rows, and bottom `"Get started for free"` CTA) and the **For Clients** section (role pill, 6 overlapping `46×46px` studio logo badges, `Switzer` `48px` heading, `1040px` 3-column table with all 23 rows including 5 `#F9F9F9` category headers, and bottom `"Get started for free"` CTA), plus the dashed horizontal divider (`dashed-divider.svg`) and borderless 10-item FAQ accordion (`PricingPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
 
 ### Step 141: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations (Session 182)
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
+**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 130. Pricing Page Layout/Typography Drift, Missing Clients Section Pill & Bottom CTA, and Bordered FAQ Cards (`PricingPage.tsx`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `PricingPage.tsx` previously rendered a single detached audience pill outside the Performer/Client sections instead of the per-section `139×30px` role pills in `178359:18031` and `178359:18130`, omitted the bottom `"Get started for free"` CTA button under the Clients table (`178401:153027`), omitted the dashed section divider (`178359:18317`) and ambient blurred gradient backgrounds (`178359:18008`), wrapped the tables in outer rounded borders with pill-boxed `Coming Soon` badges instead of the borderless `1040px` `HorizontalBorder` rows and `Geist Mono` `Coming Soon` label from Figma, and used Lucide icons in bordered FAQ cards instead of the borderless `910px` FAQ rows with Figma `Plus`/`X` SVGs.
+- **Root Cause:**
+  - Earlier implementation approximated `178359:17960` without extracting all 24 child SVG/PNG assets or matching the exact Figma layout and typography specs.
+- **Fix:**
+  - Downloaded all 24 SVG and PNG assets from `178359:17960` into `apps/web/public/assets/pricing/` and rebuilt `PricingPage.tsx` 1-for-1 (`PricingPage.test.tsx` 5/5 passing, `npx tsc --noEmit` 0 errors).
 
 ### 129. Missing 3-State Stepper Cards (`default` / `active` / `completed`), Improvised Phone Mockups & Missing Thespian AI Rows on Product Page (`ProductPage.tsx`)
 - **Severity:** Medium / Figma Design-to-Code Fidelity Defect
