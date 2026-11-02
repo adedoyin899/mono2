@@ -29,7 +29,7 @@ describe("PricingPage (Figma 178359:17960)", () => {
     expect(screen.getAllByRole("button", { name: /Get started for free/i }).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders the audience toggle and scrolls to relevant sections", () => {
+  it("renders the audience toggle and switches in-place between Performers and Clients sections", () => {
     render(
       <MemoryRouter>
         <PricingPage />
@@ -39,14 +39,20 @@ describe("PricingPage (Figma 178359:17960)", () => {
     const toggleContainer = document.querySelector('[data-node-id="178359:18032"]');
     expect(toggleContainer).toBeTruthy();
 
-    const performersBtn = screen.getAllByRole("button", { name: /Performers/i })[0];
-    const clientsBtn = screen.getAllByRole("button", { name: /Clients/i })[0];
+    // Performers is active by default, Clients is hidden
+    expect(screen.getByRole("heading", { name: "For Performers" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "For Clients" })).not.toBeInTheDocument();
 
-    expect(performersBtn).toBeInTheDocument();
-    expect(clientsBtn).toBeInTheDocument();
-
+    // Click Clients tab -> switches in-place to For Clients
+    const clientsBtn = screen.getByRole("button", { name: "Clients" });
     fireEvent.click(clientsBtn);
+    expect(screen.getByRole("heading", { name: "For Clients" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "For Performers" })).not.toBeInTheDocument();
+
+    // Click Performers tab -> switches back to For Performers
+    const performersBtn = screen.getByRole("button", { name: "Performers" });
     fireEvent.click(performersBtn);
+    expect(screen.getByRole("heading", { name: "For Performers" })).toBeInTheDocument();
   });
 
   it("renders For Performers section with table and pro badges", () => {
@@ -83,12 +89,15 @@ describe("PricingPage (Figma 178359:17960)", () => {
     expect(screen.getByText("Verified Pro Badge")).toBeInTheDocument();
   });
 
-  it("renders For Clients section with 6 studio badges and category headers", () => {
+  it("renders For Clients section with 6 studio badges and category headers when Clients tab is selected", () => {
     render(
       <MemoryRouter>
         <PricingPage />
       </MemoryRouter>,
     );
+
+    // Switch to Clients tab
+    fireEvent.click(screen.getByRole("button", { name: "Clients" }));
 
     expect(screen.getByRole("heading", { name: "For Clients" })).toBeInTheDocument();
     expect(

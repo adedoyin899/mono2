@@ -26,7 +26,7 @@ This tracks every defect found during this engagement — both classic "the buil
 - **Root Cause:**
   - Earlier implementation approximated `178359:17960` without extracting all 24 child SVG/PNG assets or matching the exact Figma layout and typography specs.
 - **Fix:**
-  - Downloaded all 24 SVG and PNG assets from `178359:17960` into `apps/web/public/assets/pricing/` and rebuilt `PricingPage.tsx` 1-for-1 (`PricingPage.test.tsx` 5/5 passing, `npx tsc --noEmit` 0 errors).
+  - Downloaded all 24 SVG and PNG assets from `178359:17960` into `apps/web/public/assets/pricing/`, set the hero section (`178359:18019`) background to `#F9F9F9`, wired the `Performers` / `Clients` audience pill to switch sections in-place without scrolling, and rebuilt `PricingPage.tsx` 1-for-1 (`PricingPage.test.tsx` 5/5 passing, `npx tsc --noEmit` 0 errors).
 
 ### 129. Missing 3-State Stepper Cards (`default` / `active` / `completed`), Improvised Phone Mockups & Missing Thespian AI Rows on Product Page (`ProductPage.tsx`)
 - **Severity:** Medium / Figma Design-to-Code Fidelity Defect

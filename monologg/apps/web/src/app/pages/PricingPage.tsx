@@ -48,6 +48,7 @@ export function PricingPage() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
+  const [activeAudience, setActiveAudience] = useState<"performers" | "clients">("performers");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
@@ -82,10 +83,7 @@ export function PricingPage() {
   };
 
   const handleAudienceClick = (type: "performers" | "clients") => {
-    const targetEl = document.getElementById(type);
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setActiveAudience(type);
   };
 
   const userInitials = loggedInUser?.name
@@ -655,7 +653,7 @@ export function PricingPage() {
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
         {/* ── 3. Pricing Hero Section (178359:18019) ── */}
         <section
-          className="bg-white flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
+          className="bg-[#f9f9f9] flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
           data-node-id="178359:18019"
         >
           <div
@@ -706,521 +704,286 @@ export function PricingPage() {
           </div>
         </section>
 
-        {/* ── 4. For Performers Section (178359:18031) ── */}
-        <section
-          id="performers"
-          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full scroll-mt-20"
-          data-node-id="178359:18031"
-        >
-          <div
-            className="flex flex-col gap-[24px] items-center relative shrink-0 w-full max-w-[688px]"
-            data-node-id="178401:153036"
-          >
-            {/* Audience Pill — Performers Active (178359:18032) */}
-            <div
-              className="border border-[#e8e8e8] border-solid flex gap-[12px] items-center px-[10px] py-[6px] relative rounded-[20px] shrink-0"
-              data-node-id="178359:18032"
-            >
-              <button
-                type="button"
-                onClick={() => handleAudienceClick("performers")}
-                className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
-                data-node-id="178401:153035"
-              >
-                <span
-                  className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
-                  data-node-id="178359:18033"
-                />
-                <span
-                  className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
-                  data-node-id="178359:18034"
-                >
-                  Performers
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleAudienceClick("clients")}
-                className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
-                data-node-id="178359:18036"
-              >
-                Clients
-              </button>
-            </div>
-
-            {/* Avatars + Heading + Subtitle (178359:18037) */}
-            <div
-              className="flex flex-col gap-[20px] items-center relative shrink-0 w-full max-w-[688px]"
-              data-node-id="178359:18037"
-            >
-              <div
-                className="flex flex-col gap-[12px] items-center relative shrink-0"
-                data-node-id="178359:18038"
-              >
-                {/* 6 Overlapping Performer Avatars (178359:18039) */}
-                <div
-                  className="flex items-start relative shrink-0"
-                  data-node-id="178359:18039"
-                >
-                  {/* Avatar 1 (178359:18040) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                    data-node-id="178359:18040"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase1}
-                      />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase2}
-                      />
-                      <img
-                        alt="Performer 1"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar1}
-                      />
-                    </div>
-                  </div>
-                  {/* Avatar 2 (178359:18041) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                    data-node-id="178359:18041"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase1}
-                      />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase2}
-                      />
-                      <img
-                        alt="Performer 2"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar2}
-                      />
-                    </div>
-                  </div>
-                  {/* Avatar 3 (178359:18042) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                    data-node-id="178359:18042"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase1}
-                      />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase2}
-                      />
-                      <img
-                        alt="Performer 3"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar3}
-                      />
-                    </div>
-                  </div>
-                  {/* Avatar 4 (178359:18043) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                    data-node-id="178359:18043"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase1}
-                      />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase2}
-                      />
-                      <img
-                        alt="Performer 4"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar4}
-                      />
-                    </div>
-                  </div>
-                  {/* Avatar 5 (178359:18044) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
-                    data-node-id="178359:18044"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt="Performer 5"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar5}
-                      />
-                    </div>
-                  </div>
-                  {/* Avatar 6 (178359:18047) */}
-                  <div
-                    className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                    data-node-id="178359:18047"
-                  >
-                    <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                      <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase1}
-                      />
-                      <img
-                        alt=""
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatarBase2}
-                      />
-                      <img
-                        alt="Performer 6"
-                        className="absolute max-w-none object-cover rounded-full size-full"
-                        src={ASSETS.avatar6}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <h2
-                  className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
-                  data-node-id="178359:18048"
-                >
-                  For Performers
-                </h2>
-              </div>
-              <p
-                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
-                data-node-id="178359:18049"
-              >
-                Keep 93% of your booking and shoutout revenue with zero agent commissions
-                (compared to traditional 20%+ agency fees or Cameo&apos;s 25% platform cut).
-              </p>
-            </div>
-          </div>
-
-          {/* Performers 3-Column Comparison Table (178359:18050) */}
-          <div
-            className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
-            data-node-id="178359:18050"
-          >
-            <div className="min-w-[680px] w-full flex flex-col">
-              {/* Header Row (178359:18051) */}
-              <div
-                className="bg-[#f9f9f9] flex items-start relative shrink-0 w-full"
-                data-node-id="178359:18051"
-              >
-                <div
-                  className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
-                  data-node-id="178359:18052"
-                >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18053"
-                  >
-                    Feature / Capability
-                  </span>
-                </div>
-                <div
-                  className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
-                  data-node-id="178359:18054"
-                >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18055"
-                  >
-                    Free Tier
-                  </span>
-                </div>
-                <div
-                  className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
-                  data-node-id="178359:18056"
-                >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18057"
-                  >
-                    Monologg Pro
-                  </span>
-                  <div
-                    className="flex gap-[10px] items-center justify-center relative shrink-0"
-                    data-node-id="178359:18058"
-                  >
-                    <span
-                      className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
-                      data-node-id="178359:18059"
-                    />
-                    <span
-                      className="font-['Geist_Mono',monospace] font-normal text-[#f13030] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
-                      data-node-id="178359:18060"
-                    >
-                      Coming Soon
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 9 Data Rows */}
-              {performerRows.map((row) => (
-                <div
-                  key={row.nodeId}
-                  className={`${
-                    row.firstRowBorder
-                      ? "border-[#e8e8e8]"
-                      : "border-[rgba(15,42,38,0.1)]"
-                  } border-solid border-t flex items-center pt-px relative shrink-0 w-full`}
-                  data-node-id={row.nodeId}
-                >
-                  <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                    <span className="font-['Inter_Tight',sans-serif] font-medium text-[#16161a] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
-                      {row.feature}
-                    </span>
-                  </div>
-                  <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                    <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
-                      {row.freeTier}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
-                    <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
-                      {row.proTier}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA Button Under Performers Table (178359:18124) */}
-          <div className="flex items-center relative shrink-0" data-node-id="178359:18124">
-            <button
-              onClick={() => navigate("/auth?mode=signup")}
-              className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
-              data-node-id="178359:18125"
-            >
-              <span
-                className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] leading-[16px] tracking-[-0.12px] text-white whitespace-nowrap"
-                data-node-id="178359:18127"
-              >
-                Get started for free
-              </span>
-              <div className="relative shrink-0 size-[16px]" data-node-id="178359:18128">
-                <img
-                  alt=""
-                  className="absolute block inset-0 max-w-none size-full"
-                  src={ASSETS.arrowRight}
-                />
-              </div>
-            </button>
-          </div>
-        </section>
-
-        {/* ── 5. For Clients Section (178359:18130) ── */}
-        <section
-          id="clients"
-          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full scroll-mt-20"
-          data-node-id="178359:18130"
-        >
-          <div
-            className="flex flex-col gap-[20px] items-center relative shrink-0 w-full max-w-[688px]"
-            data-node-id="178359:18131"
+        {/* ── 4. Active Audience Comparison Section (Performers 178359:18031 | Clients 178359:18130) ── */}
+        {activeAudience === "performers" ? (
+          <section
+            id="performers"
+            className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
+            data-node-id="178359:18031"
           >
             <div
-              className="flex flex-col gap-[24px] items-center relative shrink-0"
-              data-node-id="178401:153044"
+              className="flex flex-col gap-[24px] items-center relative shrink-0 w-full max-w-[688px]"
+              data-node-id="178401:153036"
             >
-              {/* Audience Pill — Clients Active (178401:153037) */}
+              {/* Audience Pill — Performers Active (178359:18032) */}
               <div
                 className="border border-[#e8e8e8] border-solid flex gap-[12px] items-center px-[10px] py-[6px] relative rounded-[20px] shrink-0"
-                data-node-id="178401:153037"
+                data-node-id="178359:18032"
               >
                 <button
                   type="button"
                   onClick={() => handleAudienceClick("performers")}
-                  className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
-                  data-node-id="178401:153042"
+                  className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
+                  data-node-id="178401:153035"
                 >
-                  Performers
+                  <span
+                    className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                    data-node-id="178359:18033"
+                  />
+                  <span
+                    className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
+                    data-node-id="178359:18034"
+                  >
+                    Performers
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleAudienceClick("clients")}
-                  className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
-                  data-node-id="178401:153038"
+                  className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
+                  data-node-id="178359:18036"
                 >
-                  <span
-                    className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
-                    data-node-id="178401:153039"
-                  />
-                  <span
-                    className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
-                    data-node-id="178401:153040"
-                  >
-                    Clients
-                  </span>
+                  Clients
                 </button>
               </div>
 
-              {/* 6 Overlapping Studio Logos + Heading (178359:18132) */}
+              {/* Avatars + Heading + Subtitle (178359:18037) */}
               <div
-                className="flex flex-col gap-[12px] items-center relative shrink-0"
-                data-node-id="178359:18132"
+                className="flex flex-col gap-[20px] items-center relative shrink-0 w-full max-w-[688px]"
+                data-node-id="178359:18037"
               >
                 <div
-                  className="flex items-start relative shrink-0"
-                  data-node-id="178359:18133"
+                  className="flex flex-col gap-[12px] items-center relative shrink-0"
+                  data-node-id="178359:18038"
                 >
-                  {studioBadges.map((studio, i) => (
+                  {/* 6 Overlapping Performer Avatars (178359:18039) */}
+                  <div
+                    className="flex items-start relative shrink-0"
+                    data-node-id="178359:18039"
+                  >
+                    {/* Avatar 1 (178359:18040) */}
                     <div
-                      key={studio.name}
-                      className={`bg-[#f8f8f6] border-[#e5e5e5] border-[0.354px] border-solid flex items-center ${
-                        i < studioBadges.length - 1 ? "mr-[-15px]" : ""
-                      } p-[11.323px] relative rounded-full shrink-0`}
-                      data-node-id={studio.nodeId}
-                      title={studio.name}
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      data-node-id="178359:18040"
                     >
-                      <div className="relative shrink-0 size-[22.646px]">
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
                         <img
-                          alt={studio.name}
-                          className="absolute block inset-0 max-w-none size-full"
-                          src={studio.src}
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase1}
+                        />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase2}
+                        />
+                        <img
+                          alt="Performer 1"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar1}
                         />
                       </div>
                     </div>
-                  ))}
-                </div>
+                    {/* Avatar 2 (178359:18041) */}
+                    <div
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      data-node-id="178359:18041"
+                    >
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase1}
+                        />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase2}
+                        />
+                        <img
+                          alt="Performer 2"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar2}
+                        />
+                      </div>
+                    </div>
+                    {/* Avatar 3 (178359:18042) */}
+                    <div
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      data-node-id="178359:18042"
+                    >
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase1}
+                        />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase2}
+                        />
+                        <img
+                          alt="Performer 3"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar3}
+                        />
+                      </div>
+                    </div>
+                    {/* Avatar 4 (178359:18043) */}
+                    <div
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      data-node-id="178359:18043"
+                    >
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase1}
+                        />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase2}
+                        />
+                        <img
+                          alt="Performer 4"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar4}
+                        />
+                      </div>
+                    </div>
+                    {/* Avatar 5 (178359:18044) */}
+                    <div
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
+                      data-node-id="178359:18044"
+                    >
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <img
+                          alt="Performer 5"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar5}
+                        />
+                      </div>
+                    </div>
+                    {/* Avatar 6 (178359:18047) */}
+                    <div
+                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      data-node-id="178359:18047"
+                    >
+                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
+                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase1}
+                        />
+                        <img
+                          alt=""
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatarBase2}
+                        />
+                        <img
+                          alt="Performer 6"
+                          className="absolute max-w-none object-cover rounded-full size-full"
+                          src={ASSETS.avatar6}
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-                <h2
-                  className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
-                  data-node-id="178359:18146"
+                  <h2
+                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
+                    data-node-id="178359:18048"
+                  >
+                    For Performers
+                  </h2>
+                </div>
+                <p
+                  className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
+                  data-node-id="178359:18049"
                 >
-                  For Clients
-                </h2>
+                  Keep 93% of your booking and shoutout revenue with zero agent commissions
+                  (compared to traditional 20%+ agency fees or Cameo&apos;s 25% platform cut).
+                </p>
               </div>
             </div>
 
-            <p
-              className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
-              data-node-id="178359:18147"
+            {/* Performers 3-Column Comparison Table (178359:18050) */}
+            <div
+              className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
+              data-node-id="178359:18050"
             >
-              Choose the plan that fits your production scale. All client fees are structured
-              on invoices as an Automated Casting, Escrow Protection, and Project Management
-              Service Fee.
-            </p>
-          </div>
-
-          {/* Clients 3-Column Comparison Table (178359:18148) */}
-          <div
-            className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
-            data-node-id="178359:18148"
-          >
-            <div className="min-w-[680px] w-full flex flex-col">
-              {/* Header Row (178359:18149) */}
-              <div
-                className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-b border-solid flex items-start relative shrink-0 w-full"
-                data-node-id="178359:18149"
-              >
+              <div className="min-w-[680px] w-full flex flex-col">
+                {/* Header Row (178359:18051) */}
                 <div
-                  className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
-                  data-node-id="178359:18150"
+                  className="bg-[#f9f9f9] flex items-start relative shrink-0 w-full"
+                  data-node-id="178359:18051"
                 >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18151"
-                  >
-                    Feature / Capability
-                  </span>
-                </div>
-                <div
-                  className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
-                  data-node-id="178359:18152"
-                >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18153"
-                  >
-                    Free Tier
-                  </span>
-                </div>
-                <div
-                  className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
-                  data-node-id="178359:18154"
-                >
-                  <span
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
-                    data-node-id="178359:18155"
-                  >
-                    Monologg Pro
-                  </span>
                   <div
-                    className="flex gap-[10px] items-center justify-center relative shrink-0"
-                    data-node-id="178359:18156"
+                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    data-node-id="178359:18052"
                   >
                     <span
-                      className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
-                      data-node-id="178359:18157"
-                    />
-                    <span
-                      className="font-['Geist_Mono',monospace] font-normal text-[#f13030] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
-                      data-node-id="178359:18158"
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18053"
                     >
-                      Coming Soon
+                      Feature / Capability
                     </span>
                   </div>
-                </div>
-              </div>
-
-              {/* 23 Client Table Rows & Category Subheaders */}
-              {clientRows.map((item) => {
-                if ("isHeader" in item && item.isHeader) {
-                  return (
-                    <div
-                      key={item.nodeId}
-                      className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
-                      data-node-id={item.nodeId}
+                  <div
+                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    data-node-id="178359:18054"
+                  >
+                    <span
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18055"
                     >
-                      <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                        <span
-                          className={`font-['Switzer',sans-serif] ${
-                            item.weight === "medium" ? "font-medium" : "font-semibold"
-                          } text-[#16161a] text-[14px] leading-[18px] whitespace-nowrap`}
-                        >
-                          {item.title}
-                        </span>
-                      </div>
-                      <div className="flex flex-[1_0_0] flex-col h-[53px] items-start min-w-px p-[16px] relative" />
-                      <div className="flex flex-col h-[49px] items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]" />
+                      Free Tier
+                    </span>
+                  </div>
+                  <div
+                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
+                    data-node-id="178359:18056"
+                  >
+                    <span
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18057"
+                    >
+                      Monologg Pro
+                    </span>
+                    <div
+                      className="flex gap-[10px] items-center justify-center relative shrink-0"
+                      data-node-id="178359:18058"
+                    >
+                      <span
+                        className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                        data-node-id="178359:18059"
+                      />
+                      <span
+                        className="font-['Geist_Mono',monospace] font-normal text-[#f13030] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
+                        data-node-id="178359:18060"
+                      >
+                        Coming Soon
+                      </span>
                     </div>
-                  );
-                }
+                  </div>
+                </div>
 
-                const row = item as {
-                  nodeId: string;
-                  feature: string;
-                  freeTier: string;
-                  proTier: string;
-                };
-
-                return (
+                {/* 9 Data Rows */}
+                {performerRows.map((row) => (
                   <div
                     key={row.nodeId}
-                    className="border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full"
+                    className={`${
+                      row.firstRowBorder
+                        ? "border-[#e8e8e8]"
+                        : "border-[rgba(15,42,38,0.1)]"
+                    } border-solid border-t flex items-center pt-px relative shrink-0 w-full`}
                     data-node-id={row.nodeId}
                   >
                     <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1239,34 +1002,270 @@ export function PricingPage() {
                       </span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* CTA Button Under Clients Table (178401:153027) */}
-          <div className="flex items-center relative shrink-0" data-node-id="178401:153027">
-            <button
-              onClick={() => navigate("/auth?mode=signup")}
-              className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
-              data-node-id="178401:153028"
-            >
-              <span
-                className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] leading-[16px] tracking-[-0.12px] text-white whitespace-nowrap"
-                data-node-id="178401:153030"
-              >
-                Get started for free
-              </span>
-              <div className="relative shrink-0 size-[16px]" data-node-id="178401:153031">
-                <img
-                  alt=""
-                  className="absolute block inset-0 max-w-none size-full"
-                  src={ASSETS.arrowRight}
-                />
+                ))}
               </div>
-            </button>
-          </div>
-        </section>
+            </div>
+
+            {/* CTA Button Under Performers Table (178359:18124) */}
+            <div className="flex items-center relative shrink-0" data-node-id="178359:18124">
+              <button
+                onClick={() => navigate("/auth?mode=signup")}
+                className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
+                data-node-id="178359:18125"
+              >
+                <span
+                  className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] leading-[16px] tracking-[-0.12px] text-white whitespace-nowrap"
+                  data-node-id="178359:18127"
+                >
+                  Get started for free
+                </span>
+                <div className="relative shrink-0 size-[16px]" data-node-id="178359:18128">
+                  <img
+                    alt=""
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.arrowRight}
+                  />
+                </div>
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section
+            id="clients"
+            className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
+            data-node-id="178359:18130"
+          >
+            <div
+              className="flex flex-col gap-[20px] items-center relative shrink-0 w-full max-w-[688px]"
+              data-node-id="178359:18131"
+            >
+              <div
+                className="flex flex-col gap-[24px] items-center relative shrink-0"
+                data-node-id="178401:153044"
+              >
+                {/* Audience Pill — Clients Active (178401:153037) */}
+                <div
+                  className="border border-[#e8e8e8] border-solid flex gap-[12px] items-center px-[10px] py-[6px] relative rounded-[20px] shrink-0"
+                  data-node-id="178401:153037"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleAudienceClick("performers")}
+                    className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
+                    data-node-id="178401:153042"
+                  >
+                    Performers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAudienceClick("clients")}
+                    className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
+                    data-node-id="178401:153038"
+                  >
+                    <span
+                      className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                      data-node-id="178401:153039"
+                    />
+                    <span
+                      className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
+                      data-node-id="178401:153040"
+                    >
+                      Clients
+                    </span>
+                  </button>
+                </div>
+
+                {/* 6 Overlapping Studio Logos + Heading (178359:18132) */}
+                <div
+                  className="flex flex-col gap-[12px] items-center relative shrink-0"
+                  data-node-id="178359:18132"
+                >
+                  <div
+                    className="flex items-start relative shrink-0"
+                    data-node-id="178359:18133"
+                  >
+                    {studioBadges.map((studio, i) => (
+                      <div
+                        key={studio.name}
+                        className={`bg-[#f8f8f6] border-[#e5e5e5] border-[0.354px] border-solid flex items-center ${
+                          i < studioBadges.length - 1 ? "mr-[-15px]" : ""
+                        } p-[11.323px] relative rounded-full shrink-0`}
+                        data-node-id={studio.nodeId}
+                        title={studio.name}
+                      >
+                        <div className="relative shrink-0 size-[22.646px]">
+                          <img
+                            alt={studio.name}
+                            className="absolute block inset-0 max-w-none size-full"
+                            src={studio.src}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <h2
+                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
+                    data-node-id="178359:18146"
+                  >
+                    For Clients
+                  </h2>
+                </div>
+              </div>
+
+              <p
+                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
+                data-node-id="178359:18147"
+              >
+                Choose the plan that fits your production scale. All client fees are structured
+                on invoices as an Automated Casting, Escrow Protection, and Project Management
+                Service Fee.
+              </p>
+            </div>
+
+            {/* Clients 3-Column Comparison Table (178359:18148) */}
+            <div
+              className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
+              data-node-id="178359:18148"
+            >
+              <div className="min-w-[680px] w-full flex flex-col">
+                {/* Header Row (178359:18149) */}
+                <div
+                  className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-b border-solid flex items-start relative shrink-0 w-full"
+                  data-node-id="178359:18149"
+                >
+                  <div
+                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    data-node-id="178359:18150"
+                  >
+                    <span
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18151"
+                    >
+                      Feature / Capability
+                    </span>
+                  </div>
+                  <div
+                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    data-node-id="178359:18152"
+                  >
+                    <span
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18153"
+                    >
+                      Free Tier
+                    </span>
+                  </div>
+                  <div
+                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
+                    data-node-id="178359:18154"
+                  >
+                    <span
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      data-node-id="178359:18155"
+                    >
+                      Monologg Pro
+                    </span>
+                    <div
+                      className="flex gap-[10px] items-center justify-center relative shrink-0"
+                      data-node-id="178359:18156"
+                    >
+                      <span
+                        className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                        data-node-id="178359:18157"
+                      />
+                      <span
+                        className="font-['Geist_Mono',monospace] font-normal text-[#f13030] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
+                        data-node-id="178359:18158"
+                      >
+                        Coming Soon
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 23 Client Table Rows & Category Subheaders */}
+                {clientRows.map((item) => {
+                  if ("isHeader" in item && item.isHeader) {
+                    return (
+                      <div
+                        key={item.nodeId}
+                        className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
+                        data-node-id={item.nodeId}
+                      >
+                        <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                          <span
+                            className={`font-['Switzer',sans-serif] ${
+                              item.weight === "medium" ? "font-medium" : "font-semibold"
+                            } text-[#16161a] text-[14px] leading-[18px] whitespace-nowrap`}
+                          >
+                            {item.title}
+                          </span>
+                        </div>
+                        <div className="flex flex-[1_0_0] flex-col h-[53px] items-start min-w-px p-[16px] relative" />
+                        <div className="flex flex-col h-[49px] items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]" />
+                      </div>
+                    );
+                  }
+
+                  const row = item as {
+                    nodeId: string;
+                    feature: string;
+                    freeTier: string;
+                    proTier: string;
+                  };
+
+                  return (
+                    <div
+                      key={row.nodeId}
+                      className="border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full"
+                      data-node-id={row.nodeId}
+                    >
+                      <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                        <span className="font-['Inter_Tight',sans-serif] font-medium text-[#16161a] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
+                          {row.feature}
+                        </span>
+                      </div>
+                      <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
+                          {row.freeTier}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
+                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
+                          {row.proTier}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CTA Button Under Clients Table (178401:153027) */}
+            <div className="flex items-center relative shrink-0" data-node-id="178401:153027">
+              <button
+                onClick={() => navigate("/auth?mode=signup")}
+                className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
+                data-node-id="178401:153028"
+              >
+                <span
+                  className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] leading-[16px] tracking-[-0.12px] text-white whitespace-nowrap"
+                  data-node-id="178401:153030"
+                >
+                  Get started for free
+                </span>
+                <div className="relative shrink-0 size-[16px]" data-node-id="178401:153031">
+                  <img
+                    alt=""
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.arrowRight}
+                  />
+                </div>
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* ── Dashed Horizontal Divider (178359:18317) ── */}
         <div
