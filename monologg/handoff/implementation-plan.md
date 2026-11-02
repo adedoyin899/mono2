@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages.
+**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix.
 
 ---
 
 ## ✅ Done
+
+### Session 185 — Investor Dropdown Chevron Fix & Supabase Backend Storage Integration
+- [x] **Eliminated Native Browser Double Chevron (`ResourcesPage.tsx`)**:
+  - Reset native WebKit/Blink dropdown arrows on `<select>` using explicit inline styles `style={{ WebkitAppearance: "none", MozAppearance: "none", appearance: "none", backgroundImage: "none" }}` with `pl-[13px] pr-[36px]`.
+  - Positioned the custom Figma vector `caretDown` SVG (`16×16px`) at `right-[13px] top-1/2 -translate-y-1/2 pointer-events-none`.
+- [x] **Created Supabase Backend Schema & Storage (`public."InvestorApplication"`)**:
+  - Executed SQL on Supabase Postgres creating table `public."InvestorApplication"` with columns `id`, `firstName`, `lastName`, `email`, `phone`, `investorRole`, `message`, `status` (`'PENDING'`), `createdAt`, and `updatedAt`.
+  - Configured Row-Level Security (RLS) policies allowing guest insert (`TO anon, authenticated, service_role WITH CHECK (true)`) and read access.
+  - Added `model InvestorApplication` to `apps/api/prisma/schema.prisma` and generated the Prisma client.
+  - Dispatched PostgREST reload notification (`NOTIFY pgrst, 'reload schema'`).
+- [x] **Wired Form Ingestion & Telemetry (`ResourcesPage.tsx`)**:
+  - Connected `handleInvestorSubmit` directly to `supabase.from("InvestorApplication").insert(payload)`.
+  - Dispatched `trackEvent("waitlist_submitted", { type: "investor_application", ... })`.
+  - Added loading spinner button state (`Submitting Application...`), button disabled state during submission, and failure alert banner.
+- [x] **Verified Unit Tests & TypeScript (`ResourcesPage.test.tsx`)**:
+  - Added Supabase mock in `ResourcesPage.test.tsx` ensuring fast deterministic tests.
+  - Verified 5/5 unit tests passing and `npx tsc --noEmit` 0 errors across `apps/web` and `apps/api`.
 
 ### Session 184 — Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form
 - [x] **Extracted & Self-Hosted All 20 Figma Resources Page Assets (`apps/web/public/assets/resources/*`)**:

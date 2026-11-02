@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
+**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 144: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration (Session 185)
+
+Refined the Resources page investor application form and connected it directly to Supabase storage:
+- **Native Browser Select Double Chevron Removal:** Reset browser user-agent rendering on `<select id="who-you-are">` using inline styling (`WebkitAppearance: "none"`, `MozAppearance: "none"`, `appearance: "none"`, `backgroundImage: "none"`) with `pl-[13px] pr-[36px]` padding, ensuring only the single Figma `caretDown` SVG (`16×16px`) renders.
+- **Supabase Postgres Storage & Schema:** Created `public."InvestorApplication"` table with columns `id`, `firstName`, `lastName`, `email`, `phone`, `investorRole`, `message`, `status`, `createdAt`, `updatedAt`, RLS policies for guest submissions, updated Prisma schema (`apps/api/prisma/schema.prisma`), and reloaded the PostgREST schema cache.
+- **Form Ingestion & Telemetry:** Connected `handleInvestorSubmit` directly to `supabase.from("InvestorApplication").insert(payload)`, dispatched analytics tracking event `waitlist_submitted`, added submit loading indicator and error handling, and updated `ResourcesPage.test.tsx` with a mock verifying database invocation (5/5 tests passing in 283ms, `tsc --noEmit` 0 errors).
 
 ### Step 143: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form (Session 184)
 

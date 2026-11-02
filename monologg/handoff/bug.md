@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
+**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 132. Native Select Double Chevron & Unmocked Database Transit in Tests (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
+- **Severity:** Low / UX Polish & Test Stability Defect
+- **What happened:**
+  - On macOS WebKit/Blink browsers, the `<select id="who-you-are">` element rendered two dropdown chevrons side-by-side: the browser's default user-agent arrow plus the Figma `caretDown` SVG. In addition, when connecting the form directly to Supabase storage, running `ResourcesPage.test.tsx` hit a 5000ms test timeout due to unmocked network calls in jsdom.
+- **Root Cause:**
+  - Standard Tailwind `appearance-none` does not always clear WebKit user-agent arrow styling unless explicit inline rules (`WebkitAppearance: "none"`, `MozAppearance: "none"`, `backgroundImage: "none"`) are supplied. JSDOM tests required a scoped mock for `supabase.from("InvestorApplication").insert` to avoid hanging network calls.
+- **Fix:**
+  - Applied explicit cross-browser inline appearance reset styles to `<select>` and positioned the single Figma `caretDown` SVG at `right-[13px] top-1/2 -translate-y-1/2`.
+  - Added a Supabase client mock to `ResourcesPage.test.tsx` asserting table insertion into `"InvestorApplication"` and immediate resolution (5/5 tests passing in 283ms).
 
 ### 131. Resources Page Substituted Social Icons, Missing Figma Dividers/Pills, and Ambiguous Test Label Selectors (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
 - **Severity:** Low / Figma Design-to-Code Fidelity Defect

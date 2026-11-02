@@ -791,3 +791,28 @@ model AnalyticsEvent {
   @@index([userId, createdAt])
   @@index([sessionId, createdAt])
 }
+
+// =============================================================================
+// Session 184 — Investor Relations & Backer Application Ingestion
+// =============================================================================
+// Captures verified investor submissions from the Resources Page ("Become an Investor")
+// directly into Supabase Postgres with role classification, contact metadata,
+// and optional strategic partnership memos.
+
+model InvestorApplication {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String
+  phone        String?
+  investorRole String
+  message      String?
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email, createdAt])
+  @@index([investorRole, createdAt])
+  @@index([status, createdAt])
+}
+

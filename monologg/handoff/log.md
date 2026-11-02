@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
+**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 185 (2026-11-02) — Investor Dropdown Chevron Fix & Supabase Backend Storage Integration
+
+**Goal:** Fix the duplicate chevron rendering on the `"Please tell us who you are"` select dropdown in `ResourcesPage.tsx`, and integrate backend persistence to store all filled investor applications in a dedicated Supabase Postgres table (`public."InvestorApplication"`) with RLS and telemetry tracking.
+
+1. **Eliminated Native Browser Double Chevron (`ResourcesPage.tsx`):**
+   - Reset the native WebKit/Blink dropdown arrow on `<select>` via explicit inline styling: `WebkitAppearance: "none"`, `MozAppearance: "none"`, `appearance: "none"`, and `backgroundImage: "none"`.
+   - Set padding `pl-[13px] pr-[36px]` on the `<select>` element and positioned the single Figma vector `caretDown` SVG (`16×16px`) at `right-[13px] top-1/2 -translate-y-1/2 pointer-events-none`.
+2. **Created Supabase Backend Schema & Storage (`public."InvestorApplication"`):**
+   - Executed SQL on Supabase Postgres to create table `public."InvestorApplication"` with columns `id`, `firstName`, `lastName`, `email`, `phone`, `investorRole`, `message`, `status` (`'PENDING'`), `createdAt`, and `updatedAt`.
+   - Enabled Row-Level Security (RLS) and created policies allowing public guest insert (`TO anon, authenticated, service_role WITH CHECK (true)`) and read access.
+   - Synchronized Prisma schema in `apps/api/prisma/schema.prisma` with `model InvestorApplication` and re-generated the Prisma client.
+   - Reloaded the PostgREST schema cache (`NOTIFY pgrst, 'reload schema'`).
+3. **Wired Frontend Form Submission to Supabase & Telemetry (`ResourcesPage.tsx`):**
+   - Connected `handleInvestorSubmit` directly to `supabase.from("InvestorApplication").insert(payload)`.
+   - Dispatched `trackEvent("waitlist_submitted", { type: "investor_application", ... })` to log submissions into `AnalyticsEvent`.
+   - Added loading spinner state (`Submitting Application...`) with disabled button during submission and network error handling.
+4. **Verification & Quality Gate (`ResourcesPage.test.tsx`):**
+   - Updated `ResourcesPage.test.tsx` with a mock for `supabase.from("InvestorApplication").insert`, asserting proper database payload submission and UI confirmation feedback.
+   - Verified tests (5/5 passing) and verified `npx tsc --noEmit` across both `apps/web` and `apps/api` (0 errors).
 
 ---
 

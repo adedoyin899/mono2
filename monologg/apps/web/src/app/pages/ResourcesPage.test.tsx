@@ -1,7 +1,21 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ResourcesPage } from "./ResourcesPage";
+import { supabase } from "../../lib/supabase";
+
+vi.mock("../../lib/supabase", () => {
+  const insertMock = vi.fn().mockResolvedValue({ error: null });
+  const fromMock = vi.fn(() => ({
+    insert: insertMock,
+  }));
+  return {
+    supabase: {
+      from: fromMock,
+    },
+    SUPABASE_MODE: "real",
+  };
+});
 
 describe("ResourcesPage (Figma 178359:18325)", () => {
   it("renders the 1-for-1 Resources Page layout with announcement bar and header", () => {
@@ -32,7 +46,7 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     expect(screen.getAllByText("hello@monologg.co").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders the 'Become an Investor' section and allows form submission", () => {
+  it("renders the 'Become an Investor' section and allows form submission", async () => {
     render(
       <MemoryRouter>
         <ResourcesPage />
@@ -49,14 +63,18 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     const phoneInput = screen.getByLabelText(/phone no/i);
     const submitBtn = screen.getByRole("button", { name: /Submit Application/i });
 
+    const roleSelect = screen.getByLabelText(/Please tell us who you are/i);
+
     fireEvent.change(firstNameInput, { target: { value: "Ade" } });
     fireEvent.change(lastNameInput, { target: { value: "Oyeniyi" } });
     fireEvent.change(emailInput, { target: { value: "ade@example.com" } });
     fireEvent.change(phoneInput, { target: { value: "+2348012345678" } });
+    fireEvent.change(roleSelect, { target: { value: "Angel Investor" } });
 
     fireEvent.click(submitBtn);
 
-    expect(screen.getByText(/Thank you for your interest!/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Thank you for your interest!/i)).toBeInTheDocument();
+    expect(supabase?.from).toHaveBeenCalledWith("InvestorApplication");
   });
 
   it("renders all 7 social platform badges and contact email in the bottom bar", () => {

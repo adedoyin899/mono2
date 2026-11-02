@@ -6,12 +6,15 @@ import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
+import { supabase } from "../../lib/supabase";
+import { trackEvent } from "../../lib/analytics";
 import {
   ChevronDown,
   Check,
   LayoutDashboard,
   Settings as SettingsIcon,
   LogOut,
+  Loader2,
 } from "lucide-react";
 
 const ASSETS = {
@@ -53,6 +56,8 @@ export function ResourcesPage() {
   const [investorRole, setInvestorRole] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -85,18 +90,58 @@ export function ResourcesPage() {
     navigate("/");
   };
 
-  const handleInvestorSubmit = (e: React.FormEvent) => {
+  const handleInvestorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const applicationId = "inv_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    const payload = {
+      id: applicationId,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone.trim() || null,
+      investorRole: investorRole || "Other",
+      message: message.trim() || null,
+      status: "PENDING",
+    };
+
+    try {
+      // 1. Direct Supabase Storage into public."InvestorApplication"
+      if (supabase) {
+        const { error } = await supabase.from("InvestorApplication").insert(payload);
+        if (error) {
+          console.warn("Supabase InvestorApplication insert warning:", error.message);
+        }
+      }
+
+      // 2. Track event in Supabase AnalyticsEvent + local telemetry buffer
+      trackEvent("waitlist_submitted", {
+        type: "investor_application",
+        applicationId,
+        investorRole: payload.investorRole,
+        email: payload.email,
+        name: `${payload.firstName} ${payload.lastName}`,
+      });
+
+      setSubmitted(true);
       setFirstName("");
       setLastName("");
       setEmail("");
       setPhone("");
       setInvestorRole("");
       setMessage("");
-    }, 5000);
+
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 6000);
+    } catch (err: any) {
+      console.error("Failed to submit investor application:", err);
+      setSubmitError("Failed to submit application. Please check your network and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const userInitials = loggedInUser?.name
@@ -908,12 +953,19 @@ export function ResourcesPage() {
                 >
                   Please tell us who you are
                 </label>
-                <div className="bg-white border border-[#e5e7eb] border-solid flex gap-[12px] h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                <div className="bg-white border border-[#e5e7eb] border-solid relative flex h-[40px] items-center rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                   <select
                     id="who-you-are"
+                    required
                     value={investorRole}
                     onChange={(e) => setInvestorRole(e.target.value)}
-                    className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] bg-transparent appearance-none cursor-pointer focus:outline-none"
+                    className="w-full h-full bg-transparent font-['Inter_Tight',sans-serif] font-normal leading-[1.5] text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] pl-[13px] pr-[36px] appearance-none focus:outline-none cursor-pointer"
+                    style={{
+                      WebkitAppearance: "none",
+                      MozAppearance: "none",
+                      appearance: "none",
+                      backgroundImage: "none",
+                    }}
                   >
                     <option value="" disabled className="text-gray-400">
                       Select an option...
@@ -925,10 +977,13 @@ export function ResourcesPage() {
                     <option value="Strategic Partner">Strategic Partner</option>
                     <option value="Other">Other</option>
                   </select>
-                  <div className="relative shrink-0 size-[16px] pointer-events-none" data-name="CaretDown">
+                  <div
+                    className="absolute right-[13px] top-1/2 -translate-y-1/2 pointer-events-none size-[16px] flex items-center justify-center"
+                    data-name="CaretDown"
+                  >
                     <img
                       alt=""
-                      className="absolute block inset-0 max-w-none size-full"
+                      className="block size-full"
                       src={ASSETS.caretDown}
                     />
                   </div>
@@ -958,30 +1013,48 @@ export function ResourcesPage() {
                 </div>
               </div>
 
+              {submitError && (
+                <div className="w-full p-3 rounded-xl bg-[#fef2f2] border border-[#fecaca] text-[#b91c1c] text-sm">
+                  {submitError}
+                </div>
+              )}
+
               {/* Submit Application Button */}
               <button
                 type="submit"
-                className="bg-[#f13030] hover:bg-[#d31f20] h-[40px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 w-full cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-[8px] px-[24px] py-[8px]"
+                disabled={isSubmitting}
+                className="bg-[#f13030] hover:bg-[#d31f20] disabled:opacity-60 h-[40px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 w-full cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-[8px] px-[24px] py-[8px]"
                 data-node-id="178359:18489"
                 data-name="Button"
               >
-                <span
-                  className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] text-center text-white tracking-[-0.12px] whitespace-nowrap leading-[16px]"
-                  data-node-id="178359:18491"
-                >
-                  Submit Application
-                </span>
-                <div
-                  className="relative shrink-0 size-[16px]"
-                  data-node-id="178359:18492"
-                  data-name="Icon / ArrowRight"
-                >
-                  <img
-                    alt=""
-                    className="absolute block inset-0 max-w-none size-full"
-                    src={ASSETS.arrowRight}
-                  />
-                </div>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-[16px] text-white animate-spin" />
+                    <span className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] text-center text-white tracking-[-0.12px] whitespace-nowrap leading-[16px]">
+                      Submitting Application...
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] text-center text-white tracking-[-0.12px] whitespace-nowrap leading-[16px]"
+                      data-node-id="178359:18491"
+                    >
+                      Submit Application
+                    </span>
+                    <div
+                      className="relative shrink-0 size-[16px]"
+                      data-node-id="178359:18492"
+                      data-name="Icon / ArrowRight"
+                    >
+                      <img
+                        alt=""
+                        className="absolute block inset-0 max-w-none size-full"
+                        src={ASSETS.arrowRight}
+                      />
+                    </div>
+                  </>
+                )}
               </button>
             </form>
           </div>
