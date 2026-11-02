@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
+**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 131. Resources Page Substituted Social Icons, Missing Figma Dividers/Pills, and Ambiguous Test Label Selectors (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `ResourcesPage.tsx` previously used generic icons from `/assets/social/*` instead of the exact vector assets extracted from Figma node `178359:18325`, omitted the exact `Vector 2553` (vertical) and `Vector 2555` (horizontal) divider SVGs, lacked the masked Monologg SVG header logo and active `Resources` red dot indicator (`gap-[10px]`, `#F25757`), and omitted the ambient background gradient SVGs (`178359:18373`). Additionally, in `ResourcesPage.test.tsx`, testing `/Email/i` threw `Found multiple elements` because the shared footer also contains an email input.
+- **Root Cause:**
+  - Earlier prototype used generic icon paths and broad test regex queries without matching the exact Figma node specs from MCP `get_design_context`.
+- **Fix:**
+  - Extracted and downloaded all 20 assets into `apps/web/public/assets/resources/`, implemented exact Figma dimensions, typography, and SVG layers across `ResourcesPage.tsx`, and updated `ResourcesPage.test.tsx` to use exact regex boundaries (`/^Email$/i`) and verify all 7 social badges and the active nav indicator (5/5 tests passing, `npx tsc --noEmit` 0 errors).
 
 ### 130. Pricing Page Layout/Typography Drift, Missing Clients Section Pill & Bottom CTA, and Bordered FAQ Cards (`PricingPage.tsx`)
 - **Severity:** Medium / Figma Design-to-Code Fidelity Defect

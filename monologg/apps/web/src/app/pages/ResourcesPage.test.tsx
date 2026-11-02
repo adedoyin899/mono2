@@ -45,7 +45,7 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
 
     const firstNameInput = screen.getByLabelText(/First Name/i);
     const lastNameInput = screen.getByLabelText(/Last Name/i);
-    const emailInput = screen.getByLabelText(/Email/i);
+    const emailInput = screen.getByLabelText(/^Email$/i);
     const phoneInput = screen.getByLabelText(/phone no/i);
     const submitBtn = screen.getByRole("button", { name: /Submit Application/i });
 
@@ -57,5 +57,32 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     fireEvent.click(submitBtn);
 
     expect(screen.getByText(/Thank you for your interest!/i)).toBeInTheDocument();
+  });
+
+  it("renders all 7 social platform badges and contact email in the bottom bar", () => {
+    render(
+      <MemoryRouter>
+        <ResourcesPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText("LinkedIn")).toHaveAttribute("href", "https://linkedin.com/company/monologg");
+    expect(screen.getByLabelText("Product Hunt")).toHaveAttribute("href", "https://www.producthunt.com/products/monologg");
+    expect(screen.getByLabelText("Twitter-X")).toHaveAttribute("href", "https://x.com/monologg");
+    expect(screen.getByLabelText("Twitch")).toHaveAttribute("href", "https://twitch.tv/monologg");
+    expect(screen.getByLabelText("Telegram")).toHaveAttribute("href", "https://t.me/monologg");
+    expect(screen.getByLabelText("TikTok")).toHaveAttribute("href", "https://tiktok.com/@monologg");
+    expect(screen.getByLabelText("Instagram")).toHaveAttribute("href", "https://instagram.com/monologg");
+  });
+
+  it("renders the active Resources pill indicator in the header", () => {
+    render(
+      <MemoryRouter>
+        <ResourcesPage />
+      </MemoryRouter>,
+    );
+
+    const activePill = screen.getAllByText("Resources")[0];
+    expect(activePill).toHaveClass("text-[#f25757]");
   });
 });

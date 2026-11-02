@@ -1,26 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Logo } from "../components/ui/Logo";
 import { Avatar } from "../components/ui/Avatar";
 import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
-  Sun,
-  Moon,
   ChevronDown,
-  ArrowRight,
   Check,
   LayoutDashboard,
   Settings as SettingsIcon,
   LogOut,
 } from "lucide-react";
 
+const ASSETS = {
+  logoMask: "/assets/resources/logo-mask.svg",
+  logoIcon: "/assets/resources/logo-icon.svg",
+  logoWordmark: "/assets/resources/logo-wordmark.svg",
+  themeToggle: "/assets/resources/theme-toggle.svg",
+  gradientBgLeft: "/assets/resources/gradient-bg-left.svg",
+  gradientBgRight: "/assets/resources/gradient-bg-right.svg",
+  gavel: "/assets/resources/gavel.svg",
+  vector2553: "/assets/resources/vector-2553.svg",
+  vector2555: "/assets/resources/vector-2555.svg",
+  question: "/assets/resources/question.svg",
+  gmail: "/assets/resources/gmail.svg",
+  linkedin: "/assets/resources/linkedin.svg",
+  producthunt: "/assets/resources/producthunt.svg",
+  twitterX: "/assets/resources/twitter-x.svg",
+  twitch: "/assets/resources/twitch.svg",
+  telegram: "/assets/resources/telegram.svg",
+  tiktok: "/assets/resources/tiktok.svg",
+  instagram: "/assets/resources/instagram.svg",
+  caretDown: "/assets/resources/caret-down.svg",
+  arrowRight: "/assets/resources/arrow-right.svg",
+};
+
 export function ResourcesPage() {
   const navigate = useNavigate();
-  const { isDark, toggle } = useTheme();
+  const { toggle } = useTheme();
 
   const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -103,28 +122,46 @@ export function ResourcesPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-white text-[#16161A] font-sans antialiased overflow-x-hidden"
+      className="min-h-screen flex flex-col bg-white text-[#16161a] font-sans antialiased overflow-x-hidden relative isolate"
       data-node-id="178359:18325"
     >
       {/* ── 1. Top Announcement Bar (178359:18326) ── */}
       <div
-        className="bg-[#16161a] border-[#26262e] border-b border-solid flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
+        className="bg-[#16161a] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
         data-node-id="178359:18326"
       >
-        <div className="flex gap-[8px] items-center shrink-0">
-          <div className="bg-[#f13030] rounded-full shrink-0 size-[8px]" />
-          <p className="font-semibold text-[#f13030] text-[10px] tracking-[1px] uppercase leading-[13.33px] whitespace-nowrap">
+        <div className="flex gap-[8px] items-center shrink-0" data-node-id="178359:18327">
+          <div
+            className="bg-[#f13030] rounded-full shrink-0 size-[8px]"
+            data-node-id="178359:18328"
+          />
+          <p
+            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#f13030] text-[10px] tracking-[1px] uppercase leading-[13.33px] whitespace-nowrap"
+            data-node-id="178359:18330"
+          >
             Monologg Marketplace v3.0 Live
           </p>
         </div>
-        <div className="flex gap-2 sm:gap-[16px] items-center shrink-0">
-          <p className="font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
+        <div
+          className="flex gap-2 sm:gap-[16px] items-center shrink-0"
+          data-node-id="178359:18331"
+        >
+          <p
+            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
+            data-node-id="178359:18333"
+          >
             FINCRA Escrow Secured
           </p>
-          <p className="font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px]">
+          <p
+            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px]"
+            data-node-id="178359:18335"
+          >
             ·
           </p>
-          <p className="font-mono font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
+          <p
+            className="font-['JetBrains_Mono',monospace] font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
+            data-node-id="178359:18337"
+          >
             3,200+ Verified Talent Profiles
           </p>
         </div>
@@ -132,53 +169,108 @@ export function ResourcesPage() {
 
       {/* ── 2. Sticky Header (178359:18338) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/90 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
         data-node-id="178359:18338"
       >
-        <div className="flex gap-[12px] items-center shrink-0">
-          <div
-            className="cursor-pointer flex items-center"
+        <div
+          className="flex gap-[12px] items-center relative shrink-0"
+          data-node-id="178359:18340"
+        >
+          {/* Figma Masked Monologg Logo (178359:18341) */}
+          <button
+            type="button"
             onClick={() => navigate("/")}
+            aria-label="Monologg Home"
+            className="h-[24px] overflow-clip relative shrink-0 w-[105.109px] cursor-pointer"
+            data-node-id="178359:18341"
           >
-            <Logo className="h-[24px] w-auto text-[#16161a]" title="Monologg" />
-          </div>
-          <nav className="hidden md:flex gap-[4px] items-center">
+            <div className="absolute contents inset-[14.02%_80.78%_14.25%_3.55%]">
+              <div
+                className="absolute inset-[14.93%_81%_15.21%_3.77%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-0.226px_-0.219px] mask-size-[16.466px_17.215px]"
+                style={{
+                  maskImage: `url("${ASSETS.logoMask}")`,
+                  WebkitMaskImage: `url("${ASSETS.logoMask}")`,
+                }}
+              >
+                <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
+                  <img
+                    alt=""
+                    className="block max-w-none size-full"
+                    src={ASSETS.logoIcon}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
+              <img
+                alt="Monologg"
+                className="absolute block inset-0 max-w-none size-full"
+                src={ASSETS.logoWordmark}
+              />
+            </div>
+          </button>
+
+          <nav
+            className="hidden md:flex gap-[4px] items-center relative shrink-0"
+            data-node-id="178359:18353"
+          >
             <button
               onClick={() => navigate("/product")}
-              className="px-[16px] py-[6px] rounded-full font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              data-node-id="178359:18354"
             >
               Product
             </button>
             <button
               onClick={() => navigate("/pricing")}
-              className="px-[16px] py-[6px] rounded-full font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              data-node-id="178359:18356"
             >
               Pricing
             </button>
-            <button
-              onClick={() => navigate("/resources")}
-              className="px-[16px] py-[6px] rounded-full font-semibold text-[#16161a] text-[12px] leading-[16px] flex items-center gap-2 whitespace-nowrap"
+            <div
+              className="px-[16px] py-[6px] rounded-full flex items-center gap-[10px] whitespace-nowrap cursor-default"
+              data-node-id="178359:18358"
             >
-              <span className="size-2 rounded-full bg-[#f13030]" />
-              <span>Resources</span>
-            </button>
+              <div
+                className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] size-[8px] rounded-full shrink-0"
+                data-node-id="178359:18360"
+              />
+              <span
+                className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#f25757] text-[12px] leading-[16px]"
+                data-node-id="178359:18361"
+              >
+                Resources
+              </span>
+            </div>
           </nav>
         </div>
 
-        <div className="flex gap-[12px] items-center shrink-0">
+        <div
+          className="flex gap-[12px] items-center relative shrink-0"
+          data-node-id="178359:18364"
+        >
+          {/* Theme Toggle Button (178359:18365) */}
           <button
+            type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center rounded-full shrink-0 size-[36px] text-[#16161a] hover:bg-[#f9f9f9] transition-colors"
+            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+            data-node-id="178359:18365"
           >
-            {isDark ? <Sun className="size-[16px]" /> : <Moon className="size-[16px]" />}
+            <img
+              alt="Toggle theme"
+              className="size-[16px]"
+              src={ASSETS.themeToggle}
+            />
           </button>
 
           {loggedInUser ? (
             <div className="relative" ref={userMenuRef}>
               <button
+                type="button"
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ecece8] bg-white hover:bg-[#f9f9f9] transition-all active:scale-95 shadow-sm"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ecece8] bg-white hover:bg-[#f9f9f9] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -226,11 +318,12 @@ export function ResourcesPage() {
                       {userMenuItems.map((item) => (
                         <button
                           key={item.label}
+                          type="button"
                           onClick={() => {
                             setShowUserMenu(false);
                             navigate(item.path);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161a] hover:bg-[#f9f9f9] transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161a] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
                         >
                           <item.icon className="w-4 h-4 text-[#6d6d75]" />
                           {item.label}
@@ -239,8 +332,9 @@ export function ResourcesPage() {
                     </div>
                     <div className="py-1.5 border-t border-[#ecece8]">
                       <button
+                        type="button"
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#fff5f5] transition-colors font-medium"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#fff5f5] transition-colors font-medium cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -252,15 +346,22 @@ export function ResourcesPage() {
             </div>
           ) : (
             <>
+              {/* Sign In Button (178359:18368) */}
               <button
+                type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#dbdbd6] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] rounded-full shrink-0 font-bold text-[#16161a] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] transition-colors"
+                className="border border-[#dbdbd6] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#16161a] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+                data-node-id="178359:18368"
               >
                 Sign In
               </button>
+
+              {/* Sign up free Button (178359:18370) */}
               <button
+                type="button"
                 onClick={() => navigate("/auth?mode=signup")}
-                className="bg-[#f13030] hover:bg-[#d31f20] flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] rounded-full shrink-0 font-bold text-[12px] text-center text-white tracking-[-0.12px] whitespace-nowrap shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95"
+                className="bg-[#f13030] hover:bg-[#d31f20] flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-center text-white tracking-[-0.12px] whitespace-nowrap shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
+                data-node-id="178359:18370"
               >
                 Sign up free
               </button>
@@ -269,124 +370,254 @@ export function ResourcesPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center w-full">
-        {/* ── 3. Resources Master Grid Card (Figma 178359:18384) ── */}
+      {/* ── 3. Ambient Blurred Background Gradients (178359:18373) ── */}
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden z-0"
+        data-node-id="178359:18373"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute h-[249.23px] left-[-185.75px] top-[851.24px] w-[206.05px]"
+          data-node-id="178359:18374"
+        >
+          <div className="absolute inset-[-91.79%_-108.2%]">
+            <img
+              alt=""
+              className="block max-w-none size-full"
+              src={ASSETS.gradientBgLeft}
+            />
+          </div>
+        </div>
+        <div
+          className="absolute h-[249.23px] left-[1064.25px] top-[115.24px] w-[206.05px]"
+          data-node-id="178359:18379"
+        >
+          <div className="absolute inset-[-91.79%_-108.2%]">
+            <img
+              alt=""
+              className="block max-w-none size-full"
+              src={ASSETS.gradientBgRight}
+            />
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-1 flex flex-col items-center w-full relative z-10">
+        {/* ── 4. Resources Categories Master Card (Figma 178359:18384) ── */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] w-full"
+          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
           data-node-id="178359:18384"
+          data-name="testimonial"
         >
           <div
-            className="flex flex-col items-center w-full max-w-[1000px]"
+            className="flex flex-col items-center relative shrink-0 w-full max-w-[1000px]"
             data-node-id="178359:18409"
+            data-name="Frame 2147228267"
           >
-            {/* Top Card Area */}
+            {/* Top Box (Frame 427321871) */}
             <div
-              className="bg-white border-l border-r border-t border-[#e8e8e8] border-solid flex flex-col gap-[32px] items-center p-6 sm:p-[32px] rounded-tl-[20px] rounded-tr-[20px] w-full"
+              className="bg-white border-[#e8e8e8] border-l border-r border-t border-solid flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full"
               data-node-id="178359:18410"
             >
-              {/* Terms of Service Pill */}
+              {/* Terms of Service Badge Pill (Frame 2147228278) */}
               <button
+                type="button"
                 onClick={() => navigate("/legal/terms")}
-                className="bg-[#f7f7f7] hover:bg-[#ececec] flex gap-[10px] items-center px-[12px] py-[6px] rounded-[20px] transition-colors cursor-pointer group"
+                className="bg-[#f7f7f7] hover:bg-[#ececec] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
                 data-node-id="178359:18411"
               >
-                <img
-                  src="/assets/social/gavel.svg"
-                  alt=""
-                  className="size-[14px]"
+                <div
+                  className="relative shrink-0 size-[14px]"
                   data-node-id="178359:18412"
-                />
-                <span className="font-display font-medium text-[#16161a] text-[14px] tracking-[-0.42px] leading-normal group-hover:text-[#f13030] transition-colors">
-                  Terms of Service
-                </span>
+                  data-name="Gavel"
+                >
+                  <img
+                    alt="Terms of Service"
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.gavel}
+                  />
+                </div>
+                <div
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center leading-normal text-[#16161a] group-hover:text-[#f13030] text-[14px] tracking-[-0.42px] whitespace-nowrap transition-colors"
+                  data-node-id="178359:18413"
+                >
+                  <p>Terms of Service</p>
+                </div>
               </button>
 
-              {/* Row 1: Escrow Guarantee Policy | Fair Trade Contracts */}
+              {/* Row 1: Escrow Guarantee Policy | Fair Trade Contracts (Frame 2147228208) */}
               <div
-                className="bg-white flex flex-col md:flex-row gap-[24px] items-center w-full"
+                className="bg-white flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
                 data-node-id="178359:18414"
               >
+                {/* Col 1 */}
                 <div
-                  className="flex-1 flex flex-col items-center w-full"
+                  className="flex flex-1 flex-col md:h-[148px] items-center justify-start min-w-px relative w-full"
                   data-node-id="178359:18415"
                 >
-                  <div className="flex flex-col gap-[20px] items-center w-full">
-                    <h3 className="font-display font-medium text-[#16161a] text-[18px] leading-[24px] text-center">
+                  <div
+                    className="flex flex-col gap-[20px] items-center text-center w-full"
+                    data-node-id="178359:18418"
+                  >
+                    <h3
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]"
+                      data-node-id="178359:18420"
+                    >
                       Escrow Guarantee Policy
                     </h3>
-                    <p className="text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]">
+                    <p
+                      className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]"
+                      data-node-id="178359:18421"
+                    >
                       All client and fan booking funds are locked securely in escrow before performance or recording begins and released upon project completion: guaranteed by FINCRA/PAYSTACK.
                     </p>
                   </div>
                 </div>
 
-                <div className="hidden md:block w-px h-[148px] bg-[#e8e8e8] shrink-0" />
-
+                {/* Vertical Divider (Vector 2553) */}
                 <div
-                  className="flex-1 flex flex-col items-center w-full"
+                  className="hidden md:block h-[148px] relative shrink-0 w-0"
+                  data-node-id="178359:18422"
+                  data-name="Vector 2553"
+                >
+                  <div className="absolute inset-[0_-0.5px]">
+                    <img
+                      alt=""
+                      className="block max-w-none size-full"
+                      src={ASSETS.vector2553}
+                    />
+                  </div>
+                </div>
+
+                {/* Col 2 */}
+                <div
+                  className="flex flex-1 flex-col md:h-[148px] items-center justify-start min-w-px relative w-full"
                   data-node-id="178359:18423"
                 >
-                  <div className="flex flex-col gap-[20px] items-center w-full">
-                    <h3 className="font-display font-medium text-[#16161a] text-[18px] leading-[24px] text-center">
+                  <div
+                    className="flex flex-col gap-[20px] items-center text-center w-full"
+                    data-node-id="178359:18426"
+                  >
+                    <h3
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]"
+                      data-node-id="178359:18427"
+                    >
                       Fair Trade Contracts
                     </h3>
-                    <p className="text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]">
+                    <p
+                      className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]"
+                      data-node-id="178359:18428"
+                    >
                       Automated NDAs, usage rights, and performance contracts protect creator IP and guarantee performer payment terms.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Horizontal Divider */}
-              <div className="w-full h-px bg-[#e8e8e8]" data-node-id="178359:18430" />
+              {/* Horizontal Divider (Vector 2555) */}
+              <div
+                className="h-0 relative shrink-0 w-full"
+                data-node-id="178359:18430"
+                data-name="Vector 2555"
+              >
+                <div className="absolute inset-[-0.5px_0]">
+                  <img
+                    alt=""
+                    className="block max-w-none size-full"
+                    src={ASSETS.vector2555}
+                  />
+                </div>
+              </div>
 
-              {/* Support & Community Pill */}
+              {/* Support & Community Badge Pill (Frame 2147228277) */}
               <button
+                type="button"
                 onClick={() => navigate("/support")}
-                className="bg-[#f7f7f7] hover:bg-[#ececec] flex gap-[10px] items-center px-[12px] py-[6px] rounded-[20px] transition-colors cursor-pointer group"
+                className="bg-[#f7f7f7] hover:bg-[#ececec] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
                 data-node-id="178359:18431"
               >
-                <img
-                  src="/assets/social/question.svg"
-                  alt=""
-                  className="size-[14px]"
+                <div
+                  className="relative shrink-0 size-[14px]"
                   data-node-id="178359:18432"
-                />
-                <span className="font-display font-medium text-[#16161a] text-[14px] tracking-[-0.42px] leading-normal group-hover:text-[#f13030] transition-colors">
-                  Support &amp; Community
-                </span>
+                  data-name="Question"
+                >
+                  <img
+                    alt="Support & Community"
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.question}
+                  />
+                </div>
+                <div
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center leading-normal text-[#16161a] group-hover:text-[#f13030] text-[14px] tracking-[-0.42px] whitespace-nowrap transition-colors"
+                  data-node-id="178359:18433"
+                >
+                  <p>Support &amp; Community</p>
+                </div>
               </button>
 
-              {/* Row 2: 24/7 Creator Helpdesk | Onboarding & EPK Guides */}
+              {/* Row 2: 24/7 Creator Helpdesk | Onboarding & EPK Guides (Frame 2147228209) */}
               <div
-                className="flex flex-col md:flex-row gap-[24px] items-center w-full"
+                className="flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
                 data-node-id="178359:18434"
               >
+                {/* Col 1 */}
                 <div
-                  className="flex-1 flex flex-col items-center w-full"
+                  className="flex flex-1 flex-col md:h-[148px] items-center justify-start min-w-px relative w-full"
                   data-node-id="178359:18435"
                 >
-                  <div className="flex flex-col gap-[20px] items-center w-full">
-                    <h3 className="font-display font-medium text-[#16161a] text-[18px] leading-[24px] text-center">
+                  <div
+                    className="flex flex-col gap-[20px] items-center text-center w-full"
+                    data-node-id="178359:18438"
+                  >
+                    <h3
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]"
+                      data-node-id="178359:18439"
+                    >
                       24/7 Creator Helpdesk
                     </h3>
-                    <p className="text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]">
+                    <p
+                      className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]"
+                      data-node-id="178359:18440"
+                    >
                       Live assistance for booking disputes, account setup, and fast settlement inquiries.
                     </p>
                   </div>
                 </div>
 
-                <div className="hidden md:block w-px h-[148px] bg-[#e8e8e8] shrink-0" />
-
+                {/* Vertical Divider (Vector 2553) */}
                 <div
-                  className="flex-1 flex flex-col items-center w-full"
+                  className="hidden md:block h-[148px] relative shrink-0 w-0"
+                  data-node-id="178359:18441"
+                  data-name="Vector 2553"
+                >
+                  <div className="absolute inset-[0_-0.5px]">
+                    <img
+                      alt=""
+                      className="block max-w-none size-full"
+                      src={ASSETS.vector2553}
+                    />
+                  </div>
+                </div>
+
+                {/* Col 2 */}
+                <div
+                  className="flex flex-1 flex-col md:h-[148px] items-center justify-start min-w-px relative w-full"
                   data-node-id="178359:18442"
                 >
-                  <div className="flex flex-col gap-[20px] items-center w-full">
-                    <h3 className="font-display font-medium text-[#16161a] text-[18px] leading-[24px] text-center">
+                  <div
+                    className="flex flex-col gap-[20px] items-center text-center w-full"
+                    data-node-id="178359:18445"
+                  >
+                    <h3
+                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]"
+                      data-node-id="178359:18446"
+                    >
                       Onboarding &amp; EPK Guides
                     </h3>
-                    <p className="text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]">
+                    <p
+                      className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]"
+                      data-node-id="178359:18447"
+                    >
                       Tutorials helping performers optimize showreels, rate cards, and bio storefronts for maximum booking conversions.
                     </p>
                   </div>
@@ -394,274 +625,297 @@ export function ResourcesPage() {
               </div>
             </div>
 
-            {/* Bottom Bar: Email & Social Avatars (Figma 178359:18448) */}
+            {/* Bottom Bar: hello@monologg.co + 6 Social Badges (Frame 2147227600) */}
             <div
-              className="bg-[#f9f9f9] border border-[#e8e8e8] border-solid flex flex-col sm:flex-row gap-[16px] sm:gap-[12px] items-center justify-center px-[32px] py-[16px] rounded-bl-[20px] rounded-br-[20px] w-full"
+              className="bg-[#f9f9f9] border border-[#e8e8e8] border-solid flex flex-col sm:flex-row gap-[16px] sm:gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full"
               data-node-id="178359:18448"
             >
               <div
-                className="flex gap-[6px] items-center justify-center"
+                className="flex gap-[4px] items-center justify-center relative shrink-0"
                 data-node-id="178359:18449"
               >
-                <img
-                  src="/assets/social/gmail.svg"
-                  alt=""
-                  className="size-[18px]"
+                <div
+                  className="relative shrink-0 size-[18px]"
                   data-node-id="178359:18450"
-                />
+                  data-name="Gmail"
+                >
+                  <img
+                    alt="Gmail"
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.gmail}
+                  />
+                </div>
                 <a
                   href="mailto:hello@monologg.co"
-                  className="text-[#6d6d75] hover:text-[#16161a] text-[15px] underline transition-colors"
+                  className="font-['Inter_Tight',sans-serif] text-[#6d6d75] hover:text-[#16161a] text-[15px] leading-[20px] underline tracking-[0.45px] transition-colors whitespace-nowrap"
+                  data-node-id="178359:18451"
                 >
                   hello@monologg.co
                 </a>
               </div>
 
+              {/* Social Avatars Group (Avatar group - 178359:18452) */}
               <div
-                className="flex gap-[6px] items-center"
+                className="flex gap-[3px] items-center relative shrink-0"
                 data-node-id="178359:18452"
+                data-name="Avatar group"
               >
                 <a
-                  href="https://linkedin.com"
+                  href="https://linkedin.com/company/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="LinkedIn"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="LinkedIn"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18455"
                 >
-                  <img
-                    src="/assets/social/linkedin.svg"
-                    alt="LinkedIn"
-                    className="size-[18px]"
-                  />
+                  <img alt="LinkedIn" className="size-[18px]" src={ASSETS.linkedin} />
                 </a>
                 <a
-                  href="https://producthunt.com"
+                  href="https://www.producthunt.com/products/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="Product Hunt"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="Product Hunt"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18457"
                 >
-                  <img
-                    src="/assets/social/producthunt.svg"
-                    alt="Product Hunt"
-                    className="size-[18px]"
-                  />
+                  <img alt="Product Hunt" className="size-[18px]" src={ASSETS.producthunt} />
                 </a>
                 <a
-                  href="https://x.com"
+                  href="https://x.com/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="Twitter / X"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="Twitter-X"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18459"
                 >
-                  <img
-                    src="/assets/social/twitter.svg"
-                    alt="Twitter / X"
-                    className="size-[18px]"
-                  />
+                  <img alt="Twitter-X" className="size-[18px]" src={ASSETS.twitterX} />
                 </a>
                 <a
-                  href="https://twitch.tv"
+                  href="https://twitch.tv/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="Twitch"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="Twitch"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18461"
                 >
-                  <img
-                    src="/assets/social/twitch.svg"
-                    alt="Twitch"
-                    className="size-[18px]"
-                  />
+                  <img alt="Twitch" className="size-[18px]" src={ASSETS.twitch} />
                 </a>
                 <a
-                  href="https://telegram.org"
+                  href="https://t.me/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="Telegram"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="Telegram"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18463"
                 >
-                  <img
-                    src="/assets/social/telegram.svg"
-                    alt="Telegram"
-                    className="size-[18px]"
-                  />
+                  <img alt="Telegram" className="size-[18px]" src={ASSETS.telegram} />
                 </a>
                 <a
-                  href="https://tiktok.com"
+                  href="https://tiktok.com/@monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="TikTok"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="TikTok"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18465"
                 >
-                  <img
-                    src="/assets/social/tiktok.svg"
-                    alt="TikTok"
-                    className="size-[18px]"
-                  />
+                  <img alt="TikTok" className="size-[18px]" src={ASSETS.tiktok} />
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href="https://instagram.com/monologg"
                   target="_blank"
                   rel="noreferrer"
-                  title="Instagram"
-                  className="size-[36px] rounded-full bg-white border border-[#e5e5e5] flex items-center justify-center hover:scale-105 transition-transform shadow-xs"
+                  aria-label="Instagram"
+                  className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center justify-center overflow-clip px-[9.75px] py-[9px] relative rounded-[200px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  data-node-id="178359:18467"
                 >
-                  <img
-                    src="/assets/social/instagram.svg"
-                    alt="Instagram"
-                    className="size-[18px]"
-                  />
+                  <img alt="Instagram" className="size-[18px]" src={ASSETS.instagram} />
                 </a>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── 4. Become an Investor Section (Figma 178359:18473) ── */}
+        {/* ── 5. Become an Investor Section (Figma 178359:18473) ── */}
         <section
-          className="bg-white flex items-start justify-center px-6 md:px-16 xl:px-[200px] py-[112px] w-full border-t border-[#ecece8]"
+          className="bg-white flex items-start justify-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
           data-node-id="178359:18473"
+          data-name="testimonial"
         >
           <div
-            className="w-full max-w-[1040px] flex flex-col lg:flex-row items-start justify-between gap-12 lg:gap-[40px]"
+            className="flex flex-col lg:flex-row flex-1 items-start justify-between min-w-px relative w-full max-w-[1040px] gap-12 lg:gap-8"
             data-node-id="178359:18474"
+            data-name="Frame 2147228275"
           >
-            {/* Left Header Description */}
+            {/* Left Header Description (Frame 1216401504) */}
             <div
-              className="flex flex-col gap-[32px] items-start max-w-[420px]"
+              className="flex flex-col gap-[32px] items-start justify-center relative shrink-0 max-w-[388px]"
               data-node-id="178359:18475"
             >
               <div
-                className="flex flex-col gap-[16px] items-start text-[#16161a]"
+                className="flex flex-col gap-[16px] items-start relative shrink-0 text-[#16161a]"
                 data-node-id="178359:18476"
               >
-                <p
-                  className="font-mono text-[14px] tracking-[1.26px] uppercase font-semibold text-[#16161a]"
+                <div
+                  className="flex flex-col font-['Geist_Mono',monospace] font-normal justify-center relative shrink-0 text-[14px] tracking-[1.26px] uppercase whitespace-nowrap text-[#16161a]"
                   data-node-id="178359:18477"
                 >
-                  RAISING SOON!
-                </p>
-                <h2
-                  className="font-display font-medium text-4xl sm:text-5xl lg:text-[48px] tracking-[-1.44px] leading-[48px] text-[#16161a]"
+                  <p className="leading-normal">RAISING SOON!</p>
+                </div>
+                <div
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[48px] tracking-[-1.44px] w-full"
                   data-node-id="178359:18478"
                 >
-                  Become an Investor
-                </h2>
+                  <h2 className="leading-[48px] text-[#16161a]">Become an Investor</h2>
+                </div>
               </div>
-              <p
-                className="text-[#6d6d75] text-[18px] leading-[26px] tracking-[0.54px] max-w-[384px]"
+              <div
+                className="flex flex-col font-['Inter_Tight',sans-serif] font-normal justify-center relative shrink-0 text-[#6d6d75] text-[18px] tracking-[0.54px] w-full"
                 data-node-id="178359:18479"
               >
-                Follow our investor updates and be notified on our next round
-              </p>
+                <p className="leading-[26px]">Follow our investor updates and be notified on our next round</p>
+              </div>
             </div>
 
-            {/* Right Application Form Card */}
+            {/* Right Application Form Card (Frame 2 - 178359:18480) */}
             <form
               onSubmit={handleInvestorSubmit}
-              className="bg-white border border-[#e5e7eb] border-solid shadow-[0px_1px_1px_rgba(0,0,0,0.1)] flex flex-col gap-[16px] items-start p-[25px] rounded-[18px] w-full lg:w-[530px]"
+              className="bg-white border border-[#e5e7eb] border-solid shadow-[0px_1px_1px_rgba(0,0,0,0.1)] flex flex-col gap-[16px] items-start p-[25px] relative rounded-[18px] shrink-0 w-full lg:w-[530px]"
               data-node-id="178359:18480"
+              data-name="Frame 2"
             >
               {submitted && (
                 <div className="w-full p-4 rounded-xl bg-[#ecfdf5] border border-[#a7f3d0] text-[#065f46] text-sm flex items-center gap-2">
                   <Check className="size-4 shrink-0 text-[#059669]" />
-                  <span>
-                    Thank you for your interest! We will be in touch with investor deck updates.
-                  </span>
+                  <span>Thank you for your interest! We will be in touch with investor deck updates.</span>
                 </div>
               )}
 
               {/* Row 1: First Name & Last Name */}
-              <div className="flex flex-col sm:flex-row gap-[10px] items-start w-full">
-                <div className="flex-1 flex flex-col gap-[8px] items-start w-full">
+              <div
+                className="flex flex-col sm:flex-row gap-[10px] items-start relative w-full"
+                data-node-id="178359:18481"
+              >
+                {/* First Name */}
+                <div
+                  className="flex flex-1 flex-col gap-[8px] items-start min-w-px relative w-full"
+                  data-node-id="178359:18482"
+                >
                   <label
                     htmlFor="first-name"
-                    className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                   >
                     First Name
                   </label>
-                  <input
-                    id="first-name"
-                    type="text"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="John"
-                    className="bg-white border border-[#e5e7eb] h-[40px] px-[13px] py-[9px] rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none focus:border-[#f13030] transition-colors"
-                  />
+                  <div className="bg-white border border-[#e5e7eb] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                    <input
+                      id="first-name"
+                      type="text"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="John"
+                      className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] placeholder:text-[#1a1a1a]/30 bg-transparent focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div className="flex-1 flex flex-col gap-[8px] items-start w-full">
+
+                {/* Last Name */}
+                <div
+                  className="flex flex-1 flex-col gap-[8px] items-start min-w-px relative w-full"
+                  data-node-id="178359:18483"
+                >
                   <label
                     htmlFor="last-name"
-                    className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                   >
                     Last Name
                   </label>
-                  <input
-                    id="last-name"
-                    type="text"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Doe"
-                    className="bg-white border border-[#e5e7eb] h-[40px] px-[13px] py-[9px] rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none focus:border-[#f13030] transition-colors"
-                  />
+                  <div className="bg-white border border-[#e5e7eb] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                    <input
+                      id="last-name"
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Doe"
+                      className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] placeholder:text-[#1a1a1a]/30 bg-transparent focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Row 2: Email & Phone No */}
-              <div className="flex flex-col sm:flex-row gap-[12px] items-start w-full">
-                <div className="flex-1 flex flex-col gap-[8px] items-start w-full">
+              <div
+                className="flex flex-col sm:flex-row gap-[12px] items-start relative w-full"
+                data-node-id="178359:18484"
+              >
+                {/* Email */}
+                <div
+                  className="flex flex-1 flex-col gap-[8px] items-start min-w-px relative w-full"
+                  data-node-id="178359:18485"
+                >
                   <label
                     htmlFor="investor-email"
-                    className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                   >
                     Email
                   </label>
-                  <input
-                    id="investor-email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@email.com"
-                    className="bg-white border border-[#e5e7eb] h-[40px] px-[13px] py-[9px] rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none focus:border-[#f13030] transition-colors"
-                  />
+                  <div className="bg-white border border-[#e5e7eb] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                    <input
+                      id="investor-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@email.com"
+                      className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] placeholder:text-[#1a1a1a]/30 bg-transparent focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div className="flex-1 flex flex-col gap-[8px] items-start w-full">
+
+                {/* Phone No */}
+                <div
+                  className="flex flex-1 flex-col gap-[8px] items-start min-w-px relative w-full"
+                  data-node-id="178359:18486"
+                >
                   <label
                     htmlFor="phone-no"
-                    className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                   >
                     phone no
                   </label>
-                  <input
-                    id="phone-no"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+234 567 2907 67"
-                    className="bg-white border border-[#e5e7eb] h-[40px] px-[13px] py-[9px] rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none focus:border-[#f13030] transition-colors"
-                  />
+                  <div className="bg-white border border-[#e5e7eb] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                    <input
+                      id="phone-no"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+234 567 2907 67"
+                      className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] placeholder:text-[#1a1a1a]/30 bg-transparent focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Row 3: Please tell us who you are */}
-              <div className="flex flex-col gap-[8px] items-start w-full">
+              <div
+                className="flex flex-col gap-[8px] items-start relative w-full"
+                data-node-id="178359:18487"
+              >
                 <label
                   htmlFor="who-you-are"
-                  className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                 >
                   Please tell us who you are
                 </label>
-                <div className="relative w-full">
+                <div className="bg-white border border-[#e5e7eb] border-solid flex gap-[12px] h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                   <select
                     id="who-you-are"
                     value={investorRole}
                     onChange={(e) => setInvestorRole(e.target.value)}
-                    className="bg-white border border-[#e5e7eb] h-[40px] px-[13px] py-[9px] pr-[36px] rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] appearance-none cursor-pointer focus:outline-none focus:border-[#f13030] transition-colors"
+                    className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] bg-transparent appearance-none cursor-pointer focus:outline-none"
                   >
-                    <option value="" disabled>
+                    <option value="" disabled className="text-gray-400">
                       Select an option...
                     </option>
                     <option value="Angel Investor">Angel Investor</option>
@@ -671,42 +925,69 @@ export function ResourcesPage() {
                     <option value="Strategic Partner">Strategic Partner</option>
                     <option value="Other">Other</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-[#6d6d75] pointer-events-none" />
+                  <div className="relative shrink-0 size-[16px] pointer-events-none" data-name="CaretDown">
+                    <img
+                      alt=""
+                      className="absolute block inset-0 max-w-none size-full"
+                      src={ASSETS.caretDown}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Row 4: Message Textarea */}
-              <div className="flex flex-col gap-[8px] items-start w-full">
+              <div
+                className="flex flex-col gap-[8px] items-start relative w-full"
+                data-node-id="178359:18488"
+              >
                 <label
                   htmlFor="investor-message"
-                  className="font-display font-medium text-[14px] text-[#4d4d4d] tracking-[-0.2px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#4d4d4d] text-[14px] leading-[20px] tracking-[-0.2px] text-left w-full cursor-pointer"
                 >
                   Message
                 </label>
-                <textarea
-                  id="investor-message"
-                  rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Leave us a message..."
-                  className="bg-white border border-[#e5e7eb] p-[16px] rounded-[18px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full text-[14px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 focus:outline-none focus:border-[#f13030] transition-colors resize-none"
-                />
+                <div className="bg-white border border-[#e5e7eb] border-solid flex h-[160px] items-start overflow-clip p-[16px] relative rounded-[18px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full focus-within:border-[#f13030] transition-colors">
+                  <textarea
+                    id="investor-message"
+                    rows={5}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Leave us a message..."
+                    className="flex-1 font-['Inter_Tight',sans-serif] font-normal leading-[1.5] min-w-px text-[#1a1a1a] text-[14px] text-left tracking-[0.42px] placeholder:text-[#1a1a1a]/30 bg-transparent focus:outline-none resize-none size-full"
+                  />
+                </div>
               </div>
 
               {/* Submit Application Button */}
               <button
                 type="submit"
-                className="bg-[#f13030] hover:bg-[#d31f20] h-[40px] rounded-[23px] text-white text-[14px] font-semibold flex items-center justify-center gap-2 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 w-full cursor-pointer mt-2"
+                className="bg-[#f13030] hover:bg-[#d31f20] h-[40px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 w-full cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-[8px] px-[24px] py-[8px]"
                 data-node-id="178359:18489"
+                data-name="Button"
               >
-                <span>Submit Application</span>
-                <ArrowRight className="size-[16px]" />
+                <span
+                  className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[14px] text-center text-white tracking-[-0.12px] whitespace-nowrap leading-[16px]"
+                  data-node-id="178359:18491"
+                >
+                  Submit Application
+                </span>
+                <div
+                  className="relative shrink-0 size-[16px]"
+                  data-node-id="178359:18492"
+                  data-name="Icon / ArrowRight"
+                >
+                  <img
+                    alt=""
+                    className="absolute block inset-0 max-w-none size-full"
+                    src={ASSETS.arrowRight}
+                  />
+                </div>
               </button>
             </form>
           </div>
         </section>
 
-        {/* ── 5. Website Footer (Figma 178359:18494) ── */}
+        {/* ── 6. Website Footer (Figma 178359:18494) ── */}
         <WebsiteFooter />
       </main>
     </div>

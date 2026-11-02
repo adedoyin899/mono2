@@ -1,11 +1,18 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–183 1-for-1 Figma Home, Product & Pricing Pages.
+**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages.
 
 ---
 
 ## ✅ Done
+
+### Session 184 — Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form
+- [x] **Extracted & Self-Hosted All 20 Figma Resources Page Assets (`apps/web/public/assets/resources/*`)**:
+  - Downloaded all 20 static SVG assets from Figma node `178359:18325` (Monologg masked logo & theme toggle SVG, ambient blurred gradient background SVGs, `gavel.svg`, `question.svg`, vertical divider `vector-2553.svg`, horizontal divider `vector-2555.svg`, bottom bar `gmail.svg`, 7 social badges for `LinkedIn`, `Product Hunt`, `Twitter-X`, `Twitch`, `Telegram`, `TikTok`, `Instagram`, dropdown `caret-down.svg`, and `arrow-right.svg`).
+- [x] **1-for-1 Resources Page Implementation (`apps/web/src/app/pages/ResourcesPage.tsx`)**:
+  - Rebuilt Header (`Resources` active link with `8px` red dot and `#F25757` text), ambient blurred gradient background (`178359:18373`), master Resources card (`1000px` width with `Terms of Service` and `Support & Community` badges, 2×2 grid with `Vector 2553` vertical lines and `Vector 2555` horizontal divider, `#F9F9F9` bottom bar with `hello@monologg.co` link and 7 circular social badges), and the 2-column "Become an Investor" section (`RAISING SOON!`, `48px` `Switzer` heading, and `530px` interactive application form card with all inputs and `Submit Application` CTA button), plus the shared `<WebsiteFooter />`.
+  - Verified `ResourcesPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
 
 ### Session 183 — Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets
 - [x] **Extracted & Self-Hosted All 24 Figma Pricing Page Assets (`apps/web/public/assets/pricing/*`)**:

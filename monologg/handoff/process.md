@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
+**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 143: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form (Session 184)
+
+Implemented a strict 1-for-1 port of the Figma Resources Page (`node-id=178359-18325`, `1440px × 2825.28px`) in `ResourcesPage.tsx` and `ResourcesPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/resources/*`):** Downloaded all 20 static SVG assets directly from the Figma Desktop MCP server across `178359:18325` and its child frames (header logo & theme toggle SVGs, ambient blurred background gradient SVGs, `gavel.svg`, `question.svg`, `vector-2553.svg`, `vector-2555.svg`, `gmail.svg`, 7 social badges for LinkedIn, Product Hunt, Twitter-X, Twitch, Telegram, TikTok, Instagram, `caret-down.svg`, and `arrow-right.svg`).
+- **Resource Categories Master Card & Social Footer:** Rebuilt the `1000px` top box (`Terms of Service` & `Support & Community` badges with `Vector 2553` vertical and `Vector 2555` horizontal dividers) and `#F9F9F9` bottom bar with `hello@monologg.co` link and 7 circular white social badges.
+- **Become an Investor Application Form:** Rebuilt the 2-column investor section with `"RAISING SOON!"` mono label, `48px` `Switzer` heading, and the `530px` interactive application card with form inputs (`First Name`, `Last Name`, `Email`, `phone no`, `Please tell us who you are`, `Message`, and `Submit Application` CTA button with confirmation message) plus `<WebsiteFooter />` (`ResourcesPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
 
 ### Step 142: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets (Session 183)
 

@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 183: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets)
+**Last updated:** 2026-11-02 (Session 184: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -8,6 +8,43 @@ Chronological record of what was done, in what order, and why. Each entry names 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
 
 ---
+
+## Session 184 (2026-11-02) — Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form
+
+**Goal:** Implement a strict 1-for-1 update of the Resources Page (`node-id=178359-18325`, `1440px × 2825.28px`) in `apps/web/src/app/pages/ResourcesPage.tsx`, extracting and self-hosting all 20 SVG assets from the Figma Desktop MCP server into `apps/web/public/assets/resources/`, matching every section, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), Terms of Service & Support & Community categories card, 7 social badges with contact email bar, ambient blurred gradients, and the interactive "Become an Investor" application form.
+
+1. **Extracted & Downloaded All 20 Local Figma Assets (`apps/web/public/assets/resources/*`):**
+   - Called `get_design_context` across `178359:18325` and all child frames (`178359:18326`, `178359:18338`, `178359:18373`, `178359:18384`, `178359:18473`, `178359:18494`) and downloaded all 20 static SVG assets into `apps/web/public/assets/resources/`:
+     - Monologg masked SVG logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`) and theme toggle SVG (`theme-toggle.svg`).
+     - Ambient background blurred gradient SVGs (`gradient-bg-left.svg`, `gradient-bg-right.svg`).
+     - Category badges & divider SVGs: `gavel.svg`, `question.svg`, `vector-2553.svg` (vertical divider), `vector-2555.svg` (horizontal divider).
+     - Bottom bar contact & social SVGs: `gmail.svg`, `linkedin.svg`, `producthunt.svg`, `twitter-x.svg`, `twitch.svg`, `telegram.svg`, `tiktok.svg`, `instagram.svg`.
+     - Investor form controls: `caret-down.svg` (custom dropdown select arrow) and `arrow-right.svg` (`Submit Application` CTA button icon).
+2. **1-for-1 Resources Page Implementation (`apps/web/src/app/pages/ResourcesPage.tsx`):**
+   - **Announcement Bar & Header (`178359:18326`, `178359:18338`):** Implemented exact `40px` `#16161A` top bar (`Plus Jakarta Sans` + `JetBrains Mono`) and `68px` header with the masked Monologg SVG logo (`105.109×24px`), active `Resources` nav item with `8px` red dot (`rgba(241,48,48,0.8)`, `border rgba(241,48,48,0.4)`) and `#F25757` text (`gap-[10px]`), `36×36px` theme toggle button, and `Sign In` / `Sign up free` pill buttons (with signed-in user avatar menu).
+   - **Ambient Blurred Background Gradients (`178359:18373`):** Added `gradient-bg-left.svg` (`left-[-185.75px] top-[851.24px]`) and `gradient-bg-right.svg` (`left-[1064.25px] top-[115.24px]`) under `pointer-events-none`.
+   - **Resource Categories Master Card (`178359:18384` / `178359:18409`):**
+     - Top container (`Frame 427321871`, `1000px` width, `bg-white`, border `#e8e8e8`, `rounded-t-[20px]`, `p-[32px]`):
+       - `Terms of Service` badge pill (`149×30px`, `#F7F7F7`, `14×14` `gavel.svg` + `Switzer` `14px` Medium).
+       - Row 1: `Escrow Guarantee Policy` (`Switzer` `18px` + `Inter Tight` `16px`) and `Fair Trade Contracts` (`Switzer` `18px` + `Inter Tight` `16px`) separated by `Vector 2553` (`h-[148px]`).
+       - Horizontal divider: `Vector 2555` full-width line (`border-[#E8E8E8]`).
+       - `Support & Community` badge pill (`181×30px`, `#F7F7F7`, `14×14` `question.svg` + `Switzer` `14px` Medium).
+       - Row 2: `24/7 Creator Helpdesk` (`Switzer` `18px` + `Inter Tight` `16px`) and `Onboarding & EPK Guides` (`Switzer` `18px` + `Inter Tight` `16px`) separated by `Vector 2553` (`h-[148px]`).
+     - Bottom bar (`Frame 2147227600`, `1000px` width, `bg-[#F9F9F9]`, border `#E8E8E8`, `rounded-b-[20px]`, `px-[32px] py-[16px]`):
+       - Contact link: `18×18` `gmail.svg` + `"hello@monologg.co"` (`Inter Tight` `15px` underline).
+       - Social avatar group (`Avatar group` `178359:18452`): 7 circular white badges (`36.28×36.28px`, `rounded-[553.846px]`, border `0.277px solid #E5E5E5`) for `LinkedIn`, `Product Hunt`, `Twitter-X`, `Twitch`, `Telegram`, `TikTok`, and `Instagram`.
+   - **Become an Investor Section (`178359:18473` / `178359:18474`):**
+     - Left column (`388px`): `"RAISING SOON!"` (`Geist Mono` `14px` uppercase tracking `1.26px`), `"Become an Investor"` (`Switzer` Medium `48px` `leading-[48px]`), and subtext (`Inter Tight` `18px` `#6D6D75`).
+     - Right column (`Frame 2` `530px`, `bg-white`, border `#E5E7EB`, `rounded-[18px]`, shadow, `p-[25px]`):
+       - Row 1: `First Name` (input placeholder `"John"`) + `Last Name` (input placeholder `"Doe"`).
+       - Row 2: `Email` (input placeholder `"name@email.com"`) + `phone no` (input placeholder `"+234 567 2907 67"`).
+       - Row 3: `Please tell us who you are` dropdown select with `caret-down.svg` (`16×16`).
+       - Row 4: `Message` textarea (`h-[160px]`, `rounded-[18px]`, placeholder `"Leave us a message..."`).
+       - Submit CTA: `"Submit Application"` (`480×40px`, `bg-[#F13030]`, `rounded-[23px]`, shadow + `16×16` `arrow-right.svg`).
+   - **Shared Footer (`178359:18494`):** Renders the shared `<WebsiteFooter />`.
+3. **Verification & Tests (`apps/web/src/app/pages/ResourcesPage.test.tsx`):**
+   - Added test coverage for all 5 test scenarios: announcement bar & header, master resources card, investor application form submission, 7 social platform badges & email link, and the active `Resources` pill indicator.
+   - Verified `ResourcesPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
 
 ## Session 183 (2026-11-02) — Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets
 
