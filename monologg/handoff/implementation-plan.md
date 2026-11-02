@@ -1,11 +1,21 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix.
+**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page.
 
 ---
 
 ## ✅ Done
+
+### Session 186 — Strict 1-for-1 Figma Terms of Service Page Implementation & Local Assets
+- [x] **Extracted & Self-Hosted All Terms SVG Assets (`apps/web/public/assets/terms/*`)**:
+  - Populated static vector assets locally in `apps/web/public/assets/terms/`: header masked Monologg SVG logo, theme toggle SVG, ambient blurred background gradient SVGs, dashed horizontal divider SVG, and vector dividers.
+- [x] **1-for-1 Terms of Service Page Implementation (`apps/web/src/app/pages/LegalPage.tsx`)**:
+  - Rebuilt announcement bar (`178382:17927`) and sticky header (`178382:17939`) with exact typography, masked SVG logo, and unaccented nav links.
+  - Implemented ambient background gradient blurs (`178382:17974`) and Hero header (`178382:17985`) with status pill, `Switzer` 64px Medium title, and `Inter Tight` subtext.
+  - Implemented all 12 Section Cards (`178385:19525`), including Card 2's structured compliance table with uppercase `Geist Mono` headers & dividers, and Card 4's borderless `#F9F9F9` background.
+  - Positioned full-width `dashed-divider.svg` separator before `<WebsiteFooter />`.
+  - Verified `LegalPage.test.tsx` (3/3 passing) and `npx tsc --noEmit` across `apps/web` and `apps/api` (0 errors).
 
 ### Session 185 — Investor Dropdown Chevron Fix & Supabase Backend Storage Integration
 - [x] **Eliminated Native Browser Double Chevron (`ResourcesPage.tsx`)**:

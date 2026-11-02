@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
+**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 186 (2026-11-02) — Strict 1-for-1 Figma Terms of Service Page Implementation & Local Assets
+
+**Goal:** Implement a strict 1-for-1 port of the Figma Terms of Service page (`node-id=178382-17926`, `1440px × 5293px`, `#F6FAF9`) in `apps/web/src/app/pages/LegalPage.tsx`, self-hosting all required SVG assets locally in `apps/web/public/assets/terms/`, matching every layout property, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), announcement bar, sticky navigation header, ambient blurred background gradients, the 12 section cards (including Card 2's compliance data table with dividers and Card 4's borderless `#F9F9F9` background), and the dashed divider above `<WebsiteFooter />`.
+
+1. **Extracted & Self-Hosted All Local Terms Assets (`apps/web/public/assets/terms/*`):**
+   - Created `apps/web/public/assets/terms/` and populated all static vector assets:
+     - Header masked Monologg SVG logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`).
+     - Theme toggle SVG (`theme-toggle.svg`).
+     - Ambient blurred background gradient SVGs (`gradient-bg-left.svg`, `gradient-bg-right.svg`).
+     - Horizontal dashed divider SVG (`dashed-divider.svg`).
+     - Vector dividers and action arrow (`vector-2553.svg`, `arrow-right.svg`).
+2. **1-for-1 Terms of Service Page Implementation (`apps/web/src/app/pages/LegalPage.tsx`):**
+   - **Announcement Bar & Header (`178382:17927`, `178382:17939`):** Rebuilt the top `40px` `#16161A` announcement bar with pulsing `#F13030` dot, `"Monologg Marketplace v3.0 Live"`, and `"3,200+ Verified Talent Profiles"` in `JetBrains Mono`. Implemented the `68px` sticky header (`backdrop-blur-[12px] bg-white/95`) with masked SVG logo (`105.109×24px`), unaccented `#5D5D66` nav links (`Product`, `Pricing`, `Resources`), theme toggle button, and authenticated user dropdown / sign-in pill buttons.
+   - **Ambient Blurred Background Gradients (`178382:17974`):** Anchored `gradient-bg-left.svg` and `gradient-bg-right.svg` within a `2316px` overflow-visible container.
+   - **Hero Header (`178382:17985`):** Created the red status dot + `Geist Mono` `"Last Updated: 29 Oct 2026"` pill, `Switzer` 64px Medium `"Terms of Service"` heading, and `Inter Tight` 16px subtext.
+   - **12 Section Cards (`178385:19525`):**
+     - Card 1: `1. Eligibility & Account Responsibilities` (`911px`, border `#e8e8e8`, rounded-20px, 24px padding).
+     - Card 2: `2. Data Protection & Regulatory Compliance` featuring a complete 4-row compliance table (`Lawful Basis for Processing`, `Data Subject Rights`, `International Data Transfers`, `Data Retention`) bounded by uppercase `Geist Mono` `#F13030` headers and vector dividers.
+     - Card 3: `3. Prohibited Conduct & Acceptable Use` with 6 detailed bullet clauses.
+     - Card 4: `4. Intellectual Property Rights` with `#F9F9F9` fill and borderless styling matching Figma specifications.
+     - Cards 5–12: `5. User Content & Licensing`, `6. Subscriptions, Fees & Payment`, `7. Third-Party Links & Services`, `8. Disclaimers & Limitation of Liability`, `9. Indemnification`, `10. Suspension & Termination`, `11. Governing Law & Dispute Resolution`, `12. Modifications to Terms`.
+   - **Dashed Divider & Footer:** Inserted `dashed-divider.svg` separator before `<WebsiteFooter />`.
+3. **Verification & Quality Gate (`LegalPage.test.tsx`):**
+   - Verified unit tests (3/3 passing) covering Terms of Service, Cookie Policy, and Privacy route aliases.
+   - Verified zero TypeScript compiler errors (`tsc --noEmit`) across both `apps/web` and `apps/api`.
 
 ---
 

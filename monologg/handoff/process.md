@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
+**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 145: Strict 1-for-1 Figma Terms of Service Page Implementation (Session 186)
+
+Implemented a strict 1-for-1 port of the Figma Terms of Service Page (`node-id=178382-17926`, `1440px × 5293px`, `#F6FAF9`) in `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/terms/*`):** Populated all local vector assets from Figma node `178382:17926` including the header masked Monologg logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`), theme toggle button (`theme-toggle.svg`), ambient blurred background gradients (`gradient-bg-left.svg`, `gradient-bg-right.svg`), horizontal dashed divider (`dashed-divider.svg`), and vector dividers.
+- **Announcement Bar, Sticky Header & Ambient Gradients:** Built the exact `40px` `#16161A` announcement bar with pulsing `#F13030` dot and `JetBrains Mono` verified talent counter, `68px` sticky header (`backdrop-blur-[12px] bg-white/95`) with masked SVG logo and unaccented nav links, and fixed `2316px` ambient blurred gradient background container.
+- **Hero Header & 12 Section Cards:** Created the red status dot + `Geist Mono` `"Last Updated: 29 Oct 2026"` pill, `Switzer` 64px Medium title, and all 12 section cards matching Figma styling. Specifically implemented Card 2's full 4-row compliance table (`Lawful Basis for Processing`, `Data Subject Rights`, `International Data Transfers`, `Data Retention`) with uppercase `Geist Mono` `#F13030` headers and vector dividers, and Card 4's distinct borderless `#F9F9F9` background.
+- **Full-Width Dashed Divider & Quality Gate:** Placed the `dashed-divider.svg` separator before `<WebsiteFooter />`, verified 3/3 passing unit tests in `LegalPage.test.tsx`, and confirmed `tsc --noEmit` across `apps/web` and `apps/api` (0 errors).
 
 ### Step 144: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration (Session 185)
 

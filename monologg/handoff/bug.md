@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 185: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration)
+**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 133. Terms of Service Page Visual & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `LegalPage.tsx` previously used generic component fonts and layout wrappers, lacked the exact masked Monologg SVG header logo, had no ambient blurred background gradient assets, omitted Card 4's distinct `#F9F9F9` borderless background, and did not include the full 4-row compliance table with vector dividers in Section 2 (`Data Protection & Regulatory Compliance`) as detailed in Figma node `178382:17926`.
+- **Root Cause:**
+  - Legacy terms page was structured around generic markdown cards rather than the pixel-perfect layout and vector hierarchy of the Figma v3.0 design.
+- **Fix:**
+  - Rebuilt `LegalPage.tsx` with 1-for-1 fidelity to Figma node `178382:17926`, self-hosted all assets under `apps/web/public/assets/terms/`, formatted all 12 section cards with exact typography (`Switzer`, `Inter Tight`, `Geist Mono`, `JetBrains Mono`), added the Card 2 compliance table with vector dividers, applied Card 4's `#F9F9F9` borderless styling, and integrated the full-width dashed divider before the footer (3/3 unit tests passing, `tsc --noEmit` 0 errors).
 
 ### 132. Native Select Double Chevron & Unmocked Database Transit in Tests (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
 - **Severity:** Low / UX Polish & Test Stability Defect
