@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
+**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -19,6 +19,15 @@ This tracks every defect found during this engagement — both classic "the buil
 
 ## Bugs found and fixed during this engagement
 
+### 128. Improvised Feature Mockups, Substituted Icons/Avatars, and Missing `Switzer`/`Inter Tight`/`Geist Mono` Fonts on Home Page (`LandingPage.tsx`, `WebsiteFooter.tsx`, `fonts.css`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `LandingPage.tsx` and `WebsiteFooter.tsx` previously used improvised HTML/CSS mockup cards in the 6-feature section, generic Unsplash avatar URLs, Lucide icon substitutes in the `"YOU BELONG HERE"` category strip, a text `"Combinator"` label in the footer instead of the two `24×23.84px` Figma partner badges, and lacked `@import` rules for `Switzer`, `Inter Tight`, and `Geist Mono` in `fonts.css`.
+- **Root Cause:**
+  - Earlier iterations approximated sublayers of Figma node `178359:16886` without extracting the child frames' SVG/PNG assets via `get_design_context` or importing the required web fonts.
+- **Fix:**
+  - Extracted all 68 SVG/PNG assets from `178359:16886` and its child frames into `apps/web/public/assets/home/`, imported `Switzer`, `Inter Tight`, and `Geist Mono` in `apps/web/src/styles/fonts.css`, and rebuilt `LandingPage.tsx` and `WebsiteFooter.tsx` as a strict 1-for-1 implementation of the Figma specification.
+
 ### 127. Quadruple Financial Duplication, Stacked Top Banners, and Redundant 1-on-1 Chat Role Badges in `OrderRoom.tsx`
 - **Severity:** Medium / Information Architecture & UX Clutter Defect
 - **What happened:**
@@ -29,65 +38,6 @@ This tracks every defect found during this engagement — both classic "the buil
   - Removed the redundant `Payment` tab and top-right `Escrow:` / `Take-Home:` pill, making the Right-Hand Inspector Rail the single authoritative financial source of truth on desktop (with expanded `Fee breakdown` math and Paystack guarantee copy) and scoping the `Order Info` button to mobile/collapsed states.
   - Unified the Attendance Gate and Client Google Meet strip into a single contextual card on the `Messages` tab, removed the duplicate `"Check-in 2 of 3 is due"` system message, and collapsed `Script & Brief Assets` by default.
   - Stripped `PERFORMER` / `CLIENT` role badges, `"You"` labels, and outgoing self-avatars from 1-on-1 chat messages, and implemented consecutive message grouping.
-
-### 126. Missing Dedicated `/product` Marketing Route & Risk of Asset Artboard Duplication vs. Figma Node 178359:17305
-- **Severity:** Medium / UX Navigation & Design Parity Defect
-- **What happened:**
-  - The application previously routed `Product` navigation clicks back to `/` rather than a dedicated `/product` page corresponding to the official Figma Product page (`178359:17305`). Additionally, the static Figma canvas included a grid of 7 asset artboards underneath `Frame 10` (`178359:17481`) which, if rendered directly, would duplicate the content of the 7-step interactive showcase.
-- **Root Cause:**
-  - The Figma canvas laid out static frame variations to host vector assets for animation states, which can easily be mistaken for standalone content sections if not properly analyzed alongside product intent.
-- **Fix:**
-  - Registered `/product` in `routes.tsx` and created `ProductPage.tsx` strictly following the single interactive 7-step showcase structure (with dynamic smartphone mockup switching on the right) without duplicating the underlying asset artboards as a separate section.
-  - Updated all marketing headers (`LandingPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`) so `Product` links directly to `/product`.
-  - Added unit test coverage in `ProductPage.test.tsx` (5/5 passing).
-
-### 125. Pricing Page Truncated Comparison Tables & Generic FAQ vs. Figma Node 178359:17960
-- **Severity:** Medium / Design Parity & Marketing Conversion Defect
-- **What happened:**
-  - `PricingPage.tsx` previously contained an abbreviated 7-row Performer table, an incomplete 5-row Client table missing the 5 distinct categorized section subheaders ("Discover Trusted Performers", "Move Faster with Thespian AI", etc.), lacked the 6 studio badge logos (`Vimeo`, `Netflix`, `Amazon`, `Disney+`, `Hulu`, `Twitch`), and displayed a generic 4-question FAQ instead of the full 10 questions specified in Figma.
-- **Root Cause:**
-  - Early scaffolding in Session 175 had implemented a prototype placeholder before all sublayers and SVG assets of node `178359:17960` were downloaded and cataloged.
-- **Fix:**
-  - Replaced the page layout with the exact 1-for-1 Figma structure:
-    1. Top announcement bar (`178359:17961`) and sticky 68px header (`178359:17973`) with active red dot on Pricing.
-    2. Hero section with `Get started for free` button and segmented toggle pill (`178359:18032`).
-    3. Complete "For Performers" section (`178359:18031`) with 6 performer avatars, 9 comparison rows, Coming Soon badge, and bottom CTA.
-    4. Complete "For Clients" section (`178359:18130`) with 6 studio badges, 18 comparison rows with 5 categorized section subheaders, and Coming Soon badge.
-    5. Complete 10-item FAQ accordion (`178359:18323`) with Plus/X toggles.
-    6. Reusable `<WebsiteFooter />`.
-  - Added unit test coverage in `PricingPage.test.tsx` (5/5 passing).
-
-### 124. Resources Page Hero Divergence & Missing "Become an Investor" Section vs Figma Node 178359:18325
-- **Severity:** Medium / Design Parity & Marketing Conversion Defect
-- **What happened:**
-  - `ResourcesPage.tsx` previously contained a generic placeholder hero ("Resources & Legal"), a different FAQ accordion section, and omitted the official Figma master resources card format and the entire "Become an Investor" (`RAISING SOON!`) application form section (`178359:18473`).
-- **Root Cause:**
-  - Early scaffolding in Session 175 had implemented an interim layout before the full high-fidelity sublayers of node `178359:18325` were fetched and analyzed.
-- **Fix:**
-  - Replaced the page layout with the exact 1-for-1 Figma structure:
-    1. Master resources card (`178359:18409`): `Terms of Service` pill with gavel icon, 2-column Escrow Guarantee vs. Fair Trade Contracts with vertical divider, horizontal divider, `Support & Community` pill with question icon, 2-column 24/7 Creator Helpdesk vs. Onboarding & EPK Guides, and bottom bar with `hello@monologg.co` + 7 social avatar buttons.
-    2. "Become an Investor" section (`178359:18473`): `RAISING SOON!` eyebrow, 48px heading, description, and interactive 5-input application form with submission feedback state.
-    3. Reusable `<WebsiteFooter />`.
-  - Added unit test coverage in `ResourcesPage.test.tsx` (3/3 passing).
-
-### 123. Placeholder Draft Legal Copy & Missing `/legal/cookies` Route vs. Figma Legal Specifications
-- **Severity:** Medium / Legal Compliance & Design Parity Gap
-- **What happened:**
-  - `LegalPage.tsx` previously rendered a narrow `max-w-lg` mobile-only placeholder with a yellow warning banner ("Draft placeholder — this page has not been through legal review") and lacked the `Cookie Settings & Policy` (`178383:18857`) route and structured compliance tables from Figma (`178382:17926`).
-- **Root Cause:**
-  - Phase 10 originally scaffolded a minimal 4-paragraph placeholder prior to the finalized Figma legal specifications (`Terms of Service` and `Cookie Settings & Policy`).
-- **Fix:**
-  - Re-implemented `LegalPage.tsx` 1-for-1 against Figma nodes `178382:17926` (12-section Terms of Service with 2-column GDPR/NDPA compliance table) and `178383:18857` (7-section Cookie Settings & Policy with 5-column cookie table), registered `/legal/cookies`, `/terms`, `/cookies`, and `/privacy` in `routes.tsx`, guarded `window.scrollTo` for jsdom test compatibility, and updated `LegalPage.test.tsx` (3/3 passing).
-
-### 122. Figma Remote MCP OAuth Redirect Roadblock & Local Server Discovery
-- **Severity:** High / Tooling & Design-to-Code Pipeline Block
-- **What happened:**
-  - Connecting to Figma's cloud MCP server (`https://mcp.figma.com/mcp`) prompted an OAuth browser flow requesting the user enter user code `GCXeV5mietjPHAN3Ox7j7biDM` at `https://antigravity.google/oauth-callback`. However, due to headless / local CLI proxy constraints, the callback could not finish the redirect handshake, preventing access to design nodes.
-- **Root Cause:**
-  - `https://mcp.figma.com/mcp` is a remote multi-tenant gateway that enforces OAuth tokens, whereas the local Figma Desktop App already hosts a local Dev Mode MCP server at `http://127.0.0.1:3845/mcp`.
-- **Fix:**
-  - Detected that port 3845 was actively listening on the host machine (`lsof -iTCP:3845`).
-  - Reconfigured `~/.gemini/config/mcp_config.json` with `"Figma Desktop": { "url": "http://127.0.0.1:3845/mcp" }`, bypassing OAuth entirely and allowing direct, authenticated-free inspection of nodes, vector metadata, and design screenshots.
 
 ### 121. Missing Frontend Click-Stream, Route Dwell & Funnel Telemetry Pipeline in Supabase
 - **Severity:** Medium / Product Observability & Stakeholder Analytics Gap

@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–179 + Session 180 Order Room FAANG UX Overhaul on `web-update`.
+**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181 1-for-1 Figma Home Page.
 
 ---
 
 ## ✅ Done
+
+### Session 181 — Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography
+- [x] **Extracted & Self-Hosted All 68 Figma Home Page Assets (`apps/web/public/assets/home/*`)**:
+  - Downloaded all SVG and PNG assets from Figma node `178359:16886` (Monologg header/footer logos, 6 hero avatar stacks, iPhone 15 frame & screen mockup, 6 category SVG icons, dashed divider, all 6 `300×300` feature illustrations, FAQ `Plus`/`X` icons, and footer `Backed by` badges).
+- [x] **Typography Alignment (`apps/web/src/styles/fonts.css`)**:
+  - Loaded `Switzer` (Fontshare) and `Inter Tight` + `Geist Mono` (Google Fonts) in `fonts.css` to render all Figma display, body, and mono styles accurately.
+- [x] **1-for-1 `LandingPage.tsx` & `WebsiteFooter.tsx` Implementation**:
+  - Rebuilt `LandingPage.tsx` and `WebsiteFooter.tsx` to match every section, spacing, font family/size/weight, and vector asset of `178359:16886` without improvised mockup cards or icon substitutions.
+  - Verified `LandingPageHeader.test.tsx` (3/3 passing) and `npx tsc --noEmit` (0 errors).
 
 ### Session 180 — Order Room FAANG UX & Information Architecture Overhaul
 - [x] **Eliminated Financial & Tab Duplication (`OrderRoom.tsx`)**:
@@ -22,87 +31,6 @@
   - Removed self-avatars on outgoing messages and added consecutive message grouping by sender.
 - [x] **Quality Gate & Testing (`OrderRoom.test.tsx`)**:
   - Updated `OrderRoom.test.tsx` to verify the streamlined IA and progressive disclosure (9/9 tests passing across `OrderRoom.test.tsx`, `dashboardParity.test.tsx`, and `x3CopyAudit.test.ts`; `npx tsc --noEmit` 0 errors).
-
-### Session 179 — 1-for-1 Figma Product Page Implementation
-- [x] **1-for-1 Product Page Architecture (`ProductPage.tsx`, Node `178359:17305`)**:
-  - Implemented top announcement bar (`178359:17306`) and sticky header (`178359:17318`) with active red dot on `Product`.
-  - Implemented Performer Portal hero section (`178359:17378`) with "Build your personal digital stage" heading, description, and `Get started for free` CTA.
-- [x] **Interactive 7-Step Showcase (`ProductPage.tsx`, Frame 10, `178359:17392`)**:
-  - Built single interactive 7-step stepper list (`01` to `07`) pairing with active smartphone mockup on the right.
-  - Dynamically switches reactive UI preview based on selected step (AI agent dialogue, custom rate card table, visitor intelligence analytics, escrow protection card, casting brief bid card, performer bio player, and calendar booking).
-  - Explicitly avoided duplicating the asset source artboards underneath (`178359:17481`).
-- [x] **1-for-1 Client Portal Section (`ProductPage.tsx`, Node `178359:17765`)**:
-  - Built "The Upwork for Performer Acquisition" section with 4 capability cards (`Verified Creator Pool`, `Chat with AI Performer Profiles`, `Post Gigs & Micro-Briefs`, `Secure Contracts & Escrow Payments`).
-  - Rendered 6 studio badges (`Vimeo`, `Netflix`, `Amazon`, `Disney+`, `Hulu`, `Twitch`) with "Trusted by top media houses".
-- [x] **1-for-1 Thespian AI Section (`ProductPage.tsx`, Node `178359:17831`)**:
-  - Built "Performance Intelligence Engine" section with dual `performer` vs `client` toggle switch.
-  - Rendered Performer perspective ("Your Digital AI Agent") with `Instant AI Onboarding`, `24/7 AI Booking Agent` [coming soon], and `Automatic Gig Pitching` [coming soon].
-  - Rendered Client perspective ("Your Automated Casting Butler") with `Vibe & Texture Matching`, `Automated Logistics` [coming soon], `Script & Prompt Parsing` [coming soon], and "Start hiring today" CTA.
-- [x] **FAQ Accordion & Global Footer (`ProductPage.tsx`, `WebsiteFooter.tsx`)**:
-  - Rendered 10-item FAQ accordion (`178359:17958`) and attached `<WebsiteFooter />`.
-- [x] **Routing & Nav Integration (`routes.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`)**:
-  - Registered `/product` route in `routes.tsx`.
-  - Updated `Product` nav buttons across all marketing headers to navigate to `/product`.
-- [x] **Quality Gate & Testing (`ProductPage.test.tsx`)**:
-  - Created `apps/web/src/app/pages/ProductPage.test.tsx` (5/5 tests passing).
-  - Confirmed `npx tsc --noEmit` (0 errors) and dev server running on `http://localhost:5173/product`.
-
-### Session 178 — 1-for-1 Figma Pricing Page Implementation
-- [x] **1-for-1 Pricing Hero & Audience Toggle (`PricingPage.tsx`, Node `178359:18019` & `178359:18032`)**:
-  - Implemented top announcement bar (`178359:17961`) and sticky header (`178359:17973`) with active red dot on Pricing.
-  - Implemented hero section with `Pricing` title, subtitle, and `Get started for free` CTA button with `ArrowRight`.
-  - Built segmented pill controller with red dot active indicators for `Performers` and `Clients` supporting smooth scroll jumps.
-- [x] **1-for-1 For Performers Comparison Table (`PricingPage.tsx`, Node `178359:18031` & `178359:18050`)**:
-  - Rendered 6 overlapping performer avatars (`avatar-1.png` through `avatar-6.png`).
-  - Implemented 9-row comparison table with `Free Tier` vs. `Monologg Pro` (with red dot + `Coming Soon` badge).
-  - Added bottom CTA button `Get started for free` with `ArrowRight` icon.
-- [x] **1-for-1 For Clients Comparison Table (`PricingPage.tsx`, Node `178359:18130` & `178359:18148`)**:
-  - Rendered 6 circular client studio badges (`vimeo.svg`, `netflix.svg`, `amazon.svg`, `disney.svg`, `hulu.svg`, `twitch.svg`).
-  - Implemented 18-row comparison table with 5 categorized section row subheaders (`bg-[#f9f9f9]`): "Discover Trusted Performers", "Move Faster with Thespian AI", "Analytics & Reporting", "Engage & Contract Candidates", and "Collaborate & Management".
-- [x] **1-for-1 Frequently Asked Questions Accordion (`PricingPage.tsx`, Node `178359:18323`)**:
-  - Implemented 10 accordion FAQ cards matching exact Figma copy, toggling between `Plus` and `X` icons.
-- [x] **Automated Unit Testing & Verification (`PricingPage.test.tsx`)**:
-  - Created `apps/web/src/app/pages/PricingPage.test.tsx` (5/5 tests passing).
-  - Validated `npx tsc --noEmit` (0 errors) and dev server running on `http://localhost:5173/pricing`.
-
-### Session 177 — 1-for-1 Figma Resources Page Implementation
-- [x] **1-for-1 Resources Master Card (`ResourcesPage.tsx`, Node `178359:18384` & `178359:18409`)**:
-  - Implemented the master card with centered `Terms of Service` pill with Gavel icon, 2-column Escrow Guarantee Policy vs. Fair Trade Contracts with vertical divider, horizontal divider, `Support & Community` pill with Question icon, 2-column 24/7 Creator Helpdesk vs. Onboarding & EPK Guides, and lower bar (`178359:18448`) with `hello@monologg.co` link and 7 circular social buttons (LinkedIn, Product Hunt, Twitter/X, Twitch, Telegram, TikTok, Instagram).
-- [x] **1-for-1 Become an Investor Section (`ResourcesPage.tsx`, Node `178359:18473` & `178359:18474`)**:
-  - Built 2-column layout with `RAISING SOON!` monospace eyebrow, 48px `Become an Investor` heading, and right-hand application form card (`First Name`, `Last Name`, `Email`, `phone no`, `Please tell us who you are` select, `Message` textarea, and `Submit Application` button with feedback state).
-- [x] **Asset Integration & Verification**:
-  - Downloaded 10 Figma SVG icons into `monologg/apps/web/public/assets/social/`.
-  - Created `apps/web/src/app/pages/ResourcesPage.test.tsx` (3/3 tests passing) and confirmed `npx tsc --noEmit` (0 errors).
-
-### Session 176 — 1-for-1 Figma Terms of Service & Cookie Settings Legal Pages Implementation
-- [x] **1-for-1 Terms of Service (`LegalPage.tsx`, Node `178382:17926`)**:
-  - Built full 12-card Terms of Service layout with `Last Updated: 29 Oct 2026` eyebrow badge, 2-column GDPR/NDPA compliance table, prohibited conduct bullets, `#f9f9f9` IP rights card, and Nigerian governing law clauses.
-- [x] **1-for-1 Cookie Settings & Policy (`LegalPage.tsx`, Node `178383:18857`)**:
-  - Built full 7-card Cookie Settings & Policy layout with `Effective Date: October 29, 2026` eyebrow badge, `#f9f9f9` cookie definition card, 4 cookie categories, 5-column cookie identifier summary table (`__session_id`, `_csrf_token`, `pref_theme`, `_analytics_id`, `_mkt_trkr`), and browser preference instructions.
-- [x] **Routes & Navigation (`routes.tsx`, `ResourcesPage.tsx`)**:
-  - Added `/legal/terms`, `/legal/cookies`, `/legal/privacy`, `/terms`, `/cookies`, and `/privacy` routes plus quick links in `ResourcesPage.tsx`.
-- [x] **Verification (`LegalPage.test.tsx`)**:
-  - Updated and verified `LegalPage.test.tsx` (3/3 passing) and `npx tsc --noEmit` (0 errors).
-
-### Session 175 — Figma Home Page Redesign, WebsiteFooter & Public Routes Implementation
-- [x] **Git Branching & Remote Setup (`web-update`)**:
-  - Created, checked out, and pushed new branch `web-update` with upstream tracking on GitHub.
-- [x] **Local Figma Desktop MCP Server Integration**:
-  - Connected local Figma Desktop App MCP endpoint on `http://127.0.0.1:3845/mcp`, bypassing browser OAuth redirect roadblocks.
-- [x] **Figma Home Page Full Implementation (`LandingPage.tsx`)**:
-  - Announcement Bar (`178359:16887`): `#16161A` dark bar with red pulsing dot, `MONOLOGG MARKETPLACE V3.0 LIVE`, and `FINCRA Escrow Secured · 3,200+ Verified Talent Profiles`.
-  - Header (`178359:16910`): Sticky 68px header with `Logo`, navigation (`Product`, `Pricing`, `Resources`), theme toggle, and authenticated session avatar dropdown (`aria-label="Account menu"`) with `Dashboard` shortcut and `Sign Out` via `apiClient.logout()` (passing `LandingPageHeader.test.tsx` 3/3).
-  - Hero Section (`178359:16911`): 6 overlapping circular performer avatars, display headline `Find Performers| Finish Your Project.`, dual CTAs (`Find Performers` with `ArrowRight` and `Find Gigs`), centered iPhone 15 frame displaying `/auth-performer-device.png`, and "YOU BELONG HERE" 6-category bar (`Actors`, `Speakers`, `Comperes`, `Comedians`, `Artists`, `Creators`).
-  - Interactive 6-Step Stepper Showcase (`178359:16989`): Vertical progress rail with 6 interactive feature cards (Share Your Stage Anywhere with bio link copy + QR code, Monetize Fan Shoutouts & Micro-Deliverables, Analyze your audience with real-time metrics, Set Transparent Custom Rate Cards with ₦ NGN / $ USD toggle, Powered by Thespian AI with script parsing preview, and Bank-Grade Escrow Protection with 3-step milestone flow).
-  - 10-Item FAQ Accordion (`178359:17242`): Clean accordion with `Plus` and `X` toggle icons matching Figma copy.
-- [x] **Reusable WebsiteFooter Component (`WebsiteFooter.tsx`)**:
-  - Extracted `<WebsiteFooter />` with top CTA banner ("Finish Your Project today!"), newsletter email capture, Y Combinator attribution badge, 3-column navigation (Product, Resources, Social), and copyright bar.
-- [x] **Dedicated Public Routes (`PricingPage.tsx`, `ResourcesPage.tsx`, `routes.tsx`)**:
-  - Created `PricingPage.tsx` (`178359:17960`) with interactive Performers vs. Clients segmented switch and detailed feature comparison table.
-  - Created `ResourcesPage.tsx` (`178359:18325`) with Terms of Service, Escrow Guarantee Policy, Fair Trade Contracts, and Support Helpdesk.
-  - Registered `/pricing` and `/resources` in `apps/web/src/app/routes.tsx` ahead of `:handle`.
-- [x] **Verification & Test Passes**:
-  - Verified `LandingPageHeader.test.tsx` (3/3 passing), `RequireAuth.test.tsx`, `LegalPage.test.tsx`, `PublicStorefront.test.tsx` (10/10 passing), and `npx tsc --noEmit` (0 errors).
 
 ### Session 174 — Supabase-First Product Analytics, Delegated Click Tracking & Stakeholder Telemetry
 - [x] **Supabase `AnalyticsEvent` Schema & RLS Migration (`schema.prisma`, `20261030101500_add_analytics_events/migration.sql`)**:
