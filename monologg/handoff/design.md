@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181 1-for-1 Figma Home Page (`178359:16886`).
+**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181–182 1-for-1 Figma Home (`178359:16886`) & Product (`178359:17305`) Pages.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
@@ -43,7 +43,7 @@ The original PRD described a large product; `features.md` extended it further (r
 | PRD screen(s) | Implemented as | Status |
 |---|---|---|
 | WEB-01/02/03 (Landing, waitlist + live) | `LandingPage.tsx` | Built, redesigned Session 74 with high-contrast blocks, Upwork category grid, Linktree feature modules, escrow calculator, 10 FAQs |
-| WEB-04 (Product Overview) | `ProductPage.tsx` at `/product` | Built Session 74 (4 Core Pillars: Bio Link, Thespian AI, Escrow, Analytics) |
+| WEB-04 (Product Overview) | `ProductPage.tsx` at `/product` | Built Session 74; updated 1-for-1 in Session 182 (`178359:17305`) with 3-state (`default` / `active` / `completed`) 7-step interactive showcase, 7 extracted `300×300` Figma SVG illustrations, `1000px` 2×2 Client Portal grid + 6 media house logos, Performer (5-row) & Client (3-row) Thespian AI tables, and 10 borderless FAQs |
 | WEB-05 (Pricing & Split Calculator) | `PricingPage.tsx` at `/pricing` | Built Session 74 (16% Split Protocol, 7% Performer / 9% Client Breakdown) |
 | WEB-06 (Resources & Knowledge Hub) | `ResourcesPage.tsx` at `/resources` | Built Session 74 (Performer Playbooks, Casting Guides, Escrow Protocol) |
 | PWA-01 (Welcome/Register/Sign In/Forgot) | `AuthFlow.tsx` & `AuthCallback.tsx` | Real auth as of Phase 4; Supabase Auth identity bridge in Phase 12B; resolved in Session 157 with PKCE authorization code exchange (`exchangeCodeForSession`), GoTrue CSRF `state` parameter clean-up, and localStorage fallback role persistence |

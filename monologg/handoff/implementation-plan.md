@@ -1,11 +1,20 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181 1-for-1 Figma Home Page.
+**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181–182 1-for-1 Figma Home & Product Pages.
 
 ---
 
 ## ✅ Done
+
+### Session 182 — Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations
+- [x] **Extracted & Self-Hosted All 64 Figma Product Page Assets (`apps/web/public/assets/product/*`)**:
+  - Downloaded all 64 SVG assets from Figma node `178359:17305` (header logo & theme icon, `ArrowCircleRight` / `Spinner` / `CheckCircle` step state icons, all 7 `300×300` phone illustrations, Client Portal icons & 6 studio logos, Thespian AI dividers, and FAQ `Plus`/`X` icons).
+- [x] **3-State Stepper Cards & 7 Extracted Illustrations (`apps/web/src/app/pages/ProductPage.tsx`)**:
+  - Applied the 3 card states (`default` with `#bababa` text & `Spinner` SVG, `active` with `#f9f9f9` card, `ArrowCircleRight` SVG, `#16161a` title & `#6d6d75` description, and `completed` with `#333333` text & red `CheckCircle` SVG) across all 7 steps (`01`–`07`).
+  - Extracted the 7 `300×300` Figma SVG illustrations from `Frame 2147228146` into the right-hand `525×484px` preview stage without duplicating the reference section underneath.
+- [x] **1-for-1 Client Portal, Thespian AI Tables & FAQ (`ProductPage.tsx`, `ProductPage.test.tsx`)**:
+  - Rebuilt Client Portal (`1000px` 2×2 grid + 6 overlapping media house logos), Thespian AI (Performer 5-row table + Client 3-row table), and 10-item borderless FAQ accordion (`ProductPage.test.tsx` 5/5 passing, `npx tsc --noEmit` 0 errors).
 
 ### Session 181 — Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography
 - [x] **Extracted & Self-Hosted All 68 Figma Home Page Assets (`apps/web/public/assets/home/*`)**:

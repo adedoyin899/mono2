@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
+**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 129. Missing 3-State Stepper Cards (`default` / `active` / `completed`), Improvised Phone Mockups & Missing Thespian AI Rows on Product Page (`ProductPage.tsx`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `ProductPage.tsx` previously rendered only a 2-state step list with Lucide `ArrowUpRight`, improvised HTML phone cards instead of the 7 `300×300` Figma SVG illustrations from `178359:17305`, Lucide icons instead of the Figma `SealCheck` / `chat-4-fill` / `NotePencil` / `lock-fill` SVGs in the Client Portal, and omitted `Contract Guardrails` and `AI Rehearsal Partner` from the Performer Thespian AI table.
+- **Root Cause:**
+  - Earlier implementation approximated `178359:17305` without extracting the child frames' SVG assets (`ArrowCircleRight`, `Spinner`, `CheckCircle`, and the 7 `300×300` illustrations in `Frame 2147228146`) via `get_design_context`.
+- **Fix:**
+  - Downloaded all 64 SVG assets from `178359:17305` into `apps/web/public/assets/product/`, implemented the exact 3 states (`default`, `active`, `completed`) across all 7 step cards (`01`–`07`), extracted the 7 `300×300` Figma SVG illustrations into the right-hand preview box without duplicating the reference section, and rebuilt the Client Portal, Thespian AI tables, and FAQ 1-for-1 (`ProductPage.test.tsx` 5/5 passing).
 
 ### 128. Improvised Feature Mockups, Substituted Icons/Avatars, and Missing `Switzer`/`Inter Tight`/`Geist Mono` Fonts on Home Page (`LandingPage.tsx`, `WebsiteFooter.tsx`, `fonts.css`)
 - **Severity:** Medium / Figma Design-to-Code Fidelity Defect

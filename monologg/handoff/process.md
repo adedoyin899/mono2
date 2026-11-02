@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
+**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 141: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations (Session 182)
+
+Implemented a strict 1-for-1 port of the Figma Product Page (`node-id=178359-17305`) in `ProductPage.tsx` and `ProductPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/product/*`):** Downloaded all 64 static SVG assets directly from the Figma Desktop MCP server across `178359:17305` and its child frames.
+- **3-State Interactive Stepper & 7 Extracted Illustrations:** Applied the 3 card states (`default` with `#bababa` text & `Spinner` SVG, `active` with `#f9f9f9` surface, `ArrowCircleRight` SVG, `#16161a` title & `#6d6d75` description, and `completed` with `#333333` text & red `CheckCircle` SVG) across all 7 steps (`01`–`07`), and extracted the 7 `300×300` Figma SVG illustrations from `Frame 2147228146` into the right-hand `525×484px` preview stage without duplicating `Frame 2147228146` as a second section underneath.
+- **Client Portal, Thespian AI Tables & FAQ:** Rebuilt the Client Portal `1000px` 2×2 grid + 6 overlapping media house logos, both Performer (5-row) and Client (3-row) Thespian AI tables, and the 10-item borderless FAQ accordion (`ProductPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
 
 ### Step 140: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography (Session 181)
 

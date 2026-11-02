@@ -1,11 +1,32 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 181: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography)
+**Last updated:** 2026-11-02 (Session 182: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 182 (2026-11-02) — Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations
+
+**Goal:** Implement a strict 1-for-1 update of the Product Page (`node-id=178359-17305`) in `apps/web/src/app/pages/ProductPage.tsx`, applying the 3 card states (`default`, `active`, `completed`) across all 7 Performer Portal step cards (`01`–`07`), extracting the 7 `300×300` Figma SVG illustrations from the reference grid beneath without duplicating that section, and rendering the exact Client Portal, Thespian AI Performer/Client tables, FAQ, and Footer.
+
+1. **Extracted & Downloaded All 64 Local Figma Assets (`apps/web/public/assets/product/*`):**
+   - Called `get_design_context` across `178359:17305` and all child frames (`178359:17318`, `178359:17353`, `178359:17378`, `178359:17392`, `178359:17482`, `178359:17582`, `178359:17697`, `178359:17765`, `178359:17831`, `178359:17958`) and downloaded all 64 static SVG assets into `apps/web/public/assets/product/`.
+2. **3-State Step Cards & Extracted 7-Step SVG Illustrations (`apps/web/src/app/pages/ProductPage.tsx`):**
+   - Applied the 3 card states from Figma step `02` (`Frame 13` = `default`, `Frame 19` = `active`, `Frame 20` = `completed`) across all 7 step cards (`01` through `07`):
+     - **`default` (`idx > activeStep`):** White card (`border-[#f5f5f5]`), `#bababa` step number & title (`Switzer` `18px`), collapsed description, and right-aligned `24×24` `Spinner` SVG (`d992e1c0...svg`).
+     - **`active` (`idx === activeStep`):** `#f9f9f9` card (`border-[#f5f5f5]`), left `24×24` `ArrowCircleRight` SVG (`81db1c32...svg`), `#16161a` title (`Switzer` `18px`), and `#6d6d75` description (`Inter Tight` `16px`).
+     - **`completed` (`idx < activeStep`):** White card (`border-[#f5f5f5]`), `#333333` step number & title (`Switzer` `18px`), collapsed description, and right-aligned `24×24` red `CheckCircle` SVG (`5d95f1f3...svg`).
+   - Extracted the 7 `300×300` multi-layer Figma SVG illustrations from `178359:17452` and `178359:17481` (`Frame 2147228146`) into `<StepIllustration stepIndex={activeStep} />` inside the right-hand `525×484px` `#f9f9f9` preview container (`178359:17450`) without rendering `Frame 2147228146` as a duplicate section below.
+3. **Client Portal, Thespian AI & FAQ 1-for-1 Implementation (`apps/web/src/app/pages/ProductPage.tsx`):**
+   - **Client Portal (`178359:17765`):** Implemented the `948px` header, `1000px` 2×2 bordered feature grid (`SealCheck`, `chat-4-fill`, `NotePencil`, `lock-fill` with exact SVG dividers), and attached `#f9f9f9` bottom bar with the 6 overlapping `36×36px` media house badges (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`).
+   - **Thespian AI (`178359:17831`):** Implemented both the Performer 5-row table (`Instant AI Onboarding`, `24/7 AI Booking Agent`, `Automatic Gig Pitching`, `Contract Guardrails`, `AI Rehearsal Partner`) and Client 3-row table (`Vibe & Texture Matching`, `Automated Logistics`, `Script & Prompt Parsing`) with `#f7f7f7` highlighted first rows, vertical cell dividers, `Geist Mono` `coming soon` labels, and bottom `"Start hiring today"` / `"Get started for free"` bars.
+   - **FAQ (`178359:17958`):** Implemented the borderless `910px` 10-item FAQ accordion with rotated `Plus`/`X` SVGs and `<WebsiteFooter />`.
+4. **Testing & Verification (`apps/web/src/app/pages/ProductPage.test.tsx`):**
+   - Updated `ProductPage.test.tsx` to verify the 3 step states (`default`, `active`, `completed`), single-instance step titles (no duplicated reference grid), Client Portal, Thespian AI tables, and FAQ (5/5 passing in `ProductPage.test.tsx`, 3/3 in `LandingPageHeader.test.tsx`, `npx tsc --noEmit` 0 errors).
 
 ---
 
