@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-10-30 (Session 179: 1-for-1 Figma Product Page Implementation)
+**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 139: Order Room FAANG UX & Information Architecture Overhaul (Session 180)
+
+Refactored `OrderRoom.tsx` with a FAANG-level UX and Information Architecture cleanup for both Performer and Client views:
+- **Eliminated Financial & Tab Duplication:** Removed the redundant `Payment` tab (`workspaceTab === "escrow"`) and top-right `Escrow: ₦134,400` / `Take-Home: ₦111,600` pill that duplicated the static right-hand Inspector Rail (`Order Inspector Panel`). Streamlined workspace navigation to two primary views (`Messages` and `Brief & Files`) and enriched the right rail's progressive `Fee breakdown` drawer with complete line-item math and Paystack escrow protection copy.
+- **Unified Contextual Command Bar:** Merged the Attendance Check-in Gate and Client Google Meet reminder into a single unified card container (visible only in `Messages` view) instead of two separate stacked banner boxes, removed the duplicate `"Check-in 2 of 3 is due"` system pill from the chat stream, and collapsed `Script & Brief Assets` by default.
+- **1-on-1 Chat Stream Clean Sweep:** Stripped redundant `PERFORMER` / `CLIENT` role tags, `"You"` labels, and outgoing self-avatars from 1-on-1 chat messages, and grouped consecutive messages from the same sender.
+- **Quality Gate & Testing:** Updated `OrderRoom.test.tsx` (4/4 passing) and verified 9/9 tests passing across `OrderRoom.test.tsx`, `dashboardParity.test.tsx`, and `x3CopyAudit.test.ts`, plus `tsc --noEmit` (0 errors).
 
 ### Step 138: 1-for-1 Figma Product Page Implementation & Interactive Showcase (Session 179)
 

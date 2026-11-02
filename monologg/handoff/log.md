@@ -1,11 +1,34 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-10-30 (Session 179: 1-for-1 Figma Product Page Implementation)
+**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 180 (2026-11-02) — Order Room FAANG UX & Information Architecture Overhaul
+
+**Goal:** Eliminate redundant financial cards, duplicate tabs, stacked top banners, and unnecessary 1-on-1 message role badges (`PERFORMER`, `CLIENT`, `You`) in `OrderRoom.tsx`, establishing a clean, high-signal FAANG-grade Information Architecture for both Client and Performer views.
+
+1. **Single Financial Source of Truth (Purged Redundant `Payment` Tab & Top-Bar Escrow Pill):**
+   - Removed the redundant `Payment` tab (`workspaceTab === "escrow"`) from the center column and removed the duplicate `Escrow: ₦134,400` / `Take-Home: ₦111,600` pill next to the workspace switcher.
+   - Streamlined workspace navigation to two primary views: **`Messages`** and **`Brief & Files`**.
+   - Consolidated all escrow/payout figures into the persistent right-hand Inspector Rail (`Order Inspector Panel`), upgrading its `Fee breakdown` (`Hide math`) progressive disclosure to include `Base rate`, `Escrow fee (12%)` / `Platform fee (7%)`, `Total deposit` / `You receive`, and the Paystack 48h auto-release guarantee note.
+   - Scoped the header `Order Info` modal button to mobile/tablet (`lg:hidden`) or when the desktop inspector rail is collapsed (`!showInspectorRail`).
+2. **Unified Contextual Command & Alignment Bar (`OrderRoom.tsx`):**
+   - Merged the Attendance Check-in Gate and the Client Google Meet reminder into a single unified card container (visible only in `Messages` view) instead of two separate stacked banner cards.
+   - Removed the synthetic duplicate `"Check-in 2 of 3 is due on Tue 14 Oct."` system pill from the bottom of the chat stream and removed the redundant `Order Workspace · ORD-003` divider line.
+3. **1-on-1 Conversation Stream Clean Sweep (`OrderRoom.tsx`):**
+   - Removed redundant `PERFORMER` and `CLIENT` role badges and `"You"` labels from chat messages (since the room is strictly a 1-on-1 conversation between Client and Performer).
+   - Removed self-avatars from outgoing (`isMe`) messages and grouped consecutive messages from the same sender so headers and counterparty avatars are only rendered on the first message of a consecutive group.
+   - Replaced heavy `border-l-4` role stripes on incoming bubbles with clean, neutral surface cards (`border-zinc-200/80 dark:border-zinc-800`).
+   - Set `Script & Brief Assets` in the right rail to collapsed by default (`railScriptExpanded = false`) for calmer progressive disclosure.
+4. **Testing & Quality Gate (`OrderRoom.test.tsx`, `dashboardParity.test.tsx`):**
+   - Updated `apps/web/src/app/pages/OrderRoom.test.tsx` to assert the absence of redundant `Payment` tab, top-bar `Escrow:`/`Take-Home:` pills, and `You` chat labels, plus expanded fee math verification.
+   - Verified 9/9 tests passing across `OrderRoom.test.tsx`, `dashboardParity.test.tsx`, and `x3CopyAudit.test.ts`, and `npx tsc --noEmit` (0 errors).
 
 ---
 
