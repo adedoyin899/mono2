@@ -1,11 +1,18 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page.
+**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity.
 
 ---
 
 ## ✅ Done
+
+### Session 187 — Terms & Legal Section Card Hover Microinteraction Parity
+- [x] **Section Card Hover Microinteraction (`LegalPage.tsx`)**:
+  - Implemented unified `CARD_CLASSES` styling (`border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) across all 12 Terms section cards and 7 Cookie Policy section cards.
+  - Converted Card 4 from static `#f9f9f9` fill to default bordered state with active hover highlight matching Figma variant intentions.
+- [x] **Test Verification (`LegalPage.test.tsx`)**:
+  - Added test validating all 12 section cards carry the responsive hover transition classes (4/4 passing, `tsc --noEmit` 0 errors).
 
 ### Session 186 — Strict 1-for-1 Figma Terms of Service Page Implementation & Local Assets
 - [x] **Extracted & Self-Hosted All Terms SVG Assets (`apps/web/public/assets/terms/*`)**:

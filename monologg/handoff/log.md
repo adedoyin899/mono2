@@ -1,11 +1,25 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
+**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 187 (2026-11-02) — Terms & Legal Section Card Hover Microinteraction Parity
+
+**Goal:** Standardize section card microinteractions across `LegalPage.tsx` so that Card 4 ("4. Intellectual Property Rights") and all other section cards share default bordered styling (`border border-[#e8e8e8] border-solid`) and dynamically transition to the borderless `#f9f9f9` hover state on user pointer interaction, reflecting Figma design variant parity.
+
+1. **Section Card Hover Microinteraction Implementation (`LegalPage.tsx`):**
+   - Created reusable `CARD_CLASSES` token combining default styling with interactive hover transitions: `border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full`.
+   - Replaced previously hardcoded static `bg-[#f9f9f9]` on Terms Card 4 (`178385:19591`) and Cookie Card 2 (`178387:19798`) with `CARD_CLASSES`.
+   - Applied `CARD_CLASSES` uniformly across all 12 section cards in Terms of Service and all 7 section cards in Cookie Settings & Policy.
+2. **Unit Test & Quality Gate (`LegalPage.test.tsx`):**
+   - Added unit test asserting hover microinteraction classes (`hover:bg-[#f9f9f9]`, `hover:border-transparent`, `border-[#e8e8e8]`) across all 12 section cards in `LegalPage.test.tsx`.
+   - Validated test suite (4/4 passing) and verified `npx tsc --noEmit` across `apps/web` (0 errors).
 
 ---
 

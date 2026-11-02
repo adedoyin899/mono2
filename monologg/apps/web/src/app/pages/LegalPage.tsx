@@ -27,6 +27,9 @@ const ASSETS = {
   vector2553: "/assets/terms/vector-2553.svg",
 };
 
+const CARD_CLASSES =
+  "border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
+
 const COMPLIANCE_ROWS = [
   {
     area: "Lawful Basis for Processing",
@@ -450,7 +453,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
           >
             {/* Card 1 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19508"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -477,7 +480,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 2 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19517"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -526,7 +529,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 3 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19608"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -562,9 +565,9 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </div>
             </div>
 
-            {/* Card 4 (Soft grey fill #f9f9f9, NO outer border) */}
+            {/* Card 4 */}
             <div
-              className="bg-[#f9f9f9] flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19591"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -585,7 +588,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 5 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19584"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -606,7 +609,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 6 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19577"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -627,7 +630,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 7 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19570"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -640,7 +643,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 8 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19526"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -661,7 +664,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 9 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19563"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -674,7 +677,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 10 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19556"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -692,7 +695,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 11 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19533"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -713,7 +716,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 12 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178385:19540"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -762,7 +765,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
           >
             {/* Card 1 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19791"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -773,9 +776,9 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </p>
             </div>
 
-            {/* Card 2 (Soft grey fill #f9f9f9) */}
+            {/* Card 2 */}
             <div
-              className="bg-[#f9f9f9] flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19798"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -788,7 +791,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 3 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19715"
             >
               <div className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -819,7 +822,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 4 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19853"
             >
               <div className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -889,7 +892,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 5 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19861"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -918,7 +921,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 6 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19812"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
@@ -931,7 +934,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
             {/* Card 7 */}
             <div
-              className="border border-[#e8e8e8] border-solid flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full"
+              className={CARD_CLASSES}
               data-node-id="178387:19819"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">

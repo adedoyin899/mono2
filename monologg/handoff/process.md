@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
+**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,12 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 146: Terms & Legal Section Card Hover Microinteraction Parity (Session 187)
+
+Standardized section card hover microinteractions across `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Microinteraction Implementation:** Replaced static `#f9f9f9` fill on Card 4 and Card 2 with unified `CARD_CLASSES` (`border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) across all 12 Terms section cards and 7 Cookie Policy section cards.
+- **Verification:** Added test assertions in `LegalPage.test.tsx` verifying default border and hover classes across all section cards (4/4 tests passing, `tsc --noEmit` 0 errors).
 
 ### Step 145: Strict 1-for-1 Figma Terms of Service Page Implementation (Session 186)
 

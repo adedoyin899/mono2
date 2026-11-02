@@ -44,4 +44,29 @@ describe("LegalPage", () => {
     expect(screen.getByRole("heading", { name: "Cookie Settings & Policy" })).toBeInTheDocument();
     expect(screen.getByText("5. Managing Your Preferences")).toBeInTheDocument();
   });
+
+  it("applies hover microinteraction classes across all section cards (Figma hover state parity)", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <LegalPage type="terms" />
+      </MemoryRouter>,
+    );
+
+    // Card 4 (Intellectual Property Rights) and all cards share the hover microinteraction
+    const card4Heading = screen.getByText("4. Intellectual Property Rights");
+    const card4Container = card4Heading.closest("div[data-node-id='178385:19591']");
+    expect(card4Container).not.toBeNull();
+    expect(card4Container?.className).toContain("hover:bg-[#f9f9f9]");
+    expect(card4Container?.className).toContain("hover:border-transparent");
+    expect(card4Container?.className).toContain("border-[#e8e8e8]");
+
+    // Verify all 12 cards have the hover microinteraction classes
+    const sectionCards = container.querySelectorAll("div[data-node-id='178385:19525'] > div");
+    expect(sectionCards.length).toBe(12);
+    sectionCards.forEach((card) => {
+      expect(card.className).toContain("hover:bg-[#f9f9f9]");
+      expect(card.className).toContain("hover:border-transparent");
+      expect(card.className).toContain("border-[#e8e8e8]");
+    });
+  });
 });

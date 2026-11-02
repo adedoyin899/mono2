@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
+**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 134. Terms Section Card 4 Static Fill Instead of Dynamic Hover State (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Interactive State & Fidelity Defect
+- **What happened:**
+  - Card 4 ("4. Intellectual Property Rights") was rendered with a permanent, static `bg-[#f9f9f9]` fill without an outer border, while all other cards had permanent borders without hover styling. In the Figma design source, Card 4 demonstrated the intended hover microinteraction for section cards rather than a unique static variation.
+- **Root Cause:**
+  - Figma canvas capture included an active pointer hover state on Card 4, which was initially interpreted as a unique static card style rather than an interactive hover microinteraction.
+- **Fix:**
+  - Standardized all 12 section cards (and 7 cookie policy cards) to default `border border-[#e8e8e8]` and added `hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`, delivering consistent, interactive hover feedback across the legal document (4/4 tests passing, `tsc --noEmit` 0 errors).
 
 ### 133. Terms of Service Page Visual & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
 - **Severity:** Low / Figma Design-to-Code Fidelity Defect

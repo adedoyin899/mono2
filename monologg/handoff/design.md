@@ -1,7 +1,7 @@
 # Monologg — Design & Architecture Reference
 
-**Last updated:** 2026-11-02 (Session 186: 1-for-1 Figma Terms of Service Page Implementation)
-**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home (`178359:16886`), Product (`178359:17305`), Pricing (`178359:17960`) & Resources (`178359:18325`) Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page (`178382:17926`).
+**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
+**Status:** Full-stack product. All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth identity bridge + Phase 12C + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home (`178359:16886`), Product (`178359:17305`), Pricing (`178359:17960`) & Resources (`178359:18325`) Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page (`178382:17926`) + Session 187 Terms Card Hover Microinteraction Parity.
 **This is a living document** — update it whenever the stack, a page, or a PRD gap changes, in the same session as the change. See `README.md` for the full update policy, and `implementation-plan.md` for current status at a glance.
 
 This document is the single place to understand *what Monologg is*, *what's actually been built*, and *what stack decisions govern it*. It's written for whoever picks this project up next — a new developer, a new AI agent, or a PM checking status.
