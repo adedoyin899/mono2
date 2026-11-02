@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
+**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 135. Cookie Settings & Policy Structural & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - In `LegalPage.tsx`, the Cookie Policy subtext used `18px / 26px` rather than `16px / 24px`, Card 4's table header displayed `"Operational Purpose"` instead of Figma's `"Primary Purpose"`, Card 4 contained an unmodeled trailing email note, Card 5 lacked structured subheadings for `"In-App Consent Preferences"` and `"Web Browser Controls"` with browser-specific settings guidance, and Card 6 was labeled `"6. Third-Party Cookies"` instead of Figma's exact heading `"6. Third-Party Integrations"`.
+- **Root Cause:**
+  - Initial implementation used draft copy approximations before detailed node extraction against Figma node `178383:18857`.
+- **Fix:**
+  - Aligned all copy, table headers, subheadings, and section titles with 1-for-1 fidelity to Figma node `178383:18857`, removed unmodeled trailing paragraphs, and verified hover microinteraction parity across all 7 cards (4/4 tests passing, `tsc --noEmit` 0 errors).
 
 ### 134. Terms Section Card 4 Static Fill Instead of Dynamic Hover State (`LegalPage.tsx`, `LegalPage.test.tsx`)
 - **Severity:** Low / Interactive State & Fidelity Defect

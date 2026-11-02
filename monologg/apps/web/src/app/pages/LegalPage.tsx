@@ -752,7 +752,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 </h1>
               </div>
 
-              <p className="leading-[26px] text-[#6d6d75] font-['Inter_Tight',sans-serif] text-[18px] text-center tracking-[0.54px] max-w-[664px] w-full">
+              <p className="leading-[24px] text-[#6d6d75] font-['Inter_Tight',sans-serif] text-[16px] text-center tracking-[0.48px] max-w-[664px] w-full">
                 This Cookie Policy forms an integral part of our Terms of Service. It details how cookies, tracking pixels, local storage, and similar technologies are utilized when you access our platform, website, and associated applications.
               </p>
             </div>
@@ -794,17 +794,13 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19715"
             >
-              <div className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
-                <ol className="list-decimal" start={3}>
-                  <li className="ms-[27px]">
-                    <span className="leading-[24px]">Cookie Categories &amp; Settings</span>
-                  </li>
-                </ol>
-              </div>
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+                3. Cookie Categories &amp; Settings
+              </h2>
               <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
                 We classify the cookies utilized on our platform into four main categories based on function and consent requirements:
               </p>
-              <ul className="list-disc font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <ul className="list-disc font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full space-y-1">
                 <li className="mb-0 ms-[24px] leading-[24px]">
                   Strictly Necessary Cookies: Required for basic operational functions, secure authentication, session persistence, and system integrity. These cookies are essential to fulfill services requested under our Terms of Service and cannot be disabled in our preference systems.
                 </li>
@@ -825,13 +821,9 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19853"
             >
-              <div className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
-                <ol className="list-decimal" start={4}>
-                  <li className="ms-[27px]">
-                    <span className="leading-[24px]">Summary of Cookies Used</span>
-                  </li>
-                </ol>
-              </div>
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+                4. Summary of Cookies Used
+              </h2>
 
               <div className="h-px w-full bg-[#e8e8e8]" />
 
@@ -848,14 +840,13 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     <p className="leading-normal">Category</p>
                   </div>
                   <div className="w-[312px] shrink-0">
-                    <p className="leading-normal mb-0">Operational </p>
-                    <p className="leading-normal">Purpose</p>
+                    <p className="leading-normal">Primary Purpose</p>
                   </div>
-                  <div className="w-[79px] shrink-0">
+                  <div className="w-[90px] shrink-0">
                     <p className="leading-normal">Duration</p>
                   </div>
-                  <div className="w-[90px] shrink-0 text-right">
-                    <p className="leading-normal">Type</p>
+                  <div className="w-[90px] shrink-0">
+                    <p className="leading-normal">type</p>
                   </div>
                 </div>
 
@@ -873,10 +864,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     <div className="w-[312px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
                       {cookie.purpose}
                     </div>
-                    <div className="w-[79px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
+                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
                       {cookie.duration}
                     </div>
-                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75] text-right">
+                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
                       {cookie.type}
                     </div>
                   </div>
@@ -884,38 +875,45 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </div>
 
               <div className="h-px w-full bg-[#e8e8e8]" />
-
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
-                For inquiries or technical questions regarding cookies used on Monologg, please reach out to our privacy compliance desk at hello@monologg.co.
-              </p>
             </div>
 
             {/* Card 5 */}
             <div
               className={CARD_CLASSES}
-              data-node-id="178387:19861"
+              data-node-id="178387:19805"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
                 5. Managing Your Preferences
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full flex flex-col gap-[16px]">
                 <p className="leading-[24px] mb-0">
-                  You have full autonomy to control and manage your cookie preferences at any time:
+                  You maintain control over non-essential cookies on our platform. You may adjust your choices at any time through the following methods:
                 </p>
-                <p className="leading-[24px] mb-0" aria-hidden="true">
-                  &nbsp;
+                <div className="flex flex-col gap-[2px]">
+                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#16161a] leading-[24px] mb-0">
+                    In-App Consent Preferences
+                  </p>
+                  <p className="leading-[24px] mb-0">
+                    You can update your cookie settings by accessing the interactive Cookie Preference Center available in your Account Settings or the footer of our web application.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-[2px]">
+                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#16161a] leading-[24px] mb-0">
+                    Web Browser Controls
+                  </p>
+                  <p className="leading-[24px] mb-2">
+                    Most internet browsers allow you to modify cookie handling rules via their settings menus. You can instruct your browser to refuse all cookies, prompt before accepting a cookie, or delete existing local storage data:
+                  </p>
+                  <div className="flex flex-col gap-[2px] text-[#6d6d75]">
+                    <p className="leading-[24px] mb-0">Google Chrome: Settings → Privacy and Security → Cookies and other site data</p>
+                    <p className="leading-[24px] mb-0">Mozilla Firefox: Preferences → Privacy &amp; Security → Cookies and Site Data</p>
+                    <p className="leading-[24px] mb-0">Apple Safari: Preferences → Privacy → Manage Website Data</p>
+                    <p className="leading-[24px] mb-0">Microsoft Edge: Settings → Site permissions → Cookies and site data</p>
+                  </div>
+                </div>
+                <p className="leading-[24px] mb-0">
+                  Note: Rejecting or disabling strictly necessary cookies may restrict access to essential account features and cause platform instability.
                 </p>
-                <ul className="list-disc ms-[24px] space-y-1">
-                  <li className="leading-[24px]">
-                    Browser Configuration: Most modern web browsers allow you to modify privacy settings to alert you before cookies are set, or to block third-party cookies by default.
-                  </li>
-                  <li className="leading-[24px]">
-                    Device Settings: Mobile operating systems provide options to reset tracking identifiers or limit ad tracking globally.
-                  </li>
-                  <li className="ms-[24px] leading-[24px]">
-                    Impact of Disabling: Disabling certain functional or performance cookies may affect interface continuity and disable features such as preserved dark-mode styling or persistent login sessions.
-                  </li>
-                </ul>
               </div>
             </div>
 
@@ -925,7 +923,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               data-node-id="178387:19812"
             >
               <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
-                6. Third-Party Cookies
+                6. Third-Party Integrations
               </h2>
               <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
                 Some features incorporated within our services—such as embedded media players, secure payment gateways, and authentication providers—may issue cookies directly from their external domains. The management of those cookies is governed by the respective privacy policies of those third-party providers.

@@ -1,11 +1,22 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity.
+**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation.
 
 ---
 
 ## ✅ Done
+
+### Session 188 — 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions
+- [x] **1-for-1 Cookie Policy Fidelity (`LegalPage.tsx`)**:
+  - Aligned hero subtext typography to `Inter Tight` 16px / 24px (`tracking-[0.48px]`, `664px` max width) matching Figma node `178383:18937`.
+  - Converted Card 3 and Card 4 headings to semantic `<h2>` elements with exact typography (`Switzer` 18px Medium).
+  - Aligned Card 4 table columns (`Cookie Identifier`, `Category`, `Primary Purpose`, `Duration`, `type`), bounding `Vector 2553` / `#e8e8e8` dividers, and removed extraneous unmodeled trailing note.
+  - Implemented Card 5 structured subheadings (`In-App Consent Preferences`, `Web Browser Controls` with Chrome, Firefox, Safari, Edge paths, and trailing note).
+  - Aligned Card 6 heading to exact Figma copy `6. Third-Party Integrations`.
+  - Standardized all 7 cards with `CARD_CLASSES` (`border border-[#e8e8e8] hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) providing the hover microinteraction demonstrated in Figma Card 2.
+- [x] **Unit Testing & TypeScript Gate (`LegalPage.test.tsx`)**:
+  - Expanded test suite asserting 7-card hover microinteractions, exact table headers, subheadings, and integrations title (4/4 passing, `tsc --noEmit` 0 errors across `apps/web` and `apps/api`).
 
 ### Session 187 — Terms & Legal Section Card Hover Microinteraction Parity
 - [x] **Section Card Hover Microinteraction (`LegalPage.tsx`)**:

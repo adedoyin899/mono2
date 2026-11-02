@@ -30,7 +30,15 @@ describe("LegalPage", () => {
     expect(screen.getByText("Effective Date: October 29, 2026")).toBeInTheDocument();
     expect(screen.getByText("1. Scope & Relationship to Terms of Service")).toBeInTheDocument();
     expect(screen.getByText("2. What Are Cookies?")).toBeInTheDocument();
+    expect(screen.getByText("3. Cookie Categories & Settings")).toBeInTheDocument();
+    expect(screen.getByText("4. Summary of Cookies Used")).toBeInTheDocument();
+    expect(screen.getByText("Primary Purpose")).toBeInTheDocument();
+    expect(screen.getByText("type")).toBeInTheDocument();
     expect(screen.getByText("__session_id")).toBeInTheDocument();
+    expect(screen.getByText("5. Managing Your Preferences")).toBeInTheDocument();
+    expect(screen.getByText("In-App Consent Preferences")).toBeInTheDocument();
+    expect(screen.getByText("Web Browser Controls")).toBeInTheDocument();
+    expect(screen.getByText("6. Third-Party Integrations")).toBeInTheDocument();
     expect(screen.getByText("7. Updates to This Policy")).toBeInTheDocument();
   });
 
@@ -46,7 +54,7 @@ describe("LegalPage", () => {
   });
 
   it("applies hover microinteraction classes across all section cards (Figma hover state parity)", () => {
-    const { container } = render(
+    const { container: termsContainer } = render(
       <MemoryRouter>
         <LegalPage type="terms" />
       </MemoryRouter>,
@@ -60,10 +68,25 @@ describe("LegalPage", () => {
     expect(card4Container?.className).toContain("hover:border-transparent");
     expect(card4Container?.className).toContain("border-[#e8e8e8]");
 
-    // Verify all 12 cards have the hover microinteraction classes
-    const sectionCards = container.querySelectorAll("div[data-node-id='178385:19525'] > div");
-    expect(sectionCards.length).toBe(12);
-    sectionCards.forEach((card) => {
+    // Verify all 12 cards in Terms of Service have the hover microinteraction classes
+    const termsCards = termsContainer.querySelectorAll("div[data-node-id='178385:19525'] > div");
+    expect(termsCards.length).toBe(12);
+    termsCards.forEach((card) => {
+      expect(card.className).toContain("hover:bg-[#f9f9f9]");
+      expect(card.className).toContain("hover:border-transparent");
+      expect(card.className).toContain("border-[#e8e8e8]");
+    });
+
+    const { container: cookiesContainer } = render(
+      <MemoryRouter>
+        <LegalPage type="cookies" />
+      </MemoryRouter>,
+    );
+
+    // Verify all 7 cards in Cookie Policy have the hover microinteraction classes
+    const cookieCards = cookiesContainer.querySelectorAll("div[data-node-id='178387:19707'] > div");
+    expect(cookieCards.length).toBe(7);
+    cookieCards.forEach((card) => {
       expect(card.className).toContain("hover:bg-[#f9f9f9]");
       expect(card.className).toContain("hover:border-transparent");
       expect(card.className).toContain("border-[#e8e8e8]");

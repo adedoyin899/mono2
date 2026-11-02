@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
+**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 147: Strict 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions (Session 188)
+
+Implemented a strict 1-for-1 port of the Figma Cookie Settings & Policy page (`node-id=178383-18857`, `1440px × 3953px`) in `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Hero & Card Structure (`178383:18916`, `178387:19707`):** Aligned hero subtext typography (`Inter Tight` 16px/24px, `tracking-[0.48px]`, `664px` max width), converted Card 3 and Card 4 headings to semantic `<h2>` elements, and eliminated extraneous unmodeled trailing email notes.
+- **Card 4 Summary Table & Dividers:** Formatted all 5 columns with exact Figma headers (`Cookie Identifier`, `Category`, `Primary Purpose`, `Duration`, `type`), bounding `Vector 2553` divider lines, and exact row durations (`Session`, `1 year`, `2 years`, `90 Days`).
+- **Card 5 Preferences Sub-Blocks:** Formatted structured subheadings for `In-App Consent Preferences` and `Web Browser Controls` with browser specific guidance (Chrome, Firefox, Safari, Edge) and trailing strictly necessary notice.
+- **Card 6 Title & Hover Microinteraction:** Aligned title to `6. Third-Party Integrations` and ensured all 7 cards default to bordered state with dynamic `#F9F9F9` background on hover (`LegalPage.test.tsx` 4/4 passing, `tsc --noEmit` 0 errors).
 
 ### Step 146: Terms & Legal Section Card Hover Microinteraction Parity (Session 187)
 

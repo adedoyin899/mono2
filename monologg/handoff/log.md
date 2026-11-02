@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 187: Terms & Legal Section Card Hover Microinteraction Parity)
+**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 188 (2026-11-02) — 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions
+
+**Goal:** Implement a strict 1-for-1 port of the Figma Cookie Settings & Policy page (`node-id=178383-18857`, `1440px × 3953px`, `#F6FAF9`) in `apps/web/src/app/pages/LegalPage.tsx`, maintaining the section card hover microinteraction (`hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) across all 7 section cards as demonstrated in Figma Card 2 (`178387:19798`), aligning table columns (`Primary Purpose`, `type`), Card 5 sub-block hierarchy, and Card 6 naming.
+
+1. **1-for-1 Cookie Settings & Policy Alignment (`apps/web/src/app/pages/LegalPage.tsx`):**
+   - **Hero Header (`178383:18930`):** Aligned subtext typography to exact Figma specifications: `font-['Inter_Tight',sans-serif] text-[16px] leading-[24px] tracking-[0.48px] max-w-[664px]`.
+   - **Section Card Headings & Semantics:** Converted Card 3 and Card 4 headings from raw `<ol>` tags to clean, accessible `<h2>` elements (`3. Cookie Categories & Settings`, `4. Summary of Cookies Used`).
+   - **Card 4 Summary Table Headers & Bounding Dividers (`178387:19853`):** Updated table column headers to match Figma node `178387:19861`: `Cookie Identifier` (`136px`), `Category` (`143px`), `Primary Purpose` (`312px`), `Duration` (`90px`), and `type` (`90px`). Retained top and bottom vector line dividers and eliminated redundant unmodeled trailing email note.
+   - **Card 5 Preferences Sub-Block Structure (`178387:19805`):** Formatted structured subheadings for `In-App Consent Preferences` and `Web Browser Controls` with browser specific guidance (Chrome, Firefox, Safari, Edge) and trailing strictly necessary note.
+   - **Card 6 Heading Parity (`178387:19812`):** Corrected heading from generic `Third-Party Cookies` to exact Figma title `6. Third-Party Integrations`.
+   - **Hover Microinteraction Parity:** Standardized all 7 section cards to `CARD_CLASSES` (`border border-[#e8e8e8] hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`), ensuring Card 2 defaults to bordered state and transitions seamlessly to `#F9F9F9` on hover.
+2. **Quality Gate & Testing (`apps/web/src/app/pages/LegalPage.test.tsx`):**
+   - Expanded unit tests in `LegalPage.test.tsx` to assert all 7 Cookie Policy section cards carry hover microinteraction classes, exact table headers (`Primary Purpose`, `type`), sub-blocks (`In-App Consent Preferences`, `Web Browser Controls`), and `6. Third-Party Integrations`.
+   - Verified 4/4 unit tests passing in `LegalPage.test.tsx`.
+   - Verified `npx tsc --noEmit` across both `apps/web` and `apps/api` with zero errors.
 
 ---
 
