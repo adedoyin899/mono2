@@ -1,11 +1,42 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 194 (2026-11-03) — Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch
+
+**Goal:** Connect the website email capture / newsletter form across all pages to direct Supabase Postgres storage (`public."NewsletterSubscriber"`), implement backend API endpoints and export capabilities, wire telemetry and UI feedback, and synchronize all website updates to the `main` branch.
+
+1. **Supabase Postgres Database Schema & Storage (`public."NewsletterSubscriber"`):**
+   - Executed SQL on Supabase Postgres to create table `public."NewsletterSubscriber"` with columns `id`, `email` (unique, lowercase), `source` (default `'website_footer'`), `status` (default `'ACTIVE'`), `metadata` (jsonb), `"createdAt"`, and `"updatedAt"`.
+   - Enabled Row-Level Security (RLS) with policies for public guest insert and update (`anon`, `authenticated`, `service_role`) and read permissions.
+   - Reloaded PostgREST schema cache (`NOTIFY pgrst, 'reload schema'`).
+   - Verified live insert and deletion using `@supabase/supabase-js` client with anon key.
+2. **Prisma Schema & Backend Route Ingestion (`schema.prisma`, `routes/newsletter.ts`):**
+   - Added `model NewsletterSubscriber` to `monologg/apps/api/prisma/schema.prisma` and generated Prisma Client (`v6.19.3`).
+   - Created `monologg/apps/api/src/routes/newsletter.ts` with:
+     - `POST /api/v1/newsletter/subscribe`: validated email ingestion with upsert logic on conflict.
+     - `GET /api/v1/newsletter/subscribers`: listing all accumulated subscribers with optional CSV export (`?format=csv`).
+   - Registered `newsletterRoutes` in `monologg/apps/api/src/routes/index.ts`.
+3. **Frontend Ingestion & UI Feedback (`WebsiteFooter.tsx`, `api-client.ts`, `routes.tsx`):**
+   - Added `subscribeNewsletter` to `apiClient` in `monologg/apps/web/src/lib/api-client.ts`.
+   - Updated `WebsiteFooter.tsx` to handle async newsletter submission:
+     - Direct Supabase storage: `supabase.from("NewsletterSubscriber").upsert(...)`.
+     - Dispatched telemetry event: `trackEvent("waitlist_submitted", { type: "newsletter_subscription", ... })`.
+     - Loading state with animated spinner and disabled submit button during transmission.
+     - Success feedback (`"Thanks for subscribing!"`) and error resilience.
+     - Added `id="newsletter"` and smooth scroll anchor effect when navigating to `#newsletter`.
+   - Added convenience routes in `monologg/apps/web/src/app/routes.tsx` for `/newsletter`, `/subscribe`, and `/waitlist` redirecting to `/#newsletter`.
+4. **Unit Tests & Quality Gate:**
+   - Authored `monologg/apps/web/src/app/components/WebsiteFooter.test.tsx` verifying newsletter form rendering, Supabase submission, and confirmation feedback (2/2 tests passing).
+   - Ran complete web pages test suite (25/25 tests passing across 6 test suites).
+   - Confirmed 0 TypeScript errors across both `apps/web` and `apps/api` (`npx tsc --noEmit`).
 
 ---
 

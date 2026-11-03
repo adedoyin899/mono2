@@ -1,11 +1,24 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill.
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch.
 
 ---
 
 ## ✅ Done
+
+### Session 194 — Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch
+- [x] **Supabase Storage for Email Signups (`public."NewsletterSubscriber"`)**:
+  - Created `public."NewsletterSubscriber"` table in Supabase Postgres with `id`, `email` (unique), `source`, `status`, `metadata`, `createdAt`, `updatedAt`, and RLS policies.
+- [x] **Prisma & Backend Ingestion (`schema.prisma`, `routes/newsletter.ts`)**:
+  - Added `model NewsletterSubscriber` in `apps/api/prisma/schema.prisma` and generated Prisma Client.
+  - Implemented `POST /api/v1/newsletter/subscribe` and `GET /api/v1/newsletter/subscribers` (with CSV export support `?format=csv`).
+- [x] **Frontend Ingestion & UI Feedback (`WebsiteFooter.tsx`, `api-client.ts`, `routes.tsx`)**:
+  - Connected `handleNewsletterSubmit` in `WebsiteFooter.tsx` directly to `supabase.from("NewsletterSubscriber").upsert(...)`, API client fallback, and `waitlist_submitted` telemetry.
+  - Added submitting spinner, disabled button states, `"Thanks for subscribing!"` feedback, and `#newsletter` hash anchor scroll.
+  - Added `/newsletter`, `/subscribe`, `/waitlist` redirect routes to `/#newsletter`.
+- [x] **Quality Gate & Testing**:
+  - Created `WebsiteFooter.test.tsx` (2/2 tests passing). All 25 marketing page tests passing. 0 errors on `npx tsc --noEmit` across both `apps/web` and `apps/api`.
 
 ### Session 193 — Thespian AI Performer & Client Table Rows Hover-Only Background Fill
 - [x] **Thespian AI Row 1 Hover-Only Refactoring (`ProductPage.tsx`)**:

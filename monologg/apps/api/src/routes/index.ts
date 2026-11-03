@@ -26,6 +26,7 @@ import { adminUsersRoutes } from "./adminUsers.js";
 import { supabaseAuthRoutes } from "./authSupabase.js";
 import { withdrawalRoutes } from "./withdrawals.js";
 import { analyticsRoutes } from "./analytics.js";
+import { newsletterRoutes } from "./newsletter.js";
 
 /**
  * Route aggregator — registers all route plugins onto the Fastify instance.
@@ -35,6 +36,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(healthRoutes);
   await app.register(metricsRoutes);
   await app.register(analyticsRoutes);
+  await app.register(newsletterRoutes);
   await app.register(authRoutes);
   await app.register(supabaseAuthRoutes);
   await app.register(adminUsersRoutes);

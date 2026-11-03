@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { Root } from "./Root";
 import { RequireAuth } from "./RequireAuth";
 import { LandingPage } from "./pages/LandingPage";
@@ -71,6 +71,9 @@ export const routeTree = [
       { path: "product", Component: ProductPage },
       { path: "pricing", Component: PricingPage },
       { path: "resources", Component: ResourcesPage },
+      { path: "newsletter", Component: () => <Navigate to="/#newsletter" replace /> },
+      { path: "subscribe", Component: () => <Navigate to="/#newsletter" replace /> },
+      { path: "waitlist", Component: () => <Navigate to="/#newsletter" replace /> },
       // features.md Phase 16 (FA-5) stub entry point — public, no auth; see
       // ExternalBookingEntry.tsx's own doc comment. Declared before ":handle"
       // so "book" is never swallowed as someone's handle (React Router ranks

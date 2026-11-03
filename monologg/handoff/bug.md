@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 141. WebsiteFooter Unpersisted Mock Newsletter Submissions (`WebsiteFooter.tsx`)
+- **Severity:** Medium / Data Loss Defect
+- **What happened:**
+  - In `WebsiteFooter.tsx`, submitting an email to the newsletter form only updated local React state (`setNewsletterSubmitted(true)`), discarding subscriber email leads without persisting them to any database.
+- **Root Cause:**
+  - Initial marketing footer implementation treated newsletter signups as visual placeholders before backend persistence was scoped.
+- **Fix:**
+  - Created `public."NewsletterSubscriber"` table in Supabase Postgres, added `NewsletterSubscriber` model in Prisma, implemented `POST /api/v1/newsletter/subscribe`, and connected `handleNewsletterSubmit` directly to `supabase.from("NewsletterSubscriber").upsert` with telemetry logging and UI loading/feedback indicators. Verified with `WebsiteFooter.test.tsx` (2/2 tests passing).
 
 ### 140. Thespian AI Row 1 Static Default Background Fill (`ProductPage.tsx`)
 - **Severity:** Low / UI State Consistency Defect

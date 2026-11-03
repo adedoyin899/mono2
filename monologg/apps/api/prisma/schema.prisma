@@ -816,3 +816,25 @@ model InvestorApplication {
   @@index([status, createdAt])
 }
 
+// =============================================================================
+// Session 194 — Newsletter & Email Subscription Ingestion
+// =============================================================================
+// Captures verified email signups from the website footer ("Join our newsletter")
+// and marketing touchpoints directly into Supabase Postgres for future campaign
+// accumulation, announcements, and investor relations alerts.
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("website_footer")
+  status    String   @default("ACTIVE")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([status])
+}
+
+

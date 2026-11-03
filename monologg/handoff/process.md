@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 153: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch (Session 194)
+
+Integrated persistent Supabase storage for the website newsletter and email capture forms, with API ingestion and exports:
+- **Supabase Postgres Storage & Schema:** Created `public."NewsletterSubscriber"` table with columns `id`, `email`, `source`, `status`, `metadata`, `createdAt`, `updatedAt`, and public RLS policies for guest email signups.
+- **Prisma & API Endpoints:** Added `model NewsletterSubscriber` to `schema.prisma` and generated Prisma client. Created `POST /api/v1/newsletter/subscribe` and `GET /api/v1/newsletter/subscribers` (with CSV export via `?format=csv`) in `routes/newsletter.ts`.
+- **Frontend Form Ingestion & UI Feedback:** Updated `WebsiteFooter.tsx` with direct `supabase.from("NewsletterSubscriber").upsert` storage, `trackEvent("waitlist_submitted", ...)` telemetry, submit button spinner, `"Thanks for subscribing!"` feedback, `#newsletter` hash anchor scroll, and `/newsletter`, `/subscribe`, `/waitlist` redirect routes in `routes.tsx`.
+- **Testing & Verification:** Authored `WebsiteFooter.test.tsx` (2/2 tests passing), verified all 25 marketing page tests pass, and confirmed zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 152: Thespian AI Performer & Client Table Rows Hover-Only Background Fill (Session 193)
 
