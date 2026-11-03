@@ -1,9 +1,9 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
-This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
+Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
 
 Think of the whole engagement as two projects back to back:
 - **Part A:** turn a downloaded design file into something you can actually click through in a browser.
@@ -13,11 +13,108 @@ Think of the whole engagement as two projects back to back:
 
 ## Part A — From a zip file to a working app
 
-### Step 140: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs (Session 181)
+### Step 153: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch (Session 194)
 
-Sanitized all remaining traces of FINCRA/Fincra across user-facing pages, copy, and architectural specifications on `main`:
-- **Webapp Copy (`Checkout.tsx`, `ClientDashboard.tsx`):** Updated simulated checkout escrow copy to `"Securing your funds in escrow via Paystack..."` and client dashboard trust badge to `"Paystack Escrow Protected"`.
+Integrated persistent Supabase storage for the website newsletter and email capture forms, with API ingestion and exports:
+- **Supabase Postgres Storage & Schema:** Created `public."NewsletterSubscriber"` table with columns `id`, `email`, `source`, `status`, `metadata`, `createdAt`, `updatedAt`, and public RLS policies for guest email signups.
+- **Prisma & API Endpoints:** Added `model NewsletterSubscriber` to `schema.prisma` and generated Prisma client. Created `POST /api/v1/newsletter/subscribe` and `GET /api/v1/newsletter/subscribers` (with CSV export via `?format=csv`) in `routes/newsletter.ts`.
+- **Frontend Form Ingestion & UI Feedback:** Updated `WebsiteFooter.tsx` with direct `supabase.from("NewsletterSubscriber").upsert` storage, `trackEvent("waitlist_submitted", ...)` telemetry, submit button spinner, `"Thanks for subscribing!"` feedback, `#newsletter` hash anchor scroll, and `/newsletter`, `/subscribe`, `/waitlist` redirect routes in `routes.tsx`.
+- **Testing & Verification:** Authored `WebsiteFooter.test.tsx` (2/2 tests passing), verified all 25 marketing page tests pass, and confirmed zero TypeScript errors (`npx tsc --noEmit`).
+
+### Step 152: Thespian AI Performer & Client Table Rows Hover-Only Background Fill (Session 193)
+
+Refactored row background states across the Thespian AI section in `ProductPage.tsx`:
+- **Hover-Only Styling:** Removed default static `bg-[#f7f7f7]` from Row 1 in both Performer Table (`Instant AI Onboarding`, `178359:17863`) and Client Table (`Vibe & Texture Matching`, `178359:17925`).
+- **Visual Uniformity:** Standardized padding across all table rows to `p-[24px]` and unified hover behavior (`hover:bg-[#f7f7f7]` with `hover:scale-[1.005]` and `transition-all duration-200 ease-out`). All rows now default to a clean, transparent background and fill only when actively hovered.
+- **Verification:** Verified test suite passes (`ProductPage.test.tsx` 5/5 passing, all 23 marketing page tests) and zero TypeScript errors (`npx tsc --noEmit`).
+
+### Step 151: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation (Session 192)
+
+Refined typography balance and step micro-interactions on the Product page (`ProductPage.tsx`):
+- **Hero Title 2-Line Balance:** Adjusted `max-w-[526px]` to `max-w-[820px]` and formatted with `<br className="hidden sm:inline" />` so "Build your personal digital stage" renders on exactly two balanced lines on desktop (*"Build your personal"* on line 1, *"digital stage"* on line 2) instead of three lines.
+- **Continuous Rolling Spinner Animation:** Wrapped the rayed pending spinner icon (`imgSpinner`) in default step cards with continuous linear rotation (`animate={{ rotate: 360 }}` over 3s, repeat Infinity) to deliver an active rolling pending affordance.
+- **Verification:** Verified test suite passes (`ProductPage.test.tsx` 5/5 passing, 23/23 marketing tests) and zero TypeScript errors (`npx tsc --noEmit`).
+
+### Step 150: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages (Session 191)
+
+Integrated senior FAANG-grade web motion and micro-interactions adhering to `web-motion-design.md` and `micro-interactions.md`:
+- **Horizontal Marquee (`LandingPage.tsx`, `tokens.css`):** Built infinite left-to-right scrolling marquee with `@keyframes marquee-ltr`, hover pause, white fade edge gradients, and category pill micro-interactions.
+- **Dynamic Scroll Bar Fill & Feature Entrance:** Bound vertical timeline 2px line to Framer Motion `useScroll` + `scaleY` (`transformOrigin: top`), filling dynamically as the user scrolls, with cards animating into viewport and lifting on hover (`whileHover={{ y: -6 }}`).
+- **Product 7-Step Showcase & Thespian AI Interactions:** Configured fluid step card layout transitions, checkmark spring pop, arrow hover nudge, and stage crossfade. Built an in-place `PERFORMER | CLIENT` role toggle with zero page scroll, and applied `#f7f7f7` hover fill across all table rows.
+- **Pricing Table Blur-In Entrance Animation:** Added horizontal comparison row blur-in effect (`blur(6px)` to `blur(0px)`) with staggered delays (`idx * 0.03`) and hover highlight.
+- **Universal Fluid FAQ Accordions:** Upgraded FAQ accordions across Landing, Product, and Pricing pages with `AnimatePresence` height/opacity animations and 45° spring rotation morphing `+` into `×`.
+- **Test Polyfills & Verification:** Polyfilled `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts`, verified 23/23 tests passing, and confirmed zero TypeScript errors (`npx tsc --noEmit`).
+
+### Step 149: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch (Session 190)
+
+Sanitized all remaining traces of FINCRA/Fincra across all user-facing pages, copy, and architectural specifications on both `web` and `main` branches:
+- **Webapp Copy (`Checkout.tsx`, `ClientDashboard.tsx`, FAQs, `ResourcesPage.tsx`):** Updated simulated checkout escrow copy to `"Securing your funds in escrow via Paystack..."`, client dashboard trust badge to `"Paystack Escrow Protected"`, currency FAQs to list Paystack only, and Resources page escrow guarantee to `"guaranteed by Paystack."`.
+- **System-Wide Alpha Announcement Bar Spacing:** Refined emoji spacing to `"Monologg is in Alpha 🥳 🥳"` across all 5 public pages and updated test suites accordingly.
 - **Specifications & Historical Drafts:** Replaced 11 references of FINCRA across `monologg_ux_spec.md` and historical drafts.
+- **Main Branch Parity:** Switched to `main` branch, applied the identical frontend and specification sanitization, verified clean compile and test suites, and pushed directly to `origin/main`.
+
+### Step 148: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links (Session 189)
+
+Implemented marketing copy refinements and navigation improvements across the web application:
+- **Home 6-Feature Section Headline & Subtext (`LandingPage.tsx`):** Replaced placeholder text with `"Run your performing career like the business it actually is"` and subtext `"Share your work, set your prices, track your audience and get paid securely, without an agent in the middle."`.
+- **System-Wide Announcement Bar Copy Updates:** Standardized left status pill to `"Monologg is in Alpha 🥳🥳"` and right metric to `"Paystack Secured · 25+ Verified Performers"` across all 5 public pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`).
+- **Footer Legal Policy Navigation & Paystack Badge (`WebsiteFooter.tsx`):** Implemented direct interactive buttons for `"Terms of Service"` (`/terms`) and `"Cookie Policy"` (`/cookies`) in the bottom copyright bar (`178407:19721`), and replaced the legacy badges with the official Paystack 4-bar SVG icon and brand wordmark.
+
+### Step 147: Strict 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions (Session 188)
+
+Implemented a strict 1-for-1 port of the Figma Cookie Settings & Policy page (`node-id=178383-18857`, `1440px × 3953px`) in `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Hero & Card Structure (`178383:18916`, `178387:19707`):** Aligned hero subtext typography (`Inter Tight` 16px/24px, `tracking-[0.48px]`, `664px` max width), converted Card 3 and Card 4 headings to semantic `<h2>` elements, and eliminated extraneous unmodeled trailing email notes.
+- **Card 4 Summary Table & Dividers:** Formatted all 5 columns with exact Figma headers (`Cookie Identifier`, `Category`, `Primary Purpose`, `Duration`, `type`), bounding `Vector 2553` divider lines, and exact row durations (`Session`, `1 year`, `2 years`, `90 Days`).
+- **Card 5 Preferences Sub-Blocks:** Formatted structured subheadings for `In-App Consent Preferences` and `Web Browser Controls` with browser specific guidance (Chrome, Firefox, Safari, Edge) and trailing strictly necessary notice.
+- **Card 6 Title & Hover Microinteraction:** Aligned title to `6. Third-Party Integrations` and ensured all 7 cards default to bordered state with dynamic `#F9F9F9` background on hover (`LegalPage.test.tsx` 4/4 passing, `tsc --noEmit` 0 errors).
+
+### Step 146: Terms & Legal Section Card Hover Microinteraction Parity (Session 187)
+
+Standardized section card hover microinteractions across `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Microinteraction Implementation:** Replaced static `#f9f9f9` fill on Card 4 and Card 2 with unified `CARD_CLASSES` (`border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) across all 12 Terms section cards and 7 Cookie Policy section cards.
+- **Verification:** Added test assertions in `LegalPage.test.tsx` verifying default border and hover classes across all section cards (4/4 tests passing, `tsc --noEmit` 0 errors).
+
+### Step 145: Strict 1-for-1 Figma Terms of Service Page Implementation (Session 186)
+
+Implemented a strict 1-for-1 port of the Figma Terms of Service Page (`node-id=178382-17926`, `1440px × 5293px`, `#F6FAF9`) in `LegalPage.tsx` and `LegalPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/terms/*`):** Populated all local vector assets from Figma node `178382:17926` including the header masked Monologg logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`), theme toggle button (`theme-toggle.svg`), ambient blurred background gradients (`gradient-bg-left.svg`, `gradient-bg-right.svg`), horizontal dashed divider (`dashed-divider.svg`), and vector dividers.
+- **Announcement Bar, Sticky Header & Ambient Gradients:** Built the exact `40px` `#16161A` announcement bar with pulsing `#F13030` dot and `JetBrains Mono` verified talent counter, `68px` sticky header (`backdrop-blur-[12px] bg-white/95`) with masked SVG logo and unaccented nav links, and fixed `2316px` ambient blurred gradient background container.
+- **Hero Header & 12 Section Cards:** Created the red status dot + `Geist Mono` `"Last Updated: 29 Oct 2026"` pill, `Switzer` 64px Medium title, and all 12 section cards matching Figma styling. Specifically implemented Card 2's full 4-row compliance table (`Lawful Basis for Processing`, `Data Subject Rights`, `International Data Transfers`, `Data Retention`) with uppercase `Geist Mono` `#F13030` headers and vector dividers, and Card 4's distinct borderless `#F9F9F9` background.
+- **Full-Width Dashed Divider & Quality Gate:** Placed the `dashed-divider.svg` separator before `<WebsiteFooter />`, verified 3/3 passing unit tests in `LegalPage.test.tsx`, and confirmed `tsc --noEmit` across `apps/web` and `apps/api` (0 errors).
+
+### Step 144: Investor Dropdown Chevron Fix & Supabase Backend Storage Integration (Session 185)
+
+Refined the Resources page investor application form and connected it directly to Supabase storage:
+- **Native Browser Select Double Chevron Removal:** Reset browser user-agent rendering on `<select id="who-you-are">` using inline styling (`WebkitAppearance: "none"`, `MozAppearance: "none"`, `appearance: "none"`, `backgroundImage: "none"`) with `pl-[13px] pr-[36px]` padding, ensuring only the single Figma `caretDown` SVG (`16×16px`) renders.
+- **Supabase Postgres Storage & Schema:** Created `public."InvestorApplication"` table with columns `id`, `firstName`, `lastName`, `email`, `phone`, `investorRole`, `message`, `status`, `createdAt`, `updatedAt`, RLS policies for guest submissions, updated Prisma schema (`apps/api/prisma/schema.prisma`), and reloaded the PostgREST schema cache.
+- **Form Ingestion & Telemetry:** Connected `handleInvestorSubmit` directly to `supabase.from("InvestorApplication").insert(payload)`, dispatched analytics tracking event `waitlist_submitted`, added submit loading indicator and error handling, and updated `ResourcesPage.test.tsx` with a mock verifying database invocation (5/5 tests passing in 283ms, `tsc --noEmit` 0 errors).
+
+### Step 143: Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form (Session 184)
+
+Implemented a strict 1-for-1 port of the Figma Resources Page (`node-id=178359-18325`, `1440px × 2825.28px`) in `ResourcesPage.tsx` and `ResourcesPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/resources/*`):** Downloaded all 20 static SVG assets directly from the Figma Desktop MCP server across `178359:18325` and its child frames (header logo & theme toggle SVGs, ambient blurred background gradient SVGs, `gavel.svg`, `question.svg`, `vector-2553.svg`, `vector-2555.svg`, `gmail.svg`, 7 social badges for LinkedIn, Product Hunt, Twitter-X, Twitch, Telegram, TikTok, Instagram, `caret-down.svg`, and `arrow-right.svg`).
+- **Resource Categories Master Card & Social Footer:** Rebuilt the `1000px` top box (`Terms of Service` & `Support & Community` badges with `Vector 2553` vertical and `Vector 2555` horizontal dividers) and `#F9F9F9` bottom bar with `hello@monologg.co` link and 7 circular white social badges.
+- **Become an Investor Application Form:** Rebuilt the 2-column investor section with `"RAISING SOON!"` mono label, `48px` `Switzer` heading, and the `530px` interactive application card with form inputs (`First Name`, `Last Name`, `Email`, `phone no`, `Please tell us who you are`, `Message`, and `Submit Application` CTA button with confirmation message) plus `<WebsiteFooter />` (`ResourcesPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
+
+### Step 142: Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets (Session 183)
+
+Implemented a strict 1-for-1 port of the Figma Pricing Page (`node-id=178359-17960`) in `PricingPage.tsx`:
+- **Asset Extraction (`apps/web/public/assets/pricing/*`):** Downloaded all 24 static SVG and PNG assets directly from the Figma Desktop MCP server across `178359:17960` and its child frames.
+- **Hero `#F9F9F9` Background & In-Place Performer/Client Tab Switching:** Set the Pricing hero (`178359:18019`) background to `#F9F9F9` and wired the `Performers` / `Clients` pill to switch in-place between the **For Performers** section (role pill, 6 overlapping composite performer avatars, `Switzer` `48px` heading, `1040px` 3-column table with 9 rows, and bottom `"Get started for free"` CTA) and the **For Clients** section (role pill, 6 overlapping `46×46px` studio logo badges, `Switzer` `48px` heading, `1040px` 3-column table with all 23 rows including 5 `#F9F9F9` category headers, and bottom `"Get started for free"` CTA), plus the dashed horizontal divider (`dashed-divider.svg`) and borderless 10-item FAQ accordion (`PricingPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
+
+### Step 141: Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations (Session 182)
+
+Implemented a strict 1-for-1 port of the Figma Product Page (`node-id=178359-17305`) in `ProductPage.tsx` and `ProductPage.test.tsx`:
+- **Asset Extraction (`apps/web/public/assets/product/*`):** Downloaded all 64 static SVG assets directly from the Figma Desktop MCP server across `178359:17305` and its child frames.
+- **3-State Interactive Stepper & 7 Extracted Illustrations:** Applied the 3 card states (`default` with `#bababa` text & `Spinner` SVG, `active` with `#f9f9f9` surface, `ArrowCircleRight` SVG, `#16161a` title & `#6d6d75` description, and `completed` with `#333333` text & red `CheckCircle` SVG) across all 7 steps (`01`–`07`), and extracted the 7 `300×300` Figma SVG illustrations from `Frame 2147228146` into the right-hand `525×484px` preview stage without duplicating `Frame 2147228146` as a second section underneath.
+- **Client Portal, Thespian AI Tables & FAQ:** Rebuilt the Client Portal `1000px` 2×2 grid + 6 overlapping media house logos, both Performer (5-row) and Client (3-row) Thespian AI tables, and the 10-item borderless FAQ accordion (`ProductPage.test.tsx` 5/5 passing, `tsc --noEmit` 0 errors).
+
+### Step 140: Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography (Session 181)
+
+Implemented a strict 1-for-1 port of the Figma Home Page (`node-id=178359-16886`) across `LandingPage.tsx`, `WebsiteFooter.tsx`, and `fonts.css`:
+- **Asset Extraction (`apps/web/public/assets/home/*`):** Extracted and self-hosted all 68 SVG and PNG assets directly from the Figma Desktop MCP server across all child frames of `178359:16886` (header/footer Monologg logos, 6 overlapping hero avatars, iPhone 15 mockup & screen, 6 `"YOU BELONG HERE"` category SVGs, dashed section divider, all 6 `300×300` feature illustrations, FAQ `Plus`/`X` icons, and footer `Backed by` badges).
+- **Typography (`apps/web/src/styles/fonts.css`):** Added `@import` rules for `Switzer` (Fontshare) and `Inter Tight` + `Geist Mono` (Google Fonts) alongside `Plus Jakarta Sans` and `JetBrains Mono`.
+- **1-for-1 Layout & Component Fidelity (`LandingPage.tsx`, `WebsiteFooter.tsx`):** Replaced all improvised UI cards and icon substitutes with the exact Figma layout structure, typography, and SVG/PNG assets while preserving signed-in avatar dropdown navigation (`LandingPageHeader.test.tsx` 3/3 passing, `tsc --noEmit` 0 errors).
 
 ### Step 139: Order Room FAANG UX & Information Architecture Overhaul (Session 180)
 

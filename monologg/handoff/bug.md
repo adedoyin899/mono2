@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -19,14 +19,132 @@ This tracks every defect found during this engagement — both classic "the buil
 
 ## Bugs found and fixed during this engagement
 
-### 128. Stale FINCRA References Across Webapp Copy and Specs (`Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`)
+### 141. WebsiteFooter Unpersisted Mock Newsletter Submissions (`WebsiteFooter.tsx`)
+- **Severity:** Medium / Data Loss Defect
+- **What happened:**
+  - In `WebsiteFooter.tsx`, submitting an email to the newsletter form only updated local React state (`setNewsletterSubmitted(true)`), discarding subscriber email leads without persisting them to any database.
+- **Root Cause:**
+  - Initial marketing footer implementation treated newsletter signups as visual placeholders before backend persistence was scoped.
+- **Fix:**
+  - Created `public."NewsletterSubscriber"` table in Supabase Postgres, added `NewsletterSubscriber` model in Prisma, implemented `POST /api/v1/newsletter/subscribe`, and connected `handleNewsletterSubmit` directly to `supabase.from("NewsletterSubscriber").upsert` with telemetry logging and UI loading/feedback indicators. Verified with `WebsiteFooter.test.tsx` (2/2 tests passing).
+
+### 140. Thespian AI Row 1 Static Default Background Fill (`ProductPage.tsx`)
+- **Severity:** Low / UI State Consistency Defect
+- **What happened:**
+  - In `ProductPage.tsx`, Row 1 of both Thespian AI feature tables (Performer: `Instant AI Onboarding`, Client: `Vibe & Texture Matching`) rendered with static `bg-[#f7f7f7]` by default, whereas subsequent rows rendered transparent and only filled `#f7f7f7` on mouse hover.
+- **Root Cause:**
+  - The source Figma design canvas depicted Row 1 in an active/hover preview state with `#f7f7f7` fill to indicate what an interacted row looked like, which was initially ported literally into the default JSX classes.
+- **Fix:**
+  - Removed `bg-[#f7f7f7]` default from Row 1 in both tables and standardized padding to `p-[24px]`. All rows now start transparent by default and cleanly apply `hover:bg-[#f7f7f7] hover:scale-[1.005]` only on hover.
+
+### 139. Product Hero Heading Awkward 3-Line Linebreak Wrap (`ProductPage.tsx`)
+- **Severity:** Low / Typography & Visual Balance Defect
+- **What happened:**
+  - In `ProductPage.tsx`, the Performer Portal hero `h1` used a narrow `max-w-[526px]`, causing "Build your personal digital stage" to break into three uneven lines: *"Build your" / "personal digital" / "stage"*.
+- **Root Cause:**
+  - Initial Figma frame width constrainer was applied directly to the container rather than allowing typographic balance.
+- **Fix:**
+  - Expanded width to `max-w-[820px]` with `<br className="hidden sm:inline" />`, formatting it into two clean, balanced lines (*"Build your personal"* / *"digital stage"*). Verified all unit tests and visual rendering.
+
+### 138. Missing jsdom `IntersectionObserver` & `ResizeObserver` for Framer Motion Viewport Tests (`test-setup.ts`)
+- **Severity:** High / Test Environment Crash
+- **What happened:**
+  - When Framer Motion's `whileInView` and `useScroll` hooks were integrated into `LandingPage.tsx` and `PricingPage.tsx`, running tests under jsdom threw unhandled runtime exceptions (`ReferenceError: IntersectionObserver is not defined`), failing `LandingPageHeader.test.tsx`.
+- **Root Cause:**
+  - jsdom does not implement browser viewport APIs (`IntersectionObserver`, `ResizeObserver`).
+- **Fix:**
+  - Added robust Mock classes for `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts`, mirroring the existing `scrollIntoView` test stub. Verified all 23 marketing page tests pass cleanly without environment errors.
+
+### 137. Stale FINCRA References Across Webapp Copy, FAQs, and Specs (`Checkout.tsx`, `ClientDashboard.tsx`, FAQs, `monologg_ux_spec.md`)
 - **Severity:** Medium / Brand & Architecture Consistency Defect
 - **What happened:**
-  - Client-side surfaces on `main` retained legacy references to "FINCRA", including Checkout simulated escrow copy and Client Dashboard payment trust guarantee badge, as well as `monologg_ux_spec.md`.
+  - While backend payment services strictly enforce Rule X1 (Paystack primary, never Fincra), several client-side surfaces retained obsolete references to "FINCRA" / "Fincra", including the checkout mock-mode escrow delay, client dashboard payment trust guarantee, currency FAQs across Landing, Product, and Pricing pages, Resources escrow guarantee card, and the UX architecture specification.
 - **Root Cause:**
-  - Prototype copy was authored prior to the Phase 6 Paystack-first decision.
+  - Prototype copy authored during initial PRD drafting was preserved during later component refactors instead of being synced with the Phase 6 Paystack-first decision.
 - **Fix:**
-  - Replaced all occurrences of FINCRA with Paystack across `Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`, and historical drafts. Verified 0 occurrences across `apps/web/` (`tsc --noEmit` clean).
+  - Completely replaced all occurrences of FINCRA/Fincra with Paystack across `Checkout.tsx`, `ClientDashboard.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ProductPage.tsx`, `ResourcesPage.tsx`, `monologg_ux_spec.md`, and historical drafts on both `web` and `main` branches. Verified 0 occurrences across `apps/web/` (`tsc --noEmit` clean, 23/23 tests passing).
+
+### 136. Footer Terms & Cookie Policy Inaccessibility & Placeholder Section Copy (`LandingPage.tsx`, `WebsiteFooter.tsx`)
+- **Severity:** Low / UX & Information Architecture Defect
+- **What happened:**
+  - The shared footer copyright bar previously displayed static location text (`Lagos, Nigeria 🇳🇬·`) without accessible navigation links to `/terms` or `/cookies`, preventing visitors from reaching legal policy documents directly from the website footer. Additionally, the Home page 6-feature vertical timeline section retained placeholder headline copy (`Some text will have to come into here...`).
+- **Root Cause:**
+  - Initial footer implementation mirrored legacy Figma layout before legal links were formalized in Figma node `178407:19721`.
+- **Fix:**
+  - Added interactive, accessible navigation buttons for `"Terms of Service"` (`/terms`) and `"Cookie Policy"` (`/cookies`) in `WebsiteFooter.tsx`, swapped the Backed-by icon to the official Paystack badge, and updated Home timeline copy with production marketing text (23/23 tests passing, `tsc --noEmit` 0 errors).
+
+### 135. Cookie Settings & Policy Structural & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - In `LegalPage.tsx`, the Cookie Policy subtext used `18px / 26px` rather than `16px / 24px`, Card 4's table header displayed `"Operational Purpose"` instead of Figma's `"Primary Purpose"`, Card 4 contained an unmodeled trailing email note, Card 5 lacked structured subheadings for `"In-App Consent Preferences"` and `"Web Browser Controls"` with browser-specific settings guidance, and Card 6 was labeled `"6. Third-Party Cookies"` instead of Figma's exact heading `"6. Third-Party Integrations"`.
+- **Root Cause:**
+  - Initial implementation used draft copy approximations before detailed node extraction against Figma node `178383:18857`.
+- **Fix:**
+  - Aligned all copy, table headers, subheadings, and section titles with 1-for-1 fidelity to Figma node `178383:18857`, removed unmodeled trailing paragraphs, and verified hover microinteraction parity across all 7 cards (4/4 tests passing, `tsc --noEmit` 0 errors).
+
+### 134. Terms Section Card 4 Static Fill Instead of Dynamic Hover State (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Interactive State & Fidelity Defect
+- **What happened:**
+  - Card 4 ("4. Intellectual Property Rights") was rendered with a permanent, static `bg-[#f9f9f9]` fill without an outer border, while all other cards had permanent borders without hover styling. In the Figma design source, Card 4 demonstrated the intended hover microinteraction for section cards rather than a unique static variation.
+- **Root Cause:**
+  - Figma canvas capture included an active pointer hover state on Card 4, which was initially interpreted as a unique static card style rather than an interactive hover microinteraction.
+- **Fix:**
+  - Standardized all 12 section cards (and 7 cookie policy cards) to default `border border-[#e8e8e8]` and added `hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`, delivering consistent, interactive hover feedback across the legal document (4/4 tests passing, `tsc --noEmit` 0 errors).
+
+### 133. Terms of Service Page Visual & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `LegalPage.tsx` previously used generic component fonts and layout wrappers, lacked the exact masked Monologg SVG header logo, had no ambient blurred background gradient assets, omitted Card 4's distinct `#F9F9F9` borderless background, and did not include the full 4-row compliance table with vector dividers in Section 2 (`Data Protection & Regulatory Compliance`) as detailed in Figma node `178382:17926`.
+- **Root Cause:**
+  - Legacy terms page was structured around generic markdown cards rather than the pixel-perfect layout and vector hierarchy of the Figma v3.0 design.
+- **Fix:**
+  - Rebuilt `LegalPage.tsx` with 1-for-1 fidelity to Figma node `178382:17926`, self-hosted all assets under `apps/web/public/assets/terms/`, formatted all 12 section cards with exact typography (`Switzer`, `Inter Tight`, `Geist Mono`, `JetBrains Mono`), added the Card 2 compliance table with vector dividers, applied Card 4's `#F9F9F9` borderless styling, and integrated the full-width dashed divider before the footer (3/3 unit tests passing, `tsc --noEmit` 0 errors).
+
+### 132. Native Select Double Chevron & Unmocked Database Transit in Tests (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
+- **Severity:** Low / UX Polish & Test Stability Defect
+- **What happened:**
+  - On macOS WebKit/Blink browsers, the `<select id="who-you-are">` element rendered two dropdown chevrons side-by-side: the browser's default user-agent arrow plus the Figma `caretDown` SVG. In addition, when connecting the form directly to Supabase storage, running `ResourcesPage.test.tsx` hit a 5000ms test timeout due to unmocked network calls in jsdom.
+- **Root Cause:**
+  - Standard Tailwind `appearance-none` does not always clear WebKit user-agent arrow styling unless explicit inline rules (`WebkitAppearance: "none"`, `MozAppearance: "none"`, `backgroundImage: "none"`) are supplied. JSDOM tests required a scoped mock for `supabase.from("InvestorApplication").insert` to avoid hanging network calls.
+- **Fix:**
+  - Applied explicit cross-browser inline appearance reset styles to `<select>` and positioned the single Figma `caretDown` SVG at `right-[13px] top-1/2 -translate-y-1/2`.
+  - Added a Supabase client mock to `ResourcesPage.test.tsx` asserting table insertion into `"InvestorApplication"` and immediate resolution (5/5 tests passing in 283ms).
+
+### 131. Resources Page Substituted Social Icons, Missing Figma Dividers/Pills, and Ambiguous Test Label Selectors (`ResourcesPage.tsx`, `ResourcesPage.test.tsx`)
+- **Severity:** Low / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `ResourcesPage.tsx` previously used generic icons from `/assets/social/*` instead of the exact vector assets extracted from Figma node `178359:18325`, omitted the exact `Vector 2553` (vertical) and `Vector 2555` (horizontal) divider SVGs, lacked the masked Monologg SVG header logo and active `Resources` red dot indicator (`gap-[10px]`, `#F25757`), and omitted the ambient background gradient SVGs (`178359:18373`). Additionally, in `ResourcesPage.test.tsx`, testing `/Email/i` threw `Found multiple elements` because the shared footer also contains an email input.
+- **Root Cause:**
+  - Earlier prototype used generic icon paths and broad test regex queries without matching the exact Figma node specs from MCP `get_design_context`.
+- **Fix:**
+  - Extracted and downloaded all 20 assets into `apps/web/public/assets/resources/`, implemented exact Figma dimensions, typography, and SVG layers across `ResourcesPage.tsx`, and updated `ResourcesPage.test.tsx` to use exact regex boundaries (`/^Email$/i`) and verify all 7 social badges and the active nav indicator (5/5 tests passing, `npx tsc --noEmit` 0 errors).
+
+### 130. Pricing Page Layout/Typography Drift, Missing Clients Section Pill & Bottom CTA, and Bordered FAQ Cards (`PricingPage.tsx`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `PricingPage.tsx` previously rendered a single detached audience pill outside the Performer/Client sections instead of the per-section `139×30px` role pills in `178359:18031` and `178359:18130`, omitted the bottom `"Get started for free"` CTA button under the Clients table (`178401:153027`), omitted the dashed section divider (`178359:18317`) and ambient blurred gradient backgrounds (`178359:18008`), wrapped the tables in outer rounded borders with pill-boxed `Coming Soon` badges instead of the borderless `1040px` `HorizontalBorder` rows and `Geist Mono` `Coming Soon` label from Figma, and used Lucide icons in bordered FAQ cards instead of the borderless `910px` FAQ rows with Figma `Plus`/`X` SVGs.
+- **Root Cause:**
+  - Earlier implementation approximated `178359:17960` without extracting all 24 child SVG/PNG assets or matching the exact Figma layout and typography specs.
+- **Fix:**
+  - Downloaded all 24 SVG and PNG assets from `178359:17960` into `apps/web/public/assets/pricing/`, set the hero section (`178359:18019`) background to `#F9F9F9`, wired the `Performers` / `Clients` audience pill to switch sections in-place without scrolling, and rebuilt `PricingPage.tsx` 1-for-1 (`PricingPage.test.tsx` 5/5 passing, `npx tsc --noEmit` 0 errors).
+
+### 129. Missing 3-State Stepper Cards (`default` / `active` / `completed`), Improvised Phone Mockups & Missing Thespian AI Rows on Product Page (`ProductPage.tsx`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `ProductPage.tsx` previously rendered only a 2-state step list with Lucide `ArrowUpRight`, improvised HTML phone cards instead of the 7 `300×300` Figma SVG illustrations from `178359:17305`, Lucide icons instead of the Figma `SealCheck` / `chat-4-fill` / `NotePencil` / `lock-fill` SVGs in the Client Portal, and omitted `Contract Guardrails` and `AI Rehearsal Partner` from the Performer Thespian AI table.
+- **Root Cause:**
+  - Earlier implementation approximated `178359:17305` without extracting the child frames' SVG assets (`ArrowCircleRight`, `Spinner`, `CheckCircle`, and the 7 `300×300` illustrations in `Frame 2147228146`) via `get_design_context`.
+- **Fix:**
+  - Downloaded all 64 SVG assets from `178359:17305` into `apps/web/public/assets/product/`, implemented the exact 3 states (`default`, `active`, `completed`) across all 7 step cards (`01`–`07`), extracted the 7 `300×300` Figma SVG illustrations into the right-hand preview box without duplicating the reference section, and rebuilt the Client Portal, Thespian AI tables, and FAQ 1-for-1 (`ProductPage.test.tsx` 5/5 passing).
+
+### 128. Improvised Feature Mockups, Substituted Icons/Avatars, and Missing `Switzer`/`Inter Tight`/`Geist Mono` Fonts on Home Page (`LandingPage.tsx`, `WebsiteFooter.tsx`, `fonts.css`)
+- **Severity:** Medium / Figma Design-to-Code Fidelity Defect
+- **What happened:**
+  - `LandingPage.tsx` and `WebsiteFooter.tsx` previously used improvised HTML/CSS mockup cards in the 6-feature section, generic Unsplash avatar URLs, Lucide icon substitutes in the `"YOU BELONG HERE"` category strip, a text `"Combinator"` label in the footer instead of the two `24×23.84px` Figma partner badges, and lacked `@import` rules for `Switzer`, `Inter Tight`, and `Geist Mono` in `fonts.css`.
+- **Root Cause:**
+  - Earlier iterations approximated sublayers of Figma node `178359:16886` without extracting the child frames' SVG/PNG assets via `get_design_context` or importing the required web fonts.
+- **Fix:**
+  - Extracted all 68 SVG/PNG assets from `178359:16886` and its child frames into `apps/web/public/assets/home/`, imported `Switzer`, `Inter Tight`, and `Geist Mono` in `apps/web/src/styles/fonts.css`, and rebuilt `LandingPage.tsx` and `WebsiteFooter.tsx` as a strict 1-for-1 implementation of the Figma specification.
 
 ### 127. Quadruple Financial Duplication, Stacked Top Banners, and Redundant 1-on-1 Chat Role Badges in `OrderRoom.tsx`
 - **Severity:** Medium / Information Architecture & UX Clutter Defect

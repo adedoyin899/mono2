@@ -1231,6 +1231,23 @@ export const apiClient = {
       return false;
     }
   },
+
+  /**
+   * Subscribe an email address to the newsletter / marketing waitlist.
+   * In mock mode, succeeds immediately; in live mode, POSTs to /api/v1/newsletter/subscribe.
+   */
+  async subscribeNewsletter(
+    email: string,
+    source: string = "website_footer",
+  ): Promise<{ success: boolean; message?: string }> {
+    if (API_MODE !== "live") {
+      return { success: true, message: "Subscribed successfully" };
+    }
+    return request<{ success: boolean; message?: string }>("/newsletter/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ email, source }),
+    });
+  },
 };
 
 /** The raw Booking row POST /bookings returns — not the display-mapped Order

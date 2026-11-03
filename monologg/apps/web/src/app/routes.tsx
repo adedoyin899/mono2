@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { Root } from "./Root";
 import { RequireAuth } from "./RequireAuth";
 import { LandingPage } from "./pages/LandingPage";
@@ -18,6 +18,9 @@ import { DesignSystem } from "./pages/DesignSystem";
 import { MediaKitManagement } from "./pages/MediaKitManagement";
 import { VerificationVideo } from "./pages/VerificationVideo";
 import { PublicStorefront } from "./pages/PublicStorefront";
+import { ProductPage } from "./pages/ProductPage";
+import { PricingPage } from "./pages/PricingPage";
+import { ResourcesPage } from "./pages/ResourcesPage";
 import { ExternalBookingEntry } from "./pages/ExternalBookingEntry";
 import { SetPassword } from "./pages/SetPassword";
 import { AuthCallback } from "./pages/AuthCallback";
@@ -59,8 +62,18 @@ export const routeTree = [
       { path: "media-kit", Component: protect(MediaKitManagement) },
       { path: "verification", Component: protect(VerificationVideo) },
       { path: "legal/terms", Component: () => <LegalPage type="terms" /> },
+      { path: "legal/cookies", Component: () => <LegalPage type="cookies" /> },
       { path: "legal/privacy", Component: () => <LegalPage type="privacy" /> },
+      { path: "terms", Component: () => <LegalPage type="terms" /> },
+      { path: "cookies", Component: () => <LegalPage type="cookies" /> },
+      { path: "privacy", Component: () => <LegalPage type="privacy" /> },
       { path: "design-system", Component: DesignSystem },
+      { path: "product", Component: ProductPage },
+      { path: "pricing", Component: PricingPage },
+      { path: "resources", Component: ResourcesPage },
+      { path: "newsletter", Component: () => <Navigate to="/#newsletter" replace /> },
+      { path: "subscribe", Component: () => <Navigate to="/#newsletter" replace /> },
+      { path: "waitlist", Component: () => <Navigate to="/#newsletter" replace /> },
       // features.md Phase 16 (FA-5) stub entry point — public, no auth; see
       // ExternalBookingEntry.tsx's own doc comment. Declared before ":handle"
       // so "book" is never swallowed as someone's handle (React Router ranks

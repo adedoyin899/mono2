@@ -1,6 +1,6 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
+**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
@@ -9,18 +9,305 @@ Sessions 1–6 happened before the project was in git, so their dates are the se
 
 ---
 
-## Session 181 (2026-11-03) — Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs
+## Session 194 (2026-11-03) — Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch
 
-**Goal:** Completely eliminate all remaining user-facing references to FINCRA/Fincra in favor of Paystack across the entire web application and UX specs on `main`, ensuring 100% brand consistency with Rule X1 (Paystack primary payment provider).
+**Goal:** Connect the website email capture / newsletter form across all pages to direct Supabase Postgres storage (`public."NewsletterSubscriber"`), implement backend API endpoints and export capabilities, wire telemetry and UI feedback, and synchronize all website updates to the `main` branch.
 
-1. **Webapp Frontend Elimination (`apps/web/src/app/pages/`):**
+1. **Supabase Postgres Database Schema & Storage (`public."NewsletterSubscriber"`):**
+   - Executed SQL on Supabase Postgres to create table `public."NewsletterSubscriber"` with columns `id`, `email` (unique, lowercase), `source` (default `'website_footer'`), `status` (default `'ACTIVE'`), `metadata` (jsonb), `"createdAt"`, and `"updatedAt"`.
+   - Enabled Row-Level Security (RLS) with policies for public guest insert and update (`anon`, `authenticated`, `service_role`) and read permissions.
+   - Reloaded PostgREST schema cache (`NOTIFY pgrst, 'reload schema'`).
+   - Verified live insert and deletion using `@supabase/supabase-js` client with anon key.
+2. **Prisma Schema & Backend Route Ingestion (`schema.prisma`, `routes/newsletter.ts`):**
+   - Added `model NewsletterSubscriber` to `monologg/apps/api/prisma/schema.prisma` and generated Prisma Client (`v6.19.3`).
+   - Created `monologg/apps/api/src/routes/newsletter.ts` with:
+     - `POST /api/v1/newsletter/subscribe`: validated email ingestion with upsert logic on conflict.
+     - `GET /api/v1/newsletter/subscribers`: listing all accumulated subscribers with optional CSV export (`?format=csv`).
+   - Registered `newsletterRoutes` in `monologg/apps/api/src/routes/index.ts`.
+3. **Frontend Ingestion & UI Feedback (`WebsiteFooter.tsx`, `api-client.ts`, `routes.tsx`):**
+   - Added `subscribeNewsletter` to `apiClient` in `monologg/apps/web/src/lib/api-client.ts`.
+   - Updated `WebsiteFooter.tsx` to handle async newsletter submission:
+     - Direct Supabase storage: `supabase.from("NewsletterSubscriber").upsert(...)`.
+     - Dispatched telemetry event: `trackEvent("waitlist_submitted", { type: "newsletter_subscription", ... })`.
+     - Loading state with animated spinner and disabled submit button during transmission.
+     - Success feedback (`"Thanks for subscribing!"`) and error resilience.
+     - Added `id="newsletter"` and smooth scroll anchor effect when navigating to `#newsletter`.
+   - Added convenience routes in `monologg/apps/web/src/app/routes.tsx` for `/newsletter`, `/subscribe`, and `/waitlist` redirecting to `/#newsletter`.
+4. **Unit Tests & Quality Gate:**
+   - Authored `monologg/apps/web/src/app/components/WebsiteFooter.test.tsx` verifying newsletter form rendering, Supabase submission, and confirmation feedback (2/2 tests passing).
+   - Ran complete web pages test suite (25/25 tests passing across 6 test suites).
+   - Confirmed 0 TypeScript errors across both `apps/web` and `apps/api` (`npx tsc --noEmit`).
+
+---
+
+## Session 193 (2026-11-03) — Thespian AI Performer & Client Table Rows Hover-Only Background Fill
+
+**Goal:** Remove default static `#f7f7f7` background fill on Row 1 of both Thespian AI feature tables (Performer and Client) in `ProductPage.tsx`, making the `#f7f7f7` background fill and scale micro-interaction strictly hover-only across all rows.
+
+1. **Thespian AI Row 1 Hover-Only Refactoring (`ProductPage.tsx`):**
+   - **Performer AI Table (Row 1: `Instant AI Onboarding`, `178359:17863`):** Removed `bg-[#f7f7f7]` default background class and unified padding to `p-[24px]` (matching rows 2–5). The row now defaults to transparent and transitions smoothly into `hover:bg-[#f7f7f7]` and `hover:scale-[1.005]` only when hovered.
+   - **Client AI Table (Row 1: `Vibe & Texture Matching`, `178359:17925`):** Removed `bg-[#f7f7f7]` default background class and unified padding to `p-[24px]` (matching rows 2–3). The row now defaults to transparent and transitions smoothly into `hover:bg-[#f7f7f7]` and `hover:scale-[1.005]` only when hovered.
+2. **Quality Gate & Testing:**
+   - Ran `npx tsc --noEmit`: 0 TypeScript compiler errors.
+   - Ran Vitest suite: all 5 tests in `ProductPage.test.tsx` pass.
+   - Ran complete web pages test suite (23/23 tests passing across Landing, Pricing, Product, Resources, and Legal pages).
+
+---
+
+## Session 192 (2026-11-03) — Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation
+
+**Goal:** Format the Performer Portal hero heading into exactly 2 lines on desktop and animate the rayed "rolling thing" (spinner icon) on the 7-step interactive showcase default cards in `ProductPage.tsx`.
+
+1. **Performer Portal Heading 2-Line Formatting (`ProductPage.tsx`):**
+   - Refactored `h1` (`178359:17384`) from `max-w-[526px]` (which forced an awkward 3-line wrap: *"Build your" / "personal digital" / "stage"*) to `max-w-[820px]` with `<br className="hidden sm:inline" />`.
+   - Result: clean, balanced 2-line presentation (*"Build your personal"* on line 1, *"digital stage"* on line 2) with `leading-tight sm:leading-[1.1]`.
+2. **Continuous Rolling Spinner Micro-Interaction (`ProductPage.tsx`):**
+   - Animated the rayed spinner icon (`imgSpinner`) in default step cards with continuous linear rotation (`animate={{ rotate: 360 }}`, `duration: 3s`, `repeat: Infinity`, `ease: "linear"`).
+   - Gives a live, subtle pending/rolling affordance as the interactive showcase cycles through steps.
+3. **Quality Gate & Testing:**
+   - Verified Vitest suite passes 100% (`ProductPage.test.tsx` 5/5 passing, all 23 marketing page tests passing).
+   - Confirmed 0 TypeScript compiler errors (`npx tsc --noEmit`).
+
+---
+
+## Session 191 (2026-11-03) — FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages
+
+**Goal:** Implement senior FAANG-grade web motion and micro-interactions adhering to `web-motion-design.md` (Disney's 12 principles for UI, GPU transforms, standard cubic bezier `[0.4, 0, 0.2, 1]`, `prefers-reduced-motion` safety) and `micro-interactions.md` (squash & stretch, anticipation, spring dynamics) across the Home/Landing, Product, and Pricing pages.
+
+1. **Home Page Hero Marquee & Vertical Timeline Scroll Animation (`LandingPage.tsx`, `tokens.css`):**
+   - **Hero Category Marquee:** Added infinite horizontal marquee moving left-to-right (`@keyframes marquee-ltr`, 28s linear infinite with hover pause, white edge fade gradients) featuring all 6 category pills (Actors, Speakers, Comperes, Comedians, Artists, Creators) with hover micro-interactions.
+   - **Timeline Scroll Progress Bar:** Refactored the 2px vertical timeline line with Framer Motion's `useScroll` and `useTransform` (`scaleY` with `transformOrigin: "top"`), dynamically filling top-to-bottom as the user scrolls through the 6 feature blocks.
+   - **Feature Viewport Animations & Card Lift:** Wrapped each of the 6 feature blocks with `whileInView={{ opacity: 1, y: 0 }}` entrance animations and applied `whileHover={{ y: -6 }}` with elevated shadow to all 6 UI mockup preview cards.
+2. **Product Page 7-Step Showcase & Thespian AI Interactions (`ProductPage.tsx`):**
+   - **7-Step Showcase Fluid Transitions:** Added `layout` transitions to step cards. Expanded active card description with `AnimatePresence` height transition, added spring pop to completed checkmarks, hover nudge to active arrow icons, and fluid cross-fade zoom to the 300×300 SVG phone preview stage.
+   - **In-Place Thespian AI Role Switch:** Added interactive `thespianRole` state (`"performer" | "client"`), converting the `PERFORMER | CLIENT` toggle into an in-place switch without page scrolling or jumping, while preserving DOM nodes for 100% test suite parity.
+   - **Table Row Hover Fills:** Implemented `hover:bg-[#f7f7f7]` with subtle FAANG scale (`hover:scale-[1.005]`) and ease-out transitions across all rows on both Performer and Client tables.
+3. **Pricing Page Table Blur-In Entrance Animation (`PricingPage.tsx`):**
+   - **Blur-In Horizontal Rows:** Wrapped all comparison rows for both Performers (9 rows) and Clients (23 rows) with `initial={{ opacity: 0, filter: "blur(6px)", y: 10 }}` to `whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}` with subtle staggered delays (`idx * 0.03`) and hover highlight (`hover:bg-[#f9f9f9]/90`).
+4. **Universal Fluid FAQ Accordions (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`):**
+   - Wrapped FAQ answers across all 3 pages in `<AnimatePresence initial={false}>` with smooth height and opacity transitions (`[0.4, 0, 0.2, 1]`, duration 0.28s).
+   - Upgraded toggle icon button with spring rotation (`rotate: isOpen ? 45 : 0`, stiffness 360, damping 25) allowing the `+` to fluidly morph into `×`.
+5. **Test Setup Polyfills & Verification (`test-setup.ts`):**
+   - Added standard jsdom stubs for `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts` so Framer Motion viewport triggers execute cleanly without crashes under Vitest.
+   - Verified 100% test pass rate across marketing test suites (23/23 tests passing) and confirmed zero TypeScript errors (`npx tsc --noEmit`).
+
+---
+
+## Session 190 (2026-11-03) — Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch
+
+**Goal:** Completely eliminate all remaining user-facing references to FINCRA/Fincra in favor of Paystack across the entire web application, documentation, and UX specs on both the `web` branch and the `main` branch, ensuring 100% brand consistency and adherence to architectural rule X1 (Paystack primary payment provider).
+
+1. **Webapp Frontend Elimination (`apps/web/src/app/`):**
    - **`Checkout.tsx`:** Updated simulated mock escrow loading copy from `"Securing your funds in escrow via FINCRA..."` to `"Securing your funds in escrow via Paystack..."`.
    - **`ClientDashboard.tsx`:** Updated payment trust guarantee badge from `<span>FINCRA Escrow Protected · 256-Bit Bank-Grade Encryption</span>` to `<span>Paystack Escrow Protected · 256-Bit Bank-Grade Encryption</span>`.
+   - **`LandingPage.tsx`:** Removed Fincra from currency FAQ answer (`"processed in Nigerian Naira (₦) through secure payment gateways such as Paystack"`).
+   - **`PricingPage.tsx`:** Removed Fincra from currency FAQ answer.
+   - **`ProductPage.tsx`:** Removed Fincra from currency FAQ answer.
+   - **`ResourcesPage.tsx`:** Replaced `"guaranteed by FINCRA/PAYSTACK."` with `"guaranteed by Paystack."` in the escrow guarantee card.
+   - **Announcement Bar Emojis:** Standardized emoji spacing to `"Monologg is in Alpha 🥳 🥳"` across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, and their Vitest suites.
 2. **UX Specification & Architecture Sync (`apps/web/src/imports/`):**
    - **`monologg_ux_spec.md`:** Replaced all 11 references to FINCRA across sitemap (screen `PWA-12`), flow diagrams, screen specifications, and microcopy tables with Paystack.
    - **`historical-drafts/`:** Sanitized `monologg-ux-spec-early-draft.md` and `monologg_design_prompt.md` so that `git grep -in "fincra" apps/web/` returns zero results.
-3. **Verification:**
+3. **Main Branch Parity:**
+   - Switched to `main` branch, updated `Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`, and historical drafts to replace FINCRA with Paystack, verified zero compiler errors and test suite pass, and pushed directly to `origin/main`.
+4. **Verification & Quality Gate:**
+   - Passed Vitest suite (23/23 tests passing across `LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`).
    - Confirmed 0 TypeScript errors (`npx tsc --noEmit`).
+
+
+**Goal:** Implement user-requested copy updates on the Home page (`LandingPage.tsx`), apply system-wide announcement bar copy tweaks (`Monologg is in Alpha 🥳🥳` and `Paystack Secured · 25+ Verified Performers`) across all public pages, and add direct interactive `Terms of Service | Cookie Policy` navigation links and Paystack backing badge in the shared website footer (`WebsiteFooter.tsx`).
+
+1. **Home 6-Feature Section Copy Updates (`LandingPage.tsx`):**
+   - Updated the 6-feature vertical timeline section heading (`178359:16991`) to `"Run your performing career like the business it actually is"`.
+   - Updated subtext (`178359:16992`) to `"Share your work, set your prices, track your audience and get paid securely, without an agent in the middle."` with clean wrapping up to `650px`.
+2. **System-Wide Announcement Bar Copy Tweaks (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`):**
+   - Standardized left status pill copy across all 5 public pages to `"Monologg is in Alpha 🥳🥳"` with `font-semibold text-white text-[11px]`.
+   - Standardized right metric counter across all 5 public pages to `"Paystack Secured · 25+ Verified Performers"` in `JetBrains Mono` bold.
+3. **Shared Website Footer Legal Accessibility & Paystack Badge (`WebsiteFooter.tsx`):**
+   - Added direct interactive buttons for `"Terms of Service"` (navigating to `/terms`) and `"Cookie Policy"` (navigating to `/cookies`) separated by `|` in the bottom copyright bar (`178407:19721`).
+   - Updated the `"Backed by"` badge to the official Paystack brand icon (4 cyan rounded bars `#00C3F7`) and bold lowercase `"paystack"` wordmark.
+4. **Quality Gate & Testing:**
+   - Updated and passed unit tests across `LandingPageHeader.test.tsx`, `ProductPage.test.tsx`, `PricingPage.test.tsx`, and `ResourcesPage.test.tsx` (23/23 tests passing).
+   - Confirmed zero TypeScript errors across `apps/web` and `apps/api` (`tsc --noEmit`).
+
+---
+
+## Session 188 (2026-11-02) — 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions
+
+**Goal:** Implement a strict 1-for-1 port of the Figma Cookie Settings & Policy page (`node-id=178383-18857`, `1440px × 3953px`, `#F6FAF9`) in `apps/web/src/app/pages/LegalPage.tsx`, maintaining the section card hover microinteraction (`hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`) across all 7 section cards as demonstrated in Figma Card 2 (`178387:19798`), aligning table columns (`Primary Purpose`, `type`), Card 5 sub-block hierarchy, and Card 6 naming.
+
+1. **1-for-1 Cookie Settings & Policy Alignment (`apps/web/src/app/pages/LegalPage.tsx`):**
+   - **Hero Header (`178383:18930`):** Aligned subtext typography to exact Figma specifications: `font-['Inter_Tight',sans-serif] text-[16px] leading-[24px] tracking-[0.48px] max-w-[664px]`.
+   - **Section Card Headings & Semantics:** Converted Card 3 and Card 4 headings from raw `<ol>` tags to clean, accessible `<h2>` elements (`3. Cookie Categories & Settings`, `4. Summary of Cookies Used`).
+   - **Card 4 Summary Table Headers & Bounding Dividers (`178387:19853`):** Updated table column headers to match Figma node `178387:19861`: `Cookie Identifier` (`136px`), `Category` (`143px`), `Primary Purpose` (`312px`), `Duration` (`90px`), and `type` (`90px`). Retained top and bottom vector line dividers and eliminated redundant unmodeled trailing email note.
+   - **Card 5 Preferences Sub-Block Structure (`178387:19805`):** Formatted structured subheadings for `In-App Consent Preferences` and `Web Browser Controls` with browser specific guidance (Chrome, Firefox, Safari, Edge) and trailing strictly necessary note.
+   - **Card 6 Heading Parity (`178387:19812`):** Corrected heading from generic `Third-Party Cookies` to exact Figma title `6. Third-Party Integrations`.
+   - **Hover Microinteraction Parity:** Standardized all 7 section cards to `CARD_CLASSES` (`border border-[#e8e8e8] hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200`), ensuring Card 2 defaults to bordered state and transitions seamlessly to `#F9F9F9` on hover.
+2. **Quality Gate & Testing (`apps/web/src/app/pages/LegalPage.test.tsx`):**
+   - Expanded unit tests in `LegalPage.test.tsx` to assert all 7 Cookie Policy section cards carry hover microinteraction classes, exact table headers (`Primary Purpose`, `type`), sub-blocks (`In-App Consent Preferences`, `Web Browser Controls`), and `6. Third-Party Integrations`.
+   - Verified 4/4 unit tests passing in `LegalPage.test.tsx`.
+   - Verified `npx tsc --noEmit` across both `apps/web` and `apps/api` with zero errors.
+
+---
+
+## Session 187 (2026-11-02) — Terms & Legal Section Card Hover Microinteraction Parity
+
+**Goal:** Standardize section card microinteractions across `LegalPage.tsx` so that Card 4 ("4. Intellectual Property Rights") and all other section cards share default bordered styling (`border border-[#e8e8e8] border-solid`) and dynamically transition to the borderless `#f9f9f9` hover state on user pointer interaction, reflecting Figma design variant parity.
+
+1. **Section Card Hover Microinteraction Implementation (`LegalPage.tsx`):**
+   - Created reusable `CARD_CLASSES` token combining default styling with interactive hover transitions: `border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full`.
+   - Replaced previously hardcoded static `bg-[#f9f9f9]` on Terms Card 4 (`178385:19591`) and Cookie Card 2 (`178387:19798`) with `CARD_CLASSES`.
+   - Applied `CARD_CLASSES` uniformly across all 12 section cards in Terms of Service and all 7 section cards in Cookie Settings & Policy.
+2. **Unit Test & Quality Gate (`LegalPage.test.tsx`):**
+   - Added unit test asserting hover microinteraction classes (`hover:bg-[#f9f9f9]`, `hover:border-transparent`, `border-[#e8e8e8]`) across all 12 section cards in `LegalPage.test.tsx`.
+   - Validated test suite (4/4 passing) and verified `npx tsc --noEmit` across `apps/web` (0 errors).
+
+---
+
+## Session 186 (2026-11-02) — Strict 1-for-1 Figma Terms of Service Page Implementation & Local Assets
+
+**Goal:** Implement a strict 1-for-1 port of the Figma Terms of Service page (`node-id=178382-17926`, `1440px × 5293px`, `#F6FAF9`) in `apps/web/src/app/pages/LegalPage.tsx`, self-hosting all required SVG assets locally in `apps/web/public/assets/terms/`, matching every layout property, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), announcement bar, sticky navigation header, ambient blurred background gradients, the 12 section cards (including Card 2's compliance data table with dividers and Card 4's borderless `#F9F9F9` background), and the dashed divider above `<WebsiteFooter />`.
+
+1. **Extracted & Self-Hosted All Local Terms Assets (`apps/web/public/assets/terms/*`):**
+   - Created `apps/web/public/assets/terms/` and populated all static vector assets:
+     - Header masked Monologg SVG logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`).
+     - Theme toggle SVG (`theme-toggle.svg`).
+     - Ambient blurred background gradient SVGs (`gradient-bg-left.svg`, `gradient-bg-right.svg`).
+     - Horizontal dashed divider SVG (`dashed-divider.svg`).
+     - Vector dividers and action arrow (`vector-2553.svg`, `arrow-right.svg`).
+2. **1-for-1 Terms of Service Page Implementation (`apps/web/src/app/pages/LegalPage.tsx`):**
+   - **Announcement Bar & Header (`178382:17927`, `178382:17939`):** Rebuilt the top `40px` `#16161A` announcement bar with pulsing `#F13030` dot, `"Monologg Marketplace v3.0 Live"`, and `"3,200+ Verified Talent Profiles"` in `JetBrains Mono`. Implemented the `68px` sticky header (`backdrop-blur-[12px] bg-white/95`) with masked SVG logo (`105.109×24px`), unaccented `#5D5D66` nav links (`Product`, `Pricing`, `Resources`), theme toggle button, and authenticated user dropdown / sign-in pill buttons.
+   - **Ambient Blurred Background Gradients (`178382:17974`):** Anchored `gradient-bg-left.svg` and `gradient-bg-right.svg` within a `2316px` overflow-visible container.
+   - **Hero Header (`178382:17985`):** Created the red status dot + `Geist Mono` `"Last Updated: 29 Oct 2026"` pill, `Switzer` 64px Medium `"Terms of Service"` heading, and `Inter Tight` 16px subtext.
+   - **12 Section Cards (`178385:19525`):**
+     - Card 1: `1. Eligibility & Account Responsibilities` (`911px`, border `#e8e8e8`, rounded-20px, 24px padding).
+     - Card 2: `2. Data Protection & Regulatory Compliance` featuring a complete 4-row compliance table (`Lawful Basis for Processing`, `Data Subject Rights`, `International Data Transfers`, `Data Retention`) bounded by uppercase `Geist Mono` `#F13030` headers and vector dividers.
+     - Card 3: `3. Prohibited Conduct & Acceptable Use` with 6 detailed bullet clauses.
+     - Card 4: `4. Intellectual Property Rights` with `#F9F9F9` fill and borderless styling matching Figma specifications.
+     - Cards 5–12: `5. User Content & Licensing`, `6. Subscriptions, Fees & Payment`, `7. Third-Party Links & Services`, `8. Disclaimers & Limitation of Liability`, `9. Indemnification`, `10. Suspension & Termination`, `11. Governing Law & Dispute Resolution`, `12. Modifications to Terms`.
+   - **Dashed Divider & Footer:** Inserted `dashed-divider.svg` separator before `<WebsiteFooter />`.
+3. **Verification & Quality Gate (`LegalPage.test.tsx`):**
+   - Verified unit tests (3/3 passing) covering Terms of Service, Cookie Policy, and Privacy route aliases.
+   - Verified zero TypeScript compiler errors (`tsc --noEmit`) across both `apps/web` and `apps/api`.
+
+---
+
+## Session 185 (2026-11-02) — Investor Dropdown Chevron Fix & Supabase Backend Storage Integration
+
+**Goal:** Fix the duplicate chevron rendering on the `"Please tell us who you are"` select dropdown in `ResourcesPage.tsx`, and integrate backend persistence to store all filled investor applications in a dedicated Supabase Postgres table (`public."InvestorApplication"`) with RLS and telemetry tracking.
+
+1. **Eliminated Native Browser Double Chevron (`ResourcesPage.tsx`):**
+   - Reset the native WebKit/Blink dropdown arrow on `<select>` via explicit inline styling: `WebkitAppearance: "none"`, `MozAppearance: "none"`, `appearance: "none"`, and `backgroundImage: "none"`.
+   - Set padding `pl-[13px] pr-[36px]` on the `<select>` element and positioned the single Figma vector `caretDown` SVG (`16×16px`) at `right-[13px] top-1/2 -translate-y-1/2 pointer-events-none`.
+2. **Created Supabase Backend Schema & Storage (`public."InvestorApplication"`):**
+   - Executed SQL on Supabase Postgres to create table `public."InvestorApplication"` with columns `id`, `firstName`, `lastName`, `email`, `phone`, `investorRole`, `message`, `status` (`'PENDING'`), `createdAt`, and `updatedAt`.
+   - Enabled Row-Level Security (RLS) and created policies allowing public guest insert (`TO anon, authenticated, service_role WITH CHECK (true)`) and read access.
+   - Synchronized Prisma schema in `apps/api/prisma/schema.prisma` with `model InvestorApplication` and re-generated the Prisma client.
+   - Reloaded the PostgREST schema cache (`NOTIFY pgrst, 'reload schema'`).
+3. **Wired Frontend Form Submission to Supabase & Telemetry (`ResourcesPage.tsx`):**
+   - Connected `handleInvestorSubmit` directly to `supabase.from("InvestorApplication").insert(payload)`.
+   - Dispatched `trackEvent("waitlist_submitted", { type: "investor_application", ... })` to log submissions into `AnalyticsEvent`.
+   - Added loading spinner state (`Submitting Application...`) with disabled button during submission and network error handling.
+4. **Verification & Quality Gate (`ResourcesPage.test.tsx`):**
+   - Updated `ResourcesPage.test.tsx` with a mock for `supabase.from("InvestorApplication").insert`, asserting proper database payload submission and UI confirmation feedback.
+   - Verified tests (5/5 passing) and verified `npx tsc --noEmit` across both `apps/web` and `apps/api` (0 errors).
+
+---
+
+## Session 184 (2026-11-02) — Strict 1-for-1 Figma Resources Page Implementation, Terms & Support Cards, Social Avatars & Investor Form
+
+**Goal:** Implement a strict 1-for-1 update of the Resources Page (`node-id=178359-18325`, `1440px × 2825.28px`) in `apps/web/src/app/pages/ResourcesPage.tsx`, extracting and self-hosting all 20 SVG assets from the Figma Desktop MCP server into `apps/web/public/assets/resources/`, matching every section, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), Terms of Service & Support & Community categories card, 7 social badges with contact email bar, ambient blurred gradients, and the interactive "Become an Investor" application form.
+
+1. **Extracted & Downloaded All 20 Local Figma Assets (`apps/web/public/assets/resources/*`):**
+   - Called `get_design_context` across `178359:18325` and all child frames (`178359:18326`, `178359:18338`, `178359:18373`, `178359:18384`, `178359:18473`, `178359:18494`) and downloaded all 20 static SVG assets into `apps/web/public/assets/resources/`:
+     - Monologg masked SVG logo (`logo-mask.svg`, `logo-icon.svg`, `logo-wordmark.svg`) and theme toggle SVG (`theme-toggle.svg`).
+     - Ambient background blurred gradient SVGs (`gradient-bg-left.svg`, `gradient-bg-right.svg`).
+     - Category badges & divider SVGs: `gavel.svg`, `question.svg`, `vector-2553.svg` (vertical divider), `vector-2555.svg` (horizontal divider).
+     - Bottom bar contact & social SVGs: `gmail.svg`, `linkedin.svg`, `producthunt.svg`, `twitter-x.svg`, `twitch.svg`, `telegram.svg`, `tiktok.svg`, `instagram.svg`.
+     - Investor form controls: `caret-down.svg` (custom dropdown select arrow) and `arrow-right.svg` (`Submit Application` CTA button icon).
+2. **1-for-1 Resources Page Implementation (`apps/web/src/app/pages/ResourcesPage.tsx`):**
+   - **Announcement Bar & Header (`178359:18326`, `178359:18338`):** Implemented exact `40px` `#16161A` top bar (`Plus Jakarta Sans` + `JetBrains Mono`) and `68px` header with the masked Monologg SVG logo (`105.109×24px`), active `Resources` nav item with `8px` red dot (`rgba(241,48,48,0.8)`, `border rgba(241,48,48,0.4)`) and `#F25757` text (`gap-[10px]`), `36×36px` theme toggle button, and `Sign In` / `Sign up free` pill buttons (with signed-in user avatar menu).
+   - **Ambient Blurred Background Gradients (`178359:18373`):** Added `gradient-bg-left.svg` (`left-[-185.75px] top-[851.24px]`) and `gradient-bg-right.svg` (`left-[1064.25px] top-[115.24px]`) under `pointer-events-none`.
+   - **Resource Categories Master Card (`178359:18384` / `178359:18409`):**
+     - Top container (`Frame 427321871`, `1000px` width, `bg-white`, border `#e8e8e8`, `rounded-t-[20px]`, `p-[32px]`):
+       - `Terms of Service` badge pill (`149×30px`, `#F7F7F7`, `14×14` `gavel.svg` + `Switzer` `14px` Medium).
+       - Row 1: `Escrow Guarantee Policy` (`Switzer` `18px` + `Inter Tight` `16px`) and `Fair Trade Contracts` (`Switzer` `18px` + `Inter Tight` `16px`) separated by `Vector 2553` (`h-[148px]`).
+       - Horizontal divider: `Vector 2555` full-width line (`border-[#E8E8E8]`).
+       - `Support & Community` badge pill (`181×30px`, `#F7F7F7`, `14×14` `question.svg` + `Switzer` `14px` Medium).
+       - Row 2: `24/7 Creator Helpdesk` (`Switzer` `18px` + `Inter Tight` `16px`) and `Onboarding & EPK Guides` (`Switzer` `18px` + `Inter Tight` `16px`) separated by `Vector 2553` (`h-[148px]`).
+     - Bottom bar (`Frame 2147227600`, `1000px` width, `bg-[#F9F9F9]`, border `#E8E8E8`, `rounded-b-[20px]`, `px-[32px] py-[16px]`):
+       - Contact link: `18×18` `gmail.svg` + `"hello@monologg.co"` (`Inter Tight` `15px` underline).
+       - Social avatar group (`Avatar group` `178359:18452`): 7 circular white badges (`36.28×36.28px`, `rounded-[553.846px]`, border `0.277px solid #E5E5E5`) for `LinkedIn`, `Product Hunt`, `Twitter-X`, `Twitch`, `Telegram`, `TikTok`, and `Instagram`.
+   - **Become an Investor Section (`178359:18473` / `178359:18474`):**
+     - Left column (`388px`): `"RAISING SOON!"` (`Geist Mono` `14px` uppercase tracking `1.26px`), `"Become an Investor"` (`Switzer` Medium `48px` `leading-[48px]`), and subtext (`Inter Tight` `18px` `#6D6D75`).
+     - Right column (`Frame 2` `530px`, `bg-white`, border `#E5E7EB`, `rounded-[18px]`, shadow, `p-[25px]`):
+       - Row 1: `First Name` (input placeholder `"John"`) + `Last Name` (input placeholder `"Doe"`).
+       - Row 2: `Email` (input placeholder `"name@email.com"`) + `phone no` (input placeholder `"+234 567 2907 67"`).
+       - Row 3: `Please tell us who you are` dropdown select with `caret-down.svg` (`16×16`).
+       - Row 4: `Message` textarea (`h-[160px]`, `rounded-[18px]`, placeholder `"Leave us a message..."`).
+       - Submit CTA: `"Submit Application"` (`480×40px`, `bg-[#F13030]`, `rounded-[23px]`, shadow + `16×16` `arrow-right.svg`).
+   - **Shared Footer (`178359:18494`):** Renders the shared `<WebsiteFooter />`.
+3. **Verification & Tests (`apps/web/src/app/pages/ResourcesPage.test.tsx`):**
+   - Added test coverage for all 5 test scenarios: announcement bar & header, master resources card, investor application form submission, 7 social platform badges & email link, and the active `Resources` pill indicator.
+   - Verified `ResourcesPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
+
+## Session 183 (2026-11-02) — Strict 1-for-1 Figma Pricing Page Implementation, Performer & Client Comparison Tables & Extracted SVG/PNG Assets
+
+**Goal:** Implement a strict 1-for-1 update of the Pricing Page (`node-id=178359-17960`, `1440px × 6195.91px`) in `apps/web/src/app/pages/PricingPage.tsx`, extracting and self-hosting all 24 SVG and PNG assets from the Figma Desktop MCP server into `apps/web/public/assets/pricing/` and matching every section, font family/weight/size (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`), and table row 1-for-1.
+
+1. **Extracted & Downloaded All 24 Local Figma Assets (`apps/web/public/assets/pricing/*`):**
+   - Called `get_design_context` across `178359:17960` and all child frames (`178359:17973`, `178359:18008`, `178359:18019`, `178359:18031`, `178359:18130`, `178359:18317`, `178359:18322`) and downloaded all 24 static SVG and PNG assets into `apps/web/public/assets/pricing/` (header masked Monologg logo & theme toggle SVG, ambient blurred gradient background SVGs, `ArrowRight` SVG, 6 performer composite PNG avatar stacks, 6 studio badge SVGs for `Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`, dashed horizontal divider SVG, and FAQ `Plus`/`X` SVGs).
+2. **1-for-1 Pricing Page Implementation (`apps/web/src/app/pages/PricingPage.tsx`):**
+   - **Announcement Bar & Header (`178359:17961`, `178359:17973`):** Implemented exact `40px` `#16161A` top bar (`Plus Jakarta Sans` + `JetBrains Mono`) and `68px` header with the masked Monologg SVG logo (`105.109×24px`), active `Pricing` nav item with `8px` red dot (`rgba(241,48,48,0.8)`, `border rgba(241,48,48,0.4)`) and `#F25757` text (`gap-[10px]`), `36×36px` theme toggle button, and `Sign In` / `Sign up free` pill buttons.
+   - **Hero Section (`178359:18019`):** Implemented the `#F9F9F9` hero background (`bg-[#f9f9f9]`), `64px` `Switzer` Medium `"Pricing"` title (`tracking-[-1.92px]`), `18px` `Inter Tight` subtitle (`max-w-[664px]`), and `200×40px` `#F13030` `"Get started for free"` CTA button (`rounded-[23px]` + `16×16` `ArrowRight` SVG).
+   - **In-Place Audience Tab Switching (`Performers` `178359:18031` ↔ `Clients` `178359:18130`):** Clicking `Performers` or `Clients` in the `139×30px` audience pill switches in-place between the `For Performers` and `For Clients` comparison sections (`setActiveAudience(type)`) without scrolling or rendering both tables stacked simultaneously.
+   - **For Performers Section (`178359:18031`):** Implemented the section-level `139×30px` audience pill (`Performers` active with `8px` red dot, `Clients` at `30%` opacity), 6 overlapping composite performer avatar circles (`46.457px` / `47.909px`, `mr-[-15px]`, `border-[0.363px] border-[#E5E5E5] bg-[#F8F8F6]`), `48px` `Switzer` Medium `"For Performers"` heading, `18px` `Inter Tight` subtitle, the `1040px` 3-column comparison table (`#F9F9F9` header row with `Switzer` `16px` column titles + `8px` red dot & `Geist Mono` `12px` uppercase `#F13030` `Coming Soon` label, and all 9 data rows in `Inter Tight` `14px`/`12.5px` separated by `#E8E8E8` and `rgba(15,42,38,0.1)` borders), and the bottom `"Get started for free"` CTA button (`178359:18124`).
+   - **For Clients Section (`178359:18130`):** Implemented the section-level `139×30px` audience pill (`Performers` at `30%` opacity, `Clients` active with `8px` red dot), 6 overlapping `46×46px` `#F8F8F6` studio logo badges (`22.646px` SVGs for `Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`), `48px` `Switzer` Medium `"For Clients"` heading, `18px` `Inter Tight` subtitle, the `1040px` 3-column comparison table with all 23 rows (3 core pricing rows + 5 `#F9F9F9` `Switzer` `14px` category header rows + 15 capability rows), and the bottom `"Get started for free"` CTA button (`178401:153027`).
+   - **Dashed Divider, Borderless FAQ & Footer (`178359:18317`, `178359:18323`, `178359:18324`):** Added the full-width dashed divider SVG (`dashed-divider.svg`), borderless `910px` 10-item FAQ accordion (`Switzer` `18px` questions, `Inter Tight` `16px` answers, rotated `24×24` `faq-plus.svg` / `faq-x.svg`), and `<WebsiteFooter />`.
+3. **Verification (`apps/web/src/app/pages/PricingPage.test.tsx`):**
+   - Verified `PricingPage.test.tsx` (5/5 passing) and `npx tsc --noEmit` (0 errors).
+
+---
+
+## Session 182 (2026-11-02) — Strict 1-for-1 Figma Product Page Implementation, 3-State Step Cards & Extracted 7-Step Illustrations
+
+**Goal:** Implement a strict 1-for-1 update of the Product Page (`node-id=178359-17305`) in `apps/web/src/app/pages/ProductPage.tsx`, applying the 3 card states (`default`, `active`, `completed`) across all 7 Performer Portal step cards (`01`–`07`), extracting the 7 `300×300` Figma SVG illustrations from the reference grid beneath without duplicating that section, and rendering the exact Client Portal, Thespian AI Performer/Client tables, FAQ, and Footer.
+
+1. **Extracted & Downloaded All 64 Local Figma Assets (`apps/web/public/assets/product/*`):**
+   - Called `get_design_context` across `178359:17305` and all child frames (`178359:17318`, `178359:17353`, `178359:17378`, `178359:17392`, `178359:17482`, `178359:17582`, `178359:17697`, `178359:17765`, `178359:17831`, `178359:17958`) and downloaded all 64 static SVG assets into `apps/web/public/assets/product/`.
+2. **3-State Step Cards & Extracted 7-Step SVG Illustrations (`apps/web/src/app/pages/ProductPage.tsx`):**
+   - Applied the 3 card states from Figma step `02` (`Frame 13` = `default`, `Frame 19` = `active`, `Frame 20` = `completed`) across all 7 step cards (`01` through `07`):
+     - **`default` (`idx > activeStep`):** White card (`border-[#f5f5f5]`), `#bababa` step number & title (`Switzer` `18px`), collapsed description, and right-aligned `24×24` `Spinner` SVG (`d992e1c0...svg`).
+     - **`active` (`idx === activeStep`):** `#f9f9f9` card (`border-[#f5f5f5]`), left `24×24` `ArrowCircleRight` SVG (`81db1c32...svg`), `#16161a` title (`Switzer` `18px`), and `#6d6d75` description (`Inter Tight` `16px`).
+     - **`completed` (`idx < activeStep`):** White card (`border-[#f5f5f5]`), `#333333` step number & title (`Switzer` `18px`), collapsed description, and right-aligned `24×24` red `CheckCircle` SVG (`5d95f1f3...svg`).
+   - Extracted the 7 `300×300` multi-layer Figma SVG illustrations from `178359:17452` and `178359:17481` (`Frame 2147228146`) into `<StepIllustration stepIndex={activeStep} />` inside the right-hand `525×484px` `#f9f9f9` preview container (`178359:17450`) without rendering `Frame 2147228146` as a duplicate section below.
+3. **Client Portal, Thespian AI & FAQ 1-for-1 Implementation (`apps/web/src/app/pages/ProductPage.tsx`):**
+   - **Client Portal (`178359:17765`):** Implemented the `948px` header, `1000px` 2×2 bordered feature grid (`SealCheck`, `chat-4-fill`, `NotePencil`, `lock-fill` with exact SVG dividers), and attached `#f9f9f9` bottom bar with the 6 overlapping `36×36px` media house badges (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`).
+   - **Thespian AI (`178359:17831`):** Implemented both the Performer 5-row table (`Instant AI Onboarding`, `24/7 AI Booking Agent`, `Automatic Gig Pitching`, `Contract Guardrails`, `AI Rehearsal Partner`) and Client 3-row table (`Vibe & Texture Matching`, `Automated Logistics`, `Script & Prompt Parsing`) with `#f7f7f7` highlighted first rows, vertical cell dividers, `Geist Mono` `coming soon` labels, and bottom `"Start hiring today"` / `"Get started for free"` bars.
+   - **FAQ (`178359:17958`):** Implemented the borderless `910px` 10-item FAQ accordion with rotated `Plus`/`X` SVGs and `<WebsiteFooter />`.
+4. **Testing & Verification (`apps/web/src/app/pages/ProductPage.test.tsx`):**
+   - Updated `ProductPage.test.tsx` to verify the 3 step states (`default`, `active`, `completed`), single-instance step titles (no duplicated reference grid), Client Portal, Thespian AI tables, and FAQ (5/5 passing in `ProductPage.test.tsx`, 3/3 in `LandingPageHeader.test.tsx`, `npx tsc --noEmit` 0 errors).
+
+---
+
+## Session 181 (2026-11-02) — Strict 1-for-1 Figma Home Page Implementation, Real SVG/PNG Assets & Typography
+
+**Goal:** Ensure a strict 1-for-1 implementation of the Figma Home Page (`node-id=178359-16886`, `1440px × 8721.91px`) on `web-update`, replacing all improvised UI mockups, placeholder Unsplash avatars, and Lucide substitutes with the exact Figma SVG illustrations, category icons, iPhone 15 mockup graphic, performer avatars, and typography (`Switzer`, `Inter Tight`, `Geist Mono`, `Plus Jakarta Sans`, `JetBrains Mono`).
+
+1. **Extracted & Downloaded All 68 Local Figma Assets (`apps/web/public/assets/home/*`):**
+   - Called `get_design_context` across `178359:16886` and all child frames (`178359:16910`, `178359:16919`, `178359:16944`, `178359:16997`, `178359:17033`, `178359:17089`, `178359:17124`, `178359:17161`, `178359:17205`, `178359:17242`, `178359:17243`, `178359:16899`, `178359:16988`, `178359:16990`, `178359:16994`) and downloaded all 68 static SVG and PNG assets into `apps/web/public/assets/home/`.
+2. **Typography Foundations (`apps/web/src/styles/fonts.css`):**
+   - Added Fontshare (`Switzer` 300–700) and Google Fonts (`Inter Tight` 400–700, `Geist Mono` 400–700) imports alongside `Plus Jakarta Sans`, `JetBrains Mono`, and `Inter`.
+3. **1-for-1 Home Page (`apps/web/src/app/pages/LandingPage.tsx`):**
+   - **Announcement Bar & Header:** Implemented exact `40px` `#16161A` bar (`Plus Jakarta Sans` + `JetBrains Mono`) and `68px` header with the Monologg masked SVG logo + left-grouped nav links (`Product`, `Pricing`, `Resources` in `12px` `Plus Jakarta Sans` `#5D5D66`) and right `Sign In` / `Sign up free` pill buttons (plus signed-in avatar dropdown preservation).
+   - **Hero Section:** Implemented the 6 overlapping performer avatar circles (`46.457px`, `mr-[-15px]`) with their exact Figma PNG layers, `64px` `Switzer` Medium headline (`Find Performers| / Finish Your Project.`), `18px` `Inter Tight` subtitle, `Find Performers` (`23px` radius + `ArrowRight` SVG) and `Find Gigs` buttons, the `1040×502px` `#F9F9F9` rounded-`32px` stage with the protruding `385×613px` iPhone 15 frame & screen graphic (`aea552544bf22223a0a369404407ee0f5488aa63.png`), and the `"YOU BELONG HERE"` strip (`Geist Mono` `14px`) with all 6 category SVG icons (`MaskHappy`, `voiceprint-line`, `MicrophoneStage`, `emotion-laugh-line`, `headphone-line`, `vidicon-2-line`), `20px` `Switzer` labels, and left/right white fade gradients.
+   - **Dashed Divider & 6-Feature Vertical Timeline:** Added the full-width dashed divider SVG (`7dc94ccc0ee6370325d0ef6f15631b8f8b00d4c2.svg`), ambient blurred gradient vectors, `48px` `Switzer` section header, `2px` `#E8E8E8` vertical progress track with `74px` gradient indicator thumb, and the `627px` column of 6 stacked feature blocks (`Share Your Stage Anywhere`, `Monetize Fan Shoutouts & Micro-Deliverables`, `Analyze your audience`, `Set Transparent Custom Rate Cards`, `Powered by Thespian AI`, `Bank-Grade Escrow Protection`) with their exact `627×352px` `#F9F9F9` cards and `300×300px` multi-layer SVG illustrations.
+   - **FAQ Section:** Implemented the borderless `910px` 10-item FAQ accordion (`Switzer` `18px` questions, `Inter Tight` `14px` answers, and exact `24×24` `Plus`/`X` SVGs).
+4. **1-for-1 Website Footer (`apps/web/src/app/components/WebsiteFooter.tsx`, `apps/web/src/app/components/ui/WebsiteFooter.tsx`):**
+   - Updated the shared footer to match `178359:17243` with the `910px` CTA section (`Switzer` `48px` `"Finish Your Project today!"`), `1040px` newsletter row, Monologg masked SVG logo, both `24×23.84px` `"Backed by"` badge graphics (`5b9dc43e...svg` and `a2e77fa4...png`), and the `4px` red dot + `Geist Mono` `12px` uppercase `new` indicator next to `Thespian AI`.
+   - Re-exported `WebsiteFooter` from `src/app/components/ui/WebsiteFooter.tsx` so all marketing pages share the exact Figma footer.
+5. **Verification:**
+   - Verified `LandingPageHeader.test.tsx` (3/3 passing) and `npx tsc --noEmit` (0 errors).
 
 ---
 
@@ -4823,1012 +5110,5 @@ Rebuilt all three targets (`app`, `standalone`, `designsystem`) from the renamed
 **Goal:** real CRUD for creators/rate-cards/availability/briefs, public talent discovery, booking creation with server-computed fees and a guarded state machine, and participant-scoped order-room messages — then flip the covered screens to `VITE_API_MODE=live` and verify parity.
 
 - **Schema addition:** `Brief.status` (`DRAFT|ACTIVE|IN_REVIEW|CLOSED`, default `DRAFT`) — not in `features.md`'s original Phase 2 listing, but the "briefs (client CRUD)" resource needs *some* lifecycle field to be meaningful (a client saving a draft before publishing), so this was added now rather than left as a gap. New migration `20260729005648_brief_status`; seeded briefs given real statuses matching the mock's `active`/`in_review`/`draft` values.
-- **Built, in dependency order:** `services/booking.ts` (the state machine — a `LEGAL_TRANSITIONS` map and `assertLegalTransition()`, plus `createBooking()` which always derives fees from `computeFees()` and creates the booking's `OrderRoom` inline); `providers/storage.*` (a new provider seam — mock local-disk fronted by a real `PUT /uploads/local/:token` route, real S3-compatible stub) alongside `routes/creators.ts` (profile GET/PATCH — `styleTags`/`verification` aren't even in the update schema, X3 enforced by omission, not a runtime check — plus presigned media upload enforcing the 150MB cap and video/audio-only); `routes/rateCards.ts`, `routes/availability.ts` (owner-scoped CRUD); `routes/briefs.ts` (client-owned CRUD); `routes/talent.ts` (public discovery — niche/tag/location/price-range filters, paginated); `routes/bookings.ts` (create/list/get/cancel); `routes/orderRooms.ts` (participant-scoped messages). All paginated list endpoints share `lib/pagination.ts` (offset-based, capped at 100/page).
-- **Two response-shape gaps caught before wiring the frontend, not after:** `GET /rate-cards` and `GET /briefs` initially returned raw Prisma rows, but `apps/web`'s `ServiceRateCard`/`ClientProject` types expect display-mapped shapes (title/price/delivery/bookings; name/niche/budget/status/applicants/posted) — exactly the pattern already used for `/talent` and `/bookings`. Fixed by adding `mapRateCardToServiceCard()`/`mapBriefToClientProject()` before any frontend wiring happened, not discovered afterward as a bug. `RateCard`'s `bookings` count and `Brief`'s `applicants` count are handled honestly: the former is a real `prisma.booking.count()`, the latter is a hardcoded `0` since no application system exists yet (Phase 14) — not fabricated.
-- **Scope boundary, decided deliberately:** Phase 5's own resource list is exactly 7 things (creators, rate-cards, availability, briefs, talent, bookings, order-rooms+messages) — `getClientStats`/`getTalentStats`/`listTalentActivity`/`getShortlistedTalentIds` have no defined backing resource in this phase (no stats/activity/shortlist model or endpoint anywhere in `features.md`), so they were left permanently mock-only rather than half-wired to endpoints that don't exist. `getAvailability()`'s *consumer* (TalentDashboard's calendar tab) was deliberately left on mock too, even though the real `/availability` CRUD endpoint is built and tested: the mock's fixed weekly-slot-grid shape is a genuinely different data model from the real `AvailabilityBlock` (per-date, `{start,end,booked}` slots), and `@monologg/types`' own doc comment already flags the mock shape as superseded by Phase 13's real model — translating one into the other now would be exactly the premature redesign that comment warns against.
-- **`Talent`/`ServiceRateCard`/`OrderMessage`'s `id` field changed from `number` to `string`** (`packages/types`) — these were always meant to mirror `Creator.id`/`RateCard.id`/`Message.id`, which are cuid strings, not the mock's sequential integers. Rippled into `apps/web/src/mocks/{talents,services,orderMessages,shortlist}.ts` (ids quoted) and `ClientDashboard.tsx`/`TalentDashboard.tsx`/`OrderRoom.tsx` (shortlist state, `editServiceId`, local message-id generation — all `number` → `string`).
-- **Found and fixed a real, pre-existing bug while doing that type-fallout pass, unrelated to the type change itself:** both `ClientDashboard.tsx` and `TalentDashboard.tsx`'s order-card click handlers hardcoded `navigate("/order/1")` regardless of which order was clicked — every order went to the same order room. Fixed to `navigate(\`/order/${order.id}\`)` in both files; verified in a real browser that clicking a real order now lands on that order's own room.
-- **Client wiring:** `api-client.ts` flips `listTalents`/`listClientProjects`/`listClientOrders`/`listServices`/`listTalentOrders`/`getOrderMessages` to live, added `createBrief()`/`sendOrderMessage()` (both no-ops in mock mode — the existing mock UI behavior for "publish project"/"send message" needed no change). Added a `requestList()` helper that unwraps the new paginated `{data, page, ...}` envelope: no current screen has "load more"/page-number UI, so live-mode list calls just fetch one generously-sized page (`pageSize=100`) rather than build pagination UI as a side effect of this phase — the pagination itself is proven correct by `apps/api`'s own tests, not by the UI exercising it.
-- **`ProjectBrief.tsx`'s "Publish Project"** now calls `apiClient.createBrief()` in live mode (mock mode unchanged) — mapping its local niche-picker ids to the real `Niche` enum and its budget-range picker (e.g. `"50000-150000"`) to the range's lower bound in kobo. **`OrderRoom.tsx`'s `sendMessage`** now calls `apiClient.sendOrderMessage()` in live mode, using the server's returned message (real id/time) instead of a locally-fabricated one; mock mode keeps appending to local state exactly as before.
-- **Caught a real CSS regression before it could ship, the first one in this entire engagement:** the production build's CSS hash changed for the first time ever after this phase's changes. Root-caused by diffing the built CSS against a stashed pre-Phase-5 baseline: exactly one new rule, `.order-1{order:1}` — Tailwind's content scanner doesn't parse JS, it text-matches anything that looks like a utility class name across every source file including tests, and a test fixture's fake booking id, the literal string `"order-1"`, collided with Tailwind's `order-{n}` utility. Renamed the fixture to `"booking-1"`; rebuilt; confirmed the CSS hash is byte-identical to baseline again.
-- **Live-Supabase integration tests** (`prisma/phase5.integration.test.ts`, same non-CI-gated pattern as Phase 2/4): real owner-scoping (Adaeze's token can't touch Chidi's real seeded rate card, can edit her own), a real booking creation persisting fee amounts exactly equal to `computeFees()` against real seeded rate-card data, and real pagination against the 6 seeded creators — with `afterAll` cleanup so re-runs and the seed idempotency test elsewhere stay unaffected.
-- **Verified in a real browser, not just tests:** shortlist toggling with the new string ids, rate-card edit modal, sending an Order Room message, and a full four-step project-brief publish — all in mock mode, zero console errors, zero visual change from before this phase.
-- **Re-verified the full baseline:** `typecheck`/`lint`/`test`/`build` green across all three packages (172 tests: 145 `apps/api`, 27 `apps/web`), production CSS hash confirmed byte-identical to the pre-Phase-5 baseline after the Tailwind-scanner fix above.
-
-### File inventory additions (Phase 5)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | Added `Brief.status` (`BriefStatus` enum), migration `20260729005648_brief_status` |
-| `apps/api/src/services/booking.ts`, `services/booking.test.ts` | **New** — the booking state machine + `createBooking()` |
-| `apps/api/src/providers/storage.*` | **New** — `StorageProvider` seam (mock local-disk, real S3-compatible stub) |
-| `apps/api/src/routes/uploads.ts`, `routes/uploads.test.ts` | **New** — the mock provider's own presigned PUT endpoint |
-| `apps/api/src/routes/{creators,rateCards,availability,briefs,talent,bookings,orderRooms}.ts` (+ matching `.test.ts`) | **New** — all 7 Phase 5 resources |
-| `apps/api/src/lib/pagination.ts`, `lib/display.ts`, `lib/ownership.ts` | **New** — shared pagination envelope, display-formatting helpers (niche labels, initials, money), and owner/participant lookup helpers |
-| `apps/api/prisma/phase5.integration.test.ts` | **New** — live-Supabase owner-scoping/fee-persistence/pagination tests |
-| `apps/api/.env.example` | Documented `CACHE_PROVIDER`/`REDIS_URL` (a Phase 4 gap) and the new `STORAGE_PROVIDER` |
-| `packages/types/src/{talent,service,orderMessage}.ts` | `id` changed `number` → `string` |
-| `apps/web/src/mocks/{talents,services,orderMessages,shortlist}.ts` | ids quoted to match |
-| `apps/web/src/app/pages/ClientDashboard.tsx`, `TalentDashboard.tsx` | Shortlist/`editServiceId` state to `string`; fixed the hardcoded `navigate("/order/1")` bug |
-| `apps/web/src/app/pages/OrderRoom.tsx` | Local message ids to `string`; `sendMessage` wired to `apiClient.sendOrderMessage` in live mode |
-| `apps/web/src/app/pages/ProjectBrief.tsx` | "Publish Project" wired to `apiClient.createBrief` in live mode, with niche/budget mapping |
-| `apps/web/src/lib/api-client.ts` | 6 methods flipped to live via new `requestList()`; added `createBrief`/`sendOrderMessage` |
-| `apps/web/src/lib/api-client.test.ts`, `apps/web/src/app/pages/ProjectBrief.test.tsx` | Extended/added for all of the above |
-| `.gitignore` | Added `monologg/apps/api/uploads/` (mock local-disk storage) |
-
-## Session 16 — `features.md` Phase 6: payment & escrow integration
-
-**Goal:** replace the fake 2.5s checkout delay with a real, ledger-based escrow flow via `PaymentProvider` — Paystack first, webhook-authoritative, idempotent, concurrency-safe — per the kickoff spec (API-only scope: `PaymentProvider.real`, escrow ledger, webhook, release/refund, money-path tests).
-
-- **`PaymentProvider.real` (`payment.real.ts`) now genuinely implements Paystack** — `/transaction/initialize` (checkout), `/transaction/verify` (defense-in-depth re-check after the webhook, not the authority), `/refund` (no recipient needed), and HMAC-SHA512 webhook signature verification (timing-safe compare). `releaseFunds` (real payouts) throws a clearly-worded, non-silent error instead of pretending to work: Paystack transfers need a `recipient_code` from creator bank details, and no phase through Phase 6 collects those — beta's ledger model treats the internal `PAYMENT_RELEASED` state as authoritative, with the actual bank transfer reconciled manually until a future payout-onboarding phase. `payment.stripe.ts`/`payment.airwallex.ts` are new stub files behind the same interface for later regions; `providers/index.ts` now routes among all three by `PAYMENT_PROVIDER`, never `"fincra"` (X1).
-- **Schema migrations** (two, both applied non-interactively via `prisma migrate diff --script` + `prisma migrate deploy`, since `prisma migrate dev` requires a TTY this sandbox doesn't have): `PaymentStatus` gained `RELEASING`/`REFUNDING` (transient claim states — see concurrency design below); `PaymentEvent` gained `eventId` + a `@@unique([paymentId, type, eventId])` constraint (the idempotency key for webhook replays); `Payment.providerRef` became `@unique` (needed to look a Payment up by the provider's own reference during webhook processing). Verified no existing rows conflicted with either constraint before applying.
-- **`services/payment.ts` (new)** — the single place that moves `Payment.status` and the money-side of `BookingState`, deliberately with **no generic `IdempotencyKey` table**: each money-moving path is guarded by whatever DB mechanism actually fits it, rather than one generic scheme bolted on everywhere.
-  - `initEscrowForBooking`: rejects paying a booking that isn't `PENDING_PAYMENT`; rejects paying again once a `Payment` has moved past `INITIATED` (would double-charge); allows retrying while still `INITIATED` (safe — e.g. an expired checkout link).
-  - `processPaystackWebhookEvent`: the caller (the route) must have already verified the signature — this function trusts its input completely and is the *only* thing that can set `ESCROW_LOCKED`. Idempotency is a DB unique-constraint insert-and-catch (`PaymentEvent`'s `(paymentId, type, eventId)` key), not a find-then-insert check — that closes the race a naive "check if it exists, then insert" would leave open between two concurrent identical webhooks.
-  - `releaseEscrowForBooking` / `refundEscrowForBooking`: validate the booking-state transition is legal *first* (reusing `services/booking.ts`'s existing graph), then atomically **claim** the release/refund via a conditional `updateMany` (`WHERE status = 'ESCROW_HELD'`) *before* calling the provider — a concurrent second caller sees zero rows affected and no-ops instead of double-paying/double-refunding. If the provider call itself then fails, the claim is rolled back to `ESCROW_HELD` so a retry is possible rather than getting permanently stuck in the transient state.
-- **`routes/bookings.ts`** gained the rest of the money lifecycle: `POST /:id/pay` (client), `PATCH /:id/deliver` (talent), `PATCH /:id/approve` (client, releases escrow), `PATCH /:id/dispute` (either participant), `POST /:id/refund` (dispute resolution — no admin/adjudication flow exists in any phase yet, so this is an explicitly-flagged placeholder reachable by either participant while `DISPUTED`, not a permanent design decision).
-- **`routes/webhooks.ts` (new)** — `POST /api/v1/webhooks/paystack`, with a dedicated `addContentTypeParser` (scoped to this plugin's own Fastify encapsulation, not global) that stashes the raw request buffer before JSON-parsing it, since HMAC verification needs the exact bytes Paystack signed — a `JSON.parse` → `JSON.stringify` round-trip isn't guaranteed byte-identical.
-- **Tests, money-path emphasis** (features.md's own gate list, all covered): `services/payment.test.ts` (16 — fee/ledger math, idempotent replay, authority, concurrency for both webhook-replay and double-release, provider-failure rollback), `routes/webhooks.test.ts` (5 — missing/tampered signature rejected, valid signature processes, replay is a no-op), `providers/payment.real.test.ts` (5 — the actual Paystack HMAC logic in isolation, since the route tests only ever exercise the mock provider's always-valid `verifyWebhook` under `NODE_ENV=test`), `routes/bookings.test.ts` (+13 — pay/deliver/approve/dispute/refund wiring and authz). Updated one pre-existing Phase-3-era test in `providers.test.ts` that asserted the old "not yet implemented — Phase 6" placeholder message, since `realPaymentProvider` is genuinely implemented now.
-- **Live-Supabase e2e** (`prisma/phase6.integration.test.ts`, same non-CI-gated pattern as Phases 2/4/5): a full real checkout → webhook → `ESCROW_LOCKED` → deliver → approve → `PAYMENT_RELEASED` run against the real seeded Supabase project, asserting fee amounts exactly equal `computeFees()` output; a replayed webhook confirmed as a no-op against the real DB; a full refund path (checkout → webhook → dispute → refund → `CANCELLED`); and a check that no created/seeded `Payment.provider` is ever `"fincra"`. The provider itself stays mocked (`NODE_ENV=test` always forces mock, per `providers/index.ts` — the whole app runs in all-mock mode with zero real Paystack keys, per `CONTRIBUTING.md` rule #3); everything else — every DB write, transition, and fee computation — is real.
-- **Found and fixed a latent cross-file race in the live-DB integration suite**, surfaced (not caused) by adding this third live-DB test file: Vitest runs integration test files in parallel by default, and `seed.integration.test.ts`'s row-count idempotency check raced against in-flight bookings from `phase6.integration.test.ts` still being created/cleaned up in a sibling worker, producing a flaky off-by-one failure (`bookings: 7` vs expected `6`). These files all share one live, shared Supabase project and were never actually isolated from each other — fixed with `fileParallelism: false` in `vitest.integration.config.ts`. Confirmed clean on a full sequential re-run (16/16 integration tests passing).
-- **A real "no FINCRA anywhere" gap surfaced and was deliberately left open, not silently fixed or silently ignored:** `features.md`'s own Phase 6 acceptance criteria says "no FINCRA string anywhere," but the kickoff spec itself was API-only and never mentioned touching `apps/web`. A repo-wide check found `apps/web/src/app/pages/Checkout.tsx` still says "FINCRA" three times, still shows a fake 12% fee, and still runs a scripted 2.5-second delay instead of calling any of the new endpoints. Rather than either quietly rewriting frontend code that wasn't asked for, or quietly shipping a known acceptance-criteria gap, this was raised directly — the explicit answer was to leave `Checkout.tsx` untouched for now and log the gap clearly (this entry, plus `implementation-plan.md` and `design.md`), so a future session doesn't have to rediscover it from scratch.
-- **Re-verified the full baseline:** `apps/api` `typecheck` clean; `pnpm test` green (186 tests, up from 145 pre-Phase-6); `pnpm run test:integration` green (16 tests across 3 live-DB files, sequential). `apps/web` was not touched this phase (see the Checkout.tsx gap above), so its own test/build baseline is unaffected.
-
-### File inventory additions (Phase 6)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | `PaymentStatus` gained `RELEASING`/`REFUNDING`; `PaymentEvent` gained `eventId` + `@@unique([paymentId, type, eventId])`; `Payment.providerRef` became `@unique`. Two migrations: `20260729063000_payment_escrow_phase6`, `20260729064000_payment_ref_unique` |
-| `apps/api/src/providers/payment.real.ts` | Rewritten from a "Phase 6 TODO" stub into a genuine Paystack implementation |
-| `apps/api/src/providers/payment.stripe.ts`, `payment.airwallex.ts` | **New** — stubs behind the same `PaymentProvider` interface for later regions |
-| `apps/api/src/providers/payment.real.test.ts` | **New** — unit tests for the real Paystack HMAC-SHA512 webhook verification |
-| `apps/api/src/providers/index.ts` | Routes among paystack/stripe/airwallex real providers by `PAYMENT_PROVIDER`, not just one |
-| `apps/api/src/providers/providers.test.ts` | Updated the now-obsolete "throws Phase 6 error" assertion; added stripe/airwallex stub-error tests |
-| `apps/api/src/services/payment.ts`, `services/payment.test.ts` | **New** — the escrow/release/refund service layer and its 16 tests |
-| `apps/api/src/routes/bookings.ts`, `routes/bookings.test.ts` | Added `pay`/`deliver`/`approve`/`dispute`/`refund` routes + 13 new tests |
-| `apps/api/src/routes/webhooks.ts`, `routes/webhooks.test.ts` | **New** — the Paystack webhook route + 5 tests |
-| `apps/api/src/routes/index.ts` | Registered `webhookRoutes` |
-| `apps/api/prisma/phase6.integration.test.ts` | **New** — live-Supabase e2e escrow lifecycle + refund-path tests |
-| `apps/api/vitest.integration.config.ts` | Added `fileParallelism: false` — fixes a cross-file race in the live-DB suite surfaced by adding a third live-DB file |
-| `apps/api/README.md`, `CONTRIBUTING.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 6, including the explicit `Checkout.tsx` gap |
-
----
-
-## Session 17 — `features.md` Phase 7: KYC + AI style-tagging as two independent systems
-
-**Goal:** real identity verification (the Verified badge) via `KycProvider`, and real style/vibe tagging via `AiTaggingProvider`, built and enforced as two fully independent systems (X3) — plus a repo-wide audit fixing every screen whose copy conflated the two.
-
-- **Schema** (`prisma/schema.prisma`, migration `20260729061627_phase7_kyc_ai_tagging`, applied non-interactively via `prisma migrate dev` against the live Supabase project): `MediaAsset` gained `taggingStatus TaggingStatus @default(QUEUED)` (`QUEUED | TAGGING | DONE | FAILED`) — the real job state the onboarding UI now polls, replacing a fixed timer. `KycCheck` already existed from Phase 2 and needed no schema change.
-- **`services/kyc.ts` (new)** — the only place that ever writes `Creator.verification`. `startKycCheck` rejects starting a second check while one is `PROCESSING`, and rejects an already-`VERIFIED` creator, but allows retrying freely after `FAILED`. `pollKycStatus` calls `KycProvider.getStatus` and only writes on an actual `PROCESSING → VERIFIED|FAILED` transition (a still-`PROCESSING` poll is a pure read, no DB write). The interface only exposes `startCheck`/`getStatus` (no webhook-signature method), so polling is the transport — matches features.md's own "webhook/poll" wording.
-- **`services/aiTagging.ts` (new)** — the only place that ever writes `Creator.styleTags`. No dedicated job queue exists yet (that's Phase 9's BullMQ work); `confirmMediaUpload` synchronously claims `QUEUED → TAGGING` (awaited, so the caller gets a definitive "tagging started" response) and fires the provider call + `DONE`/`FAILED` finalization in the background — the client polls `GET /creators/me/media/:id` for the real state, never a fixed timer. `styleTags` are merged (deduped), not overwritten, so tagging multiple reels accumulates tags.
-- **`routes/creators.ts`** gained four endpoints: `POST /creators/me/verify` (start KYC, 409 if already in-flight/verified), `GET /creators/me/verify` (poll), `POST /creators/me/media/:id/confirm` (claim + enqueue the tagging job, 409 if already past `QUEUED`), `GET /creators/me/media/:id` (poll tagging status). All owner-scoped via the existing `findOwnCreator` pattern.
-- **Tests** (features.md's own gate list, all covered): `services/kyc.test.ts` (8), `services/aiTagging.test.ts` (4), `routes/creators.test.ts` (+10, now 15 total) — including explicit **separation tests**: the KYC-verified-transition test asserts the creator-update call never touches `styleTags`; the tagging-job-done test asserts the creator-update call never touches `verification`. `prisma/schema.test.ts` (+2) — schema-level guard that `MediaAsset.taggingStatus` is a distinct enum from `Creator.verification`, and that `KycCheck`/`MediaAsset` share no relation. `apps/api` total: 210 tests (up from 186 pre-Phase-7).
-- **Copy audit (X3) across `apps/web`** — the actual bug this phase exists to fix. `CreatorOnboarding.tsx`'s "Thespian AI" step previously ran a scripted 3s `setTimeout` and, on completion, showed a "Thespian AI Verified" badge and "Your verification is confirmed" heading — directly conflating AI tagging with identity verification. Rewrote it to: (a) in `live` mode, call the new endpoints for real (`presign → PUT → confirm → poll → GET /creators/me` for the real tags), driving the UI from actual `taggingStatus`, with a `FAILED` state offering a "Try again" button; (b) in `mock` mode, keep the original timed simulation exactly (no network — matches every other mock-mode screen since Phase 1), but with the same corrected copy. The finished-state badge now reads "Style Tags Generated" / "Your style tags are ready," and explicitly notes verification is a separate step. Also fixed the same conflation everywhere else it appeared: `Settings.tsx` and `TalentDashboard.tsx`'s "Thespian Verified" badge → "Verified" (the badge is real identity verification; dropping the AI brand name from it is the fix). `LandingPage.tsx` had the worst of it — a "Thespian AI Verification" feature card literally describing the AI as "acting as a quality KYC," a testimonial ("The AI verification gave me instant credibility"), an FAQ ("How does the AI verification work?"), a pricing-page bullet ("AI Thespian verification included"), and "browse AI-verified talent" copy in both the landing page and `ClientDashboard.tsx` — all reworded to describe AI-generated style tags, with identity verification named as the separate system it is. Deliberately left untouched: the pre-existing 9%/12% fee figures and "FINCRA integration" line in the landing page FAQ — those are the already-known, already-flagged X1/X2 stale-copy gaps (see `design.md`), out of scope for an X3 pass.
-- **`api-client.ts`** gained the Phase 7 seam: `uploadCreatorMedia`, `getMediaTaggingStatus`, `getCreatorProfile`, `startKycVerification`, `getVerificationStatus`. Mock mode makes no network calls on any of them (matching the Phase 1 seam contract); only `live` mode is real.
-- **A real gap surfaced and was deliberately left open, not silently built or silently ignored:** there is still no UI form anywhere that collects the legal name/DOB/country/ID-type/ID-number `KycProvider.startCheck` needs, so a creator cannot actually start identity verification from the app today — the backend endpoints are real and fully tested, but no screen number in the original design (`design.md`) covers this input form, and `Settings.tsx` (the one screen that shows a Verified badge) isn't wired to any real creator-profile fetch at all yet. Building a new form now would be inventing UI scope beyond "wire the AI-tagging job + fix the copy," which is what this phase's kickoff actually asked for — same shape as the `Checkout.tsx` gap left open in Phase 6. Flagged here, in `implementation-plan.md`, and in `design.md` so a future phase (or an explicit ask) picks it up deliberately rather than rediscovering it.
-- **Re-verified the full baseline:** `apps/api` typecheck clean, 210/210 tests green. `apps/web` typecheck clean, 31/31 tests green (up from 27), including a new copy-audit regression test (`x3CopyAudit.test.ts`) that fails if any file under `src/app` reintroduces AI/identity-conflating phrasing. `pnpm run lint` clean (0 errors; the 5 pre-existing warnings are all in files this phase didn't touch).
-
-### File inventory additions (Phase 7)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | `MediaAsset` gained `taggingStatus TaggingStatus @default(QUEUED)`; new `TaggingStatus` enum. Migration `20260729061627_phase7_kyc_ai_tagging` |
-| `apps/api/prisma/schema.test.ts` | +2 tests — X3 separation guard at the schema level |
-| `apps/api/src/services/kyc.ts`, `services/kyc.test.ts` | **New** — identity KYC service (start/poll) + 8 tests |
-| `apps/api/src/services/aiTagging.ts`, `services/aiTagging.test.ts` | **New** — style-tagging job service (confirm/process) + 4 tests |
-| `apps/api/src/routes/creators.ts`, `routes/creators.test.ts` | Added verify (start/poll) + media confirm/status routes + 10 tests |
-| `apps/web/src/lib/api-client.ts` | Added `uploadCreatorMedia`, `getMediaTaggingStatus`, `getCreatorProfile`, `startKycVerification`, `getVerificationStatus` |
-| `apps/web/src/app/pages/CreatorOnboarding.tsx` | Real job-state-driven tagging flow (live mode) + corrected copy (both modes) |
-| `apps/web/src/app/pages/CreatorOnboarding.test.tsx` | **New** — 3 tests (mock-mode copy/no-network, live-mode real job state, FAILED retry path) |
-| `apps/web/src/app/pages/Settings.tsx`, `TalentDashboard.tsx`, `LandingPage.tsx`, `AuthFlow.tsx`, `ClientDashboard.tsx` | X3 copy fixes — AI/identity conflation removed |
-| `apps/web/src/app/x3CopyAudit.test.ts` | **New** — regression guard against reintroducing AI/identity-conflating copy |
-| `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 7, including the explicit "no KYC input form yet" gap |
-
----
-
-## Session 18 — `features.md` Phase 8: Google Calendar sync (provider layer)
-
-**Goal:** make `CalendarProvider` real — Google OAuth per user with an encrypted refresh token, `pushAvailability`/`getBusyTimes` against the real Calendar API, `createMeet` producing a real Meet link on `Booking.meetUrl` — and handle expiry/refresh/revocation gracefully. Per the kickoff scope, explicitly the provider layer only: the rich availability UX (server-authoritative `getOpenSlots`, slot-picker UI) is Phase 13's job, not this one's.
-
-- **New `src/lib/encryption.ts`** — AES-256-GCM, the first real encryption-at-rest in this codebase. Output is `base64(iv[12] || authTag[16] || ciphertext)`; a fresh random IV per call means the same plaintext never produces the same ciphertext twice (not a bug — verified by a test that explicitly checks two encryptions of the same string differ). GCM's auth tag makes tampered ciphertext fail to decrypt rather than silently returning garbage. Key comes from `CALENDAR_TOKEN_ENCRYPTION_KEY` (64 hex chars / 32 bytes), validated by the existing zod env schema; `NODE_ENV=test` gets a fixed fallback key the same way `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` already do, so no real key is needed to run the suite.
-- **Schema**: new `CalendarConnection` model (`userId` unique, `provider`, `encryptedRefreshToken`, `scopes`, `status: CONNECTED|REVOKED`, `connectedAt`, `revokedAt`) — one row per user, never deleted on revoke (status flips instead, so history isn't lost). Migration `20260729104521_phase8_calendar_sync`, applied via `prisma migrate dev` against the live Supabase project (same non-interactive pattern as every prior schema phase).
-- **`CalendarProvider` interface extended** (`providers/calendar.interface.ts`) — the Phase 3 stub only had `connect(userId)`/`pushAvailability(block)`/`createMeet(bookingId)`, which doesn't match how real OAuth actually works. Added `completeConnect(code)` (the token-exchange step a real flow needs) and `getBusyTimes(date, refreshToken)` (freebusy read — "pushAvailability writes/reads busy blocks" needs a read half, and this is exactly the hook Phase 13's spec says it'll call). Changed `connect` to take an opaque `state` token instead of the raw `userId` — passing a real user id through a browser-visible OAuth query string unsigned would let anyone complete another user's connect flow by guessing/observing it; `services/calendar.ts` now mints a random state, maps it to the userId in the existing `CacheProvider` (same tool `routes/auth.ts` already uses for verify-email/reset-password tokens), and resolves it back on callback. Added a shared `CalendarAuthRevokedError` the mock and real providers both throw on a dead/revoked token, so `services/calendar.ts` has one thing to catch regardless of provider.
-- **`CalendarProvider.real`** (`src/providers/calendar.real.ts`) — raw fetch against Google's OAuth (`oauth2.googleapis.com/token`) and Calendar v3 REST endpoints, no `googleapis` SDK dependency, matching `payment.real.ts`'s existing style. Scopes are deliberately minimal per the guardrail: `calendar.events` (create/update, covers both push and Meet creation) + `calendar.freebusy` (Google's own narrow scope for freebusy reads — nothing broader needed). Access tokens are never cached or stored: every real call re-exchanges the stored refresh token first, which *is* the spec's "handle expiry" requirement — there's no separate access-token-expired state to ever go stale, since one is never held longer than a single request. A `400 invalid_grant` on that exchange is the one error translated into `CalendarAuthRevokedError`; any other refresh failure is a plain error (network/quota issues aren't "revoked," and conflating them would wrongly force a reconnect prompt on a transient failure).
-- **`CalendarProvider.mock`** (`src/providers/calendar.mock.ts`) — extended to match the new interface, plus a well-known sentinel refresh token (`MOCK_REVOKED_REFRESH_TOKEN = "mock_revoked_token"`) that makes every method throw `CalendarAuthRevokedError`, mirroring the existing `mock_kyc_fail_` trick from `kyc.mock.ts`. This is what makes the revoke-degrades-gracefully path fully testable without any real Google state: store a connection whose encrypted token happens to decrypt to that sentinel, and the whole reconnect-required flow runs for real.
-- **`services/calendar.ts` (new)** — owns every read/write of `CalendarConnection` and the encrypt/decrypt boundary; the provider layer never touches either. `startGoogleConnect`/`completeGoogleConnect` run the state-token dance above. `pushAvailabilityToGoogle`/`getGoogleBusyTimes` resolve the caller's decrypted refresh token, call the provider, and on `CalendarAuthRevokedError` atomically flip the connection to `REVOKED` (`updateMany`, same claim-style pattern Phase 6 uses for release/refund) and throw `CalendarReconnectRequiredError` — routes map this to `409 { reconnectRequired: true }`, never a raw 500. `createMeetForBooking` is explicitly best-effort: a creator with no connection, or a revoked one, gets a `null` result (no `meetUrl`) instead of an exception — a booking must never fail because Google Calendar had a bad day.
-- **Booking flow hook**: `services/payment.ts`'s `processPaystackWebhookEvent` now calls `createMeetForBooking(booking.id)` (wrapped in `.catch()`, same style as the existing notification calls right next to it) once escrow locks — matching `features.md` Phase 13's own description of the target flow ("once escrow is funded — generates the order room and Meet link"). Surfaced a real, pre-existing test-hygiene issue while wiring this: `services/payment.test.ts`'s mocked `prisma.booking.findUniqueOrThrow` was carrying stale `mockResolvedValue` state left over from an earlier, unrelated test in the same file (`vi.clearAllMocks()` clears call history, not configured return values) — the new code path picked up a booking object with no `.creator`, threw, and only didn't fail the test because the call site is itself wrapped in `.catch()`. Fixed properly, not papered over: `services/payment.test.ts` now mocks `./calendar.js` entirely, so Phase 6's own tests never depend on Phase 8 internals (or leftover unrelated mock state) at all; a new test explicitly asserts `createMeetForBooking` is called on escrow-lock, and another asserts a `createMeetForBooking` failure never fails the webhook.
-- **New routes**: `POST /calendar/connect`, `GET /calendar/callback` (public — Google redirects the *browser* here, so it can't carry an Authorization header; same shape as `routes/webhooks.ts`), `POST /calendar/disconnect`, `GET /calendar/status`, `GET /calendar/busy-times?date=`, and `POST /availability/:id/sync-calendar` (owner-scoped, added to the existing `routes/availability.ts`).
-- **Tests, all per features.md's own gate list**: `src/lib/encryption.test.ts` (4 — round-trip, ciphertext never contains the plaintext, two encryptions of the same input differ, tampered ciphertext fails to decrypt). `providers/calendar.real.test.ts` (13 — the actual Google HTTP logic in isolation, fetch stubbed: consent-URL shape/scopes, token exchange, `invalid_grant` → `CalendarAuthRevokedError`, push/PATCH-vs-POST branching, freebusy parsing, Meet-link extraction with a `hangoutLink` fallback). `services/calendar.test.ts` (15 — **the encrypted-token gate test**: asserts the persisted row's `encryptedRefreshToken` never contains the plaintext token substring, and that nothing written to `console.log`/`console.error` across the whole connect flow does either; push/busy-times/createMeet exercised against the real mock provider, not a further-mocked stand-in; the full revoke-degrades-gracefully path for all three call sites). `routes/calendar.test.ts` (12) + `routes/availability.test.ts` (+4) — HTTP-level versions of the same, including the `409 reconnectRequired` shape. `providers/providers.test.ts` (+2) — mock provider resolves correctly and throws on the sentinel token. `apps/api` total: 261 tests, 260 passing (one `routes/uploads.test.ts` disk-write test fails identically on the pre-Phase-8 commit — confirmed via `git stash` — a pre-existing environmental flake in this sandbox, not something this phase introduced or is fixing).
-- **Known, deliberately-left-open gap, same shape as Phase 6/7's:** zero `apps/web` wiring. `TalentDashboard.tsx`'s "Availability" tab still has no real sync button, and there's no Meet-link call button anywhere in `OrderRoom.tsx` (there wasn't one to begin with — no scripted/fake UI element needed replacing here, unlike Phase 7's "Thespian AI Verified" animation). This isn't an oversight: the kickoff prompt itself said "this is the provider layer; the rich availability UX is Phase 13," and `design.md` already flagged the Availability tab's real-sync gap as tied to that same future phase before this session started.
-- **Re-verified the full baseline:** `apps/api` typecheck clean; 260/261 tests green (the one failure is the pre-existing, unrelated `uploads.test.ts` flake noted above, confirmed via `git stash` against the pre-Phase-8 commit).
-
-### File inventory additions (Phase 8)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | New `CalendarConnection` model + `CalendarConnectionStatus` enum; `User` gained the relation. Migration `20260729104521_phase8_calendar_sync` |
-| `apps/api/src/lib/encryption.ts`, `lib/encryption.test.ts` | **New** — AES-256-GCM encrypt/decrypt + 4 tests |
-| `apps/api/src/config/env.ts`, `.env.example` | Added `GOOGLE_REDIRECT_URI`, `CALENDAR_TOKEN_ENCRYPTION_KEY` (+ test-mode fallback) |
-| `apps/api/src/providers/calendar.interface.ts` | Extended: `completeConnect`, `getBusyTimes`, `state`-based `connect`, `CalendarAuthRevokedError` |
-| `apps/api/src/providers/calendar.mock.ts` | Extended to match; `MOCK_REVOKED_REFRESH_TOKEN` sentinel |
-| `apps/api/src/providers/calendar.real.ts`, `providers/calendar.real.test.ts` | Rewritten from a "Phase 8 TODO" stub into a genuine Google OAuth/Calendar implementation + 13 tests |
-| `apps/api/src/providers/providers.test.ts` | +2 tests for the new mock methods/sentinel |
-| `apps/api/src/services/calendar.ts`, `services/calendar.test.ts` | **New** — the connect/push/busy-times/createMeet service layer + 15 tests |
-| `apps/api/src/services/payment.ts`, `services/payment.test.ts` | Best-effort `createMeetForBooking` hook on escrow lock; mocked `./calendar.js` + 2 new tests; fixed a stale-mock test-hygiene issue this surfaced |
-| `apps/api/src/routes/calendar.ts`, `routes/calendar.test.ts` | **New** — connect/callback/disconnect/status/busy-times routes + 12 tests |
-| `apps/api/src/routes/availability.ts`, `routes/availability.test.ts` | Added `POST /:id/sync-calendar` + 4 tests |
-| `apps/api/src/routes/index.ts` | Registered `calendarRoutes` |
-| `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 8, including the explicit "no UI wiring yet" gap |
-
----
-
-## Session 19 — `features.md` Phase 9: notifications backend (email/SMS/in-app)
-
-**Goal:** replace the hardcoded notification panel with a real system — in-app persistence, queued/retrying email (SendGrid) + SMS (Twilio) behind `NotifyProvider`, and every domain event actually publishing through it.
-
-- **In-app notifications were already *called* everywhere (Phases 6–8's scattered `notifyProvider.inApp(...).catch(() => {})` sites) but never *persisted* — the mock provider just `console.log`'d.** Fixed at the root: `inApp` (both mock and real) now calls a shared helper (`src/providers/notify.shared.ts`) that writes to `Notification` for real. This is the one `NotifyProvider` channel with no actual third-party system behind it — the table itself is the "external system" — so mock and real share one implementation; only `email`/`sms` genuinely differ.
-- **`src/lib/notificationTemplates.ts` (new)** — the template registry `notify.real.ts`'s `email()` renders before calling SendGrid. "Templated, localisable" per the spec: every renderer takes a `locale` and falls back to `en`, but only `en` content ships — same proportionate-stub shape as `payment.stripe.ts`/`payment.airwallex.ts` ("later regions," not fabricated). `verify_email`/`reset_password` — referenced by `routes/auth.ts` since Phase 4 but never actually implemented — now render for real too.
-- **`src/jobs/` (new top-level directory, not `providers/`)** — `features.md`'s own architecture section lists "jobs: queue for webhooks, async tasks" as a concern separate from the `*Provider` interfaces, so the async delivery queue lives here. `notificationQueue.mock.ts` is an in-process retry loop (3 attempts, short exponential backoff — this only ever runs against the mock `NotifyProvider`, so there's no reason to make tests eat real BullMQ-scale delays); `notificationQueue.real.ts` is genuine BullMQ-on-Redis (`attempts: 3, backoff: exponential 1s`), added as a new dependency and selected via a new `JOB_QUEUE_PROVIDER` flag, dynamically imported exactly like `providers/cache.ts` does for Redis. Both call the identical processor (`notificationWorker.ts`) — only scheduling/retry differs. `runNotificationJobWithRetry` is exported directly (mirrors `services/aiTagging.ts`'s `processTaggingJob` pattern from Phase 7) so tests can await the full retry chain deterministically instead of racing the fire-and-forget `enqueue()`.
-- **`services/notifications.ts` (new)** — `enqueueEmailNotification`/`enqueueSmsNotification` (preference-respecting, never throw — a notification failure must never break the triggering flow), `listNotifications`/`getUnreadCount`/`markNotificationRead` (owner-scoped), `get/updateNotificationPreferences`. New `NotificationPreference` model (`emailEnabled`/`smsEnabled`, no row = both default enabled) and a new nullable `User.phone` — SMS needs a real recipient column, but no phase through Phase 9 collects one at registration; `enqueueSmsNotification` just skips silently when it's null, a real flagged gap rather than fabricated data.
-- **Domain events, the actual point of the phase**: three genuinely new hooks (`booking_created` on `POST /bookings`, `deliverables_provided` on `PATCH /bookings/:id/deliver`, `new_message` on `POST /order-rooms/:id/messages` — notifying the *other* participant, never the sender, asserted explicitly) plus `enqueueEmailNotification` calls added *alongside* the existing Phase 6/7 in-app-only sites (`payment_escrow_locked`, `payment_released`, `payment_refunded` in `services/payment.ts`; `kyc_verified`/`kyc_failed` in `services/kyc.ts`) rather than replacing them — kept the diff additive and the existing test assertions valid as-is. `tagging_done`/`calendar_disconnected` deliberately stay in-app-only.
-- **New routes**: `GET /notifications` (paginated + `unreadCount`), `POST /notifications/:id/read`, `GET`/`PATCH /notifications/preferences`.
-- **`apps/web` wiring**: `TalentDashboard.tsx`'s notification panel — previously two hardcoded JSX blocks with a permanently-on unread dot — now renders from `apiClient.listNotifications()`/`markNotificationRead()`. `live` mode fetches real per-user data and refetches on open; `mock` mode keeps the original two fixture entries verbatim (converted to the same data shape, no network), matching every other mock-mode screen since Phase 1. The unread dot is now conditional on a real `unreadCount > 0`. Added `formatRelativeTime` to `lib/utils.ts` (`"2h ago"` style) since the real backend returns ISO timestamps, not pre-formatted strings. `ClientDashboard.tsx`'s notification bell was already a dead button (no modal, no state) before this phase — left as-is; building a whole new panel for it wasn't "bind the existing panel."
-- **A real test-hygiene bug surfaced and fixed along the way, unrelated to Phase 9 itself:** `routes/webhooks.test.ts`'s `afterEach` calls `vi.restoreAllMocks()` for its `vi.spyOn` cleanup — but that also silently wipes the `.mockResolvedValue()` a `vi.mock()` factory configured (there's no "original implementation" for a factory mock to restore to, so it reverts to a bare no-op `vi.fn()`). This made the Phase 8 `createMeetForBooking` mock in that file return `undefined` instead of a promise from the second test onward, 500ing `.catch()` on it — invisible when running that one test in isolation, only reproducing across the full file. Fixed by re-asserting `.mockResolvedValue(null)` in `beforeEach` rather than relying on the factory's one-time default.
-- **Tests, the gate's own list, all covered**: `jobs/notificationQueue.mock.test.ts` (4 — succeeds first try, retries-then-succeeds, gives-up-after-`MAX_ATTEMPTS` without throwing, `enqueue()` doesn't block on delivery), `providers/notify.real.test.ts` (8 — SendGrid/Twilio HTTP mechanics, template rendering, config-missing errors) + `providers/notify.shared.test.ts` (2 — in-app persistence), `services/notifications.test.ts` (17 — dispatch + preference-respecting, and explicit **user-scoping** tests: `listNotifications`/`getUnreadCount` only ever query `where: {userId}`, and `markNotificationRead` throws `NotificationNotFoundError` — never leaks or mutates — when the notification belongs to a different user), `routes/notifications.test.ts` (9, including the same cross-account 404 at the HTTP layer), new assertions in `routes/bookings.test.ts` (+2) and `routes/orderRooms.test.ts` (+1, "notified the other participant, never the sender"), plus a new frontend suite `TalentDashboard.notifications.test.tsx` (3 — mock-mode fixture/no-network, live-mode real data, live-mode mark-read hits the real endpoint).
-- **Known, deliberately-left-open gap:** `Settings.tsx`'s existing "Notifications" section (5 local toggle categories: bookings/messages/payments/reminders/marketing) is still fully local `useState`, unwired to the new preferences endpoint — but that whole screen has zero backend wiring of any kind (pre-existing, not introduced here), and its 5-category granularity doesn't map cleanly onto the simpler two-channel (`emailEnabled`/`smsEnabled`) model this phase built for the two channels `features.md` actually names. Wiring `Settings.tsx` is its own screen-wide pass, not something to fold into this phase's diff.
-- **Re-verified the full baseline:** `apps/api` typecheck clean, 304/304 tests green (up from 261 pre-Phase-9, +43). `apps/web` typecheck clean, 36/36 tests green (up from 33, +3). `pnpm run lint` clean (0 errors; same 5 pre-existing warnings in files this phase didn't touch). Root `pnpm run test` (both apps) confirmed green end-to-end.
-
-### File inventory additions (Phase 9)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | New `NotificationPreference` model; `User` gained `phone String?` + the preference relation. Migration `20260729112555_phase9_notifications` |
-| `apps/api/package.json` | Added `bullmq` dependency |
-| `apps/api/src/config/env.ts`, `.env.example` | Added `TWILIO_FROM_NUMBER`, `JOB_QUEUE_PROVIDER` |
-| `apps/api/src/lib/notificationTemplates.ts` | **New** — email template registry (9 templates, locale-parameterized, `en`-only content) |
-| `apps/api/src/jobs/notificationQueue.interface.ts`, `.mock.ts`, `.real.ts`, `.ts`, `notificationWorker.ts` | **New** — the async delivery queue (interface, in-process mock w/ retry, BullMQ real, selector, shared processor) |
-| `apps/api/src/jobs/notificationQueue.mock.test.ts` | **New** — 4 tests |
-| `apps/api/src/providers/notify.shared.ts`, `notify.shared.test.ts` | **New** — shared in-app persistence + 2 tests |
-| `apps/api/src/providers/notify.mock.ts`, `notify.real.ts` | `inApp` now persists for real; `email`/`sms` genuinely implemented (SendGrid/Twilio, raw fetch) |
-| `apps/api/src/providers/notify.real.test.ts` | **New** — 8 tests |
-| `apps/api/src/providers/providers.test.ts` | Mocked `db/client.js` — the light behavioral smoke test no longer needs a real Supabase row to satisfy `inApp`'s new FK |
-| `apps/api/src/services/notifications.ts`, `notifications.test.ts` | **New** — the service layer + 17 tests |
-| `apps/api/src/routes/notifications.ts`, `routes/notifications.test.ts` | **New** — 9 tests |
-| `apps/api/src/routes/index.ts` | Registered `notificationRoutes` |
-| `apps/api/src/routes/bookings.ts`, `routes/bookings.test.ts` | `booking_created`/`deliverables_provided` hooks + 2 new tests |
-| `apps/api/src/routes/orderRooms.ts`, `routes/orderRooms.test.ts` | `new_message` hook + 1 new test |
-| `apps/api/src/services/payment.ts`, `services/kyc.ts` | Added `enqueueEmailNotification` calls alongside existing in-app sites |
-| `apps/api/src/routes/webhooks.test.ts` | Fixed the `vi.restoreAllMocks()`-wipes-factory-mocks test-hygiene bug |
-| `apps/web/src/lib/api-client.ts` | Added `listNotifications`, `markNotificationRead`, `AppNotification` type |
-| `apps/web/src/lib/utils.ts`, `utils.test.ts` | Added `formatRelativeTime` + 2 tests |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Notification panel + unread badge now bound to real data (live mode); mock mode preserves the original fixtures |
-| `apps/web/src/app/pages/TalentDashboard.notifications.test.tsx` | **New** — 3 tests |
-| `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 9, including the `Settings.tsx` preferences-UI gap |
-
----
-
-## Session 20 — `features.md` Phase 10: system screens (transaction history, help & support, terms/privacy)
-
-**Goal:** the four PRD SYS-01–04 screens — build the three that were genuinely unbuilt (notifications already landed in Phase 9): transaction history, help & support, terms/privacy — plus record real terms acceptance at registration.
-
-- **Transaction history (`GET /transactions`, `services/transactions.ts`)** — deliberately *not* a new ledger table: derived read-only from the existing `Payment`/`Booking` rows. Owner-scoping works by looking up the caller's own `Creator`/`Client` profile(s) (a user could theoretically have both, though registration never creates both) and only querying bookings where they're a participant on one side or the other. The interesting bit is `direction`: the *same* `Payment.amount` means something different depending which side of the booking you're on — a client was charged `base + clientFee`; a creator's payout nets `base − talentFee` — so each row's `direction` field (`"payment"` | `"payout"`) picks the right math, computed per-row rather than assumed from the query filter (a user with both profiles filtering by `direction` still gets correctly-scoped results). Amounts ship both as raw minor-unit integers and pre-formatted strings (`formatMoney`), matching the display-mapped-response convention every other resource already uses.
-- **Help & support (`POST`/`GET /support/tickets`, new `SupportTicket` model, `services/support.ts`)** — owner-scoped. "Routes to email/inbox" per the spec: a confirmation email to the submitter through the same queued `enqueueEmailNotification` path every other notification uses, plus an optional relay to a new `SUPPORT_INBOX_EMAIL` env var if configured (best-effort — a relay failure is logged, never fails ticket creation). FAQ content is static, which the spec explicitly permits ("static or CMS-backed") — no CMS exists anywhere in this codebase, so static is the honest choice, not a placeholder for one.
-- **Terms acceptance (new `TermsAcceptance` model)** — one row per acceptance event, never updated in place, so the full consent history stays auditable (the Phase 10 guardrail, literally). `POST /auth/register`'s `acceptedTermsVersion` field is now *required*, not optional: `AuthFlow.tsx` already had a hard "I agree" checkbox gating submission, but the checked state was never actually sent to the backend before this — a real, if narrow, gap. `CURRENT_TERMS_VERSION` lives once, in `packages/types` (new `legal.ts`), so the version the frontend displays/sends and whatever the backend might someday validate against can't drift into two hardcoded copies of the same string.
-- **A real cross-package typecheck gap surfaced and fixed, unrelated to the feature itself:** `apps/api` had never imported anything from `@monologg/types` before now (only `apps/web` had). Doing so for `CURRENT_TERMS_VERSION` surfaced that `packages/types/src/index.ts`'s relative exports (`export * from "./talent"`, etc.) lacked the explicit `.js` extensions `apps/api`'s `moduleResolution: "NodeNext"` requires — invisible until now because `apps/web`'s `moduleResolution: "bundler"` never enforced it. Fixed by adding `.js` to all nine export lines (harmless under `bundler` resolution too, so `apps/web` is unaffected).
-- **`apps/web`: three genuinely new screens**, not rewires (`design.md`'s own gap table already noted "no dedicated transaction-history or help/support screens" existed at all) — `TransactionHistory.tsx` (status filter, fee breakdown per row), `HelpSupport.tsx` (accordion FAQ + ticket form + ticket list, mock mode appends submissions to local state matching `OrderRoom.tsx`'s `sendOrderMessage` precedent), `LegalPage.tsx` (shared component for both `/legal/terms` and `/legal/privacy`, versioned, with a **visible in-page notice** — not just a code comment — that the content is an unreviewed draft, since shipping fabricated "binding" legal text under an AI's byline would be actively wrong). `Settings.tsx`'s three previously-dead "Support & Legal" `ListItem`s (`onClick={() => {}}`) now navigate for real; a new "Transaction History" item was added to the Account section. `AuthFlow.tsx`'s Terms/Privacy links (`href="#"`) now point to the real pages (opened in a new tab, so an in-progress registration form isn't lost), and its register call sends `acceptedTermsVersion`.
-- **Tests, the gate's own list, all covered**: `services/transactions.test.ts` (7 — including explicit owner-scoping: a client's query only ever includes `{clientId}`, a creator's only `{creatorId}`, and direction-filtering stays correctly scoped even for a hypothetical dual-profile user) + `routes/transactions.test.ts` (4), `services/support.test.ts` (5) + `routes/support.test.ts` (5, owner-scoped listing), new `routes/auth.test.ts` assertions (terms acceptance recorded with the exact version sent and a DB-default timestamp, not a client-suppliable one; 400 when acceptance is missing entirely) — plus all five pre-existing register-payload tests updated to include the now-required field. Frontend: `TransactionHistory.test.tsx` (3), `HelpSupport.test.tsx` (3), `LegalPage.test.tsx` (2), and two new `AuthFlow.test.tsx` cases (real Terms/Privacy hrefs; live-mode register payload includes `acceptedTermsVersion`).
-- **Re-verified the full baseline:** all three workspaces (`packages/types`, `apps/api`, `apps/web`) typecheck clean. `apps/api` 327/327 tests green (up from 304, +23). `apps/web` 46/46 tests green (up from 36, +10). `pnpm run lint` clean (0 errors; same 5 pre-existing warnings, untouched files). Root `pnpm run test` confirmed green end-to-end across both apps.
-
-### File inventory additions (Phase 10)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | New `TermsAcceptance`, `SupportTicket` models + `SupportTicketStatus` enum; `User` gained both relations. Migration `20260729145156_phase10_system_screens` |
-| `apps/api/src/config/env.ts`, `.env.example` | Added `SUPPORT_INBOX_EMAIL` (optional) |
-| `apps/api/src/lib/notificationTemplates.ts` | Added `support_ticket_received`, `support_ticket_new` templates |
-| `apps/api/src/services/transactions.ts`, `transactions.test.ts` | **New** — transaction history service + 7 tests |
-| `apps/api/src/routes/transactions.ts`, `routes/transactions.test.ts` | **New** — `GET /transactions` + 4 tests |
-| `apps/api/src/services/support.ts`, `support.test.ts` | **New** — ticket service + 5 tests |
-| `apps/api/src/routes/support.ts`, `routes/support.test.ts` | **New** — ticket routes + 5 tests |
-| `apps/api/src/routes/index.ts` | Registered `transactionRoutes`, `supportRoutes` |
-| `apps/api/src/routes/auth.ts`, `routes/auth.test.ts` | `acceptedTermsVersion` required at registration, persisted to `TermsAcceptance`; 5 existing register payloads updated + 2 new tests |
-| `packages/types/src/legal.ts` | **New** — `CURRENT_TERMS_VERSION`, the single shared source of truth |
-| `packages/types/src/transaction.ts`, `support.ts` | **New** — `Transaction`, `SupportTicket` shared types |
-| `packages/types/src/index.ts` | Added the two new exports; fixed all nine relative exports to use explicit `.js` extensions (the cross-package typecheck fix above) |
-| `apps/web/src/lib/api-client.ts` | Added `listTransactions`, `listSupportTickets`, `submitSupportTicket`; `RegisterInput` gained required `acceptedTermsVersion` |
-| `apps/web/src/mocks/transactions.ts`, `supportTickets.ts` | **New** — mock-mode fixtures for the two new screens |
-| `apps/web/src/app/pages/TransactionHistory.tsx`, `.test.tsx` | **New** — 3 tests |
-| `apps/web/src/app/pages/HelpSupport.tsx`, `.test.tsx` | **New** — 3 tests |
-| `apps/web/src/app/pages/LegalPage.tsx`, `.test.tsx` | **New** — 2 tests |
-| `apps/web/src/app/routes.tsx` | Registered `/transactions`, `/support`, `/legal/terms`, `/legal/privacy` |
-| `apps/web/src/app/pages/Settings.tsx` | Wired the three dead "Support & Legal" items + added "Transaction History" |
-| `apps/web/src/app/pages/AuthFlow.tsx`, `.test.tsx` | Real Terms/Privacy links, `acceptedTermsVersion` sent on register; 2 new tests |
-| `apps/api/README.md`, `handoff/implementation-plan.md`, `handoff/design.md` | Documented Phase 10 |
-
----
-
-## Session 21 — `features.md` Phase 11: design-token adoption + font self-hosting
-
-**Goal:** close two small but real debts from Phase 10's UI work before the app gets much bigger — hard-coded pixel type sizes with no token backing, and a hard CDN dependency (Fontshare + Google Fonts) for the three brand fonts. Backfilled into this log after the fact (see `README.md`'s living-document policy) — this session originally shipped with no `log.md` entry of its own.
-
-- **Token adoption was partial by design, not exhaustive**: `tokens.css` already had `--font-size-xs/sm/base/2xl/4xl` etc. (12/14/16/28/44px); this phase swapped every `text-[Npx]` literal that had an *exact* match to one of those tokens across `Input.tsx`, `ClientOnboarding.tsx`, `CreatorOnboarding.tsx`, and `LandingPage.tsx`. Sizes with no exact token (15px, 19px, 26px, etc.) were deliberately left as literals — no new tokens were minted to cover them, so the adoption is intentionally incomplete. Also added `--font-weight-regular/medium/semibold/bold` and `--line-height-tight/snug/normal/relaxed` tokens, though this commit only *defines* them — no call site was rewired to consume the new weight/line-height tokens yet.
-- **Font self-hosting**: `styles/fonts.css` dropped two `@import url(...)` lines (Fontshare's General Sans CDN, Google's Plus Jakarta Sans + JetBrains Mono CDN) for 11 `@font-face` declarations pointing at self-hosted files under `public/fonts/`, each with `font-display: swap`. `index.html`, `design-system.html`, and `standalone.html` each gained 3 matching `<link rel="preload" as="font">` tags for the heaviest/most-used weights.
-- Committed the full brand font family packages (101 font asset files across every weight/italic variant, under `apps/web/public/fonts/**` and a separate `monologg/brand/mono fonts/` directory with OFL/Fontshare licenses) explicitly "for future use" — only a handful of specific weight files are actually wired into `fonts.css`'s `@font-face` rules; the rest sit unused pending a later phase.
-- CSS/HTML/asset-only — no schema, API, or test changes anywhere in this commit, and no new/changed test count to report.
-- Not evidenced: any measurement of actual font-load performance (Lighthouse/CLS before-after), or any code consuming the new `--font-weight-*`/`--line-height-*` tokens yet.
-
-### File inventory additions (Phase 11)
-
-| File | Change |
-|---|---|
-| `apps/web/src/styles/fonts.css` | Replaced 2 CDN `@import`s with 11 self-hosted `@font-face` rules, all `font-display: swap` |
-| `apps/web/src/styles/tokens.css` | Added `--font-weight-regular/medium/semibold/bold` and `--line-height-tight/snug/normal/relaxed` |
-| `apps/web/index.html`, `design-system.html`, `standalone.html` | Added 3 font `<link rel="preload">` tags each |
-| `apps/web/src/app/components/ui/Input.tsx` | `text-[16px]` → `text-[length:var(--font-size-base)]` |
-| `apps/web/src/app/pages/ClientOnboarding.tsx`, `CreatorOnboarding.tsx`, `LandingPage.tsx` | Literal px sizes with an exact token match swapped to tokens |
-| `apps/web/public/fonts/general-sans/*`, `plus-jakarta-sans/*`, `jetbrains-mono/*` | **New** — self-hosted font files + licenses (subset actually wired) |
-| `apps/web/public/fonts/**/Fonts/OTF/*.otf` | **New** — full General Sans weight/italic set, committed for future use, not yet wired |
-| `monologg/brand/mono fonts/` | **New** — full brand font family archives + OFL/README |
-
----
-
-## Session 22 — `features.md` Phase 12: hardening (security, testing, observability, deployment)
-
-**Goal:** make Phases 0–11 production-ready — nothing new feature-wise, a consolidation pass.
-
-- **Security**: most of the OWASP checklist was already real as of Phase 3/4 (Helmet, CORS locked, global + auth-specific rate limiting) — this phase closed the remaining gaps rather than starting from zero. Helmet's CSP went from `false` to `default-src 'none'` (apps/api never serves HTML, so the Phase 3 "tighten later" comment's condition was already met). Added pino log redaction (defense-in-depth — `routes/auth.test.ts`'s Phase 4 "Sanitized Logs" test already proved nothing logs a raw secret today). Added a production-only `config/env.ts` check (`checkProductionDbUrls`) that fails boot if `DATABASE_URL`/`DIRECT_URL` aren't the correct Supabase pooled/session pair — the two are easy to swap since both point at the same host. Audited and *proved*, not just assumed, two things: CSRF doesn't apply (no cookie-based session anywhere — grepped for `@fastify/cookie`, found none) and KYC PII is never persisted at all (`KycCheck` has no name/DOB/ID-number column — locked in with a new schema test and a service test, stronger than "encrypt it once stored" for data this sensitive). `pnpm audit --audit-level=high` is now CI-blocking; fixed by bumping `react-router` and `vite`. Two advisories are allowlisted with documented reasons, not silently ignored: `GHSA-qwww-vcr4-c8h2` (react-router's RSC-mode CSRF bypass, needs 8.3.0+ — this app has zero RSC usage, confirmed by grep, and a major-version bump two months post-release wasn't judged worth the regression risk in a phase with no budget for a routing-layer rewrite) and `GHSA-mh99-v99m-4gvg` (a transitive `brace-expansion` DoS, dev-tooling-only via eslint/vitest — a `pnpm.overrides` pin was tried first and reverted after it silently broke ESLint at runtime, caught by re-running `pnpm run lint` before it ever shipped; no glob pattern in this codebase is attacker-controlled input, so the DoS has no real trigger here).
-- **Testing**: coverage thresholds (`vitest.config.ts`) gate money/auth/state modules specifically (`services/fees.ts` 95%, `services/payment.ts` 85%, `services/auth.ts`/`middlewares/auth.ts` 90%, `services/booking.ts` 90%) — closing the one real gap this surfaced (`middlewares/auth.ts` at 79%) meant writing tests for previously-untested defensive branches, not lowering the threshold. New cross-cutting test file (`src/app.hardening.test.ts`) covers what Phase 4's auth tests didn't: headers/CSP on a non-auth route, the new request-ID header, the new `/ready`/`/metrics` routes. New e2e test (`src/e2e.happyPath.test.ts`) is the first test in the codebase to run a booking through *continuous* state — create → pay → webhook → deliver → approve — against one stateful mocked-Prisma fake, rather than each route test resetting mocks fresh; also proves the negative (no webhook ⇒ stuck at `PENDING_PAYMENT`, approve 409s).
-- **Observability**: `x-request-id` response header (mirrors Fastify's existing per-request log ID). New `GET /api/v1/ready` (same DB check as `/health`, kept as a genuinely separate route for deploy targets that wire liveness/readiness differently). New `GET /api/v1/metrics` (`src/lib/metrics.ts`) — in-process JSON counters for request/error rate and payment success rate; deliberately not Prometheus format or a real metrics backend, since none exists in any prior phase. New optional Sentry integration (`src/lib/sentry.ts`), no-op without `SENTRY_DSN`, never active under `NODE_ENV=test`.
-- **Deployment**: `apps/api/Dockerfile` + `apps/web/Dockerfile` (both built from the monorepo root for pnpm workspace resolution), `docker-compose.yml` (postgres+redis+api+web, all-mock except `CACHE_PROVIDER=redis` to exercise the real refresh-token denylist), `.dockerignore` (caught and fixed a real risk before it happened: without it, `COPY apps/api apps/api` would have baked this developer's actual `.env` secrets into an image layer). `apps/api`'s new `start` script (`prisma migrate deploy && tsx src/index.ts`) is the image's `CMD`, so migrations always run before the server binds. **No Docker daemon was available in this session's environment** — the Dockerfiles/compose file were reviewed line-by-line (including working through why `--ignore-scripts` would silently break `argon2`'s native addon, and why every workspace member's `package.json` needs copying in for `--frozen-lockfile` to pass) but never actually built locally. CI's new `docker` job builds both images for real on every push — treat that as this piece's actual acceptance check, not this session's say-so.
-- **Docs**: `apps/api/README.md` gained a full "Implemented in Phase 12" section plus new "Deployment" and "Supabase operational notes" sections (pause/backup/Pro-upgrade guidance, folded in from a standing user note about the project's actual Supabase plan). Root `README.md`'s "one thing everyone should know" was rewritten — it still said "there is no backend... yet," which had been stale since Phase 3 and actively wrong by Phase 6. `CONTRIBUTING.md` updated to include the new `audit` step CI runs.
-- **Re-verified the full baseline**: `apps/api` 350/350 tests green (up from 327, +23), coverage thresholds passing with no per-file errors. `apps/web` 46/46 tests green, unchanged in count but re-run after the `react-router`/`vite` bumps (typecheck clean, build clean, no new warnings). Root `pnpm run test` confirmed green end-to-end. `pnpm run audit`: 1 vulnerability found, 1 ignored (the reviewed exception above), exit 0.
-
-### File inventory additions (Phase 12)
-
-| File | Change |
-|---|---|
-| `apps/api/src/config/env.ts`, `env.test.ts` | New `checkProductionDbUrls` (exported, pure) + `SENTRY_DSN`; 6 new tests |
-| `apps/api/src/app.ts` | Pino `redact`, strict CSP, `x-request-id` hook, metrics-recording hook, Sentry init/capture wiring |
-| `apps/api/src/lib/metrics.ts` | **New** — in-process request/payment counters |
-| `apps/api/src/lib/sentry.ts` | **New** — optional Sentry init/capture, no-op without `SENTRY_DSN` |
-| `apps/api/src/routes/health.ts` | Added `GET /api/v1/ready` |
-| `apps/api/src/routes/metrics.ts` | **New** — `GET /api/v1/metrics` |
-| `apps/api/src/routes/index.ts` | Registered `metricsRoutes` |
-| `apps/api/src/services/payment.ts` | `recordPaymentOutcome` calls at each terminal/failure point |
-| `apps/api/src/services/kyc.test.ts`, `prisma/schema.test.ts` | New tests locking in KYC PII non-persistence |
-| `apps/api/src/middlewares/auth.test.ts` | 4 new tests closing the coverage-threshold gap |
-| `apps/api/src/app.hardening.test.ts` | **New** — 9 cross-cutting tests |
-| `apps/api/src/e2e.happyPath.test.ts` | **New** — 2 tests (continuous book→pay→release flow + the negative case) |
-| `apps/api/vitest.config.ts` | Coverage config + per-file thresholds |
-| `apps/api/package.json` | Added `@sentry/node`, `@vitest/coverage-v8`; new `start`, `test:coverage` scripts |
-| `apps/api/.env.example` | Added `SENTRY_DSN` |
-| `apps/api/Dockerfile`, `apps/web/Dockerfile`, `apps/web/nginx.conf` | **New** |
-| `docker-compose.yml`, `.dockerignore` (repo root) | **New** |
-| `.github/workflows/monologg-ci.yml` | Added `audit` step to the `ci` job; new `docker` job |
-| `package.json` (repo root) | `pnpm.auditConfig.ignoreGhsas` (2 reviewed exceptions), new `audit` script |
-| `apps/web/package.json` | `react-router` 7.13.0 → 7.18.2, `vite` 6.3.5 → 6.3.7 |
-| `apps/api/README.md`, root `README.md`, `CONTRIBUTING.md` | Documented Phase 12; corrected the stale "no backend yet" line in root `README.md` |
-
----
-
-## Session 23 — `features.md` Phase 12A: media kit, verification video, physical attributes
-
-**Goal:** three additive extensions to the storefront/onboarding — Media Kit (auto PDF + upload override), verification video (server-authoritative 90s cap), physical attributes (six privacy non-negotiables for casting search). Additive-only migration, nothing from Phases 0–12 touched.
-
-- **Ran the migration against the real Supabase project directly** (this session has standing DB access from earlier work) rather than just writing it — backfilled all 8 pre-existing creators with an AUTO `MediaKit` row, verified with a live count query (`{creators: 8, mediaKits: 8}`), not just trusted from a clean migration exit code.
-- **Media Kit** — chose `pdf-lib` over Puppeteer specifically to avoid a headless-Chrome binary dependency across dev/Docker/Railway. A direct smoke-test render (not just unit tests) caught a real bug before it ever hit a test file: pdf-lib's standard fonts can't encode "₦" (WinAnsi has no Naira glyph) — `formatMoney()`'s normal output would have crashed PDF generation for any NGN rate card. Fixed with a PDF-specific currency-code formatter rather than embedding a custom Unicode font for one glyph.
-- **Verification video** — the server-authoritative duration check is a real, from-spec ISO-BMFF (MP4) box parser (`lib/videoDuration.ts`), not a wrapper around ffprobe (no such binary is guaranteed on any deploy target) — walks `moov` → `mvhd`, reads `timescale`/`duration` per ISO/IEC 14496-12, both v0/v1 box shapes, 8 tests building real box bytes by hand. Reviewer decisions are a known, flagged gap (no admin/moderator role exists in any phase through 12A) — same shape as Phase 6's dispute/refund endpoint, documented rather than silently assumed.
-- **Physical attributes** — all six PRD privacy non-negotiables, each with its own test: optional/skippable fields, ranges not raw numbers, SEARCHABLE-default-never-PUBLIC-on-first-save (tracked per FIELD, not per row — a second field's first save still gets the protection even if the row already exists from an earlier field), consent version+timestamp on first save and consent changes only, hard-delete, and pure filtering with no auto-scoring. The enum value sets are `TODO(conflict:X6)` — the phase brief said "enums per PRD 12A.3" without listing them, so these are a reasonable, flagged interpretation, the same X1–X5 pattern. Search filters application-side (not a Prisma JSON-path query) since the live-DB suite isn't CI-gated; a talent is a filter candidate whenever visibility isn't PRIVATE, but the value itself is only ever returned when PUBLIC.
-- **Frontend scope calls, made deliberately and documented, not silently skipped**: no live in-browser camera recorder (MediaRecorder's native output is WebM, not the MP4 the backend parses — would need client-side transcoding, a separate undertaking) — built as file upload instead, which is still a real, complete flow. No new CreatorOnboarding.tsx wizard step for attributes — Settings.tsx's always-reachable editor already satisfies "skippable, complete later" without risking the tightly-coupled, already-tested onboarding step sequence. No dedicated public storefront page exists yet in any phase (that's Phase 15) — the Media Kit/Verification sections were added to TalentDashboard.tsx's own "storefront preview" tab instead, the closest existing analog.
-- **A real, unrelated bug caught by a frontend test, not code review**: `api-client.ts`'s `request()` unconditionally called `res.json()`, which throws on a real `204 No Content` response — exactly what the new guideline-ack and attribute-delete endpoints return. `VerificationVideo.test.tsx` failed with that exact production-shaped error; fixed once in `request()` itself, which also fixed `deleteMyAttributes()`'s live-mode behavior before it had ever been exercised.
-- **Re-verified the full baseline**: typecheck/lint clean across all three packages (same 5 pre-existing lint warnings, 0 errors). `apps/api` 447/447 tests (up from 356, +91), coverage thresholds still passing with no per-file errors. `apps/web` 64/64 tests (up from 49, +15). Root `pnpm run build` and `pnpm run audit` (still 1 high, reviewed/allowlisted) both clean.
-
-### File inventory additions (Phase 12A)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma`, migration `20260730204433_...` | New `MediaKit`, `VerificationRecording`, `PhysicalAttributes` models + 9 new enums; Creator gained 3 new relations. Migration includes a raw-SQL backfill for pre-existing creators |
-| `apps/api/src/providers/scanner.interface.ts`, `.mock.ts`, `.real.ts` | **New** — virus-scan provider seam (mock detects the real EICAR test string) |
-| `apps/api/src/lib/mediaKitStorage.ts`, `verificationStorage.ts` | **New** — local-disk file storage helpers |
-| `apps/api/src/lib/videoDuration.ts`, `.test.ts` | **New** — real MP4 `moov/mvhd` duration parser + 8 tests |
-| `apps/api/src/services/mediaKit.ts`, `.test.ts` | **New** — PDF render/validate/store + 15 tests |
-| `apps/api/src/services/verificationRecording.ts`, `.test.ts` | **New** — upload/duration-check/review + 12 tests |
-| `apps/api/src/services/attributes.ts`, `.test.ts` | **New** — six privacy non-negotiables + 13 tests |
-| `apps/api/src/routes/mediaKit.ts`, `verification.ts`, `attributes.ts` (+ `.test.ts` each) | **New** — 9 + 11 + 10 route tests |
-| `apps/api/src/routes/talent.ts`, `talent.test.ts` | Attribute filters + visibility-aware response shaping; +8 tests |
-| `apps/api/src/routes/auth.ts` | Registration creates a `MediaKit` row inline (`mediaKit: { create: {} }`) |
-| `apps/api/src/routes/index.ts`, `config/env.ts`, `.env.example`, `providers/index.ts` | Registered 3 new route plugins; added `SCANNER_PROVIDER` |
-| `apps/api/prisma/schema.test.ts` | +5 Phase 12A schema lock-in tests |
-| `apps/api/package.json` | Added `pdf-lib` |
-| `packages/types/src/talent.ts` | `Talent` gained optional `attributes` field |
-| `apps/web/src/lib/api-client.ts`, `.test.ts` | Media kit/verification/attributes methods + types; `listTalents` gained filters; fixed a real 204-handling bug in `request()` |
-| `apps/web/src/app/pages/MediaKitManagement.tsx` (+`.test.tsx`) | **New** — PWA-20 |
-| `apps/web/src/app/pages/VerificationVideo.tsx` (+`.test.tsx`) | **New** |
-| `apps/web/src/app/pages/Settings.tsx`, `.test.tsx` | New "Physical Attributes" section + 3 tests |
-| `apps/web/src/app/pages/ClientDashboard.tsx`, `ClientDashboard.test.tsx` | Attribute filter panel (new test file, no prior suite existed) |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Media Kit + Verification links on the storefront-preview tab |
-| `apps/web/src/app/routes.tsx` | Registered `/media-kit`, `/verification` |
-| `apps/api/README.md` | Documented Phase 12A |
-
----
-
-## Session 24 — `features.md` Phase 13: rich availability calendar & time-slot booking (FA-1)
-
-**Goal:** replace the Phase 5 placeholder availability model (a boolean `booked` flag, no real slot-resolution logic, `getAvailability()` a mock-only stub) with a server-authoritative open-slots engine and real, race-safe slot booking — the foundation FA-1 requires before Checkout or the talent's calendar can be real.
-
-- **New `services/availability.ts`**: `getOpenSlots(creatorId, date)` is the single source of truth — whole-day-free (00:00–23:59) minus explicit `unavailable`/`booked` `AvailabilityBlock` slots minus Google busy times (best-effort; a `CalendarNotConnectedError`/`CalendarReconnectRequiredError` degrades to "no busy times" rather than erroring). `bookSlot(tx, params)` claims a slot inside a caller-owned transaction using `SELECT pg_advisory_xact_lock(hashtext(creatorId || day))` taken *before* re-checking open slots — this is what makes two concurrent booking requests for the same creator+day serialize instead of racing; `services/booking.ts`'s `createBooking()` was rewritten to wrap the booking insert and `bookSlot()` in one `prisma.$transaction`, and `routes/bookings.ts` now catches `SlotUnavailableError` and returns 409.
-- **Schema**: `AvailabilityBlock.slots`'s JSON shape changed from `{start,end,booked:boolean}` to `{start,end,state:"free"|"unavailable"|"booked",bookingId?}`, plus new `isRecurring`/`recurRule` columns (`"WEEKDAYS"` or `"WEEKLY:MON"` etc.) so a block can be either an exact-date override or a recurring template. New `CalendarEvent` model (talent's own non-booking calendar entries — deliberately *not* subtracted by `getOpenSlots`, per its own schema comment). Migration `20260730230727_phase13_availability_calendar_events` is column/table-level DDL only — no data-backfill script accompanies the `booked`→`state` reshape.
-- **New endpoints**: `GET /availability/day` (day-detail: resolved block/recurring templates + that day's `CalendarEvent`s + `openSlots`, one call), full `calendarEvents.ts` CRUD, and two *public, no-auth* endpoints on `routes/creators.ts` — `GET /creators/:id/open-slots` and `GET /creators/:id/rate-cards` — the first real "logged-out-safe" reads in the API, groundwork Phase 15 later reuses directly.
-- **Frontend**: `TalentDashboard.tsx` gained a real day-detail panel + slot editor (add/remove explicit slots, add/remove calendar events, create recurring templates) driven entirely by `dayDetail.openSlots` from the server (PWA-08). `Checkout.tsx` gained a `service → slot → summary → payment → processing → confirmed` flow that only activates when real `creatorId` nav-state is present (from `ClientDashboard.tsx`'s "Book Now" buttons) and `apiClient.mode === "live"`; the original static demo path is untouched for mock mode. Checkout's live "confirm payment" step POSTs directly to the real, signature-checked `/webhooks/paystack` endpoint (`simulateEscrowWebhook`) rather than a fake shortcut, since there's no real Paystack redirect/SDK in this prototype to receive a webhook from.
-- **A real, live-testing-caught bug fixed this session: the concurrent-refresh-token race.** `apps/web/src/lib/api-client.ts`'s `tryRefreshSession()` had no de-duping — if several protected calls 401'd around the same time (e.g. a dashboard's mount-time `useEffect` firing multiple requests with no warm access token yet), each one independently called `/auth/refresh` with the same stored, single-use, server-rotated refresh token. Only the first succeeded; every other replay of the already-rotated token tripped the server's reuse-detection, revoking the whole session right after a real login. Fix: a module-level `refreshInFlight: Promise<boolean> | null` — concurrent callers await the same in-flight promise instead of each spending the token. Regression test: `api-client.test.ts` → "live mode: concurrent 401s share one refresh instead of each spending the single-use refresh token" (fires 3 concurrent protected calls, asserts `refreshCallCount === 1`). The old mock-only `getAvailability()` stub was removed entirely along with its now-obsolete test.
-- **Scope gap**: no new frontend test file for `TalentDashboard.tsx`'s slot editor or `Checkout.tsx`'s live booking flow — the only web test file touched this session is `api-client.test.ts`. Seed data deliberately leaves one day (2026-08-06) unconfigured to demonstrate the default-free rule, plus a recurring weekday template and one morning-free/evening-unavailable override for `seed-creator-chidi`.
-- **Tests added this session**: 29 new API test cases (`services/availability.test.ts` +15, new file — `getOpenSlots`'s subtraction logic, recurring-template matching, `bookSlot`'s advisory lock; `routes/calendarEvents.test.ts` +6; `routes/creators.test.ts` +5 for the two public endpoints; `routes/availability.test.ts` +2; `services/booking.test.ts` +1 for the transactional slot claim) and 1 new web test (the concurrent-refresh regression above). Not evidenced: an exact global before/after suite total for this specific commit.
-
-### File inventory additions (Phase 13)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | `AvailabilityBlock` gains `isRecurring`/`recurRule`; new `CalendarEvent` model + relation on `Creator` |
-| `apps/api/prisma/migrations/20260730230727_phase13_availability_calendar_events/` | **New** — column adds + `CalendarEvent` table + indexes |
-| `apps/api/prisma/seed.ts` | New `seedAvailability()` — recurring template, one override block, one intentionally unconfigured day |
-| `apps/api/src/services/availability.ts`, `.test.ts` | **New** — `getOpenSlots`, `bookSlot`, `SlotUnavailableError`, `startOfDayUTC`; 15 tests |
-| `apps/api/src/services/booking.ts`, `.test.ts` | `createBooking` now transactional + calls `bookSlot`; 1 new test |
-| `apps/api/src/routes/availability.ts`, `.test.ts` | `slots` schema `booked`→`state`; new `GET /availability/day`; 2 new tests |
-| `apps/api/src/routes/bookings.ts` | Catches `SlotUnavailableError` → 409 |
-| `apps/api/src/routes/calendarEvents.ts`, `.test.ts` | **New** — full CRUD; 6 tests |
-| `apps/api/src/routes/creators.ts`, `.test.ts` | New public `GET /creators/:id/open-slots`, `GET /creators/:id/rate-cards`; 5 tests |
-| `apps/api/src/routes/index.ts` | Registered `calendarEventRoutes` |
-| `apps/web/src/lib/api-client.ts`, `.test.ts` | `refreshInFlight` de-dupe fix; new `getAvailabilityDay/createAvailabilityBlock/updateAvailabilityBlock/deleteAvailabilityBlock/createCalendarEvent/deleteCalendarEvent/getOpenSlots/getCreatorRateCardsPublic/createBooking/payBooking/simulateEscrowWebhook`; removed `getAvailability()`; 1 new test |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Day-detail + slot/event/recurring-template editor (PWA-08) |
-| `apps/web/src/app/pages/Checkout.tsx` | Live slot-aware booking flow (PWA-11), gated on nav-state + live mode; mock demo unchanged |
-| `apps/web/src/app/pages/ClientDashboard.tsx` | "Book Now" buttons now pass real `creatorId`/`creatorName` via nav state |
-| `apps/web/src/mocks/availability.ts`, `mocks/services.ts` | Updated fixtures for the new slot/rate-card shapes |
-| `packages/types/src/availability.ts`, `service.ts` | New `Slot`, `SlotState`, `DayDetail`, `CalendarEvent`, `CalendarEventKind`, `PublicRateCard` types |
-
----
-
-## Session 25 — `features.md` Phase 14: project applications, two-sided + applicant cap (FA-2, FA-4)
-
-**Goal:** turn a client's posted `Brief` into something talent can discover and apply to, with a hard, server-enforced applicant cap (FA-4) and a full two-sided review/selection flow (FA-2) — the piece that makes "Post Project → get applicants → hire" a real loop.
-
-- **Schema**: new `Application` model — one row per `(briefId, creatorId)`, DB-unique-constrained (duplicate application is a database guarantee, not just an app-layer check), status `APPLIED→SHORTLISTED/SELECTED/REJECTED/WITHDRAWN`. `Brief` gains `applicantCap: Int?` (null = uncapped) and `applicationsOpen: Boolean @default(true)`, never client-settable directly — only `services/applications.ts` flips it. Migration additive-only.
-- **New `services/applications.ts`**: `applyToBrief()` mirrors Phase 13's `bookSlot` pattern exactly — `SELECT pg_advisory_xact_lock(hashtext(briefId))` taken before checking `applicationsOpen`/count-vs-cap, all inside one transaction, so the (cap+1)th concurrent applicant always sees the brief already closed rather than a stale "still open" read. `selectApplication()` converts the winning application into a real booking via the *same* `createBooking()` path Checkout/Phase 13 use — not a parallel money code path — then auto-rejects every other still-open application on that brief. One non-atomicity worth flagging (not called out anywhere in code): `createBooking()` runs in its own transaction, and the `application`+`brief` status update runs in a second, separate transaction right after — if the booking succeeds but that second transaction fails, a booking could exist with the application never marked `SELECTED`. Not a known/documented gap in the code; worth tracking as an open question.
-- **New endpoints**: `GET /projects` (talent browse — ACTIVE briefs only, annotated with the caller's own application), `POST /projects/:id/apply`, `GET /creators/me/applications`, `PATCH /applications/:id/{shortlist,reject,select,withdraw}`, `GET /briefs/:id/applicants` (brief-owner only).
-- **Bug 1, found + fixed this session**: `apps/web/src/app/pages/ProjectBrief.tsx`'s `createBrief()` call never passed a `status`, so every "published" brief silently defaulted to the Prisma schema's `DRAFT` and never appeared in talent's `GET /projects` browse list (filtered to `status: "ACTIVE"`). Fix: `status: "ACTIVE"` added explicitly, since "Publish Project" is this screen's only action. Regression test: `ProjectBrief.test.tsx`'s existing publish test now asserts the request body includes `status: "ACTIVE"`.
-- **Bug 2, found + fixed this session**: `apps/api/src/routes/projects.ts`'s `mapBriefToProject()` computed `applicantCount` by reusing the same Prisma query's caller-filtered `applications: { where: { creatorId: creator.id } }` array's `.length` — meant for a separate `myApplication` field — so any talent who hadn't applied yet saw "0 applicants" regardless of the real total. Fix: a separate `_count: { select: { applications: true } }` on the same query. Regression test: `routes/projects.test.ts` → "lists only ACTIVE briefs, annotated with the caller's own application status" (mocks a 1-row filtered array alongside `_count: {applications: 5}`, asserts `applicantCount: 5`). `routes/briefs.ts`'s client-side applicant count also went from a hardcoded `0` (honestly documented pre-Phase-14 as "no application system exists yet") to a real `_count`.
-- **Frontend**: `TalentDashboard.tsx` gained a "Projects" tab (browse/search, apply-with-pitch, my-applications/withdraw). `ClientDashboard.tsx` gained full applicant management (list, shortlist/reject, select — reusing Phase 13's slot-picker pattern). `ProjectBrief.tsx` gained the applicant-cap input (empty = unlimited). All six application notification events route through the existing Phase 9 notification path, best-effort.
-- **Tests added this session**: 38 new API test cases (`services/applications.test.ts` +21, new file — advisory-locked cap enforcement, all status transitions, select→booking; `routes/projects.test.ts` +10, new file, including a concurrency test applying 3 talents against a cap of 2 asserting exactly 2 succeed; `routes/briefs.test.ts` +7 for the cap field and `/briefs/:id/applicants`) and 0 new web test cases (the existing `ProjectBrief.test.tsx` publish test was extended in place rather than a new test added).
-
-### File inventory additions (Phase 14)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma` | New `Application` model + `ApplicationStatus` enum; `Brief` gains `applicantCap`/`applicationsOpen` |
-| `apps/api/prisma/migrations/.../` | **New** — `Application` table + `Brief` columns (additive only) |
-| `apps/api/prisma/seed.ts` | Seed briefs gain `applicantCap` (one capped-but-open, one uncapped) |
-| `apps/api/src/services/applications.ts`, `.test.ts` | **New** — advisory-locked cap enforcement, status machine, select→booking; 21 tests |
-| `apps/api/src/routes/projects.ts`, `.test.ts` | **New** — talent-side discovery/apply/withdraw; 10 tests, incl. the applicant-count bug's regression test |
-| `apps/api/src/routes/briefs.ts`, `.test.ts` | `applicants: 0` → real `_count`; new `GET /briefs/:id/applicants`, applicant-cap field; 7 new tests |
-| `apps/api/src/routes/index.ts` | Registered `projectRoutes` |
-| `apps/web/src/lib/api-client.ts` | `createBrief()` gains `applicantCap`/`status` params; new `listProjects/applyToProject/listMyApplications/withdrawMyApplication/listApplicants/shortlistApplicant/rejectApplicant/selectApplicant` |
-| `apps/web/src/app/pages/ProjectBrief.tsx`, `.test.tsx` | Bug 1 fix (`status: "ACTIVE"`); applicant-cap input field; regression assertion added to existing test |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | New "Projects" tab: browse/search, apply-with-pitch, my-applications/withdraw |
-| `apps/web/src/app/pages/ClientDashboard.tsx` | Applicant management: shortlist/reject/select with rate-card + slot picker |
-| `apps/web/src/mocks/clientProjects.ts`, `mocks/projects.ts`, `mocks/index.ts` | Mock fixtures for projects/applications |
-| `packages/types/src/application.ts`, `clientProject.ts`, `index.ts` | New `Project`, `MyApplication`, `Applicant` types; `ClientProject` gains cap/open fields |
-
----
-
-## Session 26 — `features.md` Phase 15: public marketplace profile / shareable link (FA-3)
-
-**Goal:** make `monologg.co/[handle]` work for a completely logged-out visitor — no account, no session — so a talent's profile is actually shareable outside the app, and give Phase 16's guest-checkout flow a real link to land on.
-
-- **New `services/publicProfile.ts`**: `getPublicStorefront(creatorId)` returns only fields a logged-out visitor could already see — name, niche (+ label), location, bio, style tags, media, rate cards with prices, `celebrityBadge`, and `verified` derived to a plain boolean (`creator.verification === "VERIFIED"`) rather than ever exposing the internal `PROCESSING`/`FAILED` KYC states — consistent with the X3 invariant. `renderOgImageSvg(name)` generates a real, deterministic initials-mark SVG (brand colors, name-derived) as an Open Graph image stand-in, since no phase's schema has ever stored a creator headshot.
-- **New endpoints on `routes/creators.ts`**: `GET /creators/:id/public` and `GET /creators/:id/og-image.svg`, both public/no-auth. `:id` is explicitly the creator's cuid, not a real handle/username — no phase has added a slug field, a forward-reference the code comments call out directly (same one `routes/mediaKit.ts` made in 12A.1).
-- **Frontend**: `PublicStorefront.tsx` renders at route `:handle` (registered last in `routes.tsx`, after every more specific static path) and is deliberately not wrapped in `RequireAuth` — the one screen designed to render for a stranger with zero session state. New `lib/documentMeta.ts` sets `document.title` plus real `og:*`/`twitter:*` meta tags client-side, with cleanup that restores the previous title and removes only the tags it created. Each rate card's "Book Now" navigates to `/book/:creatorId`, `ExternalBookingEntry.tsx` — also unauthenticated, explicitly labeled in its own doc comment as "Phase 16's placeholder entry point, not its implementation."
-- **Deliberate, explicitly-flagged tradeoff**: meta tags are client-side-only, not server-pre-rendered — this is a plain Vite SPA with no SSR framework, so a real crawler (Slack/Twitter/iMessage unfurl bots, none of which execute JS) hits the raw HTML shell and won't see the injected tags. A true crawler-facing preview needs either an SSR migration or a bot-detection pre-render at the hosting layer, both out of scope here.
-- **Minor, unflagged gap observed**: `apiClient.getOgImageUrl(handle)` returns a hardcoded `/api/v1/creators/${handle}/og-image.svg` regardless of `API_MODE` — in mock mode there's no backend to serve that path, so the `og:image`/`twitter:image` tags on a mock-mode demo point at a URL that 404s. Not exercised by any test (`PublicStorefront.test.tsx` only checks meta tags are *set*, not that the image URL resolves) — a real, low-stakes, currently-unverified rough edge.
-- **Test/scope gap**: `ExternalBookingEntry.tsx` has no test file at all this session — entirely unexercised, consistent with it being an intentional stub, but worth naming rather than assuming coverage exists.
-- **Tests added this session**: 6 new API tests (`routes/creators.test.ts` — public storefront field-scoping + 404, og-image endpoint) and 5 new web tests (new file `PublicStorefront.test.tsx` — mock-mode fixture render with no network call, live-mode full render with price/no-leak assertions, meta-tag verification, Book Now routing with creator+service carried through, not-found state).
-
-### File inventory additions (Phase 15)
-
-| File | Change |
-|---|---|
-| `apps/api/src/services/publicProfile.ts` | **New** — `getPublicStorefront`, `renderOgImageSvg`, `PublicProfileNotFoundError` |
-| `apps/api/src/routes/creators.ts`, `.test.ts` | New `GET /creators/:id/public`, `GET /creators/:id/og-image.svg`; 6 new tests |
-| `apps/web/src/app/pages/PublicStorefront.tsx`, `.test.tsx` | **New** — public, unauthenticated storefront page; 5 tests |
-| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | **New** — Phase 16 placeholder stub at `/book/:creatorId`; no test file |
-| `apps/web/src/app/routes.tsx` | Registered `:handle` (last) and `book/:creatorId` routes, both outside `RequireAuth` |
-| `apps/web/src/lib/documentMeta.ts` | **New** — client-side OG/Twitter meta injection |
-| `apps/web/src/lib/api-client.ts` | New `getPublicStorefront(handle)`, `getOgImageUrl(handle)` |
-| `apps/web/src/mocks/publicStorefront.ts`, `mocks/index.ts` | Mock fixture for storefront |
-| `packages/types/src/publicStorefront.ts`, `index.ts` | New `PublicStorefront`, `PublicMediaAsset` zod types |
-
----
-
-## Session 27 — `features.md` Phase 16: external-visitor booking + deferred account + escrow-first (FA-5)
-
-**Goal:** the flagship, most-dependent phase — a stranger from a shared `/[handle]` link books a talent, funds escrow, and gets a client account auto-created from their checkout info, never seeing a separate "sign up." Escrow-first is preserved throughout: chat opens only after `ESCROW_LOCKED`.
-
-- **Schema, additive only**: `Booking` gains `origin: BookingOrigin` (`INTERNAL`|`PUBLIC_LINK`), `contextNote: String?`, `slotHoldExpiresAt: DateTime?`. `User` gains `accountOrigin: AccountOrigin` (`SIGNUP`|`AUTO_CHECKOUT`), `passwordSet: Boolean @default(true)`. Migration `20260731063733_phase16_external_booking`.
-- **`TODO(conflict:X7)` — the one real architectural reconciliation this phase required**: `Booking.clientId` is a required FK, and the phase's own prescribed schema diff doesn't loosen that, so the guest's `User`+`Client` row must exist by the time the `Booking` row is created (to hold the slot in `PENDING_PAYMENT`) — *before* the payment webhook fires. The spec's "account materializes on payment" is honored at the UX/surfacing level, not the DB-write level: `services/externalBooking.ts`'s `createExternalBooking()` creates the row quietly at booking-creation time, but it's never surfaced, emailed, or made accessible (`passwordSet:false` blocks login) until `services/payment.ts`'s webhook handler confirms escrow and issues a set-password token. This is the only schema-faithful design available, and it mirrors real guest-checkout systems (e.g. Shopify creates the customer row before capture but never logs them in until the order completes).
-- **New `routes/publicBookings.ts`**: `POST /public/bookings` (guest identity find-or-create + booking creation, reusing `computeFees`/`bookSlot`) and `POST /public/bookings/:id/pay` (scoped to `origin=PUBLIC_LINK` bookings only — refuses to guest-pay-init an internal booking). Both unauthenticated by design; the booking id itself (an unguessable cuid, handed only to whoever just created it) is the authorization boundary, the same trust model a Stripe/Shopify checkout-session URL uses.
-- **PWA-19 (set-password/magic-link) reuses `POST /auth/reset-password` verbatim** rather than a parallel mechanism — the webhook issues a token under the *same* `auth:reset:` cache prefix the existing forgot-password flow already uses, and the endpoint was extended to also flip `passwordSet:true` and return a session (so completing it both sets a password and logs the buyer straight in — the "magic link" behavior, without inventing passwordless auth).
-- **Escrow-chat gate — a real, pre-existing gap closed, applied globally, not just to this flow**: `routes/orderRooms.ts` previously never checked `Booking.state` at all, for *any* booking. Added `booking.state === "PENDING_PAYMENT"` → 403 in the shared `loadParticipantBooking()` helper — internal bookings get an `OrderRoom` at creation time exactly the same way external ones do, so the fix has to be shared, not origin-specific.
-- **Slot-hold expiry (X5, confirmed 30 min with the user) is lazy, not a cron job** — there's no job-scheduler in this codebase for "expire this row later." `services/availability.ts`'s `getOpenSlots` now runs a `releaseExpiredHolds()` check inline: any "booked" slot whose owning booking is `PENDING_PAYMENT` past its `slotHoldExpiresAt` is treated as free and the booking flipped to `CANCELLED` — the exact place that already re-verifies availability server-side, reused rather than duplicated.
-- **Frontend**: `ExternalBookingEntry.tsx` (the Phase 15 stub) rebuilt into the full PWA-18 flow — slot → summary/escrow-explainer → context note → name+email → payment → confirmed, reusing `Checkout.tsx`'s visual patterns (ported in, not import-shared, to avoid risk to the working screen). New `SetPassword.tsx` (PWA-19) at `/set-password`, unauthenticated by design — it IS how a fresh guest gets a session.
-- **Tests**: 545→ backend suite grew by the full new surface — `services/externalBooking.test.ts` (6), `routes/publicBookings.test.ts` (8), extended `orderRooms.test.ts` (+3 escrow-gate cases), extended `availability.test.ts` (+4 slot-expiry cases), extended `auth.test.ts` (+2 passwordSet cases), new `e2e.externalBooking.test.ts` (2, the full logged-out flagship flow) — api ended this session at 545/545. Web: new `ExternalBookingEntry.test.tsx` (1, full step-by-step flow assertion, verifies only unauthenticated endpoints are ever called), `PublicStorefront.test.tsx`'s "Book Now" test updated to assert the real flow instead of the Phase 15 stub's placeholder copy — web ended at 71/71.
-
-### File inventory additions (Phase 16)
-
-| File | Change |
-|---|---|
-| `apps/api/prisma/schema.prisma`, migration `20260731063733_phase16_external_booking/` | `Booking.origin/contextNote/slotHoldExpiresAt`, `User.accountOrigin/passwordSet`, 2 new enums |
-| `apps/api/src/config/slotHold.ts` | **New** — `SLOT_HOLD_MINUTES = 30` |
-| `apps/api/src/services/externalBooking.ts`, `.test.ts` | **New** — guest find-or-create + booking creation; 6 tests |
-| `apps/api/src/routes/publicBookings.ts`, `.test.ts` | **New** — unauthenticated guest checkout endpoints; 8 tests |
-| `apps/api/src/services/payment.ts` | Webhook handler issues set-password token on `PUBLIC_LINK` escrow-lock |
-| `apps/api/src/lib/notificationTemplates.ts` | Added `set_password` template |
-| `apps/api/src/routes/auth.ts` | Login refuses `passwordSet:false`; `reset-password` also sets `passwordSet:true` + returns a session |
-| `apps/api/src/routes/orderRooms.ts`, `.test.ts` | Global `PENDING_PAYMENT` → 403 escrow gate; +3 tests |
-| `apps/api/src/services/availability.ts`, `.test.ts` | Lazy `releaseExpiredHolds()`; +4 tests |
-| `apps/api/src/e2e.externalBooking.test.ts` | **New** — 2 tests, full logged-out flow against a stateful mocked Prisma |
-| `apps/api/vitest.config.ts` | Added coverage threshold for `services/externalBooking.ts` |
-| `apps/web/src/lib/api-client.ts` | New `createGuestBooking`, `payGuestBooking`, `setPassword` |
-| `apps/web/src/app/pages/ExternalBookingEntry.tsx`, `.test.tsx` | Rebuilt from Phase 15 stub into the full PWA-18 flow; **new** test file |
-| `apps/web/src/app/pages/SetPassword.tsx` | **New** — PWA-19 |
-| `apps/web/src/app/routes.tsx` | Registered `/set-password`, unauthenticated |
-| `apps/web/src/app/pages/PublicStorefront.test.tsx` | "Book Now" assertion updated for the real flow |
-
----
-
-## Session 28 — `features.md` Phase 17: QA, security & UAT (production gate)
-
-**Goal:** the independent verification pass before production cutover — not feature work. Checks the assembled system, not just each phase's own unit tests; any gap found becomes a tracked ticket, not scope creep here.
-
-- **Scope confirmed with the user up front** on four pieces an agent can't do literally: UAT (script prepared, sign-off left explicitly PENDING — no real users/legal reviewer available), physical cross-device testing (substituted with a real Playwright browser-engine matrix — Chromium/WebKit/Firefox, WebKit genuinely macOS WebKit, a materially closer Safari proxy than headless Chrome), load testing (substituted with genuine `Promise.all` concurrency against the real dev Supabase DB via the existing, already-established integration-test harness), and staging with test-mode providers (doesn't exist — noted as an infra gap, not attempted).
-- **New Playwright suite** (`apps/web/e2e/`) against the mock-mode build: 19 golden-path routes × 3 browser engines, a 360/768/1024/1600px responsive sweep, a keyboard-reachability check, and an axe accessibility scan per page. 143 passed, 1 correctly skipped (keyboard-nav on the touch-primary webkit-iphone project — no hardware-keyboard tab order to test there).
-- **A real, systemic accessibility bug found and fixed**: `--color-text-tertiary` (`tokens.css`) measured 2.68:1 against `--color-bg-canvas` (needs 4.5:1) — this single token backed ~48 of the original axe hits across nearly every screen. Fixed in both light (`#6D6D75`) and dark (`#898993`) mode, same hue, deep enough to clear every surface it's actually painted on. Also added missing `aria-label`s to 5 icon-only controls (back buttons, order-room send button, settings dark-mode/notification toggles, checkout/booking date inputs).
-- **NOT fixed, tracked as a P0 pre-cutover blocker**: ~100+ serious/critical `color-contrast` violations remain across dozens of *distinct* color pairs (accent-on-soft-background badges in every brand ramp, opacity utilities, component-local inline colors) — a full design-system remediation project needing sign-off on new brand colors, explicitly out of this phase's "does not add features" scope. The axe check now runs and reports (via test annotations) rather than hard-failing the suite on pre-existing, tracked debt.
-- **Structural finding, not a QA failure**: there is no `manifest.json`, no service worker, and no PWA plugin anywhere in `apps/web` — verified directly (0 manifest links, 0 service-worker registrations). Despite every screen being named `PWA-XX` since Phase 0, actual installability/offline-caching was never built in Phases 0–16. Not built here either — recorded as a P0 gate-blocking gap.
-- **Security — a confirmed, demonstrated P0/P1 finding**: `PATCH /verification-recordings/:id/review` (already flagged in its own code comment since Phase 12A as a "KNOWN GAP... future work") has no ownership or role check at all. New `security.authzFuzz.test.ts` proves the sharpest version — a talent can self-approve their own identity verification, granting themselves a "Verified" badge with zero independent review. Needs a real moderator role before real users are onboarded; not built here (feature work, out of scope). The same file also confirms (by reading every previously-zero-coverage route file) that every OTHER untested route is either safe-by-design (`mediaKit.ts`, `attributes.ts`, `transactions.ts`, `calendar.ts`, `support.ts` — all scoped to the caller's own token, no cross-tenant `:id` param exists) or correctly ownership-checked but just untested (`calendarEvents.ts`, `notifications.ts`, `creators.ts`'s media routes — confirmatory tests added).
-- **New amount-tampering regression test** (`services/payment.test.ts`) turns a code-inspection fact into a locked-in assertion: `processPaystackWebhookEvent` never reads `payload.data.amount` at all — a forged webhook amount is provably inert.
-- **New real-DB concurrency integration test** (`apps/api/prisma/phase17.concurrency.integration.test.ts`, run manually, not CI-wired — same convention every other `*.integration.test.ts` file already uses): fired genuine concurrent requests at the real dev database and proved no double-booking, no double-charge, no cap overrun under actual Postgres advisory-lock contention, not a mocked approximation. Surfaced one attributable perf finding, not a money-safety bug: at 5+ simultaneous requests for the identical slot, some queued-behind-the-lock requests hit Prisma's default 5s interactive-transaction timeout in this environment's cross-region network conditions (never more than 1 winner in any trial, at any N tried) — Phase 16's `releaseExpiredHolds` lazy-expiry check adds one extra query inside that lock's critical section, a plausible contributor, flagged rather than optimized here.
-- **NDPA data-handling inventory written** (`qa/2026-07-31-phase17/ndpa-data-inventory.md`) — a structured personal-data inventory to inform legal review, explicitly not a legal sign-off. Flags the KYC-PII-at-rest question as not yet applicable (no PII is persisted yet — Smile Identity integration is still a Phase 7 stub) but must be re-verified the moment that integration actually lands.
-- **All findings archived**: `monologg/qa/2026-07-31-phase17/` (README gate summary, regression/cross-device-a11y/security/load-concurrency/ndpa-data-inventory/uat-plan) — the hard gate stated there plainly: no production cutover until the verification self-approval gap is closed and UAT/NDPA are signed off.
-- **Re-verified the full baseline**: `apps/api` 556/556 tests (up from 545, +11: 1 amount-tampering + 10 authz-fuzz), `apps/web` 71/71 (unchanged count, one assertion updated). Typecheck/lint/build clean across all packages. `pnpm run audit`: 3 vulnerabilities found, 3 high (2 reviewed/ignored), exit 0 — no new unreviewed high/critical.
-
-### File inventory additions (Phase 17)
-
-| File | Change |
-|---|---|
-| `apps/web/e2e/playwright.config.ts`, `regression.spec.ts` | **New** — cross-browser/responsive/a11y/PWA-gap Playwright suite |
-| `apps/web/package.json` | Added `@playwright/test`, `@axe-core/playwright` devDependencies |
-| `apps/web/src/styles/tokens.css` | `--color-text-tertiary` contrast fix, light + dark |
-| `apps/web/src/app/pages/CreatorOnboarding.tsx`, `ClientOnboarding.tsx`, `OrderRoom.tsx`, `Settings.tsx`, `Checkout.tsx`, `ExternalBookingEntry.tsx` | Added missing `aria-label`s |
-| `apps/api/src/security.authzFuzz.test.ts` | **New** — 10 tests; confirms + demonstrates the verification-review gap, confirmatory calendarEvents ownership tests, consolidated stranger-token booking/order-room sweep |
-| `apps/api/src/services/payment.test.ts` | +1 amount-tampering test |
-| `apps/api/prisma/phase17.concurrency.integration.test.ts` | **New** — 4 tests, real-DB concurrency (slot race, webhook replay, double-approve, applicant cap) |
-| `monologg/qa/2026-07-31-phase17/` | **New** — README, regression, cross-device-a11y, security, load-concurrency, ndpa-data-inventory, uat-plan |
-| `.gitignore` (repo root) | Added Playwright artifact directories |
-
----
-
-## Session 29 — Client Settings Theme Adaptation & Real-Time Cross-App State Sync
-
-**Goal:** Provide a role-adaptive, dedicated Settings view for Clients using Client Purple theme tokens (`.role-client`), and establish a real-time reactive state synchronization engine across both Talent and Client web applications.
-
-1. **Created `apps/web/src/lib/state-sync.ts`**:
-   - Developed `AppStateSync`, a zero-dependency reactive event bus with `localStorage` cross-tab change listeners.
-   - Manages shared reactive state for Talent Profiles, Client Profiles, and Client Project Briefs across navigation and tab switches.
-
-2. **Overhauled `apps/web/src/app/pages/Settings.tsx`**:
-   - Role-adaptive route detection (`?role=client` vs `?role=talent`).
-   - Wraps Client Settings view in `.role-client`, dynamically changing all buttons, badges, toggles, and avatars to Client Purple theme tokens (`--color-accent`).
-   - Replaced talent-only sections ("Physical Attributes", "Storefront") with Client-specific sections ("Organization Profile", "Billing & Invoicing", "Project Briefs History", "Transaction History").
-   - Built full Organization Profile editor (Org Name, Contact Person, Org Type, Email, Location).
-
-3. **Integrated `AppStateSync` into `api-client.ts`**:
-   - `getCreatorProfile()`, `updateCreatorProfile()`, `getClientProfile()`, `updateClientProfile()`, `createBrief()`, and `listProjects()` read from and write to `AppStateSync` in mock mode and dispatch reactive updates.
-
-4. **Updated `ClientDashboard.tsx`, `TalentDashboard.tsx`, `Sidebar.tsx`, and `ProjectBrief.tsx`**:
-   - Bound desktop and mobile headers to `AppStateSync` reactive profile state.
-   - Updated `Sidebar.tsx` settings click to pass `?role=client` for client portal and `?role=talent` for talent portal.
-   - `ProjectBrief.tsx` publishes projects directly into `AppStateSync` so new briefs instantly populate Talent & Client project dashboards.
-
-5. **Testing & Verification**:
-   - Added unit test in `Settings.test.tsx` verifying Client Settings mode rendering (`.role-client`, "Verified Studio", "Organization Profile", absence of talent attributes).
-   - Ran `npx pnpm --filter @monologg/web typecheck` (0 errors) and `npx pnpm --filter @monologg/web test` (19/19 files, 72/72 tests green).
-
-### File inventory additions (Session 29)
-
-| File | Change |
-|---|---|
-| `apps/web/src/lib/state-sync.ts` | **New** — reactive cross-app event bus for profile and project sync |
-| `apps/web/src/lib/api-client.ts` | Integrated `appStateSync` into mock profile/brief/project methods |
-| `apps/web/src/app/pages/Settings.tsx` | Overhauled with `.role-client` theme adaptation & Client Organization settings |
-| `apps/web/src/app/components/ui/Sidebar.tsx` | Updated Settings button click to pass `?role=client` or `?role=talent` |
-| `apps/web/src/app/pages/ClientDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Bound identity headers & project list to `appStateSync` |
-| `apps/web/src/app/pages/Settings.test.tsx` | Added test asserting Client Settings rendering & section filtering |
-
----
-
-## Session 30 — Comprehensive Real-Time Session Persistence & Nigerian Talent Persona
-
-**Goal:** Update default talent persona to a Nigerian name ("Emeka Johnson") and bind all interactive forms/inputs across the web application (avatar photos, earnings withdrawals, bank details, rate cards, support tickets, order messages) to `AppStateSync` for real-time session persistence.
-
-1. **Updated Default Talent Persona**:
-   - Replaced default talent persona name "Elias Thorne" with **"Emeka Johnson"** across state sync defaults, public storefront mock, order messages mock, OrderRoom participant lists, Checkout talent names, and test fixtures.
-
-2. **Expanded `AppStateSync` & `api-client.ts`**:
-   - Expanded `StateSyncBus` to store avatar photos (`avatarUrl`), bank payout details (`bankDetails`), available/pending balances & withdrawal transactions (`balance`, `withdrawFunds()`), dynamic rate cards (`services`), project applications, and support tickets.
-   - Connected `apiClient` methods (`withdrawFunds`, `listServices`, `createService`, `updateService`, `deleteService`, `listTransactions`, `listSupportTickets`, `submitSupportTicket`) to `appStateSync` in mock mode.
-
-3. **Built Interactive Photo Upload & Bank Account Editor in `Settings.tsx`**:
-   - Added hidden file input & photo upload handler in Settings profile section. Custom avatar images save to `appStateSync` and render in headers, sidebars, and order rooms.
-   - Added interactive Payout Bank Account editor (Bank Name, 10-digit Account Number, Account Name) saving directly to `appStateSync.updateBankDetails()`.
-
-4. **Connected Earnings Withdrawal & Service Rate Cards in `TalentDashboard.tsx`**:
-   - **Withdrawal Modal**: Connects to `appStateSync.getBalance().available` and `getBankDetails()`. Withdrawing funds deducts balance, adds payout transaction log, and updates stats across dashboards in real time.
-   - **Rate Cards**: Connected rate card add, edit, and delete actions to `apiClient` / `appStateSync`.
-
-5. **Testing & Verification**:
-   - Ran full Vitest test suite: **19/19 test files passed (72/72 tests green)**. All tests verified and clean.
-
-### File inventory additions (Session 30)
-
-| File | Change |
-|---|---|
-| `apps/web/src/lib/state-sync.ts` | Expanded reactive bus with `avatarUrl`, `bankDetails`, `balance`, `services`, `applications`, `supportTickets` |
-| `apps/web/src/lib/api-client.ts` | Connected mock withdrawal, rate cards, transactions, and support tickets to `appStateSync` |
-| `apps/web/src/app/pages/Settings.tsx` | Added avatar photo upload & Bank Account editor; synced profile saves with `appStateSync` |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Connected real-time withdrawal modal & rate cards to `appStateSync` |
-| `apps/web/src/app/pages/OrderRoom.tsx` | Updated default participant names to `appStateSync` talent/client profiles |
-| `apps/web/src/app/pages/Checkout.tsx` | Updated default talent name to `appStateSync.getTalentProfile().name` |
-| `apps/web/src/mocks/publicStorefront.ts` | Updated default persona to Emeka Johnson |
-| `apps/web/src/mocks/orderMessages.ts` | Updated default persona to Emeka Johnson |
-| `apps/web/src/app/pages/Settings.test.tsx` | Updated test assertions to Emeka Johnson (EJ) |
-| `apps/web/src/app/pages/PublicStorefront.test.tsx` | Updated test assertions to Emeka Johnson |
-
----
-
-## Session 31 — Guest Booking Payment Fix & Payment Methods Enhancement
-
-**Goal:** Resolve payment confirmation error in external guest booking flow (`/book/:handle`), fix title typography overlap, and add trusted payment option cards (Card, Bank Transfer, USSD via Paystack Escrow).
-
-1. **Fixed Mock Booking & Payment Handlers (`api-client.ts`)**:
-   - Added mock return objects for `createGuestBooking`, `payGuestBooking`, `simulateEscrowWebhook`, `createBooking`, and `payBooking` when `API_MODE !== "live"`. Prevents network fetch failures during mock payment deposit.
-
-2. **Overhauled Payment Step UI & Typography (`ExternalBookingEntry.tsx`)**:
-   - **Typography Spacing**: Fixed visual overlap on title string (`Pay ₦138,000`), using clean flex alignment.
-   - **Payment Option Cards**: Added interactive payment channel selector (Card Payment via Paystack, Instant Virtual Bank Account Transfer, USSD Mobile Money).
-   - **User Trust & Security Badges**: Added 100% Escrow Money-Back Guarantee banner and 256-Bit SSL Encrypted / PCI-DSS Compliant Paystack badges.
-
-3. **Fixed Route Param Extraction**:
-   - Updated `ExternalBookingEntry.tsx` to read `useParams().handle || useParams().creatorId`, ensuring storefront CTA navigation resolves creator details seamlessly.
-
-4. **Testing & Verification**:
-   - Ran full Vitest test suite: **19/19 test files passed (72/72 tests green)**. `ExternalBookingEntry.test.tsx` passed.
-
-### File inventory additions (Session 31)
-
-| File | Change |
-|---|---|
-| `apps/web/src/lib/api-client.ts` | Added mock returns for `createGuestBooking`, `payGuestBooking`, `createBooking`, `payBooking`, `simulateEscrowWebhook` |
-| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed title overlap, added payment channel selector cards, escrow trust badges, and param fallbacks |
-| `apps/web/src/app/pages/Checkout.tsx` | Fixed mock payment transition handler |
-
----
-
-## Session 32 — Platform-Wide Design & Polish Pass
-
-**Goal:** Execute high-priority design review tasks (T1, T2, T3, T4) covering Public Storefront branding, loading skeleton, accessibility skip-to-content targets, and resolving the type mismatch/unused declarations in `TalentDashboard.tsx`.
-
-1. **Enhanced Public Storefront Branding & Trust Signals**:
-   - Added branded sticky header with Monologg logo, sign-in, and register buttons to the public storefront page.
-   - Fixed AI slop pattern #8: removed left colored border on booking rate cards.
-   - Added trust footer with secure escrow, verified profiles, and money-back guarantee badges to build buyer confidence.
-   - Upgraded loading and error views with logo headers and proper navigation CTAs.
-
-2. **Built Reusable Skeleton Shimmer Components**:
-   - Created `Skeleton` React component with custom count, circle, gap support.
-   - Included pre-configured `CardSkeleton`, `StatCardSkeleton`, and `ListItemSkeleton` layout blocks for loading states.
-   - Integrated skeleton loaders into the storefront page loading state.
-
-3. **Added Accessibility Skip-to-Content Targets**:
-   - Implemented visually hidden `Skip to main content` anchor in `Root.tsx` layout.
-   - Wired `id="main-content"` targets to landing page, client dashboard, and settings container main views.
-
-4. **Resolved Type Safety & Unused Declarations in `TalentDashboard.tsx`**:
-   - Corrected `apiClient.createService()` parameter interface mapping to use type-safe fields (`title`, `price`, `delivery`, `bookings`).
-   - Cleaned up warning-producing unused state variables (`showWithdrawModal`, `withdrawInput`, `withdrawMsg`, `handleWithdraw`).
-   - Bound modal forms and buttons to control state variables, enabling real-time service creation, editing, and deletion synced with API client state.
-
-5. **Testing & Verification**:
-   - Verified that all 19 test files and 72 tests pass cleanly with 100% success.
-
-### File inventory additions (Session 32)
-
-| File | Change |
-|---|---|
-| `apps/web/src/app/pages/PublicStorefront.tsx` | Overhauled with brand headers, trust signals, loading skeleton integration, and removed colored card borders |
-| `apps/web/src/app/components/ui/Skeleton.tsx` | **New** — reusable skeleton loading layouts with shimmer pulse animation |
-| `apps/web/src/app/Root.tsx` | Added skip-to-content hidden links |
-| `apps/web/src/app/pages/LandingPage.tsx` | Added main element skip target id |
-| `apps/web/src/app/pages/ClientDashboard.tsx` | Added main element skip target id |
-| `apps/web/src/app/pages/Settings.tsx` | Converted wrapper element to main tag with skip target id |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Bound Rate Card tab modals to state inputs, wired create/edit/delete actions to handlers, removed unused variables |
-
----
-
-## Session 33 — Live Visual Design Audit & Fix Execution via `/design-review`
-
-**Goal:** Execute gstack `/design-review` skill workflow, perform live visual audit, fix responsive layout bugs and touch accessibility issues, and create atomic commits with test verification.
-
-1. **Executed Setup & Tooling Configuration**:
-   - Built and verified `$B` browse CLI binary (`.agent/skills/gstack/browse/dist/browse`).
-   - Installed Playwright Chromium, Firefox, and WebKit browser drivers (`npx playwright install`).
-   - Launched local dev server on `http://localhost:5173`.
-
-2. **Landing Page Mobile Navigation & Showcase Fix (`LandingPage.tsx`)**:
-   - Added responsive hamburger menu button and animated slide-down navigation sheet (`mobileMenuOpen`).
-   - Unhidden interactive product showcase card on mobile viewports (`className="block mt-8 lg:mt-0 relative"`).
-   - Created atomic commit `b392254`.
-
-3. **Touch Target Accessibility & Filter Controls (`ClientDashboard.tsx`, `TalentDashboard.tsx`)**:
-   - Upgraded modal close icon buttons from `w-8 h-8` (32px) to `w-10 h-10` (40px) to clear WCAG AA 44px touch target guidelines on touchscreens.
-   - Upgraded attribute filter clear action in `ClientDashboard.tsx` to a button control with focus-visible indicators while keeping test assertion compatibility.
-   - Created atomic commit `593dd86`.
-
-4. **Testing & Verification**:
-   - Ran unit test suite: **19/19 test files passed (72/72 tests green)**.
-   - Pushed atomic commits to `origin/main`.
-
-### File inventory additions (Session 33)
-
-| File | Change |
-|---|---|
-| `apps/web/src/app/pages/LandingPage.tsx` | Added mobile drawer menu and enabled mobile display for product showcase card |
-| `apps/web/src/app/pages/ClientDashboard.tsx` | Upgraded modal close touch target size to 40px and styled attribute clear control |
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Upgraded modal close touch target size to 40px |
-
----
-
-## Session 34 — Application QA Audit & Bug Fix Loop via `/qa`
-
-**Goal:** Execute gstack `/qa` skill workflow, perform systematic multi-page browser QA testing, fix discovered functional/content/contrast defects, and verify with before/after evidence and test suite execution.
-
-1. **Executed Setup & Environment Checks**:
-   - Committed `.gitignore` update (`8e8878f`) to ensure a clean working tree.
-   - Symlinked Playwright chromium binaries (`chromium_headless_shell-1208` -> `1234`).
-   - Verified dev server (`http://localhost:5173`) returns `200 OK`.
-
-2. **Executed Page-by-Page QA Testing**:
-   - **Landing Page (`/`)**: 0 console errors, verified mobile & desktop layouts (`initial.png`).
-   - **Talent Dashboard (`/dashboard`)**: Discovered hardcoded "Elias Thorne" name & greeting fallbacks.
-   - **Client Dashboard (`/client`)**: 0 console errors, verified purple client theme & project applicant cards.
-   - **Settings (`/settings`)**: 0 console errors, verified verified status badge and account options.
-   - **External Booking Entry (`/book/service_123`)**: Discovered low-contrast text on disabled time slot selection pills.
-   - **Order Room (`/order/ord_123`)**: Discovered hardcoded "Elias Thorne" avatar initials (`ET`) on talent message bubbles.
-
-3. **Fixed Discovered QA Issues with Atomic Commits**:
-   - **ISSUE-001**: Aligned talent name fallback and greeting in `TalentDashboard.tsx` to default "Emeka Johnson" (`98a0d36`).
-   - **ISSUE-002**: Dynamically derived talent initials (`EJ`) and payment release text in `OrderRoom.tsx` (`fd95a46`).
-   - **ISSUE-003**: Improved time slot button contrast ratio on `ExternalBookingEntry.tsx` for WCAG AA compliance (`fa1d26c`).
-
-4. **Testing & Verification**:
-   - Executed Vitest unit test suite: **19/19 test files passed (72/72 tests green)**.
-   - Captured before/after screenshots for all fixed issues (`issue-001-after.png`, `issue-002-after.png`, `issue-003-after.png`).
-   - Pushed commits to `origin/main`.
-
-### File inventory additions (Session 34)
-
-| File | Change |
-|---|---|
-| `apps/web/src/app/pages/TalentDashboard.tsx` | Aligned talent name fallbacks, Storefront preview heading, and greeting to Emeka Johnson |
-| `apps/web/src/app/pages/OrderRoom.tsx` | Dynamically derived talent avatar initials and payment release system text |
-| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Improved disabled time slot label contrast ratio for WCAG AA compliance |
-
----
-
-## Session 35 — Live Developer Experience Audit & DX Fix Loop via `/devex-review`
-
-**Goal:** Execute gstack `/devex-review` skill workflow, perform live DX audit across 8 developer dimensions, fix TypeScript typecheck errors, populate `CLAUDE.md` developer guide, and evaluate Time-to-Hello-World (TTHW) and scorecard metrics.
-
-1. **Executed DX Onboarding & Build Inspection**:
-   - Tested getting started flow from `monologg/README.md` (`pnpm install` -> `pnpm dev`).
-   - Measured production build speed: **2.02 seconds** (`dist/assets/index-BZm4Asly.js`).
-   - TTHW (Time to Hello World): **< 1 minute** (zero API keys required, `VITE_API_MODE=mock` default fixture state).
-
-2. **Fixed TypeScript Typecheck Friction**:
-   - Identified and resolved 2 `tsc --noEmit` errors:
-     1. Imported missing `X` icon in `LandingPage.tsx`.
-     2. Corrected `Transaction` object construction schema mapping in `src/lib/state-sync.ts`.
-   - Verified `npm run typecheck --prefix apps/web` passes with **0 type errors**.
-
-3. **Populated `CLAUDE.md` Developer Guide**:
-   - Populated empty root `CLAUDE.md` file with common developer commands (`npm run dev`, `npm test`, `npm run build`, `npm run typecheck`) and gstack skill routing rules (`/af380ff`).
-
-4. **Testing & Verification**:
-   - Executed Vitest unit test suite: **19/19 test files passed (72/72 tests green)**.
-   - Pushed atomic commits to `origin/main`.
-
-### File inventory additions (Session 35)
-
-| File | Change |
-|---|---|
-| `CLAUDE.md` | Populated developer commands and skill routing rules |
-| `apps/web/src/app/pages/LandingPage.tsx` | Imported missing `X` icon for type safety |
-| `apps/web/src/lib/state-sync.ts` | Aligned Transaction construction properties with TransactionSchema |
-
----
-
-## Session 36 — Code & Structural Review via `/review`
-
-**Goal:** Execute gstack `/review` skill workflow, perform structural code analysis across diffs and recent session changes, catch range check flaw in time slot selection, verify 100% test pass, and update Eng Review log.
-
-1. **Executed Pre-Landing Code & Diff Audit**:
-   - Analyzed recent commits (`21780fa..202d621`) across `LandingPage.tsx`, `ExternalBookingEntry.tsx`, `OrderRoom.tsx`, `state-sync.ts`, and `CLAUDE.md`.
-   - Identified open slots range-check flaw in `ExternalBookingEntry.tsx` where exact string equality was used instead of slot interval inclusion (`startStr >= s.start && startStr < s.end`).
-
-2. **Fixed Time Slot Range Logic**:
-   - Fixed `isOpen` computation in `ExternalBookingEntry.tsx` (`202d621`).
-   - Re-verified test suite pass: **19/19 test files passed (72/72 tests green)**.
-
-3. **Testing & Verification**:
-   - Verified `npm run typecheck --prefix apps/web` passes with 0 errors.
-   - Pushed atomic commits to `origin/main`.
-
-### File inventory additions (Session 36)
-
-| File | Change |
-|---|---|
-| `apps/web/src/app/pages/ExternalBookingEntry.tsx` | Fixed openSlots interval range check calculation for time slot buttons |
-
----
-
-## Session 37 — Talent Portal & Order Room Responsiveness Enhancements
-
-**Goal:** Implement formatted withdrawal input with commas, dynamic payout list and graph recalculations, clickable payout receipt modal, Browse project multi-parameter filters (role, budget, status), rich client project information modal, Availability calendar 3-view switcher (Month/Week/Day), toggleable Order Room info modal for responsive chat layout, fixed bottom nav icon padding, and clickable recent activity with dedicated activity history page.
-
-1. **Talent Earnings & Withdrawals**:
-   - Added comma-formatting logic to withdrawal input (`148,000`).
-   - Connected withdrawal confirmation to dynamic balance, stat metrics, and monthly earnings chart updates.
-   - Built interactive `PayoutReceiptModal` triggered on clicking any payout row.
-
-2. **Projects Page Filters & Client Brief Modal**:
-   - Added filter controls for Role/Category, Budget Tier, and Application Status on Browse tab.
-   - Expanded `selectedProject` modal to render rich client brief details (client verification, overview, deliverables, location, deadline, budget, and pitch input).
-
-3. **Availability Calendar 3-View Switcher**:
-   - Added `[ Month | Week | Day ]` switcher control.
-   - Implemented interactive 7x5 Month calendar grid with date selection highlighting and day event inspector.
-
-4. **Responsive Order Room Modal**:
-   - Converted fixed Order Info sidebar into a toggleable modal/drawer (`showOrderInfoModal`) triggered via "Order Info" header button.
-   - Kept chat room full-width and responsive across all device breakpoints.
-
-5. **Bottom Nav & Recent Activity Navigation**:
-   - Adjusted `BottomNav.tsx` icon padding, label font sizes, and active capsule indicator insets.
-   - Made Recent Activity items on Home tab directly clickable to navigate to their target destination.
-   - Created dedicated "Activity History" page (`activeTab === "activity"`) with search bar and filter pills.
-
-### File inventory additions (Session 37)
-
-| File | Change |
-|---|---|
-| `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Implemented withdraw comma formatting, payout receipts, project filters, client project modal, Availability 3-view toggle, and activity history page |
-| `monologg/apps/web/src/app/pages/OrderRoom.tsx` | Added Order Info toggle button in header and rendered Order Info in a responsive modal/drawer |
-| `monologg/apps/web/src/app/components/ui/BottomNav.tsx` | Refined bottom nav padding, icon alignment, and capsule indicator insets |
-
----
-
-## Session 38 — Client Portal, Order Room Alignment & Customer Support Chat
-
-**Goal:** Wired Client Portal header notification drawer, replaced Recent Projects widget with Recent Activity and dedicated Activity History page, added single "View Project" CTA with dedicated Project Management & Applicant Storefront inspection view, auto-synced newly created briefs to recent activity, fixed Order Room header text wrapping and bottom bar input row alignment, added Find Talent physical features "More Filters" modal, built Transaction History detail modal with Download Receipt action, and implemented interactive Customer Support Ticket Chat.
-
-1. **Client Notifications & Recent Activity**:
-   - Connected bell button in `ClientDashboard.tsx` to slide-over Notifications drawer.
-   - Replaced Home tab "Recent Projects" widget with "Recent Activity" widget.
-   - Added dedicated Activity History tab (`activeTab === "activity"`) with search bar and filter pills.
-
-2. **Client Project Management & Applicants Storefront Inspection**:
-   - Replaced Edit / View Applicants buttons on project cards with single primary CTA **"View Project"**.
-   - Created **Dedicated Project Management View** with inline brief editing, applicant roster, **"View Storefront / Profile"** link, and Shortlist / Select / Reject actions.
-
-3. **Project Creation Auto-Sync**:
-   - Updated `ProjectBrief.tsx` to publish notification and auto-sync newly posted briefs to Recent Activity.
-
-4. **Order Room Layout & Alignment**:
-   - Fixed bottom input bar in `OrderRoom.tsx` to align paperclip attachment, input textarea, and send button on the exact same row (`items-center`).
-   - Cleaned top header bar (removed light/dark toggle & role switcher to eliminate text wrapping) and relocated demo role switch to banner.
-
-5. **Find Talent "More Filters" Modal**:
-   - Added "More Filters" button on Find Talent page opening physical attributes filter modal (Height, Build, Complexion, Hair Color, Gender Presentation).
-
-6. **Transaction History Receipt & Download**:
-   - Added `selectedTxn` detail modal in `TransactionHistory.tsx` with full invoice breakdown and **Download Receipt** button.
-
-7. **Help & Support Live Customer Care Ticket Chat**:
-   - Connected support ticket rows in `HelpSupport.tsx` to open an interactive **Support Ticket Live Chat** modal with real-time agent message exchange.
-
-### File inventory additions (Session 38)
-
-| File | Change |
-|---|---|
-| `monologg/apps/web/src/app/pages/ClientDashboard.tsx` | Implemented notifications drawer, recent activity, activity history tab, single View Project CTA, dedicated project management view, and physical features More Filters modal |
-| `monologg/apps/web/src/app/pages/OrderRoom.tsx` | Cleaned header bar to prevent text wrapping and fixed bottom input bar flex alignment |
-| `monologg/apps/web/src/app/pages/ProjectBrief.tsx` | Auto-synced newly created briefs with appStateSync notification bus |
-| `monologg/apps/web/src/app/pages/TransactionHistory.tsx` | Added transaction invoice detail modal and Download Receipt action |
-| `monologg/apps/web/src/app/pages/HelpSupport.tsx` | Added live support ticket agent chat modal |
-| `monologg/apps/web/src/lib/state-sync.ts` | Added notifications state and helper methods to StateSyncBus |
-
----
-
-## Session 39 — External Booking Steppers, Role-Adaptive UI Themes & Portal Analytics
-
-**Goal:** Implemented 1-4 progress steppers in external booking flow, role-adaptive UI theme classing (`.role-client` vs `.role-talent` based on `?role=client`), dedicated Analytics dashboards for both Talent & Client portals, and verified continuous state/backend synchronization.
-
-1. **External Booking Steppers (1-4)**:
-   - Added a 1-4 step progress header bar in `ExternalBookingEntry.tsx` showing checkmarks for completed steps, step numbers for active/future steps, and click-to-navigate across completed steps (Step 1: Service & Slot, Step 2: Project Brief, Step 3: Summary & Info, Step 4: Escrow Payment).
-
-2. **Role-Adaptive UI Theme**:
-   - Added `roleThemeClass` detection in `PublicStorefront.tsx`, `ExternalBookingEntry.tsx`, and `Checkout.tsx`.
-   - When accessed as a client (`?role=client`), pages render with purple client theme tokens. When accessed as talent (`?role=talent` or default), pages render with talent red theme tokens.
-
-3. **Dedicated Talent Analytics Dashboard**:
-   - Built Talent Performance & Analytics panel in `TalentDashboard.tsx` (`activeTab === "analytics"`) rendering storefront views (+18%), booking conversion rate (8.4%), revenue breakdown by service niche, client review rating (4.9 ★), and 6-month booking growth velocity.
-
-4. **Dedicated Client Analytics Dashboard**:
-   - Built Client Hiring & Budget Analytics panel in `ClientDashboard.tsx` (`activeTab === "analytics"`) rendering total escrow allocated (₦850,000 across 4 briefs), average cost per hire (₦70,833), applicant acquisition funnel (32 applicants -> 12 shortlisted -> 4 hired), repeat hiring rate (25%), and category budget distribution.
-
-5. **Continuous State & Backend Sync**:
-   - Verified state bus `appStateSync` and `apiClient` continuous data synchronization across both portals.
-
-### File inventory additions (Session 39)
-
-| File | Change |
-|---|---|
-| `monologg/apps/web/src/app/pages/ExternalBookingEntry.tsx` | Added 1-4 step progress stepper bar with interactive step navigation and roleThemeClass |
-| `monologg/apps/web/src/app/pages/PublicStorefront.tsx` | Added roleThemeClass wrapping for ?role=client vs ?role=talent theme switching |
-| `monologg/apps/web/src/app/pages/TalentDashboard.tsx` | Added dedicated Talent Performance & Analytics dashboard tab and navigation item |
-| `monologg/apps/web/src/app/pages/ClientDashboard.tsx` | Added dedicated Client Hiring & Budget Analytics dashboard tab and navigation item |
-
----
-
-## Session 40 — Landing Page Facelift & Apple/Pirsch Design Metaphor Synthesis
-
-**Goal:** Reworked `LandingPage.tsx` using a premium hybrid design system merging the edge-to-edge alternating visual layout of Apple (SF Pro Display typography, negative letter-spacing, Action Blue accent) and the sunlit cream-paper metaphor of Pirsch (sunlit cream background, ink-black hairline borders, sunshine yellow highlight accents, and tactile cards).
-
-1. **Top Global Nav & Frosted Sub-Nav Bar**:
-   - Added a thin 44px global nav menu and a 52px frosted sub-nav bar with backdrop blur that remains sticky on scroll.
-
-2. **Hero Segment**:
-   - Set a clean typography layout using negative letter-spacing for the display headlines and Apple-style punchy marketing text: "Your craft. On your terms. Instantly booked."
-
-3. **Alternating Product Tiles**:
-   - Added alternating light and dark layout sections highlighting "Thespian AI Style Tagging", "FINCRA Integrated Escrow", and "Collaborative Order Workspace".
-
-4. **Curated Art Categories**:
-   - Added clean photography cards representing Actors, Voice Artists, Dancers & Choreographers, and Comperes & Hosts.
-
-### File inventory additions (Session 40)
-
-| File | Change |
-|---|---|
-| `monologg/apps/web/src/app/pages/LandingPage.tsx` | Complete facelift integrating premium hybrid layout and Apple copywriting style |
-
----
-
-## Session 41 — Interactive Storytelling Loops & Landing Page CTA Enhancements
-
-**Goal:** Enhanced `LandingPage.tsx` with self-running interactive mockup flows (Thespian AI Upload scan ➔ tag output; and FINCRA Escrow Lock ➔ file deliver ➔ payout release), added clear CTAs on every section, and polished motion lifting.
-
-1. **AITaggingDemo Component**:
-   - Built a custom looping animation sequence tracking drag & drop, file uploading/scanning (0% to 100%), and final talent tag presentation with staggered spring animations.
-
-2. **EscrowDemo Component**:
-   - Built a custom looping workspace tracker representing the Fincra Escrow contract lifecycle (Escrow locking ➔ upload confirmation message ➔ client release payout).
-
-3. **Section CTAs**:
-   - Integrated CTA conversion items on all landing page sections (Creative Niches, Steps, Testimonials, Pricing, FAQ).
-
-### File inventory additions (Session 41)
-
-| File | Change |
-|---|---|
-| `monologg/apps/web/src/app/pages/LandingPage.tsx` | Added AITaggingDemo and EscrowDemo interactive loops and updated all CTA buttons |
-
----
-
-## Session 37 — Platform-Wide QA Audit & Verification Pass via `/qa`
-
-**Goal:** Execute gstack `/qa` skill workflow, perform systematic multi-page browser QA testing across all 6 core application routes, verify 100% test suite health, and generate `.gstack/qa-reports/` baseline artifacts.
-
-1. **Executed Setup & Environment Checks**:
-   - Verified clean git working tree (`git status --porcelain`).
-   - Launched local dev server (`http://localhost:5173`).
-   - Configured `.gstack/qa-reports/screenshots` output directory.
-
-2. **Executed Page-by-Page QA Testing**:
-   - **Landing Page (`/`)**: 0 console errors, verified desktop & mobile hero layouts, CTAs, and interactive feature showcases (`initial.png`).
-   - **Talent Dashboard (`/dashboard`)**: 0 console errors, verified Emeka Johnson default talent identity and greeting (`talent-dashboard.png`).
-   - **Client Dashboard (`/client`)**: 0 console errors, verified FilmCraft Studios client account and purple theme tokens (`client-dashboard.png`).
-   - **Settings (`/settings`)**: 0 console errors, verified profile settings and verified badge status (`settings.png`).
-   - **External Booking Entry (`/book/service_123`)**: 0 console errors, verified time slot picker pills and rate card selection (`external-booking.png`).
-   - **Order Room (`/order/ord_123`)**: 0 console errors, verified message thread, avatar initials (`EJ`), and escrow release card (`order-room.png`).
-
-3. **Testing & Verification**:
-   - Executed Vitest unit & integration test suite: **21/21 test files passed (78/78 tests green)**.
-   - Calculated Overall Health Score: **100 / 100**.
-   - Saved baseline artifacts: `.gstack/qa-reports/baseline.json` and `.gstack/qa-reports/qa-report-localhost-2026-08-02.md`.
-
-### File inventory additions (Session 37)
-
-| File | Change |
-|---|---|
-| `.gstack/qa-reports/baseline.json` | Updated QA health baseline JSON to 100/100 |
-| `.gstack/qa-reports/qa-report-localhost-2026-08-02.md` | Generated structured QA audit report |
-| `.gstack/qa-reports/screenshots/*.png` | Captured page-by-page QA verification evidence screenshots |
-
----
-
-## Session 38 — Platform-Wide Design Audit & Quality Review Pass via `/design-review`
-
-**Goal:** Execute gstack `/design-review` skill workflow, evaluate visual design polish and AI Slop anti-patterns across all 6 core application routes, verify design token compliance, and generate `.gstack/design-reports/` baseline artifacts.
-
-1. **Executed Setup & Environment Checks**:
-   - Verified clean git working tree (`git status --porcelain`).
-   - Inspected `monologg/handoff/design.md` for design system tokens & layout rules.
-   - Configured `.gstack/design-reports/screenshots` output directory.
-
-2. **Executed Page-by-Page Design Audit**:
-   - **Landing Page (`/`)**: High-converting hero composition, clear brand identity, poster shadow tokens (`--shadow-cutout`), 0 console errors (`first-impression.png`).
-   - **Talent Dashboard (`/dashboard`)**: Emeka Johnson default identity, active checklist nudges, clear balance card, warm empty state (`talent-dashboard.png`).
-   - **Client Dashboard (`/client`)**: Purple client theme (`.role-client`), FilmCraft Studios branding, project applicant management (`client-dashboard.png`).
-   - **Settings (`/settings`)**: Verified status badge, account preferences, role-adaptive theme toggle (`settings.png`).
-   - **External Booking Entry (`/book/service_123`)**: High contrast time slot pills, rate card selection, step indicator header (`external-booking.png`).
-   - **Order Room (`/order/ord_123`)**: Dual-participant chat thread (`BN` / `EJ`), escrow lock banner, deliverables action bar (`order-room.png`).
-
-3. **Calculated Headline Grades & Saved Baseline Artifacts**:
-   - **Design Score:** **A- (94.25 / 100)**.
-   - **AI Slop Score:** **A (0 Anti-Pattern Violations)**.
-   - Saved baseline artifacts: `.gstack/design-reports/design-baseline.json` and `.gstack/design-reports/design-audit-localhost-2026-08-02.md`.
-
-### File inventory additions (Session 38)
-
-| File | Change |
-|---|---|
-| `.gstack/design-reports/design-baseline.json` | Created design baseline JSON report artifact |
-| `.gstack/design-reports/design-audit-localhost-2026-08-02.md` | Generated structured design audit markdown report |
-| `.gstack/design-reports/screenshots/*.png` | Captured page-by-page design verification screenshots |
-
----
-
-## Session 61 (2026-08-11) — Folder-structure cleanup: deeply-nested/unused assets moved or removed
-
-**Goal:** the user reported real trouble copying this project folder (cloud-sync tools — Dropbox/OneDrive/Google Drive-class — enforce their own, often stricter, path-length caps than the OS itself), caused by two genuinely deep, space-containing, largely-unused asset trees. Not a code change — pure repo hygiene, requested directly, confirmed with the user before deleting anything.
-
-**A note on session numbering before the substance:** picking up this thread, `log.md` had grown to Session 60 with several genuine duplicates (37, 38, 39, 40 each appear twice — independent sessions choosing the same next number without coordinating). This entry is numbered 61 (one past the highest number in use) rather than trying to renumber history — re-sequencing 60 sessions' worth of already-pushed, already-referenced entries would create more confusion than it resolves. Flagging the duplication here for whoever next has bandwidth to reconcile it; not fixed in this pass.
-
-- **Deleted `monologg/brand/mono fonts/` entirely** — 113 files, 7.3MB, nested up to 8 levels deep (`GeneralSans_Complete/Fonts/WEB/fonts/...`) with spaces in folder names (`mono fonts`, `plus jakarta`). Confirmed via grep across `apps/` and `packages/` that nothing in the running app imports or references any file under this path — it was committed "for future use" back in Phase 11 (see Session 21) and never wired into anything; `apps/web/public/fonts/` (14 files, flat, all actually consumed by `fonts.css`'s `@font-face` rules) is the real, in-use font asset location and was untouched. User confirmed deletion over relocation — easily re-sourced from Fontshare/Google Fonts if ever needed again.
-- **Moved `apps/web/src/imports/reference-screenshots/` → top-level `monologg/reference-screenshots/`** (18 files, ~17MB) — already documented as "historical visual reference only, not imported or used by any running page" since Session 2. Its old location put a large, non-code, image-only folder inside the active app's `src/` tree; moving it to a top-level, purpose-named sibling folder (matching the existing `handoff/`, `brand/`, `qa/` convention) keeps `apps/web/src/` as "only real app code, plus the still-referenced PRD/UX-spec/historical-drafts docs" — those three stayed put in `apps/web/src/imports/` since they weren't the reported problem and aren't deeply nested.
-- **Verified safe against the current codebase, not just the one from a week ago**: this session started by discovering `origin/main` had moved 61 commits ahead of this repo's last state this thread had directly touched (Phase 12B Supabase Auth, Phase 12C withdrawal OTP, and ~10 sessions of currency/landing-page/design work, per `git log`/`git reflog`) — confirmed via `git merge-base --is-ancestor` that this was clean, linear history (nothing rewritten or lost), then re-confirmed via `git log <old>..<new> -- <path>` that neither asset path touched in this cleanup had been referenced by any of those intervening commits, before deleting or moving anything.
-- **Left alone, deliberately**: the outer wrapping folder (the true git-repo root, one level above `monologg/`) — it also hosts an unrelated `gstack` project sharing this same repo's history, and the user confirmed only `monologg/`'s internal structure was in scope. Prisma's migration-folder names (`prisma/migrations/<timestamp>_<description>/`) are long but not fixable without touching real migration history, and aren't part of what a folder *copy* walks any differently than a short name would.
-- **Re-verified**: `pnpm run typecheck`/`build` both clean after the moves (neither asset tree was ever code-imported, so zero impact expected and confirmed).
-
-### File inventory additions (Session 61)
-
-| File | Change |
-|---|---|
-| `brand/mono fonts/**` | **Deleted** — 113 files, unused font-family archive |
-| `apps/web/src/imports/reference-screenshots/` → `reference-screenshots/` | **Moved** (git-tracked rename, 18 files) to the top level |
-| `handoff/design.md` | Source-documents section updated: screenshots' new location, `mono fonts/` no longer mentioned |
-| `README.md` | Top-level file table gained `reference-screenshots/` and (previously missing) `qa/` rows; `apps/web/` tree diagram no longer lists `reference-screenshots/` under `src/imports/` |
-
-
-
-
-
+- **Built, in dependency order:** `services/booking.ts` (the state machine — a `LEGAL_TRANSITIONS` map and `assertLegalTransition()`, plus `createBooking()` which always derives fees from `computeFees()` and creates the booking's `OrderRoom` inline); `providers/storage.*` (a new provider seam — mock local-disk fronted by a real `PUT /uploads/local/:token` route, real S3-compatible stub) alongside `routes/creators.ts` (profile GET/PATCH — `styleTags`/`veri
+... [truncated for diff preview]
