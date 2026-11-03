@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
+**Last updated:** 2026-11-03 (Session 189: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 136. Footer Terms & Cookie Policy Inaccessibility & Placeholder Section Copy (`LandingPage.tsx`, `WebsiteFooter.tsx`)
+- **Severity:** Low / UX & Information Architecture Defect
+- **What happened:**
+  - The shared footer copyright bar previously displayed static location text (`Lagos, Nigeria 🇳🇬·`) without accessible navigation links to `/terms` or `/cookies`, preventing visitors from reaching legal policy documents directly from the website footer. Additionally, the Home page 6-feature vertical timeline section retained placeholder headline copy (`Some text will have to come into here...`).
+- **Root Cause:**
+  - Initial footer implementation mirrored legacy Figma layout before legal links were formalized in Figma node `178407:19721`.
+- **Fix:**
+  - Added interactive, accessible navigation buttons for `"Terms of Service"` (`/terms`) and `"Cookie Policy"` (`/cookies`) in `WebsiteFooter.tsx`, swapped the Backed-by icon to the official Paystack badge, and updated Home timeline copy with production marketing text (23/23 tests passing, `tsc --noEmit` 0 errors).
 
 ### 135. Cookie Settings & Policy Structural & Semantic Drift from Figma Specification (`LegalPage.tsx`, `LegalPage.test.tsx`)
 - **Severity:** Low / Figma Design-to-Code Fidelity Defect

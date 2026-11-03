@@ -167,19 +167,19 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       >
         <div className="flex gap-[8px] items-center shrink-0">
           <div className="bg-[#f13030] rounded-full shrink-0 size-[8px]" />
-          <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#f13030] text-[10px] tracking-[1px] uppercase leading-[13.33px] whitespace-nowrap">
-            Monologg Marketplace v3.0 Live
+          <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap">
+            Monologg is in Alpha 🥳🥳
           </p>
         </div>
         <div className="flex gap-2 sm:gap-[16px] items-center shrink-0">
           <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
-            FINCRA Escrow Secured
+            Paystack Secured
           </p>
           <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px]">
             ·
           </p>
           <p className="font-['JetBrains_Mono',monospace] font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
-            3,200+ Verified Talent Profiles
+            25+ Verified Performers
           </p>
         </div>
       </div>

@@ -91,4 +91,32 @@ describe("LandingPage signed-in header", () => {
     expect(screen.getByRole("button", { name: "Sign In" })).toBeTruthy();
     expect(screen.queryByLabelText("Account menu")).toBeNull();
   });
+
+  it("renders updated announcement bar copy, timeline section headline, and footer legal links", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <LandingPage />
+      </MemoryRouter>,
+    );
+
+    // Announcement bar
+    expect(screen.getByText("Monologg is in Alpha 🥳🥳")).toBeInTheDocument();
+    expect(screen.getByText("Paystack Secured")).toBeInTheDocument();
+    expect(screen.getByText("25+ Verified Performers")).toBeInTheDocument();
+
+    // 6-feature vertical timeline headline & subtext
+    expect(
+      screen.getByText("Run your performing career like the business it actually is"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Share your work, set your prices, track your audience and get paid securely, without an agent in the middle.",
+      ),
+    ).toBeInTheDocument();
+
+    // Footer legal links & Paystack badge
+    expect(screen.getByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cookie Policy" })).toBeInTheDocument();
+    expect(screen.getByText("paystack")).toBeInTheDocument();
+  });
 });

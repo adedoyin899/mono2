@@ -1,11 +1,30 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
+**Last updated:** 2026-11-03 (Session 189: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 189 (2026-11-03) — Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links
+
+**Goal:** Implement user-requested copy updates on the Home page (`LandingPage.tsx`), apply system-wide announcement bar copy tweaks (`Monologg is in Alpha 🥳🥳` and `Paystack Secured · 25+ Verified Performers`) across all public pages, and add direct interactive `Terms of Service | Cookie Policy` navigation links and Paystack backing badge in the shared website footer (`WebsiteFooter.tsx`).
+
+1. **Home 6-Feature Section Copy Updates (`LandingPage.tsx`):**
+   - Updated the 6-feature vertical timeline section heading (`178359:16991`) to `"Run your performing career like the business it actually is"`.
+   - Updated subtext (`178359:16992`) to `"Share your work, set your prices, track your audience and get paid securely, without an agent in the middle."` with clean wrapping up to `650px`.
+2. **System-Wide Announcement Bar Copy Tweaks (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`):**
+   - Standardized left status pill copy across all 5 public pages to `"Monologg is in Alpha 🥳🥳"` with `font-semibold text-white text-[11px]`.
+   - Standardized right metric counter across all 5 public pages to `"Paystack Secured · 25+ Verified Performers"` in `JetBrains Mono` bold.
+3. **Shared Website Footer Legal Accessibility & Paystack Badge (`WebsiteFooter.tsx`):**
+   - Added direct interactive buttons for `"Terms of Service"` (navigating to `/terms`) and `"Cookie Policy"` (navigating to `/cookies`) separated by `|` in the bottom copyright bar (`178407:19721`).
+   - Updated the `"Backed by"` badge to the official Paystack brand icon (4 cyan rounded bars `#00C3F7`) and bold lowercase `"paystack"` wordmark.
+4. **Quality Gate & Testing:**
+   - Updated and passed unit tests across `LandingPageHeader.test.tsx`, `ProductPage.test.tsx`, `PricingPage.test.tsx`, and `ResourcesPage.test.tsx` (23/23 tests passing).
+   - Confirmed zero TypeScript errors across `apps/web` and `apps/api` (`tsc --noEmit`).
 
 ---
 

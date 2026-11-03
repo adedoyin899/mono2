@@ -25,9 +25,9 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Monologg Marketplace v3.0 Live")).toBeInTheDocument();
-    expect(screen.getByText("FINCRA Escrow Secured")).toBeInTheDocument();
-    expect(screen.getByText("3,200+ Verified Talent Profiles")).toBeInTheDocument();
+    expect(screen.getByText("Monologg is in Alpha 🥳🥳")).toBeInTheDocument();
+    expect(screen.getByText("Paystack Secured")).toBeInTheDocument();
+    expect(screen.getByText("25+ Verified Performers")).toBeInTheDocument();
   });
 
   it("renders the master resources card with Terms of Service, Escrow Guarantee, and Helpdesk sections", () => {
@@ -37,7 +37,7 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("button", { name: /Terms of Service/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Terms of Service/i }).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Escrow Guarantee Policy")).toBeInTheDocument();
     expect(screen.getAllByText("Fair Trade Contracts").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByRole("button", { name: /Support & Community/i }).length).toBeGreaterThanOrEqual(1);

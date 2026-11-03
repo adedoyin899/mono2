@@ -287,7 +287,7 @@ export function WebsiteFooter({
                     The Upwork for Actors, Public speakers, Comperes, Comedians, Streamers, Artists, musicians and Creators.
                   </p>
                   <div
-                    className="flex gap-[8px] items-start relative shrink-0"
+                    className="flex gap-[8px] items-center relative shrink-0"
                     data-node-id="178151:49552"
                   >
                     <p
@@ -296,23 +296,22 @@ export function WebsiteFooter({
                     >
                       Backed by
                     </p>
-                    <div
-                      className="h-[24px] overflow-clip relative rounded-[20px] shrink-0 w-[23.84px]"
-                      data-node-id="178151:49554"
-                      data-name="y_combinator_symbol.svg"
-                    >
-                      <div className="absolute inset-[-0.39%_0_0.39%_0]" data-node-id="178151:49557" data-name="Group">
-                        <img alt="Y Combinator" className="absolute block inset-0 max-w-none size-full" src={imgYcSymbol} />
-                      </div>
-                    </div>
-                    <div
-                      className="h-[24px] overflow-clip relative rounded-[20px] shrink-0 w-[23.84px]"
-                      data-node-id="178151:49560"
-                      data-name="y_combinator_symbol.svg"
-                    >
-                      <div className="absolute inset-[-0.39%_0_0.39%_0]" data-node-id="178151:49564" data-name="Vector">
-                        <img alt="" className="absolute block inset-0 max-w-none size-full" height="24" src={imgVectorBadge2} width="23.84" />
-                      </div>
+                    <div className="flex items-center gap-[6px] relative shrink-0" data-name="Paystack Badge">
+                      <svg
+                        className="h-[18px] w-[18px] shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-label="Paystack icon"
+                      >
+                        <rect x="2" y="3.5" width="11" height="3" rx="1.5" fill="#00C3F7" />
+                        <rect x="2" y="8.5" width="16" height="3" rx="1.5" fill="#00C3F7" />
+                        <rect x="2" y="13.5" width="20" height="3" rx="1.5" fill="#00C3F7" />
+                        <rect x="2" y="18.5" width="14" height="3" rx="1.5" fill="#00C3F7" />
+                      </svg>
+                      <span className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-[15px] tracking-[-0.4px] text-[#001328] lowercase leading-none">
+                        paystack
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -552,16 +551,36 @@ export function WebsiteFooter({
               data-name="Divider"
             />
             <div
-              className="flex flex-col sm:flex-row font-['Inter_Tight',sans-serif] font-normal gap-4 sm:gap-[32px] items-start sm:items-center leading-[24px] not-italic relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full"
+              className="flex flex-col sm:flex-row font-['Inter_Tight',sans-serif] font-normal gap-4 sm:gap-[32px] items-start sm:items-center justify-between leading-[24px] not-italic relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full"
               data-node-id="178151:49782"
               data-name="Content"
             >
-              <p className="flex-1 min-w-px relative" data-node-id="178151:49783">
+              <p className="relative" data-node-id="178151:49783">
                 {`© 2026 Monologg. All rights reserved. `}
               </p>
-              <p className="relative shrink-0 whitespace-nowrap" data-node-id="178151:49784">
-                Lagos, Nigeria 🇳🇬·
-              </p>
+              <div
+                className="flex items-center gap-[12px] relative shrink-0 whitespace-nowrap"
+                data-node-id="178407:19721"
+                data-name="Legal Links"
+              >
+                <button
+                  type="button"
+                  onClick={() => navigate("/terms")}
+                  className="hover:text-[#16161a] transition-colors cursor-pointer"
+                >
+                  Terms of Service
+                </button>
+                <span className="text-[#d1d1d1]" aria-hidden="true">
+                  |
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate("/cookies")}
+                  className="hover:text-[#16161a] transition-colors cursor-pointer"
+                >
+                  Cookie Policy
+                </button>
+              </div>
             </div>
           </div>
         </div>

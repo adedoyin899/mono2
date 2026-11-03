@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
+**Last updated:** 2026-11-03 (Session 189: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 148: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links (Session 189)
+
+Implemented marketing copy refinements and navigation improvements across the web application:
+- **Home 6-Feature Section Headline & Subtext (`LandingPage.tsx`):** Replaced placeholder text with `"Run your performing career like the business it actually is"` and subtext `"Share your work, set your prices, track your audience and get paid securely, without an agent in the middle."`.
+- **System-Wide Announcement Bar Copy Updates:** Standardized left status pill to `"Monologg is in Alpha 🥳🥳"` and right metric to `"Paystack Secured · 25+ Verified Performers"` across all 5 public pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`).
+- **Footer Legal Policy Navigation & Paystack Badge (`WebsiteFooter.tsx`):** Implemented direct interactive buttons for `"Terms of Service"` (`/terms`) and `"Cookie Policy"` (`/cookies`) in the bottom copyright bar (`178407:19721`), and replaced the legacy badges with the official Paystack 4-bar SVG icon and brand wordmark.
 
 ### Step 147: Strict 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions (Session 188)
 

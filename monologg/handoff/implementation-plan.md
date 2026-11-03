@@ -1,11 +1,23 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 188: 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation.
+**Last updated:** 2026-11-03 (Session 189: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links.
 
 ---
 
 ## ✅ Done
+
+### Session 189 — Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links
+- [x] **Home 6-Feature Section Copy Updates (`LandingPage.tsx`)**:
+  - Replaced temporary placeholder copy with user-specified headline `"Run your performing career like the business it actually is"` and subtext `"Share your work, set your prices, track your audience and get paid securely, without an agent in the middle."`.
+- [x] **System-Wide Announcement Bar Copy Updates**:
+  - Standardized all 5 website pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`) with left status pill `"Monologg is in Alpha 🥳🥳"` and right metric `"Paystack Secured · 25+ Verified Performers"`.
+- [x] **Shared Website Footer Legal Accessibility & Paystack Badge (`WebsiteFooter.tsx`)**:
+  - Added direct interactive buttons for `"Terms of Service"` (`/terms`) and `"Cookie Policy"` (`/cookies`) in the bottom copyright bar (`178407:19721`).
+  - Swapped `"Backed by"` badges to official Paystack 4-bar SVG icon and bold wordmark.
+- [x] **Unit Testing & Verification**:
+  - Updated and passed unit tests in `LandingPageHeader.test.tsx`, `ProductPage.test.tsx`, `PricingPage.test.tsx`, and `ResourcesPage.test.tsx` (23/23 tests passing).
+  - Confirmed 0 TypeScript errors across `apps/web` and `apps/api`.
 
 ### Session 188 — 1-for-1 Figma Cookie Settings & Policy Implementation & Microinteractions
 - [x] **1-for-1 Cookie Policy Fidelity (`LegalPage.tsx`)**:

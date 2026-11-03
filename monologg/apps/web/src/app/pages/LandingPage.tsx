@@ -243,10 +243,10 @@ export function LandingPage() {
           />
           <div className="flex items-center relative shrink-0" data-node-id="178359:16890">
             <span
-              className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[10px] leading-[13px] tracking-[1px] uppercase text-[#f13030] whitespace-nowrap"
+              className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white whitespace-nowrap"
               data-node-id="178359:16891"
             >
-              Monologg Marketplace v3.0 Live
+              Monologg is in Alpha 🥳🥳
             </span>
           </div>
         </div>
@@ -260,7 +260,7 @@ export function LandingPage() {
             className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white/80 whitespace-nowrap"
             data-node-id="178359:16894"
           >
-            FINCRA Escrow Secured
+            Paystack Secured
           </span>
           <span
             className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white/80"
@@ -272,7 +272,7 @@ export function LandingPage() {
             className="font-['JetBrains_Mono',monospace] font-bold text-[11px] leading-[15px] text-white/80 whitespace-nowrap"
             data-node-id="178359:16898"
           >
-            3,200+ Verified Talent Profiles
+            25+ Verified Performers
           </span>
         </div>
       </div>
@@ -960,12 +960,12 @@ export function LandingPage() {
             data-node-id="178359:16991"
             style={{ fontFeatureSettings: '"calt" 0, "liga" 0' }}
           >
-            <p className="leading-[48px] whitespace-pre-wrap">{`Some text will have to come into here to introduce what we  are offering`}</p>
+            <p className="leading-[48px] whitespace-pre-wrap">{`Run your performing career like the business it actually is`}</p>
           </div>
           <p
-            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[372px]"
+            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[650px]"
             data-node-id="178359:16992"
-          >{`Lorem ipsum dolor meta caid sjfj dkf `}</p>
+          >{`Share your work, set your prices, track your audience and get paid securely, without an agent in the middle.`}</p>
         </div>
 
         {/* Timeline Row: Left 2px Progress Line + Right 627px Feature Stack (178359:16993) */}

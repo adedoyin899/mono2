@@ -181,10 +181,10 @@ export function ResourcesPage() {
             data-node-id="178359:18328"
           />
           <p
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#f13030] text-[10px] tracking-[1px] uppercase leading-[13.33px] whitespace-nowrap"
+            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap"
             data-node-id="178359:18330"
           >
-            Monologg Marketplace v3.0 Live
+            Monologg is in Alpha 🥳🥳
           </p>
         </div>
         <div
@@ -195,7 +195,7 @@ export function ResourcesPage() {
             className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
             data-node-id="178359:18333"
           >
-            FINCRA Escrow Secured
+            Paystack Secured
           </p>
           <p
             className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px]"
@@ -207,7 +207,7 @@ export function ResourcesPage() {
             className="font-['JetBrains_Mono',monospace] font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
             data-node-id="178359:18337"
           >
-            3,200+ Verified Talent Profiles
+            25+ Verified Performers
           </p>
         </div>
       </div>

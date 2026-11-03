@@ -17,9 +17,9 @@ describe("PricingPage (Figma 178359:17960)", () => {
     );
 
     // Announcement bar
-    expect(screen.getByText("Monologg Marketplace v3.0 Live")).toBeInTheDocument();
-    expect(screen.getByText("FINCRA Escrow Secured")).toBeInTheDocument();
-    expect(screen.getByText("3,200+ Verified Talent Profiles")).toBeInTheDocument();
+    expect(screen.getByText("Monologg is in Alpha 🥳🥳")).toBeInTheDocument();
+    expect(screen.getByText("Paystack Secured")).toBeInTheDocument();
+    expect(screen.getByText("25+ Verified Performers")).toBeInTheDocument();
 
     // Hero section
     expect(screen.getByRole("heading", { name: "Pricing" })).toBeInTheDocument();
