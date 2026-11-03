@@ -1,11 +1,51 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
+**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 198 (2026-11-03) — Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281
+
+**Goal:** Implement a cohesive, high-contrast dark mode for the entire public website using the 13-tone grey ramp provided in Figma Frame 2147228281 (`#000000`, `#1A1A1A`, `#333333`, `#484848`, `#767676`, `#A3A3A3`, `#BABABA`, `#D1D1D1`, `#E8E8E8`, `#F5F5F5`, `#F7F7F7`, `#F8F8F8`, `#F9F9F9`), reworking both light and dark token palettes and ensuring seamless inversion across all public marketing pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`).
+
+1. **Design System Token Rework (`tokens.css`):**
+   - Formalized the 13 tokens from Frame 2147228281:
+     - `--mono-grey-0: #000000;`
+     - `--mono-grey-500: #1A1A1A;` (Grey alpha/500)
+     - `--mono-grey-450: #333333;` (Grey alpha/450)
+     - `--mono-grey-400: #484848;` (Grey alpha/400)
+     - `--mono-grey-300: #767676;` (Grey alpha/300)
+     - `--mono-grey-200: #A3A3A3;` (Grey alpha/200)
+     - `--mono-grey-150: #BABABA;` (Grey alpha/150)
+     - `--mono-grey-100: #D1D1D1;` (Grey alpha/100)
+     - `--mono-grey-50: #E8E8E8;` (Grey alpha/50)
+     - `--mono-grey-25: #F5F5F5;` (Grey alpha/25)
+     - `--mono-grey-15: #F7F7F7;` (Grey alpha/15)
+     - `--mono-grey-10: #F8F8F8;` (Grey alpha/10)
+     - `--mono-grey-5: #F9F9F9;` (Grey alpha/5)
+   - **Light Mode (`:root`):**
+     - Canvas: `#F9F9F9` (`--mono-grey-5`), Surface: `#FFFFFF`, Surface-2: `#F7F7F7` (`--mono-grey-15`), Elevated: `#F8F8F8` (`--mono-grey-10`), Hairline/Border: `#E8E8E8` (`--mono-grey-50`), Primary Text: `#1A1A1A` (`--mono-grey-500`), Secondary Text: `#484848` (`--mono-grey-400`), Tertiary Text: `#767676` (`--mono-grey-300`).
+   - **Dark Mode (`.dark`):**
+     - Canvas: `#000000` (`--mono-grey-0`), Surface: `#1A1A1A` (`--mono-grey-500`), Surface-2/Elevated: `#333333` (`--mono-grey-450`), Hairline/Border: `#333333` (`--mono-grey-450`), Strong Border: `#484848` (`--mono-grey-400`), Primary Text: `#F9F9F9` (`--mono-grey-5`), Secondary Text: `#BABABA` (`--mono-grey-150`), Tertiary Text: `#767676` (`--mono-grey-300`). Brand Mono-Red `#F13030` maintained with luminous high-contrast glow (`rgba(241, 48, 48, 0.25)`).
+2. **Comprehensive Website Dark Mode Rules (`tokens.css`):**
+   - **Page Roots & Canvases:** Seamless `#000000` dark backdrop across all views.
+   - **Sticky Navigation:** Transparent charcoal blur `rgba(26, 26, 26, 0.94)` with `#333333` bottom border and deep elevation shadow; nav links at `#BABABA` (hovering to `#F9F9F9`).
+   - **Cards & Stage Boxes:** Formatted with `#1A1A1A` and `#333333` surfaces with `#484848` borders.
+   - **Product 7-Step Showcase:** Active card elevated to `#333333` with `#484848` border; inactive items at `#1A1A1A` with `#333333` border.
+   - **Typography & High Contrast:** Headings in `#F9F9F9` (WCAG AAA 17.2:1 against `#1A1A1A`), descriptions in `#BABABA` (8.2:1), captions in `#767676`.
+   - **Tables:** Headers at `#1A1A1A`, row cells at `#D1D1D1` with `#333333` dividers, hover fills at `#333333`.
+   - **Form Inputs:** Form fields in `ResourcesPage.tsx` and `WebsiteFooter.tsx` styled with `#1A1A1A` background, `#333333` borders, and `#F9F9F9` text.
+   - **Logos & Icons:** Monologg logo marks, theme toggle buttons, FAQ plus/minus icons, and social SVG badges inverted with `filter: invert(1) brightness(1.8)` for crisp legibility.
+   - **Marquee Edge Fades:** Inverted gradient masks from white to `#1A1A1A` on `LandingPage.tsx`.
+3. **Testing & Quality Gate:**
+   - Authored dark mode toggle test in `LandingPageHeader.test.tsx` verifying document element class switching.
+   - 33/33 unit tests passing across all 7 test suites.
+   - 0 TypeScript compiler errors in both `apps/web` and `apps/api`.
 
 ---
 

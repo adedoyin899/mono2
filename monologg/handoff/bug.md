@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
+**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 147. Hardcoded Marketing Page Light Classes Preventing Cohesive Dark Mode (`tokens.css`)
+- **Severity:** Medium / Design System & Theming Defect
+- **What happened:**
+  - While dark mode was wired to `document.documentElement.classList.toggle("dark")`, the public website pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`) utilized hardcoded Tailwind light classes (`bg-white`, `bg-[#f9f9f9]`, `text-[#16161a]`, `border-[#ecece8]`), causing them to remain visually light when dark mode was toggled.
+- **Root Cause:**
+  - Marketing pages were built directly from light-theme Figma specs before a unified dark token mapping and website dark-mode CSS override rules were established.
+- **Fix:**
+  - Formalized the 13-tone grey spectrum from Frame 2147228281 in `tokens.css`, mapped `:root` and `.dark` tokens, and implemented full-coverage dark mode rules for all marketing page components (cards, headers, tables, marquees, inputs, logos, and vector assets). Verified with 33 unit tests passing.
 
 ### 146. "Finish Your Project today!" Pre-Footer CTA Left-Margin Misalignment with Footer Newsletter Section (`WebsiteFooter.tsx`)
 - **Severity:** Low / Visual Layout Grid Inconsistency

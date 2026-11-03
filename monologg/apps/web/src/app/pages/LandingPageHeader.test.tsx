@@ -30,6 +30,12 @@ const TALENT_SESSION = {
 
 import { appStateSync } from "../../lib/state-sync";
 import { LandingPage } from "./LandingPage";
+import { ThemeContext, useThemeState } from "../Root";
+
+function ThemeTestWrapper({ children }: { children: React.ReactNode }) {
+  const theme = useThemeState();
+  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+}
 
 describe("LandingPage signed-in header", () => {
   beforeEach(() => {
@@ -118,5 +124,22 @@ describe("LandingPage signed-in header", () => {
     expect(screen.getByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cookie Policy" })).toBeInTheDocument();
     expect(screen.getByText("paystack")).toBeInTheDocument();
+  });
+
+  it("toggles dark mode class on document element when theme toggle is clicked", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <ThemeTestWrapper>
+          <LandingPage />
+        </ThemeTestWrapper>
+      </MemoryRouter>,
+    );
+
+    const themeToggleBtn = screen.getByLabelText("Toggle theme");
+    expect(themeToggleBtn).toBeInTheDocument();
+
+    const wasDark = document.documentElement.classList.contains("dark");
+    fireEvent.click(themeToggleBtn);
+    expect(document.documentElement.classList.contains("dark")).toBe(!wasDark);
   });
 });

@@ -13,30 +13,45 @@
 
 /* ── Light mode (default) ── */
 :root {
+  /* Frame 2147228281 Palette Tokens (leye/Grey alpha) */
+  --mono-grey-0: #000000;
+  --mono-grey-500: #1A1A1A;
+  --mono-grey-450: #333333;
+  --mono-grey-400: #484848;
+  --mono-grey-300: #767676;
+  --mono-grey-200: #A3A3A3;
+  --mono-grey-150: #BABABA;
+  --mono-grey-100: #D1D1D1;
+  --mono-grey-50: #E8E8E8;
+  --mono-grey-25: #F5F5F5;
+  --mono-grey-15: #F7F7F7;
+  --mono-grey-10: #F8F8F8;
+  --mono-grey-5: #F9F9F9;
+
   /* Monologg Native Brand Tokens (Talent Mono-Red #F13030 · Client Mono-Purple #7B00FE) */
   --color-mono-red: #F13030;
   --color-mono-red-soft: #FFECEC;
   --color-mono-purple: #7B00FE;
   --color-mono-purple-soft: #F1E9FF;
-  --color-obsidian: #0D0D0F;
-  --color-charcoal: #16161A;
-  --color-fog: #F8F8F6;
-  --color-slate: #5D5D66;
-  --color-hairline: #ECECE8;
+  --color-obsidian: #000000;
+  --color-charcoal: #1A1A1A;
+  --color-fog: #F8F8F8;
+  --color-slate: #484848;
+  --color-hairline: #E8E8E8;
 
   /* Fonts */
   --font-wise-sans: 'Inter', system-ui, sans-serif;
   --font-display-heavy: 'Inter', system-ui, sans-serif;
 
-  /* Neutrals — warm, quiet, generous */
-  --color-bg-canvas: #F8F8F6;
+  /* Neutrals — Light mode */
+  --color-bg-canvas: #F9F9F9;
   --color-bg-surface: #FFFFFF;
-  --color-bg-surface-2: #F1F1EE;
-  --color-bg-elevated: #EFEFEA;
+  --color-bg-surface-2: #F7F7F7;
+  --color-bg-elevated: #F8F8F8;
   --color-bg-glass: rgba(255,255,255,0.85);
-  --color-hairline: #ECECE8;
+  --color-hairline: #E8E8E8;
 
-  /* Overlay — modal/sheet scrims (previously hardcoded per-instance) */
+  /* Overlay — modal/sheet scrims */
   --color-overlay: rgba(0,0,0,0.5);
   --color-overlay-strong: rgba(0,0,0,0.6);
 
@@ -71,17 +86,10 @@
   --color-gold-glow: rgba(230,165,23,0.14);
   --color-gold-soft: #FFF6E1;
 
-  /* Text — true hierarchy */
-  --color-text-primary: #16161A;
-  --color-text-secondary: #5D5D66;
-  /* features.md Phase 17 QA: axe flagged the original #97979F at 2.68:1 against
-     --color-bg-canvas (needs 4.5:1, WCAG AA normal text) — a real, widespread
-     finding (this token backs most caption/footer/label text app-wide). Darkened
-     to clear every light-mode surface it's actually painted on, including the
-     worst case (--color-bg-elevated, the darkest light bg): 4.74:1 vs canvas,
-     4.53:1 vs elevated. Same hue (kept the original +8 blue bias), just deeper.
-     See qa/2026-07-31-phase17/cross-device-a11y.md. */
-  --color-text-tertiary: #6D6D75;
+  /* Text — Frame 2147228281 Hierarchy */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #484848;
+  --color-text-tertiary: #767676;
   --color-text-inverse: #FFFFFF;
 
   /* Semantic */
@@ -90,8 +98,8 @@
   --color-warning: #B37E08;
   --color-error: #D31F20;
   --color-error-bg: rgba(211,31,32,0.09);
-  --color-border-default: #E9E9E5;
-  --color-border-strong: #DBDBD6;
+  --color-border-default: #E8E8E8;
+  --color-border-strong: #D1D1D1;
   --color-border-active: var(--color-accent);
 
   /* Soft layered shadows — never a single hard drop */
@@ -156,74 +164,71 @@
   --shadow-cutout-sm: 3px 3px 0 0 var(--color-hairline);
 }
 
-/* ── Dark mode (#0D0D0F rich near-black) ── */
+/* ── Dark mode (Frame 2147228281 Palette) ── */
 .dark {
-  --color-bg-canvas: #0D0D0F;
-  --color-bg-surface: #16161A;
-  --color-bg-surface-2: #1B1B20;
-  --color-bg-elevated: #232329;
-  --color-bg-glass: rgba(22,22,26,0.72);
-  --color-hairline: #26262C;
+  --color-bg-canvas: #000000;
+  --color-bg-surface: #1A1A1A;
+  --color-bg-surface-2: #333333;
+  --color-bg-elevated: #333333;
+  --color-bg-glass: rgba(26, 26, 26, 0.88);
+  --color-hairline: #333333;
 
-  --color-red: #FF4D4D;
-  --color-red-press: #F13030;
-  --color-red-soft: rgba(255,77,77,0.14);
-  --color-red-glow: rgba(255,77,77,0.20);
-  --color-red-on: #1A0303;
+  --color-red: #F13030;
+  --color-red-press: #D31F20;
+  --color-red-soft: rgba(241, 48, 48, 0.16);
+  --color-red-glow: rgba(241, 48, 48, 0.25);
+  --color-red-on: #FFFFFF;
 
   --color-purple: #9B4DFF;
   --color-purple-press: #7B00FE;
-  --color-purple-soft: rgba(155,77,255,0.16);
-  --color-purple-glow: rgba(155,77,255,0.22);
-  --color-purple-on: #0D0018;
+  --color-purple-soft: rgba(155, 77, 255, 0.16);
+  --color-purple-glow: rgba(155, 77, 255, 0.22);
+  --color-purple-on: #FFFFFF;
 
   --color-accent: var(--color-red);
   --color-accent-press: var(--color-red-press);
   --color-accent-soft: var(--color-red-soft);
   --color-accent-glow: var(--color-red-glow);
-  --color-accent-on: #1A0303;
+  --color-accent-on: #FFFFFF;
 
   --color-green: #3EE089;
-  --color-green-soft: rgba(62,224,137,0.14);
+  --color-green-soft: rgba(62, 224, 137, 0.14);
   --color-gold: #FFD268;
   --color-gold-primary: #FFD268;
   --color-gold-light: #FFE097;
   --color-gold-dark: #E6A517;
-  --color-gold-glow: rgba(255,210,104,0.18);
-  --color-gold-soft: rgba(255,210,104,0.13);
+  --color-gold-glow: rgba(255, 210, 104, 0.18);
+  --color-gold-soft: rgba(255, 210, 104, 0.13);
 
-  --color-text-primary: #F5F5F0;
-  --color-text-secondary: #A6A6B0;
-  /* features.md Phase 17 QA: same fix as light mode above — the original #6E6E78
-     only cleared 3.85:1 against canvas. Lightened to clear the worst case
-     (--color-bg-elevated, the lightest dark bg): 5.61:1 vs canvas, 4.51:1 vs
-     elevated, same hue. */
-  --color-text-tertiary: #898993;
-  --color-text-inverse: #0D0D0F;
+  /* High contrast text hierarchy */
+  --color-text-primary: #F9F9F9;
+  --color-text-secondary: #BABABA;
+  --color-text-tertiary: #767676;
+  --color-text-inverse: #000000;
 
   --color-success: #3EE089;
-  --color-success-bg: rgba(62,224,137,0.13);
+  --color-success-bg: rgba(62, 224, 137, 0.13);
   --color-warning: #FFD268;
   --color-error: #FF6B5C;
-  --color-error-bg: rgba(255,107,92,0.14);
-  --color-border-default: #262630;
-  --color-border-strong: #34343E;
+  --color-error-bg: rgba(255, 107, 92, 0.14);
+  --color-border-default: #333333;
+  --color-border-strong: #484848;
   --color-border-active: var(--color-accent);
 
-  --shadow-card: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.4);
-  --shadow-elevated: 0 2px 8px rgba(0,0,0,0.5), 0 24px 56px rgba(0,0,0,0.55);
-  --shadow-modal: 0 16px 60px rgba(0,0,0,0.7);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-elevated: 0 2px 8px rgba(0, 0, 0, 0.7), 0 24px 56px rgba(0, 0, 0, 0.75);
+  --shadow-modal: 0 16px 60px rgba(0, 0, 0, 0.85);
 
   --shadow-cutout: 5px 5px 0 0 var(--color-border-default);
   --shadow-cutout-sm: 3px 3px 0 0 var(--color-border-default);
 
   --gradient-brand: linear-gradient(135deg, var(--color-red) 0%, var(--color-purple) 100%);
   --gradient-brand-soft: linear-gradient(135deg, var(--color-red-glow) 0%, var(--color-purple-glow) 100%);
-  --gradient-red-purple: linear-gradient(135deg, #FF4D4D 0%, #9B4DFF 100%);
+  --gradient-red-purple: linear-gradient(135deg, #F13030 0%, #9B4DFF 100%);
   --gradient-purple-blue: linear-gradient(135deg, #9B4DFF 0%, #3B82F6 100%);
   --gradient-green-gold: linear-gradient(135deg, #3EE089 0%, #FFD268 100%);
-  --gradient-red-gold: linear-gradient(135deg, #FF4D4D 0%, #FFAA00 100%);
-  --gradient-blue-navy: linear-gradient(135deg, #3B82F6 0%, #0D172A 100%);
+  --gradient-red-gold: linear-gradient(135deg, #F13030 0%, #FFAA00 100%);
+  --gradient-blue-navy: linear-gradient(135deg, #3B82F6 0%, #000000 100%);
 }
 
 /* Role scopes — flip the adaptive accent per app side */
@@ -341,5 +346,360 @@ select::-ms-expand {
     animation: none !important;
     transform: none !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MONOLOGG — Website Cohesive Dark Mode (Frame 2147228281 Palette)
+   #000000 | #1A1A1A | #333333 | #484848 | #767676 | #A3A3A3
+   #BABABA | #D1D1D1 | #E8E8E8 | #F5F5F5 | #F7F7F7 | #F8F8F8 | #F9F9F9
+   ════════════════════════════════════════════════════════════════ */
+
+html.dark,
+.dark body {
+  background-color: #000000 !important;
+  color: #F9F9F9 !important;
+}
+
+/* Website canvas wrappers and root backgrounds */
+.dark .min-h-screen,
+.dark .isolate.bg-white,
+.dark [data-name="Website"],
+.dark div.bg-\[\#f6faf9\] {
+  background-color: #000000 !important;
+  color: #F9F9F9 !important;
+}
+
+/* Sections and main containers */
+.dark section.bg-white,
+.dark section.bg-\[\#f9f9f9\],
+.dark section.bg-\[\#f8f8f8\],
+.dark section.bg-\[\#f7f7f7\],
+.dark div.bg-white:not(button):not(input):not(select):not(.bg-\[\#f13030\]):not(.bg-\[\#f13030\] *),
+.dark footer.bg-white {
+  background-color: #1A1A1A !important;
+  color: #F9F9F9 !important;
+}
+
+/* Sticky Navigation Headers */
+.dark header,
+.dark header.backdrop-blur-\[12px\],
+.dark header.bg-white\/95 {
+  background-color: rgba(26, 26, 26, 0.94) !important;
+  border-bottom-color: #333333 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark header nav button,
+.dark header nav a {
+  color: #BABABA !important;
+}
+.dark header nav button:hover,
+.dark header nav a:hover {
+  color: #F9F9F9 !important;
+}
+
+/* Stage boxes, feature containers, mockup backgrounds */
+.dark div.bg-\[\#f9f9f9\],
+.dark div.bg-\[\#f8f8f8\],
+.dark div.bg-\[\#f7f7f7\],
+.dark div.bg-\[\#f8f8f6\],
+.dark div.bg-\[\#f5f5f5\],
+.dark div.bg-\[\#f4f4f2\],
+.dark div.bg-\[\#f0f0ed\] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+
+/* Cards & panels */
+.dark .rounded-\[32px\].bg-\[\#f9f9f9\],
+.dark .rounded-\[24px\].bg-\[\#f9f9f9\],
+.dark .rounded-\[20px\].bg-\[\#f9f9f9\],
+.dark .rounded-\[18px\].bg-white,
+.dark .rounded-\[20px\].bg-white,
+.dark .rounded-2xl.bg-white,
+.dark .rounded-3xl.bg-white,
+.dark [data-name="Card"],
+.dark [data-name="Section"] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+
+/* Sub-cards, interactive row hovers and elevated fills */
+.dark .hover\:bg-\[\#f4f4f2\]:hover,
+.dark .hover\:bg-\[\#f0f0ed\]:hover,
+.dark .hover\:bg-\[\#f9f9f9\]:hover,
+.dark .hover\:bg-\[\#f7f7f7\]:hover,
+.dark .hover\:bg-\[\#f5f5f3\]:hover,
+.dark .hover\:bg-\[\#ececec\]:hover,
+.dark .hover\:bg-\[\#f0f0ee\]:hover {
+  background-color: #333333 !important;
+}
+
+/* Product 7-Step Interactive Showcase */
+.dark [data-testid^="step-item-"] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+.dark [data-testid^="step-item-"]:hover {
+  background-color: #262626 !important;
+  border-color: #484848 !important;
+}
+.dark [data-testid^="step-item-"][data-state="active"] {
+  background-color: #333333 !important;
+  border-color: #484848 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+.dark [data-testid="stage-preview-box"] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+
+/* Typography mappings with high contrast */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+.dark .text-\[\#16161a\],
+.dark .text-\[\#1a1a1a\],
+.dark .text-black,
+.dark .text-\[\#000000\] {
+  color: #F9F9F9 !important;
+}
+
+.dark .text-\[\#4d4d4d\],
+.dark .text-\[\#5d5d66\],
+.dark .text-\[\#6d6d75\],
+.dark .text-\[\#767676\],
+.dark .text-\[\#898993\],
+.dark .text-gray-500,
+.dark .text-gray-600 {
+  color: #A3A3A3 !important;
+}
+
+.dark .text-\[\#333333\],
+.dark .text-\[\#484848\] {
+  color: #BABABA !important;
+}
+
+/* All borders & dividers */
+.dark .border-\[\#ecece8\],
+.dark .border-\[\#e8e8e8\],
+.dark .border-\[\#e5e7eb\],
+.dark .border-\[\#e5e5e5\],
+.dark .border-\[\#dbdbd6\],
+.dark .border-\[\#d1d1d1\],
+.dark .border-\[\#f0f0ed\],
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #333333 !important;
+}
+
+.dark .bg-\[\#d1d1d1\],
+.dark .bg-\[\#e8e8e8\],
+.dark .bg-\[\#ecece8\] {
+  background-color: #333333 !important;
+}
+
+.dark hr,
+.dark [data-name="Divider"] {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+}
+
+/* Form Inputs, Selects, and Textareas */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="tel"],
+.dark textarea,
+.dark select {
+  background-color: #1A1A1A !important;
+  color: #F9F9F9 !important;
+  border-color: #333333 !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #767676 !important;
+}
+.dark select option {
+  background-color: #1A1A1A !important;
+  color: #F9F9F9 !important;
+}
+
+/* Secondary Buttons */
+.dark button.bg-white,
+.dark button.bg-\[\#f8f8f8\],
+.dark button.bg-\[\#f7f7f7\] {
+  background-color: #333333 !important;
+  border-color: #484848 !important;
+  color: #F9F9F9 !important;
+}
+.dark button.bg-white:hover,
+.dark button.bg-\[\#f8f8f8\]:hover,
+.dark button.bg-\[\#f7f7f7\]:hover {
+  background-color: #484848 !important;
+  border-color: #767676 !important;
+}
+
+/* Primary Brand Button (#F13030 Mono-red) */
+.dark button.bg-\[\#f13030\],
+.dark .bg-\[\#f13030\] {
+  background-color: #F13030 !important;
+  color: #FFFFFF !important;
+}
+.dark button.bg-\[\#f13030\]:hover {
+  background-color: #D31F20 !important;
+}
+
+/* Theme toggle button in header */
+.dark [aria-label="Toggle theme"] {
+  background-color: #333333 !important;
+  border-color: #484848 !important;
+}
+.dark [aria-label="Toggle theme"]:hover {
+  background-color: #484848 !important;
+}
+.dark img[alt="Toggle theme"] {
+  filter: invert(1) brightness(1.8) !important;
+}
+
+/* Monologg Logos across Header and Footer */
+.dark img[alt="Monologg"],
+.dark [data-name="Img - Monologg"] img,
+.dark [data-name="Clip path group"] img,
+.dark [data-name="Vector"] img[alt="Monologg"] {
+  filter: invert(1) brightness(2) !important;
+}
+
+/* FAQ Plus/X icon */
+.dark [data-name="Plus"] img,
+.dark [data-name="X"] img {
+  filter: invert(1) brightness(2) !important;
+}
+
+/* Audience Toggle (• PERFORMER | CLIENT) */
+.dark [aria-label="Audience selector"] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+.dark [aria-label="Audience selector"] .bg-white {
+  background-color: #333333 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+}
+.dark [aria-label="Audience selector"] span {
+  color: #D1D1D1 !important;
+}
+
+/* Landing Page Marquee */
+.dark [data-node-id="178359:16986"] {
+  background: linear-gradient(to right, #1A1A1A, rgba(26, 26, 26, 0.8), transparent) !important;
+}
+.dark [data-node-id="178359:16987"] {
+  background: linear-gradient(to left, #1A1A1A, rgba(26, 26, 26, 0.8), transparent) !important;
+}
+.dark .animate-marquee-ltr img {
+  filter: invert(1) brightness(1.8) !important;
+}
+.dark .animate-marquee-ltr p {
+  color: #BABABA !important;
+}
+.dark .animate-marquee-ltr .group:hover p {
+  color: #F9F9F9 !important;
+}
+
+/* Vertical Timeline Line */
+.dark [data-node-id="178359:16994"] {
+  background-color: #333333 !important;
+}
+.dark [data-node-id="178359:16995"] {
+  background: linear-gradient(to bottom, #F9F9F9, #BABABA, #767676) !important;
+}
+
+/* Tables in Pricing and Product Pages */
+.dark table,
+.dark .divide-y {
+  border-color: #333333 !important;
+}
+.dark tr:hover,
+.dark tbody tr:hover {
+  background-color: #333333 !important;
+}
+.dark th {
+  background-color: #1A1A1A !important;
+  color: #F9F9F9 !important;
+  border-color: #333333 !important;
+}
+.dark td {
+  border-color: #333333 !important;
+  color: #D1D1D1 !important;
+}
+
+/* Client logos (in Pricing & Product client grids) */
+.dark [data-name="client-logo"] img,
+.dark .grayscale img,
+.dark img[alt*="logo" i],
+.dark img[alt*="Disney" i],
+.dark img[alt*="Netflix" i],
+.dark img[alt*="BBC" i] {
+  filter: invert(1) brightness(1.8) !important;
+}
+
+/* Social links and badges */
+.dark a[aria-label="LinkedIn"] img,
+.dark a[aria-label="Product Hunt"] img,
+.dark a[aria-label="Twitter-X"] img,
+.dark a[aria-label="Twitch"] img,
+.dark a[aria-label="Telegram"] img,
+.dark a[aria-label="TikTok"] img,
+.dark a[aria-label="Instagram"] img {
+  filter: invert(1) brightness(1.8) !important;
+}
+.dark a[aria-label="LinkedIn"],
+.dark a[aria-label="Product Hunt"],
+.dark a[aria-label="Twitter-X"],
+.dark a[aria-label="Twitch"],
+.dark a[aria-label="Telegram"],
+.dark a[aria-label="TikTok"],
+.dark a[aria-label="Instagram"] {
+  background-color: #333333 !important;
+  border-color: #484848 !important;
+}
+
+/* Dropdown Menu on Landing Page */
+.dark [ref="userMenuRef"] > div,
+.dark .z-50.bg-white {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Pre-footer CTA banner */
+.dark section[data-node-id="178190:29887"] {
+  background-color: #1A1A1A !important;
+  border-top: 1px solid #333333 !important;
+  border-bottom: 1px solid #333333 !important;
+}
+
+/* Footer Section */
+.dark footer[data-node-id="178151:49520"],
+.dark footer {
+  background-color: #000000 !important;
+  border-top: 1px solid #333333 !important;
+}
+.dark [data-name="Paystack Badge"] span {
+  color: #F9F9F9 !important;
+}
+
+/* Newsletter Input Form */
+.dark [data-node-id="178151:49527"] {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
+}
+.dark [data-node-id="178151:49527"] input {
+  background-color: transparent !important;
+  color: #F9F9F9 !important;
+}
+.dark [data-node-id="178151:49527"] button {
+  background-color: #333333 !important;
+  color: #F9F9F9 !important;
+}
+.dark [data-node-id="178151:49527"] button:hover {
+  background-color: #484848 !important;
 }
 

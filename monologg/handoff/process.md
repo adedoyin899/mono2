@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
+**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 157: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 (Session 198)
+
+Engineered a cohesive, high-contrast dark mode for the entire public website utilizing the 13-tone grey ramp from Figma Frame 2147228281:
+- **Design Tokens Integration:** Formalized the 13 color codes (`#000000`, `#1A1A1A`, `#333333`, `#484848`, `#767676`, `#A3A3A3`, `#BABABA`, `#D1D1D1`, `#E8E8E8`, `#F5F5F5`, `#F7F7F7`, `#F8F8F8`, `#F9F9F9`) in `tokens.css`, mapping `:root` and `.dark` variables to provide true contrast and semantic depth.
+- **Full Website Dark Mode Coverage:** Established comprehensive dark-mode rules for all marketing pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`) covering `#000000` canvas backdrops, `#1A1A1A` primary surfaces and stage boxes, `#333333` elevated cards and table hovers, `#F9F9F9` primary headings, `#BABABA` body copy, `#767676` captions, dark-inverted SVG icons and logos, and gradient fade masks.
+- **Testing & Verification:** Added dark mode toggle state unit test in `LandingPageHeader.test.tsx`. Verified 33/33 tests pass across 7 suites and 0 TypeScript errors in `apps/web` and `apps/api`.
 
 ### Step 156: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit (Session 197)
 

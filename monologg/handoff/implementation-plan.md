@@ -1,11 +1,24 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit.
+**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281.
 
 ---
 
 ## ✅ Done
+
+### Session 198 — Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281
+- [x] **Frame 2147228281 Palette Architecture (`tokens.css`)**:
+  - Integrated the 13-tone grey spectrum (`#000000`, `#1A1A1A`, `#333333`, `#484848`, `#767676`, `#A3A3A3`, `#BABABA`, `#D1D1D1`, `#E8E8E8`, `#F5F5F5`, `#F7F7F7`, `#F8F8F8`, `#F9F9F9`) across light mode (`:root`) and dark mode (`.dark`).
+- [x] **Comprehensive Website Dark Mode Coverage**:
+  - Configured high-contrast `#000000` canvas, `#1A1A1A` primary surfaces, and `#333333` elevated containers.
+  - Formatted `#F9F9F9` primary titles, `#BABABA` secondary body text, and `#767676` captions.
+  - Handled sticky headers, audience toggles, marquee fade masks, 7-step showcase cards, comparison tables, investor form inputs, pre-footer CTA, and footer.
+  - Inverted logos and dark vector icons with `filter: invert(1) brightness(1.8)`.
+- [x] **Verification & Quality Gate**:
+  - Added unit test in `LandingPageHeader.test.tsx` verifying dark mode toggle state.
+  - 33/33 unit tests passing across all 7 test suites.
+  - 0 TypeScript compiler errors in both `apps/web` and `apps/api`.
 
 ### Session 197 — "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit
 - [x] **"Become an Investor" Routing to `/resources#investor`**:
