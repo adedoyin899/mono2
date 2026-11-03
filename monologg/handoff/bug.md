@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
+**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 149. Blunted Global Dark CSS Inverting iPhone Mockup Masks into Black Boxes and Overriding Newsletter Red Submit Button (`tokens.css`)
+- **Severity:** Medium / Visual Defect & Theming Conflict
+- **What happened:**
+  - On `LandingPage.tsx`, the two `bg-white` masking rectangles on the iPhone 15 mockup (`data-node-id="178361:20289"` and `"178361:20290"`) turned into black boxes against the white screenshot background in dark mode. Additionally, the footer newsletter submit button turned black instead of maintaining brand red `#F13030`.
+- **Root Cause:**
+  - A blunt rule in `tokens.css` (`.dark div.bg-white:not(...) { background-color: #000000 !important; }`) forced all unspecified white divs to black, and a specific rule for `[data-node-id="178151:49527"] button` forced the newsletter submit button to `#000000 !important;`.
+- **Fix:**
+  - Removed `.dark div.bg-white:not(...)` and broad `.dark div.bg-[#f9f9f9]` overrides from `tokens.css`.
+  - Added explicit protection for phone screen and status-bar masks (`.dark [data-node-id="178359:16950"], .dark [data-node-id="178361:20289"], .dark [data-node-id="178361:20290"] { background-color: #FFFFFF !important; }`).
+  - Restored brand-red `#F13030` and `#D92626` hover states to `[data-node-id="178151:49527"] button`. Verified with 28/28 tests passing across all marketing test suites.
 
 ### 148. Residual Inconsistent Dark Mode Stroke Tokens (#484848/#767676) and Over-Bright Hover Backgrounds (#333333) (`tokens.css`)
 - **Severity:** Low / Visual Contrast & Design Token Inconsistency

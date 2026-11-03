@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
+**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,24 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 159: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup (Session 200)
+
+Reworked the light and dark mode implementations across all marketing pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`) to strictly mirror the 13 `leye/Grey alpha` hex values from Figma Frame 2147228281:
+- **Systematic 1-to-1 Inversion Architecture:**
+  - `#000000` (Canvas Dark) <-> `#FFFFFF` (Canvas Light)
+  - `#1A1A1A` (`alpha/500`: Dark card surface / hover bg) <-> `#F9F9F9` (`alpha/5`: Light card surface / hover bg)
+  - `#333333` (`alpha/450`: Dark stroke / active pill) <-> `#E8E8E8` (`alpha/50`: Light stroke)
+  - `#484848` (`alpha/400`) <-> `#D1D1D1` (`alpha/100`)
+  - `#767676` (`alpha/300`: Muted text) <-> `#A3A3A3` (`alpha/200`: Muted text)
+  - `#BABABA` (`alpha/150`: Dark secondary body) <-> `#333333` (`alpha/450`)
+  - `#F9F9F9` (`alpha/5`: Dark primary text) <-> `#1A1A1A` (`alpha/500`: Light primary text)
+- **Eliminated Destructive Global CSS Overrides (`tokens.css`):**
+  - Removed `.dark div.bg-white:not(...)` rule to prevent iPhone 15 status-bar masking rectangles (`178361:20289`, `178361:20290`) from turning black over the white mockup screenshot.
+  - Removed `.dark [data-node-id="178151:49527"] button` rule, restoring primary brand-red `#F13030` and `#D92626` hover state to the newsletter submit button.
+  - Removed broad `.dark div.bg-[#f9f9f9]` rule that was overwriting explicit `dark:bg-[#1a1a1a]` elevated surfaces.
+  - Added explicit protection for phone screen and status-bar masks (`.dark [data-node-id="178359:16950"], .dark [data-node-id="178361:20289"], .dark [data-node-id="178361:20290"] { background-color: #FFFFFF !important; }`).
+- **Automated Verification:** All 28 tests passing across all 6 marketing test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`), with zero TypeScript compiler errors in `apps/web`.
 
 ### Step 158: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal (Session 199)
 

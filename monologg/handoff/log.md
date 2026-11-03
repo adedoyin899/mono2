@@ -1,11 +1,68 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
+**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 200 (2026-11-04) — 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup
+
+**Goal:** Clean up and finalize the cohesive dark and light mode system across all public marketing pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`), systematically mapping the 13 `leye/Grey alpha` tokens from Figma Frame 2147228281 into corresponding light mode equivalents and dark mode inverses, eliminating destructive global CSS overrides, fixing phone mockup masking artifacts, restoring brand-red newsletter button, and ensuring 100% test pass rates across all pages.
+
+1. **Systematic `leye/Grey alpha` Spectrum 1-to-1 Mapping:**
+   - **Canvas Backdrops:** Light `#FFFFFF` <-> Dark `#000000`.
+   - **Elevated Surfaces & Cards:** Light `#F9F9F9` (`alpha/5`) <-> Dark `#1A1A1A` (`alpha/500`).
+   - **Strokes & Borders:** Light `#E8E8E8` (`alpha/50`) <-> Dark `#333333` (`alpha/450`).
+   - **Interactive Hover Background:** Light `#F9F9F9` (`alpha/5`) <-> Dark `#1A1A1A` (`alpha/500`).
+   - **Primary Typography:** Light `#1A1A1A` (`alpha/500`) <-> Dark `#F9F9F9` (`alpha/5`).
+   - **Secondary & Muted Typography:** Light `#767676` (`alpha/300`) <-> Dark `#A3A3A3` (`alpha/200`) and `#BABABA` (`alpha/150`).
+2. **Page-by-Page Component Migration:**
+   - `monologg/apps/web/src/app/pages/LandingPage.tsx`:
+     - Migrated root canvas (`bg-white dark:bg-[#000000] text-[#1a1a1a] dark:text-[#f9f9f9]`).
+     - Migrated Announcement bar (`bg-[#1a1a1a] border-b border-[#333333]`), Monologg logo (`dark:invert`), nav links, theme toggle (`dark:invert`), user account dropdown, and Sign In button.
+     - Hero headline `178359:16934` (`text-[#1a1a1a] dark:text-[#f9f9f9]`), subtitle `178359:16935` (`text-[#767676] dark:text-[#a3a3a3]`), Find Gigs button `178359:16942` (`border-[#d1d1d1] dark:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] text-[#1a1a1a] dark:text-[#f9f9f9]`).
+     - Grey stage box `178359:16945` (`bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333]`).
+     - iPhone 15 mockup screen and status-bar masks (`178361:20289`, `178361:20290`) explicitly protected in `bg-white` without dark mode distortion.
+     - "YOU BELONG HERE" marquee text (`text-[#1a1a1a] dark:text-[#f9f9f9]`), left & right edge fades (`from-white via-white/80 dark:from-[#000000] dark:via-[#000000]/80`), marquee pill hover states (`hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] text-[#767676] dark:text-[#a3a3a3] group-hover:text-[#1a1a1a] dark:group-hover:text-[#f9f9f9]`), and category icons (`dark:invert`).
+     - Dashed horizontal divider `178359:16988` (`dark:opacity-30 dark:invert`).
+     - Six-feature timeline: header heading (`text-[#1a1a1a] dark:text-[#f9f9f9]`), subtitle (`text-[#767676] dark:text-[#a3a3a3]`), timeline rail (`bg-[#e8e8e8] dark:bg-[#333333]`), scroll progress fill (`dark:from-[#f9f9f9] dark:via-[#bababa] dark:to-[#767676]`), 6 feature headings & descriptions, and 6 feature illustration boxes (`bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)]`).
+     - FAQ section: background (`bg-white dark:bg-[#000000]`), headings, question text, answer copy, FAQ item cards (`bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] hover:bg-[#fafaf8] dark:hover:bg-[#1a1a1a]`), toggle expand button hover (`dark:hover:bg-[#333333]`), and plus/x icon (`dark:invert`).
+   - `monologg/apps/web/src/app/pages/ProductPage.tsx`:
+     - Announcement bar, sticky header, Section 1 Performer Portal hero, 7 interactive step cards `data-step-state="active" | "completed" | "default"` with `dark:invert` icons, 525x484 preview stage box, dashed dividers, Section 2 Client Portal 2x2 box & studio logos, Section 3 Thespian AI performer & client switcher pill and rows, Section 4 10 FAQ accordion items.
+   - `monologg/apps/web/src/app/pages/PricingPage.tsx`:
+     - Hero section, audience selector `• PERFORMER | CLIENT`, performer & client comparison tables, studio badges, and FAQ section.
+   - `monologg/apps/web/src/app/pages/ResourcesPage.tsx`:
+     - Sticky header, announcement bar, Section 4 Master card with Terms & Support pills, Escrow Guarantee, Fair Trade, 24/7 Creator Helpdesk, EPK Guides, social buttons with `dark:invert`, and Section 5 "Become an Investor" application form card, inputs, select, and textarea.
+   - `monologg/apps/web/src/app/pages/LegalPage.tsx`:
+     - Sticky header, announcement bar, 12 Terms cards with `CARD_CLASSES` (`border-[#e8e8e8] dark:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a]`), 7 Cookie cards, table rows, and dividers.
+   - `monologg/apps/web/src/app/components/WebsiteFooter.tsx`:
+     - CTA banner, newsletter form, social links, legal dividers, and footer branding.
+3. **Destructive CSS Override Cleanup (`tokens.css`):**
+   - Removed `.dark div.bg-white:not(...)` rule that inverted white image status masks into black squares.
+   - Removed `.dark [data-node-id="178151:49527"] button` rule that erroneously set the red newsletter button to black; re-enforced primary red `#F13030` and hover `#D92626`.
+   - Removed broad `.dark div.bg-[#f9f9f9]` rule that was overwriting explicit `dark:bg-[#1a1a1a]` elevated surfaces.
+   - Added explicit protection for phone screen and status masks: `.dark [data-node-id="178359:16950"], .dark [data-node-id="178361:20289"], .dark [data-node-id="178361:20290"] { background-color: #FFFFFF !important; }`.
+4. **Automated Testing & Quality Gate:**
+   - All 6 marketing test suites passing: `LandingPageHeader.test.tsx` (6/6), `PricingPage.test.tsx` (5/5), `ProductPage.test.tsx` (5/5), `ResourcesPage.test.tsx` (5/5), `LegalPage.test.tsx` (4/4), `WebsiteFooter.test.tsx` (3/3) -> 28/28 tests passed.
+   - Zero TypeScript compiler errors (`npx tsc --noEmit`) in `apps/web`.
+
+Files touched:
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/PricingPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/apps/web/src/app/pages/LegalPage.tsx`
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/styles/tokens.css`
+- `monologg/handoff/log.md`
+- `monologg/handoff/implementation-plan.md`
+- `monologg/handoff/bug.md`
+- `monologg/handoff/design.md`
+- `monologg/handoff/process.md`
 
 ---
 

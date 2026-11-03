@@ -243,13 +243,13 @@ export function LandingPage() {
 
   return (
     <div
-      className="bg-white flex flex-col items-center relative w-full min-h-screen overflow-x-clip isolate"
+      className="bg-white dark:bg-[#000000] text-[#1a1a1a] dark:text-[#f9f9f9] flex flex-col items-center relative w-full min-h-screen overflow-x-clip isolate"
       data-node-id="178359:16886"
       data-name="Home page"
     >
       {/* ─── 1. Top Announcement Bar (178359:16887) ─── */}
       <div
-        className="bg-[#16161a] flex items-center justify-between px-4 sm:px-[24px] h-[40px] relative shrink-0 w-full z-20"
+        className="bg-[#1a1a1a] border-b border-[#333333] flex items-center justify-between px-4 sm:px-[24px] h-[40px] relative shrink-0 w-full z-20"
         data-node-id="178359:16887"
         data-name="Background+HorizontalBorder"
       >
@@ -327,7 +327,7 @@ export function LandingPage() {
 
       {/* ─── 3. Header (178359:16910) ─── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:16910"
         data-name="Header"
       >
@@ -358,7 +358,7 @@ export function LandingPage() {
                 data-name="Group"
               >
                 <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
-                  <img alt="" className="block max-w-none size-full" src={imgHeaderLogoGroup} />
+                  <img alt="" className="block max-w-none size-full dark:invert" src={imgHeaderLogoGroup} />
                 </div>
               </div>
             </div>
@@ -367,7 +367,7 @@ export function LandingPage() {
               data-node-id="I178359:16910;177955:45019"
               data-name="Vector"
             >
-              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full" src={imgHeaderLogoVector} />
+              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full dark:invert" src={imgHeaderLogoVector} />
             </div>
           </button>
 
@@ -378,7 +378,7 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate("/product")}
-              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
+              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
               data-node-id="I178359:16910;177955:45021"
               data-name="Link"
             >
@@ -387,7 +387,7 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate("/pricing")}
-              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
+              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
               data-node-id="I178359:16910;177955:45023"
               data-name="Link"
             >
@@ -396,7 +396,7 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate("/resources")}
-              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
+              className="cursor-pointer flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[12px] leading-[16px] whitespace-nowrap"
               data-node-id="I178359:16910;177955:45025"
               data-name="Link"
             >
@@ -412,12 +412,12 @@ export function LandingPage() {
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
           >
             <div className="relative shrink-0 size-[16px]">
               <img
                 alt="Toggle theme"
-                className="absolute block inset-0 max-w-none size-full"
+                className="absolute block inset-0 max-w-none size-full dark:invert"
                 src={imgThemeToggleSvg}
               />
             </div>
@@ -429,27 +429,27 @@ export function LandingPage() {
                 type="button"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-label="Account menu"
-                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#dbdbd6] hover:border-[#16161a] bg-white transition-all"
+                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#e8e8e8] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] bg-white dark:bg-[#000000] transition-all"
               >
                 <img
                   src={displayAvatar}
                   alt={displayName}
-                  className="w-7 h-7 rounded-full object-cover bg-[#F4F4F0]"
+                  className="w-7 h-7 rounded-full object-cover bg-[#f8f8f8] dark:bg-[#1a1a1a]"
                 />
-                <span className="hidden sm:inline font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-[#16161a] max-w-[140px] truncate">
+                <span className="hidden sm:inline font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-[#1a1a1a] dark:text-[#f9f9f9] max-w-[140px] truncate">
                   {displayName}
                 </span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#5d5d66] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white border border-[#ECECE8] rounded-2xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2.5 border-b border-[#F4F4F0]">
-                    <p className="text-[13px] font-bold text-[#16161a] truncate">{displayName}</p>
-                    <p className="text-[11px] text-[#6d6d75] truncate">{loggedInUser.email}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] text-[#f13030]">
+                <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-[#e8e8e8] dark:border-[#333333]">
+                    <p className="text-[13px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] truncate">{displayName}</p>
+                    <p className="text-[11px] text-[#767676] dark:text-[#a3a3a3] truncate">{loggedInUser.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] dark:bg-[#f13030]/20 text-[#f13030]">
                       {isClientSession ? "Client Workspace" : "Performer"}
                     </span>
                   </div>
@@ -460,9 +460,9 @@ export function LandingPage() {
                         setUserMenuOpen(false);
                         navigate(dashboardHref);
                       }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                     >
-                      <LayoutDashboard className="w-4 h-4 text-[#6d6d75]" />
+                      <LayoutDashboard className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                       Dashboard
                     </button>
                     {!isClientSession && (
@@ -472,9 +472,9 @@ export function LandingPage() {
                           setUserMenuOpen(false);
                           navigate("/emeka-johnson");
                         }}
-                        className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                        className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                       >
-                        <Sparkles className="w-4 h-4 text-[#6d6d75]" />
+                        <Sparkles className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                         Public Storefront
                       </button>
                     )}
@@ -484,9 +484,9 @@ export function LandingPage() {
                         setUserMenuOpen(false);
                         navigate(isClientSession ? "/client" : "/dashboard");
                       }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                     >
-                      <Search className="w-4 h-4 text-[#6d6d75]" />
+                      <Search className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                       {isClientSession ? "Find Talent" : "Browse Gigs"}
                     </button>
                     <button
@@ -495,9 +495,9 @@ export function LandingPage() {
                         setUserMenuOpen(false);
                         navigate("/brief");
                       }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                     >
-                      <Briefcase className="w-4 h-4 text-[#6d6d75]" />
+                      <Briefcase className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                       Post a Brief
                     </button>
                     <button
@@ -506,17 +506,17 @@ export function LandingPage() {
                         setUserMenuOpen(false);
                         navigate(settingsHref);
                       }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                     >
-                      <Settings className="w-4 h-4 text-[#6d6d75]" />
+                      <Settings className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                       Settings
                     </button>
                   </div>
-                  <div className="border-t border-[#F4F4F0] pt-1">
+                  <div className="border-t border-[#e8e8e8] dark:border-[#333333] pt-1">
                     <button
                       type="button"
                       onClick={handleSignOut}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#f13030] hover:bg-[#FFF5F5] flex items-center gap-2.5"
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#f13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -534,12 +534,12 @@ export function LandingPage() {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#dbdbd6] hover:border-[#16161a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
+                className="border border-[#d1d1d1] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a]"
                 data-node-id="I178359:16910;177955:45033"
                 data-name="Button"
               >
                 <span
-                  className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[#16161a] text-[12px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
+                  className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
                   data-node-id="I178359:16910;177955:45034"
                 >
                   Sign In
@@ -653,7 +653,7 @@ export function LandingPage() {
 
               {/* Headline (178359:16934) */}
               <h1
-                className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[42px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] sm:whitespace-nowrap"
+                className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[42px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] sm:whitespace-nowrap"
                 data-node-id="178359:16934"
               >
                 <span className="leading-none mb-0 block">Find Performers|</span>
@@ -663,7 +663,7 @@ export function LandingPage() {
 
             {/* Subtitle (178359:16935) */}
             <p
-              className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] not-italic relative shrink-0 text-[#6d6d75] text-[18px] text-center tracking-[0.54px] max-w-[664px]"
+              className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[18px] text-center tracking-[0.54px] max-w-[664px]"
               data-node-id="178359:16935"
             >
               Discover the performing arts’ best-kept secrets. Connect directly with directors, studios, agencies, brand managers, and live event organizers.
@@ -693,12 +693,12 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate(loggedInUser ? "/dashboard" : "/onboarding")}
-              className="border border-[#dbdbd6] hover:border-[#16161a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
+              className="border border-[#d1d1d1] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
               data-node-id="178359:16942"
               data-name="Button"
             >
               <span
-                className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-semibold justify-center relative shrink-0 text-[#16161a] text-[14px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
+                className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-semibold justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
                 data-node-id="178359:16943"
               >
                 {` Find Gigs `}
@@ -714,7 +714,7 @@ export function LandingPage() {
         >
           {/* Grey Stage Box (178359:16945) */}
           <div
-            className="bg-[#f9f9f9] h-[502px] relative rounded-[32px] shrink-0 w-full"
+            className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] h-[502px] relative rounded-[32px] shrink-0 w-full"
             data-node-id="178359:16945"
           >
             <div
@@ -854,7 +854,7 @@ export function LandingPage() {
             data-node-id="178359:16965"
           >
             <div
-              className="flex flex-col font-['Geist_Mono',monospace] font-normal justify-center not-italic relative shrink-0 text-[#16161a] text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
+              className="flex flex-col font-['Geist_Mono',monospace] font-normal justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
               data-node-id="178359:16966"
             >
               <p className="leading-[normal]">YOU BELONG HERE</p>
@@ -865,14 +865,14 @@ export function LandingPage() {
               className="relative w-full max-w-[1040px] overflow-hidden py-2"
               data-node-id="178359:16967"
             >
-              {/* Left & Right White Fade Gradients */}
+              {/* Left & Right Fade Gradients */}
               <div
-                className="absolute bg-gradient-to-r from-white via-white/80 to-transparent h-full left-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
+                className="absolute bg-gradient-to-r from-white via-white/80 dark:from-[#000000] dark:via-[#000000]/80 to-transparent h-full left-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
                 data-node-id="178359:16986"
                 data-name="Gradient"
               />
               <div
-                className="absolute bg-gradient-to-l from-white via-white/80 to-transparent h-full right-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
+                className="absolute bg-gradient-to-l from-white via-white/80 dark:from-[#000000] dark:via-[#000000]/80 to-transparent h-full right-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
                 data-node-id="178359:16987"
                 data-name="Gradient"
               />
@@ -886,16 +886,16 @@ export function LandingPage() {
                 ].map((cat, idx) => (
                   <div
                     key={`${cat.name}-${idx}`}
-                    className="flex gap-[8px] items-center justify-center relative shrink-0 px-4 py-2 rounded-full hover:bg-[#f4f4f2] transition-all duration-200 cursor-pointer group hover:scale-105 active:scale-95"
+                    className="flex gap-[8px] items-center justify-center relative shrink-0 px-4 py-2 rounded-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 cursor-pointer group hover:scale-105 active:scale-95"
                   >
-                    <div className="relative shrink-0 size-[20px] transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6">
+                    <div className="relative shrink-0 size-[20px] transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6 dark:invert">
                       <img
                         alt=""
                         className="absolute block inset-0 max-w-none size-full"
                         src={cat.icon}
                       />
                     </div>
-                    <p className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic text-[#6d6d75] group-hover:text-[#16161a] transition-colors text-[20px] whitespace-nowrap">
+                    <p className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic text-[#767676] dark:text-[#a3a3a3] group-hover:text-[#1a1a1a] dark:group-hover:text-[#f9f9f9] transition-colors text-[20px] whitespace-nowrap">
                       {cat.name}
                     </p>
                   </div>
@@ -907,7 +907,7 @@ export function LandingPage() {
       </section>
 
       {/* ─── 5. Dashed Horizontal Divider (178359:16988) ─── */}
-      <div className="h-0 relative w-full max-w-[1440px] z-10" data-node-id="178359:16988">
+      <div className="h-0 relative w-full max-w-[1440px] z-10 dark:opacity-30 dark:invert" data-node-id="178359:16988">
         <div className="absolute inset-[-1px_-2.5%]">
           <img alt="" className="block max-w-none size-full" src={imgDashedDivider} />
         </div>
@@ -926,14 +926,14 @@ export function LandingPage() {
           data-node-id="178359:16990"
         >
           <div
-            className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] w-full max-w-[766px]"
+            className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] w-full max-w-[766px]"
             data-node-id="178359:16991"
             style={{ fontFeatureSettings: '"calt" 0, "liga" 0' }}
           >
             <p className="leading-[48px] whitespace-pre-wrap">{`Run your performing career like the business it actually is`}</p>
           </div>
           <p
-            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[650px]"
+            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[650px]"
             data-node-id="178359:16992"
           >{`Share your work, set your prices, track your audience and get paid securely, without an agent in the middle.`}</p>
         </div>
@@ -946,12 +946,12 @@ export function LandingPage() {
         >
           {/* Left Vertical Line with Dynamic Scroll Progress Fill (178359:16994) */}
           <div
-            className="bg-[#e8e8e8] relative w-[2px] shrink-0 rounded-[49px] overflow-hidden"
+            className="bg-[#e8e8e8] dark:bg-[#333333] relative w-[2px] shrink-0 rounded-[49px] overflow-hidden"
             data-node-id="178359:16994"
           >
             <motion.div
               style={{ scaleY, transformOrigin: "top" }}
-              className="absolute inset-0 bg-gradient-to-b from-[#16161A] via-[#5D5D66] to-[#AEAEAE] rounded-[49px] w-[2px]"
+              className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-[#767676] to-[#d1d1d1] dark:from-[#f9f9f9] dark:via-[#bababa] dark:to-[#767676] rounded-[49px] w-[2px]"
               data-node-id="178359:16995"
             />
           </div>
@@ -975,13 +975,13 @@ export function LandingPage() {
                 data-node-id="178359:16998"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:16999"
                 >
                   <p className="leading-[40px]">{`Share Your Stage Anywhere `}</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17000"
                 >
                   Join other performers using a single master link and instant QR code to share their portfolios, showreels, and press kits directly with casting directors, studios, agencies, brand managers, and live event organizers globally across all platforms.
@@ -990,7 +990,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17001"
                 data-name="Image"
               >
@@ -1048,13 +1048,13 @@ export function LandingPage() {
                 data-node-id="178359:17034"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:17035"
                 >
                   <p className="leading-[40px]">{`Monetize Fan Shoutouts & Micro-Deliverables`}</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17036"
                 >
                   Earn up to 93% of your rate by selling custom video shoutouts, voice drops, and private consultations directly from your bio link—on your own prices and delivery timelines.
@@ -1063,7 +1063,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17037"
                 data-name="Image"
               >
@@ -1177,13 +1177,13 @@ export function LandingPage() {
                 data-node-id="178359:17090"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:17091"
                 >
                   <p className="leading-[40px]">Analyze your audience</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17092"
                 >
                   Track your profile visits, and link clicks in real time to see exactly where your fans are coming from and which packages make you the most money.
@@ -1192,7 +1192,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17093"
                 data-name="Image"
               >
@@ -1264,13 +1264,13 @@ export function LandingPage() {
                 data-node-id="178359:17125"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:17126"
                 >
                   <p className="leading-[40px]">Set Transparent Custom Rate Cards</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17127"
                 >
                   Stop wasting time emailing back and forth—set clear, upfront Naira rates for auditions, hosting, voiceovers, or comedy sets so clients can book you instantly.
@@ -1279,7 +1279,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17128"
                 data-name="Image"
               >
@@ -1358,13 +1358,13 @@ export function LandingPage() {
                 data-node-id="178359:17162"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:17163"
                 >
                   <p className="leading-[40px]">Powered by Thespian AI</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17164"
                 >
                   Get a 24/7 AI agent that automatically responds to questions on your behalf and books gigs onto your calendar while you sleep, and scans script PDFs to pitch your talent for open roles. Terms and Conditions apply.
@@ -1373,7 +1373,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17165"
                 data-name="Image"
               >
@@ -1461,13 +1461,13 @@ export function LandingPage() {
                 data-node-id="178359:17206"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[28px] md:text-[32px] leading-[40px] tracking-[-0.96px]"
                   data-node-id="178359:17207"
                 >
                   <p className="leading-[40px]">Bank-Grade Escrow Protection</p>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[620px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[620px]"
                   data-node-id="178359:17208"
                 >
                   Never worry about late payments again—booking funds are safely held in escrow before you start working and sent straight to your bank account the moment you finish.
@@ -1476,7 +1476,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17209"
                 data-name="Image"
               >
@@ -1533,7 +1533,7 @@ export function LandingPage() {
       {/* ─── 7. FAQ Section (178359:17242 / 178151:50058) ─── */}
       <section
         id="faq"
-        className="bg-white flex flex-col gap-[80px] items-center justify-center overflow-clip px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative w-full max-w-[1440px] z-10"
+        className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center justify-center overflow-clip px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative w-full max-w-[1440px] z-10"
         data-node-id="178151:50058"
         data-name="FAQ"
       >
@@ -1542,7 +1542,7 @@ export function LandingPage() {
           data-node-id="178150:28415"
         >
           <div
-            className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] text-center"
+            className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] text-center"
             data-node-id="178150:28416"
             style={{
               fontFeatureSettings: '"zero" 1, "cv01" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv07" 1, "cv10" 1, "cv11" 1',
@@ -1551,7 +1551,7 @@ export function LandingPage() {
             <p className="leading-[48px]">Frequently Asked Questions</p>
           </div>
           <div
-            className="font-['Inter_Tight',sans-serif] font-normal relative shrink-0 text-[#6d6d75] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px] whitespace-pre-wrap"
+            className="font-['Inter_Tight',sans-serif] font-normal relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px] whitespace-pre-wrap"
             data-node-id="178150:28492"
           >
             <p className="leading-[24px] mb-0">{`Got questions about how payments, escrow, `}</p>
@@ -1568,13 +1568,13 @@ export function LandingPage() {
             return (
               <div
                 key={idx}
-                className="bg-white flex gap-[24px] items-start py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-colors duration-200 hover:bg-[#fafaf8]"
+                className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex gap-[24px] items-start py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-colors duration-200 hover:bg-[#fafaf8] dark:hover:bg-[#1a1a1a]"
                 onClick={() => toggleFaq(idx)}
               >
                 <div className="flex-1 min-w-px relative">
                   <div className="flex flex-col gap-[12px] items-start not-italic relative size-full">
                     <div
-                      className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[18px] leading-[24px]"
+                      className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]"
                       style={{ fontFeatureSettings: '"zero" 1' }}
                     >
                       <p className="leading-[24px]">{item.q}</p>
@@ -1593,7 +1593,7 @@ export function LandingPage() {
                           className="overflow-hidden w-full"
                         >
                           <p
-                            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full pt-1"
+                            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] w-full pt-1"
                             style={{
                               fontFeatureSettings:
                                 '"zero" 1, "cv01" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv07" 1, "cv10" 1, "cv11" 1',
@@ -1614,7 +1614,7 @@ export function LandingPage() {
                     e.stopPropagation();
                     toggleFaq(idx);
                   }}
-                  className="flex items-center justify-center relative shrink-0 cursor-pointer p-1 rounded-full hover:bg-[#f0f0ed] transition-colors duration-150"
+                  className="flex items-center justify-center relative shrink-0 cursor-pointer p-1 rounded-full hover:bg-[#f0f0ed] dark:hover:bg-[#333333] transition-colors duration-150"
                 >
                   <motion.div
                     animate={{ rotate: isOpen ? 45 : 0 }}
@@ -1624,7 +1624,7 @@ export function LandingPage() {
                     <div className="relative size-[24px]" data-name={isOpen ? "X" : "Plus"}>
                       <img
                         alt=""
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full dark:invert"
                         src={imgPlus}
                       />
                     </div>

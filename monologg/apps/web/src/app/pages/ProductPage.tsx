@@ -584,7 +584,7 @@ export function ProductPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-start bg-[#F6FAF9] text-[#16161A] antialiased overflow-x-clip relative isolate w-full"
+      className="min-h-screen flex flex-col items-start bg-white dark:bg-[#000000] text-[#1a1a1a] dark:text-[#f9f9f9] antialiased overflow-x-clip relative isolate w-full"
       data-node-id="178359:17305"
     >
       {/* ── Ambient Blur Background Layer (178359:17353) ── */}
@@ -612,7 +612,7 @@ export function ProductPage() {
 
       {/* ── 1. Top Announcement Bar (178359:17306) ── */}
       <div
-        className="bg-[#16161a] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
+        className="bg-[#1a1a1a] border-b border-[#333333] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
         data-node-id="178359:17306"
       >
         <div className="flex gap-[8px] items-center shrink-0" data-node-id="178359:17307">
@@ -653,7 +653,7 @@ export function ProductPage() {
 
       {/* ── 2. Sticky Header (178359:17318) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17318"
       >
         <div
@@ -679,12 +679,12 @@ export function ProductPage() {
                 }}
               >
                 <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
-                  <img alt="" className="block max-w-none size-full" src={imgHeaderLogoMark} />
+                  <img alt="" className="block max-w-none size-full dark:invert" src={imgHeaderLogoMark} />
                 </div>
               </div>
             </div>
             <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
-              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full" src={imgHeaderLogoWordmark} />
+              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full dark:invert" src={imgHeaderLogoWordmark} />
             </div>
           </div>
 
@@ -710,14 +710,14 @@ export function ProductPage() {
             </button>
             <button
               onClick={() => navigate("/pricing")}
-              className="flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 cursor-pointer font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
+              className="flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 cursor-pointer font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
               data-node-id="178359:17338"
             >
               Pricing
             </button>
             <button
               onClick={() => navigate("/resources")}
-              className="flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 cursor-pointer font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
+              className="flex flex-col items-start px-[16px] py-[6px] relative rounded-full shrink-0 cursor-pointer font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap"
               data-node-id="178359:17340"
             >
               Resources
@@ -729,12 +729,12 @@ export function ProductPage() {
         <div className="flex gap-[12px] items-center relative shrink-0 z-10" data-node-id="178359:17344">
           <button
             onClick={toggle}
-            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] cursor-pointer hover:bg-[#f5f5f3] transition-colors"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors"
             data-node-id="178359:17345"
             aria-label="Toggle theme"
           >
             <div className="relative shrink-0 size-[16px]" data-node-id="178359:17346">
-              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgThemeToggleSvg} />
+              <img alt="" className="absolute block inset-0 max-w-none size-full dark:invert" src={imgThemeToggleSvg} />
             </div>
           </button>
 
@@ -742,7 +742,7 @@ export function ProductPage() {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ECECE8] bg-white hover:bg-[#F9F9F9] transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -754,7 +754,7 @@ export function ProductPage() {
                   {userInitials}
                 </Avatar>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#6D6D75] transition-transform ${
+                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${
                     showUserMenu ? "rotate-180" : ""
                   }`}
                 />
@@ -766,9 +766,9 @@ export function ProductPage() {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white border border-[#ECECE8]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#ECECE8]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -778,10 +778,10 @@ export function ProductPage() {
                         {userInitials}
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold truncate text-[#16161A]">
+                        <div className="text-sm font-semibold truncate text-[#1a1a1a] dark:text-[#f9f9f9]">
                           {loggedInUser.name}
                         </div>
-                        <div className="text-xs truncate text-[#6D6D75]">
+                        <div className="text-xs truncate text-[#767676] dark:text-[#a3a3a3]">
                           {loggedInUser.email}
                         </div>
                       </div>
@@ -794,17 +794,17 @@ export function ProductPage() {
                             setShowUserMenu(false);
                             navigate(item.path);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161A] hover:bg-[#F9F9F9] transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                         >
-                          <item.icon className="w-4 h-4 text-[#6D6D75]" />
+                          <item.icon className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                           {item.label}
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#ECECE8]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#F13030] hover:bg-[#FFF5F5] transition-colors font-medium cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors font-medium cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -818,7 +818,7 @@ export function ProductPage() {
             <div className="flex items-center gap-[12px]">
               <button
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#dbdbd6] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#16161a] text-[12px] leading-[16px] tracking-[-0.12px] hover:bg-[#f5f5f3] transition-colors cursor-pointer"
+                className="border border-[#d1d1d1] dark:border-[#333333] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] leading-[16px] tracking-[-0.12px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                 data-node-id="178359:17348"
               >
                 Sign In
@@ -844,7 +844,7 @@ export function ProductPage() {
             300x300 Figma SVG illustrations in the right-hand preview box (no duplicate section).
         ════════════════════════════════════════════════════════════════════════ */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
           data-node-id="178359:17364"
         >
           {/* Performer Portal Hero Header (178359:17378) */}
@@ -876,14 +876,14 @@ export function ProductPage() {
                   </span>
                 </div>
                 <h1
-                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[40px] sm:text-[56px] lg:text-[64px] leading-tight sm:leading-[1.1] text-center tracking-[-1.92px] max-w-[820px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[40px] sm:text-[56px] lg:text-[64px] leading-tight sm:leading-[1.1] text-center tracking-[-1.92px] max-w-[820px]"
                   data-node-id="178359:17384"
                 >
                   Build your personal <br className="hidden sm:inline" />digital stage
                 </h1>
               </div>
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#6d6d75] text-[18px] text-center tracking-[0.54px] max-w-[664px]"
+                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#767676] dark:text-[#a3a3a3] text-[18px] text-center tracking-[0.54px] max-w-[664px]"
                 data-node-id="178359:17385"
               >
                 Pitch on live casting briefs, set your custom service rates, track customer
@@ -955,7 +955,7 @@ export function ProductPage() {
                         }}
                         data-step-state="active"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-[#f9f9f9] border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
+                        className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
                       >
                         <motion.div
                           className="relative shrink-0 size-[24px]"
@@ -965,12 +965,12 @@ export function ProductPage() {
                         >
                           <img
                             alt=""
-                            className="absolute block inset-0 max-w-none size-full"
+                            className="absolute block inset-0 max-w-none size-full dark:invert"
                             src={imgArrowCircleRight}
                           />
                         </motion.div>
                         <div className="[word-break:break-word] flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-full">
+                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-full">
                             {step.title}
                           </h3>
                           <motion.div
@@ -980,7 +980,7 @@ export function ProductPage() {
                             transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
                             className="overflow-hidden w-full"
                           >
-                            <p className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full pt-1">
+                            <p className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full pt-1">
                               {step.description}
                             </p>
                           </motion.div>
@@ -1006,13 +1006,13 @@ export function ProductPage() {
                         }}
                         data-step-state="completed"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fafaf8] transition-all"
+                        className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all"
                       >
-                        <div className="font-['Switzer',sans-serif] font-medium text-[#333333] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
+                        <div className="font-['Switzer',sans-serif] font-medium text-[#333333] dark:text-[#d1d1d1] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                           {step.id}
                         </div>
                         <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#333333] text-[18px] leading-[24px] w-full">
+                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-full">
                             {step.title}
                           </h3>
                         </div>
@@ -1025,7 +1025,7 @@ export function ProductPage() {
                         >
                           <img
                             alt="Completed"
-                            className="absolute block inset-0 max-w-none size-full"
+                            className="absolute block inset-0 max-w-none size-full dark:invert"
                             src={imgCheckCircle}
                           />
                         </motion.div>
@@ -1049,13 +1049,13 @@ export function ProductPage() {
                       }}
                       data-step-state="default"
                       data-testid={`step-card-${step.id}`}
-                      className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fafaf8] transition-all"
+                      className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all"
                     >
-                      <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
+                      <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] dark:text-[#767676] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                         {step.id}
                       </div>
                       <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                        <h3 className="font-['Switzer',sans-serif] font-medium text-[#bababa] text-[18px] leading-[24px] w-full">
+                        <h3 className="font-['Switzer',sans-serif] font-medium text-[#484848] dark:text-[#bababa] text-[18px] leading-[24px] w-full">
                           {step.title}
                         </h3>
                       </div>
@@ -1071,7 +1071,7 @@ export function ProductPage() {
                       >
                         <img
                           alt="Pending"
-                          className="absolute block inset-0 max-w-none size-full"
+                          className="absolute block inset-0 max-w-none size-full dark:invert"
                           src={imgSpinner}
                         />
                       </motion.div>
@@ -1082,11 +1082,11 @@ export function ProductPage() {
 
               {/* Right Column: Dynamic 525x484 Stage Rendering the Active Step's 300x300 Figma SVG Illustration (178359:17450) */}
               <div
-                className="bg-[#f9f9f9] flex h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
                 data-node-id="178359:17450"
               >
                 <div
-                  className="bg-[#f9f9f9] flex flex-col h-full items-center justify-center overflow-clip relative rounded-[20px] shrink-0"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] flex flex-col h-full items-center justify-center overflow-clip relative rounded-[20px] shrink-0"
                   data-node-id="178359:17451"
                 >
                   <AnimatePresence mode="wait">
@@ -1109,7 +1109,7 @@ export function ProductPage() {
         {/* ── Dashed Horizontal Divider (178359:17764) ── */}
         <div className="h-0 relative shrink-0 w-full overflow-hidden" data-node-id="178359:17764">
           <div className="relative w-full h-[2px]">
-            <img alt="" className="block w-full h-full object-cover" src={imgDashedDivider} />
+            <img alt="" className="block w-full h-full object-cover dark:opacity-30 dark:invert" src={imgDashedDivider} />
           </div>
         </div>
 
@@ -1119,7 +1119,7 @@ export function ProductPage() {
             6 Studio Logos Bar (178359:17816)
         ════════════════════════════════════════════════════════════════════════ */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
           data-node-id="178359:17765"
         >
           {/* Client Portal Header (178359:17766) */}
@@ -1151,14 +1151,14 @@ export function ProductPage() {
                   </span>
                 </div>
                 <h2
-                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[40px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] max-w-[948px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[40px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] max-w-[948px]"
                   data-node-id="178359:17772"
                 >
                   The Upwork for Performer Acquisition
                 </h2>
               </div>
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#6d6d75] text-[18px] text-center tracking-[0.54px] max-w-[546px]"
+                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#767676] dark:text-[#a3a3a3] text-[18px] text-center tracking-[0.54px] max-w-[546px]"
                 data-node-id="178359:17773"
               >
                 A professional performer acquisition network built for production houses,
@@ -1194,12 +1194,12 @@ export function ProductPage() {
           >
             {/* Top 2x2 Bordered Box (178359:17785) */}
             <div
-              className="bg-white border-[#e8e8e8] border-l border-r border-solid border-t flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full max-w-[1000px]"
+              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-l border-r border-solid border-t flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full max-w-[1000px]"
               data-node-id="178359:17785"
             >
               {/* Row 1 (178359:17786) */}
               <div
-                className="bg-white flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
+                className="bg-white dark:bg-[#000000] flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
                 data-node-id="178359:17786"
               >
                 {/* Card 1: Verified Creator Pool */}
@@ -1218,7 +1218,7 @@ export function ProductPage() {
                     >
                       <img
                         alt=""
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full dark:invert"
                         src={imgSealCheck}
                       />
                     </div>
@@ -1227,13 +1227,13 @@ export function ProductPage() {
                       data-node-id="178359:17790"
                     >
                       <h3
-                        className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] text-center whitespace-nowrap"
+                        className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] text-center whitespace-nowrap"
                         data-node-id="178359:17792"
                       >
                         Verified Creator Pool
                       </h3>
                       <p
-                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] text-center tracking-[0.48px] w-full"
+                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] text-center tracking-[0.48px] w-full"
                         data-node-id="178359:17793"
                       >
                         Browse rich, data-verified candidate pipelines across Actors,
@@ -1246,7 +1246,7 @@ export function ProductPage() {
 
                 {/* Vertical Divider (178359:17794) */}
                 <div
-                  className="hidden md:block h-[148px] relative shrink-0 w-0"
+                  className="hidden md:block h-[148px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                   data-node-id="178359:17794"
                 >
                   <div className="absolute inset-[0_-0.5px]">
@@ -1274,7 +1274,7 @@ export function ProductPage() {
                     >
                       <img
                         alt=""
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full dark:invert"
                         src={imgChat4Fill}
                       />
                     </div>
@@ -1283,13 +1283,13 @@ export function ProductPage() {
                       data-node-id="178359:17798"
                     >
                       <h3
-                        className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] text-center whitespace-nowrap"
+                        className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] text-center whitespace-nowrap"
                         data-node-id="178359:17799"
                       >
                         Chat with AI Performer Profiles
                       </h3>
                       <p
-                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] text-center tracking-[0.48px] w-full"
+                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] text-center tracking-[0.48px] w-full"
                         data-node-id="178359:17800"
                       >
                         Instant Q&amp;A with a performer&apos;s AI agent to verify
@@ -1302,7 +1302,7 @@ export function ProductPage() {
               </div>
 
               {/* Horizontal Divider (178359:17801) */}
-              <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17801">
+              <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17801">
                 <div className="absolute inset-[-0.5px_0]">
                   <img
                     alt=""
@@ -1314,7 +1314,7 @@ export function ProductPage() {
 
               {/* Row 2 (178359:17802) */}
               <div
-                className="flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
+                className="bg-white dark:bg-[#000000] flex flex-col md:flex-row gap-[24px] items-center relative shrink-0 w-full"
                 data-node-id="178359:17802"
               >
                 {/* Card 3: Post Gigs & Micro-Briefs */}
@@ -1333,7 +1333,7 @@ export function ProductPage() {
                     >
                       <img
                         alt=""
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full dark:invert"
                         src={imgNotePencil}
                       />
                     </div>
@@ -1342,13 +1342,13 @@ export function ProductPage() {
                       data-node-id="178359:17806"
                     >
                       <h3
-                        className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-full"
+                        className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-full"
                         data-node-id="178359:17807"
                       >
                         Post Gigs &amp; Micro-Briefs
                       </h3>
                       <p
-                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full"
+                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full"
                         data-node-id="178359:17808"
                       >
                         Publish creative briefs, indie movie roles, corporate event jobs, or
@@ -1361,7 +1361,7 @@ export function ProductPage() {
 
                 {/* Vertical Divider (178359:17809) */}
                 <div
-                  className="hidden md:block h-[148px] relative shrink-0 w-0"
+                  className="hidden md:block h-[148px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                   data-node-id="178359:17809"
                 >
                   <div className="absolute inset-[0_-0.5px]">
@@ -1390,7 +1390,7 @@ export function ProductPage() {
                       >
                         <img
                           alt=""
-                          className="absolute block inset-0 max-w-none size-full"
+                          className="absolute block inset-0 max-w-none size-full dark:invert"
                           src={imgLockFill}
                         />
                       </div>
@@ -1399,13 +1399,13 @@ export function ProductPage() {
                         data-node-id="178359:17813"
                       >
                         <h3
-                          className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] text-center whitespace-nowrap"
+                          className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] text-center whitespace-nowrap"
                           data-node-id="178359:17814"
                         >
                           Secure Contracts &amp; Escrow Payments
                         </h3>
                         <p
-                          className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] text-center tracking-[0.48px] w-full"
+                          className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] text-center tracking-[0.48px] w-full"
                           data-node-id="178359:17815"
                         >
                           Sign standard digital agreements with built-in milestones and escrow
@@ -1420,7 +1420,7 @@ export function ProductPage() {
 
             {/* Bottom Attached Bar: 6 Studio Logos & Trust Copy (178359:17816) */}
             <div
-              className="bg-[#f9f9f9] border border-[#e8e8e8] border-solid flex gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full max-w-[1000px]"
+              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full max-w-[1000px]"
               data-node-id="178359:17816"
             >
               <div
@@ -1430,7 +1430,7 @@ export function ProductPage() {
                 {studioBadges.map((studio) => (
                   <div
                     key={studio.name}
-                    className="bg-white border-[#e5e5e5] border-[0.277px] border-solid flex items-center mr-[-8.585px] p-[8.862px] relative rounded-full shrink-0"
+                    className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center mr-[-8.585px] p-[8.862px] relative rounded-full shrink-0"
                     title={studio.name}
                   >
                     <div
@@ -1439,7 +1439,7 @@ export function ProductPage() {
                     >
                       <img
                         alt={studio.name}
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full dark:invert"
                         src={studio.src}
                       />
                     </div>
@@ -1447,7 +1447,7 @@ export function ProductPage() {
                 ))}
               </div>
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#6d6d75] text-[12px] text-center tracking-[0.36px] whitespace-nowrap"
+                className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#767676] dark:text-[#a3a3a3] text-[12px] text-center tracking-[0.36px] whitespace-nowrap"
                 data-node-id="178359:17830"
               >
                 Trusted by top media houses
@@ -1462,13 +1462,13 @@ export function ProductPage() {
             3-row table (178359:17909) from Figma 178359:17831
         ════════════════════════════════════════════════════════════════════════ */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] relative w-full"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-4 sm:px-8 xl:px-[200px] relative w-full"
           data-node-id="178359:17831"
         >
           {/* Top Dashed Divider (178359:17832) */}
           <div className="h-0 relative shrink-0 w-full overflow-hidden" data-node-id="178359:17832">
             <div className="relative w-full h-[2px]">
-              <img alt="" className="block w-full h-full object-cover" src={imgDashedDivider} />
+              <img alt="" className="block w-full h-full object-cover dark:opacity-30 dark:invert" src={imgDashedDivider} />
             </div>
           </div>
 
@@ -1501,14 +1501,14 @@ export function ProductPage() {
                   </span>
                 </div>
                 <h2
-                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[40px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] max-w-[670px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[40px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] max-w-[670px]"
                   data-node-id="178359:17839"
                 >
                   Performance Intelligence Engine
                 </h2>
               </div>
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#6d6d75] text-[18px] text-center tracking-[0.54px] max-w-[710px]"
+                className="font-['Inter_Tight',sans-serif] font-normal leading-[26px] text-[#767676] dark:text-[#a3a3a3] text-[18px] text-center tracking-[0.54px] max-w-[710px]"
                 data-node-id="178359:17840"
               >
                 Say goodbye to manual form fatigue and endless email threads. Thespian AI works
@@ -1535,28 +1535,28 @@ export function ProductPage() {
                 data-node-id="178359:17848"
               >
                 <div
-                  className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
+                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
                   data-node-id="178359:17849"
                 >
                   <button
                     type="button"
                     aria-label="Performers"
                     onClick={() => setThespianRole("performer")}
-                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   >
                     <div
-                      className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
+                      className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#333333] border-solid relative rounded-full shrink-0 size-[8px]"
                       data-node-id="178359:17851"
                     />
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#1a1a1a] dark:text-[#f9f9f9] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17852"
                     >
                       PERFORMER
                     </span>
                   </button>
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#bababa] dark:text-[#767676] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17854"
                   >
                     |
@@ -1565,7 +1565,7 @@ export function ProductPage() {
                     type="button"
                     aria-label="Clients"
                     onClick={() => setThespianRole("client")}
-                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                   >
                     <span
                       className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
@@ -1577,13 +1577,13 @@ export function ProductPage() {
                 </div>
 
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium items-center text-[#16161a] text-[24px] sm:text-[32px] text-center tracking-[-0.96px]"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium items-center text-[#1a1a1a] dark:text-[#f9f9f9] text-[24px] sm:text-[32px] text-center tracking-[-0.96px]"
                   data-node-id="178359:17858"
                 >
                   <h3 className="leading-[40px]" data-node-id="178359:17859">
                     What Thespian AI Does for the Performer
                   </h3>
-                  <p className="leading-[40px] opacity-30" data-node-id="178359:17860">
+                  <p className="leading-[40px] opacity-30 text-[#1a1a1a] dark:text-[#f9f9f9]" data-node-id="178359:17860">
                     Your Digital AI Agent
                   </p>
                 </div>
@@ -1596,7 +1596,7 @@ export function ProductPage() {
               >
                 {/* Row 1: Instant AI Onboarding (178359:17863) */}
                 <div
-                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17863"
                 >
                   <div
@@ -1604,14 +1604,14 @@ export function ProductPage() {
                     data-node-id="178359:17864"
                   >
                     <h4
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                       data-node-id="178359:17866"
                     >
                       Instant AI Onboarding
                     </h4>
                   </div>
                   <div
-                    className="hidden md:block h-[116px] relative shrink-0 w-0"
+                    className="hidden md:block h-[116px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                     data-node-id="178359:17867"
                   >
                     <div className="absolute inset-[0_-0.5px]">
@@ -1619,7 +1619,7 @@ export function ProductPage() {
                     </div>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                     data-node-id="178359:17868"
                   >
                     Upload a monologue or audio reel, Thespian AI analyzes your media to
@@ -1630,7 +1630,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Divider */}
-                <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17869">
+                <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17869">
                   <div className="absolute inset-[-0.5px_0]">
                     <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                   </div>
@@ -1638,7 +1638,7 @@ export function ProductPage() {
 
                 {/* Row 2: 24/7 AI Booking Agent (178359:17870) */}
                 <div
-                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17870"
                 >
                   <div
@@ -1646,20 +1646,20 @@ export function ProductPage() {
                     data-node-id="178359:17873"
                   >
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal opacity-60 text-[12px] leading-[16px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17874"
                     >
                       coming soon
                     </span>
                     <h4
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                       data-node-id="178359:17875"
                     >
                       24/7 AI Booking Agent
                     </h4>
                   </div>
                   <div
-                    className="hidden md:block h-[60px] relative shrink-0 w-0"
+                    className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                     data-node-id="178359:17876"
                   >
                     <div className="absolute inset-[0_-0.5px]">
@@ -1667,7 +1667,7 @@ export function ProductPage() {
                     </div>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                     data-node-id="178359:17877"
                   >
                     Let visitors chat with your profile about your roles and book auditions
@@ -1676,7 +1676,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Divider */}
-                <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17878">
+                <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17878">
                   <div className="absolute inset-[-0.5px_0]">
                     <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                   </div>
@@ -1684,7 +1684,7 @@ export function ProductPage() {
 
                 {/* Row 3: Automatic Gig Pitching (178359:17879) */}
                 <div
-                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17879"
                 >
                   <div
@@ -1692,20 +1692,20 @@ export function ProductPage() {
                     data-node-id="178359:17882"
                   >
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal opacity-60 text-[12px] leading-[16px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17883"
                     >
                       coming soon
                     </span>
                     <h4
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                       data-node-id="178359:17884"
                     >
                       Automatic Gig Pitching
                     </h4>
                   </div>
                   <div
-                    className="hidden md:block h-[60px] relative shrink-0 w-0"
+                    className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                     data-node-id="178359:17885"
                   >
                     <div className="absolute inset-[0_-0.5px]">
@@ -1713,7 +1713,7 @@ export function ProductPage() {
                     </div>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                     data-node-id="178359:17886"
                   >
                     Thespian constantly scans script PDFs and casting calls, pitching your
@@ -1722,7 +1722,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Divider */}
-                <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17887">
+                <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17887">
                   <div className="absolute inset-[-0.5px_0]">
                     <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                   </div>
@@ -1730,7 +1730,7 @@ export function ProductPage() {
 
                 {/* Row 4: Contract Guardrails (178359:17888) */}
                 <div
-                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17888"
                 >
                   <div
@@ -1738,14 +1738,14 @@ export function ProductPage() {
                     data-node-id="178359:17889"
                   >
                     <h4
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                       data-node-id="178359:17891"
                     >
                       Contract Guardrails
                     </h4>
                   </div>
                   <div
-                    className="hidden md:block h-[60px] relative shrink-0 w-0"
+                    className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                     data-node-id="178359:17892"
                   >
                     <div className="absolute inset-[0_-0.5px]">
@@ -1753,7 +1753,7 @@ export function ProductPage() {
                     </div>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                     data-node-id="178359:17893"
                   >
                     AI automatically checks briefs for unfair terms and ensures booking funds
@@ -1762,7 +1762,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Divider */}
-                <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17894">
+                <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17894">
                   <div className="absolute inset-[-0.5px_0]">
                     <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                   </div>
@@ -1770,7 +1770,7 @@ export function ProductPage() {
 
                 {/* Row 5: AI Rehearsal Partner (178359:17895) */}
                 <div
-                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17895"
                 >
                   <div
@@ -1778,20 +1778,20 @@ export function ProductPage() {
                     data-node-id="178359:17896"
                   >
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal opacity-60 text-[12px] leading-[16px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17897"
                     >
                       coming soon
                     </span>
                     <h4
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                       data-node-id="178359:17898"
                     >
                       AI Rehearsal Partner
                     </h4>
                   </div>
                   <div
-                    className="hidden md:block h-[60px] relative shrink-0 w-0"
+                    className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                     data-node-id="178359:17899"
                   >
                     <div className="absolute inset-[0_-0.5px]">
@@ -1799,7 +1799,7 @@ export function ProductPage() {
                     </div>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                     data-node-id="178359:17900"
                   >
                     Upload audition scripts to get character breakdowns and practice your
@@ -1808,7 +1808,7 @@ export function ProductPage() {
                 </div>
 
                 {/* Divider */}
-                <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17901">
+                <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17901">
                   <div className="absolute inset-[-0.5px_0]">
                     <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                   </div>
@@ -1816,11 +1816,11 @@ export function ProductPage() {
 
                 {/* Bottom CTA Bar (178359:17902) */}
                 <div
-                  className="bg-[#f7f7f7] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
                   data-node-id="178359:17902"
                 >
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#16161a] text-[14px] tracking-[0.42px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] tracking-[0.42px]"
                     data-node-id="178359:17903"
                   >
                     Start hiring today
@@ -1862,14 +1862,14 @@ export function ProductPage() {
               data-node-id="178359:17910"
             >
               <div
-                className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
+                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:17911"
               >
                 <button
                   type="button"
                   aria-label="Performers"
                   onClick={() => setThespianRole("performer")}
-                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                 >
                   <span
                     className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
@@ -1879,7 +1879,7 @@ export function ProductPage() {
                   </span>
                 </button>
                 <span
-                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#bababa] dark:text-[#767676] tracking-[1.26px] uppercase whitespace-nowrap"
                   data-node-id="178359:17916"
                 >
                   |
@@ -1888,14 +1888,14 @@ export function ProductPage() {
                   type="button"
                   aria-label="Clients"
                   onClick={() => setThespianRole("client")}
-                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                 >
                   <div
-                    className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
+                    className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#333333] border-solid relative rounded-full shrink-0 size-[8px]"
                     data-node-id="178359:17918"
                   />
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#1a1a1a] dark:text-[#f9f9f9] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17919"
                   >
                     CLIENT
@@ -1904,13 +1904,13 @@ export function ProductPage() {
               </div>
 
               <div
-                className="flex flex-col font-['Switzer',sans-serif] font-medium items-center text-[#16161a] text-[24px] sm:text-[32px] text-center tracking-[-0.96px]"
+                className="flex flex-col font-['Switzer',sans-serif] font-medium items-center text-[#1a1a1a] dark:text-[#f9f9f9] text-[24px] sm:text-[32px] text-center tracking-[-0.96px]"
                 data-node-id="178359:17920"
               >
                 <h3 className="leading-[40px]" data-node-id="178359:17921">
                   What Thespian AI Does for the Client
                 </h3>
-                <p className="leading-[40px] opacity-30" data-node-id="178359:17922">
+                <p className="leading-[40px] opacity-30 text-[#1a1a1a] dark:text-[#f9f9f9]" data-node-id="178359:17922">
                   Your Automated Casting Butler
                 </p>
               </div>
@@ -1922,7 +1922,7 @@ export function ProductPage() {
               data-node-id="178359:17923"
             >
               {/* Top Divider (178359:17924) */}
-              <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17924">
+              <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17924">
                 <div className="absolute inset-[-0.5px_0]">
                   <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                 </div>
@@ -1930,7 +1930,7 @@ export function ProductPage() {
 
               {/* Row 1: Vibe & Texture Matching (178359:17925) */}
               <div
-                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17925"
               >
                 <div
@@ -1944,19 +1944,19 @@ export function ProductPage() {
                   >
                     <img
                       alt=""
-                      className="absolute block inset-0 max-w-none size-full"
+                      className="absolute block inset-0 max-w-none size-full dark:invert"
                       src={imgNotePencil}
                     />
                   </div>
                   <h4
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                     data-node-id="178359:17928"
                   >
                     Vibe &amp; Texture Matching
                   </h4>
                 </div>
                 <div
-                  className="hidden md:block h-[116px] relative shrink-0 w-0"
+                  className="hidden md:block h-[116px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                   data-node-id="178359:17929"
                 >
                   <div className="absolute inset-[0_-0.5px]">
@@ -1964,7 +1964,7 @@ export function ProductPage() {
                   </div>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                   data-node-id="178359:17930"
                 >
                   Match performers based on actual artistic texture, including comedic timing,
@@ -1973,7 +1973,7 @@ export function ProductPage() {
               </div>
 
               {/* Divider */}
-              <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17931">
+              <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17931">
                 <div className="absolute inset-[-0.5px_0]">
                   <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                 </div>
@@ -1981,7 +1981,7 @@ export function ProductPage() {
 
               {/* Row 2: Automated Logistics (178359:17932) */}
               <div
-                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17932"
               >
                 <div
@@ -1989,20 +1989,20 @@ export function ProductPage() {
                   data-node-id="178359:17935"
                 >
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal opacity-60 text-[12px] leading-[16px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17936"
                   >
                     coming soon
                   </span>
                   <h4
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                     data-node-id="178359:17937"
                   >
                     Automated Logistics
                   </h4>
                 </div>
                 <div
-                  className="hidden md:block h-[60px] relative shrink-0 w-0"
+                  className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                   data-node-id="178359:17938"
                 >
                   <div className="absolute inset-[0_-0.5px]">
@@ -2010,7 +2010,7 @@ export function ProductPage() {
                   </div>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                   data-node-id="178359:17939"
                 >
                   Automatically handle identity verification, availability checks, audition
@@ -2019,7 +2019,7 @@ export function ProductPage() {
               </div>
 
               {/* Divider */}
-              <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17940">
+              <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17940">
                 <div className="absolute inset-[-0.5px_0]">
                   <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                 </div>
@@ -2027,7 +2027,7 @@ export function ProductPage() {
 
               {/* Row 3: Script & Prompt Parsing (178359:17941) */}
               <div
-                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                className="hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17941"
               >
                 <div
@@ -2035,20 +2035,20 @@ export function ProductPage() {
                   data-node-id="178359:17944"
                 >
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal opacity-60 text-[12px] leading-[16px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12px] leading-[16px] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17945"
                   >
                     coming soon
                   </span>
                   <h4
-                    className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-[160px]"
+                    className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-[160px]"
                     data-node-id="178359:17946"
                   >
                     Script &amp; Prompt Parsing
                   </h4>
                 </div>
                 <div
-                  className="hidden md:block h-[60px] relative shrink-0 w-0"
+                  className="hidden md:block h-[60px] relative shrink-0 w-0 dark:opacity-30 dark:invert"
                   data-node-id="178359:17947"
                 >
                   <div className="absolute inset-[0_-0.5px]">
@@ -2056,7 +2056,7 @@ export function ProductPage() {
                   </div>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[462px]"
                   data-node-id="178359:17948"
                 >
                   Drop in a PDF script or creative brief, and the AI reads the dialogue to
@@ -2065,7 +2065,7 @@ export function ProductPage() {
               </div>
 
               {/* Divider */}
-              <div className="h-0 relative shrink-0 w-full" data-node-id="178359:17949">
+              <div className="h-0 relative shrink-0 w-full dark:opacity-30 dark:invert" data-node-id="178359:17949">
                 <div className="absolute inset-[-0.5px_0]">
                   <img alt="" className="block max-w-none size-full" src={imgThespianHoriz910} />
                 </div>
@@ -2073,11 +2073,11 @@ export function ProductPage() {
 
               {/* Bottom CTA Bar (178359:17950) */}
               <div
-                className="bg-[#f7f7f7] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
                 data-node-id="178359:17950"
               >
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#16161a] text-[14px] tracking-[0.42px]"
+                  className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] tracking-[0.42px]"
                   data-node-id="178359:17951"
                 >
                   Start hiring today
@@ -2108,7 +2108,7 @@ export function ProductPage() {
           {/* Bottom Divider (178359:17955) */}
           <div className="h-0 relative shrink-0 w-full max-w-[1040px]" data-node-id="178359:17955">
             <div className="absolute inset-[-0.5px_-22.69%]">
-              <img alt="" className="block max-w-none size-full" src={imgThespianWideDivider} />
+              <img alt="" className="block max-w-none size-full dark:opacity-30 dark:invert" src={imgThespianWideDivider} />
             </div>
           </div>
         </section>
@@ -2117,14 +2117,14 @@ export function ProductPage() {
             SECTION 4: FAQ SECTION (178359:17958)
         ════════════════════════════════════════════════════════════════════════ */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center justify-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[120px] relative w-full"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center justify-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[120px] relative w-full"
           data-node-id="178359:17958"
         >
           <div className="flex flex-col gap-[24px] items-center relative shrink-0">
-            <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-center">
+            <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-center">
               Frequently Asked Questions
             </h2>
-            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px]">
+            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px]">
               Got questions about how payments, escrow, or Thespian AI work? Here are the
               answers.
             </p>
@@ -2136,7 +2136,7 @@ export function ProductPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#fafaf8] transition-colors duration-150"
+                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
@@ -2144,7 +2144,7 @@ export function ProductPage() {
                     aria-expanded={isOpen}
                   >
                     <div className="flex flex-[1_0_0] flex-col gap-[12px] items-start min-w-px relative">
-                      <span className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+                      <span className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                         {faq.question}
                       </span>
                       <AnimatePresence initial={false}>
@@ -2160,7 +2160,7 @@ export function ProductPage() {
                             }}
                             className="overflow-hidden w-full"
                           >
-                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
+                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
                               {faq.answer}
                             </p>
                           </motion.div>
@@ -2176,7 +2176,7 @@ export function ProductPage() {
                         <div className="relative size-[24px]">
                           <img
                             alt={isOpen ? "Close" : "Expand"}
-                            className="absolute block inset-0 max-w-none size-full"
+                            className="absolute block inset-0 max-w-none size-full dark:invert"
                             src={imgFaqPlus}
                           />
                         </div>

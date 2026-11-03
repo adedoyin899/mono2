@@ -28,7 +28,7 @@ const ASSETS = {
 };
 
 const CARD_CLASSES =
-  "border border-[#e8e8e8] border-solid hover:border-transparent hover:bg-[#f9f9f9] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
+  "border border-[#e8e8e8] dark:border-[#333333] border-solid hover:border-transparent dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
 
 const COMPLIANCE_ROWS = [
   {
@@ -155,13 +155,13 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
   return (
     <div
-      className="bg-[#f6faf9] min-h-screen flex flex-col items-start relative w-full text-[#16161a] font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-clip"
+      className="bg-white dark:bg-[#000000] min-h-screen flex flex-col items-start relative w-full text-[#1a1a1a] dark:text-[#f9f9f9] font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-clip"
       data-node-id={isTerms ? "178382:17926" : "178383:18857"}
       data-name={isTerms ? "Terms of Service" : "Cookie Settings & Policy"}
     >
       {/* ── 1. Top Announcement Bar (178382:17927) ── */}
       <div
-        className="bg-[#16161a] border-[#26262e] border-b border-solid flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
+        className="bg-[#1a1a1a] border-[#333333] border-b border-solid flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
         data-node-id={isTerms ? "178382:17927" : "178383:18858"}
         data-name="Background+HorizontalBorder"
       >
@@ -186,7 +186,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
       {/* ── 2. Sticky Header (178382:17939) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id={isTerms ? "178382:17939" : "178387:19943"}
         data-name="Header"
       >
@@ -214,7 +214,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </div>
             </div>
             <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
-              <img alt="" className="absolute block inset-0 max-w-none size-full" src={ASSETS.logoWordmark} />
+              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full" src={ASSETS.logoWordmark} />
             </div>
           </button>
 
@@ -223,21 +223,21 @@ export function LegalPage({ type }: { type: LegalPageType }) {
             <button
               type="button"
               onClick={() => navigate("/product")}
-              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
             >
               Product
             </button>
             <button
               type="button"
               onClick={() => navigate("/pricing")}
-              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
             >
               Pricing
             </button>
             <button
               type="button"
               onClick={() => navigate("/resources")}
-              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
             >
               Resources
             </button>
@@ -249,7 +249,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center rounded-full shrink-0 size-[36px] text-[#16161a] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center rounded-full shrink-0 size-[36px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             data-node-id={isTerms ? "178382:17966" : undefined}
             data-name="Button - Toggle theme"
           >
@@ -263,7 +263,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               <button
                 type="button"
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ecece8] bg-white hover:bg-[#f9f9f9] transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -275,7 +275,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   {userInitials}
                 </Avatar>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#6d6d75] transition-transform ${
+                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${
                     showUserMenu ? "rotate-180" : ""
                   }`}
                 />
@@ -287,9 +287,9 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white border border-[#ecece8]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#ecece8]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -299,10 +299,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                         {userInitials}
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold truncate text-[#16161a]">
+                        <div className="text-sm font-semibold truncate text-[#1a1a1a] dark:text-[#f9f9f9]">
                           {loggedInUser.name}
                         </div>
-                        <div className="text-xs truncate text-[#6d6d75]">
+                        <div className="text-xs truncate text-[#767676] dark:text-[#a3a3a3]">
                           {loggedInUser.email}
                         </div>
                       </div>
@@ -316,18 +316,18 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                             setShowUserMenu(false);
                             navigate(item.path);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161a] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                         >
-                          <item.icon className="w-4 h-4 text-[#6d6d75]" />
+                          <item.icon className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                           {item.label}
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#ecece8]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#fff5f5] transition-colors font-medium cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors font-medium cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -342,7 +342,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#dbdbd6] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#16161a] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+                className="border border-[#d1d1d1] dark:border-[#333333] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
               >
                 Sign In
               </button>
@@ -395,7 +395,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       {/* ── 3. Main Legal Document Body ── */}
       {isTerms ? (
         <main
-          className="bg-white flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] relative shrink-0 w-full z-10"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] relative shrink-0 w-full z-10"
           data-node-id="178382:17985"
           data-name="testimonial"
         >
@@ -422,7 +422,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   </p>
                 </div>
                 <h1
-                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none"
+                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none"
                   data-node-id="178382:18005"
                 >
                   Terms of Service
@@ -430,7 +430,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </div>
 
               <div
-                className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] text-center leading-[24px] tracking-[0.48px] max-w-[664px] w-full"
+                className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] text-center leading-[24px] tracking-[0.48px] max-w-[664px] w-full"
                 data-node-id="178382:18006"
               >
                 <p className="leading-[24px] mb-0">
@@ -456,10 +456,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19508"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 1. Eligibility &amp; Account Responsibilities
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   Minimum Age: You must be at least 18 years of age (or the legal age of digital consent in your jurisdiction) to create an account or use our Services.
                 </p>
@@ -483,14 +483,14 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19517"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 2. Data Protection &amp; Regulatory Compliance
               </h2>
-              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 We handle personal information in strict compliance with the EU General Data Protection Regulation (GDPR) and the Nigeria Data Protection Act (NDPA) / NDPR.
               </p>
 
-              <div className="h-px w-full bg-[#e8e8e8]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
 
               <div
                 className="flex flex-col gap-[12px] items-start relative shrink-0 w-full"
@@ -510,19 +510,19 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     key={row.area}
                     className="flex flex-col md:flex-row items-start md:items-center justify-between relative rounded-[20px] shrink-0 w-full gap-2 md:gap-4"
                   >
-                    <div className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] shrink-0 md:w-[230px]">
+                    <div className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] shrink-0 md:w-[230px]">
                       {row.area}
                     </div>
-                    <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full md:w-[489px] shrink-0">
+                    <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full md:w-[489px] shrink-0">
                       {row.overview}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="h-px w-full bg-[#e8e8e8]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
 
-              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 For complete details regarding our data collection, processing, and security practices, please consult our dedicated Privacy Policy.
               </p>
             </div>
@@ -532,10 +532,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19608"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 3. Prohibited Conduct &amp; Acceptable Use
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   When using our Services, you agree not to:
                 </p>
@@ -570,10 +570,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19591"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 4. Intellectual Property Rights
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   All branding, user interface design, domain names, logos, software code, written content, and visual assets associated with Monologg are the exclusive property of the Company or its licensors.
                 </p>
@@ -591,10 +591,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19584"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 5. User Content &amp; Licensing
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   Ownership: You retain ownership of any text, files, or media submitted or uploaded through the Services (&quot;User Content&quot;).
                 </p>
@@ -612,10 +612,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19577"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 6. Subscriptions, Fees &amp; Payment
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   Payment Terms: Certain features or service tiers may require recurring subscription fees or single payments. Fees are displayed clearly prior to checkout.
                 </p>
@@ -633,10 +633,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19570"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 7. Third-Party Links &amp; Services
               </h2>
-              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 Our platform may include links or integrations to external services, websites, or software. Monologg does not control, endorse, or accept liability for any third-party content, terms, or privacy practices. Your interaction with third parties is conducted entirely at your own risk.
               </p>
             </div>
@@ -646,10 +646,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19526"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 8. Disclaimers &amp; Limitation of Liability
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   Service Availability: The Services are provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind, whether express or implied.
                 </p>
@@ -667,10 +667,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19563"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 9. Indemnification
               </h2>
-              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 You agree to defend, indemnify, and hold harmless Monologg, its directors, employees, and affiliates against any third-party claims, liabilities, losses, costs, or expenses (including reasonable attorney fees) resulting from your breach of these Terms, misuse of the platform, or violation of third-party rights.
               </p>
             </div>
@@ -680,10 +680,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19556"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 10. Suspension &amp; Termination
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full">
                 <p className="leading-[24px] mb-0">
                   Termination by User: You may cancel your account at any time by accessing your account settings or contacting support.
                 </p>
@@ -698,10 +698,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19533"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 11. Governing Law &amp; Dispute Resolution
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] font-semibold text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full space-y-2">
+              <div className="font-['Inter_Tight',sans-serif] font-semibold text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full space-y-2">
                 <p className="leading-[24px] mb-0">
                   Governing Law: These Terms are governed by and construed in accordance with the laws of the Federal Republic of Nigeria.
                 </p>
@@ -719,10 +719,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178385:19540"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 12. Modifications to Terms
               </h2>
-              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 We may update these Terms periodically to align with legal, technical, or operational updates. Material modifications will be communicated by updating the date at the top of this document or via platform notifications. Continued use of the platform after updates indicates acceptance of the amended Terms.
               </p>
             </div>
@@ -731,7 +731,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       ) : (
         /* ── Cookie Settings & Policy (Figma 178383:18857) ── */
         <main
-          className="bg-white flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] relative shrink-0 w-full z-10"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] relative shrink-0 w-full z-10"
           data-node-id="178383:18916"
         >
           {/* Hero Header */}
@@ -747,12 +747,12 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     Effective Date: October 29, 2026
                   </p>
                 </div>
-                <h1 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none">
+                <h1 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none">
                   Cookie Settings &amp; Policy
                 </h1>
               </div>
 
-              <p className="leading-[24px] text-[#6d6d75] font-['Inter_Tight',sans-serif] text-[16px] text-center tracking-[0.48px] max-w-[664px] w-full">
+              <p className="leading-[24px] text-[#767676] dark:text-[#a3a3a3] font-['Inter_Tight',sans-serif] text-[16px] text-center tracking-[0.48px] max-w-[664px] w-full">
                 This Cookie Policy forms an integral part of our Terms of Service. It details how cookies, tracking pixels, local storage, and similar technologies are utilized when you access our platform, website, and associated applications.
               </p>
             </div>
@@ -768,10 +768,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19791"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 1. Scope &amp; Relationship to Terms of Service
               </h2>
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 By accessing or using our platform, you acknowledge and agree that cookies and local data storage technologies may be stored on your device in accordance with this policy. Your continued use of the platform is subject to the terms outlined here and in our Terms of Service.
               </p>
             </div>
@@ -781,10 +781,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19798"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 2. What Are Cookies?
               </h2>
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 Cookies are small text files placed on your browser or hardware device when visiting a online service. They allow platforms to retain session state, save user settings, deliver personalized experiences, and gather aggregate statistical insights regarding site usage and performance.
               </p>
             </div>
@@ -794,13 +794,13 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19715"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 3. Cookie Categories &amp; Settings
               </h2>
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 We classify the cookies utilized on our platform into four main categories based on function and consent requirements:
               </p>
-              <ul className="list-disc font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full space-y-1">
+              <ul className="list-disc font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full space-y-1">
                 <li className="mb-0 ms-[24px] leading-[24px]">
                   Strictly Necessary Cookies: Required for basic operational functions, secure authentication, session persistence, and system integrity. These cookies are essential to fulfill services requested under our Terms of Service and cannot be disabled in our preference systems.
                 </li>
@@ -821,11 +821,11 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19853"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 4. Summary of Cookies Used
               </h2>
 
-              <div className="h-px w-full bg-[#e8e8e8]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
 
               <div
                 className="flex flex-col gap-[12px] items-start relative shrink-0 w-full overflow-x-auto"
@@ -853,28 +853,28 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 {COOKIE_SUMMARY_ROWS.map((cookie) => (
                   <div
                     key={cookie.id}
-                    className="flex items-center justify-between min-w-[760px] w-full text-[14px] py-1 border-b border-[#f5f5f5] last:border-b-0"
+                    className="flex items-center justify-between min-w-[760px] w-full text-[14px] py-1 border-b border-[#f5f5f5] dark:border-[#333333] last:border-b-0"
                   >
-                    <div className="w-[136px] shrink-0 font-['Geist_Mono',monospace] text-[#16161a] font-medium">
+                    <div className="w-[136px] shrink-0 font-['Geist_Mono',monospace] text-[#1a1a1a] dark:text-[#f9f9f9] font-medium">
                       {cookie.id}
                     </div>
-                    <div className="w-[143px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
+                    <div className="w-[143px] shrink-0 font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3]">
                       {cookie.category}
                     </div>
-                    <div className="w-[312px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
+                    <div className="w-[312px] shrink-0 font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3]">
                       {cookie.purpose}
                     </div>
-                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
+                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3]">
                       {cookie.duration}
                     </div>
-                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#6d6d75]">
+                    <div className="w-[90px] shrink-0 font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3]">
                       {cookie.type}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="h-px w-full bg-[#e8e8e8]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
             </div>
 
             {/* Card 5 */}
@@ -882,15 +882,15 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19805"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 5. Managing Your Preferences
               </h2>
-              <div className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] w-full flex flex-col gap-[16px]">
+              <div className="font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] w-full flex flex-col gap-[16px]">
                 <p className="leading-[24px] mb-0">
                   You maintain control over non-essential cookies on our platform. You may adjust your choices at any time through the following methods:
                 </p>
                 <div className="flex flex-col gap-[2px]">
-                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#16161a] leading-[24px] mb-0">
+                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] leading-[24px] mb-0">
                     In-App Consent Preferences
                   </p>
                   <p className="leading-[24px] mb-0">
@@ -898,13 +898,13 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   </p>
                 </div>
                 <div className="flex flex-col gap-[2px]">
-                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#16161a] leading-[24px] mb-0">
+                  <p className="font-['Inter_Tight',sans-serif] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] leading-[24px] mb-0">
                     Web Browser Controls
                   </p>
                   <p className="leading-[24px] mb-2">
                     Most internet browsers allow you to modify cookie handling rules via their settings menus. You can instruct your browser to refuse all cookies, prompt before accepting a cookie, or delete existing local storage data:
                   </p>
-                  <div className="flex flex-col gap-[2px] text-[#6d6d75]">
+                  <div className="flex flex-col gap-[2px] text-[#767676] dark:text-[#a3a3a3]">
                     <p className="leading-[24px] mb-0">Google Chrome: Settings → Privacy and Security → Cookies and other site data</p>
                     <p className="leading-[24px] mb-0">Mozilla Firefox: Preferences → Privacy &amp; Security → Cookies and Site Data</p>
                     <p className="leading-[24px] mb-0">Apple Safari: Preferences → Privacy → Manage Website Data</p>
@@ -922,10 +922,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19812"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 6. Third-Party Integrations
               </h2>
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 Some features incorporated within our services—such as embedded media players, secure payment gateways, and authentication providers—may issue cookies directly from their external domains. The management of those cookies is governed by the respective privacy policies of those third-party providers.
               </p>
             </div>
@@ -935,10 +935,10 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               className={CARD_CLASSES}
               data-node-id="178387:19819"
             >
-              <h2 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+              <h2 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                 7. Updates to This Policy
               </h2>
-              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
+              <p className="leading-[24px] font-['Inter_Tight',sans-serif] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 We may update this Cookie Policy periodically to maintain alignment with technological modifications, operational requirements, or changing legal obligations. Any updates will become effective upon publication on this page with an updated effective date.
               </p>
             </div>

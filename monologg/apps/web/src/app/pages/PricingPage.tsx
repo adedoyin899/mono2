@@ -382,12 +382,12 @@ export function PricingPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#f6faf9] text-[#16161a] font-sans antialiased overflow-x-clip relative isolate"
+      className="min-h-screen flex flex-col bg-white dark:bg-[#000000] text-[#1a1a1a] dark:text-[#f9f9f9] font-sans antialiased overflow-x-clip relative isolate"
       data-node-id="178359:17960"
     >
       {/* ── 1. Top Announcement Bar (178359:17961) ── */}
       <div
-        className="bg-[#16161a] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
+        className="bg-[#1a1a1a] border-b border-[#333333] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
         data-node-id="178359:17961"
       >
         <div className="flex gap-[8px] items-center shrink-0" data-node-id="178359:17962">
@@ -429,7 +429,7 @@ export function PricingPage() {
 
       {/* ── 2. Sticky Header (178359:17973) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17973"
       >
         <div
@@ -476,7 +476,7 @@ export function PricingPage() {
           >
             <button
               onClick={() => navigate("/product")}
-              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
               data-node-id="178359:17989"
             >
               Product
@@ -494,7 +494,7 @@ export function PricingPage() {
             </button>
             <button
               onClick={() => navigate("/resources")}
-              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#5d5d66] hover:text-[#16161a] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
+              className="px-[16px] py-[6px] rounded-full font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[#484848] dark:text-[#bababa] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] text-[12px] leading-[16px] transition-colors whitespace-nowrap cursor-pointer"
               data-node-id="178359:17995"
             >
               Resources
@@ -508,7 +508,7 @@ export function PricingPage() {
         >
           <button
             onClick={toggle}
-            className="bg-white border border-[#ecece8] border-solid rounded-full shrink-0 size-[36px] flex items-center justify-center hover:bg-[#f5f5f3] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid rounded-full shrink-0 size-[36px] flex items-center justify-center hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             aria-label="Toggle theme"
             data-node-id="178359:18000"
           >
@@ -525,7 +525,7 @@ export function PricingPage() {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#ECECE8] bg-white hover:bg-[#F9F9F9] transition-all active:scale-95 shadow-sm"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -537,7 +537,7 @@ export function PricingPage() {
                   {userInitials}
                 </Avatar>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#6D6D75] transition-transform ${
+                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${
                     showUserMenu ? "rotate-180" : ""
                   }`}
                 />
@@ -549,9 +549,9 @@ export function PricingPage() {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white border border-[#ECECE8]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#ECECE8]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -561,10 +561,10 @@ export function PricingPage() {
                         {userInitials}
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold truncate text-[#16161A]">
+                        <div className="text-sm font-semibold truncate text-[#1a1a1a] dark:text-[#f9f9f9]">
                           {loggedInUser.name}
                         </div>
-                        <div className="text-xs truncate text-[#6D6D75]">
+                        <div className="text-xs truncate text-[#767676] dark:text-[#a3a3a3]">
                           {loggedInUser.email}
                         </div>
                       </div>
@@ -577,17 +577,17 @@ export function PricingPage() {
                             setShowUserMenu(false);
                             navigate(item.path);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#16161A] hover:bg-[#F9F9F9] transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors"
                         >
-                          <item.icon className="w-4 h-4 text-[#6D6D75]" />
+                          <item.icon className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                           {item.label}
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#ECECE8]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#F13030] hover:bg-[#FFF5F5] transition-colors font-medium"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#F13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors font-medium"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -601,7 +601,7 @@ export function PricingPage() {
             <div className="flex items-center gap-[12px]">
               <button
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#dbdbd6] border-solid rounded-full h-[40px] px-[20px] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] leading-[16px] tracking-[-0.12px] text-[#16161a] hover:bg-[#f5f5f3] transition-colors cursor-pointer whitespace-nowrap"
+                className="border border-[#d1d1d1] dark:border-[#333333] border-solid rounded-full h-[40px] px-[20px] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] leading-[16px] tracking-[-0.12px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap"
                 data-node-id="178359:18003"
               >
                 Sign In
@@ -653,7 +653,7 @@ export function PricingPage() {
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
         {/* ── 3. Pricing Hero Section (178359:18019) ── */}
         <section
-          className="bg-[#f9f9f9] flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
+          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-b border-transparent dark:border-[#333333] flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
           data-node-id="178359:18019"
         >
           <div
@@ -666,14 +666,14 @@ export function PricingPage() {
             >
               <div className="flex flex-col items-center relative" data-node-id="178359:18022">
                 <h1
-                  className="font-['Switzer',sans-serif] font-medium text-[48px] sm:text-[64px] leading-none tracking-[-1.92px] text-[#16161a] text-center whitespace-nowrap"
+                  className="font-['Switzer',sans-serif] font-medium text-[48px] sm:text-[64px] leading-none tracking-[-1.92px] text-[#1a1a1a] dark:text-[#f9f9f9] text-center whitespace-nowrap"
                   data-node-id="178359:18023"
                 >
                   Pricing
                 </h1>
               </div>
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center max-w-[664px]"
+                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#767676] dark:text-[#a3a3a3] text-center max-w-[664px]"
                 data-node-id="178359:18024"
               >
                 Simple, transparent pricing designed to maximize direct opportunities while
@@ -708,7 +708,7 @@ export function PricingPage() {
         {activeAudience === "performers" ? (
           <section
             id="performers"
-            className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
+            className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
             data-node-id="178359:18031"
           >
             <div
@@ -717,29 +717,29 @@ export function PricingPage() {
             >
               {/* Audience Pill — Performers Active (178359:18032) */}
               <div
-                className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
+                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
                 data-node-id="178359:18032"
               >
                 <button
                   type="button"
                   aria-label="Performers"
                   onClick={() => handleAudienceClick("performers")}
-                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   data-node-id="178401:153035"
                 >
                   <div
-                    className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
+                    className="bg-[#1a1a1a] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-white/40 border-solid relative rounded-full shrink-0 size-[8px]"
                     data-node-id="178359:18033"
                   />
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#1a1a1a] dark:text-[#f9f9f9] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:18034"
                   >
                     PERFORMER
                   </span>
                 </button>
                 <span
-                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#bababa] dark:text-[#767676] tracking-[1.26px] uppercase whitespace-nowrap"
                 >
                   |
                 </span>
@@ -747,7 +747,7 @@ export function PricingPage() {
                   type="button"
                   aria-label="Clients"
                   onClick={() => handleAudienceClick("clients")}
-                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                   data-node-id="178359:18036"
                 >
                   <span
@@ -774,11 +774,11 @@ export function PricingPage() {
                   >
                     {/* Avatar 1 (178359:18040) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18040"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt=""
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -798,11 +798,11 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 2 (178359:18041) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18041"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt=""
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -822,11 +822,11 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 3 (178359:18042) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18042"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt=""
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -846,11 +846,11 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 4 (178359:18043) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18043"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt=""
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -870,11 +870,11 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 5 (178359:18044) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
                       data-node-id="178359:18044"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt="Performer 5"
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -884,11 +884,11 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 6 (178359:18047) */}
                     <div
-                      className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18047"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
+                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
                         <img
                           alt=""
                           className="absolute max-w-none object-cover rounded-full size-full"
@@ -909,14 +909,14 @@ export function PricingPage() {
                   </div>
 
                   <h2
-                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
+                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#1a1a1a] dark:text-[#f9f9f9] text-center whitespace-nowrap"
                     data-node-id="178359:18048"
                   >
                     For Performers
                   </h2>
                 </div>
                 <p
-                  className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
+                  className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#767676] dark:text-[#a3a3a3] text-center"
                   data-node-id="178359:18049"
                 >
                   Keep 93% of your booking and shoutout revenue with zero agent commissions
@@ -933,7 +933,7 @@ export function PricingPage() {
               <div className="min-w-[680px] w-full flex flex-col">
                 {/* Header Row (178359:18051) */}
                 <div
-                  className="bg-[#f9f9f9] flex items-start relative shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18051"
                 >
                   <div
@@ -941,7 +941,7 @@ export function PricingPage() {
                     data-node-id="178359:18052"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18053"
                     >
                       Feature / Capability
@@ -952,7 +952,7 @@ export function PricingPage() {
                     data-node-id="178359:18054"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18055"
                     >
                       Free Tier
@@ -963,7 +963,7 @@ export function PricingPage() {
                     data-node-id="178359:18056"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18057"
                     >
                       Monologg Pro
@@ -998,25 +998,21 @@ export function PricingPage() {
                       delay: idx * 0.03,
                       ease: [0.4, 0, 0.2, 1],
                     }}
-                    className={`${
-                      row.firstRowBorder
-                        ? "border-[#e8e8e8]"
-                        : "border-[rgba(15,42,38,0.1)]"
-                    } border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9]/90 transition-colors duration-150 cursor-pointer`}
+                    className="border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                     data-node-id={row.nodeId}
                   >
                     <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                      <span className="font-['Inter_Tight',sans-serif] font-medium text-[#16161a] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
+                      <span className="font-['Inter_Tight',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
                         {row.feature}
                       </span>
                     </div>
                     <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                      <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
+                      <span className="font-['Inter_Tight',sans-serif] font-normal text-[#484848] dark:text-[#bababa] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
                         {row.freeTier}
                       </span>
                     </div>
                     <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
-                      <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
+                      <span className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
                         {row.proTier}
                       </span>
                     </div>
@@ -1051,7 +1047,7 @@ export function PricingPage() {
         ) : (
           <section
             id="clients"
-            className="bg-white flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
+            className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[112px] relative w-full"
             data-node-id="178359:18130"
           >
             <div
@@ -1064,14 +1060,14 @@ export function PricingPage() {
               >
                 {/* Audience Pill — Clients Active (178401:153037) */}
                 <div
-                  className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
+                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
                   data-node-id="178401:153037"
                 >
                   <button
                     type="button"
                     aria-label="Performers"
                     onClick={() => handleAudienceClick("performers")}
-                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                     data-node-id="178401:153042"
                   >
                     <span
@@ -1081,7 +1077,7 @@ export function PricingPage() {
                     </span>
                   </button>
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#bababa] dark:text-[#767676] tracking-[1.26px] uppercase whitespace-nowrap"
                   >
                     |
                   </span>
@@ -1089,15 +1085,15 @@ export function PricingPage() {
                     type="button"
                     aria-label="Clients"
                     onClick={() => handleAudienceClick("clients")}
-                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                     data-node-id="178401:153038"
                   >
                     <div
-                      className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
+                      className="bg-[#1a1a1a] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-white/40 border-solid relative rounded-full shrink-0 size-[8px]"
                       data-node-id="178401:153039"
                     />
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#1a1a1a] dark:text-[#f9f9f9] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178401:153040"
                     >
                       CLIENT
@@ -1117,7 +1113,7 @@ export function PricingPage() {
                     {studioBadges.map((studio, i) => (
                       <div
                         key={studio.name}
-                        className={`bg-[#f8f8f6] border-[#e5e5e5] border-[0.354px] border-solid flex items-center ${
+                        className={`bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-[0.354px] border-solid flex items-center ${
                           i < studioBadges.length - 1 ? "mr-[-15px]" : ""
                         } p-[11.323px] relative rounded-full shrink-0`}
                         data-node-id={studio.nodeId}
@@ -1126,7 +1122,7 @@ export function PricingPage() {
                         <div className="relative shrink-0 size-[22.646px]">
                           <img
                             alt={studio.name}
-                            className="absolute block inset-0 max-w-none size-full"
+                            className="absolute block inset-0 max-w-none size-full dark:invert"
                             src={studio.src}
                           />
                         </div>
@@ -1135,7 +1131,7 @@ export function PricingPage() {
                   </div>
 
                   <h2
-                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#16161a] text-center whitespace-nowrap"
+                    className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#1a1a1a] dark:text-[#f9f9f9] text-center whitespace-nowrap"
                     data-node-id="178359:18146"
                   >
                     For Clients
@@ -1144,7 +1140,7 @@ export function PricingPage() {
               </div>
 
               <p
-                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#6d6d75] text-center"
+                className="font-['Inter_Tight',sans-serif] font-normal text-[18px] leading-[26px] tracking-[0.54px] text-[#767676] dark:text-[#a3a3a3] text-center"
                 data-node-id="178359:18147"
               >
                 Choose the plan that fits your production scale. All client fees are structured
@@ -1161,7 +1157,7 @@ export function PricingPage() {
               <div className="min-w-[680px] w-full flex flex-col">
                 {/* Header Row (178359:18149) */}
                 <div
-                  className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-b border-solid flex items-start relative shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18149"
                 >
                   <div
@@ -1169,7 +1165,7 @@ export function PricingPage() {
                     data-node-id="178359:18150"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18151"
                     >
                       Feature / Capability
@@ -1180,7 +1176,7 @@ export function PricingPage() {
                     data-node-id="178359:18152"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18153"
                     >
                       Free Tier
@@ -1191,7 +1187,7 @@ export function PricingPage() {
                     data-node-id="178359:18154"
                   >
                     <span
-                      className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
+                      className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[21px] tracking-[-0.48px] whitespace-nowrap"
                       data-node-id="178359:18155"
                     >
                       Monologg Pro
@@ -1228,14 +1224,14 @@ export function PricingPage() {
                           delay: Math.min(idx * 0.02, 0.3),
                           ease: [0.4, 0, 0.2, 1],
                         }}
-                        className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
+                        className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
                         data-node-id={item.nodeId}
                       >
                         <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
                           <span
                             className={`font-['Switzer',sans-serif] ${
                               item.weight === "medium" ? "font-medium" : "font-semibold"
-                            } text-[#16161a] text-[14px] leading-[18px] whitespace-nowrap`}
+                            } text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[18px] whitespace-nowrap`}
                           >
                             {item.title}
                           </span>
@@ -1264,21 +1260,21 @@ export function PricingPage() {
                         delay: Math.min(idx * 0.025, 0.35),
                         ease: [0.4, 0, 0.2, 1],
                       }}
-                      className="border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9]/90 transition-colors duration-150 cursor-pointer"
+                      className="border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                       data-node-id={row.nodeId}
                     >
                       <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                        <span className="font-['Inter_Tight',sans-serif] font-medium text-[#16161a] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
+                        <span className="font-['Inter_Tight',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
                           {row.feature}
                         </span>
                       </div>
                       <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
-                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
+                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#484848] dark:text-[#bababa] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
                           {row.freeTier}
                         </span>
                       </div>
                       <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
-                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#16161a] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
+                        <span className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
                           {row.proTier}
                         </span>
                       </div>
@@ -1321,7 +1317,7 @@ export function PricingPage() {
           <div className="absolute inset-[-1px_-2.5%]">
             <img
               alt=""
-              className="block max-w-none size-full"
+              className="block max-w-none size-full dark:invert"
               src={ASSETS.dashedDivider}
             />
           </div>
@@ -1329,7 +1325,7 @@ export function PricingPage() {
 
         {/* ── 6. Frequently Asked Questions Section (178359:18323) ── */}
         <section
-          className="bg-white flex flex-col gap-[80px] items-center justify-center overflow-clip px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[120px] relative shrink-0 w-full"
+          className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center justify-center overflow-clip px-4 sm:px-8 lg:px-[200px] py-16 lg:py-[120px] relative shrink-0 w-full"
           data-node-id="178359:18323"
         >
           <div
@@ -1337,13 +1333,13 @@ export function PricingPage() {
             data-node-id="I178359:18323;178150:28415"
           >
             <h2
-              className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-center"
+              className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-center"
               data-node-id="I178359:18323;178150:28416"
             >
               Frequently Asked Questions
             </h2>
             <div
-              className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px]"
+              className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] text-center tracking-[0.48px] max-w-[372px]"
               data-node-id="I178359:18323;178150:28492"
             >
               <p className="mb-0">Got questions about how payments, escrow, </p>
@@ -1360,7 +1356,7 @@ export function PricingPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#fafaf8] transition-colors duration-150"
+                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
                 >
                   <button
                     type="button"
@@ -1369,7 +1365,7 @@ export function PricingPage() {
                     aria-expanded={isOpen}
                   >
                     <div className="flex-[1_0_0] min-w-px flex flex-col gap-[12px] items-start">
-                      <span className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
+                      <span className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px]">
                         {faq.question}
                       </span>
                       <AnimatePresence initial={false}>
@@ -1385,7 +1381,7 @@ export function PricingPage() {
                             }}
                             className="overflow-hidden w-full"
                           >
-                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
+                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
                               {faq.answer}
                             </p>
                           </motion.div>
@@ -1401,7 +1397,7 @@ export function PricingPage() {
                         <div className="relative size-[24px]">
                           <img
                             alt=""
-                            className="absolute block inset-0 max-w-none size-full"
+                            className="absolute block inset-0 max-w-none size-full dark:invert"
                             src={ASSETS.faqPlus}
                           />
                         </div>

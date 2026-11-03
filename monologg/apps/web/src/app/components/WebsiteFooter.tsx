@@ -139,7 +139,7 @@ export function WebsiteFooter({
       {/* ─── CTA Section (178190:29887) ─── */}
       {showCtaBanner && (
         <section
-          className="bg-[#f9f9f9] flex flex-col items-center justify-center px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative shrink-0 w-full"
+          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-y border-transparent dark:border-[#333333] flex flex-col items-center justify-center px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative shrink-0 w-full"
           data-node-id="178190:29887"
           data-name="CTA sections"
         >
@@ -156,7 +156,7 @@ export function WebsiteFooter({
                 data-node-id="178190:29890"
               >
                 <div
-                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] w-full"
+                  className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[36px] md:text-[48px] leading-[48px] tracking-[-1.44px] w-full"
                   data-node-id="178190:29891"
                   style={{ fontFeatureSettings: '"cv01" 1' }}
                 >
@@ -175,7 +175,7 @@ export function WebsiteFooter({
                 data-node-id="178190:29893"
               >
                 <p
-                  className="font-['Inter',sans-serif] font-normal leading-[1.54] not-italic relative shrink-0 text-[#6d6d75] text-[18px] whitespace-pre-wrap"
+                  className="font-['Inter',sans-serif] font-normal leading-[1.54] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[18px] whitespace-pre-wrap"
                   data-node-id="178190:29894"
                   style={{ fontFeatureSettings: '"cv01" 1' }}
                 >{`Connect directly with directors, studios, agencies, brand managers, and live event organizers globally  with zero agent commissions.`}</p>
@@ -206,11 +206,11 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={handleInvestor}
-                      className="bg-[#f8f8f8] hover:bg-[#f0f0ee] transition-colors cursor-pointer border border-[#e8e8e8] border-solid flex gap-[8px] h-[48px] items-center justify-center px-[24px] py-[8px] relative rounded-[23px] shrink-0"
+                      className="bg-[#f8f8f8] dark:bg-[#000000] hover:bg-[#e8e8e8] dark:hover:bg-[#333333] transition-colors cursor-pointer border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[8px] h-[48px] items-center justify-center px-[24px] py-[8px] relative rounded-[23px] shrink-0"
                       data-name="Button"
                     >
                       <span
-                        className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-medium justify-center relative shrink-0 text-[#16161a] text-[16px] leading-[24px] whitespace-nowrap"
+                        className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-medium justify-center relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] leading-[24px] whitespace-nowrap"
                         data-node-id="I178190:29901;178030:12893"
                       >
                         Become an investor
@@ -226,7 +226,7 @@ export function WebsiteFooter({
 
       {/* ─── Footer Section (178151:49520) ─── */}
       <footer
-        className="bg-white flex flex-col gap-[40px] items-center pb-[48px] pt-16 lg:pt-[112px] px-6 md:px-12 lg:px-[200px] relative shrink-0 w-full"
+        className="bg-white dark:bg-[#000000] flex flex-col gap-[40px] items-center pb-[48px] pt-16 lg:pt-[112px] px-6 md:px-12 lg:px-[200px] relative shrink-0 w-full"
         data-node-id="178151:49520"
         data-name="Section"
       >
@@ -248,13 +248,13 @@ export function WebsiteFooter({
                   data-name="Text and supporting text"
                 >
                   <div
-                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[24px] leading-[40px] text-center tracking-[-0.72px] whitespace-nowrap"
+                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[24px] leading-[40px] text-center tracking-[-0.72px] whitespace-nowrap"
                     data-node-id="178151:49524"
                   >
                     <p className="leading-[40px]">Join our newsletter</p>
                   </div>
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[16px] tracking-[0.48px] max-w-[344px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[344px]"
                     data-node-id="178151:49525"
                     style={{ fontFeatureSettings: '"zero" 1' }}
                   >
@@ -271,7 +271,7 @@ export function WebsiteFooter({
               >
                 <form
                   onSubmit={handleNewsletterSubmit}
-                  className="bg-white border border-[#e5e7eb] border-solid flex items-center justify-between overflow-clip px-[13px] py-[9px] relative rounded-[20px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-[258px]"
+                  className="bg-white dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-between overflow-clip px-[13px] py-[9px] relative rounded-[20px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-[258px]"
                   data-node-id="178151:49527"
                   data-name="Input Styles"
                 >
@@ -285,7 +285,7 @@ export function WebsiteFooter({
                     placeholder={newsletterSubmitted ? (newsletterFeedback || "Thanks for subscribing!") : "Enter your email"}
                     aria-label="Enter your email"
                     disabled={newsletterSubmitting}
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] relative text-[#16161a] placeholder:text-[#6d6d75] text-[14px] tracking-[0.42px] bg-transparent outline-none min-w-0 flex-1 pr-2"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] relative text-[#1a1a1a] dark:text-[#f9f9f9] placeholder:text-[#767676] dark:placeholder:text-[#767676] text-[14px] tracking-[0.42px] bg-transparent outline-none min-w-0 flex-1 pr-2"
                     data-node-id="178151:49528"
                     style={{ fontFeatureSettings: '"zero" 1, "cv01" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv07" 1, "cv10" 1, "cv11" 1' }}
                     required
@@ -315,7 +315,7 @@ export function WebsiteFooter({
 
           {/* Divider 1 */}
           <div
-            className="bg-[#d1d1d1] h-px opacity-50 relative shrink-0 w-full"
+            className="bg-[#e8e8e8] dark:bg-[#333333] h-px relative shrink-0 w-full"
             data-node-id="178151:49533"
             data-name="Divider"
           />
@@ -364,7 +364,7 @@ export function WebsiteFooter({
                     </div>
                   </div>
                   <div
-                    className="absolute flex flex-col font-['Switzer',sans-serif] font-medium inset-[19.04%_-0.41%_23.81%_22.12%] justify-center not-italic text-[#16161a] text-[16.406px] text-center tracking-[-0.4922px] whitespace-nowrap"
+                    className="absolute flex flex-col font-['Switzer',sans-serif] font-medium inset-[19.04%_-0.41%_23.81%_22.12%] justify-center not-italic text-[#1a1a1a] dark:text-[#f9f9f9] text-[16.406px] text-center tracking-[-0.4922px] whitespace-nowrap"
                     data-node-id="178151:49549"
                   >
                     <p className="leading-[26.25px]">Monologg</p>
@@ -376,7 +376,7 @@ export function WebsiteFooter({
                   data-node-id="178151:49550"
                 >
                   <p
-                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] not-italic relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-[248px]"
+                    className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] w-[248px]"
                     data-node-id="178151:49551"
                   >
                     The Upwork for Actors, Public speakers, Comperes, Comedians, Streamers, Artists, musicians and Creators.
@@ -386,7 +386,7 @@ export function WebsiteFooter({
                     data-node-id="178151:49552"
                   >
                     <p
-                      className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] not-italic relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49553"
                     >
                       Backed by
@@ -404,7 +404,7 @@ export function WebsiteFooter({
                         <rect x="2" y="13.5" width="20" height="3" rx="1.5" fill="#00C3F7" />
                         <rect x="2" y="18.5" width="14" height="3" rx="1.5" fill="#00C3F7" />
                       </svg>
-                      <span className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-[15px] tracking-[-0.4px] text-[#001328] lowercase leading-none">
+                      <span className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-[15px] tracking-[-0.4px] text-[#1a1a1a] dark:text-[#f9f9f9] lowercase leading-none">
                         paystack
                       </span>
                     </div>
@@ -425,7 +425,7 @@ export function WebsiteFooter({
                   data-name="_Footer links column"
                 >
                   <div
-                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[16px] w-full"
+                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] w-full"
                     data-node-id="178151:49571"
                   >
                     <p className="leading-[normal]">Product</p>
@@ -438,7 +438,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/dashboard")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49576"
                     >
                       Performer Portal
@@ -446,7 +446,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/client")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49580"
                     >
                       Client Portal
@@ -459,7 +459,7 @@ export function WebsiteFooter({
                       <button
                         type="button"
                         onClick={() => navigate("/product")}
-                        className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                        className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                         data-node-id="178151:49584"
                       >
                         Thespian AI
@@ -484,7 +484,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/pricing")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49591"
                     >
                       Pricing
@@ -499,7 +499,7 @@ export function WebsiteFooter({
                   data-name="_Footer links column"
                 >
                   <div
-                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[16px] w-full"
+                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] w-full"
                     data-node-id="178151:49664"
                   >
                     <p className="leading-[normal]">Resources</p>
@@ -512,7 +512,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/terms")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49669"
                     >
                       Escrow Policy
@@ -520,7 +520,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/terms")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49673"
                     >
                       Fair Trade Contracts
@@ -528,7 +528,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={() => navigate("/resources")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49677"
                     >
                       {`Support & Community`}
@@ -543,7 +543,7 @@ export function WebsiteFooter({
                           navigate("/#faq");
                         }
                       }}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49681"
                     >
                       FAQ
@@ -551,7 +551,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={handleInvestor}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49685"
                     >
                       Become an Investor
@@ -566,7 +566,7 @@ export function WebsiteFooter({
                   data-name="_Footer links column"
                 >
                   <div
-                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#16161a] text-[16px] w-full"
+                    className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[16px] w-full"
                     data-node-id="178151:49687"
                   >
                     <p className="leading-[normal]">Social</p>
@@ -578,7 +578,7 @@ export function WebsiteFooter({
                   >
                     <a
                       href="mailto:hello@monologg.co"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49692"
                     >
                       hello@monologg.co
@@ -587,7 +587,7 @@ export function WebsiteFooter({
                       href="https://instagram.com/monologg"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49696"
                     >
                       Instagram
@@ -596,7 +596,7 @@ export function WebsiteFooter({
                       href="https://x.com/monologg"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49700"
                     >
                       X (Twitter)
@@ -605,7 +605,7 @@ export function WebsiteFooter({
                       href="https://tiktok.com/@monologg"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49704"
                     >
                       Tiktok
@@ -614,7 +614,7 @@ export function WebsiteFooter({
                       href="https://discord.gg/monologg"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49708"
                     >
                       Discord
@@ -623,7 +623,7 @@ export function WebsiteFooter({
                       href="https://www.producthunt.com"
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] hover:text-[#16161a] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
+                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49712"
                     >
                       Product Hunt
@@ -641,12 +641,12 @@ export function WebsiteFooter({
             data-name="Container"
           >
             <div
-              className="bg-[#d1d1d1] h-px opacity-50 relative shrink-0 w-full"
+              className="bg-[#e8e8e8] dark:bg-[#333333] h-px relative shrink-0 w-full"
               data-node-id="178151:49781"
               data-name="Divider"
             />
             <div
-              className="flex flex-col sm:flex-row font-['Inter_Tight',sans-serif] font-normal gap-4 sm:gap-[32px] items-start sm:items-center justify-between leading-[24px] not-italic relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full"
+              className="flex flex-col sm:flex-row font-['Inter_Tight',sans-serif] font-normal gap-4 sm:gap-[32px] items-start sm:items-center justify-between leading-[24px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] w-full"
               data-node-id="178151:49782"
               data-name="Content"
             >
@@ -661,17 +661,17 @@ export function WebsiteFooter({
                 <button
                   type="button"
                   onClick={() => navigate("/terms")}
-                  className="hover:text-[#16161a] transition-colors cursor-pointer"
+                  className="hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors cursor-pointer"
                 >
                   Terms of Service
                 </button>
-                <span className="text-[#d1d1d1]" aria-hidden="true">
+                <span className="text-[#d1d1d1] dark:text-[#333333]" aria-hidden="true">
                   |
                 </span>
                 <button
                   type="button"
                   onClick={() => navigate("/cookies")}
-                  className="hover:text-[#16161a] transition-colors cursor-pointer"
+                  className="hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors cursor-pointer"
                 >
                   Cookie Policy
                 </button>
