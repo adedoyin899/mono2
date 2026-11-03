@@ -1,11 +1,36 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
+**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 197 (2026-11-03) — "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit
+
+**Goal:** Ensure the "Become an investor" buttons and links across the site navigate to the investor section on `/resources#investor` with smooth in-page scrolling, increase horizontal spacing in the "Finish Your Project today!" CTA section to align its container and left title with "Join our newsletter" in the footer, and audit all marketing buttons across the web application.
+
+1. **"Become an Investor" Routing & Deep-Link Anchor:**
+   - **`WebsiteFooter.tsx`:** Updated `handleInvestor` to replace the `mailto:` email fallback with navigation to `/resources#investor`. When already on `/resources`, it executes smooth scrolling directly via `document.getElementById("investor")?.scrollIntoView({ behavior: "smooth", block: "start" })`.
+   - **`ResourcesPage.tsx`:** Added `id="investor"` and `scroll-mt-24` to section `178359:18473` ("Become an Investor Section"). Updated mount `useEffect` and added a `hashchange` listener so `#investor` triggers a smooth scroll into view instead of resetting scroll to `(0, 0)`.
+   - **`routes.tsx`:** Added convenience redirect aliases for `/investor` and `/investors` to `/resources#investor`.
+2. **Alignment & Spacing for "Finish Your Project today!" CTA Section:**
+   - **`WebsiteFooter.tsx`:** Changed the pre-footer CTA container (`178190:29888`) from `max-w-[910px]` with `gap-8 md:gap-[48px]` to `max-w-[1040px] w-full justify-between items-start gap-10 md:gap-12 lg:gap-16`.
+   - This exact `1040px` container width matches the footer newsletter row container (`max-w-[1040px]`), ensuring "Finish Your Project today!" aligns pixel-for-pixel on the left margin with "Join our newsletter", while the expanded spacing between the title and the action column creates a spacious, senior FAANG aesthetic.
+3. **Global Button Link Audit & Defensive Routing:**
+   - **`LandingPage.tsx`:**
+     - Hero buttons: "Find Performers" routes to `/client` (if logged in) or `/onboarding/client` (if guest); "Find Gigs" routes to `/dashboard` (if logged in) or `/onboarding` (if guest).
+     - User dropdown menu: "Find Talent" / "Browse Gigs" routes to `/client` or `/dashboard`; "Post a Brief" routes to `/brief`.
+   - **`routes.tsx`:** Added defensive redirect aliases for `/search` -> `/client`, `/gigs` -> `/dashboard`, and `/post-gig` -> `/brief` to prevent dynamic `:handle` route capture.
+   - **Audited `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, and `PublicStorefront.tsx`:** All CTA and navigation links verify to valid, logical routes.
+4. **Testing & Quality Gate:**
+   - Added test assertions in `WebsiteFooter.test.tsx` for `max-w-[1040px]` container alignment and "Become an investor" click handling.
+   - Added test assertions in `ResourcesPage.test.tsx` verifying `id="investor"` and `scroll-mt-24`.
+   - 32/32 unit tests passing across all 7 test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`, `AuthFlow.test.tsx`).
+   - 0 TypeScript compiler errors (`npx tsc --noEmit`) in both `apps/web` and `apps/api`.
 
 ---
 

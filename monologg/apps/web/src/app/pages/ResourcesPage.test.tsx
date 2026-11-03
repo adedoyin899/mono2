@@ -57,6 +57,10 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     expect(screen.getByRole("heading", { name: "Become an Investor" })).toBeInTheDocument();
     expect(screen.getByText(/Follow our investor updates/i)).toBeInTheDocument();
 
+    const investorSection = document.getElementById("investor");
+    expect(investorSection).toBeInTheDocument();
+    expect(investorSection).toHaveClass("scroll-mt-24");
+
     const firstNameInput = screen.getByLabelText(/First Name/i);
     const lastNameInput = screen.getByLabelText(/Last Name/i);
     const emailInput = screen.getByLabelText(/^Email$/i);

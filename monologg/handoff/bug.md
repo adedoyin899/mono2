@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
+**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 146. "Finish Your Project today!" Pre-Footer CTA Left-Margin Misalignment with Footer Newsletter Section (`WebsiteFooter.tsx`)
+- **Severity:** Low / Visual Layout Grid Inconsistency
+- **What happened:**
+  - The pre-footer CTA container ("Finish Your Project today!") had `max-w-[910px]`, while the footer newsletter container below it had `max-w-[1040px]`. As both containers were centered within parent padding, the left title "Finish Your Project today!" was indented by ~65px relative to "Join our newsletter" below it, creating an awkward visual stair-step.
+- **Root Cause:**
+  - The CTA section inherited an earlier narrower frame width (`910px`) rather than matching the standard `1040px` content container used across the footer and marketing sections.
+- **Fix:**
+  - Updated the pre-footer container in `WebsiteFooter.tsx` to `max-w-[1040px] w-full justify-between items-start gap-10 md:gap-12 lg:gap-16`. The left title now aligns pixel-for-pixel with "Join our newsletter", with increased horizontal breathing room.
+
+### 145. "Become an Investor" Button Triggering Mailto Instead of Deep-Linking to Resources Investor Section (`WebsiteFooter.tsx`, `ResourcesPage.tsx`)
+- **Severity:** Medium / User Navigation Defect
+- **What happened:**
+  - Clicking "Become an investor" in the pre-footer CTA and footer links attempted to open a system mail client (`mailto:investors@monologg.co`) rather than taking the user to the dedicated "Become an Investor" application form (`Figma 178359:18473`) on the Resources page.
+- **Root Cause:**
+  - The footer used a legacy `mailto:` handler that had not been updated after the full interactive investor application form was built on `ResourcesPage.tsx` in Session 184.
+- **Fix:**
+  - Configured `handleInvestor` in `WebsiteFooter.tsx` to route to `/resources#investor` and execute smooth scrolling. Added `id="investor"` and `scroll-mt-24` to the investor section in `ResourcesPage.tsx`, updated `useEffect` to handle hash scrolling without jumping to `(0, 0)`, and added `/investor` and `/investors` redirect aliases in `routes.tsx`. Verified with 32 unit tests passing.
 
 ### 144. "Get Started for Free" CTAs Inconsistently Pointing to Sign Up Rather Than Onboarding Flow (`ProductPage.tsx`, `PricingPage.tsx`)
 - **Severity:** Low / Navigation Routing Inconsistency

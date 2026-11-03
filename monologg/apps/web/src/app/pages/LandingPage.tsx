@@ -482,7 +482,7 @@ export function LandingPage() {
                       type="button"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        navigate(isClientSession ? "/search" : "/gigs");
+                        navigate(isClientSession ? "/client" : "/dashboard");
                       }}
                       className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
                     >
@@ -493,7 +493,7 @@ export function LandingPage() {
                       type="button"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        navigate("/post-gig");
+                        navigate("/brief");
                       }}
                       className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
                     >
@@ -674,7 +674,7 @@ export function LandingPage() {
           <div className="flex gap-[8px] items-center relative shrink-0" data-node-id="178359:16936">
             <button
               type="button"
-              onClick={() => navigate("/search")}
+              onClick={() => navigate(loggedInUser ? "/client" : "/onboarding/client")}
               className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
               data-node-id="178359:16937"
               data-name="Button"
@@ -692,7 +692,7 @@ export function LandingPage() {
 
             <button
               type="button"
-              onClick={() => navigate("/gigs")}
+              onClick={() => navigate(loggedInUser ? "/dashboard" : "/onboarding")}
               className="border border-[#dbdbd6] hover:border-[#16161a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
               data-node-id="178359:16942"
               data-name="Button"

@@ -61,8 +61,31 @@ export function ResourcesPage() {
 
   useEffect(() => {
     try {
-      window.scrollTo?.(0, 0);
+      if (window.location.hash === "#investor") {
+        const timer = setTimeout(() => {
+          const el = document.getElementById("investor");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+        return () => clearTimeout(timer);
+      } else {
+        window.scrollTo?.(0, 0);
+      }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === "#investor") {
+        const el = document.getElementById("investor");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   }, []);
 
   useEffect(() => {
@@ -782,7 +805,8 @@ export function ResourcesPage() {
 
         {/* ── 5. Become an Investor Section (Figma 178359:18473) ── */}
         <section
-          className="bg-white flex items-start justify-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full"
+          id="investor"
+          className="bg-white flex items-start justify-center px-4 sm:px-8 xl:px-[200px] py-[80px] lg:py-[112px] relative w-full scroll-mt-24"
           data-node-id="178359:18473"
           data-name="testimonial"
         >

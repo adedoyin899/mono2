@@ -74,4 +74,27 @@ describe("WebsiteFooter", () => {
       expect(screen.getByPlaceholderText("Thanks for subscribing!")).toBeInTheDocument();
     });
   });
+
+  it("aligns 'Finish Your Project today!' CTA section to 1040px container matching footer and triggers investor navigation", () => {
+    const handleBecomeInvestor = vi.fn();
+    render(
+      <MemoryRouter>
+        <WebsiteFooter onBecomeInvestor={handleBecomeInvestor} />
+      </MemoryRouter>,
+    );
+
+    // Verify container has max-w-[1040px] for consistent alignment
+    const ctaHeading = screen.getByText(/Finish Your/i).closest("div");
+    expect(ctaHeading).toBeInTheDocument();
+
+    const ctaContainer = screen.getByText(/Finish Your/i).closest(".max-w-\\[1040px\\]");
+    expect(ctaContainer).toBeInTheDocument();
+
+    // Verify Become an investor button exists and invokes handler
+    const investorBtns = screen.getAllByRole("button", { name: /Become an investor/i });
+    expect(investorBtns.length).toBeGreaterThanOrEqual(1);
+
+    fireEvent.click(investorBtns[0]);
+    expect(handleBecomeInvestor).toHaveBeenCalled();
+  });
 });

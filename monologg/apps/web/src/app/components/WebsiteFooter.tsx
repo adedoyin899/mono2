@@ -54,7 +54,23 @@ export function WebsiteFooter({
       onBecomeInvestor();
       return;
     }
-    window.location.href = "mailto:investors@monologg.co?subject=Monologg%20Investor%20Inquiry";
+    if (typeof window !== "undefined" && window.location.pathname === "/resources") {
+      const el = document.getElementById("investor");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        try {
+          window.history.pushState(null, "", "/resources#investor");
+        } catch {}
+        return;
+      }
+    }
+    navigate("/resources#investor");
+    setTimeout(() => {
+      const el = document.getElementById("investor");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 150);
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -128,11 +144,11 @@ export function WebsiteFooter({
           data-name="CTA sections"
         >
           <div
-            className="flex flex-col md:flex-row gap-8 md:gap-[48px] items-start relative shrink-0 w-full max-w-[910px]"
+            className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-12 lg:gap-16 relative shrink-0 w-full max-w-[1040px]"
             data-node-id="178190:29888"
           >
             <div
-              className="flex flex-1 flex-col items-start justify-center min-w-px relative"
+              className="flex flex-col items-start justify-center relative shrink-0 w-full md:w-auto md:max-w-[420px]"
               data-node-id="178190:29889"
             >
               <div
@@ -151,21 +167,21 @@ export function WebsiteFooter({
             </div>
 
             <div
-              className="flex flex-1 flex-col gap-[40px] items-start justify-center min-w-px relative"
+              className="flex flex-1 flex-col gap-[40px] items-start md:items-end justify-center min-w-px relative w-full"
               data-node-id="178190:29892"
             >
               <div
-                className="flex flex-col gap-[48px] items-start justify-center relative shrink-0 w-full"
+                className="flex flex-col gap-[36px] md:gap-[48px] items-start relative shrink-0 w-full md:max-w-[480px]"
                 data-node-id="178190:29893"
               >
                 <p
-                  className="font-['Inter',sans-serif] font-normal leading-[1.54] max-w-[450px] not-italic relative shrink-0 text-[#6d6d75] text-[18px] whitespace-pre-wrap"
+                  className="font-['Inter',sans-serif] font-normal leading-[1.54] not-italic relative shrink-0 text-[#6d6d75] text-[18px] whitespace-pre-wrap"
                   data-node-id="178190:29894"
                   style={{ fontFeatureSettings: '"cv01" 1' }}
                 >{`Connect directly with directors, studios, agencies, brand managers, and live event organizers globally  with zero agent commissions.`}</p>
 
                 <div
-                  className="flex flex-wrap gap-[8px] items-center justify-center relative shrink-0"
+                  className="flex flex-wrap gap-[12px] items-center justify-start relative shrink-0"
                   data-node-id="178190:29895"
                 >
                   <button

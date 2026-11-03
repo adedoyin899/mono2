@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
+**Last updated:** 2026-11-03 (Session 197: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 156: "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit (Session 197)
+
+Enhanced website footer alignment, connected the investor experience end-to-end, and verified marketing button routing:
+- **"Become an Investor" Deep-Link Routing:** Replaced the legacy `mailto:` in `WebsiteFooter.tsx` with navigation to `/resources#investor` and smooth scrolling. Added `id="investor"` and `scroll-mt-24` on section `178359:18473` in `ResourcesPage.tsx`, updated the mount `useEffect` to scroll into view when `#investor` is present, and added a window `hashchange` listener. Added `/investor` and `/investors` convenience redirect routes in `routes.tsx`.
+- **Pre-Footer CTA Container Alignment:** Widened the pre-footer container in `WebsiteFooter.tsx` from `max-w-[910px]` to `max-w-[1040px] w-full justify-between items-start gap-10 md:gap-12 lg:gap-16`. Aligned "Finish Your Project today!" with the left boundary of "Join our newsletter", providing harmonious structural alignment with increased breathing room.
+- **Global Button Audit & Defensive Routing:** In `LandingPage.tsx`, updated Hero CTAs to route to `/client` / `/onboarding/client` ("Find Performers") and `/dashboard` / `/onboarding` ("Find Gigs"), and updated user menu "Post a Brief" to `/brief`. Added defensive redirect aliases in `routes.tsx` for `/search` -> `/client`, `/gigs` -> `/dashboard`, and `/post-gig` -> `/brief`.
+- **Verification:** Authored test cases in `WebsiteFooter.test.tsx` and `ResourcesPage.test.tsx`. Verified 32/32 tests pass across all 7 test suites, and 0 TypeScript compiler errors in `apps/web` and `apps/api`.
 
 ### Step 155: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles (Session 196)
 
