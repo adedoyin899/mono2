@@ -1,11 +1,25 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 192: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation)
+**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 193 (2026-11-03) — Thespian AI Performer & Client Table Rows Hover-Only Background Fill
+
+**Goal:** Remove default static `#f7f7f7` background fill on Row 1 of both Thespian AI feature tables (Performer and Client) in `ProductPage.tsx`, making the `#f7f7f7` background fill and scale micro-interaction strictly hover-only across all rows.
+
+1. **Thespian AI Row 1 Hover-Only Refactoring (`ProductPage.tsx`):**
+   - **Performer AI Table (Row 1: `Instant AI Onboarding`, `178359:17863`):** Removed `bg-[#f7f7f7]` default background class and unified padding to `p-[24px]` (matching rows 2–5). The row now defaults to transparent and transitions smoothly into `hover:bg-[#f7f7f7]` and `hover:scale-[1.005]` only when hovered.
+   - **Client AI Table (Row 1: `Vibe & Texture Matching`, `178359:17925`):** Removed `bg-[#f7f7f7]` default background class and unified padding to `p-[24px]` (matching rows 2–3). The row now defaults to transparent and transitions smoothly into `hover:bg-[#f7f7f7]` and `hover:scale-[1.005]` only when hovered.
+2. **Quality Gate & Testing:**
+   - Ran `npx tsc --noEmit`: 0 TypeScript compiler errors.
+   - Ran Vitest suite: all 5 tests in `ProductPage.test.tsx` pass.
+   - Ran complete web pages test suite (23/23 tests passing across Landing, Pricing, Product, Resources, and Legal pages).
 
 ---
 

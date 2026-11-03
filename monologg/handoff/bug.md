@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 192: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation)
+**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 140. Thespian AI Row 1 Static Default Background Fill (`ProductPage.tsx`)
+- **Severity:** Low / UI State Consistency Defect
+- **What happened:**
+  - In `ProductPage.tsx`, Row 1 of both Thespian AI feature tables (Performer: `Instant AI Onboarding`, Client: `Vibe & Texture Matching`) rendered with static `bg-[#f7f7f7]` by default, whereas subsequent rows rendered transparent and only filled `#f7f7f7` on mouse hover.
+- **Root Cause:**
+  - The source Figma design canvas depicted Row 1 in an active/hover preview state with `#f7f7f7` fill to indicate what an interacted row looked like, which was initially ported literally into the default JSX classes.
+- **Fix:**
+  - Removed `bg-[#f7f7f7]` default from Row 1 in both tables and standardized padding to `p-[24px]`. All rows now start transparent by default and cleanly apply `hover:bg-[#f7f7f7] hover:scale-[1.005]` only on hover.
 
 ### 139. Product Hero Heading Awkward 3-Line Linebreak Wrap (`ProductPage.tsx`)
 - **Severity:** Low / Typography & Visual Balance Defect

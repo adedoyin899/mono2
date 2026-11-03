@@ -1592,9 +1592,9 @@ export function ProductPage() {
                 className="flex flex-col gap-[24px] items-center relative rounded-[20px] shrink-0 w-full max-w-[910px]"
                 data-node-id="178359:17861"
               >
-                {/* Row 1: Instant AI Onboarding (Highlighted #f7f7f7) (178359:17863) */}
+                {/* Row 1: Instant AI Onboarding (178359:17863) */}
                 <div
-                  className="bg-[#f7f7f7] hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17863"
                 >
                   <div
@@ -1924,9 +1924,9 @@ export function ProductPage() {
                 </div>
               </div>
 
-              {/* Row 1: Vibe & Texture Matching (Highlighted #f7f7f7) (178359:17925) */}
+              {/* Row 1: Vibe & Texture Matching (178359:17925) */}
               <div
-                className="bg-[#f7f7f7] hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
+                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17925"
               >
                 <div

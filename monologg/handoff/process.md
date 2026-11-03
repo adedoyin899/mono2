@@ -1,9 +1,9 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 192: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation)
+**Last updated:** 2026-11-03 (Session 193: Thespian AI Performer & Client Table Rows Hover-Only Background Fill)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
-This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
+Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
 
 Think of the whole engagement as two projects back to back:
 - **Part A:** turn a downloaded design file into something you can actually click through in a browser.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 152: Thespian AI Performer & Client Table Rows Hover-Only Background Fill (Session 193)
+
+Refactored row background states across the Thespian AI section in `ProductPage.tsx`:
+- **Hover-Only Styling:** Removed default static `bg-[#f7f7f7]` from Row 1 in both Performer Table (`Instant AI Onboarding`, `178359:17863`) and Client Table (`Vibe & Texture Matching`, `178359:17925`).
+- **Visual Uniformity:** Standardized padding across all table rows to `p-[24px]` and unified hover behavior (`hover:bg-[#f7f7f7]` with `hover:scale-[1.005]` and `transition-all duration-200 ease-out`). All rows now default to a clean, transparent background and fill only when actively hovered.
+- **Verification:** Verified test suite passes (`ProductPage.test.tsx` 5/5 passing, all 23 marketing page tests) and zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 151: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation (Session 192)
 
