@@ -355,7 +355,7 @@ export function Checkout() {
           </div>
           <h2 className="font-display text-2xl mb-2" style={{ color: "var(--color-text-primary)" }}>Processing Payment</h2>
           <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
-            {isLive ? "Securing your funds in escrow…" : "Securing your funds in escrow via FINCRA..."}
+            {isLive ? "Securing your funds in escrow…" : "Securing your funds in escrow via Paystack..."}
           </p>
         </motion.div>
       </div>

@@ -99,7 +99,7 @@ MONOLOGG
 │   ├── PWA-10   Casting Directory Feed (talent discovery)
 │   ├── PWA-10D  Casting Directory Feed — Desktop Adaptive
 │   ├── PWA-11   Calendar Slot Selection / Checkout Sheet
-│   ├── PWA-12   FINCRA Payment Gateway / Escrow Deposit
+│   ├── PWA-12   Paystack Payment Gateway / Escrow Deposit
 │   └── PWA-13   Order Room (shared with creator, per booking)
 │
 ├── SHARED / SYSTEM SCREENS
@@ -132,7 +132,7 @@ MONOLOGG
 | PWA-10 | Casting Directory Feed (Mobile) | Client | P0 |
 | PWA-10D | Casting Directory Feed (Desktop) | Client | P1 |
 | PWA-11 | Calendar Slot / Checkout Sheet | Client | P0 |
-| PWA-12 | FINCRA Payment + Escrow Overlay | Client | P0 |
+| PWA-12 | Paystack Payment + Escrow Overlay | Client | P0 |
 | PWA-13 | Order Room + Escrow Progress Bar | Both | P0 |
 | SET-01–05 | Settings Screens | Both | P1 |
 | SYS-01–04 | System Screens | Both | P2 |
@@ -341,7 +341,7 @@ MONOLOGG
     "Proceed to Payment" ──▶
     │
     ▼
-[PWA-12: FINCRA Payment + Escrow]
+[PWA-12: Paystack Payment + Escrow]
     │
     ┌─────┴──────────┐
     │                │
@@ -795,7 +795,7 @@ Booking slot is held for 10 minutes
 
 ---
 
-### PWA-12 — FINCRA Payment Gateway & Escrow Overlay
+### PWA-12 — Paystack Payment Gateway & Escrow Overlay
 
 | Attribute | Detail |
 |---|---|
@@ -804,16 +804,16 @@ Booking slot is held for 10 minutes
 
 **Key UI Elements:**
 - Drawer header: "Secure Escrow Payment"
-- FINCRA branding / trust mark
+- Paystack branding / trust mark
 - Escrow explanation: "Your payment is held securely until delivery is confirmed."
 - Payment options tabs: Card | Bank Transfer
 - Card input fields: Card number, Name on card, Expiry, CVV
-- Bank routing option (for FINCRA-supported banks)
+- Bank routing option (for Paystack-supported banks)
 - Order summary sidebar (collapsed on mobile; expandable):
   - Base rate: $XXX
   - Escrow processing fee (12%): $XX
   - Total: $XXX
-- Security badges row (SSL, FINCRA, escrow icon)
+- Security badges row (SSL, Paystack, escrow icon)
 - "Pay & Lock Escrow" CTA
 
 **Primary Action:** "Pay & Lock Escrow"
@@ -1096,12 +1096,12 @@ Booking slot is held for 10 minutes
 
 ---
 
-### PWA-12 — FINCRA Payment
+### PWA-12 — Paystack Payment
 
 | Element | Copy |
 |---|---|
 | **Drawer Title** | Secure Escrow Payment |
-| **Security label** | Protected by FINCRA Escrow |
+| **Security label** | Protected by Paystack Escrow |
 | **Escrow note** | Your funds are held safely until you confirm delivery. You won't be charged until you tap Pay. |
 | **Card tab** | Pay by Card |
 | **Bank tab** | Pay by Bank Transfer |
@@ -1112,7 +1112,7 @@ Booking slot is held for 10 minutes
 | **CVV label** | CVV |
 | **CVV helper** | 3 digits on back of card |
 | **Primary CTA** | Pay & Lock Escrow |
-| **Security badges alt text** | SSL Secured · FINCRA Escrow · PCI Compliant |
+| **Security badges alt text** | SSL Secured · Paystack Escrow · PCI Compliant |
 | **Processing state** | Securing your escrow… |
 
 ---
@@ -1248,7 +1248,7 @@ Justification: This is a mobile-first PWA targeting creators who live on their p
 |---|---|---|
 | **PWA-04 (Thespian AI)** | High — any delay over 30s causes anxiety and abandonment | Add real-time microcopy that changes every 10s; show skip at 60s; never show a raw spinner with no copy |
 | **PWA-06 (Rate Cards)** | Medium — creators freeze on pricing decisions | Provide price range suggestions based on niche ("Actors in your region typically charge $80–$250 per session") |
-| **PWA-12 (Payment)** | High — payment screens lose trust if they feel generic | FINCRA branding, SSL badge, escrow explanation all must be above the fold; do not hide behind scroll |
+| **PWA-12 (Payment)** | High — payment screens lose trust if they feel generic | Paystack branding, SSL badge, escrow explanation all must be above the fold; do not hide behind scroll |
 | **PWA-02 (Niche Grid)** | Low-medium — "Extended Creator" users may not see themselves | Ensure Streamer, Pastor, Content Creator tiles are visible without scrolling on 375px viewport |
 
 ---

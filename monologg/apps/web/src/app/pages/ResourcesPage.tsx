@@ -184,7 +184,7 @@ export function ResourcesPage() {
             className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap"
             data-node-id="178359:18330"
           >
-            Monologg is in Alpha 🥳🥳
+            Monologg is in Alpha 🥳 🥳
           </p>
         </div>
         <div
@@ -514,7 +514,7 @@ export function ResourcesPage() {
                       className="font-['Inter_Tight',sans-serif] text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] text-center max-w-[444px]"
                       data-node-id="178359:18421"
                     >
-                      All client and fan booking funds are locked securely in escrow before performance or recording begins and released upon project completion: guaranteed by FINCRA/PAYSTACK.
+                      All client and fan booking funds are locked securely in escrow before performance or recording begins and released upon project completion: guaranteed by Paystack.
                     </p>
                   </div>
                 </div>

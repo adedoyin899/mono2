@@ -168,7 +168,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
         <div className="flex gap-[8px] items-center shrink-0">
           <div className="bg-[#f13030] rounded-full shrink-0 size-[8px]" />
           <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap">
-            Monologg is in Alpha 🥳🥳
+            Monologg is in Alpha 🥳 🥳
           </p>
         </div>
         <div className="flex gap-2 sm:gap-[16px] items-center shrink-0">

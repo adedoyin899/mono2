@@ -17,7 +17,7 @@ describe("PricingPage (Figma 178359:17960)", () => {
     );
 
     // Announcement bar
-    expect(screen.getByText("Monologg is in Alpha 🥳🥳")).toBeInTheDocument();
+    expect(screen.getByText("Monologg is in Alpha 🥳 🥳")).toBeInTheDocument();
     expect(screen.getByText("Paystack Secured")).toBeInTheDocument();
     expect(screen.getByText("25+ Verified Performers")).toBeInTheDocument();
 

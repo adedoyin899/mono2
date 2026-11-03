@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 189: Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links)
+**Last updated:** 2026-11-03 (Session 190: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 137. Stale FINCRA References Across Webapp Copy, FAQs, and Specs (`Checkout.tsx`, `ClientDashboard.tsx`, FAQs, `monologg_ux_spec.md`)
+- **Severity:** Medium / Brand & Architecture Consistency Defect
+- **What happened:**
+  - While backend payment services strictly enforce Rule X1 (Paystack primary, never Fincra), several client-side surfaces retained obsolete references to "FINCRA" / "Fincra", including the checkout mock-mode escrow delay, client dashboard payment trust guarantee, currency FAQs across Landing, Product, and Pricing pages, Resources escrow guarantee card, and the UX architecture specification.
+- **Root Cause:**
+  - Prototype copy authored during initial PRD drafting was preserved during later component refactors instead of being synced with the Phase 6 Paystack-first decision.
+- **Fix:**
+  - Completely replaced all occurrences of FINCRA/Fincra with Paystack across `Checkout.tsx`, `ClientDashboard.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ProductPage.tsx`, `ResourcesPage.tsx`, `monologg_ux_spec.md`, and historical drafts on both `web` and `main` branches. Verified 0 occurrences across `apps/web/` (`tsc --noEmit` clean, 23/23 tests passing).
 
 ### 136. Footer Terms & Cookie Policy Inaccessibility & Placeholder Section Copy (`LandingPage.tsx`, `WebsiteFooter.tsx`)
 - **Severity:** Low / UX & Information Architecture Defect

@@ -41,7 +41,7 @@
 1. Onboard & Verify Identity (AI-powered Thespian verification)
 2. Create Storefront with Rate Cards & Availability
 3. Discover & Filter Talent via AI-driven vibes
-4. Book Talent with Escrow-backed Payments (FINCRA)
+4. Book Talent with Escrow-backed Payments (Paystack)
 5. Collaborate via Order Room with Milestone Tracking
 
 ---

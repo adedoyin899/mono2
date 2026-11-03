@@ -535,7 +535,7 @@ export function ProductPage() {
     {
       question: "What currency does Monologg support?",
       answer:
-        "Currently, all transactions are processed in Nigerian Naira (₦) through secure payment gateways such as Paystack and Fincra. Future updates will include support for Dollar (USD) and Pound (GBP) payments.",
+        "Currently, all transactions are processed in Nigerian Naira (₦) through secure payment gateways such as Paystack. Future updates will include support for Dollar (USD) and Pound (GBP) payments.",
     },
     {
       question: "How does escrow payment protection work?",
@@ -622,7 +622,7 @@ export function ProductPage() {
               className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap"
               data-node-id="178359:17310"
             >
-              Monologg is in Alpha 🥳🥳
+              Monologg is in Alpha 🥳 🥳
             </p>
           </div>
         </div>
