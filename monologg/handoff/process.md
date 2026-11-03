@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
+**Last updated:** 2026-11-03 (Session 192: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 151: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation (Session 192)
+
+Refined typography balance and step micro-interactions on the Product page (`ProductPage.tsx`):
+- **Hero Title 2-Line Balance:** Adjusted `max-w-[526px]` to `max-w-[820px]` and formatted with `<br className="hidden sm:inline" />` so "Build your personal digital stage" renders on exactly two balanced lines on desktop (*"Build your personal"* on line 1, *"digital stage"* on line 2) instead of three lines.
+- **Continuous Rolling Spinner Animation:** Wrapped the rayed pending spinner icon (`imgSpinner`) in default step cards with continuous linear rotation (`animate={{ rotate: 360 }}` over 3s, repeat Infinity) to deliver an active rolling pending affordance.
+- **Verification:** Verified test suite passes (`ProductPage.test.tsx` 5/5 passing, 23/23 marketing tests) and zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 150: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages (Session 191)
 

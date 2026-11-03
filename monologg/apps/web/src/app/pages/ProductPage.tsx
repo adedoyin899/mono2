@@ -876,10 +876,10 @@ export function ProductPage() {
                   </span>
                 </div>
                 <h1
-                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[40px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] max-w-[526px]"
+                  className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[40px] sm:text-[56px] lg:text-[64px] leading-tight sm:leading-[1.1] text-center tracking-[-1.92px] max-w-[820px]"
                   data-node-id="178359:17384"
                 >
-                  Build your personal digital stage
+                  Build your personal <br className="hidden sm:inline" />digital stage
                 </h1>
               </div>
               <p
@@ -1059,13 +1059,22 @@ export function ProductPage() {
                           {step.title}
                         </h3>
                       </div>
-                      <div className="relative shrink-0 size-[24px] opacity-70 group-hover:opacity-100 transition-opacity" data-name="Spinner">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 3,
+                          ease: "linear",
+                        }}
+                        className="relative shrink-0 size-[24px] opacity-70 group-hover:opacity-100 transition-opacity"
+                        data-name="Spinner"
+                      >
                         <img
                           alt="Pending"
                           className="absolute block inset-0 max-w-none size-full"
                           src={imgSpinner}
                         />
-                      </div>
+                      </motion.div>
                     </motion.div>
                   );
                 })}

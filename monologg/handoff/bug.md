@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
+**Last updated:** 2026-11-03 (Session 192: Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 139. Product Hero Heading Awkward 3-Line Linebreak Wrap (`ProductPage.tsx`)
+- **Severity:** Low / Typography & Visual Balance Defect
+- **What happened:**
+  - In `ProductPage.tsx`, the Performer Portal hero `h1` used a narrow `max-w-[526px]`, causing "Build your personal digital stage" to break into three uneven lines: *"Build your" / "personal digital" / "stage"*.
+- **Root Cause:**
+  - Initial Figma frame width constrainer was applied directly to the container rather than allowing typographic balance.
+- **Fix:**
+  - Expanded width to `max-w-[820px]` with `<br className="hidden sm:inline" />`, formatting it into two clean, balanced lines (*"Build your personal"* / *"digital stage"*). Verified all unit tests and visual rendering.
 
 ### 138. Missing jsdom `IntersectionObserver` & `ResizeObserver` for Framer Motion Viewport Tests (`test-setup.ts`)
 - **Severity:** High / Test Environment Crash
