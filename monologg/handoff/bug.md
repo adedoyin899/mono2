@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
+**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 144. "Get Started for Free" CTAs Inconsistently Pointing to Sign Up Rather Than Onboarding Flow (`ProductPage.tsx`, `PricingPage.tsx`)
+- **Severity:** Low / Navigation Routing Inconsistency
+- **What happened:**
+  - Multiple "Get started for free" buttons on `ProductPage.tsx` and `PricingPage.tsx` were linked to `/auth?mode=signup` rather than directing performers straight into the `/onboarding` onboarding wizard. Additionally, on `LandingPage.tsx`, the header Sign In button routed to `/login` (which could be swallowed by the `:handle` route without an explicit alias).
+- **Root Cause:**
+  - Initial marketing button scaffolding reused general auth signup links instead of the creator onboarding route, and `LandingPage.tsx` had not been aligned with `/auth?mode=signin` and `/auth?mode=signup`.
+- **Fix:**
+  - Re-routed all 7 "Get started for free" instances in `ProductPage.tsx` and `PricingPage.tsx` plus `handleGetStarted` in `LandingPage.tsx` to `/onboarding`. Updated header buttons in `LandingPage.tsx` and `PublicStorefront.tsx` to explicitly point to `/auth?mode=signin` and `/auth?mode=signup`. Added a dynamic param listener in `AuthFlow.tsx` and route aliases in `routes.tsx` for `/login`, `/signin`, `/signup`, `/register`. Verified with 31 passing unit tests.
 
 ### 143. Discrepant Audience Toggle Tag Styling Between Pricing and Product Pages (`PricingPage.tsx`)
 - **Severity:** Low / Design System & Visual Consistency Defect

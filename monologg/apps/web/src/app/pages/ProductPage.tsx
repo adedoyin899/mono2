@@ -893,7 +893,7 @@ export function ProductPage() {
 
             <div className="flex items-center relative shrink-0" data-node-id="178359:17386">
               <button
-                onClick={() => navigate("/auth?mode=signup")}
+                onClick={() => navigate("/onboarding")}
                 className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 cursor-pointer transition-all active:scale-95"
                 data-node-id="178359:17387"
               >
@@ -1167,7 +1167,7 @@ export function ProductPage() {
             </div>
 
             <button
-              onClick={() => navigate("/auth?mode=signup")}
+              onClick={() => navigate("/onboarding")}
               className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 cursor-pointer transition-all active:scale-95"
               data-node-id="178359:17774"
             >
@@ -1826,7 +1826,7 @@ export function ProductPage() {
                     Start hiring today
                   </p>
                   <button
-                    onClick={() => navigate("/auth?mode=signup")}
+                    onClick={() => navigate("/onboarding")}
                     className="flex gap-[12px] h-[24px] items-center justify-end py-[4px] relative shrink-0 cursor-pointer group"
                     data-node-id="178359:17904"
                   >
@@ -2083,7 +2083,7 @@ export function ProductPage() {
                   Start hiring today
                 </p>
                 <button
-                  onClick={() => navigate("/auth?mode=signup")}
+                  onClick={() => navigate("/onboarding")}
                   className="flex gap-[12px] h-[24px] items-center justify-end py-[4px] relative shrink-0 cursor-pointer group"
                   data-node-id="178359:17952"
                 >

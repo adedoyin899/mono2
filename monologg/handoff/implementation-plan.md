@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages.
+**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles.
 
 ---
 
 ## ✅ Done
+
+### Session 196 — Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles
+- [x] **"Get Started for Free" Buttons Directed to `/onboarding`**:
+  - `ProductPage.tsx`: Updated all 4 "Get started for free" buttons (Performer Portal hero, 7-step showcase, Thespian AI performer, and Thespian AI client) to navigate to `/onboarding`.
+  - `PricingPage.tsx`: Updated all 3 "Get started for free" buttons (Hero, Under Performers table, and Under Clients table) to navigate to `/onboarding`.
+  - `LandingPage.tsx`: Updated `handleGetStarted` (passed to footer) to navigate to `/onboarding`.
+- [x] **"Sign In" and "Sign Up" Deep-Link Routing**:
+  - `LandingPage.tsx`: Updated header "Sign In" button to navigate to `/auth?mode=signin` and "Sign up free" button to navigate to `/auth?mode=signup`.
+  - `PublicStorefront.tsx`: Updated header "Sign In" buttons to `/auth?mode=signin` and "Join Free" button to `/auth?mode=signup`.
+  - Confirmed `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx` already navigate to `/auth?mode=signin` and `/auth?mode=signup`.
+- [x] **Dynamic Param Synchronization in `AuthFlow.tsx`**:
+  - Added `useEffect` listening to `searchParams` to update `view` between `"login"` and `"register"` and `role` dynamically.
+- [x] **Route Aliases in `routes.tsx`**:
+  - Added `/login` and `/signin` redirects to `/auth?mode=signin`.
+  - Added `/signup` and `/register` redirects to `/auth?mode=signup`.
+- [x] **Verification**:
+  - 31/31 unit tests passing across 7 suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`, `AuthFlow.test.tsx`). 0 errors on `npx tsc --noEmit`.
 
 ### Session 195 — Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages
 - [x] **Universal Fixed / Sticky Navigation (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`)**:

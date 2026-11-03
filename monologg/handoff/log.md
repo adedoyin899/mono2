@@ -1,11 +1,50 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
+**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 196 (2026-11-03) — Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles
+
+**Goal:** Ensure all "Get started for free" buttons across every page directly navigate to `/onboarding`, and all "Sign In" and "Sign Up" / "Sign up free" buttons navigate to the auth flow with the corresponding view already active (`/auth?mode=signin` and `/auth?mode=signup`), with dynamic search param listening in `AuthFlow.tsx` and defensive routing aliases in `routes.tsx`.
+
+1. **"Get Started for Free" Buttons Routed to `/onboarding`:**
+   - **`ProductPage.tsx` (4 instances):**
+     - Performer Portal hero CTA (`178359:17387`): changed from `/auth?mode=signup` to `/onboarding`.
+     - 7-Step Interactive Showcase CTA (`178359:17774`): changed from `/auth?mode=signup` to `/onboarding`.
+     - Thespian AI Performer footer CTA (`178359:17904`): changed from `/auth?mode=signup` to `/onboarding`.
+     - Thespian AI Client footer CTA (`178359:17952`): changed from `/auth?mode=signup` to `/onboarding`.
+   - **`PricingPage.tsx` (3 instances):**
+     - Hero section CTA (`178359:18026`): changed from `/auth?mode=signup` to `/onboarding`.
+     - Under Performers table CTA (`178359:18125`): changed from `/auth?mode=signup` to `/onboarding`.
+     - Under Clients table CTA (`178401:153028`): changed from `/auth?mode=signup` to `/onboarding`.
+   - **`LandingPage.tsx`:**
+     - Updated `handleGetStarted` (passed to `WebsiteFooter` CTA) to navigate directly to `/onboarding`.
+2. **"Sign In" and "Sign Up" Deep-Link Routing:**
+   - **`LandingPage.tsx` Header:**
+     - Sign In button: changed `onClick={() => navigate("/login")}` to `onClick={() => navigate("/auth?mode=signin")}`.
+     - Sign up free button: changed `onClick={() => navigate("/onboarding")}` to `onClick={() => navigate("/auth?mode=signup")}`.
+   - **`PublicStorefront.tsx`:**
+     - Updated Sign In buttons to `onClick={() => navigate("/auth?mode=signin")}` and Join Free button to `onClick={() => navigate("/auth?mode=signup")}`.
+   - **Verified Consistency Across Other Pages:**
+     - `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx` already navigate cleanly to `/auth?mode=signin` and `/auth?mode=signup`.
+3. **Dynamic Param Listener in `AuthFlow.tsx`:**
+   - Added `useEffect` in `AuthFlow.tsx` subscribed to `searchParams`:
+     - Sets `view` to `"login"` when `mode === "signin" || mode === "login"`.
+     - Sets `view` to `"register"` when `mode === "signup" || mode === "register"`.
+     - Sets `role` to `"client"` or `"talent"` based on `role` query param.
+4. **Defensive Route Aliases in `routes.tsx`:**
+   - Added `/login` and `/signin` redirecting to `/auth?mode=signin`.
+   - Added `/signup` and `/register` redirecting to `/auth?mode=signup`.
+   - Prevents `:handle` dynamic segment from capturing `/login` and `/signup` URLs.
+5. **Quality Gate:**
+   - All 31 unit tests passing across 7 test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`, `AuthFlow.test.tsx`).
+   - 0 TypeScript errors (`npx tsc --noEmit`) in both `monologg/apps/web` and `monologg/apps/api`.
 
 ---
 

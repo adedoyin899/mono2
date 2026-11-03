@@ -682,7 +682,7 @@ export function PricingPage() {
             </div>
             <div className="flex items-center relative" data-node-id="178359:18025">
               <button
-                onClick={() => navigate("/auth?mode=signup")}
+                onClick={() => navigate("/onboarding")}
                 className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
                 data-node-id="178359:18026"
               >
@@ -1028,7 +1028,7 @@ export function PricingPage() {
             {/* CTA Button Under Performers Table (178359:18124) */}
             <div className="flex items-center relative shrink-0" data-node-id="178359:18124">
               <button
-                onClick={() => navigate("/auth?mode=signup")}
+                onClick={() => navigate("/onboarding")}
                 className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
                 data-node-id="178359:18125"
               >
@@ -1291,7 +1291,7 @@ export function PricingPage() {
             {/* CTA Button Under Clients Table (178401:153027) */}
             <div className="flex items-center relative shrink-0" data-node-id="178401:153027">
               <button
-                onClick={() => navigate("/auth?mode=signup")}
+                onClick={() => navigate("/onboarding")}
                 className="bg-[#f13030] hover:bg-[#d31f20] flex gap-[8px] h-[40px] items-center justify-center px-[24px] py-[8px] rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] transition-all active:scale-95 cursor-pointer"
                 data-node-id="178401:153028"
               >

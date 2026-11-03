@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
+**Last updated:** 2026-11-03 (Session 196: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 155: Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles (Session 196)
+
+Unified navigation endpoints across the entire marketing site for onboarding and authenticated entry:
+- **Universal Onboarding CTAs:** Connected all 7 "Get started for free" buttons on `ProductPage.tsx` and `PricingPage.tsx` directly to `/onboarding`. Standardized `LandingPage.tsx` footer handler to navigate to `/onboarding`.
+- **Pre-Toggled Auth Navigation:** Configured all Sign In buttons across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, and `PublicStorefront.tsx` to navigate to `/auth?mode=signin`. Configured all Sign Up / Join Free buttons to navigate to `/auth?mode=signup`.
+- **Reactive Auth State & Defensive Routing:** Added `useEffect` in `AuthFlow.tsx` listening to query parameters to immediately activate the proper auth card and role. Added defensive redirects in `routes.tsx` for `/login`, `/signin`, `/signup`, and `/register`.
+- **Verification:** Verified all 31 unit tests pass and zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 154: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages (Session 195)
 

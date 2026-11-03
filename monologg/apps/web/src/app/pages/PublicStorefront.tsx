@@ -119,7 +119,7 @@ export function PublicStorefront() {
             <Logo className="h-5 w-auto" style={{ color: "var(--color-text-primary)" }} />
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="h-9 px-4 text-xs" onClick={() => navigate("/auth")}>
+            <Button variant="ghost" className="h-9 px-4 text-xs" onClick={() => navigate("/auth?mode=signin")}>
               Sign In
             </Button>
           </div>
@@ -162,10 +162,10 @@ export function PublicStorefront() {
             <Share2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{copiedStorefrontLink ? "Copied!" : "Share"}</span>
           </Button>
-          <Button variant="ghost" className="hidden sm:inline-flex h-9 px-4 text-sm" onClick={() => navigate("/auth")}>
+          <Button variant="ghost" className="hidden sm:inline-flex h-9 px-4 text-sm" onClick={() => navigate("/auth?mode=signin")}>
             Sign In
           </Button>
-          <Button className="h-9 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold" onClick={() => navigate("/auth")}>
+          <Button className="h-9 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold" onClick={() => navigate("/auth?mode=signup")}>
             Join Free
           </Button>
         </div>

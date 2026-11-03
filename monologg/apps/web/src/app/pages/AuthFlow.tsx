@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "../components/ui/Button";
@@ -41,6 +41,21 @@ export function AuthFlow() {
     if (initialRole === "client") return "client";
     return "talent";
   });
+
+  useEffect(() => {
+    const mode = searchParams.get("mode") || searchParams.get("view");
+    if (mode === "login" || mode === "signin") {
+      setView("login");
+    } else if (mode === "register" || mode === "signup") {
+      setView("register");
+    }
+    const roleParam = searchParams.get("role");
+    if (roleParam === "client") {
+      setRole("client");
+    } else if (roleParam === "talent" || roleParam === "performer") {
+      setRole("talent");
+    }
+  }, [searchParams]);
   const [showPwd, setShowPwd] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
