@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
+**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 148. Residual Inconsistent Dark Mode Stroke Tokens (#484848/#767676) and Over-Bright Hover Backgrounds (#333333) (`tokens.css`)
+- **Severity:** Low / Visual Contrast & Design Token Inconsistency
+- **What happened:**
+  - In initial dark mode styling, certain buttons, borders, and step item hover outlines were mapped to `#484848` or `#767676`, and interactive hover backgrounds were mapped to `#333333` or `#484848` rather than the design ramp's designated `#1A1A1A` hover state. Furthermore, cards in `LegalPage.tsx` with `hover:border-transparent` lost their stroke definition on hover in dark mode.
+- **Root Cause:**
+  - Strong borders were mapped to `--color-border-strong: #484848`, and generic interactive hover rules used mid-tone grey tokens rather than the strict `#333333` stroke and `#1A1A1A` hover background specification.
+- **Fix:**
+  - Standardized all dark mode borders, outlines, hairlines, and dividers to strictly `#333333` (including overriding `.hover:border-transparent` on hover in dark mode to preserve the `#333333` stroke).
+  - Standardized all interactive background hover selectors across all website marketing and legal pages to strictly `#1A1A1A`. Verified with automated unit tests in `LandingPageHeader.test.tsx` and all 34 tests passing.
 
 ### 147. Hardcoded Marketing Page Light Classes Preventing Cohesive Dark Mode (`tokens.css`)
 - **Severity:** Medium / Design System & Theming Defect

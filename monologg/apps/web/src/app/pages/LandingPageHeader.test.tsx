@@ -142,4 +142,19 @@ describe("LandingPage signed-in header", () => {
     fireEvent.click(themeToggleBtn);
     expect(document.documentElement.classList.contains("dark")).toBe(!wasDark);
   });
+
+  it("verifies dark mode styles enforce #333333 strokes and #1A1A1A hover backgrounds in tokens.css", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const tokensCss = fs.readFileSync(path.resolve(__dirname, "../../styles/tokens.css"), "utf-8");
+
+    // Strokes must strictly be #333333 in dark mode
+    expect(tokensCss).toContain("--color-border-default: #333333;");
+    expect(tokensCss).toContain("--color-border-strong: #333333;");
+    expect(tokensCss).toContain("--color-hairline: #333333;");
+    expect(tokensCss).toContain("border-color: #333333 !important;");
+
+    // Background hover states strictly #1A1A1A
+    expect(tokensCss).toContain("background-color: #1A1A1A !important;");
+  });
 });

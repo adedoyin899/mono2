@@ -212,7 +212,7 @@
   --color-error: #FF6B5C;
   --color-error-bg: rgba(255, 107, 92, 0.14);
   --color-border-default: #333333;
-  --color-border-strong: #484848;
+  --color-border-strong: #333333;
   --color-border-active: var(--color-accent);
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.6);
@@ -350,8 +350,8 @@ select::-ms-expand {
 
 /* ════════════════════════════════════════════════════════════════
    MONOLOGG — Website Cohesive Dark Mode (Frame 2147228281 Palette)
-   #000000 | #1A1A1A | #333333 | #484848 | #767676 | #A3A3A3
-   #BABABA | #D1D1D1 | #E8E8E8 | #F5F5F5 | #F7F7F7 | #F8F8F8 | #F9F9F9
+   #000000 (Canvas) | #1A1A1A (Bg Hover) | #333333 (Strokes/Borders)
+   #484848 | #767676 | #A3A3A3 | #BABABA | #D1D1D1 | #E8E8E8 | #F5F5F5 | #F7F7F7 | #F8F8F8 | #F9F9F9
    ════════════════════════════════════════════════════════════════ */
 
 html.dark,
@@ -364,19 +364,16 @@ html.dark,
 .dark .min-h-screen,
 .dark .isolate.bg-white,
 .dark [data-name="Website"],
-.dark div.bg-\[\#f6faf9\] {
-  background-color: #000000 !important;
-  color: #F9F9F9 !important;
-}
-
-/* Sections and main containers */
+.dark div.bg-\[\#f6faf9\],
+.dark main.bg-white,
+.dark main,
 .dark section.bg-white,
 .dark section.bg-\[\#f9f9f9\],
 .dark section.bg-\[\#f8f8f8\],
 .dark section.bg-\[\#f7f7f7\],
 .dark div.bg-white:not(button):not(input):not(select):not(.bg-\[\#f13030\]):not(.bg-\[\#f13030\] *),
 .dark footer.bg-white {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   color: #F9F9F9 !important;
 }
 
@@ -384,8 +381,8 @@ html.dark,
 .dark header,
 .dark header.backdrop-blur-\[12px\],
 .dark header.bg-white\/95 {
-  background-color: rgba(26, 26, 26, 0.94) !important;
-  border-bottom-color: #333333 !important;
+  background-color: rgba(0, 0, 0, 0.92) !important;
+  border-bottom: 1px solid #333333 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -398,19 +395,45 @@ html.dark,
   color: #F9F9F9 !important;
 }
 
-/* Stage boxes, feature containers, mockup backgrounds */
-.dark div.bg-\[\#f9f9f9\],
-.dark div.bg-\[\#f8f8f8\],
-.dark div.bg-\[\#f7f7f7\],
-.dark div.bg-\[\#f8f8f6\],
-.dark div.bg-\[\#f5f5f5\],
-.dark div.bg-\[\#f4f4f2\],
-.dark div.bg-\[\#f0f0ed\] {
-  background-color: #1A1A1A !important;
+/* Universal Strokes / Borders across all pages including legal: strictly #333333 */
+.dark hr,
+.dark [data-name="Divider"],
+.dark table,
+.dark th,
+.dark td,
+.dark tr,
+.dark tbody tr,
+.dark .divide-y,
+.dark .border,
+.dark .border-t,
+.dark .border-b,
+.dark .border-l,
+.dark .border-r,
+.dark .border-solid,
+.dark .border-\[\#ecece8\],
+.dark .border-\[\#e8e8e8\],
+.dark .border-\[\#e5e7eb\],
+.dark .border-\[\#e5e5e5\],
+.dark .border-\[\#dbdbd6\],
+.dark .border-\[\#d1d1d1\],
+.dark .border-\[\#f0f0ed\],
+.dark .border-\[\#f5f5f5\],
+.dark .border-\[\#26262e\],
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-\[rgba\(15\,42\,38\,0\.1\)\],
+.dark [data-node-id="178359:16994"] {
   border-color: #333333 !important;
 }
 
-/* Cards & panels */
+.dark .bg-\[\#d1d1d1\],
+.dark .bg-\[\#e8e8e8\],
+.dark .bg-\[\#ecece8\],
+.dark [data-node-id="178359:16994"] {
+  background-color: #333333 !important;
+}
+
+/* Cards & panels: Resting on #000000 canvas with #333333 stroke */
 .dark .rounded-\[32px\].bg-\[\#f9f9f9\],
 .dark .rounded-\[24px\].bg-\[\#f9f9f9\],
 .dark .rounded-\[20px\].bg-\[\#f9f9f9\],
@@ -420,37 +443,91 @@ html.dark,
 .dark .rounded-3xl.bg-white,
 .dark [data-name="Card"],
 .dark [data-name="Section"] {
+  background-color: #000000 !important;
+  border-color: #333333 !important;
+}
+
+/* Stage boxes, feature containers, mockup backgrounds */
+.dark div.bg-\[\#f9f9f9\],
+.dark div.bg-\[\#f8f8f8\],
+.dark div.bg-\[\#f7f7f7\],
+.dark div.bg-\[\#f8f8f6\],
+.dark div.bg-\[\#f5f5f5\],
+.dark div.bg-\[\#f4f4f2\],
+.dark div.bg-\[\#f0f0ed\] {
+  background-color: #000000 !important;
+  border-color: #333333 !important;
+}
+
+/* ── Universal Background Hover States: strictly #1A1A1A with #333333 stroke ── */
+.dark .hover\:bg-\[\#f4f4f2\]:hover,
+.dark .hover\:bg-\[\#f0f0ed\]:hover,
+.dark .hover\:bg-\[\#f9f9f9\]:hover,
+.dark .hover\:bg-\[\#f9f9f9\]\/90:hover,
+.dark .hover\:bg-\[\#f8f8f8\]:hover,
+.dark .hover\:bg-\[\#f7f7f7\]:hover,
+.dark .hover\:bg-\[\#f5f5f3\]:hover,
+.dark .hover\:bg-\[\#ececec\]:hover,
+.dark .hover\:bg-\[\#f0f0ee\]:hover,
+.dark .hover\:bg-\[\#fafaf8\]:hover,
+.dark .hover\:bg-\[\#F9F9F8\]:hover,
+.dark .hover\:bg-\[\#F9F9F9\]:hover,
+.dark .hover\:bg-\[\#fff5f5\]:hover,
+.dark .hover\:bg-\[\#FFF5F5\]:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-zinc-100:hover,
+.dark .hover\:bg-zinc-800:hover,
+.dark tr:hover,
+.dark tbody tr:hover,
+.dark [data-testid^="step-item-"]:hover,
+.dark button.bg-white:hover,
+.dark button.bg-\[\#f8f8f8\]:hover,
+.dark button.bg-\[\#f7f7f7\]:hover,
+.dark button.border:hover,
+.dark button.border-\[\#dbdbd6\]:hover,
+.dark button.border-\[\#ecece8\]:hover,
+.dark [aria-label="Toggle theme"]:hover,
+.dark a[aria-label="LinkedIn"]:hover,
+.dark a[aria-label="Product Hunt"]:hover,
+.dark a[aria-label="Twitter-X"]:hover,
+.dark a[aria-label="Twitch"]:hover,
+.dark a[aria-label="Telegram"]:hover,
+.dark a[aria-label="TikTok"]:hover,
+.dark a[aria-label="Instagram"]:hover,
+.dark [ref="userMenuRef"] button:hover,
+.dark [ref="userMenuRef"] a:hover,
+.dark .z-50 button:hover,
+.dark [data-node-id="178151:49527"] button:hover,
+.dark [data-node-id="178387:19860"] > div:hover {
   background-color: #1A1A1A !important;
   border-color: #333333 !important;
 }
 
-/* Sub-cards, interactive row hovers and elevated fills */
-.dark .hover\:bg-\[\#f4f4f2\]:hover,
-.dark .hover\:bg-\[\#f0f0ed\]:hover,
-.dark .hover\:bg-\[\#f9f9f9\]:hover,
-.dark .hover\:bg-\[\#f7f7f7\]:hover,
-.dark .hover\:bg-\[\#f5f5f3\]:hover,
-.dark .hover\:bg-\[\#ececec\]:hover,
-.dark .hover\:bg-\[\#f0f0ee\]:hover {
-  background-color: #333333 !important;
+/* Enforce stroke #333333 on hover even when utility sets border-transparent or custom border */
+.dark .hover\:border-transparent:hover,
+.dark .hover\:border-\[\#16161a\]:hover,
+.dark .hover\:border-black:hover,
+.dark .group:hover .group-hover\:border-transparent {
+  border-color: #333333 !important;
 }
 
 /* Product 7-Step Interactive Showcase */
 .dark [data-testid^="step-item-"] {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-color: #333333 !important;
 }
 .dark [data-testid^="step-item-"]:hover {
-  background-color: #262626 !important;
-  border-color: #484848 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 .dark [data-testid^="step-item-"][data-state="active"] {
-  background-color: #333333 !important;
-  border-color: #484848 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
 }
 .dark [data-testid="stage-preview-box"] {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-color: #333333 !important;
 }
 
@@ -478,39 +555,27 @@ html.dark,
   color: #BABABA !important;
 }
 
-/* All borders & dividers */
-.dark .border-\[\#ecece8\],
-.dark .border-\[\#e8e8e8\],
-.dark .border-\[\#e5e7eb\],
-.dark .border-\[\#e5e5e5\],
-.dark .border-\[\#dbdbd6\],
-.dark .border-\[\#d1d1d1\],
-.dark .border-\[\#f0f0ed\],
-.dark .border-gray-200,
-.dark .border-gray-300 {
-  border-color: #333333 !important;
-}
-
-.dark .bg-\[\#d1d1d1\],
-.dark .bg-\[\#e8e8e8\],
-.dark .bg-\[\#ecece8\] {
-  background-color: #333333 !important;
-}
-
-.dark hr,
-.dark [data-name="Divider"] {
-  background-color: #333333 !important;
-  border-color: #333333 !important;
-}
-
 /* Form Inputs, Selects, and Textareas */
 .dark input[type="text"],
 .dark input[type="email"],
 .dark input[type="tel"],
 .dark textarea,
 .dark select {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   color: #F9F9F9 !important;
+  border-color: #333333 !important;
+}
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="tel"]:focus,
+.dark textarea:focus,
+.dark select:focus,
+.dark input[type="text"]:hover,
+.dark input[type="email"]:hover,
+.dark input[type="tel"]:hover,
+.dark textarea:hover,
+.dark select:hover {
+  background-color: #1A1A1A !important;
   border-color: #333333 !important;
 }
 .dark input::placeholder,
@@ -518,23 +583,27 @@ html.dark,
   color: #767676 !important;
 }
 .dark select option {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   color: #F9F9F9 !important;
 }
 
 /* Secondary Buttons */
 .dark button.bg-white,
 .dark button.bg-\[\#f8f8f8\],
-.dark button.bg-\[\#f7f7f7\] {
-  background-color: #333333 !important;
-  border-color: #484848 !important;
+.dark button.bg-\[\#f7f7f7\],
+.dark button.border-\[\#dbdbd6\],
+.dark button.border-\[\#ecece8\] {
+  background-color: #000000 !important;
+  border-color: #333333 !important;
   color: #F9F9F9 !important;
 }
 .dark button.bg-white:hover,
 .dark button.bg-\[\#f8f8f8\]:hover,
-.dark button.bg-\[\#f7f7f7\]:hover {
-  background-color: #484848 !important;
-  border-color: #767676 !important;
+.dark button.bg-\[\#f7f7f7\]:hover,
+.dark button.border-\[\#dbdbd6\]:hover,
+.dark button.border-\[\#ecece8\]:hover {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 
 /* Primary Brand Button (#F13030 Mono-red) */
@@ -549,11 +618,12 @@ html.dark,
 
 /* Theme toggle button in header */
 .dark [aria-label="Toggle theme"] {
-  background-color: #333333 !important;
-  border-color: #484848 !important;
+  background-color: #000000 !important;
+  border-color: #333333 !important;
 }
 .dark [aria-label="Toggle theme"]:hover {
-  background-color: #484848 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 .dark img[alt="Toggle theme"] {
   filter: invert(1) brightness(1.8) !important;
@@ -575,11 +645,12 @@ html.dark,
 
 /* Audience Toggle (• PERFORMER | CLIENT) */
 .dark [aria-label="Audience selector"] {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-color: #333333 !important;
 }
 .dark [aria-label="Audience selector"] .bg-white {
-  background-color: #333333 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
 }
 .dark [aria-label="Audience selector"] span {
@@ -588,10 +659,10 @@ html.dark,
 
 /* Landing Page Marquee */
 .dark [data-node-id="178359:16986"] {
-  background: linear-gradient(to right, #1A1A1A, rgba(26, 26, 26, 0.8), transparent) !important;
+  background: linear-gradient(to right, #000000, rgba(0, 0, 0, 0.8), transparent) !important;
 }
 .dark [data-node-id="178359:16987"] {
-  background: linear-gradient(to left, #1A1A1A, rgba(26, 26, 26, 0.8), transparent) !important;
+  background: linear-gradient(to left, #000000, rgba(0, 0, 0, 0.8), transparent) !important;
 }
 .dark .animate-marquee-ltr img {
   filter: invert(1) brightness(1.8) !important;
@@ -611,17 +682,18 @@ html.dark,
   background: linear-gradient(to bottom, #F9F9F9, #BABABA, #767676) !important;
 }
 
-/* Tables in Pricing and Product Pages */
+/* Tables in Pricing, Product, and Legal Pages */
 .dark table,
 .dark .divide-y {
   border-color: #333333 !important;
 }
 .dark tr:hover,
 .dark tbody tr:hover {
-  background-color: #333333 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 .dark th {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   color: #F9F9F9 !important;
   border-color: #333333 !important;
 }
@@ -657,21 +729,31 @@ html.dark,
 .dark a[aria-label="Telegram"],
 .dark a[aria-label="TikTok"],
 .dark a[aria-label="Instagram"] {
-  background-color: #333333 !important;
-  border-color: #484848 !important;
+  background-color: #000000 !important;
+  border-color: #333333 !important;
+}
+.dark a[aria-label="LinkedIn"]:hover,
+.dark a[aria-label="Product Hunt"]:hover,
+.dark a[aria-label="Twitter-X"]:hover,
+.dark a[aria-label="Twitch"]:hover,
+.dark a[aria-label="Telegram"]:hover,
+.dark a[aria-label="TikTok"]:hover,
+.dark a[aria-label="Instagram"]:hover {
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 
 /* Dropdown Menu on Landing Page */
 .dark [ref="userMenuRef"] > div,
 .dark .z-50.bg-white {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-color: #333333 !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Pre-footer CTA banner */
 .dark section[data-node-id="178190:29887"] {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-top: 1px solid #333333 !important;
   border-bottom: 1px solid #333333 !important;
 }
@@ -688,7 +770,7 @@ html.dark,
 
 /* Newsletter Input Form */
 .dark [data-node-id="178151:49527"] {
-  background-color: #1A1A1A !important;
+  background-color: #000000 !important;
   border-color: #333333 !important;
 }
 .dark [data-node-id="178151:49527"] input {
@@ -696,10 +778,12 @@ html.dark,
   color: #F9F9F9 !important;
 }
 .dark [data-node-id="178151:49527"] button {
-  background-color: #333333 !important;
+  background-color: #000000 !important;
+  border: 1px solid #333333 !important;
   color: #F9F9F9 !important;
 }
 .dark [data-node-id="178151:49527"] button:hover {
-  background-color: #484848 !important;
+  background-color: #1A1A1A !important;
+  border-color: #333333 !important;
 }
 

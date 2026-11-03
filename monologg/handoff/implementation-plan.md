@@ -1,13 +1,24 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281.
+**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal.
 
 ---
 
 ## ✅ Done
 
-### Session 198 — Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281
+### Session 199 — Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal
+- [x] **Stroke & Border Standardization to `#333333`**:
+  - `tokens.css`: Updated `--color-border-strong` to `#333333` (matching `--color-border-default` and `--color-hairline`).
+  - Standardized all borders, dividers, table lines, secondary button outlines, theme toggle buttons, social link pills, and dropdown containers in dark mode to strictly `border-color: #333333 !important;`.
+  - Enforced that hover states with `hover:border-transparent` or `hover:border-[#16161a]` on legal cards and buttons retain `#333333` stroke in dark mode.
+- [x] **Background Hover State Refinement to `#1A1A1A`**:
+  - `tokens.css`: Standardized all interactive background hover selectors across the website to `background-color: #1A1A1A !important;` (replacing any residual `#333333`, `#484848`, or `#262626` hover values).
+  - Applied across all 12 Legal Terms cards, 7 Cookie Settings cards, compliance and cookie table rows, product 7-step cards, secondary buttons, theme toggles, social icons, dropdown menu items, and footer newsletter buttons.
+- [x] **Verification & Quality Gate**:
+  - Authored dedicated unit test in `LandingPageHeader.test.tsx` verifying `#333333` strokes and `#1A1A1A` hover backgrounds in `tokens.css`.
+  - All 34 unit tests passing across all 7 test suites.
+  - Zero TypeScript compiler errors (`npx tsc --noEmit`) in both `apps/web` and `apps/api`.
 - [x] **Frame 2147228281 Palette Architecture (`tokens.css`)**:
   - Integrated the 13-tone grey spectrum (`#000000`, `#1A1A1A`, `#333333`, `#484848`, `#767676`, `#A3A3A3`, `#BABABA`, `#D1D1D1`, `#E8E8E8`, `#F5F5F5`, `#F7F7F7`, `#F8F8F8`, `#F9F9F9`) across light mode (`:root`) and dark mode (`.dark`).
 - [x] **Comprehensive Website Dark Mode Coverage**:

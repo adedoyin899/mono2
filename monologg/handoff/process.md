@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
+**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 158: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal (Session 199)
+
+Standardized the dark mode design language to enforce strict `#333333` strokes and `#1A1A1A` background hover states across all website marketing and legal pages:
+- **Stroke & Border Standardization:** Standardized `--color-border-strong` to `#333333` (matching `--color-border-default` and `--color-hairline`). Mapped all website borders, outlines, dividers, hairlines, table borders, secondary buttons, theme toggles, and card outlines in dark mode to strictly `border-color: #333333 !important;`. Ensured cards with `hover:border-transparent` or custom hover borders preserve `#333333` stroke definition on hover in dark mode.
+- **Background Hover State Refinement:** Standardized all interactive background hover selectors to strictly `background-color: #1A1A1A !important;` (replacing any residual `#333333`, `#484848`, or `#262626` hover values) across all 12 Legal Terms cards, 7 Cookie Settings cards, compliance and cookie table rows, product 7-step cards, secondary buttons, theme toggles, social icons, dropdown menu items, and footer newsletter buttons.
+- **Automated Verification:** Added unit test in `LandingPageHeader.test.tsx` verifying `#333333` strokes and `#1A1A1A` hover backgrounds. Verified all 34 tests pass across all 7 test suites, and 0 TypeScript errors (`npx tsc --noEmit`) in `apps/web` and `apps/api`.
 
 ### Step 157: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 (Session 198)
 

@@ -1,11 +1,53 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 198: Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281)
+**Last updated:** 2026-11-03 (Session 199: Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 199 (2026-11-03) — Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal
+
+**Goal:** Strictly adjust all dark mode strokes, borders, hairlines, and dividers to `#333333` and all interactive background hover states to `#1A1A1A` across all marketing and legal pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `WebsiteFooter.tsx`), ensuring seamless visual hierarchy, high contrast, and 100% test suite pass rate.
+
+1. **Stroke & Border Standardization (`tokens.css`):**
+   - Standardized `--color-border-strong` from `#484848` to `#333333` alongside `--color-border-default` and `--color-hairline`.
+   - Updated universal dark border mappings to strictly apply `border-color: #333333 !important;` across all border utilities (`.border`, `.border-t`, `.border-b`, `.border-l`, `.border-r`, `.border-[#ecece8]`, `.border-[#e8e8e8]`, `.border-[#e5e7eb]`, `.border-[#e5e5e5]`, `.border-[#dbdbd6]`, `.border-[#d1d1d1]`, `.border-[#f0f0ed]`, `.border-[#f5f5f5]`, `.border-[#26262e]`, `.border-gray-200`, `.border-gray-300`, and `.border-[rgba(15,42,38,0.1)]`).
+   - Standardized secondary button borders, theme toggle borders, social pill borders, stage preview boxes, step showcase cards, table cells, form inputs, dropdown menus, and pre-footer CTA banners to strictly `#333333`.
+   - Guaranteed that hover states on cards with `hover:border-transparent` or `hover:border-[#16161a]` in `LegalPage.tsx` and `LandingPage.tsx` retain crisp `#333333` strokes in dark mode (`.dark .hover\:border-transparent:hover, .dark .hover\:border-\[\#16161a\]:hover { border-color: #333333 !important; }`).
+2. **Background Hover State Refinement to `#1A1A1A` (`tokens.css`):**
+   - Refined all interactive background hover selectors to strictly apply `background-color: #1A1A1A !important;` and `border-color: #333333 !important;`:
+     - `.dark .hover\:bg-\[\#f4f4f2\]:hover`
+     - `.dark .hover\:bg-\[\#f0f0ed\]:hover`
+     - `.dark .hover\:bg-\[\#f9f9f9\]:hover` (covering all 12 Legal Terms cards and 7 Cookie Settings cards)
+     - `.dark .hover\:bg-\[\#f9f9f9\]\/90:hover` (Pricing comparison rows)
+     - `.dark .hover\:bg-\[\#f8f8f8\]:hover`
+     - `.dark .hover\:bg-\[\#f7f7f7\]:hover` (Thespian AI table rows)
+     - `.dark .hover\:bg-\[\#f5f5f3\]:hover`
+     - `.dark .hover\:bg-\[\#ececec\]:hover`
+     - `.dark .hover\:bg-\[\#f0f0ee\]:hover`
+     - `.dark .hover\:bg-\[\#fafaf8\]:hover`
+     - `.dark .hover\:bg-\[\#F9F9F8\]:hover` (Dropdown menu items)
+     - `.dark .hover\:bg-\[\#F9F9F9\]:hover`
+     - `.dark .hover\:bg-\[\#fff5f5\]:hover` / `.dark .hover\:bg-\[\#FFF5F5\]:hover`
+     - `.dark .hover\:bg-gray-50:hover` / `.dark .hover\:bg-gray-100:hover`
+     - `.dark .hover\:bg-zinc-100:hover` / `.dark .hover\:bg-zinc-800:hover`
+     - `.dark tr:hover`, `.dark tbody tr:hover`
+     - `.dark [data-testid^="step-item-"]:hover`
+     - `.dark button.bg-white:hover`, `.dark button.bg-\[\#f8f8f8\]:hover`, `.dark button.bg-\[\#f7f7f7\]:hover`
+     - `.dark button.border:hover`, `.dark button.border-\[\#dbdbd6\]:hover`, `.dark button.border-\[\#ecece8\]:hover`
+     - `.dark [aria-label="Toggle theme"]:hover`
+     - `.dark a[aria-label="LinkedIn"]:hover`, `.dark a[aria-label="Product Hunt"]:hover`, `.dark a[aria-label="Twitter-X"]:hover`, `.dark a[aria-label="Twitch"]:hover`, `.dark a[aria-label="Telegram"]:hover`, `.dark a[aria-label="TikTok"]:hover`, `.dark a[aria-label="Instagram"]:hover`
+     - `.dark [ref="userMenuRef"] button:hover`, `.dark [ref="userMenuRef"] a:hover`, `.dark .z-50 button:hover`
+     - `.dark [data-node-id="178151:49527"] button:hover` (Footer newsletter submit button)
+     - `.dark [data-node-id="178387:19860"] > div:hover` (Cookie summary table rows)
+3. **Automated Testing & Quality Gate:**
+   - Authored new unit test in `LandingPageHeader.test.tsx` verifying that `tokens.css` strictly enforces `#333333` strokes and `#1A1A1A` hover backgrounds in dark mode.
+   - All 34 unit tests passing across all 7 test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`, `AuthFlow.test.tsx`).
+   - 0 TypeScript compiler errors in both `apps/web` and `apps/api`.
 
 ---
 
