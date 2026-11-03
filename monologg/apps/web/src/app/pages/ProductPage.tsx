@@ -653,7 +653,7 @@ export function ProductPage() {
 
       {/* ── 2. Sticky Header (178359:17318) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17318"
       >
         <div
@@ -729,7 +729,7 @@ export function ProductPage() {
         <div className="flex gap-[12px] items-center relative shrink-0 z-10" data-node-id="178359:17344">
           <button
             onClick={toggle}
-            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors"
             data-node-id="178359:17345"
             aria-label="Toggle theme"
           >
@@ -742,7 +742,7 @@ export function ProductPage() {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -766,9 +766,9 @@ export function ProductPage() {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -801,7 +801,7 @@ export function ProductPage() {
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <button
                         onClick={handleSignOut}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors font-medium cursor-pointer"
@@ -818,7 +818,7 @@ export function ProductPage() {
             <div className="flex items-center gap-[12px]">
               <button
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#d1d1d1] dark:border-[#333333] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] leading-[16px] tracking-[-0.12px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                className="border border-[#d1d1d1] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] leading-[16px] tracking-[-0.12px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                 data-node-id="178359:17348"
               >
                 Sign In
@@ -955,7 +955,7 @@ export function ProductPage() {
                         }}
                         data-step-state="active"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
+                        className="bg-[#f9f9f9] dark:bg-[#141414] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)] outline-none focus:outline-none focus-visible:outline-none"
                       >
                         <motion.div
                           className="relative shrink-0 size-[24px]"
@@ -1006,7 +1006,7 @@ export function ProductPage() {
                         }}
                         data-step-state="completed"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all"
+                        className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#141414] transition-all outline-none focus:outline-none focus-visible:outline-none"
                       >
                         <div className="font-['Switzer',sans-serif] font-medium text-[#333333] dark:text-[#d1d1d1] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                           {step.id}
@@ -1025,7 +1025,7 @@ export function ProductPage() {
                         >
                           <img
                             alt="Completed"
-                            className="absolute block inset-0 max-w-none size-full dark:invert"
+                            className="absolute block inset-0 max-w-none size-full"
                             src={imgCheckCircle}
                           />
                         </motion.div>
@@ -1049,7 +1049,7 @@ export function ProductPage() {
                       }}
                       data-step-state="default"
                       data-testid={`step-card-${step.id}`}
-                      className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all"
+                      className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#141414] transition-all outline-none focus:outline-none focus-visible:outline-none"
                     >
                       <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] dark:text-[#767676] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                         {step.id}
@@ -1082,7 +1082,7 @@ export function ProductPage() {
 
               {/* Right Column: Dynamic 525x484 Stage Rendering the Active Step's 300x300 Figma SVG Illustration (178359:17450) */}
               <div
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
                 data-node-id="178359:17450"
               >
                 <div
@@ -1194,7 +1194,7 @@ export function ProductPage() {
           >
             {/* Top 2x2 Bordered Box (178359:17785) */}
             <div
-              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-l border-r border-solid border-t flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full max-w-[1000px]"
+              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-l border-r border-solid border-t flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full max-w-[1000px]"
               data-node-id="178359:17785"
             >
               {/* Row 1 (178359:17786) */}
@@ -1420,7 +1420,7 @@ export function ProductPage() {
 
             {/* Bottom Attached Bar: 6 Studio Logos & Trust Copy (178359:17816) */}
             <div
-              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full max-w-[1000px]"
+              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full max-w-[1000px]"
               data-node-id="178359:17816"
             >
               <div
@@ -1430,7 +1430,7 @@ export function ProductPage() {
                 {studioBadges.map((studio) => (
                   <div
                     key={studio.name}
-                    className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center mr-[-8.585px] p-[8.862px] relative rounded-full shrink-0"
+                    className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center mr-[-8.585px] p-[8.862px] relative rounded-full shrink-0"
                     title={studio.name}
                   >
                     <div
@@ -1535,7 +1535,7 @@ export function ProductPage() {
                 data-node-id="178359:17848"
               >
                 <div
-                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
+                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   data-node-id="178359:17849"
                 >
                   <button
@@ -1545,7 +1545,7 @@ export function ProductPage() {
                     className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   >
                     <div
-                      className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#333333] border-solid relative rounded-full shrink-0 size-[8px]"
+                      className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#1a1a1a] border-solid relative rounded-full shrink-0 size-[8px]"
                       data-node-id="178359:17851"
                     />
                     <span
@@ -1816,7 +1816,7 @@ export function ProductPage() {
 
                 {/* Bottom CTA Bar (178359:17902) */}
                 <div
-                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
                   data-node-id="178359:17902"
                 >
                   <p
@@ -1862,7 +1862,7 @@ export function ProductPage() {
               data-node-id="178359:17910"
             >
               <div
-                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
+                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17911"
               >
                 <button
@@ -1891,7 +1891,7 @@ export function ProductPage() {
                   className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white dark:bg-[#333333] text-[#1a1a1a] dark:text-[#f9f9f9] shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                 >
                   <div
-                    className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#333333] border-solid relative rounded-full shrink-0 size-[8px]"
+                    className="bg-[rgba(0,0,0,0.8)] dark:bg-[#f9f9f9] border border-[rgba(0,0,0,0.4)] dark:border-[#1a1a1a] border-solid relative rounded-full shrink-0 size-[8px]"
                     data-node-id="178359:17918"
                   />
                   <span
@@ -2073,7 +2073,7 @@ export function ProductPage() {
 
               {/* Bottom CTA Bar (178359:17950) */}
               <div
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex items-center justify-between px-[20px] py-[16px] relative rounded-[20px] shrink-0 w-full"
                 data-node-id="178359:17950"
               >
                 <p
@@ -2136,7 +2136,7 @@ export function ProductPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
+                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#1a1a1a] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}

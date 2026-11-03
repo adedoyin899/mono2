@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
+**Last updated:** 2026-11-04 (Session 201: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 160: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges (Session 201)
+
+Polished key dark mode visual and contrast details across marketing pages based on design feedback:
+- **Marquee Slowdown & Icon Tone Balance:** Slowed category marquee animation from 28s to 60s in `tokens.css`. Removed parent wrapper `dark:invert` to resolve double-inversion on icons, and paired CSS `filter: invert(1)` with `opacity-60 group-hover:opacity-100` to mirror text tone `#A3A3A3` at rest and `#F9F9F9` on hover.
+- **Monologg Logo Marks Pure White:** Added `alt="Monologg"` and `dark:invert` to `ASSETS.logoIcon` across `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`, plus targeted container rules in `tokens.css` ensuring both the glyph and wordmark render in pure `#FFFFFF`.
+- **Product 7-Step Checkmarks & Active Outline Brand Red:** Removed `dark:invert` from `imgCheckCircle` so native `#F13030` fill renders in Monologg brand red rather than neon cyan. Added global outline reset in `tokens.css` and `outline-none` classes on step cards to eliminate browser neon blue focus rings, enforcing `.dark [data-step-state="active"] { border-color: #F13030 !important; }`.
+- **Universal Subtle Strokes Closer to Black (`#1A1A1A`):** Standardized `--color-hairline`, `--color-border-default`, and `--color-border-strong` to `#1A1A1A` (10% grey from Frame 2147228281), replaced `#333333` strokes across universal dark border rules, and replaced all 91 explicit `dark:border-[#333333]` classes with `dark:border-[#1a1a1a]` across all marketing pages.
+- **Automated Verification:** 28/28 tests passing across all 6 marketing test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`), with zero TypeScript compiler errors.
 
 ### Step 159: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup (Session 200)
 

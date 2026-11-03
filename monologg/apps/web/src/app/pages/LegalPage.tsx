@@ -28,7 +28,7 @@ const ASSETS = {
 };
 
 const CARD_CLASSES =
-  "border border-[#e8e8e8] dark:border-[#333333] border-solid hover:border-transparent dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
+  "border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid hover:border-transparent dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
 
 const COMPLIANCE_ROWS = [
   {
@@ -186,7 +186,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
       {/* ── 2. Sticky Header (178382:17939) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id={isTerms ? "178382:17939" : "178387:19943"}
         data-name="Header"
       >
@@ -209,12 +209,12 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 }}
               >
                 <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
-                  <img alt="" className="block max-w-none size-full" src={ASSETS.logoIcon} />
+                  <img alt="Monologg" className="block max-w-none size-full dark:invert" src={ASSETS.logoIcon} />
                 </div>
               </div>
             </div>
             <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
-              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full" src={ASSETS.logoWordmark} />
+              <img alt="Monologg" className="absolute block inset-0 max-w-none size-full dark:invert" src={ASSETS.logoWordmark} />
             </div>
           </button>
 
@@ -249,7 +249,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center rounded-full shrink-0 size-[36px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex items-center justify-center rounded-full shrink-0 size-[36px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             data-node-id={isTerms ? "178382:17966" : undefined}
             data-name="Button - Toggle theme"
           >
@@ -263,7 +263,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               <button
                 type="button"
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -287,9 +287,9 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -323,7 +323,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <button
                         type="button"
                         onClick={handleSignOut}
@@ -342,7 +342,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#d1d1d1] dark:border-[#333333] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                className="border border-[#d1d1d1] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
               >
                 Sign In
               </button>
@@ -853,7 +853,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 {COOKIE_SUMMARY_ROWS.map((cookie) => (
                   <div
                     key={cookie.id}
-                    className="flex items-center justify-between min-w-[760px] w-full text-[14px] py-1 border-b border-[#f5f5f5] dark:border-[#333333] last:border-b-0"
+                    className="flex items-center justify-between min-w-[760px] w-full text-[14px] py-1 border-b border-[#f5f5f5] dark:border-[#1a1a1a] last:border-b-0"
                   >
                     <div className="w-[136px] shrink-0 font-['Geist_Mono',monospace] text-[#1a1a1a] dark:text-[#f9f9f9] font-medium">
                       {cookie.id}

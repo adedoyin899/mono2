@@ -139,7 +139,7 @@ export function WebsiteFooter({
       {/* ─── CTA Section (178190:29887) ─── */}
       {showCtaBanner && (
         <section
-          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-y border-transparent dark:border-[#333333] flex flex-col items-center justify-center px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative shrink-0 w-full"
+          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-y border-transparent dark:border-[#1a1a1a] flex flex-col items-center justify-center px-6 md:px-12 lg:px-[200px] py-20 lg:py-[120px] relative shrink-0 w-full"
           data-node-id="178190:29887"
           data-name="CTA sections"
         >
@@ -206,7 +206,7 @@ export function WebsiteFooter({
                     <button
                       type="button"
                       onClick={handleInvestor}
-                      className="bg-[#f8f8f8] dark:bg-[#000000] hover:bg-[#e8e8e8] dark:hover:bg-[#333333] transition-colors cursor-pointer border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[8px] h-[48px] items-center justify-center px-[24px] py-[8px] relative rounded-[23px] shrink-0"
+                      className="bg-[#f8f8f8] dark:bg-[#000000] hover:bg-[#e8e8e8] dark:hover:bg-[#333333] transition-colors cursor-pointer border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[8px] h-[48px] items-center justify-center px-[24px] py-[8px] relative rounded-[23px] shrink-0"
                       data-name="Button"
                     >
                       <span
@@ -271,7 +271,7 @@ export function WebsiteFooter({
               >
                 <form
                   onSubmit={handleNewsletterSubmit}
-                  className="bg-white dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-between overflow-clip px-[13px] py-[9px] relative rounded-[20px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-[258px]"
+                  className="bg-white dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex items-center justify-between overflow-clip px-[13px] py-[9px] relative rounded-[20px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-[258px]"
                   data-node-id="178151:49527"
                   data-name="Input Styles"
                 >

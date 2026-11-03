@@ -1,11 +1,47 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
+**Last updated:** 2026-11-04 (Session 201: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 201 (2026-11-04) — Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges
+
+**Goal:** Polish four high-visibility visual issues in dark mode across the public web pages based on user design feedback:
+1. Slower category marquee animation (28s -> 60s) and category icons tone matched to text tone at rest and on hover.
+2. Monologg logo icon glyph pure white in dark mode on Pricing, Resources, and Legal pages (matching the wordmark).
+3. Product 7-step interactive showcase checkmark circles and active card outlines strictly brand red (`#F13030`) instead of neon cyan / neon blue.
+4. Universal strokes adjusted from `#333333` to subtle `#1A1A1A` (closer to black, from Frame 2147228281 `leye/Grey alpha`) across all website pages including legal.
+
+1. **Category Marquee Timing & Icon Color Tone (`LandingPage.tsx` & `tokens.css`):**
+   - Slowed `.animate-marquee-ltr` from `28s` to `60s` (`animation: marquee-ltr 60s linear infinite;` in `tokens.css`).
+   - Resolved double-invert issue on category icons: removed `dark:invert` from the parent wrapper `div` in `LandingPage.tsx` and updated `.dark .animate-marquee-ltr img` to `filter: invert(1)` paired with `opacity-60 group-hover:opacity-100 transition-opacity`.
+   - Marquee text resting color set to `#A3A3A3` and hover color `#F9F9F9`, giving the icons and text unified, balanced contrast against pure black `#000000`.
+
+2. **Logo Icon Mark Pure White in Dark Mode (`PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, `tokens.css`):**
+   - Identified that while the wordmark had `alt="Monologg"`, the icon mark (`ASSETS.logoIcon`) lacked `alt="Monologg"` and `dark:invert` in `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+   - Added `alt="Monologg"` and `className="... dark:invert"` to `ASSETS.logoIcon` on all three pages.
+   - Expanded `.dark img[alt="Monologg"]`, `.dark [data-node-id="178359:17976"] img`, `.dark [data-node-id="178359:18341"] img`, and `.dark [data-node-id="178382:17942"] img` in `tokens.css` to guarantee both icon mark and wordmark invert into pure `#FFFFFF` with `filter: invert(1) brightness(2) !important;`.
+
+3. **Product 7-Step Checkmarks & Active Outline Brand Red (`ProductPage.tsx` & `tokens.css`):**
+   - Removed `dark:invert` from `imgCheckCircle` in `ProductPage.tsx`. The SVG natively has `#F13030` fill; inverting it turned the red into neon cyan (`#0ECFCF`).
+   - Removed browser default neon blue outline rings by adding global focus reset in `tokens.css` (`button:focus, div[role="button"]:focus, input:focus, select:focus, textarea:focus, a:focus { outline: none !important; }`) and adding `outline-none focus:outline-none focus-visible:outline-none` on all step cards in `ProductPage.tsx`.
+   - Added `.dark [data-step-state="active"] { border-color: #F13030 !important; }` in `tokens.css` ensuring active cards display the signature Monologg brand red stroke.
+
+4. **Universal Subtle Strokes Closer to Black (`#1A1A1A`) Across All Pages (`tokens.css`, all pages, `LandingPageHeader.test.tsx`):**
+   - Updated design tokens `--color-hairline`, `--color-border-default`, and `--color-border-strong` to `#1A1A1A` in `tokens.css`.
+   - Updated universal dark border rule `.dark hr, .dark table, .dark [data-name="Divider"], ...` to `border-color: #1A1A1A !important;`.
+   - Updated hover stroke to subtle `#262626 !important;`.
+   - Replaced 91 explicit occurrences of `dark:border-[#333333]` with `dark:border-[#1a1a1a]` across `LandingPage.tsx` (16), `ProductPage.tsx` (18), `PricingPage.tsx` (23), `ResourcesPage.tsx` (25), `LegalPage.tsx` (9), and `WebsiteFooter.tsx` (3).
+   - Updated unit test assertions in `LandingPageHeader.test.tsx` to verify `#1A1A1A` subtle stroke.
+
+5. **Verification & Quality Gate:**
+   - 28/28 tests passing across all 6 marketing test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`).
+   - Zero TypeScript compiler errors (`npx tsc --noEmit`) in `monologg/apps/web`.
 
 ---
 

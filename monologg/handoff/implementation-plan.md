@@ -1,11 +1,30 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup.
+**Last updated:** 2026-11-04 (Session 201: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup + Session 201 Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges.
 
 ---
 
 ## ✅ Done
+
+### Session 201 — Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges
+- [x] **Marquee Animation Slowdown & Icon Tone Balance**:
+  - Slowed marquee animation from 28s to 60s in `tokens.css` for an elegant, readable pace.
+  - Removed wrapper `dark:invert` to resolve double inversion; updated `.dark .animate-marquee-ltr img` to `filter: invert(1)` with `opacity-60 group-hover:opacity-100 transition-opacity` to perfectly match `#A3A3A3` text resting tone and `#F9F9F9` hover state.
+- [x] **Monologg Logo Icon Glyph Pure White on Pricing & Resources**:
+  - Added `alt="Monologg"` and `dark:invert` to `ASSETS.logoIcon` across `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+  - Expanded `tokens.css` selectors for header and footer logo icon masks to guarantee both icon mark and wordmark invert together into pure white in dark mode.
+- [x] **Product 7-Step Checkmarks & Active Outline Brand Red**:
+  - Removed `dark:invert` from `imgCheckCircle` in `ProductPage.tsx` so the SVG renders in native Monologg brand red (`#F13030`) instead of neon cyan.
+  - Eliminated browser default neon blue outline rings via global focus reset in `tokens.css` and `outline-none focus:outline-none focus-visible:outline-none` on all 7 step cards.
+  - Enforced `.dark [data-step-state="active"] { border-color: #F13030 !important; }` in `tokens.css`.
+- [x] **Universal Subtle Strokes Closer to Black (`#1A1A1A`) Across All Pages**:
+  - Standardized `--color-hairline`, `--color-border-default`, and `--color-border-strong` to `#1A1A1A` in `tokens.css`.
+  - Replaced all explicit `dark:border-[#333333]` classes with `dark:border-[#1a1a1a]` across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`, and `WebsiteFooter.tsx`.
+  - Updated unit test assertions in `LandingPageHeader.test.tsx` to verify `#1A1A1A` subtle stroke.
+- [x] **Automated Verification**:
+  - 28/28 tests passing across all 6 marketing test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`).
+  - Zero TypeScript compiler errors (`npx tsc --noEmit`) in `apps/web`.
 
 ### Session 200 — 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup
 - [x] **Systematic 1-to-1 Token Migration Across All Pages**:

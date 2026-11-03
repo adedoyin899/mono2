@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 200: 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup)
+**Last updated:** 2026-11-04 (Session 201: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 150. Inverted Neon Cyan Checkmarks, Double-Inverted Black Marquee Icons, Black Logo Glyphs on Pricing/Resources, and Over-Prominent #333333 Strokes (`tokens.css`, `ProductPage.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`)
+- **Severity:** Medium / Design System & Theming Defect
+- **What happened:**
+  - 1. On `ProductPage.tsx`, completed step cards showed neon cyan (`#0ECFCF`) checkmark circles and active cards showed neon blue browser focus outlines instead of brand red (`#F13030`).
+  - 2. On `LandingPage.tsx`, category icons in the marquee were rendered pure black against `#000000`, making them invisible.
+  - 3. On `PricingPage.tsx` and `ResourcesPage.tsx`, the Monologg logo icon mark (`ASSETS.logoIcon`) remained black next to the white wordmark in dark mode.
+  - 4. Across all pages, `#333333` strokes were overly prominent and high-contrast against pure black `#000000`.
+- **Root Cause:**
+  - 1. `imgCheckCircle` had `dark:invert`. Inverting `#F13030` (`rgb(241, 48, 48)`) mathematically yields neon cyan (`rgb(14, 207, 207)`). Step cards lacked focus outline resets.
+  - 2. The marquee icon wrapper had Tailwind `dark:invert` and `tokens.css` also had `.dark .animate-marquee-ltr img { filter: invert(1) }`. Double invert negated the inversion, leaving the black SVG black.
+  - 3. Logo mark `<img>` lacked `alt="Monologg"` and `dark:invert`, so global invert rules didn't match.
+  - 4. `#333333` (20% grey) was too bright against `#000000`.
+- **Fix:**
+  - Removed `dark:invert` from `imgCheckCircle` in `ProductPage.tsx`, added global outline reset in `tokens.css`, and set `.dark [data-step-state="active"] { border-color: #F13030 !important; }`.
+  - Removed `dark:invert` from marquee wrapper div in `LandingPage.tsx` and paired CSS `filter: invert(1)` with `opacity-60 group-hover:opacity-100` to match text tone `#A3A3A3` / `#F9F9F9`.
+  - Added `alt="Monologg"` and `dark:invert` to `ASSETS.logoIcon` on `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`, plus targeted container invert rules in `tokens.css`.
+  - Standardized all borders across the entire site to subtle `#1A1A1A` from the `leye/Grey alpha` spectrum. Verified with 28/28 tests passing.
 
 ### 149. Blunted Global Dark CSS Inverting iPhone Mockup Masks into Black Boxes and Overriding Newsletter Red Submit Button (`tokens.css`)
 - **Severity:** Medium / Visual Defect & Theming Conflict

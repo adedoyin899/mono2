@@ -327,7 +327,7 @@ export function LandingPage() {
 
       {/* ─── 3. Header (178359:16910) ─── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:16910"
         data-name="Header"
       >
@@ -412,7 +412,7 @@ export function LandingPage() {
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
           >
             <div className="relative shrink-0 size-[16px]">
               <img
@@ -429,7 +429,7 @@ export function LandingPage() {
                 type="button"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-label="Account menu"
-                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#e8e8e8] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] bg-white dark:bg-[#000000] transition-all"
+                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] bg-white dark:bg-[#000000] transition-all"
               >
                 <img
                   src={displayAvatar}
@@ -445,8 +445,8 @@ export function LandingPage() {
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] rounded-2xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2.5 border-b border-[#e8e8e8] dark:border-[#333333]">
+                <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                     <p className="text-[13px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] truncate">{displayName}</p>
                     <p className="text-[11px] text-[#767676] dark:text-[#a3a3a3] truncate">{loggedInUser.email}</p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] dark:bg-[#f13030]/20 text-[#f13030]">
@@ -512,7 +512,7 @@ export function LandingPage() {
                       Settings
                     </button>
                   </div>
-                  <div className="border-t border-[#e8e8e8] dark:border-[#333333] pt-1">
+                  <div className="border-t border-[#e8e8e8] dark:border-[#1a1a1a] pt-1">
                     <button
                       type="button"
                       onClick={handleSignOut}
@@ -534,7 +534,7 @@ export function LandingPage() {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#d1d1d1] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a]"
+                className="border border-[#d1d1d1] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a]"
                 data-node-id="I178359:16910;177955:45033"
                 data-name="Button"
               >
@@ -693,7 +693,7 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate(loggedInUser ? "/dashboard" : "/onboarding")}
-              className="border border-[#d1d1d1] dark:border-[#333333] hover:border-[#1a1a1a] dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
+              className="border border-[#d1d1d1] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
               data-node-id="178359:16942"
               data-name="Button"
             >
@@ -714,7 +714,7 @@ export function LandingPage() {
         >
           {/* Grey Stage Box (178359:16945) */}
           <div
-            className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] h-[502px] relative rounded-[32px] shrink-0 w-full"
+            className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] h-[502px] relative rounded-[32px] shrink-0 w-full"
             data-node-id="178359:16945"
           >
             <div
@@ -888,10 +888,10 @@ export function LandingPage() {
                     key={`${cat.name}-${idx}`}
                     className="flex gap-[8px] items-center justify-center relative shrink-0 px-4 py-2 rounded-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 cursor-pointer group hover:scale-105 active:scale-95"
                   >
-                    <div className="relative shrink-0 size-[20px] transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6 dark:invert">
+                    <div className="relative shrink-0 size-[20px] transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6">
                       <img
                         alt=""
-                        className="absolute block inset-0 max-w-none size-full"
+                        className="absolute block inset-0 max-w-none size-full opacity-60 group-hover:opacity-100 transition-opacity"
                         src={cat.icon}
                       />
                     </div>
@@ -990,7 +990,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17001"
                 data-name="Image"
               >
@@ -1063,7 +1063,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17037"
                 data-name="Image"
               >
@@ -1192,7 +1192,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17093"
                 data-name="Image"
               >
@@ -1279,7 +1279,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17128"
                 data-name="Image"
               >
@@ -1373,7 +1373,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17165"
                 data-name="Image"
               >
@@ -1476,7 +1476,7 @@ export function LandingPage() {
               <motion.div
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#333333]"
+                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] transition-all duration-300 border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:17209"
                 data-name="Image"
               >
@@ -1568,7 +1568,7 @@ export function LandingPage() {
             return (
               <div
                 key={idx}
-                className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex gap-[24px] items-start py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-colors duration-200 hover:bg-[#fafaf8] dark:hover:bg-[#1a1a1a]"
+                className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#1a1a1a] flex gap-[24px] items-start py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-colors duration-200 hover:bg-[#fafaf8] dark:hover:bg-[#1a1a1a]"
                 onClick={() => toggleFaq(idx)}
               >
                 <div className="flex-1 min-w-px relative">

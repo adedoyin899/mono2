@@ -171,7 +171,7 @@
   --color-bg-surface-2: #333333;
   --color-bg-elevated: #333333;
   --color-bg-glass: rgba(26, 26, 26, 0.88);
-  --color-hairline: #333333;
+  --color-hairline: #1A1A1A;
 
   --color-red: #F13030;
   --color-red-press: #D31F20;
@@ -211,8 +211,8 @@
   --color-warning: #FFD268;
   --color-error: #FF6B5C;
   --color-error-bg: rgba(255, 107, 92, 0.14);
-  --color-border-default: #333333;
-  --color-border-strong: #333333;
+  --color-border-default: #1A1A1A;
+  --color-border-strong: #1A1A1A;
   --color-border-active: var(--color-accent);
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.6);
@@ -333,7 +333,7 @@ select::-ms-expand {
 .animate-marquee-ltr {
   display: flex;
   width: max-content;
-  animation: marquee-ltr 28s linear infinite;
+  animation: marquee-ltr 60s linear infinite;
   will-change: transform;
 }
 
@@ -350,7 +350,7 @@ select::-ms-expand {
 
 /* ════════════════════════════════════════════════════════════════
    MONOLOGG — Website Cohesive Dark Mode (Frame 2147228281 Palette)
-   #000000 (Canvas) | #1A1A1A (Bg Hover) | #333333 (Strokes/Borders)
+   #000000 (Canvas) | #141414 (Elevated/Hover) | #1A1A1A (Subtle Strokes)
    #484848 | #767676 | #A3A3A3 | #BABABA | #D1D1D1 | #E8E8E8 | #F5F5F5 | #F7F7F7 | #F8F8F8 | #F9F9F9
    ════════════════════════════════════════════════════════════════ */
 
@@ -358,6 +358,16 @@ html.dark,
 .dark body {
   background-color: #000000 !important;
   color: #F9F9F9 !important;
+}
+
+/* Global focus outline reset: eliminate browser default neon blue rings */
+button:focus,
+div[role="button"]:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus {
+  outline: none !important;
 }
 
 /* Website canvas wrappers and root backgrounds */
@@ -386,7 +396,7 @@ html.dark,
 .dark header.backdrop-blur-\[12px\],
 .dark header.bg-white\/95 {
   background-color: rgba(0, 0, 0, 0.92) !important;
-  border-bottom: 1px solid #333333 !important;
+  border-bottom: 1px solid #1A1A1A !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
 }
 
@@ -399,7 +409,7 @@ html.dark,
   color: #F9F9F9 !important;
 }
 
-/* Universal Strokes / Borders across all pages including legal: strictly #333333 */
+/* Universal Strokes / Borders across all pages: closer to black and subtle (#1A1A1A) */
 .dark hr,
 .dark [data-name="Divider"],
 .dark table,
@@ -427,17 +437,17 @@ html.dark,
 .dark .border-gray-300,
 .dark .border-\[rgba\(15\,42\,38\,0\.1\)\],
 .dark [data-node-id="178359:16994"] {
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 
 .dark .bg-\[\#d1d1d1\],
 .dark .bg-\[\#e8e8e8\],
 .dark .bg-\[\#ecece8\],
 .dark [data-node-id="178359:16994"] {
-  background-color: #333333 !important;
+  background-color: #1A1A1A !important;
 }
 
-/* ── Universal Background Hover States: strictly #1A1A1A with #333333 stroke ── */
+/* ── Universal Background Hover States: strictly #1A1A1A with #262626 subtle stroke ── */
 .dark .hover\:bg-\[\#f4f4f2\]:hover,
 .dark .hover\:bg-\[\#f0f0ed\]:hover,
 .dark .hover\:bg-\[\#f9f9f9\]:hover,
@@ -479,34 +489,41 @@ html.dark,
 .dark [data-node-id="178151:49527"] button:hover,
 .dark [data-node-id="178387:19860"] > div:hover {
   background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  border-color: #262626 !important;
 }
 
-/* Enforce stroke #333333 on hover even when utility sets border-transparent or custom border */
+/* Enforce subtle stroke #262626 on hover even when utility sets border-transparent */
 .dark .hover\:border-transparent:hover,
 .dark .hover\:border-\[\#16161a\]:hover,
 .dark .hover\:border-black:hover,
 .dark .group:hover .group-hover\:border-transparent {
-  border-color: #333333 !important;
+  border-color: #262626 !important;
 }
 
 /* Product 7-Step Interactive Showcase */
-.dark [data-testid^="step-item-"] {
+.dark [data-testid^="step-item-"],
+.dark [data-step-state="completed"],
+.dark [data-step-state="default"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
+  outline: none !important;
 }
-.dark [data-testid^="step-item-"]:hover {
-  background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+.dark [data-testid^="step-item-"]:hover,
+.dark [data-step-state="completed"]:hover,
+.dark [data-step-state="default"]:hover {
+  background-color: #141414 !important;
+  border-color: #262626 !important;
 }
+.dark [data-step-state="active"],
 .dark [data-testid^="step-item-"][data-state="active"] {
-  background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  background-color: #141414 !important;
+  border-color: #F13030 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  outline: none !important;
 }
 .dark [data-testid="stage-preview-box"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 
 /* Typography mappings with high contrast */
@@ -541,20 +558,25 @@ html.dark,
 .dark select {
   background-color: #000000 !important;
   color: #F9F9F9 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
+  outline: none !important;
 }
 .dark input[type="text"]:focus,
 .dark input[type="email"]:focus,
 .dark input[type="tel"]:focus,
 .dark textarea:focus,
-.dark select:focus,
+.dark select:focus {
+  background-color: #141414 !important;
+  border-color: #F13030 !important;
+  outline: none !important;
+}
 .dark input[type="text"]:hover,
 .dark input[type="email"]:hover,
 .dark input[type="tel"]:hover,
 .dark textarea:hover,
 .dark select:hover {
-  background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  background-color: #141414 !important;
+  border-color: #262626 !important;
 }
 .dark input::placeholder,
 .dark textarea::placeholder {
@@ -572,8 +594,9 @@ html.dark,
 .dark button.border-\[\#dbdbd6\],
 .dark button.border-\[\#ecece8\] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
   color: #F9F9F9 !important;
+  outline: none !important;
 }
 .dark button.bg-white:hover,
 .dark button.bg-\[\#f8f8f8\]:hover,
@@ -581,7 +604,7 @@ html.dark,
 .dark button.border-\[\#dbdbd6\]:hover,
 .dark button.border-\[\#ecece8\]:hover {
   background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  border-color: #262626 !important;
 }
 
 /* Primary Brand Button (#F13030 Mono-red) */
@@ -589,6 +612,7 @@ html.dark,
 .dark .bg-\[\#f13030\] {
   background-color: #F13030 !important;
   color: #FFFFFF !important;
+  outline: none !important;
 }
 .dark button.bg-\[\#f13030\]:hover {
   background-color: #D31F20 !important;
@@ -597,21 +621,29 @@ html.dark,
 /* Theme toggle button in header */
 .dark [aria-label="Toggle theme"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
+  outline: none !important;
 }
 .dark [aria-label="Toggle theme"]:hover {
   background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  border-color: #262626 !important;
 }
 .dark img[alt="Toggle theme"] {
   filter: invert(1) brightness(1.8) !important;
 }
 
-/* Monologg Logos across Header and Footer */
+/* Monologg Logos across Header and Footer: ensure icon mark & wordmark are pure white */
 .dark img[alt="Monologg"],
 .dark [data-name="Img - Monologg"] img,
 .dark [data-name="Clip path group"] img,
-.dark [data-name="Vector"] img[alt="Monologg"] {
+.dark [data-name="Vector"] img[alt="Monologg"],
+.dark [data-node-id="178359:17976"] img,
+.dark [data-node-id="178359:18341"] img,
+.dark [data-node-id="178382:17942"] img,
+.dark button[data-name="Logo"] img,
+.dark a[data-name="Logo"] img,
+.dark [data-node-id="178359:17976"] svg,
+.dark [data-node-id="178359:18341"] svg {
   filter: invert(1) brightness(2) !important;
 }
 
@@ -624,11 +656,11 @@ html.dark,
 /* Audience Toggle (• PERFORMER | CLIENT) */
 .dark [aria-label="Audience selector"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 .dark [aria-label="Audience selector"] .bg-white {
   background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  border-color: #262626 !important;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
 }
 .dark [aria-label="Audience selector"] span {
@@ -643,10 +675,10 @@ html.dark,
   background: linear-gradient(to left, #000000, rgba(0, 0, 0, 0.8), transparent) !important;
 }
 .dark .animate-marquee-ltr img {
-  filter: invert(1) brightness(1.8) !important;
+  filter: invert(1) !important;
 }
 .dark .animate-marquee-ltr p {
-  color: #BABABA !important;
+  color: #A3A3A3 !important;
 }
 .dark .animate-marquee-ltr .group:hover p {
   color: #F9F9F9 !important;
@@ -654,7 +686,7 @@ html.dark,
 
 /* Vertical Timeline Line */
 .dark [data-node-id="178359:16994"] {
-  background-color: #333333 !important;
+  background-color: #1A1A1A !important;
 }
 .dark [data-node-id="178359:16995"] {
   background: linear-gradient(to bottom, #F9F9F9, #BABABA, #767676) !important;
@@ -663,20 +695,20 @@ html.dark,
 /* Tables in Pricing, Product, and Legal Pages */
 .dark table,
 .dark .divide-y {
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 .dark tr:hover,
 .dark tbody tr:hover {
-  background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  background-color: #141414 !important;
+  border-color: #262626 !important;
 }
 .dark th {
   background-color: #000000 !important;
   color: #F9F9F9 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 .dark td {
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
   color: #D1D1D1 !important;
 }
 
@@ -708,7 +740,7 @@ html.dark,
 .dark a[aria-label="TikTok"],
 .dark a[aria-label="Instagram"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 .dark a[aria-label="LinkedIn"]:hover,
 .dark a[aria-label="Product Hunt"]:hover,
@@ -718,29 +750,29 @@ html.dark,
 .dark a[aria-label="TikTok"]:hover,
 .dark a[aria-label="Instagram"]:hover {
   background-color: #1A1A1A !important;
-  border-color: #333333 !important;
+  border-color: #262626 !important;
 }
 
 /* Dropdown Menu on Landing Page */
 .dark [ref="userMenuRef"] > div,
 .dark .z-50.bg-white {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Pre-footer CTA banner */
 .dark section[data-node-id="178190:29887"] {
   background-color: #000000 !important;
-  border-top: 1px solid #333333 !important;
-  border-bottom: 1px solid #333333 !important;
+  border-top: 1px solid #1A1A1A !important;
+  border-bottom: 1px solid #1A1A1A !important;
 }
 
 /* Footer Section */
 .dark footer[data-node-id="178151:49520"],
 .dark footer {
   background-color: #000000 !important;
-  border-top: 1px solid #333333 !important;
+  border-top: 1px solid #1A1A1A !important;
 }
 .dark [data-name="Paystack Badge"] span {
   color: #F9F9F9 !important;
@@ -749,7 +781,7 @@ html.dark,
 /* Newsletter Input Form */
 .dark [data-node-id="178151:49527"] {
   background-color: #000000 !important;
-  border-color: #333333 !important;
+  border-color: #1A1A1A !important;
 }
 .dark [data-node-id="178151:49527"] input {
   background-color: transparent !important;

@@ -429,7 +429,7 @@ export function PricingPage() {
 
       {/* ── 2. Sticky Header (178359:17973) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17973"
       >
         <div
@@ -454,8 +454,8 @@ export function PricingPage() {
               >
                 <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
                   <img
-                    alt=""
-                    className="block max-w-none size-full"
+                    alt="Monologg"
+                    className="block max-w-none size-full dark:invert"
                     src={ASSETS.logoIcon}
                   />
                 </div>
@@ -464,7 +464,7 @@ export function PricingPage() {
             <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
               <img
                 alt="Monologg"
-                className="absolute block inset-0 max-w-none size-full"
+                className="absolute block inset-0 max-w-none size-full dark:invert"
                 src={ASSETS.logoWordmark}
               />
             </div>
@@ -508,7 +508,7 @@ export function PricingPage() {
         >
           <button
             onClick={toggle}
-            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid rounded-full shrink-0 size-[36px] flex items-center justify-center hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid rounded-full shrink-0 size-[36px] flex items-center justify-center hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             aria-label="Toggle theme"
             data-node-id="178359:18000"
           >
@@ -525,7 +525,7 @@ export function PricingPage() {
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -549,9 +549,9 @@ export function PricingPage() {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -584,7 +584,7 @@ export function PricingPage() {
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <button
                         onClick={handleSignOut}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#F13030] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors font-medium"
@@ -601,7 +601,7 @@ export function PricingPage() {
             <div className="flex items-center gap-[12px]">
               <button
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#d1d1d1] dark:border-[#333333] border-solid rounded-full h-[40px] px-[20px] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] leading-[16px] tracking-[-0.12px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap"
+                className="border border-[#d1d1d1] dark:border-[#1a1a1a] border-solid rounded-full h-[40px] px-[20px] font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] leading-[16px] tracking-[-0.12px] text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap"
                 data-node-id="178359:18003"
               >
                 Sign In
@@ -653,7 +653,7 @@ export function PricingPage() {
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
         {/* ── 3. Pricing Hero Section (178359:18019) ── */}
         <section
-          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-b border-transparent dark:border-[#333333] flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
+          className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-b border-transparent dark:border-[#1a1a1a] flex flex-col items-center px-6 py-16 lg:p-[112px] relative w-full"
           data-node-id="178359:18019"
         >
           <div
@@ -717,7 +717,7 @@ export function PricingPage() {
             >
               {/* Audience Pill — Performers Active (178359:18032) */}
               <div
-                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
+                className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a]"
                 data-node-id="178359:18032"
               >
                 <button
@@ -774,7 +774,7 @@ export function PricingPage() {
                   >
                     {/* Avatar 1 (178359:18040) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18040"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -798,7 +798,7 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 2 (178359:18041) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18041"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -822,7 +822,7 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 3 (178359:18042) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18042"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -846,7 +846,7 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 4 (178359:18043) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18043"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -870,7 +870,7 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 5 (178359:18044) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
                       data-node-id="178359:18044"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -884,7 +884,7 @@ export function PricingPage() {
                     </div>
                     {/* Avatar 6 (178359:18047) */}
                     <div
-                      className="border-[#e8e8e8] dark:border-[#333333] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
                       data-node-id="178359:18047"
                     >
                       <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
@@ -933,7 +933,7 @@ export function PricingPage() {
               <div className="min-w-[680px] w-full flex flex-col">
                 {/* Header Row (178359:18051) */}
                 <div
-                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] flex items-start relative shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18051"
                 >
                   <div
@@ -998,7 +998,7 @@ export function PricingPage() {
                       delay: idx * 0.03,
                       ease: [0.4, 0, 0.2, 1],
                     }}
-                    className="border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
+                    className="border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                     data-node-id={row.nodeId}
                   >
                     <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1060,7 +1060,7 @@ export function PricingPage() {
               >
                 {/* Audience Pill — Clients Active (178401:153037) */}
                 <div
-                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#333333]"
+                  className="flex gap-[8px] items-center p-1 bg-[#f5f5f5] dark:bg-[#1a1a1a] rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   data-node-id="178401:153037"
                 >
                   <button
@@ -1113,7 +1113,7 @@ export function PricingPage() {
                     {studioBadges.map((studio, i) => (
                       <div
                         key={studio.name}
-                        className={`bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-[0.354px] border-solid flex items-center ${
+                        className={`bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.354px] border-solid flex items-center ${
                           i < studioBadges.length - 1 ? "mr-[-15px]" : ""
                         } p-[11.323px] relative rounded-full shrink-0`}
                         data-node-id={studio.nodeId}
@@ -1157,7 +1157,7 @@ export function PricingPage() {
               <div className="min-w-[680px] w-full flex flex-col">
                 {/* Header Row (178359:18149) */}
                 <div
-                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex items-start relative shrink-0 w-full"
+                  className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18149"
                 >
                   <div
@@ -1224,7 +1224,7 @@ export function PricingPage() {
                           delay: Math.min(idx * 0.02, 0.3),
                           ease: [0.4, 0, 0.2, 1],
                         }}
-                        className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
+                        className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
                         data-node-id={item.nodeId}
                       >
                         <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1260,7 +1260,7 @@ export function PricingPage() {
                         delay: Math.min(idx * 0.025, 0.35),
                         ease: [0.4, 0, 0.2, 1],
                       }}
-                      className="border-[#e8e8e8] dark:border-[#333333] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
+                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                       data-node-id={row.nodeId}
                     >
                       <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1356,7 +1356,7 @@ export function PricingPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#333333] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
+                  className="bg-white dark:bg-[#000000] border border-transparent dark:border-[#1a1a1a] flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150"
                 >
                   <button
                     type="button"

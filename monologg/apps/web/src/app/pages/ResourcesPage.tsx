@@ -237,7 +237,7 @@ export function ResourcesPage() {
 
       {/* ── 2. Sticky Header (178359:18338) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#333333] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
+        className="backdrop-blur-[12px] bg-white/95 dark:bg-[#000000]/95 border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:18338"
       >
         <div
@@ -262,8 +262,8 @@ export function ResourcesPage() {
               >
                 <div className="absolute inset-[-1.33%_-1.39%_-1.65%_-1.39%]">
                   <img
-                    alt=""
-                    className="block max-w-none size-full"
+                    alt="Monologg"
+                    className="block max-w-none size-full dark:invert"
                     src={ASSETS.logoIcon}
                   />
                 </div>
@@ -272,7 +272,7 @@ export function ResourcesPage() {
             <div className="absolute inset-[22.1%_1.22%_6.52%_24.14%]">
               <img
                 alt="Monologg"
-                className="absolute block inset-0 max-w-none size-full"
+                className="absolute block inset-0 max-w-none size-full dark:invert"
                 src={ASSETS.logoWordmark}
               />
             </div>
@@ -323,7 +323,7 @@ export function ResourcesPage() {
             type="button"
             onClick={toggle}
             aria-label="Toggle theme"
-            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
             data-node-id="178359:18365"
           >
             <img
@@ -338,7 +338,7 @@ export function ResourcesPage() {
               <button
                 type="button"
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#333333] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full p-1 pr-2 border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#000000] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Account menu"
               >
                 <Avatar
@@ -362,9 +362,9 @@ export function ResourcesPage() {
                     initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333]"
+                    className="absolute right-0 mt-2 w-64 rounded-2xl shadow-xl overflow-hidden z-50 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a]"
                   >
-                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="flex items-center gap-3 p-4 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <Avatar
                         size="md"
                         src={userAvatarUrl ?? undefined}
@@ -398,7 +398,7 @@ export function ResourcesPage() {
                         </button>
                       ))}
                     </div>
-                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#333333]">
+                    <div className="py-1.5 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
                       <button
                         type="button"
                         onClick={handleSignOut}
@@ -418,7 +418,7 @@ export function ResourcesPage() {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signin")}
-                className="border border-[#d1d1d1] dark:border-[#333333] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                className="border border-[#d1d1d1] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0 font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] text-[12px] text-center tracking-[-0.12px] whitespace-nowrap hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                 data-node-id="178359:18368"
               >
                 Sign In
@@ -484,14 +484,14 @@ export function ResourcesPage() {
           >
             {/* Top Box (Frame 427321871) */}
             <div
-              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-l border-r border-t border-solid flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full"
+              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-l border-r border-t border-solid flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full"
               data-node-id="178359:18410"
             >
               {/* Terms of Service Badge Pill (Frame 2147228278) */}
               <button
                 type="button"
                 onClick={() => navigate("/legal/terms")}
-                className="bg-[#f7f7f7] dark:bg-[#1a1a1a] hover:bg-[#ececec] dark:hover:bg-[#333333] border border-transparent dark:border-[#333333] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
+                className="bg-[#f7f7f7] dark:bg-[#1a1a1a] hover:bg-[#ececec] dark:hover:bg-[#333333] border border-transparent dark:border-[#1a1a1a] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
                 data-node-id="178359:18411"
               >
                 <div
@@ -601,7 +601,7 @@ export function ResourcesPage() {
               <button
                 type="button"
                 onClick={() => navigate("/support")}
-                className="bg-[#f7f7f7] dark:bg-[#1a1a1a] hover:bg-[#ececec] dark:hover:bg-[#333333] border border-transparent dark:border-[#333333] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
+                className="bg-[#f7f7f7] dark:bg-[#1a1a1a] hover:bg-[#ececec] dark:hover:bg-[#333333] border border-transparent dark:border-[#1a1a1a] flex gap-[10px] items-center px-[12px] py-[6px] relative rounded-[20px] shrink-0 transition-colors cursor-pointer group"
                 data-node-id="178359:18431"
               >
                 <div
@@ -695,7 +695,7 @@ export function ResourcesPage() {
 
             {/* Bottom Bar: hello@monologg.co + 6 Social Badges (Frame 2147227600) */}
             <div
-              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid flex flex-col sm:flex-row gap-[16px] sm:gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full"
+              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex flex-col sm:flex-row gap-[16px] sm:gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full"
               data-node-id="178359:18448"
             >
               <div
@@ -733,7 +733,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="LinkedIn"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18455"
                 >
                   <img alt="LinkedIn" className="size-[18px] dark:invert" src={ASSETS.linkedin} />
@@ -743,7 +743,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Product Hunt"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18457"
                 >
                   <img alt="Product Hunt" className="size-[18px] dark:invert" src={ASSETS.producthunt} />
@@ -753,7 +753,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Twitter-X"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18459"
                 >
                   <img alt="Twitter-X" className="size-[18px] dark:invert" src={ASSETS.twitterX} />
@@ -763,7 +763,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Twitch"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18461"
                 >
                   <img alt="Twitch" className="size-[18px] dark:invert" src={ASSETS.twitch} />
@@ -773,7 +773,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Telegram"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18463"
                 >
                   <img alt="Telegram" className="size-[18px] dark:invert" src={ASSETS.telegram} />
@@ -783,7 +783,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="TikTok"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18465"
                 >
                   <img alt="TikTok" className="size-[18px] dark:invert" src={ASSETS.tiktok} />
@@ -793,7 +793,7 @@ export function ResourcesPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Instagram"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#333333] border-[0.277px] border-solid flex items-center justify-center overflow-clip px-[9.75px] py-[9px] relative rounded-[200px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
+                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip px-[9.75px] py-[9px] relative rounded-[200px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18467"
                 >
                   <img alt="Instagram" className="size-[18px] dark:invert" src={ASSETS.instagram} />
@@ -848,7 +848,7 @@ export function ResourcesPage() {
             {/* Right Application Form Card (Frame 2 - 178359:18480) */}
             <form
               onSubmit={handleInvestorSubmit}
-              className="bg-white dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#333333] border-solid shadow-[0px_1px_1px_rgba(0,0,0,0.1)] flex flex-col gap-[16px] items-start p-[25px] relative rounded-[18px] shrink-0 w-full lg:w-[530px]"
+              className="bg-white dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid shadow-[0px_1px_1px_rgba(0,0,0,0.1)] flex flex-col gap-[16px] items-start p-[25px] relative rounded-[18px] shrink-0 w-full lg:w-[530px]"
               data-node-id="178359:18480"
               data-name="Frame 2"
             >
@@ -875,7 +875,7 @@ export function ResourcesPage() {
                   >
                     First Name
                   </label>
-                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                     <input
                       id="first-name"
                       type="text"
@@ -899,7 +899,7 @@ export function ResourcesPage() {
                   >
                     Last Name
                   </label>
-                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                     <input
                       id="last-name"
                       type="text"
@@ -929,7 +929,7 @@ export function ResourcesPage() {
                   >
                     Email
                   </label>
-                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                     <input
                       id="investor-email"
                       type="email"
@@ -953,7 +953,7 @@ export function ResourcesPage() {
                   >
                     phone no
                   </label>
-                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                  <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex h-[40px] items-center overflow-clip px-[13px] py-[9px] relative rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                     <input
                       id="phone-no"
                       type="tel"
@@ -977,7 +977,7 @@ export function ResourcesPage() {
                 >
                   Please tell us who you are
                 </label>
-                <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid relative flex h-[40px] items-center rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
+                <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid relative flex h-[40px] items-center rounded-[12px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] shrink-0 w-full focus-within:border-[#f13030] transition-colors">
                   <select
                     id="who-you-are"
                     required
@@ -1025,7 +1025,7 @@ export function ResourcesPage() {
                 >
                   Message
                 </label>
-                <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#333333] border-solid flex h-[160px] items-start overflow-clip p-[16px] relative rounded-[18px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full focus-within:border-[#f13030] transition-colors">
+                <div className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex h-[160px] items-start overflow-clip p-[16px] relative rounded-[18px] shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1)] w-full focus-within:border-[#f13030] transition-colors">
                   <textarea
                     id="investor-message"
                     rows={5}
