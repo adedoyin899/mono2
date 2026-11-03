@@ -1,11 +1,16 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul.
+**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Session 181 Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs.
 
 ---
 
 ## ✅ Done
+
+### Session 181 — Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs
+- [x] **Complete Elimination of FINCRA across `apps/web`**:
+  - Replaced FINCRA with Paystack in `Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`, and historical drafts.
+  - Confirmed 0 TypeScript errors on `npx tsc --noEmit`.
 
 ### Session 180 — Order Room FAANG UX & Information Architecture Overhaul
 - [x] **Eliminated Financial & Tab Duplication (`OrderRoom.tsx`)**:

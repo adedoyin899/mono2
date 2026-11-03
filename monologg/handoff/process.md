@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
+**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,12 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 140: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs (Session 181)
+
+Sanitized all remaining traces of FINCRA/Fincra across user-facing pages, copy, and architectural specifications on `main`:
+- **Webapp Copy (`Checkout.tsx`, `ClientDashboard.tsx`):** Updated simulated checkout escrow copy to `"Securing your funds in escrow via Paystack..."` and client dashboard trust badge to `"Paystack Escrow Protected"`.
+- **Specifications & Historical Drafts:** Replaced 11 references of FINCRA across `monologg_ux_spec.md` and historical drafts.
 
 ### Step 139: Order Room FAANG UX & Information Architecture Overhaul (Session 180)
 

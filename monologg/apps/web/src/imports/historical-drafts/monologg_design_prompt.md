@@ -254,7 +254,7 @@ card-niche-select
     Contents: [Icon 32px in --color-gold-muted] [Label --text-heading-sm]
     Selected state: border: 2px solid --color-gold-primary | background: var(--color-gold-glow) | checkmark icon (top-right)
 
-card-fincra-payment
+card-paystack-payment
     Background: --color-bg-surface
     Border: 1px solid --color-border-default
     Border-radius: --radius-xl (bottom sheet)
@@ -931,7 +931,7 @@ card surface, padding 16px
 
 ---
 
-### SCREEN: PWA-12 — FINCRA Payment Gateway
+### SCREEN: PWA-12 — Paystack Payment Gateway
 
 ```
 Layout: drawer-base (bottom sheet) sliding up over PWA-11
@@ -939,7 +939,7 @@ Layout: drawer-base (bottom sheet) sliding up over PWA-11
 ── DRAWER HEADER ──
 [Drag handle]
 [Title: "Secure Escrow Payment" -- --text-heading-lg]
-[FINCRA trust mark: logo + "Protected by FINCRA Escrow" -- --text-body-sm --color-text-secondary]
+[Paystack trust mark: logo + "Protected by Paystack Escrow" -- --text-body-sm --color-text-secondary]
 
 ── ESCROW EXPLANATION CHIP ──
 Background: --color-verified-bg | Border: 1px solid --color-success | Border-radius: --radius-md
@@ -961,8 +961,8 @@ Active tab: --color-gold-primary background, --color-text-inverse
 [Account name: auto-populated on valid account]
 
 ── SECURITY BADGES ROW ──
-Centred, horizontal: [SSL padlock] [FINCRA logo] [PCI badge]
---text-caption --color-text-tertiary below: "256-bit SSL encrypted · FINCRA regulated"
+Centred, horizontal: [SSL padlock] [Paystack logo] [PCI badge]
+--text-caption --color-text-tertiary below: "256-bit SSL encrypted · Paystack regulated"
 
 ── ORDER SUMMARY (collapsible) ──
 [Expandable row: "Order Summary" -- total price shown collapsed]
@@ -1040,7 +1040,7 @@ card-rate-card-hover
 card-rate-card-selected
 card-niche-select
 card-niche-select-selected
-card-fincra-payment
+card-paystack-payment
 card-feature
 card-booking-summary
 ```

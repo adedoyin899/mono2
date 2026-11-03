@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-02 (Session 180: Order Room FAANG UX & Information Architecture Overhaul)
+**Last updated:** 2026-11-03 (Session 181: Eliminate FINCRA References in Favor of Paystack Across Webapp & Specs)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 128. Stale FINCRA References Across Webapp Copy and Specs (`Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`)
+- **Severity:** Medium / Brand & Architecture Consistency Defect
+- **What happened:**
+  - Client-side surfaces on `main` retained legacy references to "FINCRA", including Checkout simulated escrow copy and Client Dashboard payment trust guarantee badge, as well as `monologg_ux_spec.md`.
+- **Root Cause:**
+  - Prototype copy was authored prior to the Phase 6 Paystack-first decision.
+- **Fix:**
+  - Replaced all occurrences of FINCRA with Paystack across `Checkout.tsx`, `ClientDashboard.tsx`, `monologg_ux_spec.md`, and historical drafts. Verified 0 occurrences across `apps/web/` (`tsc --noEmit` clean).
 
 ### 127. Quadruple Financial Duplication, Stacked Top Banners, and Redundant 1-on-1 Chat Role Badges in `OrderRoom.tsx`
 - **Severity:** Medium / Information Architecture & UX Clutter Defect

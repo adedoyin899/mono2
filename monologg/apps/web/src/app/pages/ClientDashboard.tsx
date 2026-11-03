@@ -4420,7 +4420,7 @@ export function ClientDashboard() {
                             </Button>
                             <div className="flex items-center justify-center gap-1.5 mt-2.5 text-[10px]" style={{ color: "var(--color-text-tertiary)" }}>
                               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              <span>FINCRA Escrow Protected · 256-Bit Bank-Grade Encryption</span>
+                              <span>Paystack Escrow Protected · 256-Bit Bank-Grade Encryption</span>
                             </div>
                           </div>
                         </div>
