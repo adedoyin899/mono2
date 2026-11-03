@@ -389,7 +389,7 @@ export function WebsiteFooter({
                       className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49553"
                     >
-                      Backed by
+                      Powered by
                     </p>
                     <div className="flex items-center gap-[6px] relative shrink-0" data-name="Paystack Badge">
                       <svg

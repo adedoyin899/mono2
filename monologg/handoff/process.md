@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 201: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges)
+**Last updated:** 2026-11-04 (Session 202: Website Footer Copy Update to "Powered by paystack")
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 161: Website Footer Copy Update to "Powered by paystack" (Session 202)
+
+Updated the footer copy across all public marketing and legal pages:
+- **Copy Alignment:** In `WebsiteFooter.tsx`, updated the Paystack association copy from `"Backed by"` to `"Powered by"`.
+- **Styling Preservation:** Preserved the 14px `Inter Tight` typography (`leading-[24px] tracking-[0.42px] text-[#767676] dark:text-[#a3a3a3]`) alongside the 4-cyan-bar SVG icon and bold lowercase `paystack` brand name.
+- **Testing & Verification:** Added assertions in `WebsiteFooter.test.tsx` verifying `"Powered by"` and `"paystack"`. All 28 tests passing across all 6 marketing test suites, with 0 TypeScript compiler errors.
 
 ### Step 160: Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges (Session 201)
 

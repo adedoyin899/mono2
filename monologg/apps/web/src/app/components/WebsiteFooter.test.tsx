@@ -43,6 +43,8 @@ describe("WebsiteFooter", () => {
     expect(screen.getByRole("button", { name: /Subscribe to newsletter/i })).toBeInTheDocument();
     expect(screen.getByText("Terms of Service")).toBeInTheDocument();
     expect(screen.getByText("Cookie Policy")).toBeInTheDocument();
+    expect(screen.getByText("Powered by")).toBeInTheDocument();
+    expect(screen.getByText("paystack")).toBeInTheDocument();
   });
 
   it("submits email to Supabase NewsletterSubscriber and displays confirmation", async () => {
