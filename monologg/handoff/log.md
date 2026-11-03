@@ -1,11 +1,34 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 190: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch)
+**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 191 (2026-11-03) — FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages
+
+**Goal:** Implement senior FAANG-grade web motion and micro-interactions adhering to `web-motion-design.md` (Disney's 12 principles for UI, GPU transforms, standard cubic bezier `[0.4, 0, 0.2, 1]`, `prefers-reduced-motion` safety) and `micro-interactions.md` (squash & stretch, anticipation, spring dynamics) across the Home/Landing, Product, and Pricing pages.
+
+1. **Home Page Hero Marquee & Vertical Timeline Scroll Animation (`LandingPage.tsx`, `tokens.css`):**
+   - **Hero Category Marquee:** Added infinite horizontal marquee moving left-to-right (`@keyframes marquee-ltr`, 28s linear infinite with hover pause, white edge fade gradients) featuring all 6 category pills (Actors, Speakers, Comperes, Comedians, Artists, Creators) with hover micro-interactions.
+   - **Timeline Scroll Progress Bar:** Refactored the 2px vertical timeline line with Framer Motion's `useScroll` and `useTransform` (`scaleY` with `transformOrigin: "top"`), dynamically filling top-to-bottom as the user scrolls through the 6 feature blocks.
+   - **Feature Viewport Animations & Card Lift:** Wrapped each of the 6 feature blocks with `whileInView={{ opacity: 1, y: 0 }}` entrance animations and applied `whileHover={{ y: -6 }}` with elevated shadow to all 6 UI mockup preview cards.
+2. **Product Page 7-Step Showcase & Thespian AI Interactions (`ProductPage.tsx`):**
+   - **7-Step Showcase Fluid Transitions:** Added `layout` transitions to step cards. Expanded active card description with `AnimatePresence` height transition, added spring pop to completed checkmarks, hover nudge to active arrow icons, and fluid cross-fade zoom to the 300×300 SVG phone preview stage.
+   - **In-Place Thespian AI Role Switch:** Added interactive `thespianRole` state (`"performer" | "client"`), converting the `PERFORMER | CLIENT` toggle into an in-place switch without page scrolling or jumping, while preserving DOM nodes for 100% test suite parity.
+   - **Table Row Hover Fills:** Implemented `hover:bg-[#f7f7f7]` with subtle FAANG scale (`hover:scale-[1.005]`) and ease-out transitions across all rows on both Performer and Client tables.
+3. **Pricing Page Table Blur-In Entrance Animation (`PricingPage.tsx`):**
+   - **Blur-In Horizontal Rows:** Wrapped all comparison rows for both Performers (9 rows) and Clients (23 rows) with `initial={{ opacity: 0, filter: "blur(6px)", y: 10 }}` to `whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}` with subtle staggered delays (`idx * 0.03`) and hover highlight (`hover:bg-[#f9f9f9]/90`).
+4. **Universal Fluid FAQ Accordions (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`):**
+   - Wrapped FAQ answers across all 3 pages in `<AnimatePresence initial={false}>` with smooth height and opacity transitions (`[0.4, 0, 0.2, 1]`, duration 0.28s).
+   - Upgraded toggle icon button with spring rotation (`rotate: isOpen ? 45 : 0`, stiffness 360, damping 25) allowing the `+` to fluidly morph into `×`.
+5. **Test Setup Polyfills & Verification (`test-setup.ts`):**
+   - Added standard jsdom stubs for `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts` so Framer Motion viewport triggers execute cleanly without crashes under Vitest.
+   - Verified 100% test pass rate across marketing test suites (23/23 tests passing) and confirmed zero TypeScript errors (`npx tsc --noEmit`).
 
 ---
 

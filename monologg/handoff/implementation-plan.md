@@ -1,11 +1,29 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-03 (Session 190: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch.
+**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages.
 
 ---
 
 ## ✅ Done
+
+### Session 191 — FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages
+- [x] **Home Hero Left-to-Right Scrolling Marquee (`LandingPage.tsx`, `tokens.css`)**:
+  - Implemented `@keyframes marquee-ltr` with 28s linear infinite loop, hover pause, edge fade white gradients, and category pill micro-interactions.
+- [x] **Timeline Scroll Bar Fill & Feature Viewport Entrance (`LandingPage.tsx`)**:
+  - Attached Framer Motion `useScroll` + `scaleY` to the vertical 2px timeline line, filling dynamically from top to bottom.
+  - Animated feature blocks into view with `whileInView={{ opacity: 1, y: 0 }}` and preview image card hover lift (`whileHover={{ y: -6 }}`).
+- [x] **Product Page 7-Step Showcase & Thespian AI Interactions (`ProductPage.tsx`)**:
+  - Added fluid card layout animations with expanding active step descriptions, spring pop checkmarks, and stage crossfade.
+  - Built an in-place `PERFORMER | CLIENT` role toggle for Thespian AI with smooth transitions and zero page scroll.
+  - Applied `#f7f7f7` hover fill and subtle scale across all rows on both Performer and Client tables.
+- [x] **Pricing Page Blur-In Comparison Table Rows (`PricingPage.tsx`)**:
+  - Implemented horizontal row entrance animation dissolving blur (`blur(6px)` to `blur(0px)`) with staggered delays (`idx * 0.03`) and hover highlight.
+- [x] **Universal Fluid FAQ Accordions (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`)**:
+  - Upgraded FAQ accordion items across all 3 pages with `AnimatePresence` height & opacity transitions and 45° spring icon rotation (+ to ×).
+- [x] **Test Polyfills & Verification (`test-setup.ts`)**:
+  - Polyfilled `window.IntersectionObserver` and `window.ResizeObserver` for jsdom.
+  - Verified 23/23 tests passing and 0 TypeScript errors (`npx tsc --noEmit`).
 
 ### Session 190 — Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch
 - [x] **Complete Elimination of FINCRA across `apps/web`**:

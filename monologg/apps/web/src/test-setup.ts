@@ -14,3 +14,32 @@ afterEach(cleanup);
 if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// jsdom doesn't implement IntersectionObserver or ResizeObserver.
+// Stub them so motion components with viewport/inView don't crash under test.
+if (typeof window !== "undefined") {
+  if (!window.IntersectionObserver) {
+    class MockIntersectionObserver {
+      readonly root: Element | null = null;
+      readonly rootMargin: string = "";
+      readonly thresholds: ReadonlyArray<number> = [];
+      disconnect() {}
+      observe() {}
+      takeRecords() {
+        return [];
+      }
+      unobserve() {}
+    }
+    window.IntersectionObserver = MockIntersectionObserver as any;
+    (global as any).IntersectionObserver = MockIntersectionObserver;
+  }
+  if (!window.ResizeObserver) {
+    class MockResizeObserver {
+      disconnect() {}
+      observe() {}
+      unobserve() {}
+    }
+    window.ResizeObserver = MockResizeObserver as any;
+    (global as any).ResizeObserver = MockResizeObserver;
+  }
+}

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 190: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch)
+**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 This document explains **how** the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 150: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages (Session 191)
+
+Integrated senior FAANG-grade web motion and micro-interactions adhering to `web-motion-design.md` and `micro-interactions.md`:
+- **Horizontal Marquee (`LandingPage.tsx`, `tokens.css`):** Built infinite left-to-right scrolling marquee with `@keyframes marquee-ltr`, hover pause, white fade edge gradients, and category pill micro-interactions.
+- **Dynamic Scroll Bar Fill & Feature Entrance:** Bound vertical timeline 2px line to Framer Motion `useScroll` + `scaleY` (`transformOrigin: top`), filling dynamically as the user scrolls, with cards animating into viewport and lifting on hover (`whileHover={{ y: -6 }}`).
+- **Product 7-Step Showcase & Thespian AI Interactions:** Configured fluid step card layout transitions, checkmark spring pop, arrow hover nudge, and stage crossfade. Built an in-place `PERFORMER | CLIENT` role toggle with zero page scroll, and applied `#f7f7f7` hover fill across all table rows.
+- **Pricing Table Blur-In Entrance Animation:** Added horizontal comparison row blur-in effect (`blur(6px)` to `blur(0px)`) with staggered delays (`idx * 0.03`) and hover highlight.
+- **Universal Fluid FAQ Accordions:** Upgraded FAQ accordions across Landing, Product, and Pricing pages with `AnimatePresence` height/opacity animations and 45° spring rotation morphing `+` into `×`.
+- **Test Polyfills & Verification:** Polyfilled `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts`, verified 23/23 tests passing, and confirmed zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 149: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch (Session 190)
 

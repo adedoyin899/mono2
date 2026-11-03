@@ -975,15 +975,23 @@ export function PricingPage() {
                   </div>
                 </div>
 
-                {/* 9 Data Rows */}
-                {performerRows.map((row) => (
-                  <div
+                {/* 9 Data Rows with Blur-in Entrance & Micro-Interaction */}
+                {performerRows.map((row, idx) => (
+                  <motion.div
                     key={row.nodeId}
+                    initial={{ opacity: 0, filter: "blur(6px)", y: 10 }}
+                    whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: idx * 0.03,
+                      ease: [0.4, 0, 0.2, 1],
+                    }}
                     className={`${
                       row.firstRowBorder
                         ? "border-[#e8e8e8]"
                         : "border-[rgba(15,42,38,0.1)]"
-                    } border-solid border-t flex items-center pt-px relative shrink-0 w-full`}
+                    } border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9]/90 transition-colors duration-150 cursor-pointer`}
                     data-node-id={row.nodeId}
                   >
                     <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1001,7 +1009,7 @@ export function PricingPage() {
                         {row.proTier}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -1184,12 +1192,20 @@ export function PricingPage() {
                   </div>
                 </div>
 
-                {/* 23 Client Table Rows & Category Subheaders */}
-                {clientRows.map((item) => {
+                {/* 23 Client Table Rows & Category Subheaders with Blur-in Entrance */}
+                {clientRows.map((item, idx) => {
                   if ("isHeader" in item && item.isHeader) {
                     return (
-                      <div
+                      <motion.div
                         key={item.nodeId}
+                        initial={{ opacity: 0, filter: "blur(4px)", y: 6 }}
+                        whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                        viewport={{ once: true, amount: 0.1 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: Math.min(idx * 0.02, 0.3),
+                          ease: [0.4, 0, 0.2, 1],
+                        }}
                         className="bg-[#f9f9f9] border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
                         data-node-id={item.nodeId}
                       >
@@ -1204,7 +1220,7 @@ export function PricingPage() {
                         </div>
                         <div className="flex flex-[1_0_0] flex-col h-[53px] items-start min-w-px p-[16px] relative" />
                         <div className="flex flex-col h-[49px] items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]" />
-                      </div>
+                      </motion.div>
                     );
                   }
 
@@ -1216,9 +1232,17 @@ export function PricingPage() {
                   };
 
                   return (
-                    <div
+                    <motion.div
                       key={row.nodeId}
-                      className="border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full"
+                      initial={{ opacity: 0, filter: "blur(6px)", y: 10 }}
+                      whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                      viewport={{ once: true, amount: 0.1 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: Math.min(idx * 0.025, 0.35),
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
+                      className="border-[rgba(15,42,38,0.1)] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9]/90 transition-colors duration-150 cursor-pointer"
                       data-node-id={row.nodeId}
                     >
                       <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
@@ -1236,7 +1260,7 @@ export function PricingPage() {
                           {row.proTier}
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -1314,7 +1338,7 @@ export function PricingPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white flex flex-col py-[24px] relative rounded-[12px] shrink-0 w-full"
+                  className="bg-white flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#fafaf8] transition-colors duration-150"
                 >
                   <button
                     type="button"
@@ -1326,22 +1350,40 @@ export function PricingPage() {
                       <span className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
                         {faq.question}
                       </span>
-                      {isOpen && (
-                        <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px]">
-                          {faq.answer}
-                        </p>
-                      )}
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            key="answer"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              height: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
+                              opacity: { duration: 0.2, ease: "linear" },
+                            }}
+                            className="overflow-hidden w-full"
+                          >
+                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
+                              {faq.answer}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="flex items-center justify-center relative shrink-0">
-                      <div className="flex-none rotate-180">
+                    <div className="flex items-center justify-center relative shrink-0 p-1">
+                      <motion.div
+                        animate={{ rotate: isOpen ? 45 : 0 }}
+                        transition={{ type: "spring", stiffness: 360, damping: 25 }}
+                        className="flex-none"
+                      >
                         <div className="relative size-[24px]">
                           <img
                             alt=""
                             className="absolute block inset-0 max-w-none size-full"
-                            src={isOpen ? ASSETS.faqX : ASSETS.faqPlus}
+                            src={ASSETS.faqPlus}
                           />
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
                   </button>
                 </div>

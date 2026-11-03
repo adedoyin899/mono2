@@ -405,6 +405,9 @@ export function ProductPage() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [isStepPaused, setIsStepPaused] = useState<boolean>(false);
 
+  // Thespian AI in-place role switch ("performer" | "client")
+  const [thespianRole, setThespianRole] = useState<"performer" | "client">("performer");
+
   // FAQ open item (null or index)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -938,7 +941,8 @@ export function ProductPage() {
                   // ── ACTIVE STATE (Frame 11 / Frame 19) ──
                   if (cardState === "active") {
                     return (
-                      <div
+                      <motion.div
+                        layout
                         key={step.id}
                         onClick={() => setActiveStep(idx)}
                         role="button"
@@ -951,34 +955,45 @@ export function ProductPage() {
                         }}
                         data-step-state="active"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-[#f9f9f9] border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all"
+                        className="bg-[#f9f9f9] border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)]"
                       >
-                        <div
+                        <motion.div
                           className="relative shrink-0 size-[24px]"
                           data-name="ArrowCircleRight"
+                          whileHover={{ x: 3 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         >
                           <img
                             alt=""
                             className="absolute block inset-0 max-w-none size-full"
                             src={imgArrowCircleRight}
                           />
-                        </div>
+                        </motion.div>
                         <div className="[word-break:break-word] flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
                           <h3 className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px] w-full">
                             {step.title}
                           </h3>
-                          <p className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full">
-                            {step.description}
-                          </p>
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                            className="overflow-hidden w-full"
+                          >
+                            <p className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#6d6d75] text-[16px] tracking-[0.48px] w-full pt-1">
+                              {step.description}
+                            </p>
+                          </motion.div>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   }
 
                   // ── COMPLETED STATE (Frame 20) ──
                   if (cardState === "completed") {
                     return (
-                      <div
+                      <motion.div
+                        layout
                         key={step.id}
                         onClick={() => setActiveStep(idx)}
                         role="button"
@@ -991,7 +1006,7 @@ export function ProductPage() {
                         }}
                         data-step-state="completed"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fcfcfc] transition-all"
+                        className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fafaf8] transition-all"
                       >
                         <div className="font-['Switzer',sans-serif] font-medium text-[#333333] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                           {step.id}
@@ -1001,20 +1016,27 @@ export function ProductPage() {
                             {step.title}
                           </h3>
                         </div>
-                        <div className="relative shrink-0 size-[24px]" data-name="CheckCircle">
+                        <motion.div
+                          initial={{ scale: 0.75, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: "spring", stiffness: 420, damping: 24 }}
+                          className="relative shrink-0 size-[24px]"
+                          data-name="CheckCircle"
+                        >
                           <img
                             alt="Completed"
                             className="absolute block inset-0 max-w-none size-full"
                             src={imgCheckCircle}
                           />
-                        </div>
-                      </div>
+                        </motion.div>
+                      </motion.div>
                     );
                   }
 
                   // ── DEFAULT STATE (Frame 13) ──
                   return (
-                    <div
+                    <motion.div
+                      layout
                       key={step.id}
                       onClick={() => setActiveStep(idx)}
                       role="button"
@@ -1027,7 +1049,7 @@ export function ProductPage() {
                       }}
                       data-step-state="default"
                       data-testid={`step-card-${step.id}`}
-                      className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fcfcfc] transition-all"
+                      className="bg-white border border-[#f5f5f5] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#fafaf8] transition-all"
                     >
                       <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                         {step.id}
@@ -1037,14 +1059,14 @@ export function ProductPage() {
                           {step.title}
                         </h3>
                       </div>
-                      <div className="relative shrink-0 size-[24px]" data-name="Spinner">
+                      <div className="relative shrink-0 size-[24px] opacity-70 group-hover:opacity-100 transition-opacity" data-name="Spinner">
                         <img
                           alt="Pending"
                           className="absolute block inset-0 max-w-none size-full"
                           src={imgSpinner}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -1061,10 +1083,10 @@ export function ProductPage() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeStep}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.22 }}
+                      initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                      transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
                     >
                       <StepIllustration stepIndex={activeStep} />
                     </motion.div>
@@ -1489,7 +1511,9 @@ export function ProductPage() {
 
           {/* ── Sub-Block A: What Thespian AI Does for the Performer (178359:17846) ── */}
           <div
-            className="flex flex-col items-center justify-center overflow-clip relative rounded-[32px] shrink-0 w-full"
+            className={`flex-col items-center justify-center overflow-clip relative rounded-[32px] shrink-0 w-full ${
+              thespianRole === "performer" ? "flex" : "hidden"
+            }`}
             data-node-id="178359:17846"
           >
             <div
@@ -1502,12 +1526,13 @@ export function ProductPage() {
                 data-node-id="178359:17848"
               >
                 <div
-                  className="flex gap-[22px] items-start relative shrink-0"
+                  className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
                   data-node-id="178359:17849"
                 >
-                  <div
-                    className="flex gap-[10px] items-center justify-center relative shrink-0"
-                    data-node-id="178359:17850"
+                  <button
+                    type="button"
+                    onClick={() => setThespianRole("performer")}
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   >
                     <div
                       className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
@@ -1519,24 +1544,25 @@ export function ProductPage() {
                     >
                       performer
                     </span>
-                  </div>
+                  </button>
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17854"
                   >
                     |
                   </span>
-                  <div
-                    className="flex gap-[10px] items-center justify-center opacity-20 relative shrink-0"
-                    data-node-id="178359:17855"
+                  <button
+                    type="button"
+                    onClick={() => setThespianRole("client")}
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                   >
                     <span
-                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17857"
                     >
                       client
                     </span>
-                  </div>
+                  </button>
                 </div>
 
                 <div
@@ -1559,7 +1585,7 @@ export function ProductPage() {
               >
                 {/* Row 1: Instant AI Onboarding (Highlighted #f7f7f7) (178359:17863) */}
                 <div
-                  className="bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4"
+                  className="bg-[#f7f7f7] hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17863"
                 >
                   <div
@@ -1601,7 +1627,7 @@ export function ProductPage() {
 
                 {/* Row 2: 24/7 AI Booking Agent (178359:17870) */}
                 <div
-                  className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17870"
                 >
                   <div
@@ -1647,7 +1673,7 @@ export function ProductPage() {
 
                 {/* Row 3: Automatic Gig Pitching (178359:17879) */}
                 <div
-                  className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17879"
                 >
                   <div
@@ -1693,7 +1719,7 @@ export function ProductPage() {
 
                 {/* Row 4: Contract Guardrails (178359:17888) */}
                 <div
-                  className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17888"
                 >
                   <div
@@ -1733,7 +1759,7 @@ export function ProductPage() {
 
                 {/* Row 5: AI Rehearsal Partner (178359:17895) */}
                 <div
-                  className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                  className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                   data-node-id="178359:17895"
                 >
                   <div
@@ -1812,16 +1838,11 @@ export function ProductPage() {
             </div>
           </div>
 
-          {/* Horizontal Divider Between Performer AI and Client AI (178359:17907) */}
-          <div className="h-0 relative shrink-0 w-full max-w-[1040px]" data-node-id="178359:17907">
-            <div className="absolute inset-[-0.5px_-22.69%]">
-              <img alt="" className="block max-w-none size-full" src={imgThespianWideDivider} />
-            </div>
-          </div>
-
           {/* ── Sub-Block B: What Thespian AI Does for the Client (178359:17909) ── */}
           <div
-            className="flex flex-col gap-[40px] items-center relative shrink-0 w-full max-w-[910px]"
+            className={`flex-col gap-[40px] items-center relative shrink-0 w-full max-w-[910px] ${
+              thespianRole === "client" ? "flex" : "hidden"
+            }`}
             data-node-id="178359:17909"
           >
             {/* Role Indicator + Subheading (178359:17910) */}
@@ -1830,29 +1851,31 @@ export function ProductPage() {
               data-node-id="178359:17910"
             >
               <div
-                className="flex gap-[22px] items-start relative shrink-0"
+                className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
                 data-node-id="178359:17911"
               >
-                <div
-                  className="flex gap-[10px] items-center justify-center opacity-20 relative shrink-0"
-                  data-node-id="178359:17912"
+                <button
+                  type="button"
+                  onClick={() => setThespianRole("performer")}
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                 >
                   <span
-                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17914"
                   >
                     performer
                   </span>
-                </div>
+                </button>
                 <span
-                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
+                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
                   data-node-id="178359:17916"
                 >
                   |
                 </span>
-                <div
-                  className="flex gap-[10px] items-center justify-center relative shrink-0"
-                  data-node-id="178359:17917"
+                <button
+                  type="button"
+                  onClick={() => setThespianRole("client")}
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                 >
                   <div
                     className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
@@ -1864,7 +1887,7 @@ export function ProductPage() {
                   >
                     client
                   </span>
-                </div>
+                </button>
               </div>
 
               <div
@@ -1894,7 +1917,7 @@ export function ProductPage() {
 
               {/* Row 1: Vibe & Texture Matching (Highlighted #f7f7f7) (178359:17925) */}
               <div
-                className="bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4"
+                className="bg-[#f7f7f7] hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17925"
               >
                 <div
@@ -1945,7 +1968,7 @@ export function ProductPage() {
 
               {/* Row 2: Automated Logistics (178359:17932) */}
               <div
-                className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17932"
               >
                 <div
@@ -1991,7 +2014,7 @@ export function ProductPage() {
 
               {/* Row 3: Script & Prompt Parsing (178359:17941) */}
               <div
-                className="flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4"
+                className="hover:bg-[#f7f7f7] flex flex-col md:flex-row items-start md:items-center justify-between p-[24px] relative rounded-[20px] shrink-0 w-full gap-4 transition-all duration-200 ease-out hover:scale-[1.005] cursor-pointer group"
                 data-node-id="178359:17941"
               >
                 <div
@@ -2100,7 +2123,7 @@ export function ProductPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-white flex flex-col py-[24px] relative rounded-[12px] shrink-0 w-full"
+                  className="bg-white flex flex-col py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full hover:bg-[#fafaf8] transition-colors duration-150"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
@@ -2111,22 +2134,40 @@ export function ProductPage() {
                       <span className="font-['Switzer',sans-serif] font-medium text-[#16161a] text-[18px] leading-[24px]">
                         {faq.question}
                       </span>
-                      {isOpen && (
-                        <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px]">
-                          {faq.answer}
-                        </p>
-                      )}
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            key="answer"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              height: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
+                              opacity: { duration: 0.2, ease: "linear" },
+                            }}
+                            className="overflow-hidden w-full"
+                          >
+                            <p className="font-['Inter_Tight',sans-serif] font-normal text-[#6d6d75] text-[16px] leading-[24px] tracking-[0.48px] pt-1">
+                              {faq.answer}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="flex items-center justify-center relative shrink-0">
-                      <div className="flex-none rotate-180">
+                    <div className="flex items-center justify-center relative shrink-0 p-1">
+                      <motion.div
+                        animate={{ rotate: isOpen ? 45 : 0 }}
+                        transition={{ type: "spring", stiffness: 360, damping: 25 }}
+                        className="flex-none"
+                      >
                         <div className="relative size-[24px]">
                           <img
                             alt={isOpen ? "Close" : "Expand"}
                             className="absolute block inset-0 max-w-none size-full"
-                            src={isOpen ? imgFaqX : imgFaqPlus}
+                            src={imgFaqPlus}
                           />
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
                   </button>
                 </div>

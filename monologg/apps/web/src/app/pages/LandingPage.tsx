@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -53,6 +54,16 @@ const imgMicrophoneStage = "/assets/home/cebcfcc67d286b57f5a22fafd87325bf7c63b4a
 const imgEmotionLaughLine = "/assets/home/10eb628c60e7c7409d571009e3bf0ed496ab4438.svg";
 const imgHeadphoneLine = "/assets/home/a0db53019c5ba3fd580a87befd55273243f50ab4.svg";
 const imgVidicon2Line = "/assets/home/ae3066e194c8d363435044ef41e39cf44a9073c2.svg";
+
+// Hero Category List for Infinite Horizontal Marquee
+const HERO_CATEGORIES = [
+  { name: "Actors", icon: imgMaskHappy },
+  { name: "Speakers", icon: imgVoiceprintLine },
+  { name: "Comperes", icon: imgMicrophoneStage },
+  { name: "Comedians", icon: imgEmotionLaughLine },
+  { name: "Artists", icon: imgHeadphoneLine },
+  { name: "Creators", icon: imgVidicon2Line },
+];
 
 // Dashed Divider
 const imgDashedDivider = "/assets/home/7dc94ccc0ee6370325d0ef6f15631b8f8b00d4c2.svg";
@@ -156,6 +167,14 @@ const FAQ_ITEMS: FaqItem[] = [
 export function LandingPage() {
   const navigate = useNavigate();
   const [openFaqIndices, setOpenFaqIndices] = useState<number[]>([0]);
+
+  // ── Timeline Scroll Progress (Figma 178359:16989) ─────────────────────────
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start 80%", "end 55%"],
+  });
+  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   // ── Signed-in awareness (preserved for LandingPageHeader.test.tsx) ──────
   const [loggedInUser, setLoggedInUser] = useState(() =>
@@ -808,9 +827,9 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* "YOU BELONG HERE" + Category Row (178359:16965) */}
+          {/* "YOU BELONG HERE" + Left-to-Right Horizontal Scrolling Marquee (178359:16965) */}
           <div
-            className="flex flex-col gap-[16px] items-center justify-center p-[12px] relative shrink-0 w-full"
+            className="flex flex-col gap-[16px] items-center justify-center p-[12px] relative shrink-0 w-full overflow-hidden"
             data-node-id="178359:16965"
           >
             <div
@@ -820,116 +839,46 @@ export function LandingPage() {
               <p className="leading-[normal]">YOU BELONG HERE</p>
             </div>
 
+            {/* Continuous Left-to-Right Scrolling Track with Edge Fades & Hover Pause */}
             <div
-              className="flex flex-wrap lg:flex-nowrap gap-[24px] min-h-[32px] items-center justify-center relative shrink-0 w-full overflow-hidden"
+              className="relative w-full max-w-[1040px] overflow-hidden py-2"
               data-node-id="178359:16967"
             >
+              {/* Left & Right White Fade Gradients */}
               <div
-                className="flex gap-[10px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16968"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16969" data-name="MaskHappy">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgMaskHappy} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] w-[75px]"
-                  data-node-id="178359:16970"
-                >
-                  Actors
-                </p>
-              </div>
-
-              <div
-                className="flex gap-[4px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16971"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16972" data-name="voiceprint-line">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVoiceprintLine} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] whitespace-nowrap"
-                  data-node-id="178359:16973"
-                >
-                  Speakers
-                </p>
-              </div>
-
-              <div
-                className="flex gap-[4px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16974"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16975" data-name="MicrophoneStage">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgMicrophoneStage} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] whitespace-nowrap"
-                  data-node-id="178359:16976"
-                >
-                  Comperes
-                </p>
-              </div>
-
-              <div
-                className="flex gap-[4px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16977"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16978" data-name="emotion-laugh-line">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEmotionLaughLine} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] whitespace-nowrap"
-                  data-node-id="178359:16979"
-                >
-                  Comedians
-                </p>
-              </div>
-
-              <div
-                className="flex gap-[4px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16980"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16981" data-name="headphone-line">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgHeadphoneLine} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] whitespace-nowrap"
-                  data-node-id="178359:16982"
-                >
-                  Artists
-                </p>
-              </div>
-
-              <div
-                className="flex gap-[4px] items-center justify-center relative shrink-0"
-                data-node-id="178359:16983"
-              >
-                <div className="relative shrink-0 size-[20px]" data-node-id="178359:16984" data-name="vidicon-2-line">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVidicon2Line} />
-                </div>
-                <p
-                  className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic relative shrink-0 text-[#6d6d75] text-[20px] whitespace-nowrap"
-                  data-node-id="178359:16985"
-                >
-                  Creators
-                </p>
-              </div>
-
-              {/* Left & Right White Fade Gradients (178359:16986 & 178359:16987) */}
-              <div
-                className="hidden lg:block -translate-y-1/2 absolute bg-gradient-to-r from-white h-[32px] left-[67px] to-[rgba(255,255,255,0)] top-[calc(50%+0.09px)] via-1/2 via-[rgba(255,255,255,0.6)] w-[38px] pointer-events-none"
+                className="absolute bg-gradient-to-r from-white via-white/80 to-transparent h-full left-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
                 data-node-id="178359:16986"
                 data-name="Gradient"
               />
               <div
-                className="hidden lg:flex -translate-y-1/2 absolute h-[32px] items-center justify-center left-[800px] top-[calc(50%+0.09px)] w-[144px] pointer-events-none"
+                className="absolute bg-gradient-to-l from-white via-white/80 to-transparent h-full right-0 top-0 w-[48px] sm:w-[96px] pointer-events-none z-10"
                 data-node-id="178359:16987"
-              >
-                <div className="-scale-y-100 flex-none rotate-180">
+                data-name="Gradient"
+              />
+
+              <div className="animate-marquee-ltr flex items-center gap-[32px] select-none">
+                {[
+                  ...HERO_CATEGORIES,
+                  ...HERO_CATEGORIES,
+                  ...HERO_CATEGORIES,
+                  ...HERO_CATEGORIES,
+                ].map((cat, idx) => (
                   <div
-                    className="bg-gradient-to-r from-white h-[32px] relative to-[rgba(255,255,255,0)] via-1/2 via-[rgba(255,255,255,0.6)] w-[144px]"
-                    data-name="Gradient"
-                  />
-                </div>
+                    key={`${cat.name}-${idx}`}
+                    className="flex gap-[8px] items-center justify-center relative shrink-0 px-4 py-2 rounded-full hover:bg-[#f4f4f2] transition-all duration-200 cursor-pointer group hover:scale-105 active:scale-95"
+                  >
+                    <div className="relative shrink-0 size-[20px] transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6">
+                      <img
+                        alt=""
+                        className="absolute block inset-0 max-w-none size-full"
+                        src={cat.icon}
+                      />
+                    </div>
+                    <p className="font-['Switzer',sans-serif] font-normal leading-[normal] not-italic text-[#6d6d75] group-hover:text-[#16161a] transition-colors text-[20px] whitespace-nowrap">
+                      {cat.name}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -970,16 +919,18 @@ export function LandingPage() {
 
         {/* Timeline Row: Left 2px Progress Line + Right 627px Feature Stack (178359:16993) */}
         <div
+          ref={timelineRef}
           className="flex flex-row gap-6 md:gap-[54px] items-stretch relative w-full max-w-[766px]"
           data-node-id="178359:16993"
         >
-          {/* Left Vertical Line (178359:16994) */}
+          {/* Left Vertical Line with Dynamic Scroll Progress Fill (178359:16994) */}
           <div
-            className="bg-[#e8e8e8] relative w-[2px] shrink-0"
+            className="bg-[#e8e8e8] relative w-[2px] shrink-0 rounded-[49px] overflow-hidden"
             data-node-id="178359:16994"
           >
-            <div
-              className="absolute bg-gradient-to-b from-[#484848] h-[74px] left-0 rounded-[49px] to-[#aeaeae] top-[0.09px] w-[2px]"
+            <motion.div
+              style={{ scaleY, transformOrigin: "top" }}
+              className="absolute inset-0 bg-gradient-to-b from-[#16161A] via-[#5D5D66] to-[#AEAEAE] rounded-[49px] w-[2px]"
               data-node-id="178359:16995"
             />
           </div>
@@ -990,8 +941,12 @@ export function LandingPage() {
             data-node-id="178359:16996"
           >
             {/* Feature 1: Share Your Stage Anywhere (178359:16997) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:16997"
             >
               <div
@@ -1011,8 +966,10 @@ export function LandingPage() {
                   Join other performers using a single master link and instant QR code to share their portfolios, showreels, and press kits directly with casting directors, studios, agencies, brand managers, and live event organizers globally across all platforms.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17001"
                 data-name="Image"
               >
@@ -1053,12 +1010,16 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF1Group3} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Feature 2: Monetize Fan Shoutouts & Micro-Deliverables (178359:17033) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:17033"
             >
               <div
@@ -1078,8 +1039,10 @@ export function LandingPage() {
                   Earn up to 93% of your rate by selling custom video shoutouts, voice drops, and private consultations directly from your bio link—on your own prices and delivery timelines.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17037"
                 data-name="Image"
               >
@@ -1176,12 +1139,16 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec5} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Feature 3: Analyze your audience (178359:17089) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:17089"
             >
               <div
@@ -1201,8 +1168,10 @@ export function LandingPage() {
                   Track your profile visits, and link clicks in real time to see exactly where your fans are coming from and which packages make you the most money.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17093"
                 data-name="Image"
               >
@@ -1257,12 +1226,16 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF3Vec1} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Feature 4: Set Transparent Custom Rate Cards (178359:17124) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:17124"
             >
               <div
@@ -1282,8 +1255,10 @@ export function LandingPage() {
                   Stop wasting time emailing back and forth—set clear, upfront Naira rates for auditions, hosting, voiceovers, or comedy sets so clients can book you instantly.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17128"
                 data-name="Image"
               >
@@ -1345,12 +1320,16 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF4Vec2} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Feature 5: Powered by Thespian AI (178359:17161) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:17161"
             >
               <div
@@ -1370,8 +1349,10 @@ export function LandingPage() {
                   Get a 24/7 AI agent that automatically responds to questions on your behalf and books gigs onto your calendar while you sleep, and scans script PDFs to pitch your talent for open roles. Terms and Conditions apply.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17165"
                 data-name="Image"
               >
@@ -1442,12 +1423,16 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Vec0} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Feature 6: Bank-Grade Escrow Protection (178359:17205) */}
-            <div
-              className="flex flex-col gap-[40px] items-start relative w-full"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="flex flex-col gap-[40px] items-start relative w-full group"
               data-node-id="178359:17205"
             >
               <div
@@ -1467,8 +1452,10 @@ export function LandingPage() {
                   Never worry about late payments again—booking funds are safely held in escrow before you start working and sent straight to your bank account the moment you finish.
                 </p>
               </div>
-              <div
-                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden"
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="bg-[#f9f9f9] h-[352px] relative rounded-[17.034px] shrink-0 w-full overflow-hidden shadow-sm hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] transition-all duration-300 border border-[#f0f0ed]"
                 data-node-id="178359:17209"
                 data-name="Image"
               >
@@ -1516,8 +1503,8 @@ export function LandingPage() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Vec0} />
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1560,7 +1547,7 @@ export function LandingPage() {
             return (
               <div
                 key={idx}
-                className="bg-white flex gap-[24px] items-start py-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer"
+                className="bg-white flex gap-[24px] items-start py-[24px] px-[8px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-colors duration-200 hover:bg-[#fafaf8]"
                 onClick={() => toggleFaq(idx)}
               >
                 <div className="flex-1 min-w-px relative">
@@ -1571,37 +1558,56 @@ export function LandingPage() {
                     >
                       <p className="leading-[24px]">{item.q}</p>
                     </div>
-                    {isOpen && (
-                      <p
-                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full"
-                        style={{
-                          fontFeatureSettings:
-                            '"zero" 1, "cv01" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv07" 1, "cv10" 1, "cv11" 1',
-                        }}
-                      >
-                        {item.a}
-                      </p>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="faq-content"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{
+                            height: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
+                            opacity: { duration: 0.2, ease: "linear" },
+                          }}
+                          className="overflow-hidden w-full"
+                        >
+                          <p
+                            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#6d6d75] text-[14px] tracking-[0.42px] w-full pt-1"
+                            style={{
+                              fontFeatureSettings:
+                                '"zero" 1, "cv01" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv07" 1, "cv10" 1, "cv11" 1',
+                            }}
+                          >
+                            {item.a}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
                 <button
                   type="button"
                   aria-label={isOpen ? "Collapse answer" : "Expand answer"}
+                  aria-expanded={isOpen}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFaq(idx);
                   }}
-                  className="flex items-center justify-center relative shrink-0 cursor-pointer"
+                  className="flex items-center justify-center relative shrink-0 cursor-pointer p-1 rounded-full hover:bg-[#f0f0ed] transition-colors duration-150"
                 >
-                  <div className="flex-none rotate-180">
+                  <motion.div
+                    animate={{ rotate: isOpen ? 45 : 0 }}
+                    transition={{ type: "spring", stiffness: 360, damping: 25 }}
+                    className="flex-none"
+                  >
                     <div className="relative size-[24px]" data-name={isOpen ? "X" : "Plus"}>
                       <img
                         alt=""
                         className="absolute block inset-0 max-w-none size-full"
-                        src={isOpen ? imgX : imgPlus}
+                        src={imgPlus}
                       />
                     </div>
-                  </div>
+                  </motion.div>
                 </button>
               </div>
             );

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 190: Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch)
+**Last updated:** 2026-11-03 (Session 191: FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 138. Missing jsdom `IntersectionObserver` & `ResizeObserver` for Framer Motion Viewport Tests (`test-setup.ts`)
+- **Severity:** High / Test Environment Crash
+- **What happened:**
+  - When Framer Motion's `whileInView` and `useScroll` hooks were integrated into `LandingPage.tsx` and `PricingPage.tsx`, running tests under jsdom threw unhandled runtime exceptions (`ReferenceError: IntersectionObserver is not defined`), failing `LandingPageHeader.test.tsx`.
+- **Root Cause:**
+  - jsdom does not implement browser viewport APIs (`IntersectionObserver`, `ResizeObserver`).
+- **Fix:**
+  - Added robust Mock classes for `window.IntersectionObserver` and `window.ResizeObserver` in `test-setup.ts`, mirroring the existing `scrollIntoView` test stub. Verified all 23 marketing page tests pass cleanly without environment errors.
 
 ### 137. Stale FINCRA References Across Webapp Copy, FAQs, and Specs (`Checkout.tsx`, `ClientDashboard.tsx`, FAQs, `monologg_ux_spec.md`)
 - **Severity:** Medium / Brand & Architecture Consistency Defect
