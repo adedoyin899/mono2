@@ -1,11 +1,36 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
+**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 195 (2026-11-03) — Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages
+
+**Goal:** Fix the navigation header across all public marketing pages so it stays fixed/sticky to the top of the viewport when scrolling, add the theme toggle button to the Landing page header for system-wide parity, and unify the audience toggle tag on `PricingPage.tsx` to match the exact `• PERFORMER | CLIENT` grey rounded-full design from `ProductPage.tsx`.
+
+1. **Fixed Sticky Navigation Across All 5 Public Pages:**
+   - **Root Container Scroll Context Fix:** Replaced `overflow-x-hidden` with `overflow-x-clip` on parent containers across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`. In modern WebKit/Blink engines, `overflow-x: hidden` creates a separate scroll container that prevents child `position: sticky` elements from sticking relative to the document window; `overflow-x: clip` suppresses horizontal page overflow without establishing an unwanted scroll context.
+   - **`LandingPage.tsx` Header:** Replaced `relative ... max-w-[1440px] z-20` on `<header>` with `sticky top-0 w-full z-50 backdrop-blur-[12px] bg-white/95 border-b border-[#ecece8] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)] px-4 sm:px-8 lg:px-[64px]`.
+   - **`ProductPage.tsx` Header:** Removed trailing `.relative` class that was overriding `.sticky` in CSS specificity, unified z-index to `z-50`, and aligned shadow.
+   - **`PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx` Headers:** Standardized z-index to `z-50` and shadow token.
+2. **Unified Theme Toggle on Landing Page Header:**
+   - Integrated `useTheme()` from `../Root` and added the theme toggle button (`ASSETS.themeToggle`, circular button with moon icon) to `LandingPage.tsx` header right-side controls, establishing 100% feature parity across all 5 public pages.
+3. **Unified Performer & Client Audience Toggle Tags (`PricingPage.tsx`):**
+   - Replaced old thin-bordered pill with red dot (`Performers • Clients`, Figma `178359:18032`) with the exact design from `ProductPage.tsx` (Figma `178359:17849`):
+     - Grey pill container: `bg-[#f4f4f2] border border-[#e8e8e4] rounded-full p-1 flex gap-[8px] items-center`.
+     - Active state: White card button (`bg-white text-black shadow-sm font-semibold px-4 py-1.5 rounded-full`) with black dot indicator (`bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] rounded-full size-[8px]`) and uppercase `Geist Mono` typography (`PERFORMER` or `CLIENT`).
+     - Inactive state: Transparent button with muted text (`text-[#6d6d75] opacity-60 hover:opacity-100 hover:text-black px-4 py-1.5 rounded-full`).
+     - Divider: `|` in `Geist Mono` with `text-[#b0b0a8]`.
+     - Retained accessible `aria-label="Performers"` and `aria-label="Clients"` attributes ensuring seamless test execution.
+   - Applied identical treatment to both Sub-Block 1 (`178359:18032`, Performers active) and Sub-Block 2 (`178401:153037`, Clients active).
+4. **Verification & Quality Gate:**
+   - All 25 marketing page unit tests passing across all 6 test suites (`LandingPageHeader.test.tsx`, `PricingPage.test.tsx`, `ProductPage.test.tsx`, `ResourcesPage.test.tsx`, `LegalPage.test.tsx`, `WebsiteFooter.test.tsx`).
+   - Confirmed 0 TypeScript errors (`npx tsc --noEmit`) across both `monologg/apps/web` and `monologg/apps/api`.
 
 ---
 

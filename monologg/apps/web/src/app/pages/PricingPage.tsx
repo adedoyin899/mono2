@@ -382,7 +382,7 @@ export function PricingPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#f6faf9] text-[#16161a] font-sans antialiased overflow-x-hidden relative isolate"
+      className="min-h-screen flex flex-col bg-[#f6faf9] text-[#16161a] font-sans antialiased overflow-x-clip relative isolate"
       data-node-id="178359:17960"
     >
       {/* ── 1. Top Announcement Bar (178359:17961) ── */}
@@ -429,7 +429,7 @@ export function PricingPage() {
 
       {/* ── 2. Sticky Header (178359:17973) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17973"
       >
         <div
@@ -717,33 +717,44 @@ export function PricingPage() {
             >
               {/* Audience Pill — Performers Active (178359:18032) */}
               <div
-                className="border border-[#e8e8e8] border-solid flex gap-[12px] items-center px-[10px] py-[6px] relative rounded-[20px] shrink-0"
+                className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
                 data-node-id="178359:18032"
               >
                 <button
                   type="button"
+                  aria-label="Performers"
                   onClick={() => handleAudienceClick("performers")}
-                  className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   data-node-id="178401:153035"
                 >
-                  <span
-                    className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                  <div
+                    className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
                     data-node-id="178359:18033"
                   />
                   <span
-                    className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:18034"
                   >
-                    Performers
+                    PERFORMER
                   </span>
                 </button>
+                <span
+                  className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                >
+                  |
+                </span>
                 <button
                   type="button"
+                  aria-label="Clients"
                   onClick={() => handleAudienceClick("clients")}
-                  className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
+                  className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                   data-node-id="178359:18036"
                 >
-                  Clients
+                  <span
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
+                  >
+                    CLIENT
+                  </span>
                 </button>
               </div>
 
@@ -1053,32 +1064,43 @@ export function PricingPage() {
               >
                 {/* Audience Pill — Clients Active (178401:153037) */}
                 <div
-                  className="border border-[#e8e8e8] border-solid flex gap-[12px] items-center px-[10px] py-[6px] relative rounded-[20px] shrink-0"
+                  className="flex gap-[8px] items-center p-1 bg-[#f4f4f2] rounded-full border border-[#e8e8e4]"
                   data-node-id="178401:153037"
                 >
                   <button
                     type="button"
+                    aria-label="Performers"
                     onClick={() => handleAudienceClick("performers")}
-                    className="font-['Switzer',sans-serif] font-normal opacity-30 hover:opacity-70 text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap transition-opacity cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                     data-node-id="178401:153042"
                   >
-                    Performers
+                    <span
+                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
+                    >
+                      PERFORMER
+                    </span>
                   </button>
+                  <span
+                    className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-[#b0b0a8] tracking-[1.26px] uppercase whitespace-nowrap"
+                  >
+                    |
+                  </span>
                   <button
                     type="button"
+                    aria-label="Clients"
                     onClick={() => handleAudienceClick("clients")}
-                    className="flex gap-[4px] items-center relative shrink-0 cursor-pointer"
+                    className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                     data-node-id="178401:153038"
                   >
-                    <span
-                      className="bg-[rgba(241,48,48,0.8)] border border-[rgba(241,48,48,0.4)] border-solid rounded-full shrink-0 size-[8px]"
+                    <div
+                      className="bg-[rgba(0,0,0,0.8)] border border-[rgba(0,0,0,0.4)] border-solid relative rounded-full shrink-0 size-[8px]"
                       data-node-id="178401:153039"
                     />
                     <span
-                      className="font-['Switzer',sans-serif] font-normal text-[#16161a] text-[12px] leading-[16px] tracking-[-0.36px] whitespace-nowrap"
+                      className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178401:153040"
                     >
-                      Clients
+                      CLIENT
                     </span>
                   </button>
                 </div>

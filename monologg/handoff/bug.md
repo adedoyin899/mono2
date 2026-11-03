@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
+**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,24 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 143. Discrepant Audience Toggle Tag Styling Between Pricing and Product Pages (`PricingPage.tsx`)
+- **Severity:** Low / Design System & Visual Consistency Defect
+- **What happened:**
+  - `PricingPage.tsx` used a custom thin-bordered pill with red dot (`Performers • Clients`, Figma `178359:18032`), while `ProductPage.tsx` used an inset grey pill with white rounded card and black dot (`• PERFORMER | CLIENT`, Figma `178359:17849`).
+- **Root Cause:**
+  - `PricingPage.tsx` was implemented from an earlier Figma iteration before the unified `Geist Mono` uppercase audience switch component was established in `ProductPage.tsx`.
+- **Fix:**
+  - Replaced audience toggles in both Sub-Block 1 and Sub-Block 2 of `PricingPage.tsx` with the exact `ProductPage.tsx` component structure (`bg-[#f4f4f2] border-[#e8e8e4]`, white active card, black dot, `Geist Mono` uppercase font, `|` divider, and `aria-label`). Verified with `PricingPage.test.tsx` (5/5 tests passing).
+
+### 142. Parent Container `overflow-x-hidden` Disabling Sticky Navigation (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`)
+- **Severity:** Medium / Layout Engine Incompatibility
+- **What happened:**
+  - Navigation headers failed to stick to the top of the viewport when scrolling on `LandingPage.tsx` (which had `relative` class and no `sticky top-0`) and on other marketing pages where parent containers had `overflow-x: hidden`.
+- **Root Cause:**
+  - In CSS specification and WebKit/Blink implementations, applying `overflow-x: hidden` to an ancestor establishes a new scroll context on that container, preventing descendant elements with `position: sticky` from anchoring to the document viewport window. In `ProductPage.tsx`, a trailing `relative` class also cancelled the preceding `sticky` utility.
+- **Fix:**
+  - Replaced `overflow-x-hidden` with `overflow-x-clip` on parent wrappers across all 5 public pages, configured `<header>` on `LandingPage.tsx` with `sticky top-0 z-50 w-full backdrop-blur-[12px] bg-white/95 border-b shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]`, removed trailing `relative` in `ProductPage.tsx`, and added the theme toggle button to `LandingPage.tsx`. Verified with all 25 marketing page tests passing.
 
 ### 141. WebsiteFooter Unpersisted Mock Newsletter Submissions (`WebsiteFooter.tsx`)
 - **Severity:** Medium / Data Loss Defect

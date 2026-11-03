@@ -82,3 +82,4 @@ export async function newsletterRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 }
+

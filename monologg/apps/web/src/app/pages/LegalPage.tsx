@@ -155,7 +155,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
   return (
     <div
-      className="bg-[#f6faf9] min-h-screen flex flex-col items-start relative w-full text-[#16161a] font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-hidden"
+      className="bg-[#f6faf9] min-h-screen flex flex-col items-start relative w-full text-[#16161a] font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-clip"
       data-node-id={isTerms ? "178382:17926" : "178383:18857"}
       data-name={isTerms ? "Terms of Service" : "Cookie Settings & Policy"}
     >
@@ -186,7 +186,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
       {/* ── 2. Sticky Header (178382:17939) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id={isTerms ? "178382:17939" : "178387:19943"}
         data-name="Header"
       >

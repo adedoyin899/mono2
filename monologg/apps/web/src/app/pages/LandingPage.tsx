@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
+import { useTheme } from "../Root";
 import { WebsiteFooter } from "../components/WebsiteFooter";
 
 // ─── Local Figma Assets (Node 178359:16886) ───────────────────────────────────
@@ -19,6 +20,7 @@ import { WebsiteFooter } from "../components/WebsiteFooter";
 const imgHeaderLogoMask = "/assets/home/421a9122738c7030bca32dfdc9e66e861b17a1e0.svg";
 const imgHeaderLogoGroup = "/assets/home/42406d6b92ad6d49dc99bf1748474b2457bf8974.svg";
 const imgHeaderLogoVector = "/assets/home/b715a74e897fed863a52c5d7246006146e5893aa.svg";
+const imgThemeToggleSvg = "/assets/pricing/theme-toggle.svg";
 
 // Background Gradient Blurs
 const imgGradientBackgroundLeft = "/assets/home/b105d35c024c2b41b3b0c5e289a05dcb11493534.svg";
@@ -166,6 +168,7 @@ const FAQ_ITEMS: FaqItem[] = [
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { toggle } = useTheme();
   const [openFaqIndices, setOpenFaqIndices] = useState<number[]>([0]);
 
   // ── Timeline Scroll Progress (Figma 178359:16989) ─────────────────────────
@@ -240,7 +243,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="bg-white flex flex-col items-center relative w-full min-h-screen overflow-x-hidden isolate"
+      className="bg-white flex flex-col items-center relative w-full min-h-screen overflow-x-clip isolate"
       data-node-id="178359:16886"
       data-name="Home page"
     >
@@ -324,7 +327,7 @@ export function LandingPage() {
 
       {/* ─── 3. Header (178359:16910) ─── */}
       <header
-        className="border-[#ecece8] border-b border-solid bg-white flex items-center justify-between px-6 md:px-12 lg:px-[200px] h-[68px] relative w-full max-w-[1440px] z-20"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:16910"
         data-name="Header"
       >
@@ -403,144 +406,162 @@ export function LandingPage() {
         </div>
 
         {/* Right Actions */}
-        {loggedInUser ? (
-          <div className="relative" ref={userMenuRef}>
-            <button
-              type="button"
-              onClick={() => setUserMenuOpen((v) => !v)}
-              aria-label="Account menu"
-              className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#dbdbd6] hover:border-[#16161a] bg-white transition-all"
-            >
+        <div className="flex gap-[12px] items-center relative shrink-0">
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="bg-white border border-[#ecece8] border-solid flex items-center justify-center relative rounded-full shrink-0 size-[36px] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+          >
+            <div className="relative shrink-0 size-[16px]">
               <img
-                src={displayAvatar}
-                alt={displayName}
-                className="w-7 h-7 rounded-full object-cover bg-[#F4F4F0]"
+                alt="Toggle theme"
+                className="absolute block inset-0 max-w-none size-full"
+                src={imgThemeToggleSvg}
               />
-              <span className="hidden sm:inline font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-[#16161a] max-w-[140px] truncate">
-                {displayName}
-              </span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-[#5d5d66] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
-              />
-            </button>
+            </div>
+          </button>
 
-            {userMenuOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-white border border-[#ECECE8] rounded-2xl shadow-xl py-2 z-50">
-                <div className="px-4 py-2.5 border-b border-[#F4F4F0]">
-                  <p className="text-[13px] font-bold text-[#16161a] truncate">{displayName}</p>
-                  <p className="text-[11px] text-[#6d6d75] truncate">{loggedInUser.email}</p>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] text-[#f13030]">
-                    {isClientSession ? "Client Workspace" : "Performer"}
-                  </span>
-                </div>
-                <div className="py-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate(dashboardHref);
-                    }}
-                    className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-[#6d6d75]" />
-                    Dashboard
-                  </button>
-                  {!isClientSession && (
+          {loggedInUser ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((v) => !v)}
+                aria-label="Account menu"
+                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#dbdbd6] hover:border-[#16161a] bg-white transition-all"
+              >
+                <img
+                  src={displayAvatar}
+                  alt={displayName}
+                  className="w-7 h-7 rounded-full object-cover bg-[#F4F4F0]"
+                />
+                <span className="hidden sm:inline font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-[#16161a] max-w-[140px] truncate">
+                  {displayName}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-[#5d5d66] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-60 bg-white border border-[#ECECE8] rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-[#F4F4F0]">
+                    <p className="text-[13px] font-bold text-[#16161a] truncate">{displayName}</p>
+                    <p className="text-[11px] text-[#6d6d75] truncate">{loggedInUser.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] text-[#f13030]">
+                      {isClientSession ? "Client Workspace" : "Performer"}
+                    </span>
+                  </div>
+                  <div className="py-1">
                     <button
                       type="button"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        navigate("/emeka-johnson");
+                        navigate(dashboardHref);
                       }}
                       className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
                     >
-                      <Sparkles className="w-4 h-4 text-[#6d6d75]" />
-                      Public Storefront
+                      <LayoutDashboard className="w-4 h-4 text-[#6d6d75]" />
+                      Dashboard
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate(isClientSession ? "/search" : "/gigs");
-                    }}
-                    className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
-                  >
-                    <Search className="w-4 h-4 text-[#6d6d75]" />
-                    {isClientSession ? "Find Talent" : "Browse Gigs"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate("/post-gig");
-                    }}
-                    className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
-                  >
-                    <Briefcase className="w-4 h-4 text-[#6d6d75]" />
-                    Post a Brief
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate(settingsHref);
-                    }}
-                    className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
-                  >
-                    <Settings className="w-4 h-4 text-[#6d6d75]" />
-                    Settings
-                  </button>
+                    {!isClientSession && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          navigate("/emeka-johnson");
+                        }}
+                        className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                      >
+                        <Sparkles className="w-4 h-4 text-[#6d6d75]" />
+                        Public Storefront
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate(isClientSession ? "/search" : "/gigs");
+                      }}
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                    >
+                      <Search className="w-4 h-4 text-[#6d6d75]" />
+                      {isClientSession ? "Find Talent" : "Browse Gigs"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate("/post-gig");
+                      }}
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                    >
+                      <Briefcase className="w-4 h-4 text-[#6d6d75]" />
+                      Post a Brief
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        navigate(settingsHref);
+                      }}
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#16161a] hover:bg-[#F9F9F8] flex items-center gap-2.5"
+                    >
+                      <Settings className="w-4 h-4 text-[#6d6d75]" />
+                      Settings
+                    </button>
+                  </div>
+                  <div className="border-t border-[#F4F4F0] pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#f13030] hover:bg-[#FFF5F5] flex items-center gap-2.5"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-                <div className="border-t border-[#F4F4F0] pt-1">
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#f13030] hover:bg-[#FFF5F5] flex items-center gap-2.5"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div
-            className="flex gap-[12px] items-center relative shrink-0"
-            data-node-id="I178359:16910;177955:45029"
-            data-name="Container"
-          >
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="border border-[#dbdbd6] hover:border-[#16161a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
-              data-node-id="I178359:16910;177955:45033"
-              data-name="Button"
+              )}
+            </div>
+          ) : (
+            <div
+              className="flex gap-[12px] items-center relative shrink-0"
+              data-node-id="I178359:16910;177955:45029"
+              data-name="Container"
             >
-              <span
-                className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[#16161a] text-[12px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
-                data-node-id="I178359:16910;177955:45034"
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="border border-[#dbdbd6] hover:border-[#16161a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
+                data-node-id="I178359:16910;177955:45033"
+                data-name="Button"
               >
-                Sign In
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/onboarding")}
-              className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] relative rounded-full shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
-              data-node-id="I178359:16910;177955:45035"
-              data-name="Button"
-            >
-              <span
-                className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[12px] leading-[16px] text-center text-white tracking-[-0.12px] whitespace-nowrap"
-                data-node-id="I178359:16910;177955:45037"
+                <span
+                  className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[#16161a] text-[12px] leading-[16px] text-center tracking-[-0.12px] whitespace-nowrap"
+                  data-node-id="I178359:16910;177955:45034"
+                >
+                  Sign In
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/onboarding")}
+                className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] relative rounded-full shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
+                data-node-id="I178359:16910;177955:45035"
+                data-name="Button"
               >
-                Sign up free
-              </span>
-            </button>
-          </div>
-        )}
+                <span
+                  className="flex flex-col font-['Plus_Jakarta_Sans',sans-serif] font-bold justify-center relative shrink-0 text-[12px] leading-[16px] text-center text-white tracking-[-0.12px] whitespace-nowrap"
+                  data-node-id="I178359:16910;177955:45037"
+                >
+                  Sign up free
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* ─── 4. Hero Section (178359:16911) ─── */}

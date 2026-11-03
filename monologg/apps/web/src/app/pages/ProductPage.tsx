@@ -584,7 +584,7 @@ export function ProductPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-start bg-[#F6FAF9] text-[#16161A] antialiased overflow-x-hidden relative isolate w-full"
+      className="min-h-screen flex flex-col items-start bg-[#F6FAF9] text-[#16161A] antialiased overflow-x-clip relative isolate w-full"
       data-node-id="178359:17305"
     >
       {/* ── Ambient Blur Background Layer (178359:17353) ── */}
@@ -653,7 +653,7 @@ export function ProductPage() {
 
       {/* ── 2. Sticky Header (178359:17318) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 relative"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:17318"
       >
         <div
@@ -1540,6 +1540,7 @@ export function ProductPage() {
                 >
                   <button
                     type="button"
+                    aria-label="Performers"
                     onClick={() => setThespianRole("performer")}
                     className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                   >
@@ -1551,7 +1552,7 @@ export function ProductPage() {
                       className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17852"
                     >
-                      performer
+                      PERFORMER
                     </span>
                   </button>
                   <span
@@ -1562,6 +1563,7 @@ export function ProductPage() {
                   </span>
                   <button
                     type="button"
+                    aria-label="Clients"
                     onClick={() => setThespianRole("client")}
                     className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                   >
@@ -1569,7 +1571,7 @@ export function ProductPage() {
                       className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
                       data-node-id="178359:17857"
                     >
-                      client
+                      CLIENT
                     </span>
                   </button>
                 </div>
@@ -1865,6 +1867,7 @@ export function ProductPage() {
               >
                 <button
                   type="button"
+                  aria-label="Performers"
                   onClick={() => setThespianRole("performer")}
                   className="flex gap-[8px] items-center px-4 py-1.5 rounded-full text-[#6d6d75] hover:text-black opacity-60 hover:opacity-100 transition-all duration-200 cursor-pointer"
                 >
@@ -1872,7 +1875,7 @@ export function ProductPage() {
                     className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17914"
                   >
-                    performer
+                    PERFORMER
                   </span>
                 </button>
                 <span
@@ -1883,6 +1886,7 @@ export function ProductPage() {
                 </span>
                 <button
                   type="button"
+                  aria-label="Clients"
                   onClick={() => setThespianRole("client")}
                   className="flex gap-[8px] items-center px-4 py-1.5 rounded-full bg-white text-black shadow-sm font-semibold transition-all duration-200 cursor-pointer"
                 >
@@ -1894,7 +1898,7 @@ export function ProductPage() {
                     className="font-['Geist_Mono',monospace] font-normal text-[14px] leading-[18px] text-black tracking-[1.26px] uppercase whitespace-nowrap"
                     data-node-id="178359:17919"
                   >
-                    client
+                    CLIENT
                   </span>
                 </button>
               </div>

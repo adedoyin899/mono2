@@ -167,7 +167,7 @@ export function ResourcesPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-white text-[#16161a] font-sans antialiased overflow-x-hidden relative isolate"
+      className="min-h-screen flex flex-col bg-white text-[#16161a] font-sans antialiased overflow-x-clip relative isolate"
       data-node-id="178359:18325"
     >
       {/* ── 1. Top Announcement Bar (178359:18326) ── */}
@@ -214,7 +214,7 @@ export function ResourcesPage() {
 
       {/* ── 2. Sticky Header (178359:18338) ── */}
       <header
-        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-40 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+        className="backdrop-blur-[12px] bg-white/95 border-[#ecece8] border-b border-solid flex h-[68px] items-center justify-between px-4 sm:px-8 lg:px-[64px] shrink-0 sticky top-0 w-full z-50 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)]"
         data-node-id="178359:18338"
       >
         <div

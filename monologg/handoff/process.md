@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-03 (Session 194: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch)
+**Last updated:** 2026-11-03 (Session 195: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 154: Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages (Session 195)
+
+Resolved layout engine conflicts to make navigation sticky across all public marketing pages and unified audience toggle components:
+- **Sticky Navigation & Layout Container Fix:** Replaced `overflow-x-hidden` with `overflow-x-clip` on parent wrappers across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`. Configured `<header>` across all pages with `sticky top-0 z-50 w-full backdrop-blur-[12px] bg-white/95 border-b border-[#ecece8] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.06),0px_2px_4px_-2px_rgba(0,0,0,0.06)] px-4 sm:px-8 lg:px-[64px]`.
+- **Landing Page Header Feature Parity:** Added the theme toggle button (moon icon) powered by `useTheme()` to `LandingPage.tsx`, achieving full visual and interactive parity with the other 4 marketing pages.
+- **Unified Performer & Client Audience Switcher:** Replaced the legacy thin-bordered pill with red dot on `PricingPage.tsx` with the exact `• PERFORMER | CLIENT` grey rounded-full toggle tag from `ProductPage.tsx` (`bg-[#f4f4f2]`, white card active pill, black dot, `Geist Mono` uppercase typography, `|` divider, and accessible `aria-label`).
+- **Testing & Verification:** Verified all 25 marketing page unit tests pass, and confirmed zero TypeScript errors (`npx tsc --noEmit`).
 
 ### Step 153: Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch (Session 194)
 
