@@ -188,7 +188,7 @@ export function WebsiteFooter({
                   <button
                     type="button"
                     onClick={handleGetStarted}
-                    className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex gap-[8px] h-[48px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
+                    className="bg-[#f13030] hover:bg-[#d92626] text-white transition-colors cursor-pointer flex gap-[8px] h-[48px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
                     data-node-id="178190:29896"
                     data-name="Button"
                   >
@@ -295,7 +295,7 @@ export function WebsiteFooter({
                     type="submit"
                     aria-label="Subscribe to newsletter"
                     disabled={newsletterSubmitting}
-                    className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 disabled:opacity-50"
+                    className="bg-[#f13030] hover:bg-[#d92626] text-white transition-colors cursor-pointer relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 disabled:opacity-50"
                     data-node-id="178151:49529"
                     data-name="Button"
                   >

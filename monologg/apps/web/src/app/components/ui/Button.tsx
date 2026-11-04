@@ -18,7 +18,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       /* primary: role accent fill (red for Talent, purple for Client) + on-accent text — WCAG AA */
-      primary: "h-[50px] px-7 rounded-full bg-[var(--color-accent)] text-[var(--color-accent-on)] shadow-[var(--shadow-card)] hover:opacity-90 focus-visible:shadow-[var(--shadow-focus)] font-semibold",
+      primary: "h-[50px] px-7 rounded-full bg-[var(--color-accent)] text-white shadow-[var(--shadow-card)] hover:opacity-90 focus-visible:shadow-[var(--shadow-focus)] font-semibold [&_*]:text-white",
       /* secondary: neutral inked surface — quiet, high-contrast */
       secondary: "h-[50px] px-7 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] font-semibold",
       /* ghost: text-only, primary text so it always passes contrast */
@@ -27,18 +27,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "w-[46px] h-[46px] rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] hover:bg-[var(--color-bg-elevated)] focus-visible:shadow-[var(--shadow-focus)] flex-shrink-0",
       
       /* Monologg Native Mono-Red Pill CTA (Talent) */
-      red: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)]",
+      red: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)] [&_*]:text-white",
       /* Monologg Native Mono-Purple Pill CTA (Client) */
-      purple: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)]",
+      purple: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all shadow-md focus-visible:shadow-[var(--shadow-focus)] [&_*]:text-white",
       /* Monologg Dark Neutral Pill Button */
-      "dark-pill": "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all",
+      "dark-pill": "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all [&_*]:text-white",
       /* Monologg Outlined Pill Button */
       "outline-pill": "h-[48px] px-6 rounded-full bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border-strong)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-elevated)] transition-all",
       
       /* Backward compatibility aliases */
-      lime: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all",
-      forest: "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all",
-      clay: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all"
+      lime: "h-[48px] px-6 rounded-full bg-[#F13030] text-white font-semibold text-[15px] hover:bg-[#d31f20] transition-all [&_*]:text-white",
+      forest: "h-[48px] px-6 rounded-full bg-[#16161A] text-white font-semibold text-[15px] hover:bg-[#232329] border border-white/10 transition-all [&_*]:text-white",
+      clay: "h-[48px] px-6 rounded-full bg-[#7B00FE] text-white font-semibold text-[15px] hover:bg-[#6400d1] transition-all [&_*]:text-white"
     };
 
     return (

@@ -596,7 +596,7 @@ export function LandingPage() {
               <button
                 type="button"
                 onClick={() => navigate("/auth?mode=signup")}
-                className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] relative rounded-full shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
+                className="bg-[#f13030] hover:bg-[#d92626] text-white transition-colors cursor-pointer flex h-[40px] items-center justify-center pb-[12.5px] pt-[11.5px] px-[20px] relative rounded-full shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
                 data-node-id="I178359:16910;177955:45035"
                 data-name="Button"
               >
@@ -658,7 +658,7 @@ export function LandingPage() {
             <button
               type="button"
               onClick={() => navigate(loggedInUser ? "/client" : "/onboarding/client")}
-              className="bg-[#f13030] hover:bg-[#d92626] transition-colors cursor-pointer flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
+              className="bg-[#f13030] hover:bg-[#d92626] text-white transition-colors cursor-pointer flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
               data-node-id="178359:16937"
               data-name="Button"
             >

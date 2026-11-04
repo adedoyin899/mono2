@@ -609,15 +609,201 @@ a:focus {
   border-color: #262626 !important;
 }
 
-/* Primary Brand Button (#F13030 Mono-red) */
-.dark button.bg-\[\#f13030\],
-.dark .bg-\[\#f13030\] {
-  background-color: #F13030 !important;
+/* ════════════════════════════════════════════════════════════════
+   Brand CTA White Text Enforcement (Universal across Light & Dark)
+   Main Brand Colors:
+   - Mono-Red: #F13030, #D31F20, #D92626, #B91C1C, #991B1B, var(--color-red)
+   - Mono-Purple: #7B00FE, #9B4DFF, #6400D1, #5B21B6, #7C3AED, #4C1D95, var(--color-purple)
+   - Adaptive Accent: var(--color-accent)
+   ════════════════════════════════════════════════════════════════ */
+
+/* Base Brand CTA Buttons & Links: Pure White Text in All Themes */
+button.bg-\[\#f13030\], button.bg-\[\#F13030\],
+button.bg-\[\#d31f20\], button.bg-\[\#D31F20\],
+button.bg-\[\#d92626\], button.bg-\[\#D92626\],
+button.bg-\[\#b91c1c\], button.bg-\[\#B91C1C\],
+button.bg-\[\#991b1b\], button.bg-\[\#991B1B\],
+button.bg-\[\#7b00fe\], button.bg-\[\#7B00FE\],
+button.bg-\[\#9b4dff\], button.bg-\[\#9B4DFF\],
+button.bg-\[\#6400d1\], button.bg-\[\#6400D1\],
+button.bg-\[\#5b21b6\], button.bg-\[\#5B21B6\],
+button.bg-\[\#7c3aed\], button.bg-\[\#7C3AED\],
+button.bg-\[\#4c1d95\], button.bg-\[\#4C1D95\],
+button.bg-\[var\(--color-accent\)\],
+button.bg-\[var\(--color-red\)\],
+button.bg-\[var\(--color-purple\)\],
+a.bg-\[\#f13030\], a.bg-\[\#F13030\],
+a.bg-\[\#d31f20\], a.bg-\[\#D31F20\],
+a.bg-\[\#d92626\], a.bg-\[\#D92626\],
+a.bg-\[\#b91c1c\], a.bg-\[\#B91C1C\],
+a.bg-\[\#991b1b\], a.bg-\[\#991B1B\],
+a.bg-\[\#7b00fe\], a.bg-\[\#7B00FE\],
+a.bg-\[\#9b4dff\], a.bg-\[\#9B4DFF\],
+a.bg-\[\#6400d1\], a.bg-\[\#6400D1\],
+a.bg-\[\#5b21b6\], a.bg-\[\#5B21B6\],
+a.bg-\[\#7c3aed\], a.bg-\[\#7C3AED\],
+a.bg-\[\#4c1d95\], a.bg-\[\#4C1D95\],
+a.bg-\[var\(--color-accent\)\],
+a.bg-\[var\(--color-red\)\],
+a.bg-\[var\(--color-purple\)\],
+button[style*="#f13030" i], button[style*="#F13030" i],
+button[style*="#d31f20" i], button[style*="#D31F20" i],
+button[style*="#d92626" i], button[style*="#D92626" i],
+button[style*="#b91c1c" i], button[style*="#B91C1C" i],
+button[style*="#991b1b" i], button[style*="#991B1B" i],
+button[style*="#7b00fe" i], button[style*="#7B00FE" i],
+button[style*="#9b4dff" i], button[style*="#9B4DFF" i],
+button[style*="#6400d1" i], button[style*="#6400D1" i],
+button[style*="#5b21b6" i], button[style*="#5B21B6" i],
+button[style*="#7c3aed" i], button[style*="#7C3AED" i],
+button[style*="var(--color-accent)" i],
+button[style*="var(--color-red)" i],
+button[style*="var(--color-purple)" i],
+a[style*="#f13030" i], a[style*="#F13030" i],
+a[style*="#d31f20" i], a[style*="#D31F20" i],
+a[style*="#d92626" i], a[style*="#D92626" i],
+a[style*="#b91c1c" i], a[style*="#B91C1C" i],
+a[style*="#991b1b" i], a[style*="#991B1B" i],
+a[style*="#7b00fe" i], a[style*="#7B00FE" i],
+a[style*="#9b4dff" i], a[style*="#9B4DFF" i],
+a[style*="#6400d1" i], a[style*="#6400D1" i],
+a[style*="#5b21b6" i], a[style*="#5B21B6" i],
+a[style*="#7c3aed" i], a[style*="#7C3AED" i],
+a[style*="var(--color-accent)" i],
+a[style*="var(--color-red)" i],
+a[style*="var(--color-purple)" i] {
+  color: #FFFFFF !important;
+}
+
+/* All nested elements inside Brand CTAs (spans, labels, svg icons) */
+button.bg-\[\#f13030\] *, button.bg-\[\#F13030\] *,
+button.bg-\[\#d31f20\] *, button.bg-\[\#D31F20\] *,
+button.bg-\[\#d92626\] *, button.bg-\[\#D92626\] *,
+button.bg-\[\#b91c1c\] *, button.bg-\[\#B91C1C\] *,
+button.bg-\[\#991b1b\] *, button.bg-\[\#991B1B\] *,
+button.bg-\[\#7b00fe\] *, button.bg-\[\#7B00FE\] *,
+button.bg-\[\#9b4dff\] *, button.bg-\[\#9B4DFF\] *,
+button.bg-\[\#6400d1\] *, button.bg-\[\#6400D1\] *,
+button.bg-\[\#5b21b6\] *, button.bg-\[\#5B21B6\] *,
+button.bg-\[\#7c3aed\] *, button.bg-\[\#7C3AED\] *,
+button.bg-\[\#4c1d95\] *, button.bg-\[\#4C1D95\] *,
+button.bg-\[var\(--color-accent\)\] *,
+button.bg-\[var\(--color-red\)\] *,
+button.bg-\[var\(--color-purple\)\] *,
+a.bg-\[\#f13030\] *, a.bg-\[\#F13030\] *,
+a.bg-\[\#d31f20\] *, a.bg-\[\#D31F20\] *,
+a.bg-\[\#d92626\] *, a.bg-\[\#D92626\] *,
+a.bg-\[\#b91c1c\] *, a.bg-\[\#B91C1C\] *,
+a.bg-\[\#991b1b\] *, a.bg-\[\#991B1B\] *,
+a.bg-\[\#7b00fe\] *, a.bg-\[\#7B00FE\] *,
+a.bg-\[\#9b4dff\] *, a.bg-\[\#9B4DFF\] *,
+a.bg-\[\#6400d1\] *, a.bg-\[\#6400D1\] *,
+a.bg-\[\#5b21b6\] *, a.bg-\[\#5B21B6\] *,
+a.bg-\[\#7c3aed\] *, a.bg-\[\#7C3AED\] *,
+a.bg-\[\#4c1d95\] *, a.bg-\[\#4C1D95\] *,
+a.bg-\[var\(--color-accent\)\] *,
+a.bg-\[var\(--color-red\)\] *,
+a.bg-\[var\(--color-purple\)\] *,
+button[style*="#f13030" i] *, button[style*="#F13030" i] *,
+button[style*="#d31f20" i] *, button[style*="#D31F20" i] *,
+button[style*="#d92626" i] *, button[style*="#D92626" i] *,
+button[style*="#b91c1c" i] *, button[style*="#B91C1C" i] *,
+button[style*="#991b1b" i] *, button[style*="#991B1B" i] *,
+button[style*="#7b00fe" i] *, button[style*="#7B00FE" i] *,
+button[style*="#9b4dff" i] *, button[style*="#9B4DFF" i] *,
+button[style*="#6400d1" i] *, button[style*="#6400D1" i] *,
+button[style*="#5b21b6" i] *, button[style*="#5B21B6" i] *,
+button[style*="#7c3aed" i] *, button[style*="#7C3AED" i] *,
+button[style*="var(--color-accent)" i] *,
+button[style*="var(--color-red)" i] *,
+button[style*="var(--color-purple)" i] *,
+a[style*="#f13030" i] *, a[style*="#F13030" i] *,
+a[style*="#d31f20" i] *, a[style*="#D31F20" i] *,
+a[style*="#d92626" i] *, a[style*="#D92626" i] *,
+a[style*="#b91c1c" i] *, a[style*="#B91C1C" i] *,
+a[style*="#991b1b" i] *, a[style*="#991B1B" i] *,
+a[style*="#7b00fe" i] *, a[style*="#7B00FE" i] *,
+a[style*="#9b4dff" i] *, a[style*="#9B4DFF" i] *,
+a[style*="#6400d1" i] *, a[style*="#6400D1" i] *,
+a[style*="#5b21b6" i] *, a[style*="#5B21B6" i] *,
+a[style*="#7c3aed" i] *, a[style*="#7C3AED" i] *,
+a[style*="var(--color-accent)" i] *,
+a[style*="var(--color-red)" i] *,
+a[style*="var(--color-purple)" i] * {
+  color: #FFFFFF !important;
+}
+
+/* Ensure hover states maintain pure white text */
+button.bg-\[\#f13030\]:hover, button.bg-\[\#F13030\]:hover,
+button.bg-\[\#7b00fe\]:hover, button.bg-\[\#7B00FE\]:hover,
+button.bg-\[\#5b21b6\]:hover, button.bg-\[\#5B21B6\]:hover,
+button.bg-\[\#b91c1c\]:hover, button.bg-\[\#B91C1C\]:hover,
+a.bg-\[\#f13030\]:hover, a.bg-\[\#F13030\]:hover,
+a.bg-\[\#7b00fe\]:hover, a.bg-\[\#7B00FE\]:hover,
+a.bg-\[\#5b21b6\]:hover, a.bg-\[\#5B21B6\]:hover,
+a.bg-\[\#b91c1c\]:hover, a.bg-\[\#B91C1C\]:hover {
+  color: #FFFFFF !important;
+}
+
+/* Maintain crisp brand saturation and pure white text in dark mode without inversion */
+.dark button.bg-\[\#f13030\], .dark button.bg-\[\#F13030\],
+.dark .bg-\[\#f13030\], .dark .bg-\[\#F13030\],
+.dark button.bg-\[\#7b00fe\], .dark button.bg-\[\#7B00FE\],
+.dark .bg-\[\#7b00fe\], .dark .bg-\[\#7B00FE\],
+.dark button.bg-\[\#5b21b6\], .dark button.bg-\[\#5B21B6\],
+.dark .bg-\[\#5b21b6\], .dark .bg-\[\#5B21B6\],
+.dark button.bg-\[\#b91c1c\], .dark button.bg-\[\#B91C1C\],
+.dark .bg-\[\#b91c1c\], .dark .bg-\[\#B91C1C\],
+.dark button.bg-\[\#991b1b\], .dark button.bg-\[\#991B1B\],
+.dark .bg-\[\#991b1b\], .dark .bg-\[\#991B1B\],
+.dark button.bg-\[\#7c3aed\], .dark button.bg-\[\#7C3AED\],
+.dark .bg-\[\#7c3aed\], .dark .bg-\[\#7C3AED\],
+.dark a.bg-\[\#f13030\], .dark a.bg-\[\#F13030\],
+.dark a.bg-\[\#7b00fe\], .dark a.bg-\[\#7B00FE\],
+.dark a.bg-\[\#5b21b6\], .dark a.bg-\[\#5B21B6\],
+.dark a.bg-\[\#b91c1c\], .dark a.bg-\[\#B91C1C\] {
   color: #FFFFFF !important;
   outline: none !important;
 }
-.dark button.bg-\[\#f13030\]:hover {
+
+.dark button.bg-\[\#f13030\], .dark button.bg-\[\#F13030\],
+.dark a.bg-\[\#f13030\], .dark a.bg-\[\#F13030\] {
+  background-color: #F13030 !important;
+}
+.dark button.bg-\[\#f13030\]:hover, .dark button.bg-\[\#F13030\]:hover,
+.dark a.bg-\[\#f13030\]:hover, .dark a.bg-\[\#F13030\]:hover {
   background-color: #D31F20 !important;
+  color: #FFFFFF !important;
+}
+
+.dark button.bg-\[\#7b00fe\], .dark button.bg-\[\#7B00FE\],
+.dark a.bg-\[\#7b00fe\], .dark a.bg-\[\#7B00FE\] {
+  background-color: #7B00FE !important;
+}
+.dark button.bg-\[\#7b00fe\]:hover, .dark button.bg-\[\#7B00FE\]:hover,
+.dark a.bg-\[\#7b00fe\]:hover, .dark a.bg-\[\#7B00FE\]:hover {
+  background-color: #6400D1 !important;
+  color: #FFFFFF !important;
+}
+
+.dark button.bg-\[\#5b21b6\], .dark button.bg-\[\#5B21B6\],
+.dark a.bg-\[\#5b21b6\], .dark a.bg-\[\#5B21B6\] {
+  background-color: #5B21B6 !important;
+}
+.dark button.bg-\[\#5b21b6\]:hover, .dark button.bg-\[\#5B21B6\]:hover,
+.dark a.bg-\[\#5b21b6\]:hover, .dark a.bg-\[\#5B21B6\]:hover {
+  background-color: #4C1D95 !important;
+  color: #FFFFFF !important;
+}
+
+.dark button.bg-\[\#b91c1c\], .dark button.bg-\[\#B91C1C\],
+.dark a.bg-\[\#b91c1c\], .dark a.bg-\[\#B91C1C\] {
+  background-color: #B91C1C !important;
+}
+.dark button.bg-\[\#b91c1c\]:hover, .dark button.bg-\[\#B91C1C\]:hover,
+.dark a.bg-\[\#b91c1c\]:hover, .dark a.bg-\[\#B91C1C\]:hover {
+  background-color: #991B1B !important;
+  color: #FFFFFF !important;
 }
 
 /* Theme toggle button in header */

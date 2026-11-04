@@ -1047,7 +1047,7 @@ export function ResourcesPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-[#f13030] hover:bg-[#d31f20] disabled:opacity-60 h-[40px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 w-full cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-[8px] px-[24px] py-[8px]"
+                className="bg-[#f13030] hover:bg-[#d31f20] text-white disabled:opacity-60 h-[40px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 w-full cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-[8px] px-[24px] py-[8px]"
                 data-node-id="178359:18489"
                 data-name="Button"
               >

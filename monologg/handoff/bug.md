@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
+**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,19 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 160. Main Brand Color CTAs (Red & Purple) Lacked Universal White Text Enforcing Rules
+- **Severity:** Medium / Design System & Contrast Parity
+- **What happened:**
+  - In `tokens.css`, the primary brand button CSS rule only targeted `.dark button.bg-[#f13030]`. It omitted uppercase hex classes (`#F13030`), Mono-Purple brand variants (`#7B00FE`, `#9B4DFF`, `#6400D1`, `#5B21B6`, `#7C3AED`, `#4C1D95`), Crimson ramps (`#B91C1C`), and `var(--color-accent)`.
+  - Child elements inside CTA buttons could inherit non-white text colors from global dark mode rules or surrounding context if not explicitly declared on every nested span.
+- **Root Cause:**
+  - CSS selector coverage was limited to lowercase `#f13030` under `.dark`, leaving other brand-colored buttons vulnerable to text color cascade collisions and lacking explicit descendant enforcement.
+- **Resolution:**
+  - Implemented universal Brand CTA rules in `tokens.css` with `color: #FFFFFF !important;` for all brand red, brand purple, and role accent buttons/anchors and their child elements (`*`).
+  - Added `text-white [&_*]:text-white` to `Button.tsx` variants (`primary`, `red`, `purple`, `dark-pill`, `lime`, `forest`, `clay`).
+  - Added explicit `text-white` to CTA buttons in `WebsiteFooter.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ProductPage.tsx`, and `ResourcesPage.tsx`.
+  - Verified with 34 test files (180 tests) passing 100% green.
 
 ### 159. White-on-White Unreadable File Attachment Card in Dark Mode Order Room & Low Contrast Meta Text (WCAG AA Violation)
 - **Severity:** High / Accessibility & Core Usability

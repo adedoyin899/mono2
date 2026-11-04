@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
+**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 173: Universal White Text Enforcement across All Main Brand Color CTAs (Session 214)
+
+- **Universal CSS Rule Overhaul (`tokens.css`):**
+  - Added comprehensive CSS rules enforcing `color: #FFFFFF !important;` for all `button` and `a` elements with brand background classes: Mono-Red (`#F13030`, `#D31F20`, `#D92626`, `#B91C1C`, `#991B1B`), Mono-Purple (`#7B00FE`, `#9B4DFF`, `#6400D1`, `#5B21B6`, `#7C3AED`, `#4C1D95`), and role accent (`var(--color-accent)`, `var(--color-red)`, `var(--color-purple)`).
+  - Added wildcard child selector rules (`button.bg-[brand] *`, `a.bg-[brand] *`, `button[style*="..."] *`) ensuring all nested spans, text blocks, and SVG icons remain `#FFFFFF` across light and dark modes.
+  - Implemented explicit dark mode rules preserving saturated brand fills and pure white text without color inversion or bleeding.
+- **Component & Marketing Page Alignment:**
+  - `Button.tsx`: Added `text-white [&_*]:text-white` to `variant="primary"` and all brand variants.
+  - `WebsiteFooter.tsx`: Added explicit `text-white` to the primary "Get started for free" button and newsletter CTA.
+  - `LandingPage.tsx`: Added explicit `text-white` to header "Sign up free" and hero "Find Performers" CTAs.
+  - `ProductPage.tsx`: Added explicit `text-white` to Performer and Client section "Get started for free" CTAs.
+  - `PricingPage.tsx`: Added explicit `text-white` to "Get started for free" CTAs across pricing cards.
+  - `ResourcesPage.tsx`: Added explicit `text-white` to the application submission CTA.
+- **Verification:** Verified clean TypeScript build (`npx tsc --noEmit`) and 100% green pass on all 34 test files (180 tests).
 
 ### Step 172: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (Session 213)
 

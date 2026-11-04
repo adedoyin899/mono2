@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
+**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 214 (2026-11-04) — Universal White Text Enforcement on Main Brand Color CTAs (Red & Purple) in Light & Dark Modes
+
+**Goal:** Ensure all Call to Action (CTA) buttons, interactive links, and triggers styled with the main brand colors (Talent Mono-Red `#F13030`, Client Mono-Purple `#7B00FE`, and their respective tone ramps & adaptive accents) unconditionally render with pure white text (`#FFFFFF`) and pure white icon strokes across both light and dark modes, preventing color bleeding, dark mode inversion, or low-contrast inheritance leaks.
+
+1. **Global Design Token & Universal CSS Rules (`tokens.css`):**
+   - **Root Cause & Scope:** Previously, only a single `.dark button.bg-[#f13030]` selector was present in `tokens.css`. It lacked uppercase variant matching (`#F13030`), Mono-Purple brand variants (`#7B00FE`, `#9B4DFF`, `#6400D1`, `#5B21B6`, `#7C3AED`, `#4C1D95`), Crimson Performer ramps (`#B91C1C`, `#991B1B`), inline style declarations (`style={{ background: ... }}`), and light-mode enforcement.
+   - **Universal Brand CTA White Text Rules:** Added comprehensive selectors for both `button` and `a` elements with `color: #FFFFFF !important;` across all brand red and brand purple classes:
+     - `button.bg-[#f13030]`, `button.bg-[#F13030]`, `button.bg-[#d31f20]`, `button.bg-[#D31F20]`, `button.bg-[#d92626]`, `button.bg-[#D92626]`, `button.bg-[#b91c1c]`, `button.bg-[#B91C1C]`, `button.bg-[#991b1b]`, `button.bg-[#991B1B]`
+     - `button.bg-[#7b00fe]`, `button.bg-[#7B00FE]`, `button.bg-[#9b4dff]`, `button.bg-[#9B4DFF]`, `button.bg-[#6400d1]`, `button.bg-[#6400D1]`, `button.bg-[#5b21b6]`, `button.bg-[#5B21B6]`, `button.bg-[#7c3aed]`, `button.bg-[#7C3AED]`, `button.bg-[#4c1d95]`, `button.bg-[#4C1D95]`
+     - `button.bg-[var(--color-accent)]`, `button.bg-[var(--color-red)]`, `button.bg-[var(--color-purple)]`
+     - Inline style attribute selectors: `button[style*="#f13030" i]`, `button[style*="#7b00fe" i]`, `button[style*="#5b21b6" i]`, `button[style*="#b91c1c" i]`, `button[style*="var(--color-accent)" i]`, etc.
+   - **Child Elements Inheritance Guarantee:** Added universal wildcard child selector rules (`button.bg-[brand] *`, `a.bg-[brand] *`, `button[style*="..."] *`) enforcing `color: #FFFFFF !important;` on all descendant `span`, `p`, `div`, `strong`, `label`, and SVG icons.
+   - **Dark Mode Hover & State Protection:** In `.dark`, brand CTAs maintain pure white text and their rich brand hues without inverting:
+     - Red hover: `#D31F20` with `#FFFFFF` text.
+     - Purple hover: `#6400D1` / `#4C1D95` with `#FFFFFF` text.
+     - Crimson hover: `#991B1B` with `#FFFFFF` text.
+
+2. **Core Reusable UI Component (`Button.tsx`):**
+   - Updated `variant="primary"` to explicitly declare `text-white [&_*]:text-white`.
+   - Updated `variant="red"` and `variant="purple"` to include `[&_*]:text-white`.
+   - Updated compatibility aliases `variant="lime"`, `variant="forest"`, and `variant="clay"` with `[&_*]:text-white`.
+
+3. **Public Marketing & Resource Page Audit & Explicit Class Parity:**
+   - **`WebsiteFooter.tsx`:** Added explicit `text-white` to the "Get started for free" primary CTA button (`bg-[#f13030]`) and newsletter submit button.
+   - **`LandingPage.tsx`:** Added explicit `text-white` to the header "Sign up free" CTA button and the hero "Find Performers" CTA button.
+   - **`ProductPage.tsx`:** Added explicit `text-white` to the "Get started for free" CTA buttons in both Performer and Client portal sections.
+   - **`PricingPage.tsx`:** Added explicit `text-white` to the "Get started for free" CTA buttons across audience sections and comparison tables.
+   - **`ResourcesPage.tsx`:** Added explicit `text-white` to the "Submit Application" casting CTA button.
+
+4. **Verification & Testing:**
+   - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+   - Vitest: All 34 test files (180 tests) passing 100% green.
 
 ---
 
