@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 202: Website Footer Copy Update to "Powered by paystack")
+**Last updated:** 2026-11-04 (Session 203: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 162: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish (Session 203)
+
+Overhauled legal and escrow policy experiences within the web application:
+- **In-App Terms of Service Subview:** Added `"terms"` and `"escrow"` to the `Section` union type in `Settings.tsx`. Built an in-app legal view with 6 structured contract clauses, effective date indicator, and link out to web legal documentation.
+- **Role-Adaptive Escrow Policy:** Replaced `Privacy Policy` with `Escrow Policy` in the Support & legal menu block. Implemented Client Escrow Policy for clients (100% upfront hold, 48-hr inspection, 12% fee, cancellations, dispute freezing) and Performer Escrow Policy for performers (pre-funded gig guarantee, attendance PIN, 48-hr auto-release, 93% net take-home, 50% kill-fee), backed by a 3-metric highlights dock.
+- **Cookie Policy Header Alignment:** Updated the header from `Cookie Settings & Policy` to `Cookie Policy` in `LegalPage.tsx` and test assertions in `LegalPage.test.tsx`.
+- **FAANG UX Mobile Polish:** Refined fluid typography across headers, cards, and tables (`text-3xl sm:text-5xl md:text-[64px]`), with responsive card padding (`p-5 sm:p-6 md:p-[24px]`).
+- **Testing & Verification:** Added 4 comprehensive unit tests in `Settings.test.tsx`. All 46 tests passing across marketing and settings test suites with zero TypeScript errors.
 
 ### Step 161: Website Footer Copy Update to "Powered by paystack" (Session 202)
 

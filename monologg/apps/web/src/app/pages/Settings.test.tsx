@@ -506,3 +506,90 @@ describe("Settings — client billing and payments", () => {
   });
 });
 
+describe("Settings — Terms of Service and Escrow Policy (FAANG UX)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("renders Support & legal with Help Center, Terms of Service, and Escrow Policy (Privacy Policy removed)", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Support & legal")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help Center" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Escrow Policy" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Privacy Policy" })).not.toBeInTheDocument();
+  });
+
+  it("navigates into in-app Terms of Service view and renders structured legal clauses", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    const termsBtn = screen.getByRole("button", { name: "Terms of Service" });
+    fireEvent.click(termsBtn);
+
+    expect(await screen.findByRole("heading", { name: "Terms of Service" })).toBeInTheDocument();
+    expect(screen.getByText("Effective Date: October 29, 2026")).toBeInTheDocument();
+    expect(screen.getByText("Eligibility & Account Responsibilities")).toBeInTheDocument();
+    expect(screen.getByText("Marketplace & Booking Engagements")).toBeInTheDocument();
+    expect(screen.getByText("Professional Conduct & Non-Circumvention")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /View Full Web Terms/i })).toBeInTheDocument();
+
+    // Back button returns to main settings
+    const backBtn = screen.getByRole("button", { name: "Back to settings" });
+    fireEvent.click(backBtn);
+    expect(await screen.findByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
+  });
+
+  it("renders role-specific Client Escrow Policy for clients with 12% fee and cancellation protection", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings?role=client"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    const escrowBtn = screen.getByRole("button", { name: "Escrow Policy" });
+    fireEvent.click(escrowBtn);
+
+    expect(await screen.findByRole("heading", { name: "Client Escrow Policy" })).toBeInTheDocument();
+    expect(screen.getByText("Client Escrow Protection · Paystack Secured")).toBeInTheDocument();
+    expect(screen.getByText("100% Upfront Funding & Isolation")).toBeInTheDocument();
+    expect(screen.getByText("48-Hour Inspection & Review Window")).toBeInTheDocument();
+    expect(screen.getByText("Cancellation & Refund Protection")).toBeInTheDocument();
+    expect(screen.getByText("12% Transparent")).toBeInTheDocument();
+    expect(screen.getByText("Monologg Trust & Safety Assurance")).toBeInTheDocument();
+  });
+
+  it("renders role-specific Performer Escrow Policy for performers with 93% take-home and pre-funded guarantee", async () => {
+    const { Settings } = await import("./Settings");
+    render(
+      <MemoryRouter initialEntries={["/settings?role=talent"]}>
+        <Settings />
+      </MemoryRouter>,
+    );
+
+    const escrowBtn = screen.getByRole("button", { name: "Escrow Policy" });
+    fireEvent.click(escrowBtn);
+
+    expect(await screen.findByRole("heading", { name: "Performer Escrow Policy" })).toBeInTheDocument();
+    expect(screen.getByText("Performer Escrow Guarantee · 100% Pre-Funded")).toBeInTheDocument();
+    expect(screen.getByText("Pre-Funded Gig Guarantee")).toBeInTheDocument();
+    expect(screen.getByText("Verified Delivery & Attendance PIN")).toBeInTheDocument();
+    expect(screen.getByText("48-Hour Auto-Release Safeguard")).toBeInTheDocument();
+    expect(screen.getByText("93% Net")).toBeInTheDocument();
+    expect(screen.getByText("Late Cancellation Kill-Fee Protection")).toBeInTheDocument();
+  });
+});
+

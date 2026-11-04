@@ -19,14 +19,14 @@ describe("LegalPage", () => {
     expect(screen.getByText("12. Modifications to Terms")).toBeInTheDocument();
   });
 
-  it("renders 1-for-1 Cookie Settings & Policy from Figma (178383:18857)", () => {
+  it("renders 1-for-1 Cookie Policy from Figma (178383:18857)", () => {
     render(
       <MemoryRouter>
         <LegalPage type="cookies" />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "Cookie Settings & Policy" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cookie Policy" })).toBeInTheDocument();
     expect(screen.getByText("Effective Date: October 29, 2026")).toBeInTheDocument();
     expect(screen.getByText("1. Scope & Relationship to Terms of Service")).toBeInTheDocument();
     expect(screen.getByText("2. What Are Cookies?")).toBeInTheDocument();
@@ -42,14 +42,14 @@ describe("LegalPage", () => {
     expect(screen.getByText("7. Updates to This Policy")).toBeInTheDocument();
   });
 
-  it("supports privacy route alias with Cookie Settings & Policy content", () => {
+  it("supports privacy route alias with Cookie Policy content", () => {
     render(
       <MemoryRouter>
         <LegalPage type="privacy" />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "Cookie Settings & Policy" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cookie Policy" })).toBeInTheDocument();
     expect(screen.getByText("5. Managing Your Preferences")).toBeInTheDocument();
   });
 

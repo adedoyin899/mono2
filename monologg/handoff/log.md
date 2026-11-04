@@ -1,11 +1,46 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 202: Website Footer Copy Update to "Powered by paystack")
+**Last updated:** 2026-11-04 (Session 203: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 203 (2026-11-04) — In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish
+
+**Goal:** Implement in-app Terms of Service and role-adaptive Escrow Policy views in Settings (`Settings.tsx`), replace Privacy Policy in the support menu, update the legal Cookie page header to "Cookie Policy", and ensure FAANG-grade responsive mobile design and typography across all views.
+
+1. **In-App Terms of Service Subview in Settings (`Settings.tsx`):**
+   - Added `"terms"` and `"escrow"` to the `Section` union type in `Settings.tsx`, and enabled deep-link support via `?section=terms` and `?section=escrow`.
+   - Wired sticky header title: `{section === "terms" && "Terms of Service"}`.
+   - Added `TERMS_OF_SERVICE_ITEMS` comprising 6 structured contractual clauses: Eligibility & Account Responsibilities, Marketplace & Booking Engagements, Professional Conduct & Non-Circumvention, Deliverables, Licensing & Intellectual Property, Platform Fees & Fair Trade Transparency, and Order Room Mediation & Dispute Arbitration.
+   - Implemented an in-app Terms of Service view with effective date badge (`October 29, 2026`), numbered indicators, responsive body typography, and a link card to open full web terms (`/legal/terms`).
+
+2. **Role-Adaptive Escrow Policy Subview in Settings (`Settings.tsx`):**
+   - In the Support & legal menu block, replaced the external `Privacy Policy` link with `Escrow Policy` (`<ListItem label="Escrow Policy" icon={ShieldCheck} onClick={() => setSection("escrow")} />`).
+   - Wired sticky header title: `{section === "escrow" && (isClient ? "Client Escrow Policy" : "Performer Escrow Policy")}`.
+   - Designed dual role-adaptive escrow specifications:
+     - **Client Escrow Terms (`CLIENT_ESCROW_TERMS`):** 100% Upfront Funding & Isolation, Order Room Contract Activation, 48-Hour Inspection & Review Window, Automated Release Upon Approval, Cancellation & Refund Protection (100% talent failure, 95% advance, 50% kill-fee), Dispute Freezing & Evidence Review, and Anti-Circumvention Coverage.
+     - **Performer Escrow Terms (`PERFORMER_ESCROW_TERMS`):** Pre-Funded Gig Guarantee, Verified Delivery & Attendance PIN, 48-Hour Auto-Release Safeguard, Transparent 93% Net Take-Home (7% fee), Late Cancellation Kill-Fee Protection (50%), Scope Creep & Revisions Safeguard, Instant Bank Withdrawals via Paystack, and Impartial Dispute Resolution Rights.
+   - Built a 3-metric highlight dock (Protection, Review Window, Fee/Take-Home) and an impartial Monologg Trust & Safety guarantee card.
+
+3. **Cookie Policy Header Alignment (`LegalPage.tsx` & `LegalPage.test.tsx`):**
+   - Updated legal hero title from `Cookie Settings & Policy` to `Cookie Policy` matching user specification and cropped design screenshot (`media_1793750979725_ce93fbf9.png`).
+   - Made header responsive with fluid typography: `text-3xl sm:text-5xl md:text-[64px]` with `leading-tight sm:leading-none`.
+   - Enhanced `CARD_CLASSES` padding for mobile: `p-5 sm:p-6 md:p-[24px]` and `rounded-[16px] sm:rounded-[20px]`.
+   - Updated test assertions in `LegalPage.test.tsx`.
+
+4. **FAANG UX Mobile Responsiveness & Test Coverage (`Settings.test.tsx`):**
+   - Authored 4 comprehensive unit tests in `Settings.test.tsx`:
+     - Verification of Support & legal items (Help Center, Terms of Service, Escrow Policy, no Privacy Policy).
+     - Navigation into in-app Terms of Service and back-button return to settings.
+     - Client mode rendering of Client Escrow Policy, 12% fee, and cancellation rules.
+     - Performer mode rendering of Performer Escrow Policy, 93% take-home, and pre-funded guarantee.
+   - Verified 46/46 unit tests passing across all marketing and settings test suites (18/18 in `Settings.test.tsx`, 28/28 in marketing suites).
+   - Zero TypeScript compiler errors (`npx tsc --noEmit`).
 
 ---
 

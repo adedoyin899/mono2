@@ -28,7 +28,7 @@ const ASSETS = {
 };
 
 const CARD_CLASSES =
-  "border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid hover:border-transparent dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 flex flex-col gap-[24px] items-start p-[24px] relative rounded-[20px] shrink-0 w-full";
+  "border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid hover:border-transparent dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-all duration-200 flex flex-col gap-[20px] sm:gap-[24px] items-start p-5 sm:p-6 md:p-[24px] relative rounded-[16px] sm:rounded-[20px] shrink-0 w-full";
 
 const COMPLIANCE_ROWS = [
   {
@@ -157,7 +157,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
     <div
       className="bg-white dark:bg-[#000000] min-h-screen flex flex-col items-start relative w-full text-[#1a1a1a] dark:text-[#f9f9f9] font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-clip"
       data-node-id={isTerms ? "178382:17926" : "178383:18857"}
-      data-name={isTerms ? "Terms of Service" : "Cookie Settings & Policy"}
+      data-name={isTerms ? "Terms of Service" : "Cookie Policy"}
     >
       {/* ── 1. Top Announcement Bar (178382:17927) ── */}
       <div
@@ -422,7 +422,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   </p>
                 </div>
                 <h1
-                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none"
+                  className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-3xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-tight sm:leading-none"
                   data-node-id="178382:18005"
                 >
                   Terms of Service
@@ -729,7 +729,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
           </div>
         </main>
       ) : (
-        /* ── Cookie Settings & Policy (Figma 178383:18857) ── */
+        /* ── Cookie Policy (Figma 178383:18857) ── */
         <main
           className="bg-white dark:bg-[#000000] flex flex-col gap-[80px] items-center px-6 md:px-16 xl:px-[200px] py-[112px] relative shrink-0 w-full z-10"
           data-node-id="178383:18916"
@@ -747,8 +747,8 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                     Effective Date: October 29, 2026
                   </p>
                 </div>
-                <h1 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-4xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-none">
-                  Cookie Settings &amp; Policy
+                <h1 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-3xl sm:text-5xl md:text-[64px] text-center tracking-[-1.92px] leading-tight sm:leading-none">
+                  Cookie Policy
                 </h1>
               </div>
 

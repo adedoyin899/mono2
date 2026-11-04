@@ -1,11 +1,28 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-04 (Session 202: Website Footer Copy Update to "Powered by paystack")
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup + Session 201 Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges + Session 202 Website Footer Copy Update to "Powered by paystack".
+**Last updated:** 2026-11-04 (Session 203: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup + Session 201 Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges + Session 202 Website Footer Copy Update to "Powered by paystack" + Session 203 In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish.
 
 ---
 
 ## ✅ Done
+
+### Session 203 — In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish
+- [x] **In-App Terms of Service Subview in Settings**:
+  - Added `"terms"` and `"escrow"` to `Section` union type with deep-link support (`?section=terms`).
+  - Implemented structured in-app view with 6 core legal clauses, effective date indicator, and link out to full web legal document.
+- [x] **Role-Adaptive Escrow Policy in Settings**:
+  - Replaced `Privacy Policy` with `Escrow Policy` in the Support & legal menu block.
+  - Implemented Client Escrow Terms (`CLIENT_ESCROW_TERMS`) for clients detailing 100% upfront lock, 48-hr inspection, 12% fee, refund policy, and dispute freezing.
+  - Implemented Performer Escrow Terms (`PERFORMER_ESCROW_TERMS`) for performers detailing pre-funded guarantee, attendance PIN, 48-hr auto-release, 93% net take-home, and 50% kill-fee.
+  - Added 3-metric highlight dock and Trust & Safety guarantee card.
+- [x] **Cookie Policy Header & Responsiveness Alignment**:
+  - Changed `Cookie Settings & Policy` header to `Cookie Policy` in `LegalPage.tsx` with responsive `text-3xl sm:text-5xl md:text-[64px]`.
+  - Added responsive padding and border radii to `CARD_CLASSES` (`p-5 sm:p-6 md:p-[24px]`).
+- [x] **Automated Testing & Quality Gate**:
+  - Added 4 unit tests in `Settings.test.tsx` verifying support navigation, terms rendering, client escrow rules, and performer escrow rules.
+  - All 46 tests passing across marketing and settings test suites.
+  - Zero TypeScript compiler errors (`npx tsc --noEmit`).
 
 ### Session 202 — Website Footer Copy Update to "Powered by paystack"
 - [x] **Footer Copy Standardization Across All Pages**:

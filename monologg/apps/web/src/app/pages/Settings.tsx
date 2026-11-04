@@ -16,12 +16,121 @@ import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
   Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X,
   MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
-  Building2, Info, AlertTriangle, Clock, Sparkles, Drama, AudioLines, Laugh, Headphones, Video, Mic, Calendar as CalendarIcon, RotateCcw
+  Building2, Info, AlertTriangle, Clock, Sparkles, Drama, AudioLines, Laugh, Headphones, Video, Mic, Calendar as CalendarIcon, RotateCcw,
+  ShieldCheck, Lock, Scale
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
-type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details";
+type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details" | "terms" | "escrow";
+
+const TERMS_OF_SERVICE_ITEMS = [
+  {
+    title: "Eligibility & Account Responsibilities",
+    description: "You must be at least 18 years of age (or the legal age of majority in your jurisdiction) to register an account on Monologg. You are responsible for safeguarding your credentials and maintaining verified, accurate profile information.",
+  },
+  {
+    title: "Marketplace & Booking Engagements",
+    description: "Monologg provides a direct brief-to-booking pipeline connecting clients with verified performing artists. Selecting a rate card or accepting a project brief constitutes a binding legal engagement under the Monologg Standard Booking Agreement.",
+  },
+  {
+    title: "Professional Conduct & Non-Circumvention",
+    description: "All client-performer communications, briefing documents, milestone files, and financial payments must occur strictly within the Monologg platform. Off-platform payment solicitation constitutes a material breach and results in immediate account forfeiture.",
+  },
+  {
+    title: "Deliverables, Licensing & Intellectual Property",
+    description: "Performers retain copyright in their original likeness, voice recordings, and preexisting portfolio assets. Upon full escrow payout release, the client receives the specific commercial or non-exclusive license designated in the agreed brief.",
+  },
+  {
+    title: "Platform Fees & Fair Trade Transparency",
+    description: "Monologg operates with unbundled, transparent fees: a 7% service fee is deducted from the performer's base rate, and a 12% escrow processing fee is paid by the client at checkout. No hidden agency cuts or arbitrary delays.",
+  },
+  {
+    title: "Order Room Mediation & Dispute Arbitration",
+    description: "Any deliverable disagreements, scope issues, or attendance disputes are mediated through the Order Room arbitration system by Monologg Trust & Safety within 24 to 48 hours. Engagements are governed by applicable commercial laws.",
+  },
+];
+
+const CLIENT_ESCROW_TERMS = [
+  {
+    title: "100% Upfront Funding & Isolation",
+    badge: "Deposit",
+    description: "100% of the agreed project fee plus the 12% escrow processing fee is deposited via Paystack at checkout. Funds remain securely vaulted in escrow and are never accessible to the performer prior to verified milestone delivery.",
+  },
+  {
+    title: "Order Room Contract Activation",
+    badge: "Workspace",
+    description: "Escrow confirmation automatically activates the dedicated Order Room workspace, locking in shoot dates, call times, script attachments, and micro-deliverable specifications as binding mutual covenants.",
+  },
+  {
+    title: "48-Hour Inspection & Review Window",
+    badge: "Review",
+    description: "When the performer submits digital files or checks in at a live venue via mutual 4-digit PIN, your 48-hour inspection window begins. Use this time to inspect assets, test deliverables, or request in-scope revisions.",
+  },
+  {
+    title: "Automated Release Upon Approval",
+    badge: "Payout",
+    description: "Clicking 'Approve Deliverables' or 'Release Payment' transfers escrow funds to the performer's wallet instantly. If no action is taken and no dispute is filed within 48 hours, the system auto-releases payment to guarantee fair talent treatment.",
+  },
+  {
+    title: "Cancellation & Refund Protection",
+    badge: "Refunds",
+    description: "Full 100% refund if the performer cancels or fails to deliver. If you cancel ≥48 hours before call time, a 95% refund is issued (5% processing fee retained). Cancellations under 24 hours allocate a 50% kill-fee to the performer for reserved time.",
+  },
+  {
+    title: "Dispute Freezing & Evidence Review",
+    badge: "Mediation",
+    description: "If submitted work deviates materially from the agreed brief, clicking 'Dispute Booking' immediately freezes escrow release. Monologg Trust & Safety mediators review chat logs, brief specs, and uploaded files within 24 hours.",
+  },
+  {
+    title: "Anti-Circumvention Protection Guarantee",
+    badge: "Security",
+    description: "Escrow protections, dispute arbitration, and refund guarantees apply exclusively to payments routed through Monologg. Off-platform wire transfers or direct arrangements forfeit all protection.",
+  },
+];
+
+const PERFORMER_ESCROW_TERMS = [
+  {
+    title: "Pre-Funded Gig Guarantee",
+    badge: "Guaranteed",
+    description: "Never work on speculation. You are never expected to rehearse, travel, or deliver creative work until 100% of the client's budget is confirmed and locked in Monologg Escrow.",
+  },
+  {
+    title: "Verified Delivery & Attendance PIN",
+    badge: "Delivery",
+    description: "Digital deliverables are uploaded directly to the Order Room dropzone. Live in-person gigs are verified instantaneously using a 4-digit mutual attendance PIN entered with the client at the venue.",
+  },
+  {
+    title: "48-Hour Auto-Release Safeguard",
+    badge: "Timely Pay",
+    description: "Clients have exactly 48 hours to inspect submitted work. If the client approves early or does not file a dispute within 48 hours, escrow funds auto-release directly to your wallet.",
+  },
+  {
+    title: "Transparent 93% Net Take-Home",
+    badge: "Earnings",
+    description: "You keep exactly 93% of your rate card base price. The 7% platform service fee covers escrow vaulting, Paystack settlement, and 24/7 mediation. Zero hidden agency commissions (saving 13–18% vs legacy agencies).",
+  },
+  {
+    title: "Late Cancellation Kill-Fee Protection",
+    badge: "Kill-Fee",
+    description: "If a client cancels less than 24 hours prior to call time, you automatically receive a 50% kill-fee from the locked escrow to compensate for your blocked calendar. Completed submissions receive 100%.",
+  },
+  {
+    title: "Scope Creep & Revisions Safeguard",
+    badge: "Scope",
+    description: "You are only contractually obligated to fulfill what was agreed in the project brief and accepted rate card. Additional revision rounds require the client to deposit a supplementary milestone escrow before work begins.",
+  },
+  {
+    title: "Instant Bank Withdrawals via Paystack",
+    badge: "Withdrawal",
+    description: "Once escrow releases to your balance, withdraw anytime directly to any verified Nigerian bank account via Paystack instant settlement, protected by your 4-digit security passcode and OTP.",
+  },
+  {
+    title: "Impartial Dispute Resolution Rights",
+    badge: "Fairness",
+    description: "If a client unreasonably withholds payment approval, Monologg mediators evaluate your uploaded proofs, timestamped chat records, and brief specifications. Verified artistic work is always paid.",
+  },
+];
 
 const CRAFT_CATEGORIES = [
   { id: "actors", label: "Actors", icon: Drama, desc: "Screen, feature film, and stage drama roles" },
@@ -106,7 +215,7 @@ export function Settings() {
   const sectionParam = searchParams.get("section") as Section | null;
 
   const [section, setSection] = useState<Section>(() => {
-    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security"].includes(sectionParam)) {
+    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
       return sectionParam;
     }
     return "main";
@@ -715,6 +824,8 @@ export function Settings() {
             {section === "notifications" && "Notifications"}
             {section === "security" && "Security & Privacy"}
             {section === "attributes" && "Physical Attributes"}
+            {section === "terms" && "Terms of Service"}
+            {section === "escrow" && (isClient ? "Client Escrow Policy" : "Performer Escrow Policy")}
           </div>
         </div>
         {section === "craft_details" && (
@@ -858,8 +969,8 @@ export function Settings() {
               <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Support &amp; legal</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Help Center" icon={LifeBuoy} onClick={() => navigate("/support")} />
-                <ListItem label="Terms of Service" icon={FileText} onClick={() => navigate("/legal/terms")} />
-                <ListItem label="Privacy Policy" icon={Shield} onClick={() => navigate("/legal/privacy")} />
+                <ListItem label="Terms of Service" icon={FileText} onClick={() => setSection("terms")} />
+                <ListItem label="Escrow Policy" icon={ShieldCheck} onClick={() => setSection("escrow")} />
               </div>
 
               <div className="rounded-[var(--radius-xl)] overflow-hidden" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
@@ -3038,6 +3149,203 @@ export function Settings() {
                   <div className="text-sm font-semibold font-body" style={{ color: "var(--color-error)" }}>Delete Account</div>
                   <div className="text-xs font-body mt-0.5" style={{ color: "var(--color-error)", opacity: 0.7 }}>Permanently delete your account and all data</div>
                 </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Terms of Service Section */}
+          {section === "terms" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: DURATION_MED, ease: EASE_OUT }}
+              className="space-y-4 sm:space-y-6"
+            >
+              {/* Header Card */}
+              <div
+                className="p-4 sm:p-6 rounded-[var(--radius-xl)] flex flex-col gap-2.5 relative"
+                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+                  <span className="text-[11px] sm:text-xs font-mono font-medium tracking-wider uppercase" style={{ color: "var(--color-accent)" }}>
+                    Effective Date: October 29, 2026
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight" style={s.text}>
+                  Terms of Service
+                </h2>
+                <p className="text-xs sm:text-sm font-body leading-relaxed" style={s.secondary}>
+                  These Terms of Service govern your access to Monologg, including bookable profile storefronts, project briefs, escrow-protected milestone payments, and Order Room workspaces.
+                </p>
+              </div>
+
+              {/* Structured Terms List */}
+              <div className="space-y-3 sm:space-y-4">
+                {TERMS_OF_SERVICE_ITEMS.map((item, idx) => (
+                  <div
+                    key={item.title}
+                    className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:border-[var(--color-border-strong)]"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 text-xs sm:text-sm font-bold font-mono"
+                        style={{ background: "var(--color-bg-elevated)", color: "var(--color-accent)" }}
+                      >
+                        {String(idx + 1).padStart(2, "0")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm sm:text-base font-semibold font-body mb-1" style={s.text}>
+                          {item.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-body leading-relaxed" style={s.secondary}>
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Full Document Link Card */}
+              <div
+                className="p-4 sm:p-5 rounded-[var(--radius-xl)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                style={{ ...s.elevated, boxShadow: "var(--shadow-card)" }}
+              >
+                <div>
+                  <div className="text-xs sm:text-sm font-semibold font-body" style={s.text}>
+                    Need the comprehensive legal fine print?
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-body mt-0.5" style={s.secondary}>
+                    Includes international GDPR &amp; NDPA compliance clauses and governing law.
+                  </div>
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-1.5 text-xs font-semibold shrink-0 w-full sm:w-auto"
+                  onClick={() => navigate("/legal/terms")}
+                >
+                  View Full Web Terms <ExternalLink className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Escrow Policy Section (Role-Adaptive: Client see Client, Performer see Performer) */}
+          {section === "escrow" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: DURATION_MED, ease: EASE_OUT }}
+              className="space-y-4 sm:space-y-6"
+            >
+              {/* Header Card */}
+              <div
+                className="p-4 sm:p-6 rounded-[var(--radius-xl)] flex flex-col gap-2.5 relative"
+                style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[var(--color-success)]" />
+                  <span className="text-[11px] sm:text-xs font-mono font-medium tracking-wider uppercase text-[var(--color-success)]">
+                    {isClient ? "Client Escrow Protection · Paystack Secured" : "Performer Escrow Guarantee · 100% Pre-Funded"}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight" style={s.text}>
+                  {isClient ? "Client Escrow Policy" : "Performer Escrow Policy"}
+                </h2>
+                <p className="text-xs sm:text-sm font-body leading-relaxed" style={s.secondary}>
+                  {isClient
+                    ? "Your budget is vaulted securely in escrow upon checkout and only disbursed to performers when deliverables are verified and accepted."
+                    : "Never work on speculation. Client funds are 100% pre-funded and legally locked in escrow before your call time or creative production begins."}
+                </p>
+
+                {/* Key Metric Highlights Bar */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 border-t border-[var(--color-hairline)] mt-1">
+                  <div className="text-center p-2 sm:p-3 rounded-lg bg-[var(--color-bg-elevated)]">
+                    <div className="text-[10px] sm:text-xs font-body font-medium" style={s.tertiary}>
+                      {isClient ? "Protection" : "Guaranteed"}
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold font-mono text-[var(--color-accent)] mt-0.5">
+                      100% Escrow
+                    </div>
+                  </div>
+                  <div className="text-center p-2 sm:p-3 rounded-lg bg-[var(--color-bg-elevated)]">
+                    <div className="text-[10px] sm:text-xs font-body font-medium" style={s.tertiary}>
+                      Review Window
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold font-mono text-[var(--color-accent)] mt-0.5">
+                      48 Hours
+                    </div>
+                  </div>
+                  <div className="text-center p-2 sm:p-3 rounded-lg bg-[var(--color-bg-elevated)]">
+                    <div className="text-[10px] sm:text-xs font-body font-medium" style={s.tertiary}>
+                      {isClient ? "Fee" : "Take-Home"}
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold font-mono text-[var(--color-accent)] mt-0.5">
+                      {isClient ? "12% Transparent" : "93% Net"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Role-Specific Escrow Terms */}
+              <div className="space-y-3 sm:space-y-4">
+                {(isClient ? CLIENT_ESCROW_TERMS : PERFORMER_ESCROW_TERMS).map((item, idx) => (
+                  <div
+                    key={item.title}
+                    className="p-4 sm:p-5 rounded-[var(--radius-xl)] transition-all hover:border-[var(--color-border-strong)]"
+                    style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 text-xs sm:text-sm font-bold font-mono"
+                        style={{ background: "var(--color-bg-elevated)", color: "var(--color-accent)" }}
+                      >
+                        {String(idx + 1).padStart(2, "0")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm sm:text-base font-semibold font-body" style={s.text}>
+                            {item.title}
+                          </h3>
+                          {item.badge && (
+                            <Badge tone="neutral" className="text-[10px] px-1.5 py-0 font-mono">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs sm:text-sm font-body leading-relaxed" style={s.secondary}>
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trust & Safety Assurance Footer */}
+              <div
+                className="p-4 sm:p-5 rounded-[var(--radius-xl)] flex items-start gap-3"
+                style={{ ...s.elevated, boxShadow: "var(--shadow-card)" }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                >
+                  <Lock className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs sm:text-sm font-semibold font-body" style={s.text}>
+                    Monologg Trust &amp; Safety Assurance
+                  </div>
+                  <p className="text-[11px] sm:text-xs font-body mt-0.5 leading-relaxed" style={s.secondary}>
+                    All escrow deposits and settlements are processed via Paystack with end-to-end encryption. Monologg acts as an impartial escrow agent ensuring agreed terms and milestone deliverables are honored in full.
+                  </p>
+                </div>
               </div>
             </motion.div>
           )}
