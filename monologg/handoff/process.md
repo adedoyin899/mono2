@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
+**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 166: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window (Session 207)
+
+- **Figma Frame 11 Parity for Selected Step:** Aligned the active card in `ProductPage.tsx` directly to Figma Frame 11 code: borderless `#0E0E0E` dark fill, `border-radius: 12px`, padding 24px, gap 24px, removing the unintended red border. Inactive cards preserve `#e8e8e8` / `#1a1a1a` hairlines.
+- **5-Card Sliding Window Architecture:** Implemented a constant-height viewport (`560px`) showing exactly 5 cards at once. As the active step advances, previous cards glide upward (`y: -stepColumnOffset`) and fade out of view.
+- **Zero-Stretching Motion Architecture:** Eliminated Framer Motion's scale-based `layout` prop on cards which distorted SVG icons and typography during height interpolation; decoupled trailing status icons (`CheckCircle`, `Spinner`) with absolute coordinates.
+- **Verification:** Verified via automated Chromium screenshots at steps 0, 3, 5, and 7, code 0 `npx tsc --noEmit`, 0 warnings in `npx eslint`, and 100% green pass across all 33 test files (174 unit tests).
 
 ### Step 165: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages (Session 206)
 

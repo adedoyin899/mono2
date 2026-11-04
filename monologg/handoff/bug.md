@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
+**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 154. Product Page Height Jitter, Layout Stretching & Active State Red Border Drift (`ProductPage.tsx`)
+- **Severity:** Medium / FAANG UX & Motion Quality
+- **What happened:**
+  - Active step card in dark mode displayed an extraneous red border, drifting from Figma Frame 11 specifications which mandate a borderless `#0E0E0E` fill with rounded corners (`border-radius: 12px`).
+  - When auto-advancing or clicking between steps, the 7-card column expanded and contracted as descriptions opened/closed, causing distracting layout jumps across the entire section.
+  - Using Framer Motion's scale-based `layout` prop on cards distorted icons (`ArrowCircleRight`, `Spinner`, `CheckCircle`) and font glyphs during height transitions.
+- **Root Cause:**
+  - Active border token mistakenly applied red stroke instead of Figma Frame 11 clean `#0E0E0E` background.
+  - Unconstrained column height with variable-height active description cards.
+  - Scale-based GPU layout animations interpolate aspect ratios rather than animating pure height/opacity.
+- **Resolution:**
+  - Removed red border on active state in dark mode (`shadow-[inset_0_0_0_1px_transparent]`).
+  - Built a 5-card constant-height sliding window locked to 560px with measured card metrics.
+  - Removed the `layout` prop, decoupled trailing icons with absolute positioning, and tuned easing to `cubic-bezier(0.65, 0, 0.35, 1)`.
+  - Verified with Playwright screenshot automation and 100% green test passes.
 
 ### 153. Unused Variable in LandingPage.tsx, ProductPage Title Colon Mismatch & Test Analytics Network Isolation (`LandingPage.tsx`, `ProductPage.test.tsx`, `analytics.ts`)
 - **Severity:** Medium / Test & Linter Integrity

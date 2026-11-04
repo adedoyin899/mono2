@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Avatar } from "../components/ui/Avatar";
@@ -34,6 +34,13 @@ const imgArrowCircleRightLight = "/assets/product/81db1c32dcabe58f2679bbc4723008
 const imgArrowCircleRightDark = "/assets/product/54339bafbbcc9e6b77731ada85ecba530b967ea9.svg";
 const imgSpinner = "/assets/product/d992e1c0bcf7201e7672eff69bed533992e67ce3.svg";
 const imgCheckCircle = "/assets/product/5d95f1f313a1d448e7041b57c9347d098fcc237c.svg";
+
+// 7-step showcase sliding-window constants
+const STEP_COUNT = 7;
+const STEP_VISIBLE_COUNT = 5;
+const STEP_GAP = 12;
+const STEP_EASE: [number, number, number, number] = [0.65, 0, 0.35, 1]; // smooth ease-in-out
+const STEP_DURATION = 0.8;
 
 // Shared 300x300 Phone Mask — Figma 178432:6988
 const imgPhoneMask = "/assets/product/2edd4450f001dd0abfe2d83e8c81067819f49f0c.svg";
@@ -520,6 +527,64 @@ export function ProductPage() {
     },
   ];
 
+  // ── 5-card sliding window (constant-height viewport) ──
+  // Only STEP_VISIBLE_COUNT cards are shown at once. As the active step advances,
+  // the column glides upward and the card above the window fades out of view, so
+  // the showcase never changes height. Heights are measured (not animated via
+  // `layout`), which avoids the scale-based layout animation that stretched
+  // icons and text.
+  const stepTitleRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+  const stepDescRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  const stepViewportRef = useRef<HTMLDivElement>(null);
+  const [stepMetrics, setStepMetrics] = useState<{ inactive: number[]; desc: number[] } | null>(null);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const inactive = Array.from(
+        { length: STEP_COUNT },
+        (_, i) => Math.max(24, stepTitleRefs.current[i]?.offsetHeight ?? 0) + 48,
+      );
+      const desc = Array.from({ length: STEP_COUNT }, (_, i) => stepDescRefs.current[i]?.offsetHeight ?? 0);
+      // jsdom / not yet laid out: fall back to natural (auto) layout.
+      if (desc.every((d) => d === 0)) {
+        setStepMetrics(null);
+        return;
+      }
+      setStepMetrics((prev) =>
+        prev &&
+        prev.inactive.every((v, i) => v === inactive[i]) &&
+        prev.desc.every((v, i) => v === desc[i])
+          ? prev
+          : { inactive, desc },
+      );
+    };
+    measure();
+    const ro =
+      typeof ResizeObserver !== "undefined" && stepViewportRef.current ? new ResizeObserver(measure) : null;
+    if (ro && stepViewportRef.current) ro.observe(stepViewportRef.current);
+    document.fonts?.ready?.then(measure).catch(() => {});
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  const stepWindowStart = Math.min(activeStep, STEP_COUNT - STEP_VISIBLE_COUNT);
+  const stepColumnOffset = stepMetrics
+    ? stepMetrics.inactive.slice(0, stepWindowStart).reduce((sum, h) => sum + h + STEP_GAP, 0)
+    : 0;
+  const stepViewportHeight = stepMetrics
+    ? Math.max(
+        ...Array.from({ length: STEP_COUNT }, (_, a) => {
+          const start = Math.min(a, STEP_COUNT - STEP_VISIBLE_COUNT);
+          let h = 0;
+          for (let j = start; j < start + STEP_VISIBLE_COUNT; j++) h += stepMetrics.inactive[j] ?? 0;
+          return h + (stepMetrics.desc[a] ?? 0) + (STEP_VISIBLE_COUNT - 1) * STEP_GAP;
+        }),
+      )
+    : undefined;
+
   // 6 Media House Logos (Figma 178359:17816)
   const studioBadges = [
     { name: "Vimeo", src: imgVimeo, nodeId: "178359:17819" },
@@ -927,164 +992,146 @@ export function ProductPage() {
               className="flex flex-col lg:flex-row gap-[24px] items-start relative shrink-0 w-full"
               data-node-id="178359:17393"
             >
-              {/* Left Column: 7 Step Cards with 3 States (default / active / completed) (178359:17394) */}
+              {/* Left Column: 7 Step Cards in a constant-height 5-card sliding window (178359:17394) */}
               <div
-                className="flex flex-col gap-[12px] items-start relative rounded-[20px] shrink-0 w-full lg:w-[491px]"
+                ref={stepViewportRef}
+                className="relative overflow-hidden shrink-0 w-full lg:w-[491px]"
+                style={{ height: stepViewportHeight }}
                 data-node-id="178359:17394"
               >
-                {steps.map((step, idx) => {
-                  const cardState: "completed" | "active" | "default" =
-                    idx < activeStep
-                      ? "completed"
-                      : idx === activeStep
-                        ? "active"
-                        : "default";
+                <motion.div
+                  className="flex flex-col gap-[12px] items-start w-full will-change-transform"
+                  initial={false}
+                  animate={{ y: -stepColumnOffset }}
+                  transition={{ duration: STEP_DURATION, ease: STEP_EASE }}
+                >
+                  {steps.map((step, idx) => {
+                    const cardState: "completed" | "active" | "default" =
+                      idx < activeStep ? "completed" : idx === activeStep ? "active" : "default";
+                    const isActive = cardState === "active";
+                    const inWindow = idx >= stepWindowStart && idx < stepWindowStart + STEP_VISIBLE_COUNT;
+                    const descTarget: number | "auto" = stepMetrics ? (stepMetrics.desc[idx] ?? 0) : "auto";
 
-                  // ── ACTIVE STATE (Frame 11 / Frame 19 / Figma 178432:7019) ──
-                  if (cardState === "active") {
                     return (
                       <motion.div
-                        layout
                         key={step.id}
                         onClick={() => setActiveStep(idx)}
                         role="button"
-                        tabIndex={0}
+                        tabIndex={inWindow ? 0 : -1}
+                        aria-expanded={isActive}
+                        aria-hidden={inWindow ? undefined : true}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             setActiveStep(idx);
                           }
                         }}
-                        data-step-state="active"
+                        data-step-state={cardState}
                         data-testid={`step-card-${step.id}`}
-                        className="bg-[#f9f9f9] dark:bg-[#0e0e0e] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)] outline-none focus:outline-none focus-visible:outline-none"
+                        initial={false}
+                        animate={{ opacity: inWindow ? 1 : 0 }}
+                        transition={{ duration: STEP_DURATION * 0.75, ease: STEP_EASE }}
+                        style={{ pointerEvents: inWindow ? "auto" : "none" }}
+                        className={`relative flex w-full shrink-0 items-start gap-[24px] p-[24px] rounded-[12px] cursor-pointer outline-none focus:outline-none focus-visible:outline-none transition-[background-color,box-shadow] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+                          isActive
+                            ? "bg-[#f9f9f9] dark:bg-[#0e0e0e] shadow-[inset_0_0_0_1px_transparent]"
+                            : "bg-white dark:bg-black shadow-[inset_0_0_0_1px_#e8e8e8] dark:shadow-[inset_0_0_0_1px_#1a1a1a] hover:bg-[#f9f9f9] dark:hover:bg-[#0e0e0e]"
+                        }`}
                       >
-                        <motion.div
-                          className="relative shrink-0 size-[24px]"
-                          data-name="ArrowCircleRight"
-                          whileHover={{ x: 3 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        >
-                          <img
-                            alt=""
-                            className="absolute block dark:hidden inset-0 max-w-none size-full"
-                            src={imgArrowCircleRightLight}
-                          />
-                          <img
-                            alt=""
-                            className="absolute hidden dark:block inset-0 max-w-none size-full"
-                            src={imgArrowCircleRightDark}
-                          />
-                        </motion.div>
-                        <div className="[word-break:break-word] flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f5f5f5] text-[18px] leading-[24px] w-full">
+                        {/* Leading slot: number (default/completed) crossfades into ArrowCircleRight (active) */}
+                        <div className="relative shrink-0 size-[24px]">
+                          <span
+                            className={`absolute inset-0 flex items-center font-['Switzer',sans-serif] font-medium text-[18px] leading-[24px] tabular-nums whitespace-nowrap transition-opacity duration-500 ${
+                              isActive ? "opacity-0" : "opacity-100"
+                            } ${cardState === "completed" ? "text-[#333333] dark:text-[#f8f8f8]" : "text-[#bababa]"}`}
+                          >
+                            {step.id}
+                          </span>
+                          <span
+                            className={`absolute inset-0 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+                              isActive ? "opacity-100 scale-100" : "opacity-0 scale-75"
+                            }`}
+                            data-name="ArrowCircleRight"
+                          >
+                            <img
+                              alt=""
+                              className="absolute block dark:hidden inset-0 size-full object-contain"
+                              src={imgArrowCircleRightLight}
+                            />
+                            <img
+                              alt=""
+                              className="absolute hidden dark:block inset-0 size-full object-contain"
+                              src={imgArrowCircleRightDark}
+                            />
+                          </span>
+                        </div>
+
+                        {/* Text column (Frame 2147228254): width is identical in every state so heights stay stable */}
+                        <div className="flex min-w-0 flex-1 flex-col items-start">
+                          <h3
+                            ref={(el) => {
+                              stepTitleRefs.current[idx] = el;
+                            }}
+                            className={`w-full pr-[48px] font-['Switzer',sans-serif] font-medium text-[18px] leading-[24px] transition-colors duration-500 ${
+                              cardState === "default"
+                                ? "text-[#484848] dark:text-[#bababa]"
+                                : "text-[#1a1a1a] dark:text-[#f5f5f5]"
+                            }`}
+                          >
                             {step.title}
                           </h3>
                           <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-                            className="overflow-hidden w-full"
+                            initial={false}
+                            animate={{ height: isActive ? descTarget : 0, opacity: isActive ? 1 : 0 }}
+                            transition={{
+                              height: { duration: STEP_DURATION, ease: STEP_EASE },
+                              opacity: isActive
+                                ? { duration: 0.5, delay: 0.25, ease: STEP_EASE }
+                                : { duration: 0.25, ease: STEP_EASE },
+                            }}
+                            className="w-full overflow-hidden"
+                            aria-hidden={!isActive}
                           >
-                            <p className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full pt-1">
+                            <p
+                              ref={(el) => {
+                                stepDescRefs.current[idx] = el;
+                              }}
+                              className="w-full pt-[8px] font-['Inter_Tight',sans-serif] font-normal text-[16px] leading-[24px] tracking-[0.48px] text-[#767676] dark:text-[#a3a3a3]"
+                            >
                               {step.description}
                             </p>
                           </motion.div>
                         </div>
-                      </motion.div>
-                    );
-                  }
 
-                  // ── COMPLETED STATE (Frame 20 / Figma 178432:7038) ──
-                  if (cardState === "completed") {
-                    return (
-                      <motion.div
-                        layout
-                        key={step.id}
-                        onClick={() => setActiveStep(idx)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setActiveStep(idx);
-                          }
-                        }}
-                        data-step-state="completed"
-                        data-testid={`step-card-${step.id}`}
-                        className="bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#0e0e0e] transition-all outline-none focus:outline-none focus-visible:outline-none"
-                      >
-                        <div className="font-['Switzer',sans-serif] font-medium text-[#333333] dark:text-[#f8f8f8] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
-                          {step.id}
-                        </div>
-                        <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f5f5f5] text-[18px] leading-[24px] w-full">
-                            {step.title}
-                          </h3>
-                        </div>
-                        <motion.div
-                          initial={{ scale: 0.75, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 420, damping: 24 }}
-                          className="relative shrink-0 size-[24px]"
+                        {/* Trailing status icon (absolutely positioned so it never reflows the text column) */}
+                        <span
+                          className={`pointer-events-none absolute right-[24px] top-[24px] size-[24px] transition-opacity duration-500 ${
+                            cardState === "completed" ? "opacity-100" : "opacity-0"
+                          }`}
                           data-name="CheckCircle"
                         >
                           <img
-                            alt="Completed"
-                            className="absolute block inset-0 max-w-none size-full"
+                            alt={cardState === "completed" ? "Completed" : ""}
+                            className="absolute block inset-0 size-full object-contain"
                             src={imgCheckCircle}
                           />
-                        </motion.div>
+                        </span>
+                        <span
+                          className={`pointer-events-none absolute right-[24px] top-[24px] size-[24px] transition-opacity duration-500 ${
+                            cardState === "default" ? "opacity-70" : "opacity-0"
+                          }`}
+                          data-name="Spinner"
+                        >
+                          <img
+                            alt={cardState === "default" ? "Pending" : ""}
+                            className="absolute block inset-0 size-full object-contain animate-[spin_3s_linear_infinite]"
+                            src={imgSpinner}
+                          />
+                        </span>
                       </motion.div>
                     );
-                  }
-
-                  // ── DEFAULT STATE (Frame 13 / Figma 178432:7026) ──
-                  return (
-                    <motion.div
-                      layout
-                      key={step.id}
-                      onClick={() => setActiveStep(idx)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          setActiveStep(idx);
-                        }
-                      }}
-                      data-step-state="default"
-                      data-testid={`step-card-${step.id}`}
-                      className="bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#0e0e0e] transition-all outline-none focus:outline-none focus-visible:outline-none"
-                    >
-                      <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] dark:text-[#bababa] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
-                        {step.id}
-                      </div>
-                      <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                        <h3 className="font-['Switzer',sans-serif] font-medium text-[#484848] dark:text-[#bababa] text-[18px] leading-[24px] w-full">
-                          {step.title}
-                        </h3>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 3,
-                          ease: "linear",
-                        }}
-                        className="relative shrink-0 size-[24px] opacity-70 group-hover:opacity-100 transition-opacity"
-                        data-name="Spinner"
-                      >
-                        <img
-                          alt="Pending"
-                          className="absolute block inset-0 max-w-none size-full"
-                          src={imgSpinner}
-                        />
-                      </motion.div>
-                    </motion.div>
-                  );
-                })}
+                  })}
+                </motion.div>
               </div>
 
               {/* Right Column: Dynamic 525x484 Stage Rendering the Active Step's 300x300 Figma SVG Illustration (178359:17450) */}
@@ -1099,10 +1146,10 @@ export function ProductPage() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeStep}
-                      initial={{ opacity: 0, scale: 0.96, y: 6 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.96, y: -6 }}
-                      transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.4, ease: STEP_EASE }}
                     >
                       <StepIllustration stepIndex={activeStep} />
                     </motion.div>

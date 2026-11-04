@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
+**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 207 (2026-11-04) — Product Page Selected State Figma Parity (No Red Border) & 5-Card Constant-Height Sliding Window
+
+**Goal:** Implement exact Figma Frame 11 selected card state (no red border, `#0E0E0E` fill, `border-radius: 12px`, padding 24px, gap 24px), constant 5-card viewport height without layout jumps, and eliminate vector/text stretching during transitions.
+
+1. **Figma Frame 11 Parity for Selected Card (`ProductPage.tsx`):**
+   - Removed the red border on active state in dark mode, matching Figma Frame 11 specifications: `background: #0E0E0E; border-radius: 12px;` with zero outer outline/stroke (`shadow-[inset_0_0_0_1px_transparent]`).
+   - Inactive cards maintain subtle hairlines (`#e8e8e8` light / `#1a1a1a` dark).
+   - Card padding `24px` and gap `24px` preserved.
+   - Text colors strictly follow Figma tokens: title `text-[#1a1a1a] dark:text-[#f5f5f5]`, description `text-[#767676] dark:text-[#a3a3a3]`.
+
+2. **Constant-Height 5-Card Sliding Window (`ProductPage.tsx`):**
+   - Configured `STEP_VISIBLE_COUNT = 5` and dynamically measured inactive & active card heights via `useLayoutEffect` and `ResizeObserver`.
+   - The card container is locked to a computed maximum height (`560px`), eliminating vertical layout jitter or page height adjustments as the user or auto-cycler advances through steps.
+   - Out-of-window cards glide smoothly upward (`y: -stepColumnOffset`) and fade out of view (`opacity: inWindow ? 1 : 0`).
+
+3. **Eradication of Icon and Font Stretching:**
+   - Removed Framer Motion's scale-based `layout` prop on individual cards, which was causing SVG icons (`ArrowCircleRight`, `CheckCircle`, `Spinner`) and Switzer typography to distort during height animations.
+   - Transition curve smoothed to `cubic-bezier(0.65, 0, 0.35, 1)` with a gentle `0.8s` duration.
+   - Decoupled trailing status icons by positioning them absolutely (`right-[24px] top-[24px]`) with dedicated crossfade transitions.
+
+4. **Testing & Verification:**
+   - Visual verification using Chromium screenshot inspection confirmed constant `560px` container height across steps 0, 3, 5, and 7.
+   - `npx tsc --noEmit` passed with 0 errors.
+   - `npx eslint src/app/pages/ProductPage.tsx` passed with 0 errors.
+   - All 33 test files (174 unit tests) passed green.
 
 ---
 
