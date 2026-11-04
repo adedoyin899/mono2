@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
+**Last updated:** 2026-11-04 (Session 220: Official Social Links Update to @getmonologg in Footer & Resources)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 179: Official Social Links Update to @getmonologg in Footer & Resources (Session 220)
+
+- **Official Brand Social Links (`WebsiteFooter.tsx` & `ResourcesPage.tsx`):**
+  - Updated Instagram destination to `https://www.instagram.com/getmonologg` in the website footer and resources hub.
+  - Updated X (Twitter) destination to `https://x.com/getmonologg` in the website footer and resources hub.
+- **Testing & Verification:**
+  - Updated `WebsiteFooter.test.tsx` verifying exact `href` attributes (4/4 tests passed).
+  - Updated `ResourcesPage.test.tsx` verifying exact `href` attributes (5/5 tests passed).
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
 
 ### Step 178: Blinking Announcement Red Dot & 20s Alternating Marquee Badges (Session 219)
 

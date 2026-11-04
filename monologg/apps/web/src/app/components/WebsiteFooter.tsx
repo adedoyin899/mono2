@@ -587,7 +587,7 @@ export function WebsiteFooter({
                       hello@monologg.co
                     </a>
                     <a
-                      href="https://instagram.com/monologg"
+                      href="https://www.instagram.com/getmonologg"
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
@@ -596,7 +596,7 @@ export function WebsiteFooter({
                       Instagram
                     </a>
                     <a
-                      href="https://x.com/monologg"
+                      href="https://x.com/getmonologg"
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"

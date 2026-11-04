@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
+**Last updated:** 2026-11-04 (Session 220: Official Social Links Update to @getmonologg in Footer & Resources)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 166. Outdated Social Handle Placeholders in Website Footer & Resources Master Card
+- **Severity:** Low / Social Proof & Link Integrity
+- **What happened:**
+  - Social links in `WebsiteFooter.tsx` and `ResourcesPage.tsx` pointed to generic `/monologg` paths rather than the active official brand handles.
+- **Root Cause:**
+  - Initial Figma Make imports defaulted to generic placeholder URLs before official account reservation.
+- **Resolution:**
+  - Standardized X (Twitter) links to `https://x.com/getmonologg` and Instagram links to `https://www.instagram.com/getmonologg` in `WebsiteFooter.tsx` and `ResourcesPage.tsx`.
+  - Updated unit test suites in `WebsiteFooter.test.tsx` and `ResourcesPage.test.tsx` verifying exact `href` attributes; tests pass 100% green.
 
 ### 165. Static Announcement Bar Crowding & Lack of Live Indicator Animation
 - **Severity:** Low / UI Polish & Social Proof Dynamism

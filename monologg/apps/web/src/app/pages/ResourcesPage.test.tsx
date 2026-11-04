@@ -90,11 +90,11 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
 
     expect(screen.getByLabelText("LinkedIn")).toHaveAttribute("href", "https://linkedin.com/company/monologg");
     expect(screen.getByLabelText("Product Hunt")).toHaveAttribute("href", "https://www.producthunt.com/products/monologg");
-    expect(screen.getByLabelText("Twitter-X")).toHaveAttribute("href", "https://x.com/monologg");
+    expect(screen.getByLabelText("Twitter-X")).toHaveAttribute("href", "https://x.com/getmonologg");
     expect(screen.getByLabelText("Twitch")).toHaveAttribute("href", "https://twitch.tv/monologg");
     expect(screen.getByLabelText("Telegram")).toHaveAttribute("href", "https://t.me/monologg");
     expect(screen.getByLabelText("TikTok")).toHaveAttribute("href", "https://tiktok.com/@monologg");
-    expect(screen.getByLabelText("Instagram")).toHaveAttribute("href", "https://instagram.com/monologg");
+    expect(screen.getByLabelText("Instagram")).toHaveAttribute("href", "https://www.instagram.com/getmonologg");
   });
 
   it("renders the active Resources pill indicator in the header", () => {

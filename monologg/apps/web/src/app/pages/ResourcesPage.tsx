@@ -734,7 +734,7 @@ export function ResourcesPage() {
                   <img alt="Product Hunt" className="size-[18px] dark:invert" src={ASSETS.producthunt} />
                 </a>
                 <a
-                  href="https://x.com/monologg"
+                  href="https://x.com/getmonologg"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Twitter-X"
@@ -774,7 +774,7 @@ export function ResourcesPage() {
                   <img alt="TikTok" className="size-[18px] dark:invert" src={ASSETS.tiktok} />
                 </a>
                 <a
-                  href="https://instagram.com/monologg"
+                  href="https://www.instagram.com/getmonologg"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Instagram"

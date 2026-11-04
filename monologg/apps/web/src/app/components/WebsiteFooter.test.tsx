@@ -43,6 +43,14 @@ describe("WebsiteFooter", () => {
     expect(screen.getByRole("button", { name: /Subscribe to newsletter/i })).toBeInTheDocument();
     expect(screen.getByText("Terms of Service")).toBeInTheDocument();
     expect(screen.getByText("Cookie Policy")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Instagram" })).toHaveAttribute(
+      "href",
+      "https://www.instagram.com/getmonologg"
+    );
+    expect(screen.getByRole("link", { name: "X (Twitter)" })).toHaveAttribute(
+      "href",
+      "https://x.com/getmonologg"
+    );
     // Powered by paystack is hidden by default via showPoweredByPaystack toggle
     expect(screen.queryByText("Powered by")).not.toBeInTheDocument();
     expect(screen.queryByText("paystack")).not.toBeInTheDocument();

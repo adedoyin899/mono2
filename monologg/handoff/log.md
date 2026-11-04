@@ -1,11 +1,37 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
+**Last updated:** 2026-11-04 (Session 220: Official Social Links Update to @getmonologg in Footer & Resources)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 220 (2026-11-04) — Official Social Links Update to @getmonologg in Footer & Resources
+
+**Goal:** Update official brand social links for Monologg across the website footer and resources hub to the user-specified official handles: `https://x.com/getmonologg` (X / Twitter) and `https://www.instagram.com/getmonologg` (Instagram).
+
+1. **Website Footer (`WebsiteFooter.tsx`):**
+   - Updated Instagram link target from `https://instagram.com/monologg` to `https://www.instagram.com/getmonologg`.
+   - Updated X (Twitter) link target from `https://x.com/monologg` to `https://x.com/getmonologg`.
+
+2. **Resources Hub (`ResourcesPage.tsx`):**
+   - Updated Twitter-X platform circular badge in the Resources master card bottom bar to `https://x.com/getmonologg`.
+   - Updated Instagram platform circular badge in the Resources master card bottom bar to `https://www.instagram.com/getmonologg`.
+
+3. **Testing & Quality Assurance:**
+   - Updated `WebsiteFooter.test.tsx` verifying exact `href` attributes for Instagram and X (Twitter).
+   - Updated `ResourcesPage.test.tsx` verifying exact `href` attributes for Twitter-X and Instagram circular badges.
+   - Ran `WebsiteFooter.test.tsx` (4/4 passed) and `ResourcesPage.test.tsx` (5/5 passed).
+   - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/components/WebsiteFooter.test.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.test.tsx`
 
 ---
 
