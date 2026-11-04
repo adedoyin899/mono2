@@ -4,14 +4,14 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { WebsiteFooter } from "./WebsiteFooter";
 import { supabase } from "../../lib/supabase";
 
-const { upsertMock, insertMock, fromMock } = vi.hoisted(() => {
+const { upsertMock, fromMock } = vi.hoisted(() => {
   const upsertMock = vi.fn().mockResolvedValue({ error: null });
   const insertMock = vi.fn().mockResolvedValue({ error: null });
   const fromMock = vi.fn(() => ({
     upsert: upsertMock,
     insert: insertMock,
   }));
-  return { upsertMock, insertMock, fromMock };
+  return { upsertMock, fromMock };
 });
 
 vi.mock("../../lib/supabase", () => {

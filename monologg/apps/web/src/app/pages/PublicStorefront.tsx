@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link, useSearchParams } from "react-router";
 import { motion } from "motion/react";
-import { Avatar } from "../components/ui/Avatar";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Logo } from "../components/ui/Logo";
 import { apiClient } from "../../lib/api-client";
-import { appStateSync } from "../../lib/state-sync";
 import { useDocumentMeta } from "../../lib/documentMeta";
 import type { PublicStorefront as PublicStorefrontData } from "@monologg/types";
 import {
-  Shield, Award, Play, Music, ArrowRight, Lock, CheckCircle2, Users, Share2,
-  Instagram, Youtube, Twitter, Linkedin, Globe, MapPin
+  Shield, Award, Play, ArrowRight, Lock, CheckCircle2, Users, Share2,
+  Instagram, Youtube, Twitter
 } from "lucide-react";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 

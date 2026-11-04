@@ -9,15 +9,15 @@ import { useTheme } from "../Root";
 import { EASE_OUT, DURATION_MED } from "../../lib/motionTokens";
 import { apiClient, type PhysicalAttributes, type AttributeVisibility, type UpdateAttributesInput } from "../../lib/api-client";
 import { appStateSync, type BillingCard } from "../../lib/state-sync";
-import { NIGERIAN_BANKS, compareKycNames, type BankLookupStatus, type PayoutAccountChangeRequest } from "../../lib/payoutBanks";
+import { NIGERIAN_BANKS, type BankLookupStatus, type PayoutAccountChangeRequest } from "../../lib/payoutBanks";
 import { Modal } from "../components/ui/Modal";
 import type { ServiceRateCard } from "@monologg/types";
 import {
   ChevronLeft, User, CreditCard, Bell, Shield, LogOut, ChevronRight,
-  Sun, Moon, Camera, Check, Smartphone, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Briefcase, Building, Edit2, X,
-  MapPin, Share2, Play, DollarSign, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
-  Building2, Info, AlertTriangle, Clock, Sparkles, Drama, AudioLines, Laugh, Headphones, Video, Mic, Calendar as CalendarIcon, RotateCcw,
-  ShieldCheck, Lock, Scale
+  Sun, Moon, Camera, Check, Trash2, Plus, Receipt, LifeBuoy, FileText, Ruler, Building, Edit2, X,
+  MapPin, Share2, Play, CheckCircle2, ExternalLink, Instagram, Youtube, Twitter, Linkedin, Music,
+  Info, AlertTriangle, Clock, Sparkles, Drama, AudioLines, Laugh, Headphones, Video, Mic, Calendar as CalendarIcon, RotateCcw,
+  ShieldCheck, Lock
 } from "lucide-react";
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
@@ -537,16 +537,11 @@ export function Settings() {
     ? clientOrgName.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "FS"
     : name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "EJ";
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
       if (isClient) {
-        const apiOrgType =
+        const apiOrgType: "STUDIO" | "EVENT" | "BRAND" | "CHURCH" =
           clientOrgType === "Production Company" ? "STUDIO" :
           clientOrgType === "Brand" ? "BRAND" :
           clientOrgType === "Events Company" ? "EVENT" :
@@ -556,7 +551,7 @@ export function Settings() {
         const updated = await apiClient.updateClientProfile({
           name: clientName,
           orgName: clientOrgName,
-          orgType: apiOrgType as any,
+          orgType: apiOrgType,
           location: clientLocation,
         });
         setClientName(updated.name);
@@ -613,14 +608,6 @@ export function Settings() {
       setTimeout(() => setSaved(false), 2000);
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleSaveBank = () => {
-    appStateSync.updateBankDetails({ bankName, accountNumber, accountName });
-    setBankDetails({ bankName, accountNumber, accountName });
-    setEditingBank(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const handleUpdatePassword = () => {
@@ -771,6 +758,10 @@ export function Settings() {
     const [mm, yy] = newCardExpiry.split("/").map(Number);
     if (!mm || mm < 1 || mm > 12) {
       setAddCardError("Invalid expiry month.");
+      return;
+    }
+    if (!yy || yy < 24) {
+      setAddCardError("Card has expired or invalid year.");
       return;
     }
     if (newCardCvv.length < 3) {

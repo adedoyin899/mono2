@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 203: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish)
+**Last updated:** 2026-11-04 (Session 204: Resolution of All Linter and Workspace Problems Across Open Files)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,26 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 151. TypeScript/ESLint Workspace & Linter Diagnostics Across Open Files (`Settings.tsx`, `PublicStorefront.tsx`, `WebsiteFooter.tsx`, `WebsiteFooter.test.tsx`, `ProductPage.tsx`, `ResourcesPage.tsx`, `LandingPage.tsx`)
+- **Severity:** Medium / Code Hygiene & DX Warning Free
+- **What happened:**
+  - In VS Code's Problems panel, 16 linter errors and warnings were reported across active workspace files.
+  - In `Settings.tsx`: unused imports (`compareKycNames`, `Smartphone`, `Briefcase`, `DollarSign`, `Building2`, `Scale`), dead functions `handleSave` and `handleSaveBank`, an `as any` type assertion on `orgType`, and an unused expiry year `yy` variable.
+  - In `PublicStorefront.tsx`: unused imports (`Avatar`, `appStateSync`, `Music`, `Linkedin`, `Globe`, `MapPin`).
+  - In `WebsiteFooter.tsx`: unused asset constants (`imgVectorBadge2`, `imgYcSymbol`).
+  - In `WebsiteFooter.test.tsx`: unused hoisted mock `insertMock`.
+  - In `ProductPage.tsx`: unused asset constant (`imgFaqX`).
+  - In `ResourcesPage.tsx`: explicit `catch (err: any)` violation.
+  - In `LandingPage.tsx`: unused asset constant (`imgX`).
+- **Root Cause:**
+  - Incremental feature iterations and component extractions left behind unused icon imports, dead helper functions, and loose typings that triggered ESLint's `@typescript-eslint/no-unused-vars` and `@typescript-eslint/no-explicit-any`.
+- **Resolution:**
+  - Removed all unused imports and dead constants across all 7 target files.
+  - Replaced `as any` on `orgType` with strict literal union type `"STUDIO" | "EVENT" | "BRAND" | "CHURCH"`.
+  - Added expiry year validation checking `yy` (`if (!yy || yy < 24) ...`).
+  - Replaced `catch (err: any)` with `catch (err: unknown)`.
+  - Ran `npx eslint` verifying 0 warnings/errors, `npx tsc --noEmit` code 0, and all vitest suites passing.
 
 ### 150. Inverted Neon Cyan Checkmarks, Double-Inverted Black Marquee Icons, Black Logo Glyphs on Pricing/Resources, and Over-Prominent #333333 Strokes (`tokens.css`, `ProductPage.tsx`, `LandingPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`)
 - **Severity:** Medium / Design System & Theming Defect

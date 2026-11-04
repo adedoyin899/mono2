@@ -102,7 +102,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
   useEffect(() => {
     try {
       window.scrollTo?.(0, 0);
-    } catch {}
+    } catch { }
   }, [type]);
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
   const handleSignOut = async () => {
     try {
       await apiClient.logout();
-    } catch {}
+    } catch { }
     appStateSync.setLoggedInUser(null);
     setShowUserMenu(false);
     navigate("/");
@@ -132,11 +132,11 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
   const userInitials = loggedInUser?.name
     ? loggedInUser.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase()
     : "U";
 
   const talentProfile = loggedInUser ? appStateSync.getTalentProfile() : null;
@@ -275,9 +275,8 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   {userInitials}
                 </Avatar>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${
-                    showUserMenu ? "rotate-180" : ""
-                  }`}
+                  className={`w-3.5 h-3.5 text-[#767676] dark:text-[#a3a3a3] transition-transform ${showUserMenu ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 

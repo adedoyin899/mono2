@@ -4,11 +4,9 @@ import { supabase } from "../../lib/supabase";
 import { apiClient } from "../../lib/api-client";
 import { trackEvent } from "../../lib/analytics";
 
-const imgVectorBadge2 = "/assets/home/a2e77fa41ae5baaebeda68abddf076f7229048a1.png";
 const imgIconArrowRight = "/assets/home/516903b6b524bafd57d55118edffff86c955eb80.svg";
 const imgFooterLogoMask = "/assets/home/45e3a432e2cddd322c39a5781adf6f519ae0d4b9.svg";
 const imgFooterLogoGroup = "/assets/home/90c066260aa6f6efbbb91efe5aa2953c523138f5.svg";
-const imgYcSymbol = "/assets/home/5b9dc43eae4ac9860bc1571075a0fe9c389fb60f.svg";
 
 interface WebsiteFooterProps {
   /** Override for "Get started for free" CTA click */

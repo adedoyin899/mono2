@@ -159,7 +159,7 @@ export function ResourcesPage() {
       setTimeout(() => {
         setSubmitted(false);
       }, 6000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to submit investor application:", err);
       setSubmitError("Failed to submit application. Please check your network and try again.");
     } finally {

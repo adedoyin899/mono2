@@ -116,7 +116,6 @@ const imgF6Group3 = "/assets/home/dfd3c8df98687c6983ad56cb39fc623456f33b0c.svg";
 
 // FAQ Icons
 const imgPlus = "/assets/home/0f468a50f646f4cf0717649c47ca00c3757b7265.svg";
-const imgX = "/assets/home/08e4d8476042648a0acdec1b9f24a0586c7176ed.svg";
 
 interface FaqItem {
   q: string;

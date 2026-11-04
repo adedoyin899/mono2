@@ -109,7 +109,6 @@ const imgThespianWideDivider = "/assets/product/11132c5419787d075ad3c0035763e5d2
 
 // FAQ Icons (178359:17958)
 const imgFaqPlus = "/assets/product/0f468a50f646f4cf0717649c47ca00c3757b7265.svg";
-const imgFaqX = "/assets/product/08e4d8476042648a0acdec1b9f24a0586c7176ed.svg";
 
 /**
  * Renders the exact 300x300 Figma SVG illustration for each of the 7 steps (0..6),

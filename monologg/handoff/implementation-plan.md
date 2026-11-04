@@ -1,11 +1,31 @@
 # Monologg — Implementation Plan (Living Document)
 
-**Last updated:** 2026-11-04 (Session 203: In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish)
-**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup + Session 201 Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges + Session 202 Website Footer Copy Update to "Powered by paystack" + Session 203 In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish.
+**Last updated:** 2026-11-04 (Session 204: Resolution of All Linter and Workspace Problems Across Open Files)
+**Status:** All 18 phases of `features.md` (0–17) + Phase 12B Supabase Auth + Phase 12C Withdrawal OTP Gate + Sessions 39–174 + Session 180 Order Room FAANG UX Overhaul + Sessions 181–184 1-for-1 Figma Home, Product, Pricing & Resources Pages + Session 185 Investor Application Storage & Chevron Fix + Session 186 1-for-1 Figma Terms of Service Page + Session 187 Terms Card Hover Microinteraction Parity + Session 188 1-for-1 Figma Cookie Settings & Policy Implementation + Session 189 Home Timeline Copy, System-Wide Alpha Announcement Bar & Footer Legal Links + Session 190 Full FINCRA Deprecation & Paystack Replacement Across Webapp, Specs & Main Branch + Session 191 FAANG-Grade Web Motion & Micro-Interactions Across Landing, Product & Pricing Pages + Session 192 Product Page Headline 2-Line Formatting & Continuous Rolling Spinner Animation + Session 193 Thespian AI Performer & Client Table Rows Hover-Only Background Fill + Session 194 Newsletter Email Signup Supabase Storage & Website Deployment to Main Branch + Session 195 Fixed Sticky Navigation Headers & Unified Performer/Client Audience Toggle Tags Across All Public Pages + Session 196 Universal "Get Started for Free" Onboarding Routing & Sign In / Sign Up Deep-Link Toggles + Session 197 "Become an Investor" Section Deep-Linking, CTA Section Alignment & Global Button Link Audit + Session 198 Cohesive Website Dark Mode & Design Token Alignment from Frame 2147228281 + Session 199 Strict Dark Mode Strokes #333333 and Background Hover States #1A1A1A Across All Website Pages Including Legal + Session 200 1-to-1 Cohesive Dark/Light Mode Using Frame 2147228281 `leye/Grey alpha` Spectrum & Complete Marketing Suite Cleanup + Session 201 Subtle #1A1A1A Strokes Closer to Black, Slower Marquee with Icon Tone Parity, White Logo Marks & Red Step Badges + Session 202 Website Footer Copy Update to "Powered by paystack" + Session 203 In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish + Session 204 Resolution of All Linter and Workspace Problems Across Open Files.
 
 ---
 
 ## ✅ Done
+
+### Session 204 — Resolution of All Linter and Workspace Problems Across Open Files
+- [x] **Settings.tsx Cleanup**:
+  - Removed unused imports: `compareKycNames`, `Smartphone`, `Briefcase`, `DollarSign`, `Building2`, `Scale`.
+  - Removed dead functions: `handleSave` and `handleSaveBank`.
+  - Replaced `as any` casting on `orgType` with strict literal union type.
+  - Validated card expiry year `yy` (`if (!yy || yy < 24) ...`).
+- [x] **PublicStorefront.tsx Cleanup**:
+  - Removed unused imports: `Avatar`, `appStateSync`, `Music`, `Linkedin`, `Globe`, `MapPin`.
+- [x] **WebsiteFooter.tsx & WebsiteFooter.test.tsx Cleanup**:
+  - Removed unused asset constants `imgVectorBadge2` and `imgYcSymbol`.
+  - Removed unused hoisted mock `insertMock`.
+- [x] **ProductPage.tsx, ResourcesPage.tsx & LandingPage.tsx Cleanup**:
+  - Removed unused `imgFaqX` from `ProductPage.tsx`.
+  - Replaced `catch (err: any)` with `catch (err: unknown)` in `ResourcesPage.tsx`.
+  - Removed unused `imgX` from `LandingPage.tsx`.
+- [x] **Automated Testing & Quality Gate**:
+  - `npx eslint` on all 10 target files: 0 errors, 0 warnings.
+  - `npx tsc --noEmit`: 0 errors.
+  - Vitest test suites: 100% passing (21/21 tests).
 
 ### Session 203 — In-App Terms of Service, Role-Adaptive Escrow Policies in Settings, Cookie Policy Header Alignment & Mobile Typography Polish
 - [x] **In-App Terms of Service Subview in Settings**:
