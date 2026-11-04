@@ -24,3 +24,4 @@ A custom, native Figma Plugin that generates pixel-perfect web app screens and d
 
 ### Option 2: Run directly in the Figma Console
 If you don't want to import the manifest, you can open Figma's Console (**Plugins → Development → Open Console**) and execute the contents of `code.js`.
+

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 209: Monologg Figma Screen & Component Generator Plugin)
+**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 156. Legacy 6-Avatar Stock Placeholder Cluster Drift (`LandingPage.tsx`, `PricingPage.tsx`)
+- **Severity:** Low / Design Asset Parity
+- **What happened:**
+  - `LandingPage.tsx` hero section (`178359:16922`) and `PricingPage.tsx` "For Performers" pricing block (`178359:18039`) rendered a 6-avatar cluster using legacy stock placeholder assets with multiple layered background frames.
+  - Figma nodes `178448:155888` and `178448:155893` established a 5-avatar overlapping row featuring official African creative talent portraits.
+- **Root Cause:**
+  - Asset drift prior to Figma node `178448:155888` specification.
+- **Resolution:**
+  - Extracted the 5 official high-resolution performer portraits directly from Figma Desktop MCP server.
+  - Updated both `LandingPage.tsx` and `PricingPage.tsx` to the clean 5-avatar overlapping structure.
+  - Validated with Vitest tests and typechecks.
 
 ### 155. Stray #333333 Hairline Dividers in Dark Mode (`WebsiteFooter.tsx`, `LegalPage.tsx`)
 - **Severity:** Low / Design Token Consistency

@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 209: Monologg Figma Screen & Component Generator Plugin)
+**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 210 (2026-11-04) — Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893
+
+**Goal:** Extract the 5 new official African performer avatar images directly from Figma nodes `178448:155888` (Landing Page Hero) and `178448:155893` (Pricing Page), and replace the legacy 6-avatar stock placeholder clusters across both pages with exact 1-to-1 Figma layout and styling.
+
+1. **Asset Extraction & Storage:**
+   - Queried Figma nodes `178448:155888` and `178448:155893` via local Figma Desktop Dev Mode MCP server (`http://127.0.0.1:3845/mcp`).
+   - Downloaded the 5 official high-resolution performer portraits to `monologg/apps/web/public/assets/home/` and `monologg/apps/web/public/assets/pricing/`:
+     1. Avatar 1: Bolu Olatunji (`6012d1b610f186b4da032a28a55bf16e19555e2e.png`)
+     2. Avatar 2: Deborah Ojengbede (`7e479fe931474f554d58db81abed255122f1de16.png`)
+     3. Avatar 3: Gloria Sido (`27c7ee29f5252ea64f624a3fdfd8fa27d463ea10.png`)
+     4. Avatar 4: Theo Olayanju (`ce41249745f3e585f8d80fb1ce07d7acc7524c76.png`)
+     5. Avatar 5: Olayinka Olaseni (`89a561d69a1da9e8f1cff844db5a81f524163118.png`)
+   - Verified 100% non-zero byte size on all image files.
+
+2. **Landing Page Parity (`LandingPage.tsx`):**
+   - Replaced legacy 6-avatar triple-layered DOM cluster (`178359:16922`) with the exact 5-avatar overlapping structure from Figma `178448:155888` (`size-[46.457px]`, `mr-[-15px]`, `border-[0.363px]`, `dark:border-[#1a1a1a]`).
+   - Removed unused legacy avatar constants (`imgAvatarBase1`, `imgAvatarBase2`, `imgAvatar6`).
+
+3. **Pricing Page Parity (`PricingPage.tsx`):**
+   - Replaced legacy 6-avatar cluster in the "For Performers" pricing block (`178359:18039`) with the exact 5-avatar overlapping structure from Figma `178448:155893`.
+   - Updated `ASSETS.avatar1` through `ASSETS.avatar5` to point to the new high-resolution portrait assets.
+
+4. **Testing & Verification:**
+   - Ran `npx tsc --noEmit` — 0 errors.
+   - Ran `npx vitest run src/app/pages/PricingPage.test.tsx` — 5/5 tests passed.
+   - Ran full test suite across all 33 test files — 174/174 unit tests passed green.
 
 ---
 

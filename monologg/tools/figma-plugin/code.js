@@ -570,3 +570,4 @@ figma.ui.onmessage = async (msg) => {
     figma.ui.postMessage({ type: "error", message: err.message || String(err) });
   }
 };
+

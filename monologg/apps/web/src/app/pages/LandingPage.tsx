@@ -26,15 +26,12 @@ const imgThemeToggleSvg = "/assets/pricing/theme-toggle.svg";
 const imgGradientBackgroundLeft = "/assets/home/b105d35c024c2b41b3b0c5e289a05dcb11493534.svg";
 const imgGradientBackgroundRight = "/assets/home/ea32752acce7906892dc027aab96102655766d21.svg";
 
-// Hero Avatars & CTA Icon
-const imgAvatarBase1 = "/assets/home/d55138b1d3cc902e079cc8fc670a287c7d96767d.png";
-const imgAvatarBase2 = "/assets/home/529b154b4e8af4067c54608167e0d4ef6207b9a5.png";
-const imgAvatar1 = "/assets/home/201bf3b467b57fe99027c1da24b3ddfc8211036e.png";
-const imgAvatar2 = "/assets/home/d6f5a11ab0a168dc337b0705eddfb03c7b8116d5.png";
-const imgAvatar3 = "/assets/home/a3f75f401f4ef15c0a342161714fd0978c4c8487.png";
-const imgAvatar4 = "/assets/home/7f89d0ee3fb8800a56c63ffe53f45ada864d1168.png";
-const imgAvatar5 = "/assets/home/32b032dc83933d37876b51ee781d02ca01979632.png";
-const imgAvatar6 = "/assets/home/9156edf2d4993bf84a0d226577febbdbdfc9d9b2.png";
+// Hero Avatars (5 Overlapping African Creators - Figma 178448:155888)
+const imgAvatar1 = "/assets/home/6012d1b610f186b4da032a28a55bf16e19555e2e.png";
+const imgAvatar2 = "/assets/home/7e479fe931474f554d58db81abed255122f1de16.png";
+const imgAvatar3 = "/assets/home/27c7ee29f5252ea64f624a3fdfd8fa27d463ea10.png";
+const imgAvatar4 = "/assets/home/ce41249745f3e585f8d80fb1ce07d7acc7524c76.png";
+const imgAvatar5 = "/assets/home/89a561d69a1da9e8f1cff844db5a81f524163118.png";
 const imgIconArrowRight = "/assets/home/516903b6b524bafd57d55118edffff86c955eb80.svg";
 
 // Hero iPhone 15 Mockup
@@ -637,70 +634,43 @@ export function LandingPage() {
               className="flex flex-col gap-[12px] items-center relative shrink-0"
               data-node-id="178359:16921"
             >
-              {/* 6 Overlapping Performer Avatars (178359:16922) */}
-              <div className="flex items-start relative shrink-0" data-node-id="178359:16922">
+              {/* 5 Overlapping Performer Avatars (Figma 178448:155888) */}
+              <div className="flex items-start relative shrink-0" data-node-id="178448:155888">
                 <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                  data-node-id="178359:16923"
+                  className="border-[#e5e5e5] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                  data-node-id="178448:155882"
                 >
-                  <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase1} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase2} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar1} />
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-full">
+                    <img alt="Bolu Olatunji" className="absolute h-[124.99%] left-0 max-w-none top-[0.88%] w-full object-cover" src={imgAvatar1} />
                   </div>
                 </div>
                 <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                  data-node-id="178359:16924"
+                  className="border-[#e5e5e5] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                  data-node-id="178448:155883"
+                >
+                  <img alt="Deborah Ojengbede" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-full size-full" src={imgAvatar2} />
+                </div>
+                <div
+                  className="border-[#e5e5e5] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                  data-node-id="178448:155884"
+                >
+                  <img alt="Gloria Sido" className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-full size-full" src={imgAvatar3} />
+                </div>
+                <div
+                  className="border-[#e5e5e5] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                  data-node-id="178448:155885"
                 >
                   <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase1} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase2} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar2} />
+                    <div className="absolute bg-[#f8f8f6] dark:bg-[#1a1a1a] inset-0 rounded-full" />
+                    <img alt="Theo Olayanju" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar4} />
                   </div>
                 </div>
                 <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                  data-node-id="178359:16925"
+                  className="border-[#e5e5e5] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
+                  data-node-id="178448:155886"
                 >
-                  <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase1} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase2} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar3} />
-                  </div>
-                </div>
-                <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                  data-node-id="178359:16926"
-                >
-                  <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase1} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase2} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar4} />
-                  </div>
-                </div>
-                <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex flex-col items-center justify-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[47.909px]"
-                  data-node-id="178359:16927"
-                >
-                  <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar5} />
-                  </div>
-                </div>
-                <div
-                  className="border-[#e5e5e5] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                  data-node-id="178359:16930"
-                >
-                  <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                    <div className="absolute bg-[#f8f8f6] inset-0 rounded-full" />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase1} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatarBase2} />
-                    <img alt="" className="absolute max-w-none object-cover rounded-full size-full" src={imgAvatar6} />
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-full">
+                    <img alt="Olayinka Olaseni" className="absolute h-[150.06%] left-0 max-w-none top-[1.03%] w-full object-cover" src={imgAvatar5} />
                   </div>
                 </div>
               </div>

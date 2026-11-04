@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 209: Monologg Figma Screen & Component Generator Plugin)
+**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,17 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 169: 1-to-1 Figma 5-Avatar Creative Talent Asset Parity (Session 210)
+
+- **Official Talent Portrait Extraction:** Extracted 5 high-resolution performer portraits from Figma nodes `178448:155888` (Landing Page Hero) and `178448:155893` (Pricing Page For Performers) via local Figma Desktop Dev Mode MCP server:
+  - Bolu Olatunji (`6012d1b610f186b4da032a28a55bf16e19555e2e.png`)
+  - Deborah Ojengbede (`7e479fe931474f554d58db81abed255122f1de16.png`)
+  - Gloria Sido (`27c7ee29f5252ea64f624a3fdfd8fa27d463ea10.png`)
+  - Theo Olayanju (`ce41249745f3e585f8d80fb1ce07d7acc7524c76.png`)
+  - Olayinka Olaseni (`89a561d69a1da9e8f1cff844db5a81f524163118.png`)
+- **LandingPage & PricingPage Parity:** Replaced legacy 6-avatar triple-layered clusters with clean 5-avatar overlapping rows (`mr-[-15px]`, `size-[46.457px]`, `border-[0.363px]`, `dark:border-[#1a1a1a]`).
+- **Verification:** Validated that `npx tsc --noEmit` exits code 0 and all 33 test files (174 tests) pass green.
 
 ### Step 168: Native Figma Screen & Component Generator Plugin (Session 209)
 
