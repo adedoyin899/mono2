@@ -1,11 +1,57 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 205: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx)
+**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 206 (2026-11-04) — 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages (Figma 178432:6988 & 178423:1897)
+
+**Goal:** Extract dark mode UI assets from Figma nodes `178432:6988` (Product page performer portal) and `178423:1897` (Landing page timeline section), reorder and renumber the 7 items on `ProductPage.tsx` to match the exact Figma sequence, and achieve a 1-to-1 dark mode implementation across both sections with exact strokes, colors, and SVG layers.
+
+1. **Asset Extraction & Storage:**
+   - Extracted design context and metadata via local Figma Desktop Dev Mode MCP server (`http://127.0.0.1:3845/mcp`).
+   - Downloaded 38 dark mode SVGs for `ProductPage.tsx` into `monologg/apps/web/public/assets/product/`.
+   - Downloaded 31 dark mode SVGs for `LandingPage.tsx` into `monologg/apps/web/public/assets/home/`.
+   - Verified 100% asset integrity (zero-byte checks passed).
+
+2. **`ProductPage.tsx` 7-Step Reorder & Dark Mode 1-to-1 Implementation (`178432:6988`):**
+   - Updated `steps` array with the exact 7 items in the requested Figma order:
+     - `01` — `Sleek Bio Storefront`
+     - `02` — `Custom Rate Cards & Micro-Deliverables`
+     - `03` — `Real-Time Performer Analytics & Visitor Intelligence`
+     - `04` — `Escrow Security`
+     - `05` — `Direct Proposal Bidding`
+     - `06` — `Integrated Scheduling`
+     - `07` — `Interactive AI Agent`
+   - Rebuilt `StepIllustration` with the 7 extracted Figma dark mode multi-layer illustration frames (phone masks, rate pill frames, real-time analytics graphs, escrow security badges, proposal bidding search filters, calendar schedules, and AI chat bubbles).
+   - Card states aligned to Figma:
+     - **Active:** `bg-[#f9f9f9] dark:bg-[#0e0e0e] border border-[#e8e8e8] dark:border-[#333333]`, white arrow circle right in dark mode (`54339bafbbcc9e6b77731ada85ecba530b967ea9.svg`), title `#f5f5f5`, description `#a3a3a3`.
+     - **Completed:** `bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a]`, number `#f8f8f8`, red checkmark circle (`5d95f1f313a1d448e7041b57c9347d098fcc237c.svg`).
+     - **Default:** `bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a]`, number `#bababa`, title `#bababa`, spinning loader (`d992e1c0bcf7201e7672eff69bed533992e67ce3.svg`).
+     - **Right stage:** `bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] rounded-[20px] w-full lg:w-[525px] h-[484px]`.
+
+3. **`LandingPage.tsx` 6-Feature Dark Mode 1-to-1 Implementation (`178423:1897`):**
+   - Created `DualImg` helper component for pure CSS dark/light mode image switching without client flash.
+   - Updated all 6 timeline feature illustrations with both light and Figma dark mode SVGs:
+     - Feature 1: `Share Your Stage Anywhere` (dark phone body, frame, and badge)
+     - Feature 2: `Monetize Fan Shoutouts & Micro-Deliverables` (dark rate pill, cash vector rows, soundwave vectors)
+     - Feature 3: `Analyze your audience` (dark visitor analytics charts and bar graph)
+     - Feature 4: `Set Transparent Custom Rate Cards` (dark rate card layout and check lines)
+     - Feature 5: `Powered by Thespian AI` (dark AI dialogue bubbles and speech tails)
+     - Feature 6: `Bank-Grade Escrow Protection` (dark bank lock badge and vault shield)
+   - Updated timeline vertical track: `bg-[#e8e8e8] dark:bg-[#1a1a1a]` with gradient thumb `dark:from-[#484848] dark:to-[#aeaeae]`.
+   - Updated text styling: title `dark:text-[#f9f9f9]`, description `dark:text-[#f5f5f5]`.
+
+4. **Testing & Verification:**
+   - `npx tsc --noEmit` passed with 0 errors.
+   - `npx eslint src/app/pages/ProductPage.tsx src/app/pages/LandingPage.tsx src/lib/analytics.ts` passed with 0 errors and 0 warnings.
+   - All unit tests across the entire test suite (33 test files, 174 tests) passed green.
+   - Guarded unmocked Supabase and API network ingestion during automated unit tests in `src/lib/analytics.ts` (`import.meta.env.MODE !== "test"`).
 
 ---
 

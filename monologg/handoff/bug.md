@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 205: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx)
+**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 153. Unused Variable in LandingPage.tsx, ProductPage Title Colon Mismatch & Test Analytics Network Isolation (`LandingPage.tsx`, `ProductPage.test.tsx`, `analytics.ts`)
+- **Severity:** Medium / Test & Linter Integrity
+- **What happened:**
+  - In `LandingPage.tsx`, `imgF6Group2Light` was assigned but `imgF5Group2Light` was passed to Feature 6, triggering an ESLint `@typescript-eslint/no-unused-vars` error.
+  - In `ProductPage.test.tsx`, step 5 expectation asserted on `"Direct Proposal Bidding:"` (with trailing colon), which failed after updating the label to exact Figma node `178432:6988` text (`"Direct Proposal Bidding"`).
+  - In `analytics.ts`, `dispatchToSupabaseAndSinks` fired unmocked live network requests to Supabase `AnalyticsEvent` during unit tests, intercepting global `fetch` spies and failing `api-client.test.ts` and `ProjectBrief.test.tsx`.
+- **Root Cause:**
+  - Copy-paste typo in Feature 6 JSX illustration block.
+  - Test assertion had not been updated for the colon-free title from the Figma spec.
+  - `SUPABASE_MODE === "real"` evaluates to true when `.env.local` is present in local environments, causing tests with global `fetch` spies to count analytics ingestion requests.
+- **Resolution:**
+  - Fixed Feature 6 light SVG reference to `imgF6Group2Light`.
+  - Updated `ProductPage.test.tsx` expectation to `"Direct Proposal Bidding"`.
+  - Added `import.meta.env.MODE !== "test"` guard to Supabase and API network dispatch in `analytics.ts` while preserving PostHog mock bridge.
+  - Verified 100% test pass (33/33 files, 174 tests) and 0 ESLint errors.
 
 ### 152. TypeScript Compilation Errors & Unmatched Syntax in Settings.tsx (`Settings.tsx`)
 - **Severity:** High / TypeScript Compiler Failure

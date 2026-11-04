@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 205: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx)
+**Last updated:** 2026-11-04 (Session 206: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 165: 1-to-1 Dark Mode Implementation & 7-Step Sequence Reorder for Product & Landing Pages (Session 206)
+
+Implemented strict 1-to-1 Figma dark mode designs and sequence parity for Figma nodes `178432:6988` (Product Page) and `178423:1897` (Landing Page Timeline):
+- **Asset Extraction & Storage:** Extracted and saved 38 dark-mode vector assets to `monologg/apps/web/public/assets/product/` and 31 dark-mode vector assets to `monologg/apps/web/public/assets/home/` using local Figma Desktop MCP server (`http://127.0.0.1:3845/mcp`).
+- **Product Page 7-Step Sequence Reorder (`ProductPage.tsx`):**
+  - Updated step items strictly in Figma order: `01` Sleek Bio Storefront, `02` Custom Rate Cards & Micro-Deliverables, `03` Real-Time Performer Analytics & Visitor Intelligence, `04` Escrow Security, `05` Direct Proposal Bidding, `06` Integrated Scheduling, `07` Interactive AI Agent.
+  - Rebuilt `StepIllustration` with multi-layer SVG representations for all 7 steps.
+  - Aligned card tokens: active card `bg-[#f9f9f9] dark:bg-[#0e0e0e] border-[#e8e8e8] dark:border-[#333333]`, white arrow circle right in dark mode; completed card with red checkmark; default card with `#bababa` spinner; right stage `bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] rounded-[20px]`.
+- **Landing Page 6-Feature Dark Mode Parity (`LandingPage.tsx`):**
+  - Built zero-flash `DualImg` component for pure CSS dark/light SVG toggling (`block dark:hidden` / `hidden dark:block`).
+  - Mapped all 6 timeline features with their corresponding dark-mode vector assets.
+  - Updated timeline line to `dark:bg-[#1a1a1a]` with gradient thumb `dark:from-[#484848] dark:to-[#aeaeae]`, title `dark:text-[#f9f9f9]`, description `dark:text-[#f5f5f5]`.
+- **Analytics Network Guard:** Prevented unmocked Supabase and API ingestion calls during automated unit testing in `src/lib/analytics.ts` (`import.meta.env.MODE !== "test"`).
+- **Verification:** Validated that `npx tsc --noEmit` exits code 0, `npx eslint` reports 0 errors and 0 warnings, and all 33 test files (174 tests) in the Vitest suite pass 100% green.
 
 ### Step 164: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx (Session 205)
 

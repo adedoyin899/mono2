@@ -29,60 +29,63 @@ const imgGradientBackgroundRight = "/assets/product/b24bf99929f977e20cb983048a0e
 const imgIconArrowRightWhite = "/assets/product/516903b6b524bafd57d55118edffff86c955eb80.svg";
 const imgIconArrowRightRed = "/assets/product/10a8bb1ae813ccff638e74e1fb37b6b799179e49.svg";
 
-// 7-Step Stepper Card State Icons (Active / Default / Completed)
-const imgArrowCircleRight = "/assets/product/81db1c32dcabe58f2679bbc4723008ac3152faff.svg";
+// 7-Step Stepper Card State Icons (Active / Default / Completed) — Figma 178432:6988
+const imgArrowCircleRightLight = "/assets/product/81db1c32dcabe58f2679bbc4723008ac3152faff.svg";
+const imgArrowCircleRightDark = "/assets/product/54339bafbbcc9e6b77731ada85ecba530b967ea9.svg";
 const imgSpinner = "/assets/product/d992e1c0bcf7201e7672eff69bed533992e67ce3.svg";
 const imgCheckCircle = "/assets/product/5d95f1f313a1d448e7041b57c9347d098fcc237c.svg";
 
-// Shared 300x300 Phone Mask
+// Shared 300x300 Phone Mask — Figma 178432:6988
 const imgPhoneMask = "/assets/product/2edd4450f001dd0abfe2d83e8c81067819f49f0c.svg";
 
-// Step 01: Interactive AI Agent (178359:17452 / 178359:17732)
-const imgStep01PhoneBody = "/assets/product/3a85c108ecf2721153ba2f5118796f89a6d72382.svg";
-const imgStep01BubbleFrame = "/assets/product/a60f8b95cfd30c76f134221bc2779d4f2d1f8b99.svg";
-const imgStep01Circle = "/assets/product/efa04d61cc372d212fb4c5eed6855a9bea697808.svg";
-const imgStep01ChatIcon = "/assets/product/a4db2e9564fac0339cf8fe3f5cd9edc2684a8304.svg";
-const imgStep01LineTop = "/assets/product/1a9311e1abc41ebc2249545a054bb967d2ac6bf7.svg";
-const imgStep01LineBottom = "/assets/product/5488e8f4c49a968639556eea4eded19210791f1a.svg";
-const imgStep01CheckIcon = "/assets/product/e0d473433fbcb9fc12639572915a756cfba6d28a.svg";
+// Step 01: Sleek Bio Storefront (178432:7117)
+const imgStep01Body = "/assets/product/b4fb21fc8ab4a6eca7be44a6f75285e33e8d6b47.svg";
+const imgStep01Card = "/assets/product/838aa0ba917ae77edf170276c04c15503e49d248.svg";
+const imgStep01IconBg = "/assets/product/efc23dabde6fe48f68306e35381d4a7506842dad.svg";
+const imgStep01Avatar = "/assets/product/c2a5cc1c4f679c86495c950daa5b7eddb1ae478f.svg";
+const imgStep01Line1 = "/assets/product/3700ee89c75583b67056a2d6726378715f9e9c0e.svg";
+const imgStep01Line2 = "/assets/product/dde9ad34a197613af6c6072694b5e6d86ac87929.svg";
 
-// Step 02: Custom Rate Cards & Micro-Deliverables (178359:17521)
-const imgStep02PhoneBody = "/assets/product/d662e29af64b905d5d500a1c06b5fe019294e308.svg";
-const imgStep02PillFrame = "/assets/product/7bbbb0d18b1f2164efadb0be13ebd4066611fa41.svg";
-const imgStep02RateIcon = "/assets/product/83c5181ce4dd2c124171398fa0bd74f47a47102d.svg";
-const imgStep02PillLine = "/assets/product/46d1d3714f7474baa93edb08f354d6bb5aeb592f.svg";
+// Step 02: Custom Rate Cards & Micro-Deliverables (178432:7153)
+const imgStep02Body = "/assets/product/634380a3f6c42c1b4ccac7601ddf2d70d0e8899e.svg";
+const imgStep02Card = "/assets/product/4aa2dcae2d58c7c0efe0a42ec47d7a2039f75dc2.svg";
+const imgStep02Icon = "/assets/product/0c178069942f355e55bcf7ad343cac135654b74b.svg";
+const imgStep02Line = "/assets/product/34b9ebe1dcec322b4a14a8d09143393d31f2974b.svg";
 
-// Step 03: Real-Time Performer Analytics & Visitor Intelligence (178359:17585)
-const imgStep03PhoneBody = "/assets/product/14bcf404ca3688e6ed543428217b2c5de31a495d.svg";
-const imgStep03HubFrame = "/assets/product/a9053c3b6a7c8645c784864ba4bdbcbd7e41146d.svg";
-const imgStep03HubIcon = "/assets/product/1bfcc7e0109be2a6c8bb87fb481bc04746608178.svg";
+// Step 03: Real-Time Performer Analytics & Visitor Intelligence (178432:7217)
+const imgStep03Body = "/assets/product/fe97cdfe31ad66abbd267e4eff98ed71877533e0.svg";
+const imgStep03Chart = "/assets/product/9cdc20923e48d0f963c9d12aa695183d3ccc6ab2.svg";
+const imgStep03Graph = "/assets/product/bc3123d5b4e0ecd2d71f54e2ad2cf7e313c9c933.svg";
 
-// Step 04: Escrow Security (178359:17620)
-const imgStep04PhoneBody = "/assets/product/874bbe30d4f9b498a38de7b5b1bb5ca56ea3e852.svg";
-const imgStep04BadgeFrame = "/assets/product/4eb9198ee00f29496235f51eb6c08430abdf4bc6.svg";
-const imgStep04ShieldIcon = "/assets/product/5c37f98ec79739d7128a8702b4ed7c1f80c12f45.svg";
+// Step 04: Escrow Security (178432:7252)
+const imgStep04Body = "/assets/product/56fd3336dc2e13668ae9d6cacd2fa8be8b2409db.svg";
+const imgStep04Badge = "/assets/product/e1be6be301cf6bffdc5ae71ef8e65865127d6720.svg";
+const imgStep04Shield = "/assets/product/cc0e414779577b335f5ea9ec21a10e4d4c29fbf2.svg";
 
-// Step 05: Direct Proposal Bidding: (178359:17653)
-const imgStep05PhoneBody = "/assets/product/c1e035c3634a11199b1029a5ff44eab493b16e78.svg";
-const imgStep05FilterBar = "/assets/product/552aa295674ee823edf5c156483fe1acaaba40ad.svg";
-const imgStep05SearchIcon = "/assets/product/05b6e061dd5c1c012a510c20211a97082da141fd.svg";
-const imgStep05PillBorder = "/assets/product/2264de4b028464876784085ebf22068f8f81c49e.svg";
-const imgStep05Pill1Line = "/assets/product/544554d56364b84261fc108ad6b7d0e1f1107302.svg";
-const imgStep05Pill2Fill = "/assets/product/5abffb6f60e8f8f15df9d96a397bc72e7190844f.svg";
-const imgStep05Pill2Line = "/assets/product/e15e17a59f0a349e70b5ded2a66e1e7ce79b8495.svg";
-const imgStep05Pill3Line = "/assets/product/6bf06fd73c837312fce3d7772f6bb9da80758aa5.svg";
+// Step 05: Direct Proposal Bidding (178432:7285)
+const imgStep05Body = "/assets/product/65676811a2b05e17f7b1c0578cedd14fd76b60c2.svg";
+const imgStep05Card = "/assets/product/3131b6a46248fbee83e46ea522a9bc37fe408659.svg";
+const imgStep05Icon = "/assets/product/5d031a018c567c46e1f8d01a81a588caff9f7ce8.svg";
+const imgStep05Pill1 = "/assets/product/dddf86949c278bd87da9fdeb363a8c83ddcb3ef3.svg";
+const imgStep05Pill1Active = "/assets/product/66fef2995ce5b7ad111b4e002af09b6741cdf4c1.svg";
+const imgStep05Pill2 = "/assets/product/89eea18ef7e7b35a4c1c35507c160c40709f4cfc.svg";
+const imgStep05Pill2Active = "/assets/product/c8eb6b0cc8591363e7a94b6f1b5f8179874af23a.svg";
+const imgStep05Pill3 = "/assets/product/ced3604fa8d14c91c03d190184f1cad889913c97.svg";
 
-// Step 06: Sleek Bio Storefront (178359:17485)
-const imgStep06PhoneBody = "/assets/product/5c606eea80385fe45b8481474f3a9b6ec0257a19.svg";
-const imgStep06CardFrame = "/assets/product/b9864c3dc11d0ba0cad4ace419563215a419fc45.svg";
-const imgStep06Circle = "/assets/product/e52ccd7489c94b5dd178f3412987dd40e0831526.svg";
-const imgStep06AvatarIcon = "/assets/product/c6a7e07166a406c0aaf2eda728f2e76d2891c21e.svg";
-const imgStep06LineTop = "/assets/product/a4b28ddcb786fceb51cb243a3154166b126ae1f9.svg";
-const imgStep06LineBottom = "/assets/product/0c81cf78681d1bb7e2aab16b506878d4d7a434f0.svg";
+// Step 06: Integrated Scheduling (178432:7332)
+const imgStep06Body = "/assets/product/c61e3481a74cff0baec11ea76b5e7cd608d24c7b.svg";
+const imgStep06Card = "/assets/product/4aa2dcae2d58c7c0efe0a42ec47d7a2039f75dc2.svg";
+const imgStep06Icon = "/assets/product/9ff33cfe4c5c2dd4c4293111052c987f6aa6b059.svg";
+const imgStep06Line = "/assets/product/34b9ebe1dcec322b4a14a8d09143393d31f2974b.svg";
 
-// Step 07: Integrated Scheduling (178359:17700)
-const imgStep07PhoneBody = "/assets/product/c3e53e3181c45ec3fd10f37c8145d5903f3a0e25.svg";
-const imgStep07CalendarIcon = "/assets/product/adc4df54f07ad4b503764edfa4640e14d936b3e8.svg";
+// Step 07: Interactive AI Agent (178432:7364)
+const imgStep07Body = "/assets/product/41162da981cae90e8a0cad10c2dcbe71eb13e0b6.svg";
+const imgStep07Bubble = "/assets/product/c163d4d4229c991ae1b70ad79983af240da55bd7.svg";
+const imgStep07Circle = "/assets/product/a7d25ec37852b0dd451435eb2928a40f11fd7596.svg";
+const imgStep07Icon = "/assets/product/66e6f200d56b4d1d458d012d98cc59fba48c7fd0.svg";
+const imgStep07Line1 = "/assets/product/59ab7398d2c2daf9aaa836e20ad79ca5b8e9c5b5.svg";
+const imgStep07Line2 = "/assets/product/2e11450fb902a5f7ec22186c4a202a0a0acbc94a.svg";
+const imgStep07Check = "/assets/product/46008b74d529e797bb074ce9d88b9ec963d875a7.svg";
 
 // Client Portal Icons & Dividers (178359:17765)
 const imgSealCheck = "/assets/product/06e5d2fa6ae96a377a3e7d3af99609cbceb4ec2d.svg";
@@ -112,16 +115,16 @@ const imgFaqPlus = "/assets/product/0f468a50f646f4cf0717649c47ca00c3757b7265.svg
 
 /**
  * Renders the exact 300x300 Figma SVG illustration for each of the 7 steps (0..6),
- * extracted directly from 178359:17452 and 178359:17481 (Frame 2147228146).
+ * extracted directly from Figma 178432:6988 (Dark Mode 1:1 implementation).
  */
 function StepIllustration({ stepIndex }: { stepIndex: number }) {
   switch (stepIndex) {
-    // 01 — Interactive AI Agent (178359:17452 / 178359:17732)
+    // 01 — Sleek Bio Storefront (178432:7117)
     case 0:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17452"
+          data-node-id="178432:7117"
           data-testid="step-illustration-01"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -133,39 +136,36 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep01PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep01Body} />
               </div>
             </div>
           </div>
-          <div className="absolute inset-[26.25%_22.5%_55%_12.5%]">
-            <div className="absolute inset-[-0.83%_-0.24%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep01BubbleFrame} />
+          <div className="absolute bottom-1/2 left-[36.25%] right-[36.25%] top-[18.75%]">
+            <div className="absolute inset-[-0.5%_-0.57%]">
+              <img alt="" className="block max-w-none size-full" src={imgStep01Card} />
             </div>
           </div>
-          <div className="absolute inset-[30.63%_74.38%_59.38%_15.63%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01Circle} />
+          <div className="absolute inset-[23.13%_44.38%_65.63%_44.38%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01IconBg} />
           </div>
-          <div className="absolute inset-[32.83%_76.58%_61.58%_17.83%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01ChatIcon} />
+          <div className="absolute inset-[25.94%_46.95%_68.44%_46.95%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01Avatar} />
           </div>
-          <div className="absolute inset-[31.25%_49.38%_66.12%_29.38%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01LineTop} />
+          <div className="absolute inset-[37.5%_41.87%_60%_41.88%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01Line1} />
           </div>
-          <div className="absolute inset-[36.56%_43.13%_60.44%_29.38%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01LineBottom} />
-          </div>
-          <div className="absolute inset-[34.22%_27.4%_62.62%_68.2%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01CheckIcon} />
+          <div className="absolute inset-[42.5%_40%_55%_40%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep01Line2} />
           </div>
         </div>
       );
 
-    // 02 — Custom Rate Cards & Micro-Deliverables (178359:17521)
+    // 02 — Custom Rate Cards & Micro-Deliverables (178432:7153)
     case 1:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17521"
+          data-node-id="178432:7153"
           data-testid="step-illustration-02"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -177,30 +177,30 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep02PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep02Body} />
               </div>
             </div>
           </div>
           <div className="absolute inset-[13.75%_47.5%_73.75%_12.5%]">
             <div className="absolute inset-[-1.25%_-0.39%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep02PillFrame} />
+              <img alt="" className="block max-w-none size-full" src={imgStep02Card} />
             </div>
           </div>
           <div className="absolute inset-[17.64%_76.27%_77.64%_18.14%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep02RateIcon} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep02Icon} />
           </div>
           <div className="absolute inset-[18.75%_53.75%_78.75%_27.5%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep02PillLine} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep02Line} />
           </div>
         </div>
       );
 
-    // 03 — Real-Time Performer Analytics & Visitor Intelligence (178359:17585)
+    // 03 — Real-Time Performer Analytics & Visitor Intelligence (178432:7217)
     case 2:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17585"
+          data-node-id="178432:7217"
           data-testid="step-illustration-03"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -212,27 +212,27 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep03PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep03Body} />
               </div>
             </div>
           </div>
           <div className="absolute bottom-1/2 left-[40%] right-[40%] top-[30%]">
             <div className="absolute inset-[-0.78%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep03HubFrame} />
+              <img alt="" className="block max-w-none size-full" src={imgStep03Chart} />
             </div>
           </div>
           <div className="absolute inset-[36.56%_45.94%_55.94%_45.94%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep03HubIcon} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep03Graph} />
           </div>
         </div>
       );
 
-    // 04 — Escrow Security (178359:17620)
+    // 04 — Escrow Security (178432:7252)
     case 3:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17620"
+          data-node-id="178432:7252"
           data-testid="step-illustration-04"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -244,27 +244,27 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep04PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep04Body} />
               </div>
             </div>
           </div>
           <div className="absolute inset-[4.38%_41.87%_79.38%_41.88%]">
             <div className="absolute inset-[-0.96%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep04BadgeFrame} />
+              <img alt="" className="block max-w-none size-full" src={imgStep04Badge} />
             </div>
           </div>
           <div className="absolute inset-[9.49%_46.72%_83.67%_46.72%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep04ShieldIcon} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep04Shield} />
           </div>
         </div>
       );
 
-    // 05 — Direct Proposal Bidding: (178359:17653)
+    // 05 — Direct Proposal Bidding (178432:7285)
     case 4:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17653"
+          data-node-id="178432:7285"
           data-testid="step-illustration-05"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -276,49 +276,49 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep05PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep05Body} />
               </div>
             </div>
           </div>
           <div className="absolute inset-[16.25%_12.5%_70%_12.5%]">
             <div className="absolute inset-[-1.14%_-0.21%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep05FilterBar} />
+              <img alt="" className="block max-w-none size-full" src={imgStep05Card} />
             </div>
           </div>
           <div className="absolute inset-[20.33%_76.27%_74.08%_18.14%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05SearchIcon} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Icon} />
           </div>
           <div className="absolute inset-[20%_58.75%_73.75%_27.5%]">
             <div className="absolute inset-[-2.5%_-1.14%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep05PillBorder} />
+              <img alt="" className="block max-w-none size-full" src={imgStep05Pill1} />
             </div>
           </div>
           <div className="absolute inset-[22.38%_61.88%_76%_30.63%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill1Line} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill1Active} />
           </div>
           <div className="absolute inset-[20%_40%_73.75%_43.75%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill2Fill} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill2} />
           </div>
           <div className="absolute inset-[22.38%_43.13%_76%_46.88%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill2Line} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill2Active} />
           </div>
           <div className="absolute inset-[20%_23.75%_73.75%_62.5%]">
             <div className="absolute inset-[-2.5%_-1.14%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep05PillBorder} />
+              <img alt="" className="block max-w-none size-full" src={imgStep05Pill1} />
             </div>
           </div>
           <div className="absolute inset-[22.38%_26.88%_76%_65.63%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill3Line} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep05Pill3} />
           </div>
         </div>
       );
 
-    // 06 — Sleek Bio Storefront (178359:17485)
+    // 06 — Integrated Scheduling (178432:7332)
     case 5:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17485"
+          data-node-id="178432:7332"
           data-testid="step-illustration-06"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -330,37 +330,31 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep06PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep06Body} />
               </div>
             </div>
           </div>
-          <div className="absolute bottom-1/2 left-[36.25%] right-[36.25%] top-[18.75%]">
-            <div className="absolute inset-[-0.5%_-0.57%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep06CardFrame} />
+          <div className="absolute inset-[13.75%_47.5%_73.75%_12.5%]">
+            <div className="absolute inset-[-1.25%_-0.39%]">
+              <img alt="" className="block max-w-none size-full" src={imgStep06Card} />
             </div>
           </div>
-          <div className="absolute inset-[23.13%_44.38%_65.63%_44.38%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06Circle} />
+          <div className="absolute inset-[16.99%_76.48%_77.42%_18.36%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06Icon} />
           </div>
-          <div className="absolute inset-[25.94%_46.95%_68.44%_46.95%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06AvatarIcon} />
-          </div>
-          <div className="absolute inset-[37.5%_41.87%_60%_41.88%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06LineTop} />
-          </div>
-          <div className="absolute inset-[42.5%_40%_55%_40%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06LineBottom} />
+          <div className="absolute inset-[18.75%_53.75%_78.75%_27.5%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep06Line} />
           </div>
         </div>
       );
 
-    // 07 — Integrated Scheduling (178359:17700)
+    // 07 — Interactive AI Agent (178432:7364)
     case 6:
     default:
       return (
         <div
           className="overflow-clip relative shrink-0 size-[300px]"
-          data-node-id="178359:17700"
+          data-node-id="178432:7364"
           data-testid="step-illustration-07"
         >
           <div className="absolute contents inset-0" data-name="Mask group">
@@ -372,20 +366,29 @@ function StepIllustration({ stepIndex }: { stepIndex: number }) {
               }}
             >
               <div className="absolute inset-[-0.16%_-0.22%]">
-                <img alt="" className="block max-w-none size-full" src={imgStep07PhoneBody} />
+                <img alt="" className="block max-w-none size-full" src={imgStep07Body} />
               </div>
             </div>
           </div>
-          <div className="absolute inset-[13.75%_47.5%_73.75%_12.5%]">
-            <div className="absolute inset-[-1.25%_-0.39%]">
-              <img alt="" className="block max-w-none size-full" src={imgStep02PillFrame} />
+          <div className="absolute inset-[26.25%_22.5%_55%_12.5%]">
+            <div className="absolute inset-[-0.83%_-0.24%]">
+              <img alt="" className="block max-w-none size-full" src={imgStep07Bubble} />
             </div>
           </div>
-          <div className="absolute inset-[16.99%_76.48%_77.42%_18.36%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07CalendarIcon} />
+          <div className="absolute inset-[30.63%_74.38%_59.38%_15.63%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07Circle} />
           </div>
-          <div className="absolute inset-[18.75%_53.75%_78.75%_27.5%]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep02PillLine} />
+          <div className="absolute inset-[32.83%_76.58%_61.58%_17.83%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07Icon} />
+          </div>
+          <div className="absolute inset-[31.25%_49.38%_66.12%_29.38%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07Line1} />
+          </div>
+          <div className="absolute inset-[36.56%_43.13%_60.44%_29.38%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07Line2} />
+          </div>
+          <div className="absolute inset-[34.22%_27.4%_62.62%_68.2%]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStep07Check} />
           </div>
         </div>
       );
@@ -471,11 +474,11 @@ export function ProductPage() {
     { label: "Settings", icon: SettingsIcon, path: "/settings" },
   ];
 
-  // 7 Interactive Showcase Steps (Figma 178359:17392)
+  // 7 Interactive Showcase Steps (Figma 178432:6988)
   const steps = [
     {
       id: "01",
-      title: "Interactive AI Agent",
+      title: "Sleek Bio Storefront",
       description:
         "Ditch scattered bio links for a mobile storefront that showcases your video monologues, audio reels, reach metrics, and verified reviews all in one place.",
     },
@@ -499,21 +502,21 @@ export function ProductPage() {
     },
     {
       id: "05",
-      title: "Direct Proposal Bidding:",
+      title: "Direct Proposal Bidding",
       description:
         "Browse open casting briefs posted by verified studios and commercial media vendors; submit auditions and proposals in seconds.",
     },
     {
       id: "06",
-      title: "Sleek Bio Storefront",
-      description:
-        "Ditch scattered bio links for a mobile storefront that showcases your video monologues, audio reels, reach metrics, and verified reviews all in one place.",
-    },
-    {
-      id: "07",
       title: "Integrated Scheduling",
       description:
         "Sync your calendar so visitors can book audition slots, phone consultations, or quick custom messages without back-and-forth emails.",
+    },
+    {
+      id: "07",
+      title: "Interactive AI Agent",
+      description:
+        "Your AI agent works while you sleep, chatting with visitors about your style and instantly booking audition slots straight onto your calendar.",
     },
   ];
 
@@ -937,7 +940,7 @@ export function ProductPage() {
                         ? "active"
                         : "default";
 
-                  // ── ACTIVE STATE (Frame 11 / Frame 19) ──
+                  // ── ACTIVE STATE (Frame 11 / Frame 19 / Figma 178432:7019) ──
                   if (cardState === "active") {
                     return (
                       <motion.div
@@ -954,7 +957,7 @@ export function ProductPage() {
                         }}
                         data-step-state="active"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-[#f9f9f9] dark:bg-[#141414] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)] outline-none focus:outline-none focus-visible:outline-none"
+                        className="bg-[#f9f9f9] dark:bg-[#0e0e0e] border border-[#e8e8e8] dark:border-[#333333] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer transition-all shadow-[0_4px_12px_rgba(0,0,0,0.03)] outline-none focus:outline-none focus-visible:outline-none"
                       >
                         <motion.div
                           className="relative shrink-0 size-[24px]"
@@ -964,12 +967,17 @@ export function ProductPage() {
                         >
                           <img
                             alt=""
-                            className="absolute block inset-0 max-w-none size-full dark:invert"
-                            src={imgArrowCircleRight}
+                            className="absolute block dark:hidden inset-0 max-w-none size-full"
+                            src={imgArrowCircleRightLight}
+                          />
+                          <img
+                            alt=""
+                            className="absolute hidden dark:block inset-0 max-w-none size-full"
+                            src={imgArrowCircleRightDark}
                           />
                         </motion.div>
                         <div className="[word-break:break-word] flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-full">
+                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f5f5f5] text-[18px] leading-[24px] w-full">
                             {step.title}
                           </h3>
                           <motion.div
@@ -988,7 +996,7 @@ export function ProductPage() {
                     );
                   }
 
-                  // ── COMPLETED STATE (Frame 20) ──
+                  // ── COMPLETED STATE (Frame 20 / Figma 178432:7038) ──
                   if (cardState === "completed") {
                     return (
                       <motion.div
@@ -1005,13 +1013,13 @@ export function ProductPage() {
                         }}
                         data-step-state="completed"
                         data-testid={`step-card-${step.id}`}
-                        className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#141414] transition-all outline-none focus:outline-none focus-visible:outline-none"
+                        className="bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#0e0e0e] transition-all outline-none focus:outline-none focus-visible:outline-none"
                       >
-                        <div className="font-['Switzer',sans-serif] font-medium text-[#333333] dark:text-[#d1d1d1] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
+                        <div className="font-['Switzer',sans-serif] font-medium text-[#333333] dark:text-[#f8f8f8] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                           {step.id}
                         </div>
                         <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
-                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[18px] leading-[24px] w-full">
+                          <h3 className="font-['Switzer',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f5f5f5] text-[18px] leading-[24px] w-full">
                             {step.title}
                           </h3>
                         </div>
@@ -1032,7 +1040,7 @@ export function ProductPage() {
                     );
                   }
 
-                  // ── DEFAULT STATE (Frame 13) ──
+                  // ── DEFAULT STATE (Frame 13 / Figma 178432:7026) ──
                   return (
                     <motion.div
                       layout
@@ -1048,9 +1056,9 @@ export function ProductPage() {
                       }}
                       data-step-state="default"
                       data-testid={`step-card-${step.id}`}
-                      className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#141414] transition-all outline-none focus:outline-none focus-visible:outline-none"
+                      className="bg-white dark:bg-black border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[24px] items-start p-[24px] relative rounded-[12px] shrink-0 w-full cursor-pointer hover:bg-[#f9f9f9] dark:hover:bg-[#0e0e0e] transition-all outline-none focus:outline-none focus-visible:outline-none"
                     >
-                      <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] dark:text-[#767676] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
+                      <div className="font-['Switzer',sans-serif] font-medium text-[#bababa] dark:text-[#bababa] text-[18px] leading-[24px] whitespace-nowrap shrink-0">
                         {step.id}
                       </div>
                       <div className="flex flex-[1_0_0] flex-col gap-[8px] items-start min-w-px relative">
@@ -1070,7 +1078,7 @@ export function ProductPage() {
                       >
                         <img
                           alt="Pending"
-                          className="absolute block inset-0 max-w-none size-full dark:invert"
+                          className="absolute block inset-0 max-w-none size-full"
                           src={imgSpinner}
                         />
                       </motion.div>

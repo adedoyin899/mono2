@@ -70,49 +70,85 @@ const HERO_CATEGORIES = [
 // Dashed Divider
 const imgDashedDivider = "/assets/home/7dc94ccc0ee6370325d0ef6f15631b8f8b00d4c2.svg";
 
-// 6 Feature Illustrations (300x300 SVG layers)
+// 6 Feature Illustrations (300x300 SVG layers) — Figma 178423:1897 (Dark Mode 1:1)
 const imgFeatureMask = "/assets/home/2edd4450f001dd0abfe2d83e8c81067819f49f0c.svg";
 
-// Feature 1: Share Your Stage Anywhere
-const imgF1Group1 = "/assets/home/98c64635325d633809bbf32e3520dd185346a0a2.svg";
-const imgF1Group2 = "/assets/home/a9053c3b6a7c8645c784864ba4bdbcbd7e41146d.svg";
-const imgF1Group3 = "/assets/home/0fbf59f68982def288fbceff2af2d4af40484195.svg";
+// Feature 1: Share Your Stage Anywhere (178426:5842)
+const imgF1Group1Light = "/assets/home/98c64635325d633809bbf32e3520dd185346a0a2.svg";
+const imgF1Group1Dark = "/assets/home/435373bebd8b4d28f7e5defdcbe29edd726485e7.svg";
+const imgF1Group2Light = "/assets/home/a9053c3b6a7c8645c784864ba4bdbcbd7e41146d.svg";
+const imgF1Group2Dark = "/assets/home/9cdc20923e48d0f963c9d12aa695183d3ccc6ab2.svg";
+const imgF1Group3Light = "/assets/home/0fbf59f68982def288fbceff2af2d4af40484195.svg";
+const imgF1Group3Dark = "/assets/home/a1656a05809097a7b5e15c89a651fb0057a43dbb.svg";
 
-// Feature 2: Monetize Fan Shoutouts & Micro-Deliverables
-const imgF2Group1 = "/assets/home/4cde797795be8839268ab92bcee66414e1927c50.svg";
-const imgF2Group2 = "/assets/home/a3dad4f0efe914102ec45a559ac2337b7da4c3a8.svg";
-const imgF2Group3 = "/assets/home/4e58aac253470830ffdbd41393d77f2d2e9f6872.svg";
-const imgF2Vec0 = "/assets/home/a4b28ddcb786fceb51cb243a3154166b126ae1f9.svg";
-const imgF2Vec1 = "/assets/home/bf4acc62a8406605166db2a5fdd327d2ddfde68e.svg";
-const imgF2Vec2 = "/assets/home/d07bfbf69f955b262d8858aaf25f114fc10472e8.svg";
-const imgF2Group4 = "/assets/home/f60b778be7c231b2761c48018283197971fbe033.svg";
-const imgF2Vec3 = "/assets/home/37e87353ce236c0bb4114e3f8cac823e3972cb11.svg";
-const imgF2Vec4 = "/assets/home/e2c3e00b34eff13a382034e38e29d30c5775ca77.svg";
-const imgF2Vec5 = "/assets/home/b96bf97cabc321fbd4f51b33bc23c9131d674ebb.svg";
+// Feature 2: Monetize Fan Shoutouts & Micro-Deliverables (178426:5873)
+const imgF2Group1Light = "/assets/home/4cde797795be8839268ab92bcee66414e1927c50.svg";
+const imgF2Group1Dark = "/assets/home/44ce946b8752e975ef1830d705915592b6b2a90f.svg";
+const imgF2Group2Light = "/assets/home/a3dad4f0efe914102ec45a559ac2337b7da4c3a8.svg";
+const imgF2Group2Dark = "/assets/home/92ca72d29bc8d1731f2bfc5c2899eee2ba1095dd.svg";
+const imgF2Group3Light = "/assets/home/4e58aac253470830ffdbd41393d77f2d2e9f6872.svg";
+const imgF2Group3Dark = "/assets/home/0019a7144dee071d681dd4842484978de8705105.svg";
+const imgF2Vec0Light = "/assets/home/a4b28ddcb786fceb51cb243a3154166b126ae1f9.svg";
+const imgF2Vec0Dark = "/assets/home/3700ee89c75583b67056a2d6726378715f9e9c0e.svg";
+const imgF2Vec1Light = "/assets/home/bf4acc62a8406605166db2a5fdd327d2ddfde68e.svg";
+const imgF2Vec1Dark = "/assets/home/9df972a017497a59e20a7e36df99ddbf0e5944af.svg";
+const imgF2Vec2Light = "/assets/home/d07bfbf69f955b262d8858aaf25f114fc10472e8.svg";
+const imgF2Vec2Dark = "/assets/home/d3c4d5aae329a39d2eb55e68a041cfba9ab6226b.svg";
+const imgF2Group4Light = "/assets/home/f60b778be7c231b2761c48018283197971fbe033.svg";
+const imgF2Group4Dark = "/assets/home/104abc9bd256f601591f2363b0711ecd19a7efbf.svg";
+const imgF2Vec3Light = "/assets/home/37e87353ce236c0bb4114e3f8cac823e3972cb11.svg";
+const imgF2Vec3Dark = "/assets/home/a15cb7a27713ff43149aef2bf2bd54b9438d3e42.svg";
+const imgF2Vec4Light = "/assets/home/e2c3e00b34eff13a382034e38e29d30c5775ca77.svg";
+const imgF2Vec4Dark = "/assets/home/850b084ab7f2edb94ec20827c1ff9807a3ad0ee7.svg";
+const imgF2Vec5Light = "/assets/home/b96bf97cabc321fbd4f51b33bc23c9131d674ebb.svg";
+const imgF2Vec5Dark = "/assets/home/578231a4510f1e36179ee298d14b6b6531d4cf16.svg";
 
-// Feature 3: Analyze your audience
-const imgF3Group1 = "/assets/home/aabd3410e99057ad407e78740304a4f3cdadbc00.svg";
-const imgF3Group2 = "/assets/home/c3c2205b54801ffb4ffa3c0c8f64f222d9d5ba82.svg";
-const imgF3Group3 = "/assets/home/c70aefb04d18ce1b677c58a78a8d2ef7e1ef7db8.svg";
-const imgF3Vec1 = "/assets/home/32f92c4698b8c383573be044895f8466a1c77692.svg";
+// Feature 3: Analyze your audience (178426:5925)
+const imgF3Group1Light = "/assets/home/aabd3410e99057ad407e78740304a4f3cdadbc00.svg";
+const imgF3Group1Dark = "/assets/home/b618cf6bf136216af355c1b5d8b3a3a8a74ba213.svg";
+const imgF3Group2Light = "/assets/home/c3c2205b54801ffb4ffa3c0c8f64f222d9d5ba82.svg";
+const imgF3Group2Dark = "/assets/home/0b3493abfa666c3534f163be4463a7a850536d6d.svg";
+const imgF3Group3Light = "/assets/home/c70aefb04d18ce1b677c58a78a8d2ef7e1ef7db8.svg";
+const imgF3Group3Dark = "/assets/home/cd9713dd79db0ef88c5433990d3e584a7ec60488.svg";
+const imgF3Vec0Light = "/assets/home/a4b28ddcb786fceb51cb243a3154166b126ae1f9.svg";
+const imgF3Vec0Dark = "/assets/home/3700ee89c75583b67056a2d6726378715f9e9c0e.svg";
+const imgF3Vec1Light = "/assets/home/32f92c4698b8c383573be044895f8466a1c77692.svg";
+const imgF3Vec1Dark = "/assets/home/a09bf2d1716c7635ece70d26856a303b9d9f1afe.svg";
 
-// Feature 4: Set Transparent Custom Rate Cards
-const imgF4Group1 = "/assets/home/00b366f479866e949af6feaff050039cae39e2ea.svg";
-const imgF4Group2 = "/assets/home/b9864c3dc11d0ba0cad4ace419563215a419fc45.svg";
-const imgF4Vec0 = "/assets/home/0a04a380b17057fc6d6b09f2b87617ec3813a9f3.svg";
-const imgF4Group3 = "/assets/home/39f84d643c4af41b48d16c130cfdbe39fff7bf50.svg";
-const imgF4Vec2 = "/assets/home/0c81cf78681d1bb7e2aab16b506878d4d7a434f0.svg";
+// Feature 4: Set Transparent Custom Rate Cards (178426:5955)
+const imgF4Group1Light = "/assets/home/00b366f479866e949af6feaff050039cae39e2ea.svg";
+const imgF4Group1Dark = "/assets/home/d52147b5ec3bc89043cd85c9d37a5427ec37250f.svg";
+const imgF4Group2Light = "/assets/home/b9864c3dc11d0ba0cad4ace419563215a419fc45.svg";
+const imgF4Group2Dark = "/assets/home/838aa0ba917ae77edf170276c04c15503e49d248.svg";
+const imgF4Vec0Light = "/assets/home/0a04a380b17057fc6d6b09f2b87617ec3813a9f3.svg";
+const imgF4Vec0Dark = "/assets/home/5e214c4a3c824e68c67084c4d629da70410f0775.svg";
+const imgF4Group3Light = "/assets/home/39f84d643c4af41b48d16c130cfdbe39fff7bf50.svg";
+const imgF4Group3Dark = "/assets/home/95bc63e9bbdea78d2c2c0fdd8b6b04faee500837.svg";
+const imgF4Vec1Light = "/assets/home/a4b28ddcb786fceb51cb243a3154166b126ae1f9.svg";
+const imgF4Vec1Dark = "/assets/home/3700ee89c75583b67056a2d6726378715f9e9c0e.svg";
+const imgF4Vec2Light = "/assets/home/0c81cf78681d1bb7e2aab16b506878d4d7a434f0.svg";
+const imgF4Vec2Dark = "/assets/home/dde9ad34a197613af6c6072694b5e6d86ac87929.svg";
 
-// Feature 5: Powered by Thespian AI
-const imgF5Group1 = "/assets/home/093466eddeb77ae923a9677fed663bf902e7e90d.svg";
-const imgF5Group2 = "/assets/home/7bbbb0d18b1f2164efadb0be13ebd4066611fa41.svg";
-const imgF5Group3 = "/assets/home/abcf2a2e0701df1fb1097d399102aa1d56d407e4.svg";
-const imgF5Vec0 = "/assets/home/46d1d3714f7474baa93edb08f354d6bb5aeb592f.svg";
-const imgF5Group4 = "/assets/home/a5c59ee257058ae45f587efb79143598c341379e.svg";
+// Feature 5: Powered by Thespian AI (178426:6015)
+const imgF5Group1Light = "/assets/home/093466eddeb77ae923a9677fed663bf902e7e90d.svg";
+const imgF5Group1Dark = "/assets/home/eb0b590431766f501d2ebdc489aecbe70e5ffeb7.svg";
+const imgF5Group2Light = "/assets/home/7bbbb0d18b1f2164efadb0be13ebd4066611fa41.svg";
+const imgF5Group2Dark = "/assets/home/4aa2dcae2d58c7c0efe0a42ec47d7a2039f75dc2.svg";
+const imgF5Group3Light = "/assets/home/abcf2a2e0701df1fb1097d399102aa1d56d407e4.svg";
+const imgF5Group3Dark = "/assets/home/c543cfb6ab83446dbc233638453e471745f87447.svg";
+const imgF5Vec0Light = "/assets/home/46d1d3714f7474baa93edb08f354d6bb5aeb592f.svg";
+const imgF5Vec0Dark = "/assets/home/34b9ebe1dcec322b4a14a8d09143393d31f2974b.svg";
+const imgF5Group4Light = "/assets/home/a5c59ee257058ae45f587efb79143598c341379e.svg";
+const imgF5Group4Dark = "/assets/home/6f07f83f3ed915c5235aa3e6d5eb016b528ef59d.svg";
 
-// Feature 6: Bank-Grade Escrow Protection
-const imgF6Group1 = "/assets/home/99dc4838d391d9acdf260f55289a251fc7534b45.svg";
-const imgF6Group3 = "/assets/home/dfd3c8df98687c6983ad56cb39fc623456f33b0c.svg";
+// Feature 6: Bank-Grade Escrow Protection (178426:5987)
+const imgF6Group1Light = "/assets/home/99dc4838d391d9acdf260f55289a251fc7534b45.svg";
+const imgF6Group1Dark = "/assets/home/e9c1149afe8c74a342342c4f8f4dddc815381a10.svg";
+const imgF6Group2Light = "/assets/home/7bbbb0d18b1f2164efadb0be13ebd4066611fa41.svg";
+const imgF6Group2Dark = "/assets/home/4aa2dcae2d58c7c0efe0a42ec47d7a2039f75dc2.svg";
+const imgF6Group3Light = "/assets/home/dfd3c8df98687c6983ad56cb39fc623456f33b0c.svg";
+const imgF6Group3Dark = "/assets/home/0af70b0eab9e48de0f17cbe51f2fc12cfa52d1d0.svg";
+const imgF6Vec0Dark = "/assets/home/34b9ebe1dcec322b4a14a8d09143393d31f2974b.svg";
 
 // FAQ Icons
 const imgPlus = "/assets/home/0f468a50f646f4cf0717649c47ca00c3757b7265.svg";
@@ -164,6 +200,25 @@ const FAQ_ITEMS: FaqItem[] = [
     a: "Clients can post a variety of gigs ranging from acting roles, public speaking events, and comedy performances to music gigs and custom video requests, catering to diverse entertainment needs.",
   },
 ];
+
+function DualImg({
+  lightSrc,
+  darkSrc,
+  alt = "",
+  className = "",
+}: {
+  lightSrc: string;
+  darkSrc: string;
+  alt?: string;
+  className?: string;
+}) {
+  return (
+    <>
+      <img alt={alt} className={`block dark:hidden max-w-none size-full ${className}`} src={lightSrc} />
+      <img alt={alt} className={`hidden dark:block max-w-none size-full ${className}`} src={darkSrc} />
+    </>
+  );
+}
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -932,25 +987,25 @@ export function LandingPage() {
             <p className="leading-[48px] whitespace-pre-wrap">{`Run your performing career like the business it actually is`}</p>
           </div>
           <p
-            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] max-w-[650px]"
+            className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#767676] dark:text-[#f5f5f5] text-[16px] tracking-[0.48px] max-w-[650px]"
             data-node-id="178359:16992"
           >{`Share your work, set your prices, track your audience and get paid securely, without an agent in the middle.`}</p>
         </div>
 
-        {/* Timeline Row: Left 2px Progress Line + Right 627px Feature Stack (178359:16993) */}
+        {/* Timeline Row: Left 2px Progress Line + Right 627px Feature Stack (178359:16993 / Figma 178423:1901) */}
         <div
           ref={timelineRef}
           className="flex flex-row gap-6 md:gap-[54px] items-stretch relative w-full max-w-[766px]"
           data-node-id="178359:16993"
         >
-          {/* Left Vertical Line with Dynamic Scroll Progress Fill (178359:16994) */}
+          {/* Left Vertical Line with Dynamic Scroll Progress Fill (178359:16994 / Figma 178423:1902) */}
           <div
-            className="bg-[#e8e8e8] dark:bg-[#333333] relative w-[2px] shrink-0 rounded-[49px] overflow-hidden"
+            className="bg-[#e8e8e8] dark:bg-[#1a1a1a] relative w-[2px] shrink-0 rounded-[49px] overflow-hidden self-stretch"
             data-node-id="178359:16994"
           >
             <motion.div
               style={{ scaleY, transformOrigin: "top" }}
-              className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-[#767676] to-[#d1d1d1] dark:from-[#f9f9f9] dark:via-[#bababa] dark:to-[#767676] rounded-[49px] w-[2px]"
+              className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-[#767676] to-[#d1d1d1] dark:from-[#484848] dark:to-[#aeaeae] rounded-[49px] w-[2px]"
               data-node-id="178359:16995"
             />
           </div>
@@ -1009,7 +1064,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF1Group1} />
+                        <DualImg lightSrc={imgF1Group1Light} darkSrc={imgF1Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1019,7 +1074,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-0.78%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF1Group2} />
+                      <DualImg lightSrc={imgF1Group2Light} darkSrc={imgF1Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1027,7 +1082,7 @@ export function LandingPage() {
                     data-node-id="178359:17031"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF1Group3} />
+                    <DualImg lightSrc={imgF1Group3Light} darkSrc={imgF1Group3Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>
@@ -1082,7 +1137,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF2Group1} />
+                        <DualImg lightSrc={imgF2Group1Light} darkSrc={imgF2Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1092,7 +1147,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-1.39%_-0.21%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF2Group2} />
+                      <DualImg lightSrc={imgF2Group2Light} darkSrc={imgF2Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1100,63 +1155,63 @@ export function LandingPage() {
                     data-node-id="178359:17078"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Group3} />
+                    <DualImg lightSrc={imgF2Group3Light} darkSrc={imgF2Group3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[29.38%_56.25%_68.13%_27.5%]"
                     data-node-id="178359:17080"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec0} />
+                    <DualImg lightSrc={imgF2Vec0Light} darkSrc={imgF2Vec0Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[27.5%_52.19%_66.25%_47.5%]"
                     data-node-id="178359:17081"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec1} />
+                    <DualImg lightSrc={imgF2Vec1Light} darkSrc={imgF2Vec1Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[29.38%_36.25%_68.13%_51.25%]"
                     data-node-id="178359:17082"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec2} />
+                    <DualImg lightSrc={imgF2Vec2Light} darkSrc={imgF2Vec2Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[27.5%_32.19%_66.25%_67.5%]"
                     data-node-id="178359:17083"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec1} />
+                    <DualImg lightSrc={imgF2Vec1Light} darkSrc={imgF2Vec1Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[28.34%_23.65%_67.09%_71.78%]"
                     data-node-id="178359:17084"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Group4} />
+                    <DualImg lightSrc={imgF2Group4Light} darkSrc={imgF2Group4Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[27.66%_16.16%_70.91%_82.41%]"
                     data-node-id="178359:17086"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec3} />
+                    <DualImg lightSrc={imgF2Vec3Light} darkSrc={imgF2Vec3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[29.91%_16.16%_68.66%_82.41%]"
                     data-node-id="178359:17087"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec4} />
+                    <DualImg lightSrc={imgF2Vec4Light} darkSrc={imgF2Vec4Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[32.16%_16.16%_66.41%_82.41%]"
                     data-node-id="178359:17088"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec5} />
+                    <DualImg lightSrc={imgF2Vec5Light} darkSrc={imgF2Vec5Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>
@@ -1211,7 +1266,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF3Group1} />
+                        <DualImg lightSrc={imgF3Group1Light} darkSrc={imgF3Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1221,7 +1276,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-1.04%_-0.21%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF3Group2} />
+                      <DualImg lightSrc={imgF3Group2Light} darkSrc={imgF3Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1229,21 +1284,21 @@ export function LandingPage() {
                     data-node-id="178359:17120"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF3Group3} />
+                    <DualImg lightSrc={imgF3Group3Light} darkSrc={imgF3Group3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[20.31%_52.5%_77.19%_31.25%]"
                     data-node-id="178359:17122"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec0} />
+                    <DualImg lightSrc={imgF3Vec0Light} darkSrc={imgF3Vec0Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[24.69%_36.25%_72.5%_31.25%]"
                     data-node-id="178359:17123"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF3Vec1} />
+                    <DualImg lightSrc={imgF3Vec1Light} darkSrc={imgF3Vec1Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>
@@ -1298,7 +1353,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF4Group1} />
+                        <DualImg lightSrc={imgF4Group1Light} darkSrc={imgF4Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1308,7 +1363,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-0.5%_-0.57%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF4Group2} />
+                      <DualImg lightSrc={imgF4Group2Light} darkSrc={imgF4Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1316,28 +1371,28 @@ export function LandingPage() {
                     data-node-id="178359:17156"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF4Vec0} />
+                    <DualImg lightSrc={imgF4Vec0Light} darkSrc={imgF4Vec0Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[25.94%_46.48%_67.73%_47.19%]"
                     data-node-id="178359:17157"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF4Group3} />
+                    <DualImg lightSrc={imgF4Group3Light} darkSrc={imgF4Group3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[37.5%_41.87%_60%_41.88%]"
                     data-node-id="178359:17159"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF2Vec0} />
+                    <DualImg lightSrc={imgF4Vec1Light} darkSrc={imgF4Vec1Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[42.5%_40%_55%_40%]"
                     data-node-id="178359:17160"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF4Vec2} />
+                    <DualImg lightSrc={imgF4Vec2Light} darkSrc={imgF4Vec2Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>
@@ -1392,7 +1447,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF5Group1} />
+                        <DualImg lightSrc={imgF5Group1Light} darkSrc={imgF5Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1402,7 +1457,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-1.25%_-0.39%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF5Group2} />
+                      <DualImg lightSrc={imgF5Group2Light} darkSrc={imgF5Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1410,14 +1465,14 @@ export function LandingPage() {
                     data-node-id="178359:17197"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Group3} />
+                    <DualImg lightSrc={imgF5Group3Light} darkSrc={imgF5Group3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[18.75%_53.75%_78.75%_27.5%]"
                     data-node-id="178359:17199"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Vec0} />
+                    <DualImg lightSrc={imgF5Vec0Light} darkSrc={imgF5Vec0Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[58.75%_12.5%_28.75%_47.5%]"
@@ -1425,7 +1480,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-1.25%_-0.39%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF5Group2} />
+                      <DualImg lightSrc={imgF5Group2Light} darkSrc={imgF5Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1433,14 +1488,14 @@ export function LandingPage() {
                     data-node-id="178359:17202"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Group4} />
+                    <DualImg lightSrc={imgF5Group4Light} darkSrc={imgF5Group4Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[63.75%_18.75%_33.75%_62.5%]"
                     data-node-id="178359:17204"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Vec0} />
+                    <DualImg lightSrc={imgF5Vec0Light} darkSrc={imgF5Vec0Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>
@@ -1495,7 +1550,7 @@ export function LandingPage() {
                       data-name="Group"
                     >
                       <div className="absolute inset-[-0.16%_-0.22%]">
-                        <img alt="" className="block max-w-none size-full" src={imgF6Group1} />
+                        <DualImg lightSrc={imgF6Group1Light} darkSrc={imgF6Group1Dark} />
                       </div>
                     </div>
                   </div>
@@ -1505,7 +1560,7 @@ export function LandingPage() {
                     data-name="Group"
                   >
                     <div className="absolute inset-[-1.25%_-0.39%]">
-                      <img alt="" className="block max-w-none size-full" src={imgF5Group2} />
+                      <DualImg lightSrc={imgF6Group2Light} darkSrc={imgF6Group2Dark} />
                     </div>
                   </div>
                   <div
@@ -1513,14 +1568,14 @@ export function LandingPage() {
                     data-node-id="178359:17235"
                     data-name="Group"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF6Group3} />
+                    <DualImg lightSrc={imgF6Group3Light} darkSrc={imgF6Group3Dark} className="absolute inset-0" />
                   </div>
                   <div
                     className="absolute inset-[18.75%_53.75%_78.75%_27.5%]"
                     data-node-id="178359:17237"
                     data-name="Vector"
                   >
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgF5Vec0} />
+                    <DualImg lightSrc={imgF5Vec0Light} darkSrc={imgF6Vec0Dark} className="absolute inset-0" />
                   </div>
                 </div>
               </motion.div>

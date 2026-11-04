@@ -508,8 +508,8 @@ function appendToLocalBuffer(event: TrackedAnalyticsEvent): void {
 }
 
 function dispatchToSupabaseAndSinks(event: TrackedAnalyticsEvent): void {
-  // 1. Primary Architecture: Direct Supabase ingestion when configured
-  if (SUPABASE_MODE === "real" && supabase) {
+  // 1. Primary Architecture: Direct Supabase ingestion when configured (skip external network calls in unit tests)
+  if (import.meta.env.MODE !== "test" && SUPABASE_MODE === "real" && supabase) {
     void Promise.resolve(
       supabase.from("AnalyticsEvent").insert({
         id: event.id,
@@ -526,9 +526,9 @@ function dispatchToSupabaseAndSinks(event: TrackedAnalyticsEvent): void {
     ).catch(() => {});
   }
 
-  // 2. Backend API Ingestion when running in live API mode
+  // 2. Backend API Ingestion when running in live API mode (skip external network calls in unit tests)
   const apiMode = (import.meta.env.VITE_API_MODE as string | undefined)?.toLowerCase();
-  if (apiMode === "live" && typeof fetch === "function") {
+  if (import.meta.env.MODE !== "test" && apiMode === "live" && typeof fetch === "function") {
     const baseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:4000/api/v1";
     void fetch(`${baseUrl.replace(/\/+$/, "")}/analytics/events`, {
       method: "POST",
@@ -549,7 +549,9 @@ function dispatchToSupabaseAndSinks(event: TrackedAnalyticsEvent): void {
 
   // 3. Forward-compatible PostHog bridge (zero code changes needed if PostHog is loaded later)
   try {
-    const maybePosthog = (globalThis as Record<string, any>).posthog;
+    const maybePosthog = (globalThis as Record<string, unknown>).posthog as
+      | { capture?: (name: string, props: Record<string, unknown>) => void }
+      | undefined;
     if (maybePosthog && typeof maybePosthog.capture === "function") {
       maybePosthog.capture(event.eventName, {
         ...event.properties,
@@ -654,7 +656,9 @@ export function identifyAnalyticsUser(user: {
   );
 
   try {
-    const maybePosthog = (globalThis as Record<string, any>).posthog;
+    const maybePosthog = (globalThis as Record<string, unknown>).posthog as
+      | { identify?: (id: string, props: Record<string, unknown>) => void }
+      | undefined;
     if (maybePosthog && typeof maybePosthog.identify === "function") {
       maybePosthog.identify(user.id, {
         userType: user.userType,

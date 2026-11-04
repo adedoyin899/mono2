@@ -43,7 +43,7 @@ describe("ProductPage (Figma 178359:17305)", () => {
     expect(screen.getAllByText("Custom Rate Cards & Micro-Deliverables")).toHaveLength(1);
     expect(screen.getAllByText("Real-Time Performer Analytics & Visitor Intelligence")).toHaveLength(1);
     expect(screen.getAllByText("Escrow Security")).toHaveLength(1);
-    expect(screen.getAllByText("Direct Proposal Bidding:")).toHaveLength(1);
+    expect(screen.getAllByText("Direct Proposal Bidding")).toHaveLength(1);
     expect(screen.getAllByText("Sleek Bio Storefront")).toHaveLength(1);
     expect(screen.getAllByText("Integrated Scheduling")).toHaveLength(1);
 
