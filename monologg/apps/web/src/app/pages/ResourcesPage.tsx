@@ -27,8 +27,6 @@ const ASSETS = {
   logoIcon: "/assets/resources/logo-icon.svg",
   logoWordmark: "/assets/resources/logo-wordmark.svg",
   themeToggle: "/assets/resources/theme-toggle.svg",
-  gradientBgLeft: "/assets/resources/gradient-bg-left.svg",
-  gradientBgRight: "/assets/resources/gradient-bg-right.svg",
   gavel: "/assets/resources/gavel.svg",
   vector2553: "/assets/resources/vector-2553.svg",
   vector2555: "/assets/resources/vector-2555.svg",
@@ -423,37 +421,6 @@ export function ResourcesPage() {
         onSignOut={handleSignOut}
       />
 
-      {/* ── 3. Ambient Blurred Background Gradients (178359:18373) ── */}
-      <div
-        className="pointer-events-none absolute inset-0 overflow-hidden z-0"
-        data-node-id="178359:18373"
-        aria-hidden="true"
-      >
-        <div
-          className="absolute h-[249.23px] left-[-185.75px] top-[851.24px] w-[206.05px]"
-          data-node-id="178359:18374"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgLeft}
-            />
-          </div>
-        </div>
-        <div
-          className="absolute h-[249.23px] left-[1064.25px] top-[115.24px] w-[206.05px]"
-          data-node-id="178359:18379"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgRight}
-            />
-          </div>
-        </div>
-      </div>
 
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
         {/* ── 4. Resources Categories Master Card (Figma 178359:18384) ── */}

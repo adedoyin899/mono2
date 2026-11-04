@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 220: Official Social Links Update to @getmonologg in Footer & Resources)
+**Last updated:** 2026-11-04 (Session 221: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 167. Ambient Gradient Blur Overlays Across Website & Mobile Hero Mockup Vertical Spacing Collision
+- **Severity:** Low / Visual Polish & Mobile Responsiveness
+- **What happened:**
+  - Ambient gradient blur overlays across all 5 public pages produced distracting multi-color blurs over canvas backgrounds in dark and light modes.
+  - On mobile screens, the iPhone mockup sat too high with `top: -46px`, leaving only 2px of spacing from the "Find Performers" / "Find Gigs" CTA buttons, while the bottom of the device overhung past the stage boundary.
+- **Root Cause:**
+  - Gradient SVGs were legacy decorative overlays from initial desktop Figma exports.
+  - Mobile scaler height was fixed at 613px without clipping lower content, while the stage was reduced, resulting in bottom overflow and upward collision.
+- **Resolution:**
+  - Removed ambient background gradient containers from `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+  - Recalibrated mobile `.hero-phone-stage` height to 295px (and 260px on < 375px) and `.hero-phone-scaler` height to 460px with `top: -16px` (and `-14px` on < 375px), leaving an equivalent 32px vertical gap between the CTA buttons and the device notch, with clean bottom clipping.
 
 ### 166. Outdated Social Handle Placeholders in Website Footer & Resources Master Card
 - **Severity:** Low / Social Proof & Link Integrity

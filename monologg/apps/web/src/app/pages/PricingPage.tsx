@@ -24,8 +24,6 @@ const ASSETS = {
   logoIcon: "/assets/pricing/logo-icon.svg",
   logoWordmark: "/assets/pricing/logo-wordmark.svg",
   themeToggle: "/assets/pricing/theme-toggle.svg",
-  gradientBgLeft: "/assets/pricing/gradient-bg-left.svg",
-  gradientBgRight: "/assets/pricing/gradient-bg-right.svg",
   arrowRight: "/assets/pricing/arrow-right.svg",
   studioVimeo: "/assets/pricing/studio-vimeo.svg",
   studioNetflix: "/assets/pricing/studio-netflix.svg",
@@ -596,36 +594,6 @@ export function PricingPage() {
         onSignOut={handleSignOut}
       />
 
-      {/* ── Ambient Background Gradient Blurs (178359:18008) ── */}
-      <div
-        className="pointer-events-none absolute left-0 right-0 top-[2349px] h-[2316px] max-w-[1440px] mx-auto overflow-visible z-0"
-        data-node-id="178359:18008"
-      >
-        <div
-          className="absolute h-[249.229px] left-[-185.75px] top-[851.24px] w-[206.047px]"
-          data-node-id="178359:18009"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgLeft}
-            />
-          </div>
-        </div>
-        <div
-          className="absolute h-[249.229px] left-[1064.25px] top-[115.24px] w-[206.047px]"
-          data-node-id="178359:18014"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgRight}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* ── Main Content ── */}
       <main className="flex-1 flex flex-col items-center w-full relative z-10">

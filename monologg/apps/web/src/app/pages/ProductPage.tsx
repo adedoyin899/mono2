@@ -26,10 +26,6 @@ const imgHeaderLogoMark = "/assets/product/42406d6b92ad6d49dc99bf1748474b2457bf8
 const imgHeaderLogoWordmark = "/assets/product/b715a74e897fed863a52c5d7246006146e5893aa.svg";
 const imgThemeToggleSvg = "/assets/product/c63a178a4b21cf2ea20dd9e61b037e06863d22b7.svg";
 
-// Background blur gradients
-const imgGradientBackgroundLeft = "/assets/product/7df413b3f4e2638cded294bde801b9a5794d9c38.svg";
-const imgGradientBackgroundRight = "/assets/product/b24bf99929f977e20cb983048a0ea314029e259b.svg";
-
 // Hero & CTA Buttons
 const imgIconArrowRightWhite = "/assets/product/516903b6b524bafd57d55118edffff86c955eb80.svg";
 const imgIconArrowRightRed = "/assets/product/10a8bb1ae813ccff638e74e1fb37b6b799179e49.svg";
@@ -660,28 +656,6 @@ export function ProductPage() {
       className="min-h-screen flex flex-col items-start bg-white dark:bg-[#000000] text-[#1a1a1a] dark:text-[#f9f9f9] antialiased overflow-x-clip relative isolate w-full"
       data-node-id="178359:17305"
     >
-      {/* ── Ambient Blur Background Layer (178359:17353) ── */}
-      <div
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[2349px] w-[1440px] h-[2316px] z-0 overflow-hidden"
-        data-node-id="178359:17353"
-      >
-        <div
-          className="absolute h-[249.229px] left-[-185.75px] top-[851.24px] w-[206.047px]"
-          data-node-id="178359:17354"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img alt="" className="block max-w-none size-full" src={imgGradientBackgroundLeft} />
-          </div>
-        </div>
-        <div
-          className="absolute h-[249.229px] left-[1064.25px] top-[115.24px] w-[206.047px]"
-          data-node-id="178359:17359"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img alt="" className="block max-w-none size-full" src={imgGradientBackgroundRight} />
-          </div>
-        </div>
-      </div>
 
       {/* ── 1. Top Announcement Bar (178359:17306) ── */}
       <TopAnnouncementBar nodeId="178359:17306" />

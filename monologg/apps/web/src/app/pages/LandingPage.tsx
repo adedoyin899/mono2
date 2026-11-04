@@ -28,10 +28,6 @@ const imgHeaderLogoGroup = "/assets/home/42406d6b92ad6d49dc99bf1748474b2457bf897
 const imgHeaderLogoVector = "/assets/home/b715a74e897fed863a52c5d7246006146e5893aa.svg";
 const imgThemeToggleSvg = "/assets/pricing/theme-toggle.svg";
 
-// Background Gradient Blurs
-const imgGradientBackgroundLeft = "/assets/home/b105d35c024c2b41b3b0c5e289a05dcb11493534.svg";
-const imgGradientBackgroundRight = "/assets/home/ea32752acce7906892dc027aab96102655766d21.svg";
-
 // Hero Avatar fallback
 const imgAvatar1 = "/assets/home/6012d1b610f186b4da032a28a55bf16e19555e2e.png";
 const imgIconArrowRight = "/assets/home/516903b6b524bafd57d55118edffff86c955eb80.svg";
@@ -304,31 +300,6 @@ export function LandingPage() {
       {/* ─── 1. Top Announcement Bar (178359:16887) ─── */}
       <TopAnnouncementBar nodeId="178359:16887" />
 
-      {/* ─── 2. Ambient Background Gradient Blurs (178359:16899) ─── */}
-      <div
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[2349px] w-[1440px] h-[2316px] z-[1]"
-        data-node-id="178359:16899"
-        data-name="Background"
-      >
-        <div
-          className="absolute h-[249.229px] left-[-185.75px] top-[851.24px] w-[206.047px]"
-          data-node-id="178359:16900"
-          data-name="Gradient background"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img alt="" className="block max-w-none size-full" src={imgGradientBackgroundLeft} />
-          </div>
-        </div>
-        <div
-          className="absolute h-[249.229px] left-[1064.25px] top-[115.24px] w-[206.047px]"
-          data-node-id="178359:16905"
-          data-name="Gradient background"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img alt="" className="block max-w-none size-full" src={imgGradientBackgroundRight} />
-          </div>
-        </div>
-      </div>
 
       {/* ─── 3. Header (178359:16910) ─── */}
       <header

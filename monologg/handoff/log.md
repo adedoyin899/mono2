@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 220: Official Social Links Update to @getmonologg in Footer & Resources)
+**Last updated:** 2026-11-04 (Session 221: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 221 (2026-11-04) — Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish
+
+**Goal:** (1) Remove ambient background gradient blurs across the website in both light and dark modes for clean, high-contrast aesthetics. (2) Optimize the mobile hero section geometry by reducing the stage rectangle height, clipping the lower part of the phone mockup to eliminate overflow, and adjusting vertical position so there is balanced, equivalent spacing between the CTA buttons and the device.
+
+1. **Ambient Background Gradients Removal:**
+   - **`LandingPage.tsx`:** Removed ambient background gradient blur container (`178359:16899`) and unused SVG asset constants `imgGradientBackgroundLeft` and `imgGradientBackgroundRight`.
+   - **`ProductPage.tsx`:** Removed ambient background gradient blur container (`178359:17353`) and unused SVG asset constants `imgGradientBackgroundLeft` and `imgGradientBackgroundRight`.
+   - **`PricingPage.tsx`:** Removed ambient background gradient blur container (`178359:18008`) and unused asset mappings `gradientBgLeft` and `gradientBgRight` from `ASSETS`.
+   - **`ResourcesPage.tsx`:** Removed ambient background gradient blur container (`178359:18373`) and unused asset mappings `gradientBgLeft` and `gradientBgRight` from `ASSETS`.
+   - **`LegalPage.tsx`:** Removed ambient background gradient blur container (`178382:17974`) and unused asset mappings `gradientBgLeft` and `gradientBgRight` from `ASSETS`.
+
+2. **Mobile Hero Stage & Phone Mockup Geometry Polish (`tokens.css`):**
+   - Reduced mobile `.hero-phone-stage` height:
+     - `< 375px`: Reduced from 330px to 260px.
+     - `375px–479px`: Reduced from 370px to 295px.
+     - `480px–639px`: Reduced from 410px to 340px.
+     - `640px–767px`: Reduced from 445px to 395px.
+     - `768px–1023px`: Reduced from 476px to 440px.
+     - `>= 1024px`: Preserved exact 502px desktop Figma specification.
+   - Reduced `.hero-phone-scaler` height on mobile (< 480px) from 613px to 460px, hiding the bottom activity list overflow ("FilmCraft Lagos") and clipping the device cleanly at the bottom stage boundary.
+   - Refined mobile `.hero-phone-scaler` `top` offset to `-14px` (< 375px) and `-16px` (375px–479px), ensuring the top of the iPhone maintains 32px of breathing room from the CTA buttons, creating visual symmetry with the 32px gap above the buttons.
+
+3. **Testing & Quality Assurance:**
+   - Executed full test suite (`npm test -- --run`): 36 test files, 195 tests passing 100% green.
+   - TypeScript verification (`npx tsc --noEmit`): 0 type errors.
 
 ---
 

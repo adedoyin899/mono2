@@ -25,8 +25,6 @@ const ASSETS = {
   logoIcon: "/assets/terms/logo-icon.svg",
   logoWordmark: "/assets/terms/logo-wordmark.svg",
   themeToggle: "/assets/terms/theme-toggle.svg",
-  gradientBgLeft: "/assets/terms/gradient-bg-left.svg",
-  gradientBgRight: "/assets/terms/gradient-bg-right.svg",
   dashedDivider: "/assets/terms/dashed-divider.svg",
   arrowRight: "/assets/terms/arrow-right.svg",
   vector2553: "/assets/terms/vector-2553.svg",
@@ -359,39 +357,6 @@ export function LegalPage({ type }: { type: LegalPageType }) {
         onSignOut={handleSignOut}
       />
 
-      {/* ── Ambient Blurred Background Gradients (178382:17974) ── */}
-      <div
-        className="-translate-x-1/2 absolute h-[2316px] left-1/2 overflow-clip top-[2349px] w-[1440px] pointer-events-none z-0"
-        data-node-id="178382:17974"
-        data-name="Background"
-      >
-        <div
-          className="absolute h-[249.229px] left-[-185.75px] top-[851.24px] w-[206.047px] opacity-100"
-          data-node-id="178382:17975"
-          data-name="Gradient background"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgLeft}
-            />
-          </div>
-        </div>
-        <div
-          className="absolute h-[249.229px] left-[1064.25px] top-[115.24px] w-[206.047px] opacity-100"
-          data-node-id="178382:17980"
-          data-name="Gradient background"
-        >
-          <div className="absolute inset-[-91.79%_-108.2%]">
-            <img
-              alt=""
-              className="block max-w-none size-full"
-              src={ASSETS.gradientBgRight}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* ── 3. Main Legal Document Body ── */}
       {isTerms ? (
