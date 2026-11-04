@@ -1,12 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 202: Website Footer Copy Update to "Powered by paystack")
-**Last updated:** 2026-11-04 (Session 204: Resolution of All Linter and Workspace Problems Across Open Files)
+**Last updated:** 2026-11-04 (Session 205: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 205 (2026-11-04) — Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx
+
+**Goal:** Eliminate all TypeScript compiler errors in `Settings.tsx` (`ts(2300)`, `ts(2345)`, `ts(1128)`, `ts(2367)`) shown in user's VS Code diagnostics panel.
+
+1. **Resolution of Duplicate `Section` Identifier (`Settings.tsx`):**
+   - Removed the duplicate `type Section` definition on line 25 which omitted `"terms"` and `"escrow"`.
+   - Preserved the single comprehensive type: `type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details" | "terms" | "escrow";`.
+   - This resolved cascading `ts(2300)` and `ts(2367)` unreachable comparison errors at lines 820, 821, 967, 968, 3144, and 3225.
+
+2. **Fix Malformed `useState<Section>` Initializer (`Settings.tsx`):**
+   - Corrected nested duplicate `if` blocks on lines 218-224 which had an unmatched opening bracket and missing code paths.
+   - Cleaned up into a concise initial check:
+     ```typescript
+     const [section, setSection] = useState<Section>(() => {
+       if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
+         return sectionParam;
+       }
+       return "main";
+     });
+     ```
+   - Resolved `ts(1128)` ("Declaration or statement expected") and `ts(2345)` ("Type '() => Section | undefined' is not assignable to type '() => Section'").
+
+3. **Menu De-duplication in Support & Legal (`Settings.tsx`):**
+   - Removed duplicate legacy `Terms of Service` and `Privacy Policy` external links from the Support & legal block so only the in-app `Terms of Service` and `Escrow Policy` entries exist.
+
+4. **Verification:**
+   - `npx tsc --noEmit` passed with 0 errors.
+   - `npx eslint src/app/pages/Settings.tsx` passed with 0 errors.
+   - All 25 unit tests in `Settings.test.tsx`, `LegalPage.test.tsx`, and `WebsiteFooter.test.tsx` passed green.
 
 ---
 

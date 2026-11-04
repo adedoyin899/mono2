@@ -22,7 +22,6 @@ import {
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
-type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details";
 type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details" | "terms" | "escrow";
 
 const TERMS_OF_SERVICE_ITEMS = [
@@ -216,12 +215,11 @@ export function Settings() {
   const sectionParam = searchParams.get("section") as Section | null;
 
   const [section, setSection] = useState<Section>(() => {
-    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security"].includes(sectionParam)) {
-      if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
-        return sectionParam;
-      }
-      return "main";
-    });
+    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
+      return sectionParam;
+    }
+    return "main";
+  });
 
   // Talent fields
   const [name, setName] = useState("Emeka Johnson");
@@ -962,8 +960,6 @@ export function Settings() {
               <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Support &amp; legal</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Help Center" icon={LifeBuoy} onClick={() => navigate("/support")} />
-                <ListItem label="Terms of Service" icon={FileText} onClick={() => navigate("/legal/terms")} />
-                <ListItem label="Privacy Policy" icon={Shield} onClick={() => navigate("/legal/privacy")} />
                 <ListItem label="Terms of Service" icon={FileText} onClick={() => setSection("terms")} />
                 <ListItem label="Escrow Policy" icon={ShieldCheck} onClick={() => setSection("escrow")} />
               </div>

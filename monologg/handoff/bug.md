@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 204: Resolution of All Linter and Workspace Problems Across Open Files)
+**Last updated:** 2026-11-04 (Session 205: Fix Duplicate Section Type & Malformed State Initializer in Settings.tsx)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 152. TypeScript Compilation Errors & Unmatched Syntax in Settings.tsx (`Settings.tsx`)
+- **Severity:** High / TypeScript Compiler Failure
+- **What happened:**
+  - In `Settings.tsx`, 10 TypeScript compilation errors surfaced in the editor:
+    - `Duplicate identifier 'Section'. ts(2300)` on lines 25 and 26.
+    - `Argument of type '() => Section | undefined' is not assignable to type '() => Section'. ts(2345)` on line 218.
+    - `Declaration or statement expected. ts(1128)` on line 224.
+    - Unreachable comparison and argument type errors `ts(2367)` / `ts(2345)` on lines 820, 821, 967, 968, 3144, and 3225 when checking `section === "terms"` or `section === "escrow"`.
+- **Root Cause:**
+  - An earlier edit had left both the original `type Section` and the expanded `type Section` in the file.
+  - Additionally, lines 218-224 had nested `if` statements with an unmatched opening brace and missing code path.
+- **Resolution:**
+  - Removed the duplicate `type Section` definition on line 25.
+  - Rewrote `useState<Section>` initialization cleanly with a single validation check returning `"main"` as default.
+  - Removed duplicate legacy `Terms of Service` and `Privacy Policy` links from the Support & legal block.
+  - Verified with `npx tsc --noEmit` (0 errors), `npx eslint` (0 errors), and all unit tests passing.
 
 ### 151. TypeScript/ESLint Workspace & Linter Diagnostics Across Open Files (`Settings.tsx`, `PublicStorefront.tsx`, `WebsiteFooter.tsx`, `WebsiteFooter.test.tsx`, `ProductPage.tsx`, `ResourcesPage.tsx`, `LandingPage.tsx`)
 - **Severity:** Medium / Code Hygiene & DX Warning Free
