@@ -7,6 +7,11 @@ import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
+  BespokeMobileNavDrawer,
+  BespokeMobileBottomDock,
+  MobileMenuButton,
+} from "../components/BespokeMobileNav";
+import {
   ChevronDown,
   LayoutDashboard,
   Settings as SettingsIcon,
@@ -408,6 +413,7 @@ export function ProductPage() {
 
   const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Active step in the 7-step interactive showcase (0-indexed: 0..6)
@@ -899,8 +905,26 @@ export function ProductPage() {
               </button>
             </div>
           )}
+
+          {/* Bespoke Mobile Navigation Toggle */}
+          <MobileMenuButton
+            isOpen={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          />
         </div>
       </header>
+
+      {/* Bespoke Mobile Navigation Drawer */}
+      <BespokeMobileNavDrawer
+        activePage="product"
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        loggedInUser={loggedInUser}
+        displayName={loggedInUser?.name}
+        displayAvatar={userAvatarUrl ?? undefined}
+        isClientSession={loggedInUser?.userType === "CLIENT"}
+        onSignOut={handleSignOut}
+      />
 
       {/* ── Main Content Container ── */}
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
@@ -2246,8 +2270,19 @@ export function ProductPage() {
         {/* ════════════════════════════════════════════════════════════════════════
             SECTION 5: FOOTER (178359:17959)
         ════════════════════════════════════════════════════════════════════════ */}
-        <WebsiteFooter />
+        <div className="w-full pb-20 md:pb-0">
+          <WebsiteFooter />
+        </div>
       </main>
+
+      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
+      <BespokeMobileBottomDock
+        activePage="product"
+        isMenuOpen={mobileMenuOpen}
+        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
+        loggedInUser={loggedInUser}
+        displayAvatar={userAvatarUrl ?? undefined}
+      />
     </div>
   );
 }

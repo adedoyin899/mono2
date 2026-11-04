@@ -12,6 +12,11 @@ import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
+import {
+  BespokeMobileNavDrawer,
+  BespokeMobileBottomDock,
+  MobileMenuButton,
+} from "../components/BespokeMobileNav";
 
 export type LegalPageType = "terms" | "cookies" | "privacy";
 
@@ -97,6 +102,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
 
   const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -354,8 +360,26 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               </button>
             </>
           )}
+
+          {/* Bespoke Mobile Navigation Toggle */}
+          <MobileMenuButton
+            isOpen={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          />
         </div>
       </header>
+
+      {/* Bespoke Mobile Navigation Drawer */}
+      <BespokeMobileNavDrawer
+        activePage="legal"
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        loggedInUser={loggedInUser}
+        displayName={loggedInUser?.name}
+        displayAvatar={userAvatarUrl ?? undefined}
+        isClientSession={loggedInUser?.userType === "CLIENT"}
+        onSignOut={handleSignOut}
+      />
 
       {/* ── Ambient Blurred Background Gradients (178382:17974) ── */}
       <div
@@ -953,7 +977,18 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       </div>
 
       {/* ── 4. Shared Website Footer (Figma Frame 178151:50146) ── */}
-      <WebsiteFooter />
+      <div className="w-full pb-20 md:pb-0">
+        <WebsiteFooter />
+      </div>
+
+      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
+      <BespokeMobileBottomDock
+        activePage="legal"
+        isMenuOpen={mobileMenuOpen}
+        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
+        loggedInUser={loggedInUser}
+        displayAvatar={userAvatarUrl ?? undefined}
+      />
     </div>
   );
 }

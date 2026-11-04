@@ -1,11 +1,50 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
+**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 216 (2026-11-04) — Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment
+
+**Goal:** Provide a comprehensive, bespoke mobile navigation experience across all main public pages (`LandingPage`, `ProductPage`, `PricingPage`, `ResourcesPage`, `LegalPage`), resolving the missing mobile navigation links (`hidden md:flex`) and fixing vertical avatar circle clipping in the mobile header.
+
+1. **Root Cause Analysis:**
+   - **Missing Navigation on Mobile Viewports:** In the sticky headers of the main website pages, `<nav>` was styled with `hidden md:flex`. Below `768px`, all navigation links (`Product`, `Pricing`, `Resources`) were hidden with zero mobile hamburger toggle button, zero drawer sheet, and zero floating nav bar. Mobile visitors could not navigate between pages.
+   - **Header Avatar Image Clipping:** When authenticated, the mobile user menu pill rendered `displayAvatar` with default `object-cover` without explicit positioning or a dedicated wrapper. In portrait avatars (such as Theo's `6012d1b610f186b4da032a28a55bf16e19555e2e.png`), vertical centering sliced off the upper head/face, leaving only the chest/lower half visible.
+
+2. **Bespoke Mobile Navigation Architecture (`BespokeMobileNav.tsx`):**
+   - **`MobileMenuButton` (Header Integration):**
+     - Tactile 36px circular button (`border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#000000]`) with smooth Framer Motion rotation & opacity transitions between `Menu` (hamburger) and `X` (close) icons.
+     - Visible strictly on mobile devices (`md:hidden`), with full ARIA accessibility attributes (`aria-label`, `aria-expanded`).
+   - **`BespokeMobileNavDrawer` (Slide-Down Navigation Overlay):**
+     - Smooth spring-animated drawer entering from below the sticky header (`top-[68px]`) with frosted glass backdrop blur (`backdrop-blur-2xl bg-white/98 dark:bg-[#000000]/98`).
+     - **Main Pages Section:** 4 high-contrast interactive cards for `Home` (`/`), `Product` (`/product`), `Pricing` (`/pricing`), and `Resources` (`/resources`) with category icons, active route detection (pulsing red dot + `#f13030` text + `Active` tag), descriptions, and badges.
+     - **Quick Portals Section:** Role-adaptive quick cards for **Find Performers** (`/client`) and **Find Gigs** (`/dashboard`).
+     - **Account & Auth Section:**
+       - *Authenticated:* Rich profile card with unclipped avatar, user name, email, role badge (`Performer` or `Client`), and direct shortcuts to `Dashboard`, `Storefront` (for talent), `Settings`, `Support`, and `Sign Out`.
+       - *Unauthenticated:* Dual primary CTA buttons for `Sign In to Account` and `Get Started for Free` (high-contrast brand red with white text).
+     - **Utility Row:** Integrated Light/Dark theme toggle with active Sun/Moon icons, and links to `Terms`, `Privacy`, and `Cookies`.
+     - Automatically locks body scroll (`document.body.style.overflow = "hidden"`) when open to prevent background scrolling artifacts.
+   - **`BespokeMobileBottomDock` (Floating Thumb-Friendly Dock):**
+     - Floating pill docked at `bottom-4` (`max-w-sm mx-auto inset-x-3`) with frosted glassmorphism (`backdrop-blur-2xl bg-white/92 dark:bg-[#0d0d10]/92 border border-[#e8e8e8]/90 dark:border-[#1f1f23] rounded-full shadow-2xl`).
+     - 5 quick items: `Home`, `Product`, `Pricing`, `Resources`, and `Menu` / `Account` with animated active indicator pill (`layoutId="active-mobile-dock-pill"`).
+     - Allows 1-tap switching between main pages on mobile without reaching to the top of the viewport.
+
+3. **Page Integration & Header Avatar Fix:**
+   - **Avatar Alignment:** Wrapped `displayAvatar` in `div className="w-7 h-7 rounded-full overflow-hidden bg-[#f8f8f8] dark:bg-[#1a1a1a] shrink-0 border border-black/5 dark:border-white/10"` and set image to `w-full h-full object-cover object-top`, ensuring user avatars are perfectly centered and never sliced.
+   - Integrated `MobileMenuButton`, `BespokeMobileNavDrawer`, and `BespokeMobileBottomDock` across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+   - Added responsive padding (`pb-20 md:pb-0`) to footer containers so content is never obscured by the floating bottom dock when scrolled to bottom.
+
+4. **Testing & Quality Assurance:**
+   - Authored `BespokeMobileNav.test.tsx` covering all 10 unit and integration cases: menu button states, drawer main pages, active states, role portals, authenticated talent/client shortcuts, logged-out CTAs, theme toggles, and floating dock interaction.
+   - Verified `LandingPageHeader.test.tsx` (7/7 tests passed).
+   - Ran entire test suite: All 35 test files (191 tests) passed 100% green.
+   - `npx tsc --noEmit`: 0 errors.
 
 ---
 

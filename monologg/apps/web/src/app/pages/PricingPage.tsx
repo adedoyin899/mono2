@@ -8,6 +8,11 @@ import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
+  BespokeMobileNavDrawer,
+  BespokeMobileBottomDock,
+  MobileMenuButton,
+} from "../components/BespokeMobileNav";
+import {
   ChevronDown,
   LayoutDashboard,
   Settings as SettingsIcon,
@@ -39,6 +44,7 @@ export function PricingPage() {
 
   const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const [activeAudience, setActiveAudience] = useState<"performers" | "clients">("performers");
@@ -608,8 +614,26 @@ export function PricingPage() {
               </button>
             </div>
           )}
+
+          {/* Bespoke Mobile Navigation Toggle */}
+          <MobileMenuButton
+            isOpen={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          />
         </div>
       </header>
+
+      {/* Bespoke Mobile Navigation Drawer */}
+      <BespokeMobileNavDrawer
+        activePage="pricing"
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        loggedInUser={loggedInUser}
+        displayName={loggedInUser?.name}
+        displayAvatar={userAvatarUrl ?? undefined}
+        isClientSession={loggedInUser?.userType === "CLIENT"}
+        onSignOut={handleSignOut}
+      />
 
       {/* ── Ambient Background Gradient Blurs (178359:18008) ── */}
       <div
@@ -1266,8 +1290,19 @@ export function PricingPage() {
         </section>
 
         {/* ── 7. WebsiteFooter (178359:18324) ── */}
-        <WebsiteFooter />
+        <div className="w-full pb-20 md:pb-0">
+          <WebsiteFooter />
+        </div>
       </main>
+
+      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
+      <BespokeMobileBottomDock
+        activePage="pricing"
+        isMenuOpen={mobileMenuOpen}
+        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
+        loggedInUser={loggedInUser}
+        displayAvatar={userAvatarUrl ?? undefined}
+      />
     </div>
   );
 }

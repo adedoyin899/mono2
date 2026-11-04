@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
+**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 175: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment (Session 216)
+
+- **Bespoke Mobile Navigation Suite (`BespokeMobileNav.tsx`):**
+  - Designed and built `MobileMenuButton` with tactile hit target, smooth rotation/opacity transition between `Menu` and `X` icons, and complete ARIA attributes.
+  - Implemented `BespokeMobileNavDrawer` sliding down beneath the sticky header with `backdrop-blur-2xl bg-white/98 dark:bg-[#000000]/98`, scroll locking, active page indication, Find Performers/Find Gigs role portals, authenticated account shortcuts, unauthenticated CTAs, and light/dark theme toggle.
+  - Built `BespokeMobileBottomDock` floating at `bottom-4` (`md:hidden`) with animated spring pill indicator for 1-tap thumb navigation across Home, Product, Pricing, Resources, and Menu.
+- **Header Avatar Alignment & Page Integration:**
+  - Standardized user avatar display with `overflow-hidden` and `object-cover object-top`, eliminating vertical head/face cropping on mobile headers.
+  - Integrated mobile navigation components into `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+- **Testing & Verification:**
+  - Added unit test suite `BespokeMobileNav.test.tsx` (10/10 tests passed).
+  - Validated existing `LandingPageHeader.test.tsx` (7/7 tests passed).
+  - All 35 test files (191 tests) passing 100% green.
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
 
 ### Step 174: Hero iPhone Mockup Responsive Mobile Optimization & Scaling (Session 215)
 

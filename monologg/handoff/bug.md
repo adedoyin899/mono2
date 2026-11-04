@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
+**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 162. Mobile Navigation Missing Across Main Pages & Header Avatar Circle Vertical Clipping
+- **Severity:** High / Mobile Navigation & UX Integrity
+- **What happened:**
+  - On mobile screens (< 768px), navigation links (`Product`, `Pricing`, `Resources`) were completely hidden via `hidden md:flex` across all 5 main public pages (`LandingPage`, `ProductPage`, `PricingPage`, `ResourcesPage`, `LegalPage`). No mobile hamburger button, drawer, or bottom dock existed, preventing mobile users from navigating across the site.
+  - In addition, the authenticated user menu pill in the mobile header rendered portrait user avatars with default `object-cover` without explicit top-alignment, slicing off the upper head/face in tall profile pictures (such as Theo's `6012d1b610f186b4da032a28a55bf16e19555e2e.png`).
+- **Root Cause:**
+  - Header navigation links were only declared inside a desktop-only `<nav className="hidden md:flex">` container with no responsive mobile fallback trigger or sheet.
+  - User avatar `<img>` in `LandingPage.tsx` lacked an `overflow-hidden` containment wrapper and `object-top` focal alignment.
+- **Resolution:**
+  - Built `BespokeMobileNav.tsx` comprising:
+    1. `MobileMenuButton` (36px tactile button in sticky header with animated `Menu` ↔ `X` transitions).
+    2. `BespokeMobileNavDrawer` (spring-animated full-feature overlay featuring 4 main page cards with active route badges, Find Performers/Find Gigs quick role portals, full authenticated account shortcuts & sign out, unauthenticated sign in/get started CTAs, and dark/light switcher).
+    3. `BespokeMobileBottomDock` (floating glassmorphism bottom pill at `bottom-4` with 5 thumb-friendly items for 1-tap switching between Home, Product, Pricing, Resources, and Menu).
+  - Wrapped header avatars in `w-7 h-7 rounded-full overflow-hidden` and applied `w-full h-full object-cover object-top`, ensuring unclipped face display.
+  - Integrated across all 5 main pages with 100% test coverage (`BespokeMobileNav.test.tsx`).
 
 ### 161. Hero iPhone 15 Mockup Hardcoded Dimensions Caused Mobile Horizontal Overflow & CTA Button Collision
 - **Severity:** High / Mobile Layout & Responsive UX

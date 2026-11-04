@@ -9,6 +9,11 @@ import { apiClient } from "../../lib/api-client";
 import { supabase } from "../../lib/supabase";
 import { trackEvent } from "../../lib/analytics";
 import {
+  BespokeMobileNavDrawer,
+  BespokeMobileBottomDock,
+  MobileMenuButton,
+} from "../components/BespokeMobileNav";
+import {
   ChevronDown,
   Check,
   LayoutDashboard,
@@ -46,6 +51,7 @@ export function ResourcesPage() {
 
   const [loggedInUser, setLoggedInUser] = useState(appStateSync.getLoggedInUser());
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Investor form state
@@ -435,8 +441,26 @@ export function ResourcesPage() {
               </button>
             </>
           )}
+
+          {/* Bespoke Mobile Navigation Toggle */}
+          <MobileMenuButton
+            isOpen={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          />
         </div>
       </header>
+
+      {/* Bespoke Mobile Navigation Drawer */}
+      <BespokeMobileNavDrawer
+        activePage="resources"
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        loggedInUser={loggedInUser}
+        displayName={loggedInUser?.name}
+        displayAvatar={userAvatarUrl ?? undefined}
+        isClientSession={loggedInUser?.userType === "CLIENT"}
+        onSignOut={handleSignOut}
+      />
 
       {/* ── 3. Ambient Blurred Background Gradients (178359:18373) ── */}
       <div
@@ -1085,8 +1109,19 @@ export function ResourcesPage() {
         </section>
 
         {/* ── 6. Website Footer (Figma 178359:18494) ── */}
-        <WebsiteFooter />
+        <div className="w-full pb-20 md:pb-0">
+          <WebsiteFooter />
+        </div>
       </main>
+
+      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
+      <BespokeMobileBottomDock
+        activePage="resources"
+        isMenuOpen={mobileMenuOpen}
+        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
+        loggedInUser={loggedInUser}
+        displayAvatar={userAvatarUrl ?? undefined}
+      />
     </div>
   );
 }

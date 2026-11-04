@@ -15,6 +15,11 @@ import { apiClient } from "../../lib/api-client";
 import { useTheme } from "../Root";
 import { WebsiteFooter } from "../components/WebsiteFooter";
 import { PerformerAvatarRow } from "../components/PerformerAvatarRow";
+import {
+  BespokeMobileNavDrawer,
+  BespokeMobileBottomDock,
+  MobileMenuButton,
+} from "../components/BespokeMobileNav";
 
 // ─── Local Figma Assets (Node 178359:16886) ───────────────────────────────────
 // Header Logo
@@ -234,6 +239,7 @@ export function LandingPage() {
   const [talentProfile, setTalentProfile] = useState(() => appStateSync.getTalentProfile());
   const [clientProfile, setClientProfile] = useState(() => appStateSync.getClientProfile());
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -477,13 +483,15 @@ export function LandingPage() {
                 type="button"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-label="Account menu"
-                className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] bg-white dark:bg-[#000000] transition-all"
+                className="flex items-center gap-2 pl-1.5 pr-2.5 sm:pr-3 py-1 rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#f9f9f9] bg-white dark:bg-[#000000] transition-all cursor-pointer"
               >
-                <img
-                  src={displayAvatar}
-                  alt={displayName}
-                  className="w-7 h-7 rounded-full object-cover bg-[#f8f8f8] dark:bg-[#1a1a1a]"
-                />
+                <div className="w-7 h-7 rounded-full overflow-hidden bg-[#f8f8f8] dark:bg-[#1a1a1a] shrink-0 border border-black/5 dark:border-white/10">
+                  <img
+                    src={displayAvatar}
+                    alt={displayName}
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
                 <span className="hidden sm:inline font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[12px] text-[#1a1a1a] dark:text-[#f9f9f9] max-w-[140px] truncate">
                   {displayName}
                 </span>
@@ -609,8 +617,26 @@ export function LandingPage() {
               </button>
             </div>
           )}
+
+          {/* Bespoke Mobile Navigation Toggle */}
+          <MobileMenuButton
+            isOpen={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          />
         </div>
       </header>
+
+      {/* Bespoke Mobile Navigation Drawer */}
+      <BespokeMobileNavDrawer
+        activePage="home"
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        loggedInUser={loggedInUser}
+        displayName={displayName}
+        displayAvatar={displayAvatar}
+        isClientSession={isClientSession}
+        onSignOut={handleSignOut}
+      />
 
       {/* ─── 4. Hero Section (178359:16911) ─── */}
       <section
@@ -1622,9 +1648,18 @@ export function LandingPage() {
       </section>
 
       {/* ─── 8. Shared Website Footer (178359:17243) ─── */}
-      <div className="w-full max-w-[1440px] z-10">
+      <div className="w-full max-w-[1440px] z-10 pb-20 md:pb-0">
         <WebsiteFooter onGetStarted={handleGetStarted} />
       </div>
+
+      {/* ─── 9. Bespoke Mobile Floating Bottom Navigation Dock ─── */}
+      <BespokeMobileBottomDock
+        activePage="home"
+        isMenuOpen={mobileMenuOpen}
+        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
+        loggedInUser={loggedInUser}
+        displayAvatar={displayAvatar}
+      />
     </div>
   );
 }
