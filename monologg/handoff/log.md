@@ -1,11 +1,69 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
+**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 213 (2026-11-04) — Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA)
+
+**Goal:** Resolve severe contrast deficiencies in dark mode across the Order Room (`OrderRoom.tsx`), Client Dashboard (`ClientDashboard.tsx`), Performer Dashboard (`TalentDashboard.tsx`), and global tokens (`tokens.css`), specifically fixing the unreadable white-on-white file attachment card inside outgoing message bubbles and elevating dim secondary/tertiary text to meet WCAG AA standards (minimum 4.5:1).
+
+1. **Root Cause Resolution — Attachment Sub-Card Contrast in Message Bubbles (`OrderRoom.tsx`):**
+   - **The Defect:** When `isMe` was true (outgoing message bubble colored in deep purple `#5B21B6` for clients or crimson `#991B1B` for performers), the embedded file attachment card forced `bg-white` while its child elements used `dark:text-zinc-100` (`#f4f4f5`), rendering white text on a white background in dark mode and making filenames, file sizes, and icons washed out and unreadable.
+   - **The Fix:** Redesigned the attachment card inside `isMe` bubbles into a frosted dark translucent container: `bg-black/25 dark:bg-black/40 border border-white/20 text-white shadow-2xs`.
+     - File icon wrapper: `bg-white/20 text-white` (replaces pale pastel wrapper).
+     - File title: `text-white font-bold truncate` (replaces `dark:text-zinc-100`).
+     - File size: `text-white/80 font-mono text-[11px]` (replaces `dark:text-zinc-400`).
+     - Download button: `text-white/90 hover:text-white hover:bg-white/20` (replaces low-contrast grey button).
+   - Applied the same high-contrast frosted styling to `onsiteEvidence` verification cards inside `isMe` bubbles (`bg-black/25 dark:bg-black/40 border-white/20 text-white`).
+
+2. **Systemic Dark Mode Text Contrast Elevation (`OrderRoom.tsx`):**
+   - Eliminated all occurrences of `dark:text-zinc-500` (`#71717A`), which previously produced a failing ~3.8:1 contrast ratio against dark surfaces (`#0D0D0F`, `#1A1A1A`). Elevated to `dark:text-zinc-400` (`#A1A1AA`, ~6.8:1 ratio) or `dark:text-zinc-300` (`#D4D4D8`, ~11.1:1 ratio).
+   - **Message Timestamps:** Updated from `text-zinc-400 dark:text-zinc-500` to `text-zinc-400 dark:text-zinc-400 font-mono`.
+   - **Header Tabs & Switchers:**
+     - Remote/Onsite switcher: Inactive option now uses `dark:text-zinc-400 dark:hover:text-zinc-200` (was missing base dark text color).
+     - Performer/Client role switcher: Inactive option now uses `dark:text-zinc-400 dark:hover:text-zinc-200`.
+     - Message vs Brief & Files tabs: Inactive tab now uses `dark:text-zinc-400 dark:hover:text-zinc-100` with matching `dark:text-zinc-400` icon.
+     - Header Location subtext: Updated to `text-zinc-500 dark:text-zinc-400`.
+   - **Attendance Gate Bar & Integrated Google Meet Row:**
+     - Awaiting check-in notification: Updated to `text-zinc-500 dark:text-zinc-300` for high contrast against `#1A1A1A` card surface.
+     - Event details grid headers ("EVENT", "DATE & TIME", "LOCATION"): Updated to `text-zinc-500 dark:text-zinc-300`.
+   - **Composer Toolbar:**
+     - Trust & Escrow micro-pill ("Escrow protected · 48h auto-release"): Updated to `text-zinc-500 dark:text-zinc-400`.
+     - Dispute button: Updated to `text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400`.
+   - **Contextual Inspector Rail:**
+     - "Location" and "Avg. Response" metadata labels: Updated to `text-zinc-500 dark:text-zinc-400`.
+     - "ESCROW DEPOSIT" / "NET TAKE-HOME" uppercase header: Updated to `text-zinc-500 dark:text-zinc-300`.
+     - Fee breakdown button & line items: Inactive toggle and line item labels now use `text-zinc-500 dark:text-zinc-400`.
+     - Escrow disclaimer footnote: Updated to `text-zinc-500 dark:text-zinc-400`.
+     - Activity Timeline step counter ("Step 1 of 3"): Updated to `text-zinc-500 dark:text-zinc-400`.
+     - Inactive timeline step circle: Updated to `bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400`.
+     - Full Brief navigation link: Updated to `text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100`.
+   - **Modals & Brief Tab:**
+     - Submit Deliverable modal disabled button and OTP guidance: Updated to `dark:text-zinc-400`.
+     - Brief tab phase headers, badges, payment summaries, and participant roles: Updated to `dark:text-zinc-300` / `dark:text-zinc-400`.
+
+3. **Global Design Tokens (`tokens.css`):**
+   - Updated `.dark` CSS custom properties:
+     - `--color-text-secondary`: `#D1D1D1` (from Figma Frame 2147228281 `leye/Grey alpha` spectrum).
+     - `--color-text-tertiary`: `#A3A3A3` (elevated from `#767676` to guarantee WCAG AA > 6:1 contrast against dark surfaces).
+   - Elevated `.dark input::placeholder` and `.dark textarea::placeholder` color to `#A3A3A3` (from `#767676`).
+
+4. **Client & Performer Dashboards (`ClientDashboard.tsx`, `TalentDashboard.tsx`):**
+   - Updated review modal footers ("Ratings verified by Monologg Escrow" / "All reviews are verified and cannot be edited by performers") to `text-zinc-500 dark:text-zinc-400`.
+   - Updated Performer Dashboard client rating summary pillars (Average Rating, Completed Projects, Escrow Reliability subtext) and review date stamps to `text-zinc-500 dark:text-zinc-400`.
+
+5. **Verification & Testing:**
+   - Ran `npx tsc --noEmit`: 0 errors.
+   - Ran `npx eslint` across touched files: 0 errors in `OrderRoom.tsx`.
+   - Ran full test suite across all 34 test files (180 tests): 100% green pass.
+
+---
 
 ---
 

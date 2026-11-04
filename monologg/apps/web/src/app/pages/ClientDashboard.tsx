@@ -4034,7 +4034,7 @@ export function ClientDashboard() {
                             <div>
                               <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                                 {rev.name}
-                                <span className="text-[10px] font-normal text-zinc-400">· {rev.date}</span>
+                                <span className="text-[10px] font-normal text-zinc-500 dark:text-zinc-400">· {rev.date}</span>
                               </div>
                               <div className="text-[11px] text-zinc-500 dark:text-zinc-400">{rev.role}</div>
                             </div>
@@ -4065,7 +4065,7 @@ export function ClientDashboard() {
 
                   {/* Modal Footer */}
                   <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 shrink-0 flex items-center justify-between">
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
                       Ratings verified by Monologg Escrow
                     </span>
                     <Button variant="secondary" className="h-9 px-4 text-xs font-semibold" onClick={() => setShowClientReviewsModal(false)}>

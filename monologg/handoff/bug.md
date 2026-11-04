@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
+**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 159. White-on-White Unreadable File Attachment Card in Dark Mode Order Room & Low Contrast Meta Text (WCAG AA Violation)
+- **Severity:** High / Accessibility & Core Usability
+- **What happened:**
+  - In dark mode within `OrderRoom.tsx`, file attachments sent in outgoing bubbles (`isMe === true`) were rendered with a solid `bg-white` container while the child filename was styled with `dark:text-zinc-100` (`#f4f4f5`). This created white text on a white background, making the filename and file size completely washed out and unreadable.
+  - In addition, secondary timestamps (`Dec 14, 9:05 AM`), attendance status subtext ("Awaiting check-in from Emeka Johnson"), fee breakdown math, and Activity Timeline step indicators used `dark:text-zinc-500` (`#71717A`) or light-mode `text-zinc-400` without dark overrides, yielding only a ~3.8:1 contrast ratio against `#0D0D0F` / `#1A1A1A` surfaces and failing WCAG AA (requires 4.5:1).
+- **Root Cause:**
+  - `isMe` message bubble attachment sub-card forced `bg-white text-zinc-900 border-white/80` unconditionally, while children had unconditional `.dark` variant classes targeting dark cards (`dark:text-zinc-100`, `dark:text-zinc-400`).
+  - Inverted darkness logic where dark mode added `dark:text-zinc-500` (making text darker in dark mode rather than lighter).
+  - Global token `--color-text-tertiary: #767676;` in `.dark` failed contrast requirements.
+- **Resolution:**
+  - Redesigned attachment cards in `isMe` bubbles to use a frosted dark translucent container (`bg-black/25 dark:bg-black/40 border border-white/20 text-white shadow-2xs`) with `text-white font-bold` filename, `text-white/80` size, and high-contrast actions.
+  - Replaced all 11 instances of `dark:text-zinc-500` with `dark:text-zinc-400` (~6.8:1) or `dark:text-zinc-300` (~11.1:1).
+  - Upgraded global `.dark` tokens `--color-text-tertiary: #A3A3A3;` and `--color-text-secondary: #D1D1D1;` in `tokens.css`.
+  - Added `dark:text-zinc-400` across review modal footers and rating breakdown metrics in `ClientDashboard.tsx` and `TalentDashboard.tsx`.
+  - Verified with 34 test files (180 tests) passing 100% green.
 
 ### 158. Hardcoded "Powered by paystack" Badge Lacked Dynamic Hide Toggle (`WebsiteFooter.tsx`)
 - **Severity:** Low / UI Customization

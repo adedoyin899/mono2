@@ -6728,7 +6728,7 @@ export function TalentDashboard() {
 
                   {/* Modal Footer */}
                   <div className="pt-3 mt-1 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
-                    <span className="text-xs text-zinc-400">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
                       All reviews are verified and cannot be edited by performers.
                     </span>
                     <Button variant="secondary" className="h-8 text-xs px-4" onClick={() => setShowReviewsModal(false)}>
@@ -6778,7 +6778,7 @@ export function TalentDashboard() {
                   {/* Summary Stats Pillars */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
                     <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Average Rating</span>
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-body">Average Rating</span>
                       <div className="my-2 flex items-baseline gap-2">
                         <span className="font-display text-3xl font-bold text-zinc-900 dark:text-zinc-100">
                           {selectedProject.clientRating ?? 4.9}
@@ -6787,13 +6787,13 @@ export function TalentDashboard() {
                           <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                         </div>
                       </div>
-                      <span className="text-xs text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 font-body">
                         Based on {selectedProject.clientReviews ?? 18} reviews
                       </span>
                     </div>
 
                     <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Completed Projects</span>
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-body">Completed Projects</span>
                       <div className="my-2 flex items-baseline gap-2">
                         <span className="font-display text-3xl font-bold text-zinc-900 dark:text-zinc-100">
                           {selectedProject.clientReviews ?? 18}
@@ -6802,13 +6802,13 @@ export function TalentDashboard() {
                           100% Funded
                         </span>
                       </div>
-                      <span className="text-xs text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 font-body">
                         Zero disputes filed
                       </span>
                     </div>
 
                     <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between">
-                      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider font-body">Escrow Reliability</span>
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-body">Escrow Reliability</span>
                       <div className="my-2 flex items-baseline gap-2">
                         <span className="font-display text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                           100%
@@ -6817,7 +6817,7 @@ export function TalentDashboard() {
                           Instant Payout
                         </span>
                       </div>
-                      <span className="text-xs text-zinc-400 font-body">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 font-body">
                         Protected by Paystack
                       </span>
                     </div>
@@ -6876,7 +6876,7 @@ export function TalentDashboard() {
                               <h4 className="text-sm font-semibold truncate text-zinc-900 dark:text-zinc-100 font-display">
                                 {review.performer}
                               </h4>
-                              <p className="text-[11px] text-zinc-500 font-body">
+                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-body">
                                 {review.craft} · {review.project}
                               </p>
                             </div>
@@ -6886,7 +6886,7 @@ export function TalentDashboard() {
                               <span>★</span>
                               <span>{review.stars}</span>
                             </div>
-                            <div className="text-[10px] text-zinc-400 mt-0.5">{review.date}</div>
+                            <div className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{review.date}</div>
                           </div>
                         </div>
 
@@ -6899,7 +6899,7 @@ export function TalentDashboard() {
 
                   {/* Modal Footer */}
                   <div className="pt-3 mt-1 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
-                    <span className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5 text-emerald-500" />
                       Client escrow rating verified by Paystack
                     </span>

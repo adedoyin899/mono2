@@ -203,8 +203,8 @@
 
   /* High contrast text hierarchy */
   --color-text-primary: #F9F9F9;
-  --color-text-secondary: #BABABA;
-  --color-text-tertiary: #767676;
+  --color-text-secondary: #D1D1D1;
+  --color-text-tertiary: #A3A3A3;
   --color-text-inverse: #000000;
 
   --color-success: #3EE089;
@@ -582,7 +582,7 @@ a:focus {
 }
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #767676 !important;
+  color: #A3A3A3 !important;
 }
 .dark select option {
   background-color: #000000 !important;

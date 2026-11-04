@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
+**Last updated:** 2026-11-04 (Session 213: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (WCAG AA))
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,14 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 172: Comprehensive Dark Mode Contrast Audit across Order Room, Performer & Client Dashboards (Session 213)
+
+- **Root Cause Fix for Unreadable Attachment Cards:** Fixed the critical white-on-white text bug inside outgoing colored bubbles (`isMe`) in `OrderRoom.tsx`. Converted attachment containers inside colored bubbles to frosted dark translucent cards (`bg-black/25 dark:bg-black/40 border border-white/20 text-white`) with pure white titles, legible file sizes, and crisp translucent actions.
+- **Comprehensive Elimination of Failing Text Ratios:** Replaced all 11 instances of `dark:text-zinc-500` (#71717A) with `dark:text-zinc-400` (#A1A1AA, >6.8:1 ratio) or `dark:text-zinc-300` (#D4D4D8, >11:1 ratio) across message timestamps, attendance gates, Google Meet notifications, composer microcopy, and Contextual Inspector Rail line items.
+- **Global Token Calibration:** Updated `.dark` CSS tokens `--color-text-secondary: #D1D1D1;` and `--color-text-tertiary: #A3A3A3;` in `tokens.css`, plus elevated dark placeholder text to `#A3A3A3`.
+- **Dashboard Review Modal Alignment:** Fixed dark text contrast in review modal footers and rating breakdown metrics across `ClientDashboard.tsx` and `TalentDashboard.tsx`.
+- **Verification:** Verified clean typechecking (`npx tsc --noEmit`), clean linting, and 100% green pass on all 34 test files (180 tests).
 
 ### Step 171: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter (Session 212)
 

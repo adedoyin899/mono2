@@ -478,7 +478,7 @@ export function OrderRoom() {
                     <div className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 font-body">
                       Your Rating for {targetName}
                     </div>
-                    <div className="text-[11px] text-zinc-400">Verified &amp; Recorded on Monologg</div>
+                    <div className="text-[11px] text-zinc-500 dark:text-zinc-400">Verified &amp; Recorded on Monologg</div>
                   </div>
                 </div>
                 <button
@@ -593,7 +593,7 @@ export function OrderRoom() {
                 <button
                   type="button"
                   onClick={() => setRatingEditing(false)}
-                  className="px-3 h-8.5 rounded-xl text-xs font-medium text-zinc-500 hover:bg-zinc-100 transition-colors cursor-pointer"
+                  className="px-3 h-8.5 rounded-xl text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -744,7 +744,7 @@ export function OrderRoom() {
           <button
             aria-label="Go back"
             onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all text-zinc-500 shrink-0 cursor-pointer border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700"
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all text-zinc-500 dark:text-zinc-400 shrink-0 cursor-pointer border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -790,7 +790,7 @@ export function OrderRoom() {
                 Active
               </span>
               <span className="hidden sm:inline">·</span>
-              <span className="hidden sm:inline text-zinc-400">Lagos (WAT)</span>
+              <span className="hidden sm:inline text-zinc-500 dark:text-zinc-400">Lagos (WAT)</span>
             </div>
           </div>
         </div>
@@ -806,7 +806,7 @@ export function OrderRoom() {
                 className={`px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer ${
                   gigType === g
                     ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold"
-                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                    : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                 }`}
               >
                 {g}
@@ -825,7 +825,7 @@ export function OrderRoom() {
                   className={`px-2 sm:px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer flex items-center gap-1.5 ${
                     isActive
                       ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold"
-                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                      : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                   }`}
                 >
                   <span
@@ -899,12 +899,12 @@ export function OrderRoom() {
                       className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                         isActive
                           ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-semibold"
-                          : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                          : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-100"
                       }`}
                     >
                       <Icon
                         className={`w-3.5 h-3.5 shrink-0 ${
-                          isActive ? (role === "client" ? "text-[#5B21B6] dark:text-purple-400" : "text-[#B91C1C] dark:text-red-400") : "text-zinc-400"
+                          isActive ? (role === "client" ? "text-[#5B21B6] dark:text-purple-400" : "text-[#B91C1C] dark:text-red-400") : "text-zinc-400 dark:text-zinc-400"
                         }`}
                       />
                       <span>{tab.label}</span>
@@ -1044,7 +1044,7 @@ export function OrderRoom() {
                                   ? "Performer Attendance Verification"
                                   : `Confirm attendance for ${activeCheckin?.clientName || clientOrg}`}
                             </h3>
-                            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 hidden md:inline shrink-0">
+                            <span className="text-[11px] text-zinc-500 dark:text-zinc-300 hidden md:inline shrink-0">
                               · {isConfirmed
                                 ? `Milestone ${activeCheckin?.stepIndex || 2} of ${activeCheckin?.totalSteps || 3} locked in`
                                 : role === "client"
@@ -1103,19 +1103,19 @@ export function OrderRoom() {
                   {checkinDetailsExpanded && (
                     <div className="px-3.5 sm:px-4 pb-3 pt-2 border-t border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/50 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-body">
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">EVENT</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-300 block">EVENT</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">
                           {activeCheckin?.eventName || orderTitle}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">DATE &amp; TIME</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-300 block">DATE &amp; TIME</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">
                           {activeCheckin?.eventDate || "Tue 24 Nov 2026 · 10:00 AM"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">LOCATION</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-300 block">LOCATION</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate block">
                           {activeCheckin?.location || (gigType === "remote" ? "Remote (Online)" : "Eko Hotel, Lagos")}
                         </span>
@@ -1271,7 +1271,7 @@ export function OrderRoom() {
                                 {senderName}
                               </span>
                             )}
-                            <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
+                            <span className="text-[10px] text-zinc-400 dark:text-zinc-400 font-mono">
                               {msg.time}
                             </span>
                           </div>
@@ -1293,26 +1293,36 @@ export function OrderRoom() {
                             <div
                               className={`mt-2 p-2.5 rounded-xl flex items-center gap-3 border transition-colors ${
                                 isMe
-                                  ? "bg-white text-zinc-900 border-white/80 shadow-2xs"
+                                  ? "bg-black/25 dark:bg-black/40 border-white/20 text-white shadow-2xs"
                                   : "bg-zinc-50 dark:bg-zinc-800/90 border-zinc-200/90 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
                               }`}
                             >
                               <div
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                                  isTalent
-                                    ? "bg-red-50 text-[#B91C1C] dark:bg-red-950/50 dark:text-red-400"
-                                    : "bg-purple-50 text-[#5B21B6] dark:bg-purple-950/50 dark:text-purple-400"
+                                  isMe
+                                    ? "bg-white/20 text-white"
+                                    : isTalent
+                                      ? "bg-red-50 text-[#B91C1C] dark:bg-red-950/60 dark:text-red-300"
+                                      : "bg-purple-50 text-[#5B21B6] dark:bg-purple-950/60 dark:text-purple-300"
                                 }`}
                               >
                                 <FileText className="w-4 h-4" />
                               </div>
                               <div className="flex-1 min-w-0 text-xs">
-                                <div className="font-bold truncate text-zinc-900 dark:text-zinc-100">{msg.attachment.name}</div>
-                                <div className="text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">{msg.attachment.size}</div>
+                                <div className={`font-bold truncate ${isMe ? "text-white" : "text-zinc-900 dark:text-zinc-100"}`}>
+                                  {msg.attachment.name}
+                                </div>
+                                <div className={`font-mono text-[11px] ${isMe ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"}`}>
+                                  {msg.attachment.size}
+                                </div>
                               </div>
                               <button
                                 type="button"
-                                className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                  isMe
+                                    ? "text-white/90 hover:text-white hover:bg-white/20"
+                                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/70 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-700"
+                                }`}
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
@@ -1322,24 +1332,38 @@ export function OrderRoom() {
 
                           {/* Onsite evidence card inside performer bubble */}
                           {msg.onsiteEvidence && (
-                            <div className="mt-2.5 p-3 rounded-xl border text-xs shadow-2xs bg-white text-zinc-900 border-white/60 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-700">
+                            <div
+                              className={`mt-2.5 p-3 rounded-xl border text-xs shadow-2xs ${
+                                isMe
+                                  ? "bg-black/25 dark:bg-black/40 border-white/20 text-white"
+                                  : "bg-white text-zinc-900 border-white/60 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-700"
+                              }`}
+                            >
                               <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-zinc-100">
-                                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                                <div className={`flex items-center gap-1.5 font-semibold ${isMe ? "text-white" : "text-zinc-900 dark:text-zinc-100"}`}>
+                                  <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                                   Onsite Appearance Verified
                                 </div>
-                                <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                                  isMe
+                                    ? "bg-emerald-400/20 text-emerald-200 border border-emerald-400/30"
+                                    : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                }`}>
                                   Verified
                                 </span>
                               </div>
-                              <div className="space-y-1 text-zinc-600 dark:text-zinc-300">
-                                <div className="font-semibold text-zinc-900 dark:text-zinc-100">{msg.onsiteEvidence.venue}</div>
+                              <div className={`space-y-1 ${isMe ? "text-white/90" : "text-zinc-600 dark:text-zinc-300"}`}>
+                                <div className={`font-semibold ${isMe ? "text-white" : "text-zinc-900 dark:text-zinc-100"}`}>{msg.onsiteEvidence.venue}</div>
                                 <div>📍 {msg.onsiteEvidence.coords}</div>
                                 <div>Arrived {msg.onsiteEvidence.arrivalTime} (Auto-verified)</div>
                                 {msg.onsiteEvidence.pinCode && (
-                                  <div className="mt-1.5 flex items-center gap-1.5 font-mono text-zinc-800 dark:text-zinc-200">
+                                  <div className={`mt-1.5 flex items-center gap-1.5 font-mono ${isMe ? "text-white" : "text-zinc-800 dark:text-zinc-200"}`}>
                                     <span>Client code confirmed:</span>
-                                    <span className="font-bold tracking-widest text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                                    <span className={`font-bold tracking-widest px-1.5 py-0.5 rounded border ${
+                                      isMe
+                                        ? "text-emerald-200 bg-emerald-400/20 border-emerald-400/40"
+                                        : "text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                                    }`}>
                                       {msg.onsiteEvidence.pinCode}
                                     </span>
                                   </div>
@@ -1442,7 +1466,7 @@ export function OrderRoom() {
                       )}
 
                       {/* Trust & Escrow Micro-Pill */}
-                      <div className="hidden sm:flex items-center gap-1 text-[11px] text-zinc-400 dark:text-zinc-500 pl-1">
+                      <div className="hidden sm:flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 pl-1">
                         <Shield className="w-3 h-3 text-emerald-600 shrink-0" />
                         <span>Escrow protected · 48h auto-release</span>
                       </div>
@@ -1453,7 +1477,7 @@ export function OrderRoom() {
                       <button
                         type="button"
                         onClick={() => setShowDisputeModal(true)}
-                        className="text-[11px] font-medium flex items-center gap-1 text-zinc-400 hover:text-red-600 transition-colors cursor-pointer"
+                        className="text-[11px] font-medium flex items-center gap-1 text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
                       >
                         <AlertTriangle className="w-3 h-3 text-amber-500" />
                         <span>Dispute</span>
@@ -1677,11 +1701,11 @@ export function OrderRoom() {
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-hairline)] text-[11px]">
                 <div>
-                  <span className="text-zinc-400 block">Location</span>
+                  <span className="text-zinc-500 dark:text-zinc-400 block">Location</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-200">Lagos, NG</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400 block">Avg. Response</span>
+                  <span className="text-zinc-500 dark:text-zinc-400 block">Avg. Response</span>
                   <span className="font-semibold text-zinc-800 dark:text-zinc-200">&lt; 1 hour</span>
                 </div>
               </div>
@@ -1690,7 +1714,7 @@ export function OrderRoom() {
             {/* 2. Authoritative Escrow & Payout Card (Progressive Disclosure) */}
             <div className="p-3.5 rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-bg-canvas)] space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-300">
                   {role === "client" ? "Escrow Deposit" : "Net Take-Home"}
                 </span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/50">
@@ -1705,7 +1729,7 @@ export function OrderRoom() {
                 <button
                   type="button"
                   onClick={() => setRailFeeExpanded(prev => !prev)}
-                  className="text-[11px] font-semibold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 flex items-center gap-0.5 cursor-pointer"
+                  className="text-[11px] font-semibold text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center gap-0.5 cursor-pointer"
                 >
                   <span>{railFeeExpanded ? "Hide math" : "Fee breakdown"}</span>
                   {railFeeExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -1714,13 +1738,13 @@ export function OrderRoom() {
 
               {railFeeExpanded && (
                 <div className="pt-2 border-t border-[var(--color-hairline)] space-y-1.5 text-xs">
-                  <div className="flex justify-between text-zinc-500">
+                  <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                     <span>Base rate</span>
                     <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">₦120,000</span>
                   </div>
                   {role === "client" ? (
                     <>
-                      <div className="flex justify-between text-zinc-500">
+                      <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                         <span>Escrow fee (12%)</span>
                         <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">+₦14,400</span>
                       </div>
@@ -1731,7 +1755,7 @@ export function OrderRoom() {
                     </>
                   ) : (
                     <>
-                      <div className="flex justify-between text-zinc-500">
+                      <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                         <span>Platform fee (7%)</span>
                         <span className="font-mono font-medium text-zinc-800 dark:text-zinc-200">-₦8,400</span>
                       </div>
@@ -1741,7 +1765,7 @@ export function OrderRoom() {
                       </div>
                     </>
                   )}
-                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500 leading-relaxed pt-1">
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed pt-1">
                     Held in escrow via Paystack · Auto-releases 48h after delivery.
                   </p>
                 </div>
@@ -1754,7 +1778,7 @@ export function OrderRoom() {
                 <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 font-display">
                   Activity Timeline
                 </span>
-                <span className="text-[10px] font-mono text-zinc-400">
+                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
                   Step {phaseIndex + 1} of {PHASES.length}
                 </span>
               </div>
@@ -1776,7 +1800,7 @@ export function OrderRoom() {
                                 ? role === "client"
                                   ? "bg-[#5B21B6] text-white ring-3 ring-purple-500/15"
                                   : "bg-[#B91C1C] text-white ring-3 ring-red-500/15"
-                                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500"
+                                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
                           }`}
                         >
                           {isPast ? "✓" : idx + 1}
@@ -1811,7 +1835,7 @@ export function OrderRoom() {
                 className="w-full flex items-center justify-between text-xs font-bold text-zinc-900 dark:text-zinc-100 font-display cursor-pointer"
               >
                 <span>Script &amp; Brief Assets</span>
-                {railScriptExpanded ? <ChevronUp className="w-3.5 h-3.5 text-zinc-400" /> : <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />}
+                {railScriptExpanded ? <ChevronUp className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400" /> : <ChevronDown className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400" />}
               </button>
 
               {railScriptExpanded && (
@@ -1835,7 +1859,7 @@ export function OrderRoom() {
                     <button
                       type="button"
                       onClick={() => setWorkspaceTab("brief")}
-                      className="h-7.5 px-2.5 rounded-lg text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                      className="h-7.5 px-2.5 rounded-lg text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
                     >
                       Full Brief →
                     </button>
@@ -2138,7 +2162,7 @@ export function OrderRoom() {
                           <span>Incorrect code. Please ask {clientOrg} to confirm.</span>
                         </div>
                       ) : (
-                        <div className="text-[11px] text-zinc-400 dark:text-zinc-500 text-center pt-2">
+                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400 text-center pt-2">
                           The client can find this 4-digit code in their active Order Room.
                         </div>
                       )}
@@ -2173,7 +2197,7 @@ export function OrderRoom() {
                   <button
                     className={`flex-1 h-11 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-xs ${
                       deliverableTab === "onsite" && pinEntry !== CLIENT_GENERATED_PIN
-                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed"
+                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed"
                         : "text-white hover:opacity-95 active:scale-[0.98] cursor-pointer"
                     }`}
                     style={
@@ -2376,7 +2400,7 @@ export function OrderRoom() {
 
                 {/* Project Lifecycle Phases */}
                 <div>
-                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500 mb-2.5">Project phases</div>
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-300 mb-2.5">Project phases</div>
                   <div className="space-y-2">
                     {PHASES.map((p, idx) => {
                       const isPast = idx < phaseIndex;
@@ -2415,7 +2439,7 @@ export function OrderRoom() {
                                   ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
                                   : isCurrent
                                     ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-semibold"
-                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
+                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-400"
                               }`}
                             >
                               {isPast ? "Completed" : isCurrent ? (phase === "review" ? formatCountdown(timerSeconds) : "In Progress") : "Upcoming"}
@@ -2453,7 +2477,7 @@ export function OrderRoom() {
 
                 {/* Streamlined Payment Summary */}
                 <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/80 space-y-1.5 text-xs">
-                  <div className="text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500 mb-1">
+                  <div className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-300 mb-1">
                     {role === "client" ? "Escrow deposit summary" : "Payout summary"}
                   </div>
                   <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
@@ -2489,7 +2513,7 @@ export function OrderRoom() {
 
                 {/* Participants */}
                 <div>
-                  <div className="text-[11px] font-semibold tracking-normal mb-2 text-zinc-400 dark:text-zinc-500">Participants</div>
+                  <div className="text-[11px] font-semibold tracking-normal mb-2 text-zinc-500 dark:text-zinc-300">Participants</div>
                   <div className="space-y-2">
                     {[
                       { name: talentName, role: "Performer", initials: talentInitials, color: "#B91C1C", bg: "rgba(185, 28, 28, 0.12)" },
@@ -2504,7 +2528,7 @@ export function OrderRoom() {
                             {p.name}
                             <Shield className="w-3 h-3 text-emerald-600" />
                           </div>
-                          <div className="text-[11px] text-zinc-400 dark:text-zinc-500">{p.role}</div>
+                          <div className="text-[11px] text-zinc-500 dark:text-zinc-400">{p.role}</div>
                         </div>
                       </div>
                     ))}
