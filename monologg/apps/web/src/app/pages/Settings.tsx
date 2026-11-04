@@ -22,6 +22,7 @@ import {
 import { UploadPerformanceReelModal } from "../components/UploadPerformanceReelModal";
 import { WatchPerformanceReelModal } from "../components/WatchPerformanceReelModal";
 
+type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details";
 type Section = "main" | "profile" | "payment" | "notifications" | "security" | "attributes" | "craft_details" | "terms" | "escrow";
 
 const TERMS_OF_SERVICE_ITEMS = [
@@ -215,12 +216,13 @@ export function Settings() {
   const sectionParam = searchParams.get("section") as Section | null;
 
   const [section, setSection] = useState<Section>(() => {
-    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
-      return sectionParam;
-    }
-    return "main";
-  });
-  
+    if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security"].includes(sectionParam)) {
+      if (sectionParam && ["main", "profile", "payment", "craft_details", "attributes", "notifications", "security", "terms", "escrow"].includes(sectionParam)) {
+        return sectionParam;
+      }
+      return "main";
+    });
+
   // Talent fields
   const [name, setName] = useState("Emeka Johnson");
   const [email, setEmail] = useState("emeka@example.com");
@@ -463,10 +465,10 @@ export function Settings() {
         if (cState.orgType) {
           const norm =
             cState.orgType === "STUDIO" ? "Production Company" :
-            cState.orgType === "BRAND" ? "Brand" :
-            cState.orgType === "EVENT" ? "Events Company" :
-            cState.orgType === "CHURCH" ? "Other" :
-            cState.orgType;
+              cState.orgType === "BRAND" ? "Brand" :
+                cState.orgType === "EVENT" ? "Events Company" :
+                  cState.orgType === "CHURCH" ? "Other" :
+                    cState.orgType;
           setClientOrgType(norm);
         }
         setClientEmail(cState.email);
@@ -509,25 +511,25 @@ export function Settings() {
         if (cp.orgType) {
           const norm =
             cp.orgType === "STUDIO" ? "Production Company" :
-            cp.orgType === "BRAND" ? "Brand" :
-            cp.orgType === "EVENT" ? "Events Company" :
-            cp.orgType === "CHURCH" ? "Other" :
-            cp.orgType;
+              cp.orgType === "BRAND" ? "Brand" :
+                cp.orgType === "EVENT" ? "Events Company" :
+                  cp.orgType === "CHURCH" ? "Other" :
+                    cp.orgType;
           setClientOrgType(norm);
         }
         if (cp.location) setClientLocation(cp.location);
         if (cp.avatarUrl) setAvatarUrl(cp.avatarUrl);
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       apiClient.getCreatorProfile().then((profile) => {
         setName(profile.name);
         setBio(profile.bio ?? "");
         setLocation(profile.location ?? "");
         if (profile.avatarUrl) setAvatarUrl(profile.avatarUrl);
-      }).catch(() => {});
+      }).catch(() => { });
       apiClient.listServices().then((srvs) => {
         if (srvs && srvs.length > 0) setServices(srvs.slice(0, 2));
-      }).catch(() => {});
+      }).catch(() => { });
     }
 
     return unsubscribe;
@@ -543,11 +545,11 @@ export function Settings() {
       if (isClient) {
         const apiOrgType: "STUDIO" | "EVENT" | "BRAND" | "CHURCH" =
           clientOrgType === "Production Company" ? "STUDIO" :
-          clientOrgType === "Brand" ? "BRAND" :
-          clientOrgType === "Events Company" ? "EVENT" :
-          clientOrgType === "Creative Agency" ? "BRAND" :
-          clientOrgType === "Individual" ? "STUDIO" :
-          "CHURCH";
+            clientOrgType === "Brand" ? "BRAND" :
+              clientOrgType === "Events Company" ? "EVENT" :
+                clientOrgType === "Creative Agency" ? "BRAND" :
+                  clientOrgType === "Individual" ? "STUDIO" :
+                    "CHURCH";
         const updated = await apiClient.updateClientProfile({
           name: clientName,
           orgName: clientOrgName,
@@ -960,6 +962,8 @@ export function Settings() {
               <div className="text-xs font-medium tracking-normal mb-2 px-1 font-body" style={s.tertiary}>Support &amp; legal</div>
               <div className="rounded-[var(--radius-xl)] overflow-hidden mb-6" style={{ ...s.surface, boxShadow: "var(--shadow-card)" }}>
                 <ListItem label="Help Center" icon={LifeBuoy} onClick={() => navigate("/support")} />
+                <ListItem label="Terms of Service" icon={FileText} onClick={() => navigate("/legal/terms")} />
+                <ListItem label="Privacy Policy" icon={Shield} onClick={() => navigate("/legal/privacy")} />
                 <ListItem label="Terms of Service" icon={FileText} onClick={() => setSection("terms")} />
                 <ListItem label="Escrow Policy" icon={ShieldCheck} onClick={() => setSection("escrow")} />
               </div>
@@ -1064,7 +1068,7 @@ export function Settings() {
                       }}
                     >
                       <div className="absolute inset-0 bg-black/15 transition-opacity group-hover:bg-black/25" />
-                      
+
                       {/* Change Cover Button */}
                       <button
                         type="button"
@@ -1213,7 +1217,7 @@ export function Settings() {
                             style={{ color: "var(--color-text-secondary)" }}
                           >
                             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.32a6.34 6.34 0 0 0-.86-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 0 0 0 10.79 4.54V11.8a8.3 8.3 0 0 0 5.66 2.19V10.5a4.88 4.88 0 0 1-3.03-3.81z"/>
+                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.32a6.34 6.34 0 0 0-.86-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 0 0 0 10.79 4.54V11.8a8.3 8.3 0 0 0 5.66 2.19V10.5a4.88 4.88 0 0 1-3.03-3.81z" />
                             </svg>
                             <span>@{socialLinks.tiktok.replace(/^@/, "")}</span>
                           </a>
@@ -1330,11 +1334,10 @@ export function Settings() {
                                 <button
                                   type="button"
                                   onClick={() => setIsAvailable(true)}
-                                  className={`flex-1 h-11 rounded-xl border text-xs font-bold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                                    isAvailable
+                                  className={`flex-1 h-11 rounded-xl border text-xs font-bold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${isAvailable
                                       ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-600 ring-1 ring-emerald-400/30 shadow-2xs"
                                       : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                  }`}
+                                    }`}
                                 >
                                   <span className="relative flex h-2 w-2">
                                     {isAvailable && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
@@ -1345,11 +1348,10 @@ export function Settings() {
                                 <button
                                   type="button"
                                   onClick={() => setIsAvailable(false)}
-                                  className={`flex-1 h-11 rounded-xl border text-xs font-bold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                                    !isAvailable
+                                  className={`flex-1 h-11 rounded-xl border text-xs font-bold font-body flex items-center justify-center gap-2 transition-all cursor-pointer ${!isAvailable
                                       ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-400 dark:border-amber-600 ring-1 ring-amber-400/30 shadow-2xs"
                                       : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                  }`}
+                                    }`}
                                 >
                                   <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                                   Booked
@@ -1508,11 +1510,10 @@ export function Settings() {
                                     setCoverPreset(preset.id);
                                     setCoverUrl(null);
                                   }}
-                                  className={`px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${
-                                    coverPreset === preset.id && !coverUrl
+                                  className={`px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${coverPreset === preset.id && !coverUrl
                                       ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 text-zinc-900 dark:text-zinc-100 font-bold bg-white dark:bg-zinc-900 shadow-xs"
                                       : "border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 shadow-2xs hover:border-zinc-400"
-                                  }`}
+                                    }`}
                                 >
                                   <span className={`w-3.5 h-3.5 rounded-full bg-gradient-to-r ${preset.color}`} />
                                   <span>{preset.name}</span>
@@ -1909,11 +1910,10 @@ export function Settings() {
                               key={opt}
                               type="button"
                               onClick={() => setGender(opt)}
-                              className={`h-12 rounded-[16px] text-sm font-semibold transition-all border ${
-                                isSel
+                              className={`h-12 rounded-[16px] text-sm font-semibold transition-all border ${isSel
                                   ? "border-[#F13030] bg-[#F13030]/10 text-[#F13030] shadow-sm"
                                   : "border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                              }`}
+                                }`}
                             >
                               {opt}
                             </button>
@@ -1989,11 +1989,10 @@ export function Settings() {
                                 setPerformanceSummary(CRAFT_DEFAULT_SUMMARIES[craft.id]);
                               }
                             }}
-                            className={`p-3 sm:p-4 rounded-[18px] sm:rounded-[20px] text-center flex flex-col items-center justify-center gap-2 sm:gap-2.5 transition-all relative border min-h-[96px] sm:min-h-[110px] ${
-                              isSel
+                            className={`p-3 sm:p-4 rounded-[18px] sm:rounded-[20px] text-center flex flex-col items-center justify-center gap-2 sm:gap-2.5 transition-all relative border min-h-[96px] sm:min-h-[110px] ${isSel
                                 ? "border-[#F13030] bg-[#F13030]/10 text-[#F13030] shadow-sm shadow-[#F13030]/10"
                                 : "border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-zinc-300"
-                            }`}
+                              }`}
                           >
                             {isSel && (
                               <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#F13030] text-white flex items-center justify-center">
@@ -2209,11 +2208,10 @@ export function Settings() {
                                   aria-pressed={active}
                                   disabled={!currentVal}
                                   onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
-                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
-                                    active
+                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${active
                                       ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs"
                                       : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-                                  }`}
+                                    }`}
                                 >
                                   {labels[level]}
                                 </button>
@@ -2271,11 +2269,10 @@ export function Settings() {
                                   aria-pressed={active}
                                   disabled={!currentVal}
                                   onClick={() => setAttrVisibility((prev) => ({ ...prev, [field.key as string]: level }))}
-                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
-                                    active
+                                  className={`px-2 py-0.5 text-[10px] font-semibold font-body rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${active
                                       ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs"
                                       : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-                                  }`}
+                                    }`}
                                 >
                                   {labels[level]}
                                 </button>
@@ -2336,11 +2333,10 @@ export function Settings() {
               {/* Action Buttons with Crisp Disabled State */}
               <button
                 type="button"
-                className={`w-full h-12 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-xs ${
-                  savingAttributes || !consentChecked
+                className={`w-full h-12 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center justify-center gap-2 shadow-xs ${savingAttributes || !consentChecked
                     ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed"
                     : "bg-[var(--color-red)] hover:opacity-95 text-white active:scale-[0.98] cursor-pointer"
-                }`}
+                  }`}
                 onClick={handleSaveAttributes}
                 disabled={savingAttributes || !consentChecked}
               >
