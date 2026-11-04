@@ -1,11 +1,37 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
+**Last updated:** 2026-11-04 (Session 208: Dark Mode Design Token Harmonization & Divider Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 208 (2026-11-04) — Dark Mode Design Token Harmonization & Hairline Divider Parity
+
+**Goal:** Harmonize subtle dark mode hairline dividers across the entire website against extracted Figma tokens (`#1A1A1A` / `Grey alpha/500`), resolve editor buffer conflict guidance on `PublicStorefront.tsx`, and confirm resolution of the 10 TypeScript diagnostics in `Settings.tsx`.
+
+1. **Dark Mode Hairline Divider Alignment (`WebsiteFooter.tsx`, `LegalPage.tsx`):**
+   - In `WebsiteFooter.tsx`:
+     - Line 316 (Divider 1 above brand links): Updated dark class from `dark:bg-[#333333]` to `dark:bg-[#1a1a1a]` (`border/default` token, Figma node `178151:49533`).
+     - Line 642 (Divider 2 above bottom legal bar): Updated dark class from `dark:bg-[#333333]` to `dark:bg-[#1a1a1a]` (Figma node `178151:49781`).
+     - Line 666 (Pipe separator between Terms of Service and Cookie Policy): Updated dark class from `dark:text-[#333333]` to `dark:text-[#1a1a1a]`.
+   - In `LegalPage.tsx`:
+     - Lines 492 & 522 (Terms of Service Compliance Data Table dividers): Replaced `dark:bg-[#333333]` with `dark:bg-[#1a1a1a]`.
+     - Lines 827 & 876 (Cookie Policy Table dividers): Replaced `dark:bg-[#333333]` with `dark:bg-[#1a1a1a]`.
+   - Maintained elevated `#333333` background fills exclusively on pill buttons (performer/client and monthly/annual toggles in `ProductPage.tsx` and `PricingPage.tsx`) which sit elevated above `#1A1A1A` containers per Figma specifications.
+
+2. **Resolution of Editor Buffer Conflict & Diagnostics:**
+   - **`PublicStorefront.tsx`:** Verified file integrity on disk. When VS Code prompts "Failed to save 'PublicStorefront.tsx': The content of the file is newer", reverting or discarding the stale editor buffer safely synchronizes the editor to the latest committed version without losing changes.
+   - **`Settings.tsx`:** Verified disk state against the 10 TypeScript diagnostics (`ts(2300)`, `ts(2345)`, `ts(1128)`, `ts(2367)`). All 10 errors were resolved in commit `bf1fd8a`; full workspace `pnpm typecheck` exits cleanly with 0 errors across all packages.
+   - **Product Page Frame 11 Parity:** Confirmed active step card uses borderless `#0E0E0E` fill (`shadow-[inset_0_0_0_1px_transparent]`), 12px border radius, and zero red stroke in dark mode.
+
+3. **Testing & Verification:**
+   - Ran `npx tsc --noEmit` across all workspace projects (`packages/types`, `apps/web`, `apps/api`) — 0 errors.
+   - Ran `npx vitest run src/app/components/WebsiteFooter.test.tsx src/app/pages/LegalPage.test.tsx` — 7/7 tests passed.
+   - Ran full test suite across all 33 test files — 174/174 tests passed.
 
 ---
 

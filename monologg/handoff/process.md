@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
+**Last updated:** 2026-11-04 (Session 208: Dark Mode Design Token Harmonization & Divider Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 167: Dark Mode Design Token Harmonization & Divider Parity (Session 208)
+
+- **Figma Token Parity for Hairlines:** Synchronized subtle dividers across `WebsiteFooter.tsx` and `LegalPage.tsx` with the extracted canonical Figma hairline token `dark:bg-[#1a1a1a]` (`leye/Grey alpha/500`, `border/default`), replacing legacy `#333333` dividers.
+- **Pill Surface Distinction:** Maintained `#333333` exclusively for elevated switch pills (`ProductPage.tsx` and `PricingPage.tsx`) resting on `#1A1A1A` containers.
+- **Editor Buffer Synchronization Guidance:** Verified that `PublicStorefront.tsx` and `Settings.tsx` are completely error-free on disk; instructed reverting stale editor buffers to resolve IDE conflict alerts without code regression.
+- **Verification:** `pnpm typecheck` passed with 0 errors across all 3 monorepo packages, `WebsiteFooter.test.tsx` and `LegalPage.test.tsx` passed green, and all 33 test files (174 unit tests) passed.
 
 ### Step 166: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window (Session 207)
 

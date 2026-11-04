@@ -313,7 +313,7 @@ export function WebsiteFooter({
 
           {/* Divider 1 */}
           <div
-            className="bg-[#e8e8e8] dark:bg-[#333333] h-px relative shrink-0 w-full"
+            className="bg-[#e8e8e8] dark:bg-[#1a1a1a] h-px relative shrink-0 w-full"
             data-node-id="178151:49533"
             data-name="Divider"
           />
@@ -639,7 +639,7 @@ export function WebsiteFooter({
             data-name="Container"
           >
             <div
-              className="bg-[#e8e8e8] dark:bg-[#333333] h-px relative shrink-0 w-full"
+              className="bg-[#e8e8e8] dark:bg-[#1a1a1a] h-px relative shrink-0 w-full"
               data-node-id="178151:49781"
               data-name="Divider"
             />
@@ -663,7 +663,7 @@ export function WebsiteFooter({
                 >
                   Terms of Service
                 </button>
-                <span className="text-[#d1d1d1] dark:text-[#333333]" aria-hidden="true">
+                <span className="text-[#d1d1d1] dark:text-[#1a1a1a]" aria-hidden="true">
                   |
                 </span>
                 <button

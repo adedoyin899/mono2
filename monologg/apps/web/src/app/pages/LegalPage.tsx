@@ -489,7 +489,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 We handle personal information in strict compliance with the EU General Data Protection Regulation (GDPR) and the Nigeria Data Protection Act (NDPA) / NDPR.
               </p>
 
-              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#1a1a1a]" />
 
               <div
                 className="flex flex-col gap-[12px] items-start relative shrink-0 w-full"
@@ -519,7 +519,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 ))}
               </div>
 
-              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#1a1a1a]" />
 
               <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
                 For complete details regarding our data collection, processing, and security practices, please consult our dedicated Privacy Policy.
@@ -824,7 +824,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 4. Summary of Cookies Used
               </h2>
 
-              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#1a1a1a]" />
 
               <div
                 className="flex flex-col gap-[12px] items-start relative shrink-0 w-full overflow-x-auto"
@@ -873,7 +873,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                 ))}
               </div>
 
-              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#333333]" />
+              <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#1a1a1a]" />
             </div>
 
             {/* Card 5 */}

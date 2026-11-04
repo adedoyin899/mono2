@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 207: Product Page Selected State Figma Parity & 5-Card Constant-Height Sliding Window)
+**Last updated:** 2026-11-04 (Session 208: Dark Mode Design Token Harmonization & Divider Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 155. Stray #333333 Hairline Dividers in Dark Mode (`WebsiteFooter.tsx`, `LegalPage.tsx`)
+- **Severity:** Low / Design Token Consistency
+- **What happened:**
+  - In `WebsiteFooter.tsx` (Divider 1 line 316, Divider 2 line 642, and separator pipe line 666) and `LegalPage.tsx` (compliance and cookie table dividers lines 492, 522, 827, 876), dark mode divider lines used `dark:bg-[#333333]`.
+  - In dark mode, `#333333` represents active elevated surfaces or borders (`Grey alpha/450`). Applying `#333333` to thin hairlines created excessive, stark contrast against the dark page canvas and `#1A1A1A` card boundaries.
+- **Root Cause:**
+  - Legacy token value placed prior to the extraction of the official Figma design variables (`leye/Grey alpha/500` = `#1A1A1A` for `border/default`).
+- **Resolution:**
+  - Updated all subtle hairline dividers in `WebsiteFooter.tsx` and `LegalPage.tsx` to `dark:bg-[#1a1a1a]`.
+  - Elevated `#333333` fills reserved strictly for active pill switches (`ProductPage.tsx` and `PricingPage.tsx`).
+  - Validated with Vitest tests and typechecks.
 
 ### 154. Product Page Height Jitter, Layout Stretching & Active State Red Border Drift (`ProductPage.tsx`)
 - **Severity:** Medium / FAANG UX & Motion Quality
