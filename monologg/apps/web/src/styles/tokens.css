@@ -983,3 +983,80 @@ a.bg-\[\#b91c1c\]:hover, a.bg-\[\#B91C1C\]:hover {
   background-color: #D92626 !important;
 }
 
+/* ════════════════════════════════════════════════════════════════
+   Hero iPhone 15 Mockup Responsive Scaling & Mobile Optimization
+   Scale down the device frame & dashboard preview proportionately
+   on mobile viewports so it never collides with hero CTAs or overflows.
+   ════════════════════════════════════════════════════════════════ */
+
+.hero-phone-stage {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  height: 330px;
+}
+
+.hero-phone-scaler {
+  position: absolute;
+  left: 50%;
+  transform-origin: top center;
+  overflow: clip;
+  width: 385.324px;
+  height: 613px;
+  pointer-events: none;
+  top: -36px;
+  transform: translateX(-50%) scale(0.60);
+  transition: transform 0.2s ease-out;
+}
+
+@media (min-width: 375px) {
+  .hero-phone-stage {
+    height: 370px;
+  }
+  .hero-phone-scaler {
+    top: -46px;
+    transform: translateX(-50%) scale(0.68);
+  }
+}
+
+@media (min-width: 480px) {
+  .hero-phone-stage {
+    height: 410px;
+  }
+  .hero-phone-scaler {
+    top: -58px;
+    transform: translateX(-50%) scale(0.76);
+  }
+}
+
+@media (min-width: 640px) {
+  .hero-phone-stage {
+    height: 445px;
+  }
+  .hero-phone-scaler {
+    top: -72px;
+    transform: translateX(-50%) scale(0.84);
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-phone-stage {
+    height: 476px;
+  }
+  .hero-phone-scaler {
+    top: -88px;
+    transform: translateX(-50%) scale(0.92);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-phone-stage {
+    height: 502px;
+  }
+  .hero-phone-scaler {
+    top: -110.91px;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+

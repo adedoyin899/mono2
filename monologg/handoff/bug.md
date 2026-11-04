@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
+**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,22 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 161. Hero iPhone 15 Mockup Hardcoded Dimensions Caused Mobile Horizontal Overflow & CTA Button Collision
+- **Severity:** High / Mobile Layout & Responsive UX
+- **What happened:**
+  - On mobile screens (< 480px), the hero section iPhone 15 device mockup in `LandingPage.tsx` overflowed the viewport, causing the right edge of the device to be clipped and cut off.
+  - In addition, the mockup had a hardcoded `top: -110.91px` protrusion above its stage box. On mobile where the section gap was `gap-24` (96px), `110.91px` exceeded the gap, causing the top notch and bezel of the phone to collide with and overlap directly onto the "Find Performers" and "Find Gigs" hero CTA buttons.
+  - The grey stage box behind the phone also had a fixed height (`h-[502px]`), creating an abnormally tall and disproportionate container on mobile devices.
+- **Root Cause:**
+  - The phone mockup frame was rendered with rigid fixed-pixel coordinates (`w-[385.324px]`, `h-[801.124px]`) inside an outer box with `max-w-[92vw]`. Constraining the outer box without scaling the inner layers clipped the inner layers instead of scaling them down proportionately.
+  - The top negative margin (`top: -110.91px`) was calibrated only for desktop viewports (`gap-[163px]`).
+- **Resolution:**
+  - Implemented `.hero-phone-stage` and `.hero-phone-scaler` in `tokens.css` using hardware-accelerated `transform: translateX(-50%) scale(...)` with `transform-origin: top center`.
+  - Calibrated responsive multi-tier breakpoints: `scale(0.60)` on small mobile (< 375px), `scale(0.68)` on standard mobile (375px–479px), `scale(0.76)` on large mobile (480px–639px), `scale(0.84)` on tablet portrait, `scale(0.92)` on tablet landscape, and `scale(1.00)` on desktop.
+  - Calibrated negative top margins (`-36px` to `-46px` on mobile, `-110.91px` on desktop) paired with responsive section gaps (`gap-16 sm:gap-24 lg:gap-[163px]`), guaranteeing a clean 30px–50px breathing margin below the hero CTA buttons across all devices.
+  - Added `loading="eager"` and `decoding="async"` to the dashboard screenshot image.
+  - Verified with 34 test files (181 tests) passing 100% green.
 
 ### 160. Main Brand Color CTAs (Red & Purple) Lacked Universal White Text Enforcing Rules
 - **Severity:** Medium / Design System & Contrast Parity

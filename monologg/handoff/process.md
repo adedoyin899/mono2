@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
+**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,20 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 174: Hero iPhone Mockup Responsive Mobile Optimization & Scaling (Session 215)
+
+- **Responsive Scaling Architecture (`tokens.css`):**
+  - Engineered `.hero-phone-stage` and `.hero-phone-scaler` using hardware-accelerated CSS `transform: translateX(-50%) scale(...)` with `transform-origin: top center`.
+  - Calibrated multi-tier breakpoints: `scale(0.60)` on small mobile (< 375px), `scale(0.68)` on standard mobile (375px–479px), `scale(0.76)` on large mobile (480px–639px), `scale(0.84)` on tablet portrait, `scale(0.92)` on tablet landscape, and `scale(1.00)` on desktop.
+  - Eliminated horizontal viewport overflow and side-clipping on all mobile screen widths.
+  - Calibrated negative top offsets (`-36px` to `-46px` on mobile, `-110.91px` on desktop) paired with responsive section gaps (`gap-16 sm:gap-24 lg:gap-[163px]`), preventing collision with the hero CTA buttons and preserving a clean 30px–50px breathing margin.
+- **Image & Render Optimization (`LandingPage.tsx`):**
+  - Attached `.hero-phone-stage` and `.hero-phone-scaler` to the mockup container.
+  - Added `loading="eager"` and `decoding="async"` to the dashboard screenshot image.
+- **Verification:**
+  - Added unit test in `LandingPageHeader.test.tsx` verifying scaler classes and tokens.
+  - All 34 test files (181 tests) passing 100% green.
 
 ### Step 173: Universal White Text Enforcement across All Main Brand Color CTAs (Session 214)
 

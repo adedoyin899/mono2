@@ -157,4 +157,35 @@ describe("LandingPage signed-in header", () => {
     // Background hover states strictly #1A1A1A
     expect(tokensCss).toContain("background-color: #1A1A1A !important;");
   });
+
+  it("renders responsive hero iPhone 15 mockup with mobile scaling and eager image optimization", async () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/"]}>
+        <LandingPage />
+      </MemoryRouter>,
+    );
+
+    const stage = container.querySelector(".hero-phone-stage");
+    expect(stage).toBeInTheDocument();
+
+    const scaler = container.querySelector(".hero-phone-scaler");
+    expect(scaler).toBeInTheDocument();
+
+    const dashboardImg = screen.getByAltText("Monologg Performer Dashboard");
+    expect(dashboardImg).toBeInTheDocument();
+    expect(dashboardImg).toHaveAttribute("loading", "eager");
+    expect(dashboardImg).toHaveAttribute("decoding", "async");
+
+    const fs = await import("fs");
+    const path = await import("path");
+    const tokensCss = fs.readFileSync(path.resolve(__dirname, "../../styles/tokens.css"), "utf-8");
+
+    // Must define responsive hero phone stage & scaler
+    expect(tokensCss).toContain(".hero-phone-stage");
+    expect(tokensCss).toContain(".hero-phone-scaler");
+    expect(tokensCss).toContain("transform-origin: top center;");
+    expect(tokensCss).toContain("scale(0.60)");
+    expect(tokensCss).toContain("scale(0.68)");
+    expect(tokensCss).toContain("scale(1)");
+  });
 });

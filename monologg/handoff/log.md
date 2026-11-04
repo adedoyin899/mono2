@@ -1,11 +1,45 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 214: Universal White Text on Brand Color CTAs in Light & Dark Modes)
+**Last updated:** 2026-11-04 (Session 215: Hero iPhone Mockup Responsive Mobile Optimization & Scaling)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 215 (2026-11-04) — Hero iPhone Mockup Responsive Mobile Optimization & Scaling
+
+**Goal:** Fix the hero section smartphone device mockup (`LandingPage.tsx`) on mobile viewports so it scales down smoothly, eliminates horizontal clipping/overflow, prevents vertical collision with the "Find Performers" / "Find Gigs" CTA buttons, and remains 100% pixel-perfect across all screen sizes.
+
+1. **Root Cause Analysis:**
+   - **Fixed Coordinate Breakage:** The iPhone 15 frame mockup was hardcoded with fixed dimensions (`385.324px` width × `801.124px` height, clipped at `613px`).
+   - **Mobile Clipping:** On mobile viewports (< 400px), the container had `max-w-[92vw]`. Because the inner SVG layers (`Flattened`, `Screen`, Dynamic Island, camera vector layers) were fixed at `385.324px`, they did not scale, causing the right side of the device frame to be awkwardly sliced off.
+   - **Hero CTA Collision:** The mockup had a fixed `top: -110.91px` protrusion above its stage box. On mobile where the section gap was `gap-24` (96px), `110.91px` exceeded the gap, causing the top notch and bezel of the phone to overlap directly on top of the "Find Performers" and "Find Gigs" buttons.
+   - **Disproportionate Stage Height:** The grey stage box had a fixed height of `h-[502px]`, creating excessive dead space on mobile.
+
+2. **Responsive Architecture & Hardware-Accelerated CSS Scaling (`tokens.css`):**
+   - Introduced dedicated `.hero-phone-stage` and `.hero-phone-scaler` classes in `tokens.css`.
+   - Used `transform: translateX(-50%) scale(...)` with `transform-origin: top center` to scale the entire mockup coordinate system harmoniously without altering inner layout math.
+   - **Calibrated Multi-Tier Breakpoint Scaling:**
+     - `< 375px` (Narrow mobile / SE): `scale(0.60)`, `top: -36px`, `stage height: 330px`.
+     - `375px - 479px` (Standard mobile, iPhone 12–16): `scale(0.68)`, `top: -46px`, `stage height: 370px`.
+     - `480px - 639px` (Large mobile / Phablet): `scale(0.76)`, `top: -58px`, `stage height: 410px`.
+     - `640px - 767px` (Tablet portrait): `scale(0.84)`, `top: -72px`, `stage height: 445px`.
+     - `768px - 1023px` (Tablet landscape): `scale(0.92)`, `top: -88px`, `stage height: 476px`.
+     - `>= 1024px` (Desktop): `scale(1.00)`, `top: -110.91px`, `stage height: 502px` (exact 1:1 Figma spec parity).
+   - At every breakpoint, the phone's bottom edge aligns perfectly flush with the bottom of the stage box while maintaining 30px–50px of breathing room from the hero CTA buttons above.
+
+3. **Component Refinements & Image Loading (`LandingPage.tsx`):**
+   - Replaced fixed pixel dimensions on the mockup wrapper with `.hero-phone-stage` and `.hero-phone-scaler`.
+   - Updated the hero section gap from `gap-24 lg:gap-[163px]` to `gap-16 sm:gap-24 lg:gap-[163px]` and padding to `px-4 sm:px-6 md:px-12 lg:px-[200px] py-12 sm:py-16 lg:py-[112px]`.
+   - Added `loading="eager"` and `decoding="async"` on `imgPhoneScreen` (`aea552544bf22223a0a369404407ee0f5488aa63.png`) for optimal above-the-fold mobile render performance.
+
+4. **Testing & Verification:**
+   - Updated `LandingPageHeader.test.tsx` with assertions verifying the presence of `.hero-phone-stage`, `.hero-phone-scaler`, eager image loading attributes, and responsive scaling tokens.
+   - All 34 test files (181 tests) passed 100% green.
+   - `npx tsc --noEmit` passed with 0 errors.
 
 ---
 

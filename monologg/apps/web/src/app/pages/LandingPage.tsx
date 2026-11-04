@@ -614,7 +614,7 @@ export function LandingPage() {
 
       {/* ─── 4. Hero Section (178359:16911) ─── */}
       <section
-        className="flex flex-col items-center gap-24 lg:gap-[163px] px-6 md:px-12 lg:px-[200px] py-16 lg:py-[112px] relative w-full max-w-[1440px] z-10"
+        className="flex flex-col items-center gap-16 sm:gap-24 lg:gap-[163px] px-4 sm:px-6 md:px-12 lg:px-[200px] py-12 sm:py-16 lg:py-[112px] relative w-full max-w-[1440px] z-10"
         data-node-id="178359:16911"
         data-name="testimonial"
       >
@@ -697,11 +697,11 @@ export function LandingPage() {
         >
           {/* Grey Stage Box (178359:16945) */}
           <div
-            className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] h-[502px] relative rounded-[32px] shrink-0 w-full"
+            className="hero-phone-stage bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] relative rounded-[24px] sm:rounded-[32px] shrink-0 w-full"
             data-node-id="178359:16945"
           >
             <div
-              className="-translate-x-1/2 absolute h-[613px] left-[calc(50%-0.5px)] overflow-clip top-[-110.91px] w-[385px] max-w-[92vw]"
+              className="hero-phone-scaler"
               data-node-id="178359:16946"
             >
               <div className="absolute contents left-0 top-0" data-node-id="178359:16947">
@@ -736,6 +736,8 @@ export function LandingPage() {
                             alt="Monologg Performer Dashboard"
                             className="absolute h-[101.71%] left-[-0.05%] max-w-none top-[1.89%] w-[99.97%]"
                             src={imgPhoneScreen}
+                            loading="eager"
+                            decoding="async"
                           />
                         </div>
                       </div>
