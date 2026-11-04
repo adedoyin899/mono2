@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import React from "react";
 import {
@@ -75,8 +75,8 @@ describe("BespokeMobileNav Suite", () => {
     });
   });
 
-  describe("BespokeMobileNavDrawer", () => {
-    it("renders all 4 main pages when open with active state highlighted", () => {
+  describe("BespokeMobileNavDrawer (Rise-style minimal navigation)", () => {
+    it("renders all 4 main pages when open with clean vertical layout", () => {
       const onClose = vi.fn();
       renderWithProviders(
         <BespokeMobileNavDrawer
@@ -93,16 +93,13 @@ describe("BespokeMobileNav Suite", () => {
         expect(screen.getByText(page.label)).toBeInTheDocument();
       });
 
-      // Product should have "Active" badge
-      expect(screen.getByText("Active")).toBeInTheDocument();
-
       // Click on Pricing
       fireEvent.click(screen.getByText("Pricing"));
       expect(onClose).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith("/pricing");
     });
 
-    it("renders quick role portals for Find Performers and Find Gigs", () => {
+    it("renders logged-out auth pill CTAs: Sign in and Get started", () => {
       const onClose = vi.fn();
       renderWithProviders(
         <BespokeMobileNavDrawer
@@ -113,35 +110,19 @@ describe("BespokeMobileNav Suite", () => {
         />,
       );
 
-      expect(screen.getByText("Find Performers")).toBeInTheDocument();
-      expect(screen.getByText("Find Gigs")).toBeInTheDocument();
-
-      fireEvent.click(screen.getByText("Find Performers"));
-      expect(onClose).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith("/onboarding/client");
-    });
-
-    it("renders logged-out auth CTAs when no user session", () => {
-      const onClose = vi.fn();
-      renderWithProviders(
-        <BespokeMobileNavDrawer
-          activePage="home"
-          isOpen={true}
-          onClose={onClose}
-          loggedInUser={null}
-        />,
-      );
-
-      const signInBtn = screen.getByText("Sign In to Account");
-      const signUpBtn = screen.getByText("Get Started for Free");
+      const signInBtn = screen.getByRole("button", { name: "Sign in" });
+      const getStartedBtn = screen.getByRole("button", { name: "Get started" });
       expect(signInBtn).toBeInTheDocument();
-      expect(signUpBtn).toBeInTheDocument();
+      expect(getStartedBtn).toBeInTheDocument();
 
       fireEvent.click(signInBtn);
       expect(mockNavigate).toHaveBeenCalledWith("/auth?mode=signin");
+
+      fireEvent.click(getStartedBtn);
+      expect(mockNavigate).toHaveBeenCalledWith("/auth?mode=signup");
     });
 
-    it("renders logged-in user details and shortcuts for Performer", () => {
+    it("renders logged-in auth pills: Dashboard and Sign out for Performer", () => {
       const onClose = vi.fn();
       const onSignOut = vi.fn();
       renderWithProviders(
@@ -151,29 +132,24 @@ describe("BespokeMobileNav Suite", () => {
           onClose={onClose}
           loggedInUser={LOGGED_IN_TALENT}
           displayName="Emeka Johnson"
-          displayAvatar="/avatar.png"
           isClientSession={false}
           onSignOut={onSignOut}
         />,
       );
 
-      expect(screen.getByText("Emeka Johnson")).toBeInTheDocument();
-      expect(screen.getByText("emeka@monologg.co")).toBeInTheDocument();
-      expect(screen.getByText("Performer")).toBeInTheDocument();
+      const dashboardBtn = screen.getByRole("button", { name: "Dashboard" });
+      const signOutBtn = screen.getByRole("button", { name: "Sign out" });
+      expect(dashboardBtn).toBeInTheDocument();
+      expect(signOutBtn).toBeInTheDocument();
 
-      // Shortcuts
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
-      expect(screen.getByText("Storefront")).toBeInTheDocument();
-      expect(screen.getByText("Settings")).toBeInTheDocument();
-      expect(screen.getByText("Support")).toBeInTheDocument();
+      fireEvent.click(dashboardBtn);
+      expect(mockNavigate).toHaveBeenCalledWith("/dashboard");
 
-      // Sign out
-      const signOutBtn = screen.getByText("Sign Out");
       fireEvent.click(signOutBtn);
       expect(onSignOut).toHaveBeenCalledTimes(1);
     });
 
-    it("renders logged-in user details and shortcuts for Client workspace", () => {
+    it("renders logged-in auth pills: Dashboard routes to /client for Client workspace", () => {
       const onClose = vi.fn();
       renderWithProviders(
         <BespokeMobileNavDrawer
@@ -186,13 +162,12 @@ describe("BespokeMobileNav Suite", () => {
         />,
       );
 
-      expect(screen.getByText("Sarah Jenkins")).toBeInTheDocument();
-      expect(screen.getByText("sarah@filmcraft.com")).toBeInTheDocument();
-      expect(screen.getByText("Client")).toBeInTheDocument();
-      expect(screen.getByText("Post Brief")).toBeInTheDocument();
+      const dashboardBtn = screen.getByRole("button", { name: "Dashboard" });
+      fireEvent.click(dashboardBtn);
+      expect(mockNavigate).toHaveBeenCalledWith("/client");
     });
 
-    it("triggers theme toggle button and navigates to legal policies", () => {
+    it("triggers theme toggle button in header", () => {
       const onClose = vi.fn();
       renderWithProviders(
         <BespokeMobileNavDrawer
@@ -206,9 +181,22 @@ describe("BespokeMobileNav Suite", () => {
       const themeBtn = screen.getByRole("button", { name: "Toggle theme" });
       fireEvent.click(themeBtn);
       expect(mockThemeContext.toggle).toHaveBeenCalledTimes(1);
+    });
 
-      fireEvent.click(screen.getByText("Terms"));
-      expect(mockNavigate).toHaveBeenCalledWith("/terms");
+    it("triggers close button when X is clicked", () => {
+      const onClose = vi.fn();
+      renderWithProviders(
+        <BespokeMobileNavDrawer
+          activePage="home"
+          isOpen={true}
+          onClose={onClose}
+          loggedInUser={null}
+        />,
+      );
+
+      const closeBtn = screen.getByRole("button", { name: "Close navigation menu" });
+      fireEvent.click(closeBtn);
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 

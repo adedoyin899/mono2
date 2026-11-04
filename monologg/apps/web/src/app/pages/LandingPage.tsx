@@ -17,7 +17,6 @@ import { WebsiteFooter } from "../components/WebsiteFooter";
 import { PerformerAvatarRow } from "../components/PerformerAvatarRow";
 import {
   BespokeMobileNavDrawer,
-  BespokeMobileBottomDock,
   MobileMenuButton,
 } from "../components/BespokeMobileNav";
 
@@ -1648,18 +1647,9 @@ export function LandingPage() {
       </section>
 
       {/* ─── 8. Shared Website Footer (178359:17243) ─── */}
-      <div className="w-full max-w-[1440px] z-10 pb-20 md:pb-0">
+      <div className="w-full max-w-[1440px] z-10">
         <WebsiteFooter onGetStarted={handleGetStarted} />
       </div>
-
-      {/* ─── 9. Bespoke Mobile Floating Bottom Navigation Dock ─── */}
-      <BespokeMobileBottomDock
-        activePage="home"
-        isMenuOpen={mobileMenuOpen}
-        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
-        loggedInUser={loggedInUser}
-        displayAvatar={displayAvatar}
-      />
     </div>
   );
 }

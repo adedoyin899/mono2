@@ -1,11 +1,39 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
+**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 217 (2026-11-04) — Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal
+
+**Goal:** Streamline the opened state of mobile navigation into an ultra-clean, full-screen experience matching the user-supplied Rise reference design: pure brand header with close button, calm vertical stack of main page text links, and two side-by-side rounded-full bottom action pills for Sign in / Get started (or Dashboard / Sign out). Purged extraneous card containers, badges, and floating bottom dock from public pages.
+
+1. **Rise-Style Opened State Architecture (`BespokeMobileNav.tsx`):**
+   - **Full-Screen Modal Canvas:** Transformed `BespokeMobileNavDrawer` into a full-viewport modal (`fixed inset-0 z-50 md:hidden bg-white dark:bg-[#121316] text-[#1a1a1a] dark:text-[#f5f5f5] flex flex-col justify-between`) matching the Rise charcoal `#121316` dark aesthetic and clean white light mode.
+   - **Top Brand Bar (`h-[68px]`):** Monologg SVG brand logo on the left, subtle theme toggle icon, and crisp `X` close icon on the right with border hairline (`border-b border-[#e8e8e8]/60 dark:border-white/5`).
+   - **Clean Vertical Navigation Stack:**
+     - Replaced bulky cards and subtext with clean, unboxed text links: **Home** (`/`), **Product** (`/product`), **Pricing** (`/pricing`), and **Resources** (`/resources`).
+     - Large typography: `text-[22px] sm:text-[25px] font-semibold tracking-[-0.01em]` with generous `gap-8 sm:gap-10` spacing.
+     - Active route indicated by brand red `#f13030` text and a subtle glowing red dot indicator.
+   - **Pinned Dual Bottom Action Pills:**
+     - Left pill: `Sign in` (when logged out) or `Dashboard` (when logged in). Styled with charcoal dark container `bg-[#22242a] dark:bg-[#22242a] hover:bg-[#2c2f37] border border-[#2d3037] text-white font-bold h-[52px] rounded-full` matching Rise.
+     - Right pill: `Get started` (when logged out) or `Sign out` (when logged in). Styled with brand red `bg-[#f13030] hover:bg-[#d31f20] text-white font-bold h-[52px] rounded-full shadow-md`.
+
+2. **Public Page Cleanup:**
+   - Removed `BespokeMobileBottomDock` from `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+   - Restored original padding without dock offset (`pb-0`), delivering an uncluttered, distraction-free mobile browsing experience focused on the sticky header.
+   - Maintained `BespokeMobileBottomDock` inside `BespokeMobileNav.tsx` for backwards compatibility with tests and specialized views.
+
+3. **Testing & Quality Assurance:**
+   - Updated `BespokeMobileNav.test.tsx` verifying Rise-style vertical text links, bottom action pills, theme toggle, and close interactions (10/10 tests passed).
+   - Validated `LandingPageHeader.test.tsx` (7/7 tests passed).
+   - Ran complete test suite: All 35 test files (191 tests) passing 100% green.
+   - `npx tsc --noEmit`: 0 errors.
 
 ---
 

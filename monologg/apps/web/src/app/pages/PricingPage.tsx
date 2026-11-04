@@ -9,7 +9,6 @@ import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
   BespokeMobileNavDrawer,
-  BespokeMobileBottomDock,
   MobileMenuButton,
 } from "../components/BespokeMobileNav";
 import {
@@ -1290,19 +1289,8 @@ export function PricingPage() {
         </section>
 
         {/* ── 7. WebsiteFooter (178359:18324) ── */}
-        <div className="w-full pb-20 md:pb-0">
-          <WebsiteFooter />
-        </div>
+        <WebsiteFooter />
       </main>
-
-      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
-      <BespokeMobileBottomDock
-        activePage="pricing"
-        isMenuOpen={mobileMenuOpen}
-        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
-        loggedInUser={loggedInUser}
-        displayAvatar={userAvatarUrl ?? undefined}
-      />
     </div>
   );
 }

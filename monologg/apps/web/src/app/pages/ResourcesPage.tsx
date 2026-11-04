@@ -10,7 +10,6 @@ import { supabase } from "../../lib/supabase";
 import { trackEvent } from "../../lib/analytics";
 import {
   BespokeMobileNavDrawer,
-  BespokeMobileBottomDock,
   MobileMenuButton,
 } from "../components/BespokeMobileNav";
 import {
@@ -1109,19 +1108,8 @@ export function ResourcesPage() {
         </section>
 
         {/* ── 6. Website Footer (Figma 178359:18494) ── */}
-        <div className="w-full pb-20 md:pb-0">
-          <WebsiteFooter />
-        </div>
+        <WebsiteFooter />
       </main>
-
-      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
-      <BespokeMobileBottomDock
-        activePage="resources"
-        isMenuOpen={mobileMenuOpen}
-        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
-        loggedInUser={loggedInUser}
-        displayAvatar={userAvatarUrl ?? undefined}
-      />
     </div>
   );
 }

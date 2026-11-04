@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
+**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 163. Mobile Navigation Drawer Visual Clutter, Bottom Dock Distraction & Alignment with Rise Minimal Aesthetics
+- **Severity:** Medium / Mobile Visual Hierarchy & Brand Calm
+- **What happened:**
+  - The previous mobile drawer implementation was densely packed with cards, descriptions, status badges, secondary role cards, and legal links, conflicting with the desired minimalist aesthetic modeled after Rise.
+  - Concurrently, a persistent floating bottom dock competed with the main marketing CTAs and page hero elements, creating visual clutter on mobile landing pages.
+- **Root Cause:**
+  - Over-indexing on feature completeness inside a single mobile sheet rather than providing a focused, serene navigation model with only the core pages and authentication actions.
+- **Resolution:**
+  - Redesigned `BespokeMobileNavDrawer` into a full-screen, Rise-style minimal overlay:
+    1. Brand top bar with logo, subtle theme toggle, and close `X`.
+    2. Clean vertical stack of unboxed page links (`Home`, `Product`, `Pricing`, `Resources`) with large typography (`text-[22px] sm:text-[25px]`) and active route indicator.
+    3. Pinned side-by-side rounded-full bottom action pills (`Sign in` / `Get started` or `Dashboard` / `Sign out`).
+  - Purged the floating bottom dock from public pages (`LandingPage`, `ProductPage`, `PricingPage`, `ResourcesPage`, `LegalPage`) and eliminated unnecessary bottom padding, delivering a calm, clutter-free mobile view.
+  - Validated with unit tests (`BespokeMobileNav.test.tsx` 10/10 green) and full test suite (35/35 test files, 191/191 tests passed).
 
 ### 162. Mobile Navigation Missing Across Main Pages & Header Avatar Circle Vertical Clipping
 - **Severity:** High / Mobile Navigation & UX Integrity

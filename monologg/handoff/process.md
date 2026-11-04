@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 216: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment)
+**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,22 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 176: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal (Session 217)
+
+- **Rise-Style Opened State Architecture (`BespokeMobileNav.tsx`):**
+  - Converted `BespokeMobileNavDrawer` into a full-screen viewport modal overlay (`fixed inset-0 z-50 md:hidden bg-white dark:bg-[#121316] text-[#1a1a1a] dark:text-[#f5f5f5] flex flex-col justify-between`) mirroring Rise's clean dark charcoal aesthetic in dark mode and crisp white in light mode.
+  - Header: Left-aligned Monologg SVG brand logo, subtle theme toggle icon, and crisp `X` close icon on the right with a delicate bottom border hairline (`border-[#e8e8e8]/60 dark:border-white/5`).
+  - Navigation Stack: Calm, unboxed vertical text links for **Home** (`/`), **Product** (`/product`), **Pricing** (`/pricing`), and **Resources** (`/resources`) with `text-[22px] sm:text-[25px] font-semibold tracking-[-0.01em]` and `gap-8 sm:gap-10` spacing. Active route indicated by brand red `#f13030` text and a glowing red dot.
+  - Pinned Dual Bottom Action Pills: Side-by-side rounded-full buttons (`h-[52px]`): `Sign in` (or `Dashboard`) in charcoal dark container (`bg-[#22242a] dark:bg-[#22242a] text-white`) and `Get started` (or `Sign out`) in brand red (`bg-[#f13030] text-white`).
+- **Page Cleanup & Clutter Removal:**
+  - Removed `BespokeMobileBottomDock` from public marketing pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, `LegalPage.tsx`) and reset bottom padding, eliminating visual competition with hero sections and CTAs.
+  - Maintained `BespokeMobileBottomDock` export in `BespokeMobileNav.tsx` for backwards compatibility with test suites.
+- **Testing & Verification:**
+  - Updated `BespokeMobileNav.test.tsx` (10/10 tests passed).
+  - Validated `LandingPageHeader.test.tsx` (7/7 tests passed).
+  - All 35 test files (191 tests) passing 100% green.
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
 
 ### Step 175: Bespoke Mobile Navigation Architecture Across Main Pages & Header Avatar Alignment (Session 216)
 

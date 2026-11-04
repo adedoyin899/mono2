@@ -1,25 +1,9 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Home,
-  Sparkles,
-  CreditCard,
-  Compass,
-  Menu,
-  X,
-  Users,
-  Briefcase,
-  LayoutDashboard,
-  Settings,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  Sun,
-  Moon,
-  ArrowRight,
-} from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { useTheme } from "../Root";
+import { Logo } from "./ui/Logo";
 import type { LoggedInUserSession } from "../../lib/state-sync";
 
 export type NavPageId = "home" | "product" | "pricing" | "resources" | "legal";
@@ -27,7 +11,7 @@ export type NavPageId = "home" | "product" | "pricing" | "resources" | "legal";
 interface BespokeMobileNavProps {
   /** The currently active main page */
   activePage: NavPageId;
-  /** Whether the slide-down mobile menu drawer is open */
+  /** Whether the full-screen mobile menu drawer is open */
   isOpen: boolean;
   /** Callback to close the mobile menu drawer */
   onClose: () => void;
@@ -48,33 +32,21 @@ export const MAIN_PAGES = [
     id: "home" as const,
     label: "Home",
     path: "/",
-    badge: "Live Stage",
-    description: "Creative marketplace for performers & casting leads",
-    icon: Home,
   },
   {
     id: "product" as const,
     label: "Product",
     path: "/product",
-    badge: "Thespian AI",
-    description: "7-step interactive showcase, style tagging & escrow",
-    icon: Sparkles,
   },
   {
     id: "pricing" as const,
     label: "Pricing",
     path: "/pricing",
-    badge: "11% Split",
-    description: "Fee calculators, escrow protection & instant payouts",
-    icon: CreditCard,
   },
   {
     id: "resources" as const,
     label: "Resources",
     path: "/resources",
-    badge: "Investor Hub",
-    description: "Knowledge hub, creator guides & investor portal",
-    icon: Compass,
   },
 ];
 
@@ -114,7 +86,7 @@ export function MobileMenuButton({
             key="menu-icon"
             initial={{ opacity: 0, rotate: 45, scale: 0.8 }}
             animate={{ opacity: 1, rotate: 0, scale: 1 }}
-            exit={{ opacity: 0, rotate: -45, scale: 0.8 }}
+            exit={{ opacity: 0, rotate: 45, scale: 0.8 }}
             transition={{ duration: 0.15 }}
           >
             <Menu className="size-4" />
@@ -126,8 +98,9 @@ export function MobileMenuButton({
 }
 
 /**
- * Bespoke Full-Featured Mobile Navigation Drawer
- * Slides down beneath the sticky header with backdrop blur and fluid spring animation.
+ * Minimal, Bespoke Full-Screen Mobile Navigation Overlay
+ * Inspired by Rise: Ultra-clean brand header, clean vertical text link stack,
+ * and pinned side-by-side bottom action pills.
  */
 export function BespokeMobileNavDrawer({
   activePage,
@@ -165,357 +138,137 @@ export function BespokeMobileNavDrawer({
   };
 
   const dashboardHref = isClientSession ? "/client" : "/dashboard";
-  const userInitials = displayName
-    ? displayName
-        .split(" ")
-        .map((p) => p[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "U";
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Backdrop blur click-shield */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
-            className="fixed inset-0 top-[68px] z-40 bg-black/40 backdrop-blur-xs md:hidden"
-            aria-hidden="true"
-          />
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="fixed inset-0 z-50 md:hidden bg-white dark:bg-[#121316] text-[#1a1a1a] dark:text-[#f5f5f5] flex flex-col justify-between"
+        >
+          {/* Top Bar: Brand Logo & Close Icon */}
+          <div className="h-[68px] px-6 flex items-center justify-between shrink-0 border-b border-[#e8e8e8]/60 dark:border-white/5">
+            {/* Logo */}
+            <button
+              type="button"
+              onClick={() => handleNav("/")}
+              aria-label="Monologg Home"
+              className="cursor-pointer text-left focus:outline-none"
+            >
+              <Logo className="h-6 w-auto text-[#1a1a1a] dark:text-white" />
+            </button>
 
-          {/* Drawer container */}
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile Navigation"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-x-0 top-[68px] bottom-0 z-50 md:hidden bg-white/98 dark:bg-[#000000]/98 backdrop-blur-2xl border-t border-[#e8e8e8] dark:border-[#1a1a1a] shadow-2xl flex flex-col overflow-y-auto"
-          >
-            <div className="flex-1 px-4 sm:px-6 py-5 flex flex-col gap-6 max-w-lg mx-auto w-full">
-              {/* ── 1. Main Pages Navigation Cards ── */}
-              <div>
-                <div className="flex items-center justify-between mb-2.5 px-1">
-                  <span className="font-['Plus_Jakarta_Sans',sans-serif] text-[11px] font-black uppercase tracking-wider text-[#767676] dark:text-[#a3a3a3]">
-                    Main Pages
-                  </span>
-                  <span className="text-[10px] text-[#767676] dark:text-[#a3a3a3] font-mono">
-                    4 pages
-                  </span>
-                </div>
+            {/* Right Controls: Theme Toggle & Close (X) */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggle}
+                aria-label="Toggle theme"
+                className="size-9 rounded-full flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-white transition-colors cursor-pointer"
+              >
+                {isDark ? <Sun className="size-4 text-amber-400" /> : <Moon className="size-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close navigation menu"
+                className="size-9 rounded-full flex items-center justify-center text-[#1a1a1a] dark:text-white hover:text-[#f13030] dark:hover:text-[#f13030] transition-colors cursor-pointer"
+              >
+                <X className="size-6" />
+              </button>
+            </div>
+          </div>
 
-                <nav className="flex flex-col gap-2">
-                  {MAIN_PAGES.map((page) => {
-                    const isActive = activePage === page.id;
-                    const PageIcon = page.icon;
-                    return (
-                      <button
-                        key={page.id}
-                        type="button"
-                        onClick={() => handleNav(page.path)}
-                        className={`group w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                          isActive
-                            ? "bg-[#fff0f0] dark:bg-[#1a0808] border-[#f13030]/40 shadow-xs"
-                            : "bg-white dark:bg-[#0a0a0c] border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f9f9f9] dark:hover:bg-[#141417]"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div
-                            className={`size-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                              isActive
-                                ? "bg-[#f13030] text-white shadow-xs"
-                                : "bg-[#f5f5f5] dark:bg-[#141417] text-[#484848] dark:text-[#bababa] group-hover:text-[#1a1a1a] dark:group-hover:text-white"
-                            }`}
-                          >
-                            <PageIcon className="size-5" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`font-['Plus_Jakarta_Sans',sans-serif] text-[15px] font-bold ${
-                                  isActive
-                                    ? "text-[#f13030]"
-                                    : "text-[#1a1a1a] dark:text-[#f9f9f9]"
-                                }`}
-                              >
-                                {page.label}
-                              </span>
-                              {isActive && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#f13030]/10 text-[#f13030]">
-                                  <span className="size-1.5 rounded-full bg-[#f13030] animate-pulse" />
-                                  Active
-                                </span>
-                              )}
-                              {!isActive && page.badge && (
-                                <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-[#f0f0f0] dark:bg-[#1a1a1a] text-[#767676] dark:text-[#a3a3a3]">
-                                  {page.badge}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[12px] text-[#767676] dark:text-[#8e8e93] truncate max-w-[260px] sm:max-w-none">
-                              {page.description}
-                            </p>
-                          </div>
-                        </div>
-
-                        <ChevronRight
-                          className={`size-4 shrink-0 transition-transform ${
-                            isActive
-                              ? "text-[#f13030] translate-x-0.5"
-                              : "text-[#a3a3a3] dark:text-[#525252] group-hover:translate-x-0.5"
-                          }`}
-                        />
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
-
-              {/* ── 2. Quick Role Portals ── */}
-              <div>
-                <div className="flex items-center justify-between mb-2.5 px-1">
-                  <span className="font-['Plus_Jakarta_Sans',sans-serif] text-[11px] font-black uppercase tracking-wider text-[#767676] dark:text-[#a3a3a3]">
-                    Quick Portals
-                  </span>
-                  <span className="text-[10px] text-[#767676] dark:text-[#a3a3a3]">
-                    Role specific
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2.5">
+          {/* Navigation Links: Rise-style clean vertical stack */}
+          <div className="flex-1 px-7 pt-12 sm:pt-16 flex flex-col">
+            <nav className="flex flex-col gap-8 sm:gap-10">
+              {MAIN_PAGES.map((page) => {
+                const isActive = activePage === page.id;
+                return (
                   <button
+                    key={page.id}
                     type="button"
-                    onClick={() => handleNav(loggedInUser ? "/client" : "/onboarding/client")}
-                    className="p-3.5 rounded-2xl border border-[#e8e8e8] dark:border-[#1a1a1a] bg-[#fafafa] dark:bg-[#0a0a0c] hover:bg-[#f2f2f2] dark:hover:bg-[#141417] text-left transition-all cursor-pointer flex flex-col justify-between h-[96px]"
+                    onClick={() => handleNav(page.path)}
+                    className="group flex items-center justify-between text-left cursor-pointer transition-colors"
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="size-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                        <Users className="size-4" />
-                      </div>
-                      <ArrowRight className="size-3.5 text-[#a3a3a3]" />
-                    </div>
-                    <div>
-                      <span className="block font-['Plus_Jakarta_Sans',sans-serif] text-[13px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9]">
-                        Find Performers
-                      </span>
-                      <span className="block text-[11px] text-[#767676] dark:text-[#8e8e93] truncate">
-                        Cast creative talent
-                      </span>
-                    </div>
+                    <span
+                      className={`font-['Plus_Jakarta_Sans',sans-serif] text-[22px] sm:text-[25px] font-semibold tracking-[-0.01em] transition-colors ${
+                        isActive
+                          ? "text-[#f13030]"
+                          : "text-[#1a1a1a]/90 dark:text-white/90 group-hover:text-[#f13030] dark:group-hover:text-white"
+                      }`}
+                    >
+                      {page.label}
+                    </span>
+                    {isActive && (
+                      <span className="size-2 rounded-full bg-[#f13030] shadow-[0_0_8px_rgba(241,48,48,0.8)]" />
+                    )}
                   </button>
+                );
+              })}
+            </nav>
+          </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleNav(loggedInUser ? "/dashboard" : "/onboarding")}
-                    className="p-3.5 rounded-2xl border border-[#e8e8e8] dark:border-[#1a1a1a] bg-[#fafafa] dark:bg-[#0a0a0c] hover:bg-[#f2f2f2] dark:hover:bg-[#141417] text-left transition-all cursor-pointer flex flex-col justify-between h-[96px]"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <div className="size-7 rounded-lg bg-red-500/10 text-[#f13030] flex items-center justify-center">
-                        <Briefcase className="size-4" />
-                      </div>
-                      <ArrowRight className="size-3.5 text-[#a3a3a3]" />
-                    </div>
-                    <div>
-                      <span className="block font-['Plus_Jakarta_Sans',sans-serif] text-[13px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9]">
-                        Find Gigs
-                      </span>
-                      <span className="block text-[11px] text-[#767676] dark:text-[#8e8e93] truncate">
-                        Audition & get paid
-                      </span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* ── 3. Account / Authentication Hub ── */}
-              <div className="pt-2 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
-                {loggedInUser ? (
-                  <div className="p-4 rounded-2xl border border-[#e8e8e8] dark:border-[#1a1a1a] bg-[#fbfbfb] dark:bg-[#0c0c0e] flex flex-col gap-3.5">
-                    {/* User profile header */}
-                    <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-full overflow-hidden bg-[#f0f0f0] dark:bg-[#1a1a1a] shrink-0 border border-black/10 dark:border-white/10 flex items-center justify-center">
-                        {displayAvatar ? (
-                          <img
-                            src={displayAvatar}
-                            alt={displayName}
-                            className="w-full h-full object-cover object-top"
-                          />
-                        ) : (
-                          <span className="text-xs font-bold text-[#f13030]">
-                            {userInitials}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-['Plus_Jakarta_Sans',sans-serif] text-[14px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] truncate">
-                            {displayName || loggedInUser.name}
-                          </p>
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-[#FFF0F0] dark:bg-[#f13030]/20 text-[#f13030] shrink-0">
-                            {isClientSession ? "Client" : "Performer"}
-                          </span>
-                        </div>
-                        <p className="text-[12px] text-[#767676] dark:text-[#a3a3a3] truncate">
-                          {loggedInUser.email}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Authenticated quick shortcuts */}
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#e8e8e8] dark:border-[#1a1a1a]">
-                      <button
-                        type="button"
-                        onClick={() => handleNav(dashboardHref)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[12px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] bg-white dark:bg-[#141417] border border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f5f5f5] dark:hover:bg-[#1c1c20] transition-colors cursor-pointer"
-                      >
-                        <LayoutDashboard className="size-3.5 text-[#767676] dark:text-[#a3a3a3]" />
-                        <span className="truncate">Dashboard</span>
-                      </button>
-
-                      {!isClientSession ? (
-                        <button
-                          type="button"
-                          onClick={() => handleNav("/emeka-johnson")}
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[12px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] bg-white dark:bg-[#141417] border border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f5f5f5] dark:hover:bg-[#1c1c20] transition-colors cursor-pointer"
-                        >
-                          <Sparkles className="size-3.5 text-[#767676] dark:text-[#a3a3a3]" />
-                          <span className="truncate">Storefront</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleNav("/brief")}
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[12px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] bg-white dark:bg-[#141417] border border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f5f5f5] dark:hover:bg-[#1c1c20] transition-colors cursor-pointer"
-                        >
-                          <Briefcase className="size-3.5 text-[#767676] dark:text-[#a3a3a3]" />
-                          <span className="truncate">Post Brief</span>
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => handleNav("/settings")}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[12px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] bg-white dark:bg-[#141417] border border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f5f5f5] dark:hover:bg-[#1c1c20] transition-colors cursor-pointer"
-                      >
-                        <Settings className="size-3.5 text-[#767676] dark:text-[#a3a3a3]" />
-                        <span className="truncate">Settings</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleNav("/support")}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl text-left text-[12px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] bg-white dark:bg-[#141417] border border-[#e8e8e8] dark:border-[#1a1a1a] hover:bg-[#f5f5f5] dark:hover:bg-[#1c1c20] transition-colors cursor-pointer"
-                      >
-                        <HelpCircle className="size-3.5 text-[#767676] dark:text-[#a3a3a3]" />
-                        <span className="truncate">Support</span>
-                      </button>
-                    </div>
-
-                    {/* Sign out button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClose();
-                        if (onSignOut) {
-                          onSignOut();
-                        } else {
-                          navigate("/");
-                        }
-                      }}
-                      className="w-full mt-1 py-2 text-center text-[13px] font-bold text-[#f13030] hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <LogOut className="size-3.5" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => handleNav("/auth?mode=signup")}
-                      className="w-full h-12 rounded-full bg-[#f13030] text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[14px] hover:bg-[#d02020] transition-all flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(241,48,48,0.35)] cursor-pointer"
-                    >
-                      <span>Get Started for Free</span>
-                      <ArrowRight className="size-4" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleNav("/auth?mode=signin")}
-                      className="w-full h-11 rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0c] text-[#1a1a1a] dark:text-[#f9f9f9] font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[13px] hover:bg-[#f5f5f5] dark:hover:bg-[#141417] transition-all flex items-center justify-center cursor-pointer"
-                    >
-                      Sign In to Account
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* ── 4. Theme & Legal Utility Row ── */}
-              <div className="pt-2 pb-6 border-t border-[#e8e8e8] dark:border-[#1a1a1a] flex items-center justify-between">
+          {/* Bottom Actions: Rise-style side-by-side pills */}
+          <div className="p-6 pb-8 sm:pb-10 flex gap-3.5 w-full shrink-0 border-t border-[#e8e8e8]/60 dark:border-white/5">
+            {loggedInUser ? (
+              <>
                 <button
                   type="button"
-                  onClick={toggle}
-                  aria-label="Toggle theme"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#e8e8e8] dark:border-[#1a1a1a] bg-white dark:bg-[#0a0a0c] text-[#767676] dark:text-[#a3a3a3] text-[12px] font-semibold hover:bg-[#f5f5f5] dark:hover:bg-[#141417] transition-colors cursor-pointer"
+                  onClick={() => handleNav(dashboardHref)}
+                  className="flex-1 h-[52px] rounded-full bg-[#f0f0f2] dark:bg-[#22242a] hover:bg-[#e4e4e7] dark:hover:bg-[#2c2f37] border border-[#e4e4e7] dark:border-[#2d3037] text-[#1a1a1a] dark:text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[15px] transition-all cursor-pointer flex items-center justify-center active:scale-98"
                 >
-                  {isDark ? (
-                    <>
-                      <Sun className="size-3.5 text-amber-500" />
-                      <span>Light Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="size-3.5 text-slate-700" />
-                      <span>Dark Mode</span>
-                    </>
-                  )}
+                  Dashboard
                 </button>
-
-                <div className="flex items-center gap-3 text-[11px] text-[#767676] dark:text-[#a3a3a3]">
-                  <button
-                    type="button"
-                    onClick={() => handleNav("/terms")}
-                    className="hover:text-[#1a1a1a] dark:hover:text-white transition-colors cursor-pointer"
-                  >
-                    Terms
-                  </button>
-                  <span>•</span>
-                  <button
-                    type="button"
-                    onClick={() => handleNav("/privacy")}
-                    className="hover:text-[#1a1a1a] dark:hover:text-white transition-colors cursor-pointer"
-                  >
-                    Privacy
-                  </button>
-                  <span>•</span>
-                  <button
-                    type="button"
-                    onClick={() => handleNav("/cookies")}
-                    className="hover:text-[#1a1a1a] dark:hover:text-white transition-colors cursor-pointer"
-                  >
-                    Cookies
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    if (onSignOut) {
+                      onSignOut();
+                    } else {
+                      navigate("/");
+                    }
+                  }}
+                  className="flex-1 h-[52px] rounded-full bg-[#f13030] hover:bg-[#d31f20] text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[15px] transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-98"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleNav("/auth?mode=signin")}
+                  className="flex-1 h-[52px] rounded-full bg-[#f0f0f2] dark:bg-[#22242a] hover:bg-[#e4e4e7] dark:hover:bg-[#2c2f37] border border-[#e4e4e7] dark:border-[#2d3037] text-[#1a1a1a] dark:text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[15px] transition-all cursor-pointer flex items-center justify-center active:scale-98"
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNav("/auth?mode=signup")}
+                  className="flex-1 h-[52px] rounded-full bg-[#f13030] hover:bg-[#d31f20] text-white font-['Plus_Jakarta_Sans',sans-serif] font-bold text-[15px] transition-all cursor-pointer flex items-center justify-center shadow-md active:scale-98"
+                >
+                  Get started
+                </button>
+              </>
+            )}
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
 }
 
 /**
- * Bespoke Mobile Floating Bottom Navigation Dock
- * Provides thumb-friendly 1-tap navigation between main pages on mobile.
+ * Optional Mobile Floating Bottom Navigation Dock
+ * Retained for backwards compatibility with tests and custom screen modes.
  */
 export function BespokeMobileBottomDock({
   activePage,
@@ -547,7 +300,6 @@ export function BespokeMobileBottomDock({
       <div className="pointer-events-auto backdrop-blur-2xl bg-white/92 dark:bg-[#0d0d10]/92 border border-[#e8e8e8]/90 dark:border-[#1f1f23] rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.16)] p-1.5 flex items-center justify-between">
         {MAIN_PAGES.map((page) => {
           const isActive = activePage === page.id && !isMenuOpen;
-          const PageIcon = page.icon;
           return (
             <button
               key={page.id}
@@ -567,15 +319,14 @@ export function BespokeMobileBottomDock({
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
-              <PageIcon className={`size-4 ${isActive ? "text-[#f13030]" : ""}`} />
-              <span className="text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold leading-[12px] mt-0.5">
+              <span className="text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold leading-[14px]">
                 {page.label}
               </span>
             </button>
           );
         })}
 
-        {/* Menu / Account Toggle Button */}
+        {/* Menu Toggle */}
         <button
           type="button"
           onClick={onToggleMenu}
@@ -586,30 +337,8 @@ export function BespokeMobileBottomDock({
               : "text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9]"
           }`}
         >
-          {isMenuOpen && (
-            <motion.div
-              layoutId="active-mobile-dock-pill"
-              className="absolute inset-0 rounded-full bg-[#fff0f0] dark:bg-[#1f1010] border border-[#f13030]/20 -z-10"
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            />
-          )}
-
-          {isMenuOpen ? (
-            <X className="size-4 text-[#f13030]" />
-          ) : loggedInUser && displayAvatar ? (
-            <div className="size-4 rounded-full overflow-hidden border border-[#e8e8e8] dark:border-[#1a1a1a] shrink-0">
-              <img
-                src={displayAvatar}
-                alt=""
-                className="w-full h-full object-cover object-top"
-              />
-            </div>
-          ) : (
-            <Menu className="size-4" />
-          )}
-
-          <span className="text-[10px] font-['Plus_Jakarta_Sans',sans-serif] font-bold leading-[12px] mt-0.5">
-            {isMenuOpen ? "Close" : loggedInUser ? "Account" : "Menu"}
+          <span className="text-[12px] font-['Plus_Jakarta_Sans',sans-serif] font-bold leading-[14px]">
+            {isMenuOpen ? "Close" : "Menu"}
           </span>
         </button>
       </div>

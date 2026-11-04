@@ -14,7 +14,6 @@ import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
 import {
   BespokeMobileNavDrawer,
-  BespokeMobileBottomDock,
   MobileMenuButton,
 } from "../components/BespokeMobileNav";
 
@@ -977,18 +976,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       </div>
 
       {/* ── 4. Shared Website Footer (Figma Frame 178151:50146) ── */}
-      <div className="w-full pb-20 md:pb-0">
-        <WebsiteFooter />
-      </div>
-
-      {/* Bespoke Mobile Floating Bottom Navigation Dock */}
-      <BespokeMobileBottomDock
-        activePage="legal"
-        isMenuOpen={mobileMenuOpen}
-        onToggleMenu={() => setMobileMenuOpen((v) => !v)}
-        loggedInUser={loggedInUser}
-        displayAvatar={userAvatarUrl ?? undefined}
-      />
+      <WebsiteFooter />
     </div>
   );
 }
