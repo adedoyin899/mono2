@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
+**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,15 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 158. Hardcoded "Powered by paystack" Badge Lacked Dynamic Hide Toggle (`WebsiteFooter.tsx`)
+- **Severity:** Low / UI Customization
+- **What happened:**
+  - The "Powered by paystack" badge was hardcoded into the brand column of `WebsiteFooter.tsx`, preventing teams from hiding or toggling it without removing markup.
+- **Root Cause:**
+  - Introduced in Session 202 as static brand markup without configurable prop control.
+- **Resolution:**
+  - Added optional `showPoweredByPaystack?: boolean` (defaults to `false`) prop to `WebsiteFooterProps`, hiding the badge by default while keeping it trivial to switch on when required.
 
 ### 157. Static Avatar Rows Lacked Interactive Depth of Field & Performer Name Attribution (`LandingPage.tsx`, `PricingPage.tsx`)
 - **Severity:** Low / Interactive Fidelity

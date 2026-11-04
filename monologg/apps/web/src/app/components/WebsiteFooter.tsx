@@ -15,12 +15,15 @@ interface WebsiteFooterProps {
   onBecomeInvestor?: () => void;
   /** Whether to show the top grey CTA banner ("Finish Your Project today!") */
   showCtaBanner?: boolean;
+  /** Whether to show "Powered by paystack" badge in the brand column (defaults to false for now, can be toggled on later) */
+  showPoweredByPaystack?: boolean;
 }
 
 export function WebsiteFooter({
   onGetStarted,
   onBecomeInvestor,
   showCtaBanner = true,
+  showPoweredByPaystack = false,
 }: WebsiteFooterProps) {
   const navigate = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -379,34 +382,36 @@ export function WebsiteFooter({
                   >
                     The Upwork for Actors, Public speakers, Comperes, Comedians, Streamers, Artists, musicians and Creators.
                   </p>
-                  <div
-                    className="flex gap-[8px] items-center relative shrink-0"
-                    data-node-id="178151:49552"
-                  >
-                    <p
-                      className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] whitespace-nowrap"
-                      data-node-id="178151:49553"
+                  {showPoweredByPaystack && (
+                    <div
+                      className="flex gap-[8px] items-center relative shrink-0"
+                      data-node-id="178151:49552"
                     >
-                      Powered by
-                    </p>
-                    <div className="flex items-center gap-[6px] relative shrink-0" data-name="Paystack Badge">
-                      <svg
-                        className="h-[18px] w-[18px] shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-label="Paystack icon"
+                      <p
+                        className="font-['Inter_Tight',sans-serif] font-normal leading-[24px] not-italic relative shrink-0 text-[#767676] dark:text-[#a3a3a3] text-[14px] tracking-[0.42px] whitespace-nowrap"
+                        data-node-id="178151:49553"
                       >
-                        <rect x="2" y="3.5" width="11" height="3" rx="1.5" fill="#00C3F7" />
-                        <rect x="2" y="8.5" width="16" height="3" rx="1.5" fill="#00C3F7" />
-                        <rect x="2" y="13.5" width="20" height="3" rx="1.5" fill="#00C3F7" />
-                        <rect x="2" y="18.5" width="14" height="3" rx="1.5" fill="#00C3F7" />
-                      </svg>
-                      <span className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-[15px] tracking-[-0.4px] text-[#1a1a1a] dark:text-[#f9f9f9] lowercase leading-none">
-                        paystack
-                      </span>
+                        Powered by
+                      </p>
+                      <div className="flex items-center gap-[6px] relative shrink-0" data-name="Paystack Badge">
+                        <svg
+                          className="h-[18px] w-[18px] shrink-0"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-label="Paystack icon"
+                        >
+                          <rect x="2" y="3.5" width="11" height="3" rx="1.5" fill="#00C3F7" />
+                          <rect x="2" y="8.5" width="16" height="3" rx="1.5" fill="#00C3F7" />
+                          <rect x="2" y="13.5" width="20" height="3" rx="1.5" fill="#00C3F7" />
+                          <rect x="2" y="18.5" width="14" height="3" rx="1.5" fill="#00C3F7" />
+                        </svg>
+                        <span className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-[15px] tracking-[-0.4px] text-[#1a1a1a] dark:text-[#f9f9f9] lowercase leading-none">
+                          paystack
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 

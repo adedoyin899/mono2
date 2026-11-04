@@ -28,7 +28,7 @@ describe("WebsiteFooter", () => {
     vi.clearAllMocks();
   });
 
-  it("renders newsletter heading, email capture input, and Paystack badge", () => {
+  it("renders newsletter heading, email capture input, and hides Paystack badge by default", () => {
     render(
       <MemoryRouter>
         <WebsiteFooter />
@@ -43,6 +43,18 @@ describe("WebsiteFooter", () => {
     expect(screen.getByRole("button", { name: /Subscribe to newsletter/i })).toBeInTheDocument();
     expect(screen.getByText("Terms of Service")).toBeInTheDocument();
     expect(screen.getByText("Cookie Policy")).toBeInTheDocument();
+    // Powered by paystack is hidden by default via showPoweredByPaystack toggle
+    expect(screen.queryByText("Powered by")).not.toBeInTheDocument();
+    expect(screen.queryByText("paystack")).not.toBeInTheDocument();
+  });
+
+  it("renders Paystack badge when showPoweredByPaystack is toggled on", () => {
+    render(
+      <MemoryRouter>
+        <WebsiteFooter showPoweredByPaystack={true} />
+      </MemoryRouter>,
+    );
+
     expect(screen.getByText("Powered by")).toBeInTheDocument();
     expect(screen.getByText("paystack")).toBeInTheDocument();
   });

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
+**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,12 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 171: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter (Session 212)
+
+- **Configurable Badge Toggle:** Added `showPoweredByPaystack?: boolean` prop (defaulting to `false`) to `WebsiteFooterProps` in `WebsiteFooter.tsx`.
+- **Default State:** Hid the "Powered by paystack" badge by default across all marketing, legal, and resource pages while preserving the exact layout structure, allowing it to be re-enabled anywhere with `<WebsiteFooter showPoweredByPaystack={true} />`.
+- **Verification:** Updated `WebsiteFooter.test.tsx` and `LandingPageHeader.test.tsx` to verify hidden default behavior and toggle behavior. 34 test files, 180 tests passing 100% green.
 
 ### Step 170: Interactive Hover Avatar Row with Caveat Handwritten Names and Focus Blur (Session 211)
 

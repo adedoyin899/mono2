@@ -120,10 +120,10 @@ describe("LandingPage signed-in header", () => {
       ),
     ).toBeInTheDocument();
 
-    // Footer legal links & Paystack badge
+    // Footer legal links & Paystack badge (hidden by default)
     expect(screen.getByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cookie Policy" })).toBeInTheDocument();
-    expect(screen.getByText("paystack")).toBeInTheDocument();
+    expect(screen.queryByText("paystack")).not.toBeInTheDocument();
   });
 
   it("toggles dark mode class on document element when theme toggle is clicked", async () => {

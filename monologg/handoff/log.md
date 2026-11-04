@@ -1,11 +1,27 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
+**Last updated:** 2026-11-04 (Session 212: Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 212 (2026-11-04) — Configurable Hide Toggle for "Powered by paystack" Badge in WebsiteFooter
+
+**Goal:** Hide the "Powered by paystack" badge in `WebsiteFooter` by default while providing a clean `showPoweredByPaystack` boolean prop toggle that can be easily switched on later when desired.
+
+1. **Footer Component Enhancement (`WebsiteFooter.tsx`):**
+   - Added `showPoweredByPaystack?: boolean` to `WebsiteFooterProps` interface with a default value of `false`.
+   - Conditionalized the "Powered by paystack" badge (`data-node-id="178151:49552"`) inside `{showPoweredByPaystack && (...)}`.
+   - By default across all public pages (`LandingPage`, `ProductPage`, `PricingPage`, `ResourcesPage`, `LegalPage`), the badge is hidden. Passing `<WebsiteFooter showPoweredByPaystack={true} />` reactivates it immediately.
+
+2. **Test Suite Updates (`WebsiteFooter.test.tsx`, `LandingPageHeader.test.tsx`):**
+   - Updated `WebsiteFooter.test.tsx` to assert that the "Powered by paystack" badge is hidden in the default render, and added a test case confirming it renders when `showPoweredByPaystack={true}`.
+   - Updated `LandingPageHeader.test.tsx` to verify `paystack` is not in the document by default.
+   - All 34 test files (180 tests) passing 100% green.
 
 ---
 
