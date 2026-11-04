@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "../components/ui/Avatar";
 import { WebsiteFooter } from "../components/ui/WebsiteFooter";
+import { TopAnnouncementBar } from "../components/TopAnnouncementBar";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
@@ -165,29 +166,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
       data-name={isTerms ? "Terms of Service" : "Cookie Policy"}
     >
       {/* ── 1. Top Announcement Bar (178382:17927) ── */}
-      <div
-        className="bg-[#1a1a1a] border-[#333333] border-b border-solid flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
-        data-node-id={isTerms ? "178382:17927" : "178383:18858"}
-        data-name="Background+HorizontalBorder"
-      >
-        <div className="flex gap-[8px] items-center shrink-0">
-          <div className="bg-[#f13030] rounded-full shrink-0 size-[8px]" />
-          <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap">
-            Monologg is in Alpha 🥳 🥳
-          </p>
-        </div>
-        <div className="flex gap-2 sm:gap-[16px] items-center shrink-0">
-          <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
-            Paystack Secured
-          </p>
-          <p className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px]">
-            ·
-          </p>
-          <p className="font-['JetBrains_Mono',monospace] font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.67px] whitespace-nowrap">
-            25+ Verified Performers
-          </p>
-        </div>
-      </div>
+      <TopAnnouncementBar nodeId={isTerms ? "178382:17927" : "178383:18858"} />
 
       {/* ── 2. Sticky Header (178382:17939) ── */}
       <header

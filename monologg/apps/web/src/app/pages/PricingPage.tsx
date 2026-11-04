@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Avatar } from "../components/ui/Avatar";
 import { WebsiteFooter } from "../components/ui/WebsiteFooter";
 import { PerformerAvatarRow } from "../components/PerformerAvatarRow";
+import { TopAnnouncementBar } from "../components/TopAnnouncementBar";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
@@ -384,46 +385,7 @@ export function PricingPage() {
       data-node-id="178359:17960"
     >
       {/* ── 1. Top Announcement Bar (178359:17961) ── */}
-      <div
-        className="bg-[#1a1a1a] border-b border-[#333333] flex h-[40px] items-center justify-between px-4 sm:px-[24px] relative shrink-0 w-full z-50"
-        data-node-id="178359:17961"
-      >
-        <div className="flex gap-[8px] items-center shrink-0" data-node-id="178359:17962">
-          <div
-            className="bg-[#f13030] rounded-full shrink-0 size-[8px]"
-            data-node-id="178359:17963"
-          />
-          <p
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-white text-[11px] leading-[15px] whitespace-nowrap"
-            data-node-id="178359:17965"
-          >
-            Monologg is in Alpha 🥳 🥳
-          </p>
-        </div>
-        <div
-          className="flex gap-2 sm:gap-[16px] items-center shrink-0"
-          data-node-id="178359:17966"
-        >
-          <p
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
-            data-node-id="178359:17968"
-          >
-            Paystack Secured
-          </p>
-          <p
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px]"
-            data-node-id="178359:17970"
-          >
-            ·
-          </p>
-          <p
-            className="font-['JetBrains_Mono',monospace] font-bold text-[11px] text-[rgba(255,255,255,0.8)] leading-[14.66px] whitespace-nowrap"
-            data-node-id="178359:17972"
-          >
-            25+ Verified Performers
-          </p>
-        </div>
-      </div>
+      <TopAnnouncementBar nodeId="178359:17961" />
 
       {/* ── 2. Sticky Header (178359:17973) ── */}
       <header

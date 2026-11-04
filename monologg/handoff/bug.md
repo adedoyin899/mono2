@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
+**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 165. Static Announcement Bar Crowding & Lack of Live Indicator Animation
+- **Severity:** Low / UI Polish & Social Proof Dynamism
+- **What happened:**
+  - The static red dot was un-animated, failing to visually convey that Monologg is in an active, live Alpha state.
+  - On the right side, "Paystack Secured" and "25+ Verified Performers" were both shown simultaneously with a middle bullet dot (`·`), causing text crowding on narrow mobile viewports (< 380px).
+- **Root Cause:**
+  - Announcement bar was static HTML duplicated across 5 page files with no rotation timer or status dot animation.
+- **Resolution:**
+  - Created centralized `TopAnnouncementBar.tsx` featuring:
+    1. Dual-layer blinking red dot (`animate-ping` + `animate-pulse shadow-[0_0_8px_rgba(241,48,48,0.9)]`).
+    2. Dynamic 20s alternating badge marquee (`intervalMs={20000}`) that crossfades smoothly between "Paystack Secured" and "25+ Verified Performers" one item at a time.
+    3. Seamless mobile fit with zero layout jump or reflow.
+  - Authored `TopAnnouncementBar.test.tsx` (4/4 green); all 36 test files (195 tests) passed 100% green.
 
 ### 164. Product Page 525x484 Showcase Stage Disjunction on Mobile Viewports
 - **Severity:** Low / Mobile Visual Flow & Responsive Polish

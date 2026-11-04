@@ -15,6 +15,7 @@ import { apiClient } from "../../lib/api-client";
 import { useTheme } from "../Root";
 import { WebsiteFooter } from "../components/WebsiteFooter";
 import { PerformerAvatarRow } from "../components/PerformerAvatarRow";
+import { TopAnnouncementBar } from "../components/TopAnnouncementBar";
 import {
   BespokeMobileNavDrawer,
   MobileMenuButton,
@@ -301,56 +302,7 @@ export function LandingPage() {
       data-name="Home page"
     >
       {/* ─── 1. Top Announcement Bar (178359:16887) ─── */}
-      <div
-        className="bg-[#1a1a1a] border-b border-[#333333] flex items-center justify-between px-4 sm:px-[24px] h-[40px] relative shrink-0 w-full z-20"
-        data-node-id="178359:16887"
-        data-name="Background+HorizontalBorder"
-      >
-        <div
-          className="flex items-center gap-[8px] relative shrink-0"
-          data-node-id="178359:16888"
-          data-name="Container"
-        >
-          <div
-            className="bg-[#f13030] rounded-full size-[8px] shrink-0"
-            data-node-id="178359:16889"
-            data-name="Background"
-          />
-          <div className="flex items-center relative shrink-0" data-node-id="178359:16890">
-            <span
-              className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white whitespace-nowrap"
-              data-node-id="178359:16891"
-            >
-              Monologg is in Alpha 🥳 🥳
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="hidden sm:flex items-center gap-[16px] relative shrink-0"
-          data-node-id="178359:16892"
-          data-name="Container"
-        >
-          <span
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white/80 whitespace-nowrap"
-            data-node-id="178359:16894"
-          >
-            Paystack Secured
-          </span>
-          <span
-            className="font-['Plus_Jakarta_Sans',sans-serif] font-semibold text-[11px] leading-[15px] text-white/80"
-            data-node-id="178359:16896"
-          >
-            ·
-          </span>
-          <span
-            className="font-['JetBrains_Mono',monospace] font-bold text-[11px] leading-[15px] text-white/80 whitespace-nowrap"
-            data-node-id="178359:16898"
-          >
-            25+ Verified Performers
-          </span>
-        </div>
-      </div>
+      <TopAnnouncementBar nodeId="178359:16887" />
 
       {/* ─── 2. Ambient Background Gradient Blurs (178359:16899) ─── */}
       <div

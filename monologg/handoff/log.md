@@ -1,11 +1,44 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
+**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 219 (2026-11-04) — Blinking Announcement Red Dot & 20s Alternating Marquee Badges
+
+**Goal:** Implement a live blinking red status dot in the top announcement bar alongside "Monologg is in Alpha 🥳 🥳", and transform the right-hand side from a static dual-text layout into a dynamic single-badge marquee that alternates between "Paystack Secured" and "25+ Verified Performers" with a 20-second delay per item.
+
+1. **Architecture & Component Extraction (`TopAnnouncementBar.tsx`):**
+   - Created a dedicated, reusable `TopAnnouncementBar` component deployed across all 5 public pages (`LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`).
+   - **Blinking Red Indicator:** Dual-layer animated dot featuring an outer ping wave (`animate-ping bg-[#f13030] opacity-75`) and an inner glowing pulse dot (`animate-pulse shadow-[0_0_8px_rgba(241,48,48,0.9)]`), delivering high-visibility live status.
+   - **20s Alternating Marquee:**
+     - Rotates between Slide 0 (`Paystack Secured` with `Plus Jakarta Sans`) and Slide 1 (`25+ Verified Performers` with `JetBrains Mono`) with an exact 20,000ms delay (`intervalMs={20000}`).
+     - Smooth vertical translation cross-fade (`duration-700 ease-in-out` with `translate-y` and `opacity`) ensuring seamless transition with zero layout jitter.
+     - Removed the bullet divider (`·`) to present exactly one focused trust/social proof badge at a time.
+     - Perfectly fits mobile screens without cramping the Alpha announcement.
+
+2. **Integration Across Public Pages:**
+   - Replaced manually duplicated announcement bar markup across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+
+3. **Testing & Quality Assurance:**
+   - Authored `TopAnnouncementBar.test.tsx` verifying the blinking dot (ping + pulse), initial render of Paystack Secured, 20s timer rotation to 25+ Verified Performers, and round-trip rotation.
+   - Verified backward compatibility across `LandingPageHeader.test.tsx`, `ProductPage.test.tsx`, `PricingPage.test.tsx`, `ResourcesPage.test.tsx`, and `LegalPage.test.tsx`.
+   - Complete test suite: All 36 test files (195 tests) passed 100% green.
+   - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/TopAnnouncementBar.tsx`
+- `monologg/apps/web/src/app/components/TopAnnouncementBar.test.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/PricingPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/apps/web/src/app/pages/LegalPage.tsx`
 
 ---
 

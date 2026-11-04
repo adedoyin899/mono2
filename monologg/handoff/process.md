@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
+**Last updated:** 2026-11-04 (Session 219: Blinking Announcement Red Dot & 20s Alternating Marquee Badges)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,18 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 178: Blinking Announcement Red Dot & 20s Alternating Marquee Badges (Session 219)
+
+- **System-Wide Component Architecture (`TopAnnouncementBar.tsx`):**
+  - Engineered high-visibility live status indicator featuring a dual-layer blinking red dot (`animate-ping` wave + glowing `animate-pulse shadow-[0_0_8px_rgba(241,48,48,0.9)]`).
+  - Implemented 20-second alternating marquee (`intervalMs={20000}`) that crossfades smoothly between "Paystack Secured" and "25+ Verified Performers" one item at a time with subtle vertical translation, removing the divider bullet (`·`) and preventing text crowding on mobile viewports.
+  - Standardized across `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+- **Testing & Verification:**
+  - Authored `TopAnnouncementBar.test.tsx` (4/4 tests passed).
+  - Verified regression-free passes across `LandingPageHeader.test.tsx`, `ProductPage.test.tsx`, `PricingPage.test.tsx`, `ResourcesPage.test.tsx`, and `LegalPage.test.tsx` (30/30 tests passed).
+  - Full test suite: 36 test files (195 tests) passing 100% green.
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
 
 ### Step 177: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide (Session 218)
 
