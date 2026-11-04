@@ -1,11 +1,31 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
+**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 218 (2026-11-04) — Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide
+
+**Goal:** Hide the detached 525×484 product UI illustration stage on mobile viewports (< 1024px) in `ProductPage.tsx` per user direction, eliminating vertical scroll awkwardness and layout disjunction below the 5-card sliding window while keeping the desktop side-by-side showcase intact.
+
+1. **Responsive Stage Visibility (`ProductPage.tsx`):**
+   - Updated the right-column stage container (`data-node-id="178359:17450"`) from `flex` to `hidden lg:flex`.
+   - On mobile screens (< 1024px), the detached 484px stage is cleanly hidden, allowing the interactive step cards to present as a clean, focused, full-width feature stack.
+   - On desktop screens (>= 1024px), the 525×484 sticky stage remains visible side-by-side with the 491px 5-card sliding window, maintaining 1:1 parity with Figma Frame `178359:17305`.
+
+2. **Testing & Quality Assurance:**
+   - Updated `ProductPage.test.tsx` verifying that the product UI stage container includes responsive classes `hidden lg:flex` while preserving DOM test assertion compatibility for active step illustrations.
+   - Ran `ProductPage.test.tsx` (5/5 passed).
+   - Validated TypeScript: `npx tsc --noEmit` passed with 0 errors.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.test.tsx`
 
 ---
 

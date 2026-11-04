@@ -53,6 +53,10 @@ describe("ProductPage (Figma 178359:17305)", () => {
     expect(screen.getByTestId("step-card-03")).toHaveAttribute("data-step-state", "default");
     expect(screen.getByTestId("step-illustration-01")).toBeInTheDocument();
 
+    // Verify product UI illustration stage is hidden on mobile (< 1024px) and only visible on lg+ screens
+    const illustrationStage = screen.getByTestId("step-illustration-01").closest('[data-node-id="178359:17450"]');
+    expect(illustrationStage).toHaveClass("hidden", "lg:flex");
+
     // Clicking Step 03 marks Steps 01 and 02 as "completed", Step 03 as "active", and Steps 04..07 as "default"
     fireEvent.click(screen.getByTestId("step-card-03"));
     expect(screen.getByTestId("step-card-01")).toHaveAttribute("data-step-state", "completed");

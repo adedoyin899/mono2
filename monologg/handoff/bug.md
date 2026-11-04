@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
+**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 164. Product Page 525x484 Showcase Stage Disjunction on Mobile Viewports
+- **Severity:** Low / Mobile Visual Flow & Responsive Polish
+- **What happened:**
+  - On mobile screens (< 1024px), the desktop 525×484 product UI illustration stage was stacked beneath the 5-card sliding window as a massive 484px block, separated from the active step and introducing excessive empty vertical scroll.
+- **Root Cause:**
+  - Desktop-first layout (`flex flex-col lg:flex-row`) rendered both columns sequentially on mobile without hiding the detached desktop illustration stage.
+- **Resolution:**
+  - Applied `hidden lg:flex` to the right-column stage container in `ProductPage.tsx`. On mobile viewports, the detached stage is hidden so the 7-step sequence reads as a clean, full-width feature stack. Desktop preserves the side-by-side sticky 525×484 stage 1:1 with Figma Frame `178359:17305`.
+  - Added unit test assertion in `ProductPage.test.tsx` verifying responsive classes; full test suite passes 100% green.
 
 ### 163. Mobile Navigation Drawer Visual Clutter, Bottom Dock Distraction & Alignment with Rise Minimal Aesthetics
 - **Severity:** Medium / Mobile Visual Hierarchy & Brand Calm

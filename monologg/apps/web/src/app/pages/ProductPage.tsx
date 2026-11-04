@@ -1159,7 +1159,7 @@ export function ProductPage() {
 
               {/* Right Column: Dynamic 525x484 Stage Rendering the Active Step's 300x300 Figma SVG Illustration (178359:17450) */}
               <div
-                className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
+                className="hidden lg:flex bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] h-[484px] items-center justify-center relative rounded-[20px] shrink-0 w-full lg:w-[525px] lg:sticky lg:top-[100px]"
                 data-node-id="178359:17450"
               >
                 <div

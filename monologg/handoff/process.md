@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 217: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal)
+**Last updated:** 2026-11-04 (Session 218: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 177: Product Page 7-Step Interactive Showcase Product UI Stage Responsive Mobile Hide (Session 218)
+
+- **Responsive Stage Visibility (`ProductPage.tsx`):**
+  - Configured right-column product UI illustration stage (`data-node-id="178359:17450"`) with responsive `hidden lg:flex` styling.
+  - Hides the detached 484px stage on mobile viewports (< 1024px), eliminating scroll disjunction beneath the 5-card sliding window.
+  - Retains desktop side-by-side sticky 525×484 stage layout on screens >= 1024px with 1:1 Figma Frame `178359:17305` fidelity.
+- **Testing & Verification:**
+  - Updated `ProductPage.test.tsx` verifying responsive `hidden lg:flex` classes and DOM illustration presence (5/5 tests passed).
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
 
 ### Step 176: Minimal Rise-Style Full-Screen Mobile Navigation Overlay & Clutter Removal (Session 217)
 
