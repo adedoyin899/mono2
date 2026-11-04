@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
+**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 157. Static Avatar Rows Lacked Interactive Depth of Field & Performer Name Attribution (`LandingPage.tsx`, `PricingPage.tsx`)
+- **Severity:** Low / Interactive Fidelity
+- **What happened:**
+  - The 5 performer avatars were rendered statically without interactive hover responses, performer name reveals, or focal depth blurring.
+  - Per Figma node `178450:155993`, hovering any avatar reveals the performer's name above in handwritten font (`Caveat`) while applying a focus blur (`blur-[2px]`) to sibling avatars. Names were not to be shown by default in the implementation.
+- **Root Cause:**
+  - Previous sessions established static asset parity from node `178448:155888` without interactive hover state bindings.
+- **Resolution:**
+  - Created `<PerformerAvatarRow />` with stateful hover tracking, floating Caveat name indicators (hidden by default), and smooth depth-of-field focus/blur transitions (`cubic-bezier(0.16, 1, 0.3, 1)`).
+  - Integrated into both `LandingPage.tsx` and `PricingPage.tsx`, backed by 5 new unit tests.
 
 ### 156. Legacy 6-Avatar Stock Placeholder Cluster Drift (`LandingPage.tsx`, `PricingPage.tsx`)
 - **Severity:** Low / Design Asset Parity

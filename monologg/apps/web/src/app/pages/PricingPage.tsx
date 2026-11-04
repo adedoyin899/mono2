@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Avatar } from "../components/ui/Avatar";
 import { WebsiteFooter } from "../components/ui/WebsiteFooter";
+import { PerformerAvatarRow } from "../components/PerformerAvatarRow";
 import { useTheme } from "../Root";
 import { appStateSync } from "../../lib/state-sync";
 import { apiClient } from "../../lib/api-client";
@@ -21,11 +22,6 @@ const ASSETS = {
   gradientBgLeft: "/assets/pricing/gradient-bg-left.svg",
   gradientBgRight: "/assets/pricing/gradient-bg-right.svg",
   arrowRight: "/assets/pricing/arrow-right.svg",
-  avatar1: "/assets/pricing/6012d1b610f186b4da032a28a55bf16e19555e2e.png",
-  avatar2: "/assets/pricing/7e479fe931474f554d58db81abed255122f1de16.png",
-  avatar3: "/assets/pricing/27c7ee29f5252ea64f624a3fdfd8fa27d463ea10.png",
-  avatar4: "/assets/pricing/ce41249745f3e585f8d80fb1ce07d7acc7524c76.png",
-  avatar5: "/assets/pricing/89a561d69a1da9e8f1cff844db5a81f524163118.png",
   studioVimeo: "/assets/pricing/studio-vimeo.svg",
   studioNetflix: "/assets/pricing/studio-netflix.svg",
   studioAmazonPrime: "/assets/pricing/studio-amazon-prime.svg",
@@ -764,74 +760,8 @@ export function PricingPage() {
                   className="flex flex-col gap-[12px] items-center relative shrink-0"
                   data-node-id="178359:18038"
                 >
-                  {/* 5 Overlapping Performer Avatars (Figma 178448:155893) */}
-                  <div
-                    className="flex items-start relative shrink-0"
-                    data-node-id="178448:155893"
-                  >
-                    {/* Avatar 1 (Bolu Olatunji) */}
-                    <div
-                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                      data-node-id="178448:155894"
-                    >
-                      <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-full">
-                        <img
-                          alt="Bolu Olatunji"
-                          className="absolute h-[124.99%] left-0 max-w-none top-[0.88%] w-full object-cover"
-                          src={ASSETS.avatar1}
-                        />
-                      </div>
-                    </div>
-                    {/* Avatar 2 (Deborah Ojengbede) */}
-                    <div
-                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                      data-node-id="178448:155895"
-                    >
-                      <img
-                        alt="Deborah Ojengbede"
-                        className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-full size-full"
-                        src={ASSETS.avatar2}
-                      />
-                    </div>
-                    {/* Avatar 3 (Gloria Sido) */}
-                    <div
-                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                      data-node-id="178448:155896"
-                    >
-                      <img
-                        alt="Gloria Sido"
-                        className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-full size-full"
-                        src={ASSETS.avatar3}
-                      />
-                    </div>
-                    {/* Avatar 4 (Theo Olayanju) */}
-                    <div
-                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center mr-[-15px] p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                      data-node-id="178448:155897"
-                    >
-                      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-full">
-                        <div className="absolute bg-[#f9f9f9] dark:bg-[#1a1a1a] inset-0 rounded-full" />
-                        <img
-                          alt="Theo Olayanju"
-                          className="absolute max-w-none object-cover rounded-full size-full"
-                          src={ASSETS.avatar4}
-                        />
-                      </div>
-                    </div>
-                    {/* Avatar 5 (Olayinka Olaseni) */}
-                    <div
-                      className="border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.363px] border-solid flex items-center p-[11.614px] relative rounded-full shrink-0 size-[46.457px]"
-                      data-node-id="178448:155898"
-                    >
-                      <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-full">
-                        <img
-                          alt="Olayinka Olaseni"
-                          className="absolute h-[150.06%] left-0 max-w-none top-[1.03%] w-full object-cover"
-                          src={ASSETS.avatar5}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  {/* 5 Overlapping Performer Avatars with Caveat Hover Names & Focus Blur (Figma 178450:156007 & 178450:156023) */}
+                  <PerformerAvatarRow assetPrefix="pricing" data-node-id="178448:155893" />
 
                   <h2
                     className="font-['Switzer',sans-serif] font-medium text-[36px] sm:text-[48px] leading-[48px] tracking-[-1.44px] text-[#1a1a1a] dark:text-[#f9f9f9] text-center whitespace-nowrap"

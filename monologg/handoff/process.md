@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
+**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 170: Interactive Hover Avatar Row with Caveat Handwritten Names and Focus Blur (Session 211)
+
+- **Handwritten Typography Foundation:** Added Google Fonts import for `Caveat:wght@400;500;600;700` and `Caveat+Brush` to `fonts.css`, configured `--font-handwritten: 'Caveat', 'Caveat Brush', cursive;` and `.font-caveat` in `tokens.css`, and injected preconnect links in `index.html`.
+- **Reusable Component (`PerformerAvatarRow.tsx`):**
+  - Built an accessible, reusable component displaying the 5 official African performer portraits in strict Figma left-to-right alignment (Theo, Olayinka, Deborah, Bolu, Gloria).
+  - Designed a floating name label container with 0 layout reflow: in idle state, all names are hidden (`opacity-0`).
+  - Hovering or focusing an avatar reveals its name above in `Caveat` font, elevates the avatar (`scale-[1.08] z-30 filter-none`), and applies a smooth depth-of-field blur (`blur-[2px] opacity-60 scale-[0.98]`) to non-hovered siblings using `cubic-bezier(0.16, 1, 0.3, 1)` easing over 300ms.
+- **LandingPage & PricingPage Integration:** Embedded `<PerformerAvatarRow />` across `LandingPage.tsx` and `PricingPage.tsx`, removing duplicate markup and unused constants.
+- **Verification:** Created unit test suite `PerformerAvatarRow.test.tsx` (5 unit tests). Passed all 34 test files (179 tests) with 0 TypeScript/ESLint warnings.
 
 ### Step 169: 1-to-1 Figma 5-Avatar Creative Talent Asset Parity (Session 210)
 

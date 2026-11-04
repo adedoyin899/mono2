@@ -1,11 +1,54 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 210: Hero & Pricing 5-Avatar Creative Talent Asset Parity from Figma 178448:155888 & 178448:155893)
+**Last updated:** 2026-11-04 (Session 211: Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 211 (2026-11-04) — Interactive Avatar Row with Caveat Handwritten Names & Focus Blur from Figma 178450:155993
+
+**Goal:** Implement a smooth microinteraction for the 5 overlapping performer avatars across both `LandingPage.tsx` and `PricingPage.tsx` per Figma node `178450:155993`: reveal the performer's name on hover in handwritten `Caveat` font, apply a soft depth-of-field blur (`blur-[2px]`) to non-focused avatars, ensure names are hidden by default with zero vertical layout reflow, and keep transitions fluid.
+
+1. **Typographic Integration (Caveat & Caveat Brush):**
+   - Added `Caveat:wght@400;500;600;700` and `Caveat+Brush` to Google Fonts imports in `monologg/apps/web/src/styles/fonts.css`.
+   - Added `--font-handwritten: 'Caveat', 'Caveat Brush', cursive;` and utility class `.font-caveat` in `monologg/apps/web/src/styles/tokens.css`.
+   - Added `preconnect` links for `https://fonts.googleapis.com` and `https://fonts.gstatic.com` in `monologg/apps/web/index.html` to eliminate FOIT/FOUT.
+
+2. **Performer Avatar Row Component (`PerformerAvatarRow.tsx`):**
+   - Created reusable component `monologg/apps/web/src/app/components/PerformerAvatarRow.tsx` encapsulating the 5 official performers in exact Figma order:
+     1. Theo (`Theo Olayanju`, asset `6012d1b610f186b4da032a28a55bf16e19555e2e.png`)
+     2. Olayinka (`Olayinka Olaseni`, asset `7e479fe931474f554d58db81abed255122f1de16.png`)
+     3. Deborah (`Deborah Ojengbede`, asset `ce41249745f3e585f8d80fb1ce07d7acc7524c76.png`)
+     4. Bolu (`Bolu Olatunji`, asset `27c7ee29f5252ea64f624a3fdfd8fa27d463ea10.png`)
+     5. Gloria (`Gloria Sido`, asset `89a561d69a1da9e8f1cff844db5a81f524163118.png`)
+   - **Floating Handwritten Name Slot:** Placed an absolute container above the avatar row (`top-0 left-0 w-[172.3px] h-6`) aligned to exact avatar horizontal centers (`23.23px`, `54.69px`, `86.14px`, `117.60px`, `149.06px`).
+   - **Idle State:** All names are hidden (`opacity-0 pointer-events-none translate-y-1 scale-90`). No names shown by default, reserving zero extra vertical document height to avoid headline reflow.
+   - **Hover / Focus Microinteraction:**
+     - Hovered avatar: scales up smoothly (`scale-[1.08]`), elevates to `z-30`, maintains `filter-none` (crisp), and reveals only its name above in `Caveat` font (`opacity-100 translate-y-0 scale-100 text-[#16161a] dark:text-[#f9f9f9]`).
+     - Non-hovered avatars: smoothly transition to `blur-[2px]`, `scale-[0.98]`, and `opacity-60`.
+     - Mouse leave: smoothly reverts all avatars to `scale-100 filter-none opacity-100` and fades names away.
+     - Transitions use GPU-accelerated `transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]`.
+   - **Accessibility:** Keyboard navigable with `tabIndex={0}`, `onFocus`, `onBlur`, `onKeyDown` (Enter/Space), and `aria-label="Performer: <Full Name>"`.
+
+3. **Page Integration (`LandingPage.tsx` & `PricingPage.tsx`):**
+   - Integrated `<PerformerAvatarRow assetPrefix="home" />` into `LandingPage.tsx` hero section above the "Find Performers" heading.
+   - Integrated `<PerformerAvatarRow assetPrefix="pricing" />` into `PricingPage.tsx` "For Performers" pricing block.
+   - Removed unused legacy avatar constants from both pages, keeping linting clean.
+
+4. **Testing & Quality Assurance:**
+   - Authored unit test suite `PerformerAvatarRow.test.tsx` verifying:
+     - 5 avatar nodes rendered with correct alt text and images.
+     - Idle state keeps all 5 performer names hidden (`opacity-0`).
+     - Mouse enter reveals the hovered name (`opacity-100`) and applies `blur-[2px]` and `opacity-60` to siblings.
+     - Mouse leave restores unblurred idle state.
+     - Keyboard focus and click interactions.
+   - `npx tsc --noEmit`: 0 errors.
+   - `npx eslint`: 0 errors, 0 warnings.
+   - Vitest test suite: 34 passed (34 test files), 179 passed (179 tests).
 
 ---
 

@@ -1,6 +1,6 @@
-/* Google Fonts & Fontshare imports for Switzer, Inter Tight, Geist Mono, Inter, and DM Sans */
+/* Google Fonts & Fontshare imports for Switzer, Inter Tight, Geist Mono, Inter, DM Sans, and Caveat */
 @import url('https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Geist+Mono:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&family=DM+Sans:wght@400;500;700&family=Geist+Mono:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 /* Self-hosted brand fonts — Display: General Sans · Body: Plus Jakarta Sans · Data: JetBrains Mono
    Files live in public/fonts/; licenses alongside each family (Fontshare FFL / SIL OFL).
