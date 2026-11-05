@@ -1,11 +1,44 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
+**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 226 (2026-11-05) — Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish
+
+**Goal:** Apply senior FAANG UX design discipline to mobile and desktop navigation: eliminate duplicate views in the mobile "More" bottom sheet by displaying only unrepresented views not already pinned to the floating dock; consolidate the bloated 5-item account section into a clean, direct "Settings" and "Sign Out" entry point; rename "Public Storefront" to "My Profile" with the `User` icon in the desktop account menu; and make the user menu strictly role-adaptive (Performers see `Dashboard`, `My Profile`, `Browse Gigs`, `Settings`, `Sign Out`, with no client `Post a Brief`; Clients see `Dashboard`, `Find Performers`, `Post a Brief`, `Settings`, `Sign Out`, with no performer `My Profile`).
+
+1. **Role-Adaptive Desktop User Menu (`LandingPage.tsx`):**
+   - Replaced "Public Storefront" (sparkles icon) with "My Profile" using the canonical `User` icon matching the in-app Performer sidebar.
+   - Conditionally rendered menu actions strictly by authenticated session role:
+     - **Performer (`!isClientSession`):** `Dashboard`, `My Profile`, `Browse Gigs`, `Settings`, `Sign Out`. Stripped `Post a Brief` and `Find Performers`.
+     - **Client (`isClientSession`):** `Dashboard`, `Find Performers`, `Post a Brief`, `Settings`, `Sign Out`. Stripped `My Profile` and `Browse Gigs`.
+   - Added `data-testid="user-account-dropdown"` for robust test isolation.
+
+2. **Mobile Navigation Bottom Sheet Zero-Redundancy & Progressive Disclosure (`BottomNav.tsx`):**
+   - Implemented dynamic unrepresented views filtering:
+     `unrepresentedNavItems = (allNavItems || []).filter(item => !navItems.some(visible => visible.id === item.id))`
+   - Instead of displaying a bloated 9-button grid that duplicates the 5 tabs already accessible on the floating bottom dock, the drawer now displays only unrepresented destinations under "More Views" (e.g. `My Profile`, `Earnings`, `Analytics`, `Recent Activity` for Performers; `Activity` and `Analytics` for Clients).
+   - Dynamic dock "More" button highlight (`isSecondaryTabActive`): glows and highlights whenever an unrepresented secondary view is active.
+   - Simplified Account & Preferences: replaced the fragmented 5-row list (`Account Settings`, `Transactions & Escrow Ledger`, `Appearance`, `Help & Dispute Support`, `Sign Out`) with a clean, focused "Settings" section featuring `Settings` (opening the primary settings view) and `Sign Out`.
+
+3. **Test Suite Alignment & Stress Verification:**
+   - Updated `TalentDashboardOrders.test.tsx` to assert that "More Views" displays only unrepresented destinations without duplicating dock tabs, and validates the simplified Settings and Sign Out actions.
+   - Added two comprehensive test cases to `LandingPageHeader.test.tsx` asserting role-specific rendering for both Performer and Client user dropdowns.
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 2.67s.
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/ui/BottomNav.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/LandingPageHeader.test.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboardOrders.test.tsx`
 
 ---
 

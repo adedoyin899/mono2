@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
+**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,19 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 185: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish (Session 226)
+
+- **Desktop User Account Dropdown (`LandingPage.tsx`):**
+  - Renamed "Public Storefront" to "My Profile" with canonical `User` icon.
+  - Made the menu strictly role-adaptive: Performers see `Dashboard`, `My Profile`, `Browse Gigs`, `Settings`, `Sign Out` (omitting client-only `Post a Brief` and `Find Performers`); Clients see `Dashboard`, `Find Performers`, `Post a Brief`, `Settings`, `Sign Out` (omitting `My Profile` and `Browse Gigs`).
+- **Mobile Navigation Drawer Zero-Redundancy Overhaul (`BottomNav.tsx`):**
+  - Filtered destinations dynamically by `!navItems.some(visible => visible.id === item.id)` so only destinations not already visible on the bottom dock appear in the "More Views" drawer.
+  - Replaced the 5-item account and preferences list with a streamlined "Settings" row and "Sign Out" row.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm run typecheck`).
+  - Production build: succeeded in 2.67s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`, 36 files, 200 tests).
 
 ### Step 184: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding (Session 225)
 

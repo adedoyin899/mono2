@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -53,7 +53,7 @@ describe("TalentDashboard — Active Orders Tab (Design Review Polish)", () => {
     expect(screen.getAllByText("Deliverables").length).toBeGreaterThan(0);
   });
 
-  it("opens the mobile More navigation drawer exposing all workspace destinations and account actions", async () => {
+  it("opens the mobile More navigation drawer exposing unrepresented destinations and simplified settings", async () => {
     await renderOrdersTab();
 
     const moreBtn = screen.getByRole("button", { name: /More navigation options/i });
@@ -61,9 +61,23 @@ describe("TalentDashboard — Active Orders Tab (Design Review Polish)", () => {
 
     const dialog = await screen.findByRole("dialog", { name: /Mobile navigation menu/i });
     expect(dialog).toBeInTheDocument();
-    expect(screen.getByText("Workspace Navigation")).toBeInTheDocument();
-    expect(screen.getByText("Account & Preferences")).toBeInTheDocument();
-    expect(screen.getByText("Transactions & Escrow Ledger")).toBeInTheDocument();
-    expect(screen.getByText("Help & Dispute Support")).toBeInTheDocument();
+
+    const drawer = within(dialog);
+
+    // Section headers and quick actions
+    expect(drawer.getByText("More Views")).toBeInTheDocument();
+    expect(drawer.getByRole("button", { name: /^Settings$/i })).toBeInTheDocument();
+
+    // Contains only views that are NOT already in the bottom dock
+    expect(drawer.getByText("My Profile")).toBeInTheDocument();
+    expect(drawer.getByText("Earnings")).toBeInTheDocument();
+    expect(drawer.getByText("Analytics")).toBeInTheDocument();
+    expect(drawer.getByText("Recent Activity")).toBeInTheDocument();
+
+    // Dock destinations are not duplicated in the More Views list
+    // (Orders, Home/Dashboard, Rate Cards, Availability, Projects are dock items)
+    expect(drawer.queryByText("Transactions & Escrow Ledger")).not.toBeInTheDocument();
+    expect(drawer.queryByText("Help & Dispute Support")).not.toBeInTheDocument();
+    expect(drawer.getByRole("button", { name: /Sign Out/i })).toBeInTheDocument();
   });
 });

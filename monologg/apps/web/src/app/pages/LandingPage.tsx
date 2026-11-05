@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import {
   ChevronDown,
   LayoutDashboard,
-  Sparkles,
+  User,
   Search,
   Briefcase,
   Settings,
@@ -457,7 +457,10 @@ export function LandingPage() {
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] rounded-2xl shadow-xl py-2 z-50">
+                <div
+                  data-testid="user-account-dropdown"
+                  className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] rounded-2xl shadow-xl py-2 z-50"
+                >
                   <div className="px-4 py-2.5 border-b border-[#e8e8e8] dark:border-[#1a1a1a]">
                     <p className="text-[13px] font-bold text-[#1a1a1a] dark:text-[#f9f9f9] truncate">{displayName}</p>
                     <p className="text-[11px] text-[#767676] dark:text-[#a3a3a3] truncate">{loggedInUser.email}</p>
@@ -477,41 +480,57 @@ export function LandingPage() {
                       <LayoutDashboard className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
                       Dashboard
                     </button>
-                    {!isClientSession && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          navigate("/emeka-johnson");
-                        }}
-                        className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
-                      >
-                        <Sparkles className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
-                        Public Storefront
-                      </button>
+                    {!isClientSession ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/emeka-johnson");
+                          }}
+                          className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
+                        >
+                          <User className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
+                          My Profile
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/dashboard");
+                          }}
+                          className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
+                        >
+                          <Search className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
+                          Browse Gigs
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/client");
+                          }}
+                          className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
+                        >
+                          <Search className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
+                          Find Performers
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate("/brief");
+                          }}
+                          className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
+                        >
+                          <Briefcase className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
+                          Post a Brief
+                        </button>
+                      </>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        navigate(isClientSession ? "/client" : "/dashboard");
-                      }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
-                    >
-                      <Search className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
-                      {isClientSession ? "Find Talent" : "Browse Gigs"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        navigate("/brief");
-                      }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-semibold text-[#1a1a1a] dark:text-[#f9f9f9] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] flex items-center gap-2.5"
-                    >
-                      <Briefcase className="w-4 h-4 text-[#767676] dark:text-[#a3a3a3]" />
-                      Post a Brief
-                    </button>
                     <button
                       type="button"
                       onClick={() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import React from "react";
 
@@ -85,6 +85,64 @@ describe("LandingPage signed-in header", () => {
     // network call), so it doesn't itself clear appStateSync — assert the
     // header's own post-logout behavior instead: it navigates home.
     expect(mockNavigate).toHaveBeenCalledWith("/");
+  });
+
+  it("renders role-specific account menu for Performer (My Profile, Browse Gigs, no Post a Brief)", async () => {
+    appStateSync.setLoggedInUser(TALENT_SESSION);
+    appStateSync.updateTalentProfile({ name: "Elena Rostova", email: "elena@gmail.com" });
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <LandingPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByLabelText("Account menu"));
+    const dropdown = await screen.findByTestId("user-account-dropdown");
+    const menu = within(dropdown);
+
+    expect(menu.getByText("Dashboard")).toBeInTheDocument();
+    expect(menu.getByText("My Profile")).toBeInTheDocument();
+    expect(menu.queryByText("Public Storefront")).not.toBeInTheDocument();
+    expect(menu.getByText("Browse Gigs")).toBeInTheDocument();
+    expect(menu.getByText("Settings")).toBeInTheDocument();
+    expect(menu.getByText("Sign Out")).toBeInTheDocument();
+
+    // Performers do NOT see client-only action "Post a Brief" or "Find Performers"
+    expect(menu.queryByText("Post a Brief")).not.toBeInTheDocument();
+    expect(menu.queryByText("Find Performers")).not.toBeInTheDocument();
+  });
+
+  it("renders role-specific account menu for Client (Find Performers, Post a Brief, no My Profile)", async () => {
+    appStateSync.setLoggedInUser({
+      id: "client-1",
+      email: "director@warner.com",
+      name: "Warner Studios",
+      userType: "CLIENT",
+      authProvider: "EMAIL",
+      isNewUser: false,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <LandingPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByLabelText("Account menu"));
+    const dropdown = await screen.findByTestId("user-account-dropdown");
+    const menu = within(dropdown);
+
+    expect(menu.getByText("Dashboard")).toBeInTheDocument();
+    expect(menu.getByText("Find Performers")).toBeInTheDocument();
+    expect(menu.getByText("Post a Brief")).toBeInTheDocument();
+    expect(menu.getByText("Settings")).toBeInTheDocument();
+    expect(menu.getByText("Sign Out")).toBeInTheDocument();
+
+    // Clients do NOT see performer-only action "My Profile" or "Browse Gigs"
+    expect(menu.queryByText("My Profile")).not.toBeInTheDocument();
+    expect(menu.queryByText("Public Storefront")).not.toBeInTheDocument();
+    expect(menu.queryByText("Browse Gigs")).not.toBeInTheDocument();
   });
 
   it("logged-out visitor still sees Sign In / Launch Storefront, not the avatar menu", () => {

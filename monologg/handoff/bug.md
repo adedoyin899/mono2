@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
+**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,21 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 172. Mobile Navigation Redundancy & Role-Insensitive Desktop Header Menu
+- **Severity:** Medium / FAANG UX Architecture & Information Hierarchy
+- **What happened:**
+  1. **Redundant Destinations in Mobile "More" Drawer:** In `BottomNav.tsx`, the More drawer repeated all 9 navigation destinations, including the 5 items already immediately visible on the floating bottom dock (`Home`, `Orders`, `Rates`, `Projects`, `Calendar`).
+  2. **Bloated Mobile Account Section:** The mobile drawer rendered a 5-item list (`Account Settings`, `Transactions & Escrow Ledger`, `Appearance`, `Help & Dispute Support`, `Sign Out`), creating excessive vertical scroll and cognitive clutter on small viewports.
+  3. **Role-Insensitive Desktop Header Menu:** In `LandingPage.tsx`, the user avatar dropdown displayed "Public Storefront" (instead of in-app canonical "My Profile") and unconditionally rendered "Post a Brief" even when signed in as a Performer.
+- **Root Cause:**
+  - `BottomNav.tsx` mapped directly over `allNavItems` without filtering out items already represented on `navItems`.
+  - The desktop header menu in `LandingPage.tsx` did not branch cleanly based on `isClientSession` for role-exclusive CTAs.
+- **Resolution:**
+  - Filtered `allNavItems` in `BottomNav.tsx` dynamically by `!navItems.some(visible => visible.id === item.id)` so only unrepresented views appear under "More Views".
+  - Replaced the multi-item account list with a clean, focused "Settings" entry point and "Sign Out".
+  - Renamed "Public Storefront" to "My Profile" with `User` icon, and made the desktop user menu strictly role-adaptive (Performers see `Dashboard`, `My Profile`, `Browse Gigs`, `Settings`, `Sign Out`; Clients see `Dashboard`, `Find Performers`, `Post a Brief`, `Settings`, `Sign Out`).
+  - Validated via 200 passing unit tests and Vite production build.
 
 ### 171. Footer Resources Stale Legal/Policy Navigation Mismatch & Missing Headquarters Attribution
 - **Severity:** Low / UI Consistency & Regional Branding

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { LayoutGrid, X, Settings, Sun, Moon, LogOut, Receipt, LifeBuoy, ChevronRight } from "lucide-react";
-import { useTheme } from "../../Root";
+import { LayoutGrid, X, Settings, LogOut, ChevronRight } from "lucide-react";
 import type { SidebarNavItem } from "./Sidebar";
 
 interface BottomNavProps<T extends string> {
@@ -35,13 +34,12 @@ export function BottomNav<T extends string>({
   userInitials,
   userAvatarUrl,
   onSettings,
-  onTransactions,
-  onSupport,
+  onTransactions: _onTransactions,
+  onSupport: _onSupport,
   onSignOut,
   isMoreOpen: controlledMoreOpen,
   onMoreOpenChange,
 }: BottomNavProps<T>) {
-  const { isDark, toggle } = useTheme();
   const [internalMoreOpen, setInternalMoreOpen] = useState(false);
 
   const isMoreOpen = controlledMoreOpen !== undefined ? controlledMoreOpen : internalMoreOpen;
@@ -53,9 +51,14 @@ export function BottomNav<T extends string>({
     }
   };
 
-  const hasMoreMenu = Boolean(allNavItems && allNavItems.length > 0);
+  // Only show views in the More sheet that are NOT already visible on the bottom dock
+  const unrepresentedNavItems = (allNavItems || []).filter(
+    (item) => !navItems.some((visible) => visible.id === item.id)
+  );
+  const hasMoreMenu =
+    unrepresentedNavItems.length > 0 || Boolean(onSettings || onSignOut);
   const isSecondaryTabActive =
-    hasMoreMenu && !navItems.some((item) => item.id === activeTab);
+    unrepresentedNavItems.some((item) => item.id === activeTab);
 
   return (
     <>
@@ -129,68 +132,70 @@ export function BottomNav<T extends string>({
                 </button>
               </div>
 
-              {/* Complete Workspace Destinations Grid */}
-              <div className="mb-4">
-                <div
-                  className="text-[11px] font-bold uppercase tracking-wider font-body px-1 mb-2"
-                  style={{ color: "var(--color-text-tertiary)" }}
-                >
-                  Workspace Navigation
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {allNavItems!.map((item) => {
-                    const active = activeTab === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          onTab(item.id);
-                          setMoreOpen(false);
-                        }}
-                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-left border transition-all active:scale-[0.98] cursor-pointer"
-                        style={{
-                          background: active ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
-                          borderColor: active ? "var(--color-accent)" : "var(--color-hairline)",
-                          color: active ? "var(--color-accent)" : "var(--color-text-primary)",
-                        }}
-                      >
-                        <div
-                          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+              {/* Unrepresented Workspace Destinations Grid (only views not on the floating bottom dock) */}
+              {unrepresentedNavItems.length > 0 && (
+                <div className="mb-4">
+                  <div
+                    className="text-[11px] font-bold uppercase tracking-wider font-body px-1 mb-2"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    More Views
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {unrepresentedNavItems.map((item) => {
+                      const active = activeTab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            onTab(item.id);
+                            setMoreOpen(false);
+                          }}
+                          className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-left border transition-all active:scale-[0.98] cursor-pointer"
                           style={{
-                            background: active ? "var(--color-accent)" : "var(--color-bg-surface)",
-                            color: active ? "#FFFFFF" : "var(--color-text-secondary)",
+                            background: active ? "var(--color-accent-soft)" : "var(--color-bg-elevated)",
+                            borderColor: active ? "var(--color-accent)" : "var(--color-hairline)",
+                            color: active ? "var(--color-accent)" : "var(--color-text-primary)",
                           }}
                         >
-                          <item.icon className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-bold font-body truncate">{item.label}</div>
-                        </div>
-                        {item.badge && (
-                          <span
-                            className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                          <div
+                            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                             style={{
-                              background: "var(--color-accent)",
-                              color: "#FFFFFF",
+                              background: active ? "var(--color-accent)" : "var(--color-bg-surface)",
+                              color: active ? "#FFFFFF" : "var(--color-text-secondary)",
                             }}
                           >
-                            {item.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                            <item.icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold font-body truncate">{item.label}</div>
+                          </div>
+                          {item.badge && (
+                            <span
+                              className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                              style={{
+                                background: "var(--color-accent)",
+                                color: "#FFFFFF",
+                              }}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Account, Theme & Support Actions */}
+              {/* Simplified Settings & Session Controls */}
               <div>
                 <div
                   className="text-[11px] font-bold uppercase tracking-wider font-body px-1 mb-2"
                   style={{ color: "var(--color-text-tertiary)" }}
                 >
-                  Account &amp; Preferences
+                  Settings
                 </div>
                 <div
                   className="rounded-2xl border overflow-hidden divide-y"
@@ -211,69 +216,7 @@ export function BottomNav<T extends string>({
                     >
                       <span className="flex items-center gap-2.5">
                         <Settings className="w-4 h-4 text-[var(--color-accent)]" />
-                        <span>Account Settings</span>
-                      </span>
-                      <ChevronRight className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                    </button>
-                  )}
-
-                  {onTransactions && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMoreOpen(false);
-                        onTransactions();
-                      }}
-                      className="w-full flex items-center justify-between px-3.5 py-3 text-xs font-semibold font-body hover:opacity-85 transition-opacity cursor-pointer"
-                      style={{ color: "var(--color-text-primary)", borderColor: "var(--color-hairline)" }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <Receipt className="w-4 h-4 text-[var(--color-accent)]" />
-                        <span>Transactions &amp; Escrow Ledger</span>
-                      </span>
-                      <ChevronRight className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={toggle}
-                    className="w-full flex items-center justify-between px-3.5 py-3 text-xs font-semibold font-body hover:opacity-85 transition-opacity cursor-pointer"
-                    style={{ color: "var(--color-text-primary)", borderColor: "var(--color-hairline)" }}
-                  >
-                    <span className="flex items-center gap-2.5">
-                      {isDark ? (
-                        <Sun className="w-4 h-4 text-amber-400" />
-                      ) : (
-                        <Moon className="w-4 h-4 text-[var(--color-accent)]" />
-                      )}
-                      <span>Appearance</span>
-                    </span>
-                    <span
-                      className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
-                      style={{
-                        background: "var(--color-bg-surface)",
-                        borderColor: "var(--color-hairline)",
-                        color: "var(--color-text-secondary)",
-                      }}
-                    >
-                      {isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                    </span>
-                  </button>
-
-                  {onSupport && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMoreOpen(false);
-                        onSupport();
-                      }}
-                      className="w-full flex items-center justify-between px-3.5 py-3 text-xs font-semibold font-body hover:opacity-85 transition-opacity cursor-pointer"
-                      style={{ color: "var(--color-text-primary)", borderColor: "var(--color-hairline)" }}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <LifeBuoy className="w-4 h-4 text-[var(--color-accent)]" />
-                        <span>Help &amp; Dispute Support</span>
+                        <span>Settings</span>
                       </span>
                       <ChevronRight className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
                     </button>
