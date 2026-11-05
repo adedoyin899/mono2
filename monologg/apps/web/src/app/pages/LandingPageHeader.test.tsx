@@ -120,9 +120,9 @@ describe("LandingPage signed-in header", () => {
       ),
     ).toBeInTheDocument();
 
-    // Footer legal links & Paystack badge (hidden by default)
-    expect(screen.getByRole("button", { name: "Terms of Service" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Cookie Policy" })).toBeInTheDocument();
+    // Footer resources links & Paystack badge (hidden by default)
+    expect(screen.getByRole("button", { name: "Terms of Services" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cookie Settings and Policy" })).toBeInTheDocument();
     expect(screen.queryByText("paystack")).not.toBeInTheDocument();
   });
 

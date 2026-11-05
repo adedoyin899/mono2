@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
+**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,18 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 184: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding (Session 225)
+
+- **Website Footer Resources Column Updates (`WebsiteFooter.tsx`):**
+  - Updated the Resources column to render `Terms of Services`, `Cookie Settings and Policy`, `FAQ`, and `Become an investor`.
+- **Location Branding & Social Channels (`WebsiteFooter.tsx`):**
+  - Added `Lagos, Nigeria 🇳🇬` aligned to the bottom right beneath the divider line.
+  - Verified social links strictly exclude TikTok and Discord, while including LinkedIn, Instagram, X (Twitter), and Product Hunt.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`tsc --noEmit`).
+  - Production build: succeeded in 2.74s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`, 36 files, 198 tests).
 
 ### Step 183: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal (Session 224)
 

@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
+**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 171. Footer Resources Stale Legal/Policy Navigation Mismatch & Missing Headquarters Attribution
+- **Severity:** Low / UI Consistency & Regional Branding
+- **What happened:**
+  - The Resources column in `WebsiteFooter.tsx` retained outdated placeholders (`Escrow Policy`, `Fair Trade Contracts`, `Support & Community`) instead of the canonical product legal and FAQ links (`Terms of Services`, `Cookie Settings and Policy`, `FAQ`, `Become an investor`).
+  - The footer bottom metadata row lacked explicit `Lagos, Nigeria 🇳🇬` regional headquarters attribution.
+- **Root Cause:**
+  - Footer links were previously hardcoded to exploratory contract policy subpages rather than the implemented central `/terms`, `/cookies`, and `#faq` routes.
+- **Resolution:**
+  - Updated the Resources column to render `Terms of Services`, `Cookie Settings and Policy`, `FAQ`, and `Become an investor`.
+  - Added `Lagos, Nigeria 🇳🇬` aligned to the bottom right beneath the divider line.
+  - Verified 100% test pass in `WebsiteFooter.test.tsx` and `LandingPageHeader.test.tsx`.
 
 ### 170. Static Hero Headline Placeholder, Broken Role-Toggled CTA Routing, Social Footprint Clutter & Unverified Media House Trust Claim
 - **Severity:** Medium / Conversion Optimization, Trust & Brand Fidelity

@@ -518,23 +518,14 @@ export function WebsiteFooter({
                       className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49669"
                     >
-                      Escrow Policy
+                      Terms of Services
                     </button>
                     <button
                       type="button"
-                      onClick={() => navigate("/terms")}
+                      onClick={() => navigate("/cookies")}
                       className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
-                      data-node-id="178151:49673"
                     >
-                      Fair Trade Contracts
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigate("/resources")}
-                      className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
-                      data-node-id="178151:49677"
-                    >
-                      {`Support & Community`}
+                      Cookie Settings and Policy
                     </button>
                     <button
                       type="button"
@@ -557,7 +548,7 @@ export function WebsiteFooter({
                       className="flex items-center relative shrink-0 cursor-pointer text-left font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
                       data-node-id="178151:49685"
                     >
-                      Become an Investor
+                      Become an investor
                     </button>
                   </div>
                 </div>
@@ -647,27 +638,11 @@ export function WebsiteFooter({
                 {`© 2026 Monologg. All rights reserved. `}
               </p>
               <div
-                className="flex items-center gap-[12px] relative shrink-0 whitespace-nowrap"
+                className="flex items-center gap-[8px] relative shrink-0 whitespace-nowrap text-[#767676] dark:text-[#a3a3a3]"
                 data-node-id="178407:19721"
-                data-name="Legal Links"
+                data-name="Location"
               >
-                <button
-                  type="button"
-                  onClick={() => navigate("/terms")}
-                  className="hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors cursor-pointer"
-                >
-                  Terms of Service
-                </button>
-                <span className="text-[#d1d1d1] dark:text-[#1a1a1a]" aria-hidden="true">
-                  |
-                </span>
-                <button
-                  type="button"
-                  onClick={() => navigate("/cookies")}
-                  className="hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors cursor-pointer"
-                >
-                  Cookie Policy
-                </button>
+                <span>Lagos, Nigeria 🇳🇬</span>
               </div>
             </div>
           </div>

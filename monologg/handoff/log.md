@@ -1,11 +1,42 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
+**Last updated:** 2026-11-05 (Session 225: Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 225 (2026-11-05) — Footer Resources Column Alignment, Social Links Finalization & Lagos Nigeria Regional Branding
+
+**Goal:** Realign the website footer's Resources column with requested legal and guidance destinations (`Terms of Services`, `Cookie Settings and Policy`, `FAQ`, `Become an investor`), ensure social channels strictly exclude TikTok & Discord and include LinkedIn, and add the `Lagos, Nigeria 🇳🇬` regional headquarters marker in the footer bottom bar.
+
+1. **Website Footer Resources Column Updates (`WebsiteFooter.tsx`):**
+   - Replaced legacy placeholders (`Escrow Policy`, `Fair Trade Contracts`, `Support & Community`) with:
+     - `Terms of Services` (navigates to `/terms`)
+     - `Cookie Settings and Policy` (navigates to `/cookies`)
+     - `FAQ` (smoothly scrolls to `#faq` or navigates to `/#faq`)
+     - `Become an investor` (triggers investor registration modal/flow)
+
+2. **Footer Bottom Bar Location Branding (`WebsiteFooter.tsx`):**
+   - Replaced redundant bottom-bar legal text with `Lagos, Nigeria 🇳🇬` aligned to the bottom right beneath the divider, establishing authentic regional headquarters branding without cluttering the bottom metadata row.
+
+3. **Social Channel Strict Invariants (`WebsiteFooter.tsx`):**
+   - Verified that TikTok and Discord remain completely excluded, while LinkedIn (`https://linkedin.com/company/monologg`), Instagram, X (Twitter), and Product Hunt are active.
+
+4. **Test Suite Alignment & Verification:**
+   - Updated `WebsiteFooter.test.tsx` to assert the 4 updated Resources column destinations, absence of TikTok and Discord, presence of LinkedIn, and `Lagos, Nigeria 🇳🇬`.
+   - Updated `LandingPageHeader.test.tsx` footer assertions.
+   - Ran `npx tsc --noEmit`: 0 errors.
+   - Ran `npm run build`: Vite build completed in 2.74s.
+   - Ran `npm test -- --run`: All 36 test files, 198 tests passing green.
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/components/WebsiteFooter.test.tsx`
+- `monologg/apps/web/src/app/pages/LandingPageHeader.test.tsx`
 
 ---
 

@@ -41,8 +41,11 @@ describe("WebsiteFooter", () => {
     ).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Subscribe to newsletter/i })).toBeInTheDocument();
-    expect(screen.getByText("Terms of Service")).toBeInTheDocument();
-    expect(screen.getByText("Cookie Policy")).toBeInTheDocument();
+    expect(screen.getByText("Terms of Services")).toBeInTheDocument();
+    expect(screen.getByText("Cookie Settings and Policy")).toBeInTheDocument();
+    expect(screen.getByText("FAQ")).toBeInTheDocument();
+    expect(screen.getAllByText("Become an investor").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Lagos, Nigeria/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Instagram" })).toHaveAttribute(
       "href",
       "https://www.instagram.com/getmonologg"
@@ -51,6 +54,12 @@ describe("WebsiteFooter", () => {
       "href",
       "https://x.com/getmonologg"
     );
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://linkedin.com/company/monologg"
+    );
+    expect(screen.queryByText("Tiktok")).not.toBeInTheDocument();
+    expect(screen.queryByText("Discord")).not.toBeInTheDocument();
     // Powered by paystack is hidden by default via showPoweredByPaystack toggle
     expect(screen.queryByText("Powered by")).not.toBeInTheDocument();
     expect(screen.queryByText("paystack")).not.toBeInTheDocument();
