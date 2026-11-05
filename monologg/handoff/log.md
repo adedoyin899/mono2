@@ -1,11 +1,30 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
+**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 223 (2026-11-05) — OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix
+
+**Goal:** Eliminate VS Code TypeScript Language Server syntax errors (`ts(2304) Cannot find name 'className'`, `ts(2349) This expression is not callable`, `ts(2304) Cannot find name 'h'`, `'rounded'`, `'full'`, `ts(2581) Cannot find name '$'`) reported on lines 838–846 of `OrderRoom.tsx`.
+
+1. **Role Switcher Class & Style Disambiguation (`OrderRoom.tsx`):**
+   - Extracted conditional button and dot presence classes into explicit local variables (`dotBg`, `dotOpacity`, `btnTone`) inside the `UserRole` map callback rather than nesting multiple ternary operations inside multi-line JSX attribute template strings (`className={\`...\`}`).
+   - Added explicit `type="button"` attributes to the role switcher buttons, gig type switcher buttons, and the mobile Order Info modal trigger.
+   - Simplified the role dot indicator `<span className={\`w-1.5 h-1.5 rounded-full shrink-0 \${dotBg} \${dotOpacity}\`} />` to clean, single-line string interpolation, completely eliminating TSX JSX-mode parse ambiguity in VS Code and IDE language servers.
+
+2. **Verification & Testing:**
+   - Ran `npx tsc --noEmit`: 0 errors.
+   - Ran `npm run build` (Vite production build): built successfully in 3.26s.
+   - Ran `OrderRoom.test.tsx`: 5/5 tests passing green.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
 
 ---
 

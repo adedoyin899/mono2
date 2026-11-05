@@ -806,6 +806,7 @@ export function OrderRoom() {
             {(["remote", "onsite"] as GigType[]).map(g => (
               <button
                 key={g}
+                type="button"
                 onClick={() => { setGigType(g); setDeliverableTab(g === "remote" ? "online" : "onsite"); }}
                 className={`px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer ${
                   gigType === g
@@ -820,23 +821,22 @@ export function OrderRoom() {
 
           {/* Demo: role switcher with subtle role accent dot */}
           <div className="flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 text-[11px]">
-            {(["talent", "client"] as UserRole[]).map(r => {
+            {(["talent", "client"] as UserRole[]).map((r) => {
               const isActive = role === r;
+              const dotBg = r === "talent" ? "bg-[#B91C1C]" : "bg-[#5B21B6]";
+              const dotOpacity = isActive ? "opacity-100" : "opacity-40";
+              const btnTone = isActive
+                ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold"
+                : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200";
+
               return (
                 <button
                   key={r}
+                  type="button"
                   onClick={() => setRole(r)}
-                  className={`px-1.5 sm:px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 ${
-                    isActive
-                      ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold"
-                      : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-                  }`}
+                  className={`px-1.5 sm:px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 ${btnTone}`}
                 >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                      r === "talent" ? "bg-[#B91C1C]" : "bg-[#5B21B6]"
-                    } ${isActive ? "opacity-100" : "opacity-40"}`}
-                  />
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotBg} ${dotOpacity}`} />
                   {r === "talent" ? (
                     <>
                       <span className="hidden sm:inline">Performer</span>
@@ -852,6 +852,7 @@ export function OrderRoom() {
 
           {/* Order Info Modal Button (Shown on mobile/tablet or when desktop inspector rail is hidden) */}
           <button
+            type="button"
             onClick={() => setShowOrderInfoModal(true)}
             className={`${showInspectorRail ? "lg:hidden" : "flex"} flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95`}
             aria-label="Order Info"

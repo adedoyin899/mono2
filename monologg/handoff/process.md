@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
+**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 182: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix (Session 223)
+
+- **Role Switcher Class & Style Disambiguation (`OrderRoom.tsx`):**
+  - Refactored role switcher dynamic classes to use scoped local variables (`dotBg`, `dotOpacity`, `btnTone`) rather than multi-line nested template string expressions inside JSX attributes.
+  - Added explicit `type="button"` attributes to header control buttons.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
+  - Production build: succeeded in 3.26s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`).
 
 ### Step 181: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views (Session 222)
 

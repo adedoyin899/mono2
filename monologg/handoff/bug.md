@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
+**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,16 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 169. OrderRoom.tsx Role Switcher Multi-Line Nested Template Literal JSX Parsing Diagnostics
+- **Severity:** Low / Developer Ergonomics & Diagnostics Hygiene
+- **What happened:**
+  - In `OrderRoom.tsx`, VS Code's TypeScript Language Server reported errors (`ts(2304) Cannot find name 'className'`, `ts(2349) This expression is not callable`, `ts(2304) Cannot find name 'h'`, `'rounded'`, `'full'`, `ts(2581) Cannot find name '$'`) on lines 838–846 inside the role switcher.
+- **Root Cause:**
+  - Multi-line nested ternary interpolations within JSX attribute template literals (`className={\`w-1.5 h-1.5 rounded-full shrink-0 \${r === "talent" ? ... : ...} \${isActive ? ...}\`}`) caused editor tokenizers to ambiguously misparse attribute characters as regular JS subtraction / identifier expressions.
+- **Resolution:**
+  - Extracted dynamic presence and tone classes into cleanly typed local variables (`dotBg`, `dotOpacity`, `btnTone`) outside the JSX return, and flattened `<span className={\`w-1.5 h-1.5 rounded-full shrink-0 \${dotBg} \${dotOpacity}\`} />` into a concise, single-line expression.
+  - Added explicit `type="button"` attributes to all interactive switcher elements. Verified 0 TypeScript errors and 100% test pass.
 
 ### 168. Mobile Navigation Feature Loss, Invisible White-on-Light Avatar/Button Text, Check-in Banner Viewport Bloat, Calendar Cell Overflow & OrderRoom Horizontal Clipping
 - **Severity:** High / Mobile Responsiveness, Accessibility & UX Parity
