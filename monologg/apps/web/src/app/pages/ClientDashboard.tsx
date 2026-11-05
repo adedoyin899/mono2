@@ -814,7 +814,7 @@ export function ClientDashboard() {
   const clientInitials = orgName.split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]!.toUpperCase()).join("") || "FS";
 
   return (
-    <div className="role-client min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
+    <div className="role-client min-h-screen overflow-x-hidden" style={{ background: "var(--color-bg-canvas)" }}>
       <Sidebar
         portalLabel="Client Portal"
         navItems={CLIENT_NAV_ITEMS}
@@ -854,8 +854,12 @@ export function ClientDashboard() {
           <button
             aria-label="Account"
             onClick={() => navigate("/settings?role=client")}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm font-body hover:opacity-80 transition-opacity"
-            style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm font-body hover:opacity-80 transition-opacity border"
+            style={{
+              background: "var(--color-accent-soft)",
+              color: "var(--color-accent)",
+              borderColor: "var(--color-hairline)",
+            }}
           >
             {clientInitials}
           </button>
@@ -1696,7 +1700,7 @@ export function ClientDashboard() {
                     /* ── Dedicated Project Management & Details Page (Client POV) ── */
                     <div className="space-y-6">
                       {/* Top Bar: Back link & State Switcher Preview */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-2 border-b min-w-0" style={{ borderColor: "var(--color-hairline)" }}>
                         <button
                           type="button"
                           onClick={() => setSelectedProjectDetail(null)}
@@ -1707,13 +1711,13 @@ export function ClientDashboard() {
                           <span>Back to My Projects</span>
                         </button>
 
-                        <div className="flex items-center gap-2.5 flex-wrap">
+                        <div className="flex items-center gap-2.5 max-w-full overflow-x-auto no-scrollbar">
                           {/* Interactive State Previewer */}
                           <div
-                            className="inline-flex items-center gap-1 p-1 rounded-xl border text-[11px] font-body"
+                            className="inline-flex items-center gap-1 p-1 rounded-xl border text-[11px] font-body shrink-0"
                             style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-border-default)" }}
                           >
-                            <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5" style={{ color: "var(--color-text-tertiary)" }}>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 shrink-0" style={{ color: "var(--color-text-tertiary)" }}>
                               State:
                             </span>
                             {[
@@ -1924,10 +1928,10 @@ export function ClientDashboard() {
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                          <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap w-full sm:w-auto">
                             <Button
                               variant="secondary"
-                              className="h-10 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap cursor-pointer"
+                              className="flex-1 sm:flex-initial h-10 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap cursor-pointer justify-center"
                               onClick={() => navigate(`/brief?id=${selectedProjectDetail.id}`)}
                             >
                               <Edit3 className="w-3.5 h-3.5" />
@@ -1935,7 +1939,7 @@ export function ClientDashboard() {
                             </Button>
                             <Button
                               size="sm"
-                              className="h-10 px-4 text-xs font-semibold whitespace-nowrap shadow-sm gap-1.5 cursor-pointer"
+                              className="flex-1 sm:flex-initial h-10 px-4 text-xs font-semibold whitespace-nowrap shadow-sm gap-1.5 cursor-pointer justify-center"
                               onClick={() => handleOpenPublishEscrow(selectedProjectDetail)}
                             >
                               <Sparkles className="w-3.5 h-3.5 shrink-0" />
@@ -3050,9 +3054,12 @@ export function ClientDashboard() {
                   /* Standard Projects List */
                   <div>
                     <div className="flex items-center justify-between mb-4 lg:hidden">
-                      <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>My Projects</h2>
-                      <Button className="h-9 px-3 text-sm gap-2" onClick={() => navigate("/brief")}>
-                        <Plus className="w-4 h-4" /> Post
+                      <span className="text-xs font-medium font-body" style={{ color: "var(--color-text-secondary)" }}>
+                        <span className="font-semibold text-[var(--color-text-primary)]">{effectiveProjects.length}</span>{" "}
+                        {effectiveProjects.length === 1 ? "project brief" : "project briefs"}
+                      </span>
+                      <Button className="h-9 px-3.5 text-xs font-semibold gap-1.5" onClick={() => navigate("/brief")}>
+                        <Plus className="w-4 h-4" /> Post Brief
                       </Button>
                     </div>
 
@@ -3072,43 +3079,43 @@ export function ClientDashboard() {
                     ) : (
                       <div className="space-y-4">
                         {effectiveProjects.map(project => (
-                        <div key={project.id} className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                          <div className="flex items-start justify-between gap-4 mb-3">
-                            <div>
+                        <div key={project.id} className="p-4 sm:p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                          <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
+                            <div className="min-w-0 flex-1">
                               <div className="text-xs font-mono mb-1" style={{ color: "var(--color-text-tertiary)" }}>{project.id}</div>
-                              <h3 className="text-base font-semibold font-body" style={{ color: "var(--color-text-primary)" }}>{project.name}</h3>
-                              <p className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                              <h3 className="text-base font-semibold font-body leading-snug" style={{ color: "var(--color-text-primary)" }}>{project.name}</h3>
+                              <p className="text-xs sm:text-sm font-body mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
                                 {project.niche} · {project.status === "draft" ? `Draft saved ${project.posted}` : `Posted ${project.posted}`}
                               </p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right shrink-0">
                               <div className="font-display text-lg tnum" style={{ color: "var(--color-accent)" }}>{project.budget}</div>
                               <Badge tone={project.status === "active" ? "success" : project.status === "draft" ? "neutral" : "accent"} size="md">
                                 {project.status}
                               </Badge>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4" style={{ color: "var(--color-text-tertiary)" }} />
-                              <span className="text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[var(--color-hairline)]">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Users className="w-4 h-4 shrink-0" style={{ color: "var(--color-text-tertiary)" }} />
+                              <span className="text-xs sm:text-sm font-body" style={{ color: "var(--color-text-secondary)" }}>
                                 {project.status === "draft"
                                   ? `Target: ${project.applicantCap || 10} performers · Inactive draft`
                                   : `${project.applicants}${project.applicantCap ? `/${project.applicantCap}` : ""} applicants${!project.applicationsOpen && project.status === "active" ? " · closed" : ""}`}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
                               {project.status === "draft" && (
                                 <Button
                                   variant="secondary"
-                                  className="h-9 px-3 text-xs font-semibold gap-1.5 cursor-pointer"
+                                  className="flex-1 sm:flex-initial h-9 px-3 text-xs font-semibold gap-1.5 cursor-pointer justify-center"
                                   onClick={() => navigate(`/brief?id=${project.id}`)}
                                 >
-                                  <Edit3 className="w-3.5 h-3.5" />
+                                  <Edit3 className="w-3.5 h-3.5 shrink-0" />
                                   <span>Resume Draft</span>
                                 </Button>
                               )}
-                              <Button className="h-9 px-4 text-xs font-semibold cursor-pointer" onClick={() => openProjectDetail(project)}>
+                              <Button className="flex-1 sm:flex-initial h-9 px-4 text-xs font-semibold cursor-pointer justify-center" onClick={() => openProjectDetail(project)}>
                                 View Project →
                               </Button>
                             </div>
@@ -3252,11 +3259,11 @@ export function ClientDashboard() {
                               <div
                                 key={order.id}
                                 onClick={() => navigate(`/order/${order.id}?role=client`)}
-                                className="flex items-center gap-3.5 sm:gap-4 p-4 sm:p-5 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                                className="flex items-start sm:items-center gap-3 sm:gap-4 p-3.5 sm:p-5 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
                               >
                                 {/* Avatar with active presence dot */}
-                                <div className="relative shrink-0">
-                                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                                <div className="relative shrink-0 mt-0.5 sm:mt-0">
+                                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                                     {initials}
                                   </div>
                                   {!isCancelled && (
@@ -3264,36 +3271,24 @@ export function ClientDashboard() {
                                   )}
                                 </div>
 
-                                {/* Middle preview content */}
+                                {/* Responsive content block — prevents severe mobile truncation */}
                                 <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
-                                      {order.project}
-                                    </h3>
-                                    <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
-                                      {isGigOnsite ? "Onsite" : "Online"}
-                                    </span>
-                                    {isCancelled && (
-                                      <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded shrink-0">
-                                        Cancelled
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                      <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors leading-snug">
+                                        {order.project}
+                                      </h3>
+                                      <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                        {isGigOnsite ? "Onsite" : "Online"}
                                       </span>
-                                    )}
-                                  </div>
-
-                                  <div className="flex items-center gap-2 text-xs sm:text-[13px] text-[var(--color-text-secondary)] truncate">
-                                    <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
-                                    <span className="text-[var(--color-text-tertiary)]">&middot;</span>
-                                    <span className="truncate text-[var(--color-text-tertiary)]">
-                                      {statusSummary}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Right status & action */}
-                                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                                  <div className="text-right flex flex-col items-end gap-1">
+                                      {isCancelled && (
+                                        <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded shrink-0">
+                                          Cancelled
+                                        </span>
+                                      )}
+                                    </div>
                                     <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
                                         isCancelled
                                           ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
                                           : order.phase === "Review"
@@ -3303,12 +3298,30 @@ export function ClientDashboard() {
                                     >
                                       {order.phase}
                                     </span>
-                                    <div className="text-[11px] font-medium text-[var(--color-text-tertiary)]">
+                                  </div>
+
+                                  <div className="flex items-center justify-between gap-2 text-xs sm:text-[13px] text-[var(--color-text-secondary)]">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                      <span className="font-medium text-[var(--color-text-primary)] truncate">{order.counterpart}</span>
+                                      <span className="sm:hidden inline-flex text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                        {isGigOnsite ? "Onsite" : "Online"}
+                                      </span>
+                                      <span className="hidden sm:inline text-[var(--color-text-tertiary)]">&middot;</span>
+                                      <span className="hidden sm:inline truncate text-[var(--color-text-tertiary)]">
+                                        {statusSummary}
+                                      </span>
+                                    </div>
+                                    <div className="text-[11px] font-medium text-[var(--color-text-tertiary)] shrink-0">
                                       Due {order.due}
                                     </div>
                                   </div>
-                                  <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
+
+                                  <div className="sm:hidden text-[11px] text-[var(--color-text-tertiary)] mt-1 truncate">
+                                    {statusSummary}
+                                  </div>
                                 </div>
+
+                                <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all shrink-0 self-center" />
                               </div>
                             );
                           })}
@@ -3383,7 +3396,6 @@ export function ClientDashboard() {
             {/* ── Shortlist Tab ── */}
             {activeTab === "shortlist" && (
               <motion.div key="shortlist" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Shortlisted Performers</h2>
                 {effectiveShortlist.length === 0 ? (
                   <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-card)] flex flex-col items-center">
                     <div className="w-16 h-16 rounded-full bg-[var(--color-accent-glow)] flex items-center justify-center mb-4 text-[var(--color-accent)]">
@@ -5295,7 +5307,21 @@ export function ClientDashboard() {
         </div>
       </main>
 
-      <BottomNav navItems={CLIENT_BOTTOM_NAV_ITEMS} activeTab={activeTab} onTab={setActiveTab} indicatorId="client-tab-indicator" />
+      <BottomNav
+        navItems={CLIENT_BOTTOM_NAV_ITEMS}
+        allNavItems={CLIENT_NAV_ITEMS}
+        activeTab={activeTab}
+        onTab={setActiveTab}
+        indicatorId="client-tab-indicator"
+        userName={orgName}
+        userSubLabel="Client Account · Monologg Portal"
+        userInitials={clientInitials}
+        userAvatarUrl={clientProfile.avatarUrl ?? undefined}
+        onSettings={() => navigate("/settings?role=client")}
+        onTransactions={() => navigate("/transactions?role=client")}
+        onSupport={() => navigate("/support")}
+        onSignOut={async () => { await apiClient.logout(); navigate("/"); }}
+      />
     </div>
   );
 }

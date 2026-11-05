@@ -8,6 +8,7 @@ export interface SidebarNavItem<T extends string> {
   id: T;
   label: string;
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  badge?: string | number;
 }
 
 interface SidebarIdentity {

@@ -106,5 +106,17 @@ describe("OrderRoom — Senior FAANG UX/UI Redesign (Performer & Client Views)",
     // Payment released and reciprocal rating dock appears
     expect(await screen.findByText(/Rate your experience with/i)).toBeInTheDocument();
   });
+
+  it("opens mobile Order Info modal with full Inspector Rail parity (Counterparty Profile & Role-Accurate Escrow/Take-Home)", async () => {
+    renderOrderRoom("/order/ORD-001");
+
+    const infoBtn = await screen.findByRole("button", { name: /Order Info/i });
+    fireEvent.click(infoBtn);
+
+    expect(await screen.findByText("Order Details")).toBeInTheDocument();
+    expect(screen.getAllByText("Verified Client").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("₦111,600").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("Platform fee (7%)")).toBeInTheDocument();
+  });
 });
 

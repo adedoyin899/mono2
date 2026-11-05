@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-04 (Session 221: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish)
+**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,30 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 181: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views (Session 222)
+
+- **CSS Accent Selector Scoping (`tokens.css`):**
+  - Scoped `button[style*="..."]` and `a[style*="..."]` white-text rules strictly to `background:` and `background-color:` declarations so buttons using `color: var(--color-accent)` on light backgrounds (mobile top-bar avatars `EJ`/`FS` and `"Resume Draft Stepper"` button) remain legible in light mode.
+- **Mobile Navigation Parity (`BottomNav.tsx`, `Sidebar.tsx`):**
+  - Upgraded `BottomNav` with a `"More"` (`LayoutGrid`) button and a full **Mobile Navigation & Quick Actions Bottom Sheet** (`role="dialog"`, `aria-label="Mobile navigation menu"`), giving mobile users 1-tap access to all desktop sidebar destinations (`Earnings`, `Analytics`, `Recent Activity`, `My Profile`, `Shortlist`, etc.) plus `Account Settings`, `Transactions & Escrow Ledger`, `Appearance` (Dark/Light Mode toggle), `Help & Dispute Support`, and `Sign Out`.
+- **Performer & Client Dashboard Mobile UX (`TalentDashboard.tsx`, `ClientDashboard.tsx`):**
+  - Applied progressive disclosure to the global Check-in Card (auto-collapsing on non-Home tabs when verified, plus an `"Event Details"` toggle when expanded).
+  - Redesigned `Active Orders` chat/list rows into a 2-row responsive hierarchy to prevent severe text truncation (`Nike Com...`, `Mil...`).
+  - Removed duplicate mobile headings (`My Projects`, `Rate Cards`, `Shortlisted Performers`, and the duplicate Month card header in `Availability`), fixed the 7-column Month calendar cell geometry so `Today` never overflows into adjacent day cells, stacked Client project card footers (`flex-col sm:flex-row`), and made the Client Project Detail `State:` preview bar horizontally scrollable (`overflow-x-auto no-scrollbar`).
+- **Order Room Mobile Workspace & Inspector Parity (`OrderRoom.tsx`):**
+  - Prevented horizontal viewport overflow (`w-full max-w-[100vw] overflow-x-hidden`), compacted mobile header controls, stacked `Campaign Reference Attachments` on mobile, and upgraded the mobile `Order Details` (`Info`) modal to 100% parity with the desktop Inspector Rail.
+- **Testing & Verification:**
+  - Added unit tests in `OrderRoom.test.tsx` and `TalentDashboardOrders.test.tsx`.
+  - Full test suite: 36 test files (197 tests) passing 100% green (`npm test -- --run`).
+  - TypeScript compilation: 0 errors (`npx tsc --noEmit`).
+
+### Step 180: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish (Session 221)
+
+- **Ambient Background Gradients Removal:**
+  - Removed ambient background gradient blur containers and unused SVG constants from `LandingPage.tsx`, `ProductPage.tsx`, `PricingPage.tsx`, `ResourcesPage.tsx`, and `LegalPage.tsx`.
+- **Mobile Hero Stage & Phone Mockup Geometry (`tokens.css`):**
+  - Reduced `.hero-phone-stage` height on mobile (< 375px: 260px, 375px: 295px) and clipped `.hero-phone-scaler` height to 460px with `top: -16px`, maintaining 32px of balanced spacing below the CTA buttons.
 
 ### Step 179: Official Social Links Update to @getmonologg in Footer & Resources (Session 220)
 

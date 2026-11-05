@@ -52,4 +52,18 @@ describe("TalentDashboard — Active Orders Tab (Design Review Polish)", () => {
     expect(screen.getAllByText(/Due Dec/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Deliverables").length).toBeGreaterThan(0);
   });
+
+  it("opens the mobile More navigation drawer exposing all workspace destinations and account actions", async () => {
+    await renderOrdersTab();
+
+    const moreBtn = screen.getByRole("button", { name: /More navigation options/i });
+    fireEvent.click(moreBtn);
+
+    const dialog = await screen.findByRole("dialog", { name: /Mobile navigation menu/i });
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByText("Workspace Navigation")).toBeInTheDocument();
+    expect(screen.getByText("Account & Preferences")).toBeInTheDocument();
+    expect(screen.getByText("Transactions & Escrow Ledger")).toBeInTheDocument();
+    expect(screen.getByText("Help & Dispute Support")).toBeInTheDocument();
+  });
 });

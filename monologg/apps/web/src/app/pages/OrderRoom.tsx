@@ -729,18 +729,18 @@ export function OrderRoom() {
   /* ─── JSX ─────────────────────────────────────────────────── */
   return (
     <div
-      className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col`}
+      className={`${role === "client" ? "role-client" : "role-talent"} min-h-screen flex flex-col w-full max-w-[100vw] overflow-x-hidden`}
       style={{ background: "var(--color-bg-canvas)" }}
     >
       {/* ══════════════════════════════════════════════════════════
           TOP WORKSPACE HEADER (Upwork / Fiverr / Braintrust Inspired)
          ══════════════════════════════════════════════════════════ */}
       <header
-        className="h-15 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 sticky top-0 z-40 border-b backdrop-blur-md"
+        className="h-15 flex items-center justify-between gap-1.5 sm:gap-4 px-2.5 sm:px-6 sticky top-0 z-40 border-b backdrop-blur-md"
         style={{ background: "var(--color-bg-surface)", borderColor: "var(--color-hairline)" }}
       >
         {/* Left: Back + Counterparty Avatar + Order & Partner Identity */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
           <button
             aria-label="Go back"
             onClick={() => navigate(-1)}
@@ -750,7 +750,7 @@ export function OrderRoom() {
           </button>
 
           {/* Counterparty Avatar with Live Presence Dot */}
-          <div className="relative shrink-0 hidden xs:block">
+          <div className="relative shrink-0 hidden sm:block">
             <Avatar
               size="sm"
               className="w-9 h-9 text-xs font-bold shadow-2xs"
@@ -766,11 +766,11 @@ export function OrderRoom() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 truncate font-display">
                 {orderTitle}
               </h1>
-              <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700 shrink-0">
+              <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700 shrink-0">
                 {gigType === "remote" ? "Online" : "Onsite"}
               </span>
               <span className="hidden md:inline-flex text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-100/80 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 shrink-0">
@@ -785,9 +785,13 @@ export function OrderRoom() {
                 {role === "talent" ? clientOrg : talentName}
               </span>
               <span>·</span>
-              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 sm:hidden" />
                 Active
+              </span>
+              <span className="sm:hidden">·</span>
+              <span className="sm:hidden text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 shrink-0">
+                {gigType === "remote" ? "Online" : "Onsite"}
               </span>
               <span className="hidden sm:inline">·</span>
               <span className="hidden sm:inline text-zinc-500 dark:text-zinc-400">Lagos (WAT)</span>
@@ -796,7 +800,7 @@ export function OrderRoom() {
         </div>
 
         {/* Right: Quick Call + Role/Mode Switchers + Inspector Rail Toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Demo: gig type switcher */}
           <div className="hidden sm:flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 text-[11px]">
             {(["remote", "onsite"] as GigType[]).map(g => (
@@ -822,14 +826,14 @@ export function OrderRoom() {
                 <button
                   key={r}
                   onClick={() => setRole(r)}
-                  className={`px-2 sm:px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-1.5 sm:px-2.5 py-1 rounded-md font-medium capitalize transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 ${
                     isActive
                       ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold"
                       : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                   }`}
                 >
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       r === "talent" ? "bg-[#B91C1C]" : "bg-[#5B21B6]"
                     } ${isActive ? "opacity-100" : "opacity-40"}`}
                   />
@@ -849,7 +853,7 @@ export function OrderRoom() {
           {/* Order Info Modal Button (Shown on mobile/tablet or when desktop inspector rail is hidden) */}
           <button
             onClick={() => setShowOrderInfoModal(true)}
-            className={`${showInspectorRail ? "lg:hidden" : "flex"} flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95`}
+            className={`${showInspectorRail ? "lg:hidden" : "flex"} flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-2xs active:scale-95`}
             aria-label="Order Info"
             title="View Project Phases & Escrow Details"
           >
@@ -874,7 +878,7 @@ export function OrderRoom() {
       {/* ══════════════════════════════════════════════════════════
           MAIN 2-PANE RESPONSIVE WORKSPACE (Chat Stream + Right Inspector Rail)
          ══════════════════════════════════════════════════════════ */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto min-h-0">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto min-h-0 min-w-0 overflow-x-hidden">
 
         {/* ── LEFT / PRIMARY WORKSPACE COLUMN ── */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -1560,13 +1564,13 @@ export function OrderRoom() {
 
                 {/* Teleprompter / Dialogue Script Excerpt */}
                 <div className="pt-2">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div>
+                  <div className="flex items-start sm:items-center justify-between gap-3 mb-2.5">
+                    <div className="min-w-0 flex-1">
                       <span className="text-xs font-bold text-[var(--color-text-primary)] flex items-center gap-1.5 font-display">
-                        <FileText className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                        Dialogue Script Reader &amp; Pacing Guide
+                        <FileText className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                        <span>Dialogue Script Reader &amp; Pacing Guide</span>
                       </span>
-                      <span className="text-[11px] text-[var(--color-text-tertiary)] font-body">
+                      <span className="text-[11px] text-[var(--color-text-tertiary)] font-body block mt-0.5">
                         ~18s audio read · Warm, commanding brand voice
                       </span>
                     </div>
@@ -1577,9 +1581,9 @@ export function OrderRoom() {
                         setBriefScriptCopied(true);
                         setTimeout(() => setBriefScriptCopied(false), 2000);
                       }}
-                      className="h-7 px-2.5 rounded-lg text-xs font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] transition-colors flex items-center gap-1.5 cursor-pointer border border-[var(--color-accent)]/20"
+                      className="h-7.5 px-2.5 rounded-lg text-xs font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] transition-colors flex items-center gap-1.5 cursor-pointer border border-[var(--color-accent)]/20 shrink-0 whitespace-nowrap"
                     >
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3 h-3 shrink-0" />
                       <span>{briefScriptCopied ? "Copied!" : "Copy Script"}</span>
                     </button>
                   </div>
@@ -1588,7 +1592,7 @@ export function OrderRoom() {
                     <div className="absolute top-2 right-3 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
                       Broadcast Copy
                     </div>
-                    <p className="font-serif sm:text-base text-sm leading-relaxed tracking-wide italic text-zinc-100">
+                    <p className="font-serif sm:text-base text-sm leading-relaxed tracking-wide italic text-zinc-100 pt-2 sm:pt-0">
                       &ldquo;They told you impossible is a standard. We tell you it&apos;s a starting line. When the whistle blows in Surulere, the world listens. Nike: Just Do It.&rdquo;
                     </p>
                   </div>
@@ -1599,23 +1603,23 @@ export function OrderRoom() {
                   <span className="text-xs font-bold text-[var(--color-text-primary)] block mb-2.5 font-display">
                     Campaign Reference Attachments
                   </span>
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40 hover:border-[var(--color-accent)] transition-all">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)]/40 hover:border-[var(--color-accent)] transition-all">
+                    <div className="flex items-start sm:items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-red-500/10 text-[#B91C1C] flex items-center justify-center shrink-0">
                         <FileText className="w-5 h-5" />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold text-[var(--color-text-primary)] truncate">Nike_Campaign_Brief_v2.pdf</div>
-                        <div className="text-[11px] text-[var(--color-text-tertiary)]">1.2 MB · Brand pronunciation &amp; creative tone guide</div>
+                        <div className="text-[11px] text-[var(--color-text-tertiary)] leading-snug mt-0.5">1.2 MB · Brand pronunciation &amp; creative tone guide</div>
                       </div>
                     </div>
                     <a
                       href="#download"
                       onClick={(e) => { e.preventDefault(); alert("Downloading brief reference package..."); }}
-                      className="h-8 px-3 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 shrink-0 ml-3 cursor-pointer shadow-xs hover:opacity-95"
+                      className="h-8.5 px-3.5 rounded-lg text-xs font-semibold text-white flex items-center justify-center gap-1.5 shrink-0 w-full sm:w-auto sm:ml-3 cursor-pointer shadow-xs hover:opacity-95"
                       style={{ background: role === "client" ? "#5B21B6" : "#B91C1C" }}
                     >
-                      <Download className="w-3.5 h-3.5" />
+                      <Download className="w-3.5 h-3.5 shrink-0" />
                       <span>Download</span>
                     </a>
                   </div>
@@ -2367,9 +2371,49 @@ export function OrderRoom() {
               </div>
 
               {/* Scrollable Body */}
-              <div className="px-6 py-5 space-y-4 overflow-y-auto">
+              <div className="px-5 sm:px-6 py-4 space-y-4 overflow-y-auto">
 
-                {/* Escrow Hero Balance Card */}
+                {/* 1. Counterparty Profile Card (Mobile Parity with Desktop Inspector Rail) */}
+                <div className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-900/50 space-y-2.5">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      size="sm"
+                      className="w-10 h-10 text-xs font-bold shrink-0"
+                      background={role === "talent" ? "rgba(91, 33, 182, 0.12)" : "rgba(185, 28, 28, 0.12)"}
+                      color={role === "talent" ? "#5B21B6" : "#B91C1C"}
+                    >
+                      {role === "talent" ? clientInitials : talentInitials}
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                          {role === "talent" ? clientOrg : talentName}
+                        </span>
+                        <Shield className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      </div>
+                      <div className="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mt-0.5">
+                        <span>{role === "talent" ? "Verified Client" : "Verified Performer"}</span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-0.5 text-amber-500 font-semibold">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          4.9
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-200/80 dark:border-zinc-800 text-[11px]">
+                    <div>
+                      <span className="text-zinc-500 dark:text-zinc-400 block">Location</span>
+                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">Lagos, NG</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 dark:text-zinc-400 block">Avg. Response</span>
+                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">&lt; 1 hour</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Role-Accurate Escrow & Payout Card */}
                 <div
                   className="p-4 rounded-xl"
                   style={{
@@ -2378,7 +2422,9 @@ export function OrderRoom() {
                   }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tracking-normal">Escrow protected</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      {role === "client" ? "Escrow Deposit" : "Net Take-Home"}
+                    </span>
                     <span
                       className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
                       style={{
@@ -2390,11 +2436,13 @@ export function OrderRoom() {
                       {paymentReleased ? "Released" : "100% Secured"}
                     </span>
                   </div>
-                  <div className="text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100 tracking-tight">₦120,000</div>
+                  <div className="text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100 tracking-tight">
+                    {role === "client" ? "₦134,400" : "₦111,600"}
+                  </div>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
                     {paymentReleased
                       ? `Transferred to ${talentName}.`
-                      : "Funds are held securely in escrow by our payment partner, Paystack and auto-release 48 hours after delivery or upon client approval."}
+                      : "Funds are held securely in escrow by Paystack and auto-release 48 hours after delivery or upon client approval."}
                   </p>
                 </div>
 

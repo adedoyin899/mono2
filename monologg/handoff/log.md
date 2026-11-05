@@ -1,11 +1,62 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-04 (Session 221: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish)
+**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 222 (2026-11-05) — Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views
+
+**Goal:** Resolve all mobile UI/UX defects identified across Performer (`TalentDashboard`), Client (`ClientDashboard`), and `OrderRoom` views; eliminate hidden/inaccessible desktop sidebar menu destinations on mobile; fix invisible white-on-light text caused by overly broad CSS attribute selectors; apply progressive disclosure to global check-in banners; eliminate duplicate mobile headers; and ensure zero horizontal viewport overflow across 320px–430px mobile screens.
+
+1. **CSS Accent Button Selector Scoping (`tokens.css`):**
+   - Scoped `button[style*="..."]` and `a[style*="..."]` white-text enforcement rules strictly to `background:` and `background-color:` declarations (`background: var(--color-accent)`, `background-color: var(--color-accent)`, `#f13030`, `#7b00fe`, etc.).
+   - Fixed the bug where buttons using `color: var(--color-accent)` or `borderColor: var(--color-accent)` on light/pastel backgrounds (such as the mobile top-bar avatar buttons `EJ` / `FS` and the `"Resume Draft Stepper"` outline button on Client Project Detail) had their text forced to `#FFFFFF !important`, rendering them invisible in light mode.
+   - Added `.no-scrollbar` and `.scrollbar-none` utility classes for clean horizontal scroll strips on mobile.
+
+2. **Mobile Navigation Parity & Quick Actions Sheet (`BottomNav.tsx`, `Sidebar.tsx`):**
+   - Upgraded `BottomNav` with a 6th `"More"` (`LayoutGrid`) trigger in the floating bottom navigation pill and a full **Mobile Navigation & Quick Actions Bottom Sheet** (`role="dialog"`, `aria-label="Mobile navigation menu"`).
+   - Exposes 100% of desktop `Sidebar` destinations that were previously hidden on mobile:
+     - **Performer Portal:** `Dashboard`, `My Profile`, `Rate Cards`, `Availability`, `Projects`, `Active Orders`, `Earnings`, `Analytics`, and `Recent Activity`.
+     - **Client Portal:** `Dashboard`, `Find Performers`, `My Projects`, `Active Orders`, `Shortlist`, `Activity`, and `Analytics`.
+   - Includes direct mobile access to `Account Settings`, `Transactions & Escrow Ledger`, `Appearance` (Dark / Light Mode switch), `Help & Dispute Support`, and `Sign Out`.
+   - Standardized bottom-bar tab slots (`flex-1 min-w-0 py-1.5 px-1`) so 6 items fit 320px–375px screens without horizontal overflow.
+
+3. **Performer Dashboard Mobile UX & Progressive Disclosure (`TalentDashboard.tsx`):**
+   - **Check-in Banner Progressive Disclosure:** Auto-collapses the global Availability Check-in Card into a compact single-line verified bar (`Verified · Session Confirmed...` + `Details ▾`) on non-Home tabs when attendance is already confirmed (`isConfirmed`), reclaiming ~75% of the mobile viewport on `Active Orders`, `Rate Cards`, `Projects`, `Availability`, `Earnings`, and `Analytics`. Added an `"Event Details"` / `"Hide Details"` progressive disclosure toggle for the 3-column metadata block when expanded.
+   - **Active Orders List Row Redesign:** Restructured `orderViewMode === "chat"` list rows into a responsive multi-row hierarchy so `{order.project}` (`Nike Commercial VO`) and `{statusSummary}` (`Milestone in progress`) never truncate to `Nike Com...` or `Mil...` on mobile.
+   - **Availability Calendar Mobile Polish:** Removed `truncate` on the Google Calendar Sync description; removed the duplicate `November 2026` heading and duplicate `[< Today >]` navigator inside the Month view card; redesigned the 7-column Month calendar cells (`h-14 sm:h-20 p-1.5 sm:p-2.5 gap-1.5 sm:gap-2.5 min-w-0 overflow-hidden`) with a compact `Today` label on `< sm` so Thursday's `TODAY` badge never overflows into Friday (`6`).
+   - Removed duplicate mobile `<h2>` headings on `Rate Cards` and `Projects` tabs that repeated the sticky mobile top bar.
+
+4. **Client Dashboard Mobile UX & Responsive Cards (`ClientDashboard.tsx`):**
+   - **My Projects List View:** Replaced the duplicate mobile `<h2>My Projects</h2>` header with a clean project count summary (`"{effectiveProjects.length} project briefs"`) alongside `+ Post Brief`. Redesigned the bottom row of each project card (`flex-col sm:flex-row`) so `Target: 10 performers · Inactive draft` sits on its own full-width line above the `Resume Draft` and `View Project →` buttons, eliminating the 4-line squished text column on mobile.
+   - **Project Detail View:** Wrapped the `State: Draft | Active | In Progress | Review | Completed | Closed` preview bar in `overflow-x-auto max-w-full no-scrollbar` so all 6 state pills scroll horizontally within the mobile viewport without clipping. Made the Guided Draft Stepper banner buttons full-width flex items on mobile.
+   - **Client Active Orders List View:** Applied the same responsive 2-row list hierarchy as Performer `Active Orders`.
+
+5. **Order Room Mobile Workspace & Inspector Parity (`OrderRoom.tsx`):**
+   - **Zero Horizontal Overflow:** Added `w-full max-w-[100vw] overflow-x-hidden` to the root container and `min-w-0 overflow-x-hidden` to the 2-pane workspace container, eliminating right-edge clipping on Client and Performer mobile views.
+   - **Mobile Header Optimization:** Moved the `Online` / `Onsite` badge inline with the subtitle row on `< sm` and compacted right-side header controls so `{orderTitle}` (`Nike Campaign VO`) and counterparty name have breathing room instead of truncating to `Nike C...`.
+   - **Brief & Files Tab Fixes:** Added `shrink-0 whitespace-nowrap` to the `Copy Script` button so it never wraps or collides with the `Dialogue Script Reader & Pacing Guide` subtitle; stacked `Campaign Reference Attachments` (`flex-col sm:flex-row`) with a full-width mobile `Download` button so the attachment description is never crushed into 4 narrow lines.
+   - **Mobile `Order Details` (`Info`) Modal Parity:** Upgraded the mobile `Info` modal with the Counterparty Profile card (`Verified Client`/`Performer`, `4.9 ★`, `Lagos, NG`, `< 1 hour` response) and role-accurate Escrow Deposit (`₦134,400` for Client) / Net Take-Home (`₦111,600` for Performer) summary.
+
+6. **Testing & Quality Assurance:**
+   - Added unit tests in `OrderRoom.test.tsx` and `TalentDashboardOrders.test.tsx` covering the mobile `"More"` navigation drawer and mobile `Order Info` modal Inspector Rail parity.
+   - Full test suite: 36 test files, 197 tests passing 100% green (`npm test -- --run`).
+   - TypeScript verification: 0 errors (`npx tsc --noEmit`).
+
+**Files touched:**
+- `monologg/apps/web/src/styles/tokens.css`
+- `monologg/apps/web/src/app/components/ui/BottomNav.tsx`
+- `monologg/apps/web/src/app/components/ui/Sidebar.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboard.tsx`
+- `monologg/apps/web/src/app/pages/ClientDashboard.tsx`
+- `monologg/apps/web/src/app/pages/OrderRoom.tsx`
+- `monologg/apps/web/src/app/pages/OrderRoom.test.tsx`
+- `monologg/apps/web/src/app/pages/TalentDashboardOrders.test.tsx`
 
 ---
 

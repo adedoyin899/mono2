@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-04 (Session 221: Website Gradient Backgrounds Removal & Mobile Hero Phone Stage Geometry Polish)
+**Last updated:** 2026-11-05 (Session 222: Comprehensive Mobile Responsiveness, Progressive Disclosure & Navigation Parity Overhaul Across Performer, Client & Order Room Views)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,25 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 168. Mobile Navigation Feature Loss, Invisible White-on-Light Avatar/Button Text, Check-in Banner Viewport Bloat, Calendar Cell Overflow & OrderRoom Horizontal Clipping
+- **Severity:** High / Mobile Responsiveness, Accessibility & UX Parity
+- **What happened:**
+  1. **Hidden Menu Items on Mobile:** Desktop `Sidebar` exposed `Earnings`, `Analytics`, `Activity`, `Settings`, `Dark Mode`, and `Sign Out`, while mobile `BottomNav` only rendered 5–6 tabs, leaving critical destinations unreachable on mobile without URL manipulation.
+  2. **Invisible White Text on Mobile Avatar (`EJ`, `FS`) & `"Resume Draft Stepper"` Button:** In light mode, the top-right mobile avatar buttons and the outline `"Resume Draft Stepper"` button rendered white text (`#FFFFFF`) on pastel/white backgrounds.
+  3. **Check-in Banner Viewport Bloat:** On Performer mobile tabs (`Active Orders`, `Rate Cards`, etc.), the expanded `"Attendance Verified"` card consumed ~75% of the viewport height even after attendance was already confirmed.
+  4. **Availability Calendar Overflow & Duplication:** The Month view card repeated the `November 2026` title and `< Today >` navigator right below the main toolbar, truncated the Google Calendar Sync description, and let Thursday's `TODAY` badge overflow horizontally into Friday's (`6`) cell.
+  5. **Severe Mobile Truncation & Horizontal Viewport Overflow:** Performer/Client `Active Orders` rows truncated project names to `Nike Com...` and `Mil...`; Client `My Projects` cards squished `Target: 10 performers · Inactive draft` into 4 narrow lines next to two buttons; Client Project Detail's `State:` preview bar overflowed 375px screens; and `OrderRoom` clipped the right edge of the Client view and wrapped/collided buttons in `Brief & Files`.
+- **Root Cause:**
+  1. `tokens.css` used overly broad attribute selectors (`button[style*="var(--color-accent)" i]`) that matched any inline style referencing `var(--color-accent)`—including `color: var(--color-accent)` on light backgrounds—forcing `color: #FFFFFF !important`.
+  2. `BottomNav.tsx` lacked a `"More"` drawer for secondary tabs and account actions.
+  3. Desktop-first single-row flex layouts in `TalentDashboard.tsx`, `ClientDashboard.tsx`, and `OrderRoom.tsx` lacked mobile stacking (`flex-col sm:flex-row`), progressive disclosure, and `overflow-x-hidden` constraints.
+- **Resolution:**
+  1. Scoped `tokens.css` white-text rules strictly to `background:` and `background-color:` declarations and added `.no-scrollbar` / `.scrollbar-none` utilities.
+  2. Upgraded `BottomNav.tsx` with a `"More"` trigger and a full **Mobile Navigation & Quick Actions Bottom Sheet** exposing all workspace tabs, `Account Settings`, `Transactions & Escrow Ledger`, `Appearance` (Dark/Light Mode), `Help & Dispute Support`, and `Sign Out`.
+  3. Added progressive disclosure to the global Check-in Card in `TalentDashboard.tsx` (auto-collapsing to a slim strip on non-Home tabs when verified, plus an `"Event Details"` toggle), redesigned `Active Orders` rows into a 2-row mobile hierarchy, removed duplicate mobile headings, and fixed the 7-column Month calendar cell geometry.
+  4. Updated `ClientDashboard.tsx` project cards to stack metadata above action buttons on mobile and made the `State:` preview bar horizontally scrollable (`overflow-x-auto no-scrollbar`).
+  5. Updated `OrderRoom.tsx` with `w-full max-w-[100vw] overflow-x-hidden`, compacted mobile header controls, stacked `Campaign Reference Attachments` on mobile, and upgraded the mobile `Order Details` (`Info`) modal to full parity with the desktop Inspector Rail.
 
 ### 167. Ambient Gradient Blur Overlays Across Website & Mobile Hero Mockup Vertical Spacing Collision
 - **Severity:** Low / Visual Polish & Mobile Responsiveness

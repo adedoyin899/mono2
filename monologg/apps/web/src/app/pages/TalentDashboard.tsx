@@ -351,7 +351,6 @@ const TALENT_BOTTOM_NAV_ITEMS: SidebarNavItem<Tab>[] = [
   { id: "rates", label: "Rates", icon: DollarSign },
   { id: "projects", label: "Projects", icon: Briefcase },
   { id: "calendar", label: "Calendar", icon: Calendar },
-  { id: "storefront", label: "Profile", icon: User },
 ];
 
 export function TalentDashboard() {
@@ -496,6 +495,8 @@ export function TalentDashboard() {
   const [checkins, setCheckins] = useState<AvailabilityCheckin[]>(() => appStateSync.getAvailabilityCheckins());
   const [checkinIndex, setCheckinIndex] = useState(1);
   const [checkinBannerMinimized, setCheckinBannerMinimized] = useState(false);
+  const [checkinDetailsExpanded, setCheckinDetailsExpanded] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedCheckinToDecline, setSelectedCheckinToDecline] = useState<AvailabilityCheckin | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1131,6 +1132,7 @@ export function TalentDashboard() {
     : activeTab === "projects" ? "Projects"
     : activeTab === "orders" ? "Active Orders"
     : activeTab === "analytics" ? "Analytics"
+    : activeTab === "activity" ? "Recent Activity"
     : "Earnings";
 
   const talentName = talentProfile.name || "Emeka Johnson";
@@ -1138,7 +1140,7 @@ export function TalentDashboard() {
   const firstName = talentName.split(/\s+/)[0] || "Emeka";
 
   return (
-    <div className="role-talent min-h-screen" style={{ background: "var(--color-bg-canvas)" }}>
+    <div className="role-talent min-h-screen overflow-x-hidden" style={{ background: "var(--color-bg-canvas)" }}>
       <Sidebar
         portalLabel="Performer Portal"
         navItems={TALENT_NAV_ITEMS}
@@ -1184,8 +1186,12 @@ export function TalentDashboard() {
           </button>
           <button
             aria-label="Go to settings"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm font-body hover:opacity-80 transition-opacity"
-            style={{ background: "var(--color-accent-glow)", color: "var(--color-accent)" }}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm font-body hover:opacity-80 transition-opacity border"
+            style={{
+              background: "var(--color-accent-soft)",
+              color: "var(--color-accent)",
+              borderColor: "var(--color-hairline)",
+            }}
             onClick={() => navigate("/settings")}
           >
             {talentInitials}
@@ -1268,9 +1274,15 @@ export function TalentDashboard() {
             const isOverdue = activeCheckin.isOverdue || activeCheckin.status === "missed";
             const isCancelled = appStateSync.isBookingCancelled(activeCheckin.bookingId);
 
-            if (checkinBannerMinimized && !isCancelled) {
+            // Progressive disclosure: when attendance is already verified on non-Home tabs (or user minimized),
+            // render the slim verified command strip so primary tab content stays above the fold on mobile.
+            const showSlimBanner =
+              (checkinBannerMinimized && !isCancelled) ||
+              (isConfirmed && !isCancelled && activeTab !== "home" && !checkinDetailsExpanded);
+
+            if (showSlimBanner) {
               return (
-                <div className="mb-6 px-4 py-2.5 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] flex items-center justify-between gap-3 shadow-2xs">
+                <div className="mb-5 px-3.5 sm:px-4 py-2.5 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] flex items-center justify-between gap-2.5 shadow-2xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${isConfirmed ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
                     <Badge
@@ -1300,12 +1312,16 @@ export function TalentDashboard() {
                     )}
                     <button
                       type="button"
-                      onClick={() => setCheckinBannerMinimized(false)}
-                      className="p-1 rounded-md hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+                      onClick={() => {
+                        setCheckinBannerMinimized(false);
+                        setCheckinDetailsExpanded(true);
+                      }}
+                      className="px-2 py-1 rounded-md hover:bg-[var(--color-bg-elevated)] text-[11px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer inline-flex items-center gap-1"
                       title="Expand attendance card"
                       aria-label="Expand attendance card"
                     >
-                      <ChevronDown className="w-4 h-4" />
+                      <span className="hidden sm:inline">Details</span>
+                      <ChevronDown className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1314,7 +1330,7 @@ export function TalentDashboard() {
 
             return (
               <div
-                className={`mb-6 p-5 sm:p-6 rounded-2xl border transition-all ${
+                className={`mb-5 sm:mb-6 p-4 sm:p-6 rounded-2xl border transition-all ${
                   isCancelled
                     ? "bg-rose-500/10 border-rose-500/30 text-rose-950 dark:text-rose-100"
                     : isConfirmed
@@ -1325,57 +1341,73 @@ export function TalentDashboard() {
                 }`}
               >
                 {/* Header row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {checkins.length > 1 && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            aria-label="Previous check-in milestone"
-                            onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
-                            title="Previous check-in milestone"
-                          >
-                            <ChevronLeft className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Next check-in milestone"
-                            onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
-                            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
-                            title="Next check-in milestone"
-                          >
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-                      <Badge
-                        tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
-                        className={isConfirmed ? "badge-confirmed" : ""}
-                        size="sm"
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-3.5">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {checkins.length > 1 && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              aria-label="Previous check-in milestone"
+                              onClick={() => setCheckinIndex((prev) => (prev - 1 + checkins.length) % checkins.length)}
+                              className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                              title="Previous check-in milestone"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Next check-in milestone"
+                              onClick={() => setCheckinIndex((prev) => (prev + 1) % checkins.length)}
+                              className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] transition-colors cursor-pointer border border-[var(--color-hairline)]"
+                              title="Next check-in milestone"
+                            >
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                        <Badge
+                          tone={isCancelled ? "error" : isConfirmed ? "success" : isOverdue ? "warning" : "accent"}
+                          className={isConfirmed ? "badge-confirmed" : ""}
+                          size="sm"
+                        >
+                          {isCancelled
+                            ? "Cancelled & Refunded"
+                            : isConfirmed
+                            ? "Attendance Verified"
+                            : isOverdue
+                            ? "Action Required"
+                            : `Milestone Gate ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
+                        </Badge>
+                        <span className="text-xs text-[var(--color-text-tertiary)] font-body">
+                          {isConfirmed ? "Confirmed for production" : `due ${activeCheckin.dueDate}`}
+                        </span>
+                      </div>
+
+                      {/* Mobile minimize button in top-right corner */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCheckinBannerMinimized(true);
+                          setCheckinDetailsExpanded(false);
+                        }}
+                        className="sm:hidden p-1 rounded-lg border border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+                        title="Minimize notification"
+                        aria-label="Minimize notification"
                       >
-                        {isCancelled
-                          ? "Cancelled & Refunded"
-                          : isConfirmed
-                          ? "Attendance Verified"
-                          : isOverdue
-                          ? "Action Required"
-                          : `Milestone Gate ${activeCheckin.stepIndex} of ${activeCheckin.totalSteps}`}
-                      </Badge>
-                      <span className="text-xs text-[var(--color-text-tertiary)] font-body">
-                        {isConfirmed ? "Confirmed for production" : `due ${activeCheckin.dueDate}`}
-                      </span>
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
-                    <h2 className="font-display text-lg sm:text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
+                    <h2 className="font-display text-base sm:text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
                       {isCancelled
                         ? "Booking Cancelled & Refunded"
                         : isConfirmed
                         ? `Session Confirmed with ${activeCheckin.clientName}`
                         : `Confirm attendance for ${activeCheckin.clientName}`}
                     </h2>
-                    <p className="text-xs text-[var(--color-text-secondary)]">
+                    <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
                       {isCancelled
                         ? `Performer declined check-in. Booking with ${activeCheckin.clientName} was cancelled and ₦${activeCheckin.baseRate.toLocaleString()} refunded.`
                         : isConfirmed
@@ -1384,57 +1416,74 @@ export function TalentDashboard() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
-                    <div className="text-left sm:text-right shrink-0">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
+                    <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
                       <div className="text-[10px] text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold font-body">
                         {isCancelled ? "Refund Processed" : "Net Take-Home"}
                       </div>
-                      <div className={`font-mono font-black text-base sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                      <div className={`font-mono font-black text-sm sm:text-lg ${isCancelled ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                         ₦{isCancelled ? activeCheckin.baseRate.toLocaleString() : activeCheckin.performerReceives.toLocaleString()}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setCheckinBannerMinimized(true)}
-                      className="p-1.5 rounded-lg border border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
-                      title="Minimize notification"
-                      aria-label="Minimize notification"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setCheckinDetailsExpanded((prev) => !prev)}
+                        className="px-2.5 py-1 rounded-lg border border-[var(--color-hairline)] bg-[var(--color-bg-elevated)] text-[11px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>{checkinDetailsExpanded ? "Hide Details" : "Event Details"}</span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${checkinDetailsExpanded ? "rotate-180" : ""}`} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCheckinBannerMinimized(true);
+                          setCheckinDetailsExpanded(false);
+                        }}
+                        className="hidden sm:inline-flex p-1.5 rounded-lg border border-[var(--color-hairline)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+                        title="Minimize notification"
+                        aria-label="Minimize notification"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Event details summary */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-4 text-xs font-body">
-                  <div className="space-y-0.5">
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Event Name</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
+                {/* Event details summary (Progressive disclosure when confirmed, or always shown when action required / expanded) */}
+                {(!isConfirmed || checkinDetailsExpanded) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 p-3 rounded-xl bg-[var(--color-bg-elevated)] border border-[var(--color-hairline)] mb-3.5 text-xs font-body">
+                    <div className="space-y-0.5">
+                      <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Event Name</span>
+                      <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventName}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Date &amp; Time</span>
+                      <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Location &amp; Client</span>
+                      <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
+                    </div>
                   </div>
-                  <div className="space-y-0.5">
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Date &amp; Time</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.eventDate}</span>
-                  </div>
-                  <div className="space-y-0.5">
-                    <span className="text-[var(--color-text-tertiary)] block text-[10px] uppercase tracking-wider font-semibold">Location &amp; Client</span>
-                    <span className="font-semibold text-[var(--color-text-primary)]">{activeCheckin.location} · {activeCheckin.clientName}</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Status action row */}
                 {isCancelled ? (
-                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-body flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-body flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
                       <span>Order {activeCheckin.bookingId} cancelled. Client was refunded ₦{activeCheckin.baseRate.toLocaleString()} automatically via Paystack.</span>
                     </div>
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shrink-0">
                       Cancelled
                     </span>
                   </div>
                 ) : isConfirmed ? (
-                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-200 text-xs font-body flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Attendance confirmed. {activeCheckin.clientName} has been notified and production scheduling is verified.</span>
                     </div>
@@ -1451,19 +1500,19 @@ export function TalentDashboard() {
                       </div>
                     )}
 
-                    <div className="flex items-center justify-end gap-3 pt-1">
+                    <div className="flex items-center justify-end gap-2.5 sm:gap-3 pt-1">
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedCheckinToDecline(activeCheckin);
                           setShowDeclineModal(true);
                         }}
-                        className="h-9 px-4 text-xs font-medium rounded-xl border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:text-red-500 hover:border-red-400 transition-colors cursor-pointer bg-[var(--color-bg-surface)]"
+                        className="flex-1 sm:flex-initial h-9 px-4 text-xs font-medium rounded-xl border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:text-red-500 hover:border-red-400 transition-colors cursor-pointer bg-[var(--color-bg-surface)]"
                       >
                         I can&apos;t make it
                       </button>
                       <Button
-                        className="h-9 px-5 text-xs font-bold gap-1.5 shadow-sm"
+                        className="flex-1 sm:flex-initial h-9 px-5 text-xs font-bold gap-1.5 shadow-sm"
                         onClick={() => {
                           appStateSync.confirmAvailabilityCheckin(activeCheckin.id);
                           setCheckins(appStateSync.getAvailabilityCheckins());
@@ -2558,11 +2607,13 @@ export function TalentDashboard() {
             {/* ── Rate Cards Tab ── */}
             {activeTab === "rates" && (
               <motion.div key="rates" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="flex items-center justify-between mb-4 lg:hidden">
-                  <h2 className="font-display text-2xl" style={{ color: "var(--color-text-primary)" }}>Rate Cards</h2>
-                  {effectiveServices.length > 0 && effectiveServices.length < 2 && (
+                {effectiveServices.length > 0 && effectiveServices.length < 2 && (
+                  <div className="flex items-center justify-between gap-3 mb-4 lg:hidden">
+                    <span className="text-xs font-body" style={{ color: "var(--color-text-secondary)" }}>
+                      {effectiveServices.length} of 2 rate cards active
+                    </span>
                     <Button
-                      className="h-9 px-3 text-sm gap-2"
+                      className="h-9 px-3 text-xs font-semibold gap-1.5"
                       onClick={() => {
                         setEditServiceId(null);
                         setNewServiceTitle("");
@@ -2571,10 +2622,10 @@ export function TalentDashboard() {
                         setShowAddService(true);
                       }}
                     >
-                      <Plus className="w-4 h-4" /> Add Rate Card
+                      <Plus className="w-3.5 h-3.5" /> Add Rate Card
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {effectiveServices.length === 0 ? (
                   <div className="text-center py-16 px-6 rounded-[var(--radius-xl)] bg-[var(--color-bg-surface)] border border-[var(--color-hairline)] shadow-[var(--shadow-card)] flex flex-col items-center">
@@ -2850,7 +2901,7 @@ export function TalentDashboard() {
                           <Badge tone="neutral" size="sm">Not connected</Badge>
                         )}
                       </div>
-                      <p className="text-xs font-body mt-0.5 truncate" style={{ color: "var(--color-text-secondary)" }}>
+                      <p className="text-xs font-body mt-0.5 leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                         {calendarSync.connected
                           ? `Connected as ${calendarSync.email || "Google Account"} · Bookings sync automatically, and existing events block slots.`
                           : "Connect your calendar to automatically block out slots when you're busy."}
@@ -3031,67 +3082,28 @@ export function TalentDashboard() {
                   }
 
                   return (
-                    <div className="p-5 sm:p-6 rounded-3xl mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
-                      {/* Month Header & Inline Chevrons */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b" style={{ borderColor: "var(--color-hairline)" }}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}>
-                            <Calendar className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-display text-xl font-bold" style={{ color: "var(--color-text-primary)" }}>{monthName}</h3>
-                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
-                                {daysInMonth} days
-                              </span>
-                            </div>
-                            <span className="text-xs font-body block mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>Select a date to view scheduled slots & events</span>
-                          </div>
-                        </div>
-
-                        {/* Quick Month Navigator & Today shortcut */}
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center p-1 rounded-xl" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
-                            <button
-                              aria-label="Previous month"
-                              onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, "month", "prev"))}
-                              className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
-                              style={{ color: "var(--color-text-secondary)" }}
-                              title="Previous Month"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setSelectedDate(todayISO())}
-                              className="px-2.5 py-1 text-xs font-semibold font-body rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
-                              style={{ color: "var(--color-text-primary)" }}
-                            >
-                              Today
-                            </button>
-                            <button
-                              aria-label="Next month"
-                              onClick={() => setSelectedDate(navigatePeriodISO(selectedDate, "month", "next"))}
-                              className="p-1.5 rounded-lg transition-all cursor-pointer hover:bg-[var(--color-bg-surface)]"
-                              style={{ color: "var(--color-text-secondary)" }}
-                              title="Next Month"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
+                    <div className="p-3.5 sm:p-6 rounded-3xl mb-4" style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", boxShadow: "var(--shadow-card)" }}>
+                      {/* Compact Month Subheader (No duplicate Month title or duplicate < Today > nav) */}
+                      <div className="flex items-center justify-between gap-2 mb-3.5 pb-3 border-b" style={{ borderColor: "var(--color-hairline)" }}>
+                        <span className="text-xs font-body" style={{ color: "var(--color-text-tertiary)" }}>
+                          Select a date to view scheduled slots &amp; events
+                        </span>
+                        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0" style={{ background: "var(--color-bg-elevated)", color: "var(--color-text-secondary)" }}>
+                          {daysInMonth} days
+                        </span>
                       </div>
 
                       {/* Day of Week Header */}
-                      <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold mb-2.5 font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
+                      <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[11px] sm:text-xs font-semibold mb-2 font-body uppercase tracking-wider" style={{ color: "var(--color-text-tertiary)" }}>
                         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
                           <div key={day} className="py-1 font-semibold">{day}</div>
                         ))}
                       </div>
 
                       {/* Days Grid */}
-                      <div className="grid grid-cols-7 gap-2 sm:gap-2.5">
+                      <div className="grid grid-cols-7 gap-1.5 sm:gap-2.5">
                         {daysArray.map((dateStr, idx) => {
-                          if (!dateStr) return <div key={`empty-${idx}`} className="h-16 sm:h-20 rounded-2xl bg-zinc-50/20 dark:bg-zinc-900/10 border border-transparent" />;
+                          if (!dateStr) return <div key={`empty-${idx}`} className="h-14 sm:h-20 rounded-xl sm:rounded-2xl bg-zinc-50/20 dark:bg-zinc-900/10 border border-transparent" />;
                           const isSelected = dateStr === selectedDate;
                           const isToday = dateStr === todayISO();
                           const dayNum = parseInt(dateStr.slice(8), 10);
@@ -3112,11 +3124,11 @@ export function TalentDashboard() {
                                 setSelectedDate(dateStr);
                                 setContextMenu({ x: e.clientX, y: e.clientY, date: dateStr });
                               }}
-                              className={`h-16 sm:h-20 p-2 sm:p-2.5 rounded-2xl flex flex-col justify-between relative transition-all active:scale-98 text-xs font-body text-left cursor-pointer group ${
+                              className={`h-14 sm:h-20 p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl flex flex-col justify-between relative transition-all active:scale-98 text-xs font-body text-left cursor-pointer group min-w-0 overflow-hidden ${
                                 isUnavailable
                                   ? "bg-neutral-100/70 dark:bg-neutral-900/40 border border-dashed border-neutral-300 dark:border-neutral-700/80 text-neutral-400 dark:text-neutral-500"
                                   : isSelected
-                                  ? "border-2 border-[var(--color-accent)] ring-4 ring-[var(--color-accent)]/15 shadow-sm"
+                                  ? "border-2 border-[var(--color-accent)] ring-2 sm:ring-4 ring-[var(--color-accent)]/15 shadow-sm"
                                   : isToday
                                   ? "border-2 border-[var(--color-accent)]/70 shadow-2xs hover:border-[var(--color-accent)]"
                                   : "border border-[var(--color-border-default)] hover:border-[var(--color-border-hover)] hover:shadow-2xs"
@@ -3138,8 +3150,8 @@ export function TalentDashboard() {
                                   : undefined,
                               }}
                             >
-                              <div className="flex items-center justify-between w-full">
-                                <span className={`text-sm font-semibold transition-colors ${
+                              <div className="flex items-center justify-between w-full min-w-0 gap-0.5">
+                                <span className={`text-xs sm:text-sm font-semibold leading-none transition-colors ${
                                   isUnavailable
                                     ? "text-neutral-400 dark:text-neutral-500 line-through"
                                     : isSelected
@@ -3151,25 +3163,47 @@ export function TalentDashboard() {
                                   {dayNum}
                                 </span>
                                 {isToday && (
-                                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--color-accent)" }}>
-                                    Today
-                                  </span>
+                                  <>
+                                    <span className="hidden sm:inline-flex text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full text-white shrink-0" style={{ background: "var(--color-accent)" }}>
+                                      Today
+                                    </span>
+                                    <span className="sm:hidden w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--color-accent)" }} />
+                                  </>
                                 )}
                               </div>
 
                               {/* Visual recognition: Unavailable vs Events vs Clean Open */}
-                              <div className="w-full min-h-[18px] flex items-center">
+                              <div className="w-full min-h-[14px] sm:min-h-[18px] flex items-center min-w-0">
                                 {isUnavailable ? (
-                                  <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 bg-neutral-200/60 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded-md">
-                                    Unavailable
-                                  </span>
+                                  <>
+                                    <span className="hidden sm:inline-flex text-[9px] uppercase font-bold tracking-wider text-neutral-400 dark:text-neutral-500 bg-neutral-200/60 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded-md truncate">
+                                      Unavailable
+                                    </span>
+                                    <span className="sm:hidden text-[8px] uppercase font-bold tracking-tight text-neutral-400 dark:text-neutral-500 truncate">
+                                      Off
+                                    </span>
+                                  </>
                                 ) : hasMonologg ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/25 truncate max-w-full">
-                                    <LogoMark className="w-2.5 h-2.5 shrink-0" /> Monologg
-                                  </span>
+                                  <>
+                                    <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/25 truncate max-w-full">
+                                      <LogoMark className="w-2.5 h-2.5 shrink-0" /> Monologg
+                                    </span>
+                                    <span className="sm:hidden inline-flex items-center gap-0.5 px-1 py-0.25 rounded text-[8px] font-bold bg-[var(--color-accent)]/15 text-[var(--color-accent)] truncate max-w-full">
+                                      Gig
+                                    </span>
+                                  </>
                                 ) : hasExternal ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 truncate max-w-full">
-                                    <Calendar className="w-2.5 h-2.5 shrink-0" /> Event
+                                  <>
+                                    <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 truncate max-w-full">
+                                      <Calendar className="w-2.5 h-2.5 shrink-0" /> Event
+                                    </span>
+                                    <span className="sm:hidden inline-flex items-center px-1 py-0.25 rounded text-[8px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 truncate max-w-full">
+                                      Evt
+                                    </span>
+                                  </>
+                                ) : isToday ? (
+                                  <span className="sm:hidden text-[8px] font-bold uppercase tracking-tight text-[var(--color-accent)] truncate">
+                                    Today
                                   </span>
                                 ) : null}
                               </div>
@@ -4676,8 +4710,6 @@ export function TalentDashboard() {
                 </motion.div>
               ) : (
                 <motion.div key="projects" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <h2 className="font-display text-2xl mb-4 lg:hidden" style={{ color: "var(--color-text-primary)" }}>Projects</h2>
-
                 <div className="flex p-1 rounded-xl mb-5 w-full max-w-xs sm:max-w-sm" style={{ background: "var(--color-bg-elevated)", border: "1px solid var(--color-border-default)" }}>
                   {(["browse", "applications"] as const).map((tab) => (
                     <button
@@ -5079,10 +5111,10 @@ export function TalentDashboard() {
                               <div
                                 key={order.id}
                                 onClick={() => navigate(`/order/${order.id}`)}
-                                className="flex items-center gap-3.5 sm:gap-4 p-4 sm:p-5 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
+                                className="flex items-start sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 hover:bg-[var(--color-bg-elevated)]/60 cursor-pointer transition-colors group relative"
                               >
                                 {/* Avatar with active presence dot */}
-                                <div className="relative shrink-0">
+                                <div className="relative shrink-0 mt-0.5 sm:mt-0">
                                   <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20">
                                     {initials}
                                   </div>
@@ -5091,50 +5123,58 @@ export function TalentDashboard() {
                                   )}
                                 </div>
 
-                                {/* Middle content: Project + Counterpart + Status */}
+                                {/* Responsive Content Block: Full-width title row + structured metadata row */}
                                 <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
-                                      {order.project}
-                                    </h3>
-                                    <span className="inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
-                                      {isGigOnsite ? "Onsite" : "Online"}
-                                    </span>
-                                    {isCancelled && (
-                                      <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded shrink-0">
-                                        Cancelled
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                      <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors truncate">
+                                        {order.project}
+                                      </h3>
+                                      <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                        {isGigOnsite ? "Onsite" : "Online"}
                                       </span>
-                                    )}
+                                      {isCancelled && (
+                                        <span className="inline-flex text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded shrink-0">
+                                          Cancelled
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span
+                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                          isCancelled
+                                            ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                            : order.phase === "Review"
+                                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                        }`}
+                                      >
+                                        {order.phase}
+                                      </span>
+                                      <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all shrink-0" />
+                                    </div>
                                   </div>
 
-                                  <div className="flex items-center gap-2 text-xs sm:text-[13px] text-[var(--color-text-secondary)] truncate">
-                                    <span className="font-medium text-[var(--color-text-primary)]">{order.counterpart}</span>
-                                    <span className="text-[var(--color-text-tertiary)]">&middot;</span>
-                                    <span className="truncate text-[var(--color-text-tertiary)]">
-                                      {statusSummary}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Right status & action */}
-                                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                                  <div className="text-right flex flex-col items-end gap-1">
-                                    <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                                        isCancelled
-                                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                          : order.phase === "Review"
-                                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                          : "bg-red-500/10 text-red-600 dark:text-red-400"
-                                      }`}
-                                    >
-                                      {order.phase}
-                                    </span>
-                                    <div className="text-[11px] font-medium text-[var(--color-text-tertiary)]">
+                                  <div className="flex items-center justify-between gap-2 text-xs sm:text-[13px] text-[var(--color-text-secondary)]">
+                                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                      <span className="font-medium text-[var(--color-text-primary)] truncate">{order.counterpart}</span>
+                                      <span className="sm:hidden inline-flex text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.25 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                        {isGigOnsite ? "Onsite" : "Online"}
+                                      </span>
+                                      <span className="hidden sm:inline text-[var(--color-text-tertiary)]">&middot;</span>
+                                      <span className="hidden sm:inline truncate text-[var(--color-text-tertiary)]">
+                                        {statusSummary}
+                                      </span>
+                                    </div>
+                                    <div className="text-[11px] font-medium text-[var(--color-text-tertiary)] shrink-0">
                                       Due {order.due}
                                     </div>
                                   </div>
-                                  <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:translate-x-0.5 transition-all" />
+
+                                  <div className="sm:hidden text-[11px] text-[var(--color-text-tertiary)] mt-0.5 truncate">
+                                    {statusSummary}
+                                  </div>
                                 </div>
                               </div>
                             );
@@ -7577,7 +7617,29 @@ export function TalentDashboard() {
 
       </main>
 
-      <BottomNav navItems={TALENT_BOTTOM_NAV_ITEMS} activeTab={activeTab} onTab={setActiveTab} indicatorId="tab-indicator" />
+      <BottomNav
+        navItems={TALENT_BOTTOM_NAV_ITEMS}
+        allNavItems={[
+          ...TALENT_NAV_ITEMS,
+          { id: "activity", label: "Recent Activity", icon: Bell },
+        ]}
+        activeTab={activeTab}
+        onTab={setActiveTab}
+        indicatorId="tab-indicator"
+        userName={talentName}
+        userSubLabel="Verified Performer · Monologg Portal"
+        userInitials={talentInitials}
+        userAvatarUrl={talentProfile.avatarUrl}
+        onSettings={() => navigate("/settings")}
+        onTransactions={() => navigate("/transactions?role=talent")}
+        onSupport={() => navigate("/support")}
+        onSignOut={async () => {
+          await apiClient.logout();
+          navigate("/");
+        }}
+        isMoreOpen={showMobileMenu}
+        onMoreOpenChange={setShowMobileMenu}
+      />
     </div>
   );
 }
