@@ -188,4 +188,26 @@ describe("LandingPage signed-in header", () => {
     expect(tokensCss).toContain("scale(0.68)");
     expect(tokensCss).toContain("scale(1)");
   });
+
+  it("renders hero typewriter headline and routes CTAs to toggled performer and client signup pages", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <LandingPage />
+      </MemoryRouter>,
+    );
+
+    // Initial typewriter headline starts with 'Find Performers'
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Find Performers");
+    expect(screen.getByText("Finish Your Project.")).toBeInTheDocument();
+
+    // CTA 'Find Performers' navigates to client toggled signup
+    const findPerformersBtn = screen.getByRole("button", { name: /^Find Performers/i });
+    fireEvent.click(findPerformersBtn);
+    expect(mockNavigate).toHaveBeenCalledWith("/auth?mode=signup&role=client");
+
+    // CTA 'Find Gigs' navigates to performer/talent toggled signup
+    const findGigsBtn = screen.getByRole("button", { name: /Find Gigs/i });
+    fireEvent.click(findGigsBtn);
+    expect(mockNavigate).toHaveBeenCalledWith("/auth?mode=signup&role=talent");
+  });
 });

@@ -605,22 +605,12 @@ export function WebsiteFooter({
                       X (Twitter)
                     </a>
                     <a
-                      href="https://tiktok.com/@monologg"
+                      href="https://linkedin.com/company/monologg"
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
-                      data-node-id="178151:49704"
                     >
-                      Tiktok
-                    </a>
-                    <a
-                      href="https://discord.gg/monologg"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center relative shrink-0 font-['Inter_Tight',sans-serif] font-normal leading-[24px] text-[#767676] dark:text-[#a3a3a3] hover:text-[#1a1a1a] dark:hover:text-[#f9f9f9] transition-colors text-[14px] tracking-[0.42px] whitespace-nowrap"
-                      data-node-id="178151:49708"
-                    >
-                      Discord
+                      LinkedIn
                     </a>
                     <a
                       href="https://www.producthunt.com"

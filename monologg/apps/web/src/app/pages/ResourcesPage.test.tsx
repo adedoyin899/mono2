@@ -81,7 +81,7 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     expect(supabase?.from).toHaveBeenCalledWith("InvestorApplication");
   });
 
-  it("renders all 7 social platform badges and contact email in the bottom bar", () => {
+  it("renders only the 4 approved social platform badges (LinkedIn, Product Hunt, X, IG) in the bottom bar", () => {
     render(
       <MemoryRouter>
         <ResourcesPage />
@@ -91,10 +91,12 @@ describe("ResourcesPage (Figma 178359:18325)", () => {
     expect(screen.getByLabelText("LinkedIn")).toHaveAttribute("href", "https://linkedin.com/company/monologg");
     expect(screen.getByLabelText("Product Hunt")).toHaveAttribute("href", "https://www.producthunt.com/products/monologg");
     expect(screen.getByLabelText("Twitter-X")).toHaveAttribute("href", "https://x.com/getmonologg");
-    expect(screen.getByLabelText("Twitch")).toHaveAttribute("href", "https://twitch.tv/monologg");
-    expect(screen.getByLabelText("Telegram")).toHaveAttribute("href", "https://t.me/monologg");
-    expect(screen.getByLabelText("TikTok")).toHaveAttribute("href", "https://tiktok.com/@monologg");
     expect(screen.getByLabelText("Instagram")).toHaveAttribute("href", "https://www.instagram.com/getmonologg");
+
+    // Hidden / removed platforms
+    expect(screen.queryByLabelText("Twitch")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Telegram")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("TikTok")).not.toBeInTheDocument();
   });
 
   it("renders the active Resources pill indicator in the header", () => {

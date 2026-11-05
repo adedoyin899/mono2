@@ -1,11 +1,53 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
+**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 224 (2026-11-05) — Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal
+
+**Goal:** Implement hero headline typewriter effect alternating between "Find Performers" and "Find Gigs"; route "Find Gigs" to the role-toggled performer signup and "Find Performers" to client signup; streamline social platform badges strictly to LinkedIn, Product Hunt, X, and Instagram; and remove the unverified "Trusted by top media houses" studio logos bar.
+
+1. **Hero Headline Typewriter Animation (`LandingPage.tsx`):**
+   - Replaced static placeholder `"Find Performers|"` with dynamic typewriter state engine cycling between `["Find Performers", "Find Gigs"]`.
+   - Starts with `"Find Performers"` on initial render for instant layout stability and zero first-paint delay.
+   - Smoothly types out characters (90ms cadence), pauses (2200ms duration), backspaces (45ms cadence), and animates a pulsing cursor (`|`).
+   - Added accessible ARIA labeling (`aria-label="${typewriterText}, Finish Your Project."`) so screen readers perceive the full semantic headline without partial keystroke fragmentation.
+
+2. **Role-Toggled Sign-up Routing (`LandingPage.tsx`):**
+   - Updated primary hero CTA buttons:
+     - `"Find Performers"` routes unauthenticated users to `/auth?mode=signup&role=client` (toggled Client registration) or authenticated users to `/client`.
+     - `"Find Gigs"` routes unauthenticated users to `/auth?mode=signup&role=talent` (toggled Performer/Talent registration) or authenticated users to `/dashboard`.
+
+3. **Social Presence Streamlining (`ResourcesPage.tsx`, `WebsiteFooter.tsx`):**
+   - Resources Page bottom bar: Retained strictly LinkedIn, Product Hunt, X (`Twitter-X`), and Instagram; removed Twitch, Telegram, and TikTok.
+   - Website Footer: Retained `hello@monologg.co`, Instagram, X (Twitter), LinkedIn, and Product Hunt; removed Tiktok and Discord for 100% cross-page consistency.
+   - Updated test assertions in `ResourcesPage.test.tsx` to assert the 4 active platforms and ensure removed badges are absent.
+
+4. **Media House Trust Bar Removal (`ProductPage.tsx`):**
+   - Removed the 6 studio logos (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`) and attached trust bar copy (`"Trusted by top media houses"`).
+   - Removed unused SVG constants and `studioBadges` data structures.
+   - Refactored the 2x2 feature grid box directly above it from open bottom edges (`rounded-tl-[20px] rounded-tr-[20px] border-l border-r border-t`) to a fully enclosed, beautifully rounded container (`rounded-[20px] border`).
+   - Updated `ProductPage.test.tsx` to assert that `"Trusted by top media houses"` is not in the document.
+
+5. **Verification & Testing:**
+   - Vitest suite: All 36 test files passed, 198 tests passing green (`npm test -- --run`).
+   - TypeScript compilation: 0 errors (`tsc --noEmit`).
+   - Vite production build: Succeeded in 2.98s (`npm run build`).
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/LandingPageHeader.test.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/apps/web/src/app/pages/ResourcesPage.test.tsx`
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.test.tsx`
 
 ---
 

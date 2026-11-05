@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
+**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,23 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 170. Static Hero Headline Placeholder, Broken Role-Toggled CTA Routing, Social Footprint Clutter & Unverified Media House Trust Claim
+- **Severity:** Medium / Conversion Optimization, Trust & Brand Fidelity
+- **What happened:**
+  1. **Static Headline Placeholder:** The hero headline rendered a static pipe character `"Find Performers|"` rather than an animated typewriter transitioning between performer and client value propositions.
+  2. **Non-Role-Toggled CTA Routing:** `"Find Performers"` routed visitors to the general onboarding wizard rather than the toggled client registration view, and `"Find Gigs"` routed to general onboarding rather than toggled performer registration.
+  3. **Social Presence Clutter:** `ResourcesPage.tsx` and `WebsiteFooter.tsx` displayed unmaintained social channels (`Twitch`, `Telegram`, `TikTok`, `Discord`).
+  4. **Premature Social Proof Claim:** `ProductPage.tsx` displayed a 6-studio logo strip (Vimeo, Netflix, Prime, Disney+, Hulu, Twitch) and claimed `"Trusted by top media houses"` which does not yet represent active enterprise relationships.
+- **Root Cause:**
+  - Initial Figma draft assets included speculative studio logos and static wireframe cursor placeholders.
+  - Primary hero CTA buttons navigated directly to onboarding wizard routes without preserving user role intent in the auth flow.
+- **Resolution:**
+  - Replaced the static headline with a typewriter animation cycling between `"Find Performers"` and `"Find Gigs"` with realistic typing, pause, backspacing, and a blinking cursor.
+  - Routed `"Find Performers"` to `/auth?mode=signup&role=client` and `"Find Gigs"` to `/auth?mode=signup&role=talent`.
+  - Streamlined social links strictly to LinkedIn, Product Hunt, X (Twitter), and Instagram across both Resources and Footer.
+  - Removed the studio logos trust bar from `ProductPage.tsx` and refactored the 2x2 grid container to a clean, fully enclosed `border rounded-[20px]` box.
+  - Updated all relevant test suites (`LandingPageHeader.test.tsx`, `ResourcesPage.test.tsx`, `ProductPage.test.tsx`) with 100% pass.
 
 ### 169. OrderRoom.tsx Role Switcher Multi-Line Nested Template Literal JSX Parsing Diagnostics
 - **Severity:** Low / Developer Ergonomics & Diagnostics Hygiene

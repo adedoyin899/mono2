@@ -103,14 +103,6 @@ const imgClientHorizDivider = "/assets/product/6e560c10559038fb8b15ddb80bdfaba94
 const imgNotePencil = "/assets/product/36eaa778b44188f5263f7c2fe32385baf98dba66.svg";
 const imgLockFill = "/assets/product/ec8e464fa6f32cff40f0a10d263eeab24e5df24b.svg";
 
-// 6 Media House Logos (178359:17816)
-const imgVimeo = "/assets/product/f003d68d2249c84fece7cc7393564ca5da806ef7.svg";
-const imgNetflix = "/assets/product/500574fbcd5ba3e7a335dbacfb2577603f491e06.svg";
-const imgAmazonPrime = "/assets/product/885f1320cc62aa3e7499c0c6d685b5dd6a4b9f32.svg";
-const imgDisney = "/assets/product/6af24080b5b11fb194570daadce4dd29ef64f831.svg";
-const imgHulu = "/assets/product/9652a2fa7e1cbe77e46fb1911c09e7d7a74b6088.svg";
-const imgTwitch = "/assets/product/f8ec10a74c55b3653d9b0d426c7187b0010ca711.svg";
-
 // Section Dividers & Thespian AI Dividers (178359:17831)
 const imgDashedDivider = "/assets/product/7dc94ccc0ee6370325d0ef6f15631b8f8b00d4c2.svg";
 const imgThespianVert116 = "/assets/product/0ea607751a150fba84c44e04467701ab827a2a73.svg";
@@ -586,16 +578,6 @@ export function ProductPage() {
         }),
       )
     : undefined;
-
-  // 6 Media House Logos (Figma 178359:17816)
-  const studioBadges = [
-    { name: "Vimeo", src: imgVimeo, nodeId: "178359:17819" },
-    { name: "Netflix", src: imgNetflix, nodeId: "178359:17821" },
-    { name: "Amazon Prime", src: imgAmazonPrime, nodeId: "178359:17823" },
-    { name: "Disney+", src: imgDisney, nodeId: "178359:17825" },
-    { name: "Hulu", src: imgHulu, nodeId: "178359:17827" },
-    { name: "Twitch", src: imgTwitch, nodeId: "178359:17829" },
-  ];
 
   // 10 FAQs (Figma 178359:17958)
   const faqs = [
@@ -1206,9 +1188,9 @@ export function ProductPage() {
             className="flex flex-col items-center relative shrink-0 w-full max-w-[1040px]"
             data-node-id="178359:17784"
           >
-            {/* Top 2x2 Bordered Box (178359:17785) */}
+            {/* 2x2 Bordered Box (178359:17785) */}
             <div
-              className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-l border-r border-solid border-t flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-tl-[20px] rounded-tr-[20px] shrink-0 w-full max-w-[1000px]"
+              className="bg-white dark:bg-[#000000] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex flex-col gap-[32px] items-center p-6 sm:p-[32px] relative rounded-[20px] shrink-0 w-full max-w-[1000px]"
               data-node-id="178359:17785"
             >
               {/* Row 1 (178359:17786) */}
@@ -1430,42 +1412,6 @@ export function ProductPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Bottom Attached Bar: 6 Studio Logos & Trust Copy (178359:17816) */}
-            <div
-              className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] border-solid flex gap-[12px] items-center justify-center px-[32px] py-[16px] relative rounded-bl-[20px] rounded-br-[20px] shrink-0 w-full max-w-[1000px]"
-              data-node-id="178359:17816"
-            >
-              <div
-                className="flex items-start justify-center relative shrink-0 pr-[8.585px]"
-                data-node-id="178359:17817"
-              >
-                {studioBadges.map((studio) => (
-                  <div
-                    key={studio.name}
-                    className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center mr-[-8.585px] p-[8.862px] relative rounded-full shrink-0"
-                    title={studio.name}
-                  >
-                    <div
-                      className="relative shrink-0 size-[17.723px]"
-                      data-node-id={studio.nodeId}
-                    >
-                      <img
-                        alt={studio.name}
-                        className="absolute block inset-0 max-w-none size-full dark:invert"
-                        src={studio.src}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p
-                className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#767676] dark:text-[#a3a3a3] text-[12px] text-center tracking-[0.36px] whitespace-nowrap"
-                data-node-id="178359:17830"
-              >
-                Trusted by top media houses
-              </p>
             </div>
           </div>
         </section>

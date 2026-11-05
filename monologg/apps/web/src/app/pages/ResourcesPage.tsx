@@ -711,36 +711,6 @@ export function ResourcesPage() {
                   <img alt="Twitter-X" className="size-[18px] dark:invert" src={ASSETS.twitterX} />
                 </a>
                 <a
-                  href="https://twitch.tv/monologg"
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Twitch"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
-                  data-node-id="178359:18461"
-                >
-                  <img alt="Twitch" className="size-[18px] dark:invert" src={ASSETS.twitch} />
-                </a>
-                <a
-                  href="https://t.me/monologg"
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Telegram"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
-                  data-node-id="178359:18463"
-                >
-                  <img alt="Telegram" className="size-[18px] dark:invert" src={ASSETS.telegram} />
-                </a>
-                <a
-                  href="https://tiktok.com/@monologg"
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="TikTok"
-                  className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
-                  data-node-id="178359:18465"
-                >
-                  <img alt="TikTok" className="size-[18px] dark:invert" src={ASSETS.tiktok} />
-                </a>
-                <a
                   href="https://www.instagram.com/getmonologg"
                   target="_blank"
                   rel="noreferrer"

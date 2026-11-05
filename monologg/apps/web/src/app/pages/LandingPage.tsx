@@ -228,6 +228,40 @@ export function LandingPage() {
   });
   const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
+  // ── Typewriter Animation for Hero Headline (Find Performers ⟷ Find Gigs) ───
+  const TYPEWRITER_PHRASES = ["Find Performers", "Find Gigs"];
+  const [typewriterIndex, setTypewriterIndex] = useState(0);
+  const [typewriterText, setTypewriterText] = useState(TYPEWRITER_PHRASES[0]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = TYPEWRITER_PHRASES[typewriterIndex];
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (isDeleting) {
+      if (typewriterText.length > 0) {
+        timeout = setTimeout(() => {
+          setTypewriterText(currentPhrase.slice(0, typewriterText.length - 1));
+        }, 45);
+      } else {
+        setIsDeleting(false);
+        setTypewriterIndex((prev) => (prev + 1) % TYPEWRITER_PHRASES.length);
+      }
+    } else {
+      if (typewriterText.length < currentPhrase.length) {
+        timeout = setTimeout(() => {
+          setTypewriterText(currentPhrase.slice(0, typewriterText.length + 1));
+        }, 90);
+      } else {
+        timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2200);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typewriterText, isDeleting, typewriterIndex]);
+
   // ── Signed-in awareness (preserved for LandingPageHeader.test.tsx) ──────
   const [loggedInUser, setLoggedInUser] = useState(() =>
     appStateSync.getLoggedInUser(),
@@ -582,12 +616,15 @@ export function LandingPage() {
               {/* 5 Overlapping Performer Avatars with Caveat Hover Names & Focus Blur (Figma 178450:156007 & 178450:156023) */}
               <PerformerAvatarRow assetPrefix="home" data-node-id="178450:156007" />
 
-              {/* Headline (178359:16934) */}
+              {/* Headline (178359:16934) with Typewriter Animation */}
               <h1
                 className="flex flex-col font-['Switzer',sans-serif] font-medium justify-center not-italic relative shrink-0 text-[#1a1a1a] dark:text-[#f9f9f9] text-[42px] sm:text-[56px] lg:text-[64px] leading-none text-center tracking-[-1.92px] sm:whitespace-nowrap"
                 data-node-id="178359:16934"
               >
-                <span className="leading-none mb-0 block">Find Performers|</span>
+                <span className="leading-none mb-0 block min-h-[1.1em]" aria-label={`${typewriterText}, Finish Your Project.`}>
+                  <span>{typewriterText}</span>
+                  <span className="inline-block font-normal ml-0.5 select-none animate-pulse text-[#1a1a1a] dark:text-[#f9f9f9]" aria-hidden="true">|</span>
+                </span>
                 <span className="leading-none block">Finish Your Project.</span>
               </h1>
             </div>
@@ -605,7 +642,7 @@ export function LandingPage() {
           <div className="flex gap-[8px] items-center relative shrink-0" data-node-id="178359:16936">
             <button
               type="button"
-              onClick={() => navigate(loggedInUser ? "/client" : "/onboarding/client")}
+              onClick={() => navigate(loggedInUser ? "/client" : "/auth?mode=signup&role=client")}
               className="bg-[#f13030] hover:bg-[#d92626] text-white transition-colors cursor-pointer flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0"
               data-node-id="178359:16937"
               data-name="Button"
@@ -623,7 +660,7 @@ export function LandingPage() {
 
             <button
               type="button"
-              onClick={() => navigate(loggedInUser ? "/dashboard" : "/onboarding")}
+              onClick={() => navigate(loggedInUser ? "/dashboard" : "/auth?mode=signup&role=talent")}
               className="border border-[#d1d1d1] dark:border-[#1a1a1a] hover:border-[#1a1a1a] dark:hover:border-[#333333] hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer border-solid flex h-[40px] items-center justify-center pb-[11.5px] pt-[10.5px] px-[20px] relative rounded-full shrink-0"
               data-node-id="178359:16942"
               data-name="Button"

@@ -86,14 +86,8 @@ describe("ProductPage (Figma 178359:17305)", () => {
     expect(screen.getByText("Post Gigs & Micro-Briefs")).toBeInTheDocument();
     expect(screen.getByText("Secure Contracts & Escrow Payments")).toBeInTheDocument();
 
-    // 6 studio logos
-    expect(screen.getAllByAltText("Vimeo").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByAltText("Netflix").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByAltText("Amazon Prime").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByAltText("Disney+").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByAltText("Hulu").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByAltText("Twitch").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Trusted by top media houses")).toBeInTheDocument();
+    // Studio trust bar removed per user specification
+    expect(screen.queryByText("Trusted by top media houses")).not.toBeInTheDocument();
   });
 
   it("renders Thespian AI section with Performer 5-row table and Client 3-row table", () => {

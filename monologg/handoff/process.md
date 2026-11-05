@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-05 (Session 223: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix)
+**Last updated:** 2026-11-05 (Session 224: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 183: Hero Typewriter Effect, Role-Toggled Sign-up Routing, Social Platforms Cleanup & Media House Trust Bar Removal (Session 224)
+
+- **Landing Page Hero Typewriter & CTA Routing (`LandingPage.tsx`):**
+  - Built a typewriter animation loop cycling between `"Find Performers"` and `"Find Gigs"` with realistic typing and backspacing cadences, 2200ms pause, and an animated pulsing cursor (`|`).
+  - Routed `"Find Performers"` CTA to `/auth?mode=signup&role=client` (or `/client` if authenticated) and `"Find Gigs"` to `/auth?mode=signup&role=talent` (or `/dashboard` if authenticated).
+- **Social Platforms Cleanup (`ResourcesPage.tsx`, `WebsiteFooter.tsx`):**
+  - Filtered social badges strictly to LinkedIn, Product Hunt, X (Twitter), and Instagram across Resources and Footer; eliminated Twitch, Telegram, TikTok, and Discord.
+- **Media House Trust Bar Removal (`ProductPage.tsx`):**
+  - Removed the 6 studio logos (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`) and `"Trusted by top media houses"` banner.
+  - Refactored the 2x2 grid container into a fully enclosed `rounded-[20px] border` card.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`tsc --noEmit`).
+  - Production build: succeeded in 2.98s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`, 36 files, 198 tests).
 
 ### Step 182: OrderRoom Role Switcher JSX Template Literal Simplification & Parser Fix (Session 223)
 
