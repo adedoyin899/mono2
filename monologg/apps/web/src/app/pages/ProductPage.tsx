@@ -902,7 +902,7 @@ export function ProductPage() {
 
             <div className="flex items-center relative shrink-0" data-node-id="178359:17386">
               <button
-                onClick={() => navigate("/onboarding")}
+                onClick={() => navigate(loggedInUser ? "/dashboard" : "/auth?mode=signup&role=talent")}
                 className="bg-[#f13030] hover:bg-[#d31f20] text-white flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 cursor-pointer transition-all active:scale-95"
                 data-node-id="178359:17387"
               >
@@ -1163,7 +1163,7 @@ export function ProductPage() {
             </div>
 
             <button
-              onClick={() => navigate("/onboarding")}
+              onClick={() => navigate(loggedInUser ? "/client" : "/auth?mode=signup&role=client")}
               className="bg-[#f13030] hover:bg-[#d31f20] text-white flex gap-[8px] h-[40px] items-center justify-center overflow-clip px-[24px] py-[8px] relative rounded-[23px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] shrink-0 cursor-pointer transition-all active:scale-95"
               data-node-id="178359:17774"
             >
@@ -1783,10 +1783,10 @@ export function ProductPage() {
                     className="font-['Inter_Tight',sans-serif] font-normal leading-[20px] text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] tracking-[0.42px]"
                     data-node-id="178359:17903"
                   >
-                    Start hiring today
+                    Start finding gigs
                   </p>
                   <button
-                    onClick={() => navigate("/onboarding")}
+                    onClick={() => navigate(loggedInUser ? "/dashboard" : "/auth?mode=signup&role=talent")}
                     className="flex gap-[12px] h-[24px] items-center justify-end py-[4px] relative shrink-0 cursor-pointer group"
                     data-node-id="178359:17904"
                   >
@@ -2043,7 +2043,7 @@ export function ProductPage() {
                   Start hiring today
                 </p>
                 <button
-                  onClick={() => navigate("/onboarding")}
+                  onClick={() => navigate(loggedInUser ? "/client" : "/auth?mode=signup&role=client")}
                   className="flex gap-[12px] h-[24px] items-center justify-end py-[4px] relative shrink-0 cursor-pointer group"
                   data-node-id="178359:17952"
                 >

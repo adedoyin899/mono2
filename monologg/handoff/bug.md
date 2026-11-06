@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
+**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 174. Generic CTA Direct-to-Onboarding Bypass & Incongruous Performer Hiring Copy
+- **Severity:** Medium / Conversion Optimization & Persona Copy Fidelity
+- **What happened:**
+  1. **Direct-to-Onboarding Bypass:** Generic "Get started for free" buttons routed users directly to `/onboarding`, bypassing the account creation sign-up flow (`/auth?mode=signup`).
+  2. **Incongruous Performer Copy in Thespian AI:** The performer sub-block in `ProductPage.tsx` displayed the client-centric caption `"Start hiring today"` and both performer and client CTA buttons navigated generically to `/onboarding`.
+- **Root Cause:**
+  - Legacy routing left over from initial prototyping before Supabase auth registration flows were integrated.
+- **Resolution:**
+  - Updated generic "Get started for free" buttons across `WebsiteFooter.tsx` and `LandingPage.tsx` to navigate to `/auth?mode=signup` (or user's dashboard if already authenticated).
+  - Updated Thespian AI Performer sub-block copy to `"Start finding gigs"` and routed CTA specifically to `/auth?mode=signup&role=talent`.
+  - Updated Thespian AI Client sub-block CTA to `/auth?mode=signup&role=client`.
+  - Updated portal hero and pricing CTAs to route dynamically based on selected role.
+  - Validated with 200 passing tests and production build.
 
 ### 173. Footer Resources Column Label Inconsistency with Legal Route
 - **Severity:** Low / Information Architecture & Copy Consistency

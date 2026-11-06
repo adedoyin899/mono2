@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
+**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,19 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 187: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity (Session 228)
+
+- **Universal Direct Sign-Up Routing (`WebsiteFooter.tsx`, `LandingPage.tsx`):**
+  - Updated generic "Get started for free" buttons to route visitors to `/auth?mode=signup` rather than bypassing account creation.
+- **Thespian AI Audience-Toggled Copy & Routing Parity (`ProductPage.tsx`):**
+  - Updated Performer sub-block copy to `"Start finding gigs"` and routed button to `/auth?mode=signup&role=talent`.
+  - Retained Client sub-block copy `"Start hiring today"` and routed button to `/auth?mode=signup&role=client`.
+  - Routed Performer and Client portal heroes directly to their respective role-toggled signup paths.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm run typecheck`).
+  - Production build: succeeded in 3.08s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`, 36 files, 200 tests).
 
 ### Step 186: Footer Resources Label Alignment: Cookie Policy Parity (Session 227)
 

@@ -316,7 +316,11 @@ export function LandingPage() {
   };
 
   const handleGetStarted = () => {
-    navigate("/onboarding");
+    if (loggedInUser) {
+      navigate(isClientSession ? "/client" : "/dashboard");
+      return;
+    }
+    navigate("/auth?mode=signup");
   };
 
   const toggleFaq = (idx: number) => {

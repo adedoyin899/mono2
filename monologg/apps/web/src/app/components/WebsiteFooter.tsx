@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { supabase } from "../../lib/supabase";
 import { apiClient } from "../../lib/api-client";
 import { trackEvent } from "../../lib/analytics";
+import { appStateSync } from "../../lib/state-sync";
 
 const imgIconArrowRight = "/assets/home/516903b6b524bafd57d55118edffff86c955eb80.svg";
 const imgFooterLogoMask = "/assets/home/45e3a432e2cddd322c39a5781adf6f519ae0d4b9.svg";
@@ -47,7 +48,12 @@ export function WebsiteFooter({
       onGetStarted();
       return;
     }
-    navigate("/onboarding");
+    const loggedIn = appStateSync.getLoggedInUser();
+    if (loggedIn) {
+      navigate(loggedIn.userType === "TALENT" ? "/dashboard" : "/client");
+      return;
+    }
+    navigate("/auth?mode=signup");
   };
 
   const handleInvestor = () => {

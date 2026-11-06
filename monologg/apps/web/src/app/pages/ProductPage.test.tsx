@@ -117,7 +117,8 @@ describe("ProductPage (Figma 178359:17305)", () => {
     expect(screen.getByText("Vibe & Texture Matching")).toBeInTheDocument();
     expect(screen.getByText("Automated Logistics")).toBeInTheDocument();
     expect(screen.getByText("Script & Prompt Parsing")).toBeInTheDocument();
-    expect(screen.getAllByText("Start hiring today").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("Start finding gigs")).toBeInTheDocument();
+    expect(screen.getByText("Start hiring today")).toBeInTheDocument();
   });
 
   it("renders 10 FAQ accordion items and expands on click", () => {

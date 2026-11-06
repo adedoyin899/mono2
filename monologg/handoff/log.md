@@ -1,11 +1,50 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
+**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 228 (2026-11-06) — 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity
+
+**Goal:** Route generic "Get started for free" buttons directly to the sign-up page for new accounts (`/auth?mode=signup`) instead of skipping straight to onboarding; ensure audience-toggled CTA buttons route specifically to performer sign-up (`/auth?mode=signup&role=talent`) or client sign-up (`/auth?mode=signup&role=client`); and replace the incongruous performer copy "Start hiring today" with "Start finding gigs" on the Thespian AI Performer sub-block.
+
+1. **Universal 'Get started for free' Direct Sign-Up Routing (`WebsiteFooter.tsx`, `LandingPage.tsx`):**
+   - Replaced legacy `navigate("/onboarding")` with `navigate("/auth?mode=signup")` (or direct dashboard navigation if already authenticated) across `WebsiteFooter.tsx` and `LandingPage.tsx`.
+   - New visitors clicking "Get started for free" are now smoothly directed to create their account first.
+
+2. **Thespian AI Audience-Toggled Action Parity & Copy Update (`ProductPage.tsx`):**
+   - **Performer Sub-block:**
+     - Replaced incongruous left caption `"Start hiring today"` with `"Start finding gigs"`.
+     - Routed CTA button to `/auth?mode=signup&role=talent` (or `/dashboard` if authenticated).
+   - **Client Sub-block:**
+     - Retained `"Start hiring today"`.
+     - Routed CTA button to `/auth?mode=signup&role=client` (or `/client` if authenticated).
+   - **Portal Hero CTAs:**
+     - Performer Portal hero CTA routes to `/auth?mode=signup&role=talent` (or `/dashboard` if authenticated).
+     - Client Portal hero CTA routes to `/auth?mode=signup&role=client` (or `/client` if authenticated).
+
+3. **Pricing Page Audience-Toggled Routing (`PricingPage.tsx`):**
+   - Hero CTA dynamically routes to `/auth?mode=signup&role=talent` or `/auth?mode=signup&role=client` according to `activeAudience`.
+   - Performers Table CTA routes to `/auth?mode=signup&role=talent`.
+   - Clients Table CTA routes to `/auth?mode=signup&role=client`.
+
+4. **Test Suite Alignment & Verification:**
+   - Updated `ProductPage.test.tsx` to assert `"Start finding gigs"` and `"Start hiring today"`.
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 3.08s.
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
+- `monologg/apps/web/src/app/pages/PricingPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.tsx`
+- `monologg/apps/web/src/app/pages/ProductPage.test.tsx`
 
 ---
 
