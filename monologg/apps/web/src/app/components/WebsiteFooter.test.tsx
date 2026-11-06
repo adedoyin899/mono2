@@ -42,7 +42,7 @@ describe("WebsiteFooter", () => {
     expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Subscribe to newsletter/i })).toBeInTheDocument();
     expect(screen.getByText("Terms of Services")).toBeInTheDocument();
-    expect(screen.getByText("Cookie Settings and Policy")).toBeInTheDocument();
+    expect(screen.getByText("Cookie Policy")).toBeInTheDocument();
     expect(screen.getByText("FAQ")).toBeInTheDocument();
     expect(screen.getAllByText("Become an investor").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Lagos, Nigeria/i)).toBeInTheDocument();

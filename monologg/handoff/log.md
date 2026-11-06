@@ -1,11 +1,33 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
+**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 227 (2026-11-06) — Footer Resources Label Alignment: Cookie Policy Parity
+
+**Goal:** Align the Resources column link label in `WebsiteFooter.tsx` from "Cookie Settings and Policy" to "Cookie Policy", matching the canonical legal page title and URL route (`/cookies`).
+
+1. **Footer Resources Column Alignment (`WebsiteFooter.tsx`):**
+   - Updated the button label from `"Cookie Settings and Policy"` to `"Cookie Policy"` in the Resources column.
+   - Preserves seamless navigation to the canonical `/cookies` route.
+
+2. **Test Suite Alignment & Verification:**
+   - Updated `WebsiteFooter.test.tsx` to assert `"Cookie Policy"`.
+   - Updated `LandingPageHeader.test.tsx` footer assertions.
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 2.96s.
+
+**Files touched:**
+- `monologg/apps/web/src/app/components/WebsiteFooter.tsx`
+- `monologg/apps/web/src/app/components/WebsiteFooter.test.tsx`
+- `monologg/apps/web/src/app/pages/LandingPageHeader.test.tsx`
 
 ---
 

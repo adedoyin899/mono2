@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
+**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,15 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 186: Footer Resources Label Alignment: Cookie Policy Parity (Session 227)
+
+- **Website Footer Resources Column Updates (`WebsiteFooter.tsx`):**
+  - Updated the button label from `"Cookie Settings and Policy"` to `"Cookie Policy"` to match canonical legal page naming and `/cookies` URL routing.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm run typecheck`).
+  - Production build: succeeded in 2.96s (`npm run build`).
+  - Unit tests: passed (`npm test -- --run`, 36 files, 200 tests).
 
 ### Step 185: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish (Session 226)
 

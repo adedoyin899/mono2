@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-05 (Session 226: Mobile Navigation Streamlining & Role-Adaptive Account Menu FAANG UX Polish)
+**Last updated:** 2026-11-06 (Session 227: Footer Resources Label Alignment: Cookie Policy Parity)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 173. Footer Resources Column Label Inconsistency with Legal Route
+- **Severity:** Low / Information Architecture & Copy Consistency
+- **What happened:**
+  - The Resources column in `WebsiteFooter.tsx` displayed `"Cookie Settings and Policy"` instead of the concise, canonical label `"Cookie Policy"`, which directly matches the page heading and URL route (`/cookies`).
+- **Root Cause:**
+  - Extended draft copy had been used rather than the concise page title.
+- **Resolution:**
+  - Updated the button label to `"Cookie Policy"` in `WebsiteFooter.tsx`.
+  - Updated test assertions in `WebsiteFooter.test.tsx` and `LandingPageHeader.test.tsx`.
+  - Validated with 200 passing tests and production build.
 
 ### 172. Mobile Navigation Redundancy & Role-Insensitive Desktop Header Menu
 - **Severity:** Medium / FAANG UX Architecture & Information Hierarchy
