@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
+**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,21 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 188: Brand Color Preservation on Social Badges Across Light & Dark Mode (Session 229)
+
+- **Social Badges Inversion Removal (`ResourcesPage.tsx`):**
+  - Removed `dark:invert` utility class from `LinkedIn`, `Product Hunt`, and `Instagram` `<img>` tags.
+  - Kept `dark:invert` exclusively on monochrome `Twitter-X` badge so the glyph renders white on dark backgrounds.
+- **Tokens & Global Styles Parity (`tokens.css`):**
+  - Restricted `filter: invert(1) brightness(1.8) !important` to monochrome social icons (`Twitter-X`, `Twitch`, `Telegram`, `TikTok`).
+  - Added explicit `filter: none !important` rule for brand-colored icons (`LinkedIn`, `Product Hunt`, `Instagram`) in dark mode.
+- **LinkedIn SVG Letter Knockout Fidelity (`linkedin.svg`):**
+  - Added `<rect x="3" y="3" width="12" height="12" fill="white"/>` behind the `#0A66C2` evenodd cutout path in `linkedin.svg` to guarantee white "in" letters against both light and dark parent containers.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+  - Production build: succeeded in 2.72s (`npm --prefix monologg/apps/web run build`).
+  - Unit tests: passed (`npm --prefix monologg/apps/web test -- --run`, 36 files, 200 tests).
 
 ### Step 187: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity (Session 228)
 

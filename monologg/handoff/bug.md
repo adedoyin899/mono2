@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
+**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 175. Social Brand Icon Inversion in Dark Mode
+- **Severity:** Low / Brand Visual Identity & Color Integrity
+- **What happened:**
+  - In `ResourcesPage.tsx` and `tokens.css`, `dark:invert` and a global CSS rule `.dark a[aria-label="..."] img { filter: invert(1) brightness(1.8) !important; }` inverted colored brand SVGs in dark mode.
+  - This turned LinkedIn `#0A66C2` blue into a muddy yellow `#F5993D`, Product Hunt `#D85637` orange into cyan `#27A9C8`, and Instagram's iconic warm gradient into cold cyan-blue.
+  - In addition, because LinkedIn's letters were an evenodd transparent cutout, displaying it over a dark container without a white backing rect would show black letters through the cutout.
+- **Root Cause:**
+  - Broad dark-mode inversion filter intended for monochrome vector marks (like Twitter-X) was applied universally across all social badges.
+- **Resolution:**
+  - Removed `dark:invert` from LinkedIn, Product Hunt, and Instagram in `ResourcesPage.tsx`.
+  - Added explicit `.dark a[aria-label="..."] img { filter: none !important; }` in `tokens.css` for brand color icons.
+  - Added a `<rect x="3" y="3" width="12" height="12" fill="white"/>` backing element in `linkedin.svg` to guarantee white "in" letters in all environments.
+  - Validated with 200 passing tests and production build.
 
 ### 174. Generic CTA Direct-to-Onboarding Bypass & Incongruous Performer Hiring Copy
 - **Severity:** Medium / Conversion Optimization & Persona Copy Fidelity

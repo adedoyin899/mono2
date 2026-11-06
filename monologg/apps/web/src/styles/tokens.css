@@ -921,15 +921,19 @@ a.bg-\[\#b91c1c\]:hover, a.bg-\[\#B91C1C\]:hover {
   filter: invert(1) brightness(1.8) !important;
 }
 
-/* Social links and badges */
-.dark a[aria-label="LinkedIn"] img,
-.dark a[aria-label="Product Hunt"] img,
+/* Social links and badges: monochrome icons inverted for dark contrast */
 .dark a[aria-label="Twitter-X"] img,
 .dark a[aria-label="Twitch"] img,
 .dark a[aria-label="Telegram"] img,
-.dark a[aria-label="TikTok"] img,
-.dark a[aria-label="Instagram"] img {
+.dark a[aria-label="TikTok"] img {
   filter: invert(1) brightness(1.8) !important;
+}
+
+/* Brand colored icons keep identical brand colors in both light and dark mode */
+.dark a[aria-label="LinkedIn"] img,
+.dark a[aria-label="Product Hunt"] img,
+.dark a[aria-label="Instagram"] img {
+  filter: none !important;
 }
 .dark a[aria-label="LinkedIn"],
 .dark a[aria-label="Product Hunt"],

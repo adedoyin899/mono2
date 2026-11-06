@@ -1,11 +1,40 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-06 (Session 228: 'Get Started for Free' Signup Routing & Thespian AI Performer/Client Action Parity)
+**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 229 (2026-11-06) — Brand Color Preservation on Social Badges Across Light & Dark Mode
+
+**Goal:** Ensure Instagram (IG), Product Hunt, and LinkedIn retain their authentic brand colors consistently across both light and dark modes, eliminating unintended color inversions (which turned LinkedIn yellow, Product Hunt cyan, and Instagram blue-green in dark mode).
+
+1. **Social Badges Inversion Removal (`ResourcesPage.tsx`):**
+   - Removed `dark:invert` utility class from the `LinkedIn`, `Product Hunt`, and `Instagram` `<img>` elements.
+   - Retained `dark:invert` exclusively on monochrome `Twitter-X` so its black glyph renders white against dark backgrounds.
+
+2. **Design Tokens & Global Styles Alignment (`tokens.css`):**
+   - Updated `.dark a[aria-label="..."] img` CSS rules in `tokens.css`.
+   - Explicitly restricted `filter: invert(1) brightness(1.8) !important` to monochrome icons (`Twitter-X`, `Twitch`, `Telegram`, `TikTok`).
+   - Added explicit `filter: none !important` rule for brand-colored icons (`LinkedIn`, `Product Hunt`, `Instagram`) in dark mode.
+
+3. **LinkedIn SVG Letter Knockout Fidelity (`linkedin.svg`):**
+   - Added a backing white rect `<rect x="3" y="3" width="12" height="12" fill="white"/>` behind the `#0A66C2` evenodd cutout path in `linkedin.svg`.
+   - Guarantees that the "in" letters remain crisp white regardless of whether the parent badge background is white or black.
+
+4. **Testing & Verification:**
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 2.72s.
+
+**Files touched:**
+- `monologg/apps/web/public/assets/resources/linkedin.svg`
+- `monologg/apps/web/src/app/pages/ResourcesPage.tsx`
+- `monologg/apps/web/src/styles/tokens.css`
 
 ---
 

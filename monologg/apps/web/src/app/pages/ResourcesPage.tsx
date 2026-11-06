@@ -688,7 +688,7 @@ export function ResourcesPage() {
                   className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18455"
                 >
-                  <img alt="LinkedIn" className="size-[18px] dark:invert" src={ASSETS.linkedin} />
+                  <img alt="LinkedIn" className="size-[18px]" src={ASSETS.linkedin} />
                 </a>
                 <a
                   href="https://www.producthunt.com/products/monologg"
@@ -698,7 +698,7 @@ export function ResourcesPage() {
                   className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip p-[9.139px] relative rounded-[553.846px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18457"
                 >
-                  <img alt="Product Hunt" className="size-[18px] dark:invert" src={ASSETS.producthunt} />
+                  <img alt="Product Hunt" className="size-[18px]" src={ASSETS.producthunt} />
                 </a>
                 <a
                   href="https://x.com/getmonologg"
@@ -718,7 +718,7 @@ export function ResourcesPage() {
                   className="bg-white dark:bg-[#000000] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.277px] border-solid flex items-center justify-center overflow-clip px-[9.75px] py-[9px] relative rounded-[200px] shrink-0 size-[36.28px] hover:scale-105 transition-transform"
                   data-node-id="178359:18467"
                 >
-                  <img alt="Instagram" className="size-[18px] dark:invert" src={ASSETS.instagram} />
+                  <img alt="Instagram" className="size-[18px]" src={ASSETS.instagram} />
                 </a>
               </div>
             </div>
