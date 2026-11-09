@@ -1630,7 +1630,7 @@ export function LandingPage() {
       </section>
 
       {/* ─── 8. Shared Website Footer (178359:17243) ─── */}
-      <div className="w-full max-w-[1440px] z-10">
+      <div className="w-full z-10">
         <WebsiteFooter onGetStarted={handleGetStarted} />
       </div>
     </div>

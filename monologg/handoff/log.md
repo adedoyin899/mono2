@@ -1,11 +1,29 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
+**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 230 (2026-11-09) — Home Page Bottom CTA Banner Full-Width Bleed Alignment
+
+**Goal:** Ensure the "Finish Your Project today!" CTA banner and footer section on the home page stretch edge-to-edge across the entire screen horizontally without artificial max-width side margins, matching `ProductPage`, `PricingPage`, `ResourcesPage`, and `LegalPage`.
+
+1. **Footer Container Full-Width Bleed (`LandingPage.tsx`):**
+   - Removed artificial `max-w-[1440px]` constraint from the `<WebsiteFooter />` wrapper on `LandingPage.tsx` (`<div className="w-full z-10">`).
+   - Enabled `WebsiteFooter`'s internal full-width sections (`bg-[#f9f9f9]` in light mode, `bg-[#1a1a1a]` in dark mode) to fill 100% of the viewport width while preserving inner content centering (`max-w-[1040px]`).
+
+2. **Testing & Verification:**
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 3.15s.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/LandingPage.tsx`
 
 ---
 

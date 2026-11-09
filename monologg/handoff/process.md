@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
+**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 189: Home Page Bottom CTA Banner Full-Width Bleed Alignment (Session 230)
+
+- **Footer Container Full-Width Bleed (`LandingPage.tsx`):**
+  - Removed artificial `max-w-[1440px]` constraint from the `<WebsiteFooter />` wrapper on `LandingPage.tsx` (`<div className="w-full z-10">`).
+  - Allowed `WebsiteFooter`'s internal full-width sections (`bg-[#f9f9f9]` in light mode, `bg-[#1a1a1a]` in dark mode) to bleed 100% across the viewport while maintaining internal `max-w-[1040px]` content alignment.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+  - Production build: succeeded in 3.15s (`npm --prefix monologg/apps/web run build`).
+  - Unit tests: passed (`npm --prefix monologg/apps/web test -- --run`, 36 files, 200 tests).
 
 ### Step 188: Brand Color Preservation on Social Badges Across Light & Dark Mode (Session 229)
 

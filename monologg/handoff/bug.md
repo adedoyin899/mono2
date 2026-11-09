@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-06 (Session 229: Brand Color Preservation on Social Badges Across Light & Dark Mode)
+**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,18 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 176. Home Page Bottom CTA Section Max-Width Boxing
+- **Severity:** Low / Visual Layout & Viewport Bleed Consistency
+- **What happened:**
+  - On `LandingPage.tsx`, `<WebsiteFooter />` was wrapped in `<div className="w-full max-w-[1440px] z-10">`.
+  - On viewports wider than 1440px, the grey `#f9f9f9` background of the "Finish Your Project today!" CTA banner was clamped at 1440px with wide white gutters on the left and right sides.
+- **Root Cause:**
+  - An extraneous `max-w-[1440px]` wrapper around the shared footer on `LandingPage.tsx` that was not present on other pages.
+- **Resolution:**
+  - Replaced `<div className="w-full max-w-[1440px] z-10">` with `<div className="w-full z-10">`.
+  - Allowed `WebsiteFooter`'s internal full-width sections (`bg-[#f9f9f9]` in light mode, `bg-[#1a1a1a]` in dark mode) to bleed 100% across the viewport while maintaining internal `max-w-[1040px]` content alignment.
+  - Validated with 200 passing tests and production build.
 
 ### 175. Social Brand Icon Inversion in Dark Mode
 - **Severity:** Low / Brand Visual Identity & Color Integrity
