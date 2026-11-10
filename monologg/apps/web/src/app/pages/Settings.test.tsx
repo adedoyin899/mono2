@@ -422,7 +422,7 @@ describe("Settings — personal details section and profile button cleanup", () 
     expect(screen.getByText("2000-05-15")).toBeInTheDocument();
     expect(screen.getByText(/Ikeja/i)).toBeInTheDocument();
     expect(screen.getByText("Primary craft")).toBeInTheDocument();
-    expect(screen.getByText("Actors")).toBeInTheDocument();
+    expect(screen.getByText("Actor")).toBeInTheDocument();
     expect(screen.getByText("Thespian AI performance summary")).toBeInTheDocument();
     expect(screen.getByText("Edit Details")).toBeInTheDocument();
 

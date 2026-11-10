@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
+**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,17 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 177. Plural Craft Categories in Single-Performer Onboarding & Settings
+- **Severity:** Low / Persona Copy Grammar & Profile Consistency
+- **What happened:**
+  - On Step 2 of Performer Onboarding (`CreatorOnboarding.tsx`) and in Performer Settings (`Settings.tsx`), craft profile categories were presented in plural form ("Actors", "Public speakers", "Comperes", "Comedians", "Artists", "Creators") instead of singular person titles appropriate for an individual talent's profile.
+- **Root Cause:**
+  - Category labels originally copied from marketplace-wide directory filters without adjusting for individual profile selection.
+- **Resolution:**
+  - Updated craft option labels to singular nouns ("Actor", "Public speaker", "Compere", "Comedian", "Artist", "Creator") in `CreatorOnboarding.tsx` and `Settings.tsx`.
+  - Preserved internal category IDs and state mappings for full backend compatibility.
+  - Validated with 200 passing tests and production build.
 
 ### 176. Home Page Bottom CTA Section Max-Width Boxing
 - **Severity:** Low / Visual Layout & Viewport Bleed Consistency

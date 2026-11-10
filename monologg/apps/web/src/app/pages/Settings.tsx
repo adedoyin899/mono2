@@ -133,12 +133,12 @@ const PERFORMER_ESCROW_TERMS = [
 ];
 
 const CRAFT_CATEGORIES = [
-  { id: "actors", label: "Actors", icon: Drama, desc: "Screen, feature film, and stage drama roles" },
-  { id: "public_speakers", label: "Public speakers", icon: AudioLines, desc: "Keynotes, panel discussions, and conferences" },
-  { id: "comperes", label: "Comperes", icon: Mic, desc: "Event hosting, MC, and ceremonies" },
-  { id: "comedians", label: "Comedians", icon: Laugh, desc: "Stand-up, improv, and comedic sketches" },
-  { id: "artists", label: "Artists", icon: Headphones, desc: "Musical performances, vocal tracks, and studio voice" },
-  { id: "creators", label: "Creators", icon: Video, desc: "Digital storytelling, UGC, and commercial brand content" },
+  { id: "actors", label: "Actor", icon: Drama, desc: "Screen, feature film, and stage drama roles" },
+  { id: "public_speakers", label: "Public speaker", icon: AudioLines, desc: "Keynotes, panel discussions, and conferences" },
+  { id: "comperes", label: "Compere", icon: Mic, desc: "Event hosting, MC, and ceremonies" },
+  { id: "comedians", label: "Comedian", icon: Laugh, desc: "Stand-up, improv, and comedic sketches" },
+  { id: "artists", label: "Artist", icon: Headphones, desc: "Musical performances, vocal tracks, and studio voice" },
+  { id: "creators", label: "Creator", icon: Video, desc: "Digital storytelling, UGC, and commercial brand content" },
 ];
 
 const CRAFT_DEFAULT_SUMMARIES: Record<string, string> = {

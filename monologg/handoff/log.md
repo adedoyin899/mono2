@@ -1,11 +1,41 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
+**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 231 (2026-11-10) — Singular Performer Craft Profile Labels in Onboarding & Settings
+
+**Goal:** Standardize the 6 primary performer craft categories on Step 2 of Performer Onboarding (`CreatorOnboarding.tsx`) and in Performer Settings (`Settings.tsx`) to singular person nouns ("Actor", "Public speaker", "Compere", "Comedian", "Artist", "Creator") matching individual talent profiles.
+
+1. **Performer Onboarding Craft Step 2 (`CreatorOnboarding.tsx`):**
+   - Updated `NICHE_CATEGORIES` labels from plural ("Actors", "Public speakers", "Comperes", "Comedians", "Artists", "Creators") to singular:
+     - `Actor`
+     - `Public speaker`
+     - `Compere`
+     - `Comedian`
+     - `Artist`
+     - `Creator`
+   - Preserved internal category IDs (`actors`, `public_speakers`, `comperes`, etc.) and legacy IDs for backend and state-sync backward compatibility.
+
+2. **Performer Settings Primary Craft Alignment (`Settings.tsx`, `Settings.test.tsx`):**
+   - Updated `CRAFT_CATEGORIES` labels in `Settings.tsx` to match the singular nouns.
+   - Updated read-only primary craft assertions in `Settings.test.tsx` (`"Actor"`).
+
+3. **Testing & Verification:**
+   - Ran `npm run typecheck`: 0 errors.
+   - Ran `npm test -- --run`: All 36 test files, 200 tests passing green.
+   - Ran `npm run build`: Production build succeeded in 2.73s.
+
+**Files touched:**
+- `monologg/apps/web/src/app/pages/CreatorOnboarding.tsx`
+- `monologg/apps/web/src/app/pages/Settings.tsx`
+- `monologg/apps/web/src/app/pages/Settings.test.tsx`
 
 ---
 

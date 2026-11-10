@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-09 (Session 230: Home Page Bottom CTA Banner Full-Width Bleed Alignment)
+**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,19 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 190: Singular Performer Craft Profile Labels in Onboarding & Settings (Session 231)
+
+- **Performer Onboarding Craft Step 2 (`CreatorOnboarding.tsx`):**
+  - Updated craft category card labels to singular person nouns: `Actor`, `Public speaker`, `Compere`, `Comedian`, `Artist`, `Creator`.
+  - Preserved internal category IDs and state mappings.
+- **Performer Settings Alignment (`Settings.tsx`, `Settings.test.tsx`):**
+  - Updated `CRAFT_CATEGORIES` in `Settings.tsx` to match singular labels for the primary craft profile picker.
+  - Updated test assertions in `Settings.test.tsx` (`"Actor"`).
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+  - Production build: succeeded in 2.73s (`npm --prefix monologg/apps/web run build`).
+  - Unit tests: passed (`npm --prefix monologg/apps/web test -- --run`, 36 files, 200 tests).
 
 ### Step 189: Home Page Bottom CTA Banner Full-Width Bleed Alignment (Session 230)
 

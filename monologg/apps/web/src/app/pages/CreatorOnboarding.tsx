@@ -37,14 +37,14 @@ import {
 const DEFAULT_STYLE_TAGS = ["Warm Texture", "Conversational", "Expressive", "High Energy"];
 const TAGGING_POLL_INTERVAL_MS = 1000;
 
-// The 6 Craft Categories from inspiration
+// The 6 Craft Categories from inspiration (singular for individual performer profiles)
 const NICHE_CATEGORIES = [
-  { id: "actors", legacyId: "actor", label: "Actors", icon: Drama },
-  { id: "public_speakers", legacyId: "speaker", label: "Public speakers", icon: AudioLines },
-  { id: "comperes", legacyId: "host", label: "Comperes", icon: Mic },
-  { id: "comedians", legacyId: "comedian", label: "Comedians", icon: Laugh },
-  { id: "artists", legacyId: "musician", label: "Artists", icon: Headphones },
-  { id: "creators", legacyId: "creator", label: "Creators", icon: Video },
+  { id: "actors", legacyId: "actor", label: "Actor", icon: Drama },
+  { id: "public_speakers", legacyId: "speaker", label: "Public speaker", icon: AudioLines },
+  { id: "comperes", legacyId: "host", label: "Compere", icon: Mic },
+  { id: "comedians", legacyId: "comedian", label: "Comedian", icon: Laugh },
+  { id: "artists", legacyId: "musician", label: "Artist", icon: Headphones },
+  { id: "creators", legacyId: "creator", label: "Creator", icon: Video },
 ];
 
 const GENDER_OPTIONS = ["Female", "Male"];
