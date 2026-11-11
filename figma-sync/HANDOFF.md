@@ -56,3 +56,13 @@ Prototype: sidebar/bottom-nav items link to each section's first screen (Perform
 More-sheet items link on. Flow starting points are set on both pages. Mechanics: `node.setReactionsAsync([{trigger:{type:'ON_CLICK'}, actions:[{type:'NODE', destinationId, navigation:'NAVIGATE', transition:null, preserveScrollPosition:false}]}])`.
 Not linked: order-room/checkout/guest-booking internal steps, modal open/close, settings sub-tabs.
 Remaining: guest booking payment/confirmed/set-password, checkout confirmed, final audit (text-style binding via swap engine, colour-binding spot-checks, nav instance detach checks).
+
+
+## FINAL AUDIT (Nov 2026)
+Colour binding (sampled, instances excluded): Performer 99.5% of fills / 100% of strokes bound; Client 99.5% / 100%; all shadows bound. Dark mode verified on landing hero and a dashboard frame (nav instance, cards, text flip).
+Text styles: resumable binder (`mlg/v2ts`, `V2TS.run(pageId, prefixes, budgetMs)`) bound every non-instance text: Performer 443 frames / 30,930 texts, Client 223 frames / 12,091 texts; 177 new styles under "v2 (Nov 2026)/..." (text styles total 346). Done-lists in `mlg/v2tsdone:<pageId>`.
+Variables: Color collection 48 -> 429 (227 `auto/`, 122 `static/`, 37 `shadow/`) — pairs/alphas not covered by the original tokens. Consider consolidating `auto/` into named tokens later.
+Components: Sidebar v2 / BottomNav v2 instances everywhere (0 raw navs); 0 missing icon/graphic placeholders.
+Fixed in audit: grey fallback paints from `<select>` background-image chevrons removed (14 Client / 92 Performer nodes); select chevron icon itself is not drawn.
+Known/accepted: v1 swap engine (Button/Input/Chip -> library instances) NOT run on v2 pages (frames are raw captured layers with bound variables + text styles; run `S.batch` per page if library instances are wanted);
+unreached states (guest booking payment/confirmed/set-password, checkout confirmed, onboarding calendar error); modal open/close and order-room internal prototype links not wired.
