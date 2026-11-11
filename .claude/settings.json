@@ -17,7 +17,13 @@
       "Bash(npx --yes pnpm@9 --filter @monologg/api run test:integration)",
       "Bash(timeout 30 npx tsx -e ' *)",
       "Bash(npx tsx -e ' *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "mcp__Figma__use_figma",
+      "mcp__Figma__upload_assets",
+      "mcp__Figma__create_session",
+      "mcp__Figma__get_screenshot",
+      "mcp__Figma__get_metadata",
+      "mcp__Figma__get_figma_skill"
     ]
   }
 }
