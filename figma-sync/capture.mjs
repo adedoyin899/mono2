@@ -43,7 +43,10 @@ for (const vp of ['d', 'm']) {
     const page = await ctx.newPage();
     if (role) await login(page, role);
     for (const s of todo.filter(x => (x.role || null) === role)) {
+      const mainPage = page; let page2 = null;
       try {
+        if (s.isolate) { page2 = await ctx.newPage(); }
+        const page = page2 || mainPage;
         await page.goto(BASE + s.url, { waitUntil: 'networkidle' });
         await page.waitForTimeout(700);
         if (s.steps) await s.steps(page, vp);
@@ -62,6 +65,7 @@ for (const vp of ['d', 'm']) {
         meta[`${s.name}.${vp}`] = { name: s.name, vp, folder: s.folder || '', title: s.title || s.name, dh: D.dh, bytes: JSON.stringify(D).length, sections: secs, images: [...urls] };
         console.log('OK', s.name, vp, 'bytes', meta[`${s.name}.${vp}`].bytes, 'h', D.dh, 'imgs', urls.size);
       } catch (e) { console.log('FAIL', s.name, vp, e.message.split('\n')[0]); }
+      if (page2) await page2.close();
     }
     await ctx.close();
   }
