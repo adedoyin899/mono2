@@ -188,6 +188,7 @@
       if (markup && /<svg/i.test(markup)) {
         const h = hashStr(markup); G[h] = markup;
         const n = { t: 'g', h, b, n: 'Image / ' + (el.alt || src.split('/').pop()) };
+        n.iv = slot(() => (/invert\(/.test(getComputedStyle(el).filter) ? 'ffffff' : '000000'));
         if (fx) n.fx = 1; if (num(cs.opacity) < 1) n.o = num(cs.opacity);
         out.push(n); count++; return;
       }
@@ -274,6 +275,7 @@
       if (n.e) n.e = n.e.map(e => { e[5] = get(e[5]); return e; });
       if (n.c !== undefined && n.t === 'i') n.c = get(n.c);
       if (n.fl !== undefined) n.fl = get(n.fl);
+      if (n.iv !== undefined) n.iv = get(n.iv);
       if (n.k) n.k.forEach(fixNode);
     };
     D.k.forEach(fixNode);

@@ -35,3 +35,14 @@ Gaps: guest booking payment/processing/confirmed/set-password and "unavailable" 
 checkout confirmed state not reached (Paystack modal is the last captured state); my-projects 6 lifecycle states + applicants + inline edit + publish-escrow modal not captured (only list + one detail);
 find performers filters/profile view not captured; support/help + legal for client not duplicated (same pages as performer).
 App note: shortlist "Book Now" opens /book/:id?role=client in a new tab (window.open) — that is the client booking path.
+
+
+## PROGRESS UPDATE — gap-closing pass
+Done: Performer 01/02 re-captured+re-rendered (serializer fixes), 08 rebuilt (fixed "open to apply") + project detail tabs (Roles & Requirements, Script & Materials, Client & Escrow) and apply flow;
+dark-mode wordmark fixed (renderer v10 recolours `dark:invert` SVG graphics via light/dark variables; serializer records `iv`).
+Client: My Projects lifecycle (applicants, filters, applicant profile, select/hire, 5 tabs, Draft/In progress/Review/Completed/Closed, publish & fund escrow), find-performers filters.
+Correction: project detail DOES have tabs for open projects (the applied project hides them); only the analytics range control is absent in this build.
+Page totals: Performer 222 states (16 sections), Client ~100 states (14 sections).
+Still open: guest booking payment/processing/confirmed/set-password + unavailable modal; checkout confirmed; performer profile modal in client find; client support & legal (same pages as performer);
+Sidebar/BottomNav v2 components, prototype links, final audit (colour-variable binding spot-checks, text-style binding via swap engine).
+Operational notes: use_figma has a 60s limit (keep 1-3 screens per call); MCP connection drops periodically — re-run ToolSearch select:mcp__Figma__use_figma, then read-only check what landed before retrying.
