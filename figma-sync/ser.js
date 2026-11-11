@@ -18,6 +18,7 @@
   function splitTop(s) { const out = []; let d = 0, cur = ''; for (const ch of s) { if (ch === '(') d++; if (ch === ')') d--; if (ch === ',' && d === 0) { out.push(cur.trim()); cur = ''; } else cur += ch; } if (cur.trim()) out.push(cur.trim()); return out; }
 
   let slots, S, Smap, I, G, count;
+  const svgCache = new Map();
   const slot = get => { slots.push(get); return slots.length - 1; };
   const styleIdx = t => { const k = JSON.stringify(t); if (!Smap.has(k)) { Smap.set(k, S.length); S.push(t); } return Smap.get(k); };
   const hashStr = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
@@ -154,6 +155,16 @@
     const vw = document.documentElement.clientWidth;
     if (b[0] >= vw + 1 || b[0] + b[2] <= -1) { if (!(b[2] === 0)) return; }
     if (tag === 'svg' || tag === 'SVG') { if (b[2] > 0 && b[3] > 0) { const n = svgNode(el, cs, b); if (fx) n.fx = 1; if (num(cs.opacity) < 1) n.o = num(cs.opacity); out.push(n); count++; } return; }
+    if (tag === 'img' && el.currentSrc && b[2] > 0 && b[3] > 0 && (/\.svg(\?|#|$)/i.test(el.currentSrc) || /^data:image\/svg/.test(el.currentSrc))) {
+      const src = el.currentSrc; let markup = svgCache.get(src);
+      if (markup === undefined) { try { const x = new XMLHttpRequest(); x.open('GET', src, false); x.send(); markup = x.status === 200 ? x.responseText : null; } catch (e) { markup = null; } svgCache.set(src, markup); }
+      if (markup && /<svg/i.test(markup)) {
+        const h = hashStr(markup); G[h] = markup;
+        const n = { t: 'g', h, b, n: 'Image / ' + (el.alt || src.split('/').pop()) };
+        if (fx) n.fx = 1; if (num(cs.opacity) < 1) n.o = num(cs.opacity);
+        out.push(n); count++; return;
+      }
+    }
     if (b[2] <= 0 && b[3] <= 0 && cs.overflow === 'visible') { for (const c of el.children) walk(c, out, inFixed || fixed, depth + 1); return; }
 
     // paint detection
