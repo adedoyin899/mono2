@@ -24,3 +24,14 @@ App findings (not fixed): Settings "View public profile" navigates to /storefron
 analytics has no 3m/1y range control and project detail has no Overview/Requirements/Sides/Escrow tabs in this build (checklist from the earlier audit was out of date).
 NEXT: Client journey (page 215:3): marketing toggles/menu, auth (client), onboarding 2 steps, home (wallet + fund modal), find performers, my projects, brief 5 steps,
 checkout, order room (client), shortlist, analytics, guest booking /book/:id, settings, transactions, legal. Then Sidebar/BottomNav v2 components + prototype links.
+
+
+## PROGRESS UPDATE — Client journey first pass (page 215:3)
+Rendered sections 01-14 (79 states): marketing (signed-in landing + account menus), auth, onboarding (2 steps), home (+fund wallet), find performers, my projects (list + one detail),
+post a brief (5 steps + card funding + published), checkout (summary/review/payment/Paystack), orders & order room (client review, revision, release, complete, dispute),
+shortlist, activity & analytics, guest booking (slot -> brief -> contact), settings (6 views), transactions.
+Capture scripts: screens/client-a.mjs, client-brief.mjs, client-b.mjs, client-c.mjs (+ _chelpers.mjs). Names in capture output: c-*, brief-*, co-*, cor-*, book-*.
+Gaps: guest booking payment/processing/confirmed/set-password and "unavailable" modal not reached (Continue stays disabled with scripted input);
+checkout confirmed state not reached (Paystack modal is the last captured state); my-projects 6 lifecycle states + applicants + inline edit + publish-escrow modal not captured (only list + one detail);
+find performers filters/profile view not captured; support/help + legal for client not duplicated (same pages as performer).
+App note: shortlist "Book Now" opens /book/:id?role=client in a new tab (window.open) — that is the client booking path.
