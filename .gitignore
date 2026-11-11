@@ -25,3 +25,4 @@ monologg/**/.env.*
 .env*
 .gstack/
 node_modules/
+.claude/settings.local.json
