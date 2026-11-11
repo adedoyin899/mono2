@@ -46,3 +46,13 @@ Page totals: Performer 222 states (16 sections), Client ~100 states (14 sections
 Still open: guest booking payment/processing/confirmed/set-password + unavailable modal; checkout confirmed; performer profile modal in client find; client support & legal (same pages as performer);
 Sidebar/BottomNav v2 components, prototype links, final audit (colour-variable binding spot-checks, text-style binding via swap engine).
 Operational notes: use_figma has a 60s limit (keep 1-3 screens per call); MCP connection drops periodically — re-run ToolSearch select:mcp__Figma__use_figma, then read-only check what landed before retrying.
+
+
+## PROGRESS UPDATE — navigation components & prototype links
+Library page (🧩 Components): section "v2 navigation — Sidebar & BottomNav" holds component sets "Sidebar v2" (Role=Performer|Client x Active) and "BottomNav v2"
+(Active incl. "More"), built by cloning the real captured navs (so they match the app exactly); BottomNav items carry invisible "Button / <label>" hit areas for prototype links.
+All dashboard desktop/mobile frames on both journey pages now use instances (raw `aside` / nav frames replaced). New "More sheet (mobile)" states added to both Home sections (P04.10 / C04.06).
+Prototype: sidebar/bottom-nav items link to each section's first screen (Performer: ~1,800 links; Client: ~830); landing -> auth -> onboarding -> home chain (Performer), auth -> onboarding -> home and the 5-step brief chain (Client);
+More-sheet items link on. Flow starting points are set on both pages. Mechanics: `node.setReactionsAsync([{trigger:{type:'ON_CLICK'}, actions:[{type:'NODE', destinationId, navigation:'NAVIGATE', transition:null, preserveScrollPosition:false}]}])`.
+Not linked: order-room/checkout/guest-booking internal steps, modal open/close, settings sub-tabs.
+Remaining: guest booking payment/confirmed/set-password, checkout confirmed, final audit (text-style binding via swap engine, colour-binding spot-checks, nav instance detach checks).
