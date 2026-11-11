@@ -17,7 +17,8 @@
       "Bash(npx --yes pnpm@9 --filter @monologg/api run test:integration)",
       "Bash(timeout 30 npx tsx -e ' *)",
       "Bash(npx tsx -e ' *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "mcp__Figma"
     ]
   }
 }
