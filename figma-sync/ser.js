@@ -45,7 +45,14 @@
       const pm = st.replace(cm[0], '').trim().match(/(-?[\d.]+)%/);
       const pos = pm ? parseFloat(pm[1]) / 100 : (n > 1 ? i / (n - 1) : 0);
       const idx = i;
-      out.s.push([pos, slot(() => { const cur = splitTop(((getComputedStyle(el).backgroundImage.match(/gradient\((.*)\)/s) || [])[1]) || ''); const sp = cur.slice(stopsFrom)[idx] || ''; const c2 = sp.match(COLRE); return c2 ? hex(c2[0]) : null; })]);
+      out.s.push([pos, slot(() => {
+        const cur = splitTop(((getComputedStyle(el).backgroundImage.match(/gradient\((.*)\)/s) || [])[1]) || '');
+        const cols = cur.slice(stopsFrom).map(sp => { const c2 = sp.match(COLRE); return c2 ? hex(c2[0]) : null; });
+        if (cols[idx]) return cols[idx];
+        // transparent stop: borrow the nearest visible stop's RGB at alpha 0 (CSS interpolates premultiplied; Figma doesn't)
+        for (let k = 1; k <= cols.length; k++) { const nb = cols[idx - k] || cols[idx + k]; if (nb) return nb.slice(0, 6) + '00'; }
+        return '00000000';
+      })]);
     });
     return out.s.length ? out : null;
   }
@@ -121,6 +128,26 @@
       if (!rects.length) continue;
       const l = Math.min(...rects.map(r => r.left)), t = Math.min(...rects.map(r => r.top)), r2 = Math.max(...rects.map(r => r.right)), b2 = Math.max(...rects.map(r => r.bottom));
       const lines = new Set(rects.map(r => Math.round(r.top / 3))).size;
+      if (lines > 1) {
+        const ft = Math.min(...rects.map(r => r.top));
+        const firstLeft = Math.min(...rects.filter(r => Math.abs(r.top - ft) < 4).map(r => r.left));
+        if (firstLeft - l > 2) {
+          // continuation after an inline sibling: emit one text node per visual line so nothing overlaps
+          const runs = []; const cr = document.createRange(); let cur = null;
+          for (let i = 0; i < raw.length; i++) {
+            cr.setStart(ch, i); cr.setEnd(ch, i + 1); const rc = cr.getClientRects()[0];
+            if (!rc || rc.width === 0) { if (cur) cur.s += raw[i]; continue; }
+            if (!cur || Math.abs(rc.top - cur.top) > 3) { cur = { s: '', top: rc.top, l: rc.left, r: rc.right, b: rc.bottom }; runs.push(cur); }
+            cur.s += raw[i]; cur.l = Math.min(cur.l, rc.left); cur.r = Math.max(cur.r, rc.right); cur.b = Math.max(cur.b, rc.bottom);
+          }
+          for (const run of runs) {
+            const t2 = run.s.replace(/\s+/g, ' ').trim(); if (!t2) continue;
+            const n2 = { t: 'x', tx: t2, b: [run.l + scrollX, run.top + scrollY, run.r - run.l, run.b - run.top], st: textStyleCache(el, cs) };
+            if (fixed) n2.fx = 1; out.push(n2); count++;
+          }
+          continue;
+        }
+      }
       const n = { t: 'x', tx, b: [l + scrollX, t + scrollY, r2 - l, b2 - t], st: textStyleCache(el, cs) };
       const ta = cs.textAlign; if (ta === 'center') n.an = 'c'; else if (ta === 'right' || ta === 'end') n.an = 'r';
       if (lines > 1) n.ml = 1;
@@ -207,6 +234,14 @@
       const z = zOf(cs); if (z) node.z = z;
       if (isImg) { node.im = el.currentSrc; }
     } else if (fx) { node.fx = 1; }
+    if (isInput && ['checkbox', 'radio'].includes((el.type || '').toLowerCase())) {
+      const radio = el.type.toLowerCase() === 'radio';
+      node.n = (radio ? 'Radio / ' : 'Checkbox / ') + (el.getAttribute('aria-label') || el.name || 'option');
+      node.r = radio ? Math.min(b[2], b[3]) / 2 : 3;
+      if (el.checked) { node.f = [slot(() => '0075ff')]; node.ck = 1; }
+      else { node.f = [slot(() => 'ffffff')]; node.s = { w: 1, c: slot(() => '767676') }; }
+      out.push(node); count++; return;
+    }
     if (isInput) {
       const v = (el.value || el.placeholder || '').toString();
       if (v && tag !== 'select') {
