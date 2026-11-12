@@ -66,3 +66,13 @@ Components: Sidebar v2 / BottomNav v2 instances everywhere (0 raw navs); 0 missi
 Fixed in audit: grey fallback paints from `<select>` background-image chevrons removed (14 Client / 92 Performer nodes); select chevron icon itself is not drawn.
 Known/accepted: v1 swap engine (Button/Input/Chip -> library instances) NOT run on v2 pages (frames are raw captured layers with bound variables + text styles; run `S.batch` per page if library instances are wanted);
 unreached states (guest booking payment/confirmed/set-password, checkout confirmed, onboarding calendar error); modal open/close and order-room internal prototype links not wired.
+
+
+## PROGRESS UPDATE — missing states closed
+Client Guest booking (section 12, 19 states): slot, slot selected, performer-unavailable modal, project brief (+filled), contact & agreement (+filled), escrow payment (card), pay with Paystack,
+processing payment, booking confirmed, set password. Client Checkout (section 08): + booking confirmed. Prototype: booking chain + checkout chain wired; processing auto-advances to confirmed (AFTER_TIMEOUT 1.5s);
+flow starting points added for guest booking and checkout. Text styles bound on the new frames.
+Capture notes: booking contact fields use placeholders "Your full name" / "you@company.com" / "+234 800 000 0000"; contact-step button is "Proceed to Payment"; pay button is "Confirm & Deposit ₦…" (card) — the "Pay with Paystack" text is the method toggle.
+The processing view is on screen for microtasks only, so it is captured with a MutationObserver (screens/client-d.mjs, `p.__preD` hook in capture.mjs) and fade-in elements forced to opacity 1.
+Figma auto-creates "Flow N" starting points when reactions are added — rename/delete them (done for both pages).
+Still not capturable: onboarding calendar "error" state (dead code in the app), performer profile view from Find performers (click opens nothing).

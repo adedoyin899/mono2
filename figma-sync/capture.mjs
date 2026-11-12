@@ -57,7 +57,8 @@ for (const vp of ['d', 'm']) {
         const base = path.join(out, `${s.name}.${vp}`);
         await page.screenshot({ path: base + '.png', fullPage: true });
         await page.addScriptTag({ content: ser });
-        const D = await page.evaluate(v => window.MLGSER.run({ vp: v }), vp);
+        const D = page.__preD || await page.evaluate(v => window.MLGSER.run({ vp: v }), vp);
+        delete page.__preD;
         fs.writeFileSync(base + '.json', JSON.stringify(D));
         const urls = new Set(); (function c(l) { for (const n of l) { (n.f || []).forEach(f => f && f.im && urls.add(f.im)); if (n.k) c(n.k); } })(D.k);
         urls.forEach(u => imgs.set(u, 1));
