@@ -94,3 +94,12 @@ Applied (no node re-binding, pixel-neutral): 14 variables renamed to named app t
 Renderer patched (backup `mlg/renderer_prenames`): newly created pair variables are named `v2/unsorted/<light>_<dark>`; no `auto/`/`static/` variables remain.
 Not done on purpose: snapping the 38 near-misses (<=6 levels) or old named tokens to app tokens — that shifts visible colours (e.g. surfaces f9f9f9 -> ffffff). Decide per token, then re-bind/alias; the nearest-token note on each variable is the worklist.
 The file's original v1 named tokens (bg/canvas, text/primary, ...) are untouched (v1 pages unchanged); v1 and v2 palettes now coexist (`bg/…` vs `v2/bg/…`).
+
+
+## PROTOTYPE LINKS — second pass (modals, order room, settings, projects)
+Rule-driven wiring (label of source frame -> clickable layer label regex -> destination frame label; matched across every scroll-stop frame, desktop + mobile; nodes inside Sidebar/BottomNav instances are skipped).
+Performer: home (check-in decline modal, notifications, balance), profile (edit/share/upload), rate-card edit, projects browse -> 4 project details + filter modal, order room (orders cards -> room -> submit modals -> review -> client view -> revision / release -> complete; dispute),
+earnings -> withdraw, analytics -> reviews modal, settings main -> 10 sub-views, sub-view "Back to settings" (42). Client: home, find filters, projects list -> detail, applicants filters/profile/hire, lifecycle Draft publish-escrow modal, shortlist "Book Now" -> guest booking, order-room chain, settings sub-views + back (16).
+Totals (frame-descendant reactions): Performer 1,952, Client 1,034; 0 broken destinations. The processing screen's AFTER_TIMEOUT (1.5s) reaction sits on the frame itself (not counted above).
+Not linkable (layers are not separate clickable nodes in the captured states): project-detail lifecycle chips and tabs on Client detail, Performer project-detail tabs, "Hide balance" icon button, Performer Share/Upload close buttons, modal dismiss on states without a labelled Cancel/Close.
+Rule table code is in the session history; to extend, add [fromLabel, labelRegex, toLabel] rows and re-run (setReactionsAsync overwrites, so it is idempotent).
