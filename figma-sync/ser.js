@@ -199,7 +199,9 @@
     const bgHex = hex(cs.backgroundColor);
     const bgi = cs.backgroundImage;
     const bw = ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'].map(k => cs[k.replace('Width', 'Style')] === 'none' ? 0 : num(cs[k]));
-    const hasBorder = bw.some(v => v > 0);
+    const bKeys = ['borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
+    const hasBorder = bw.some((v, i) => v > 0 && hex(cs[bKeys[i]]));   // transparent borders are not borders
+    if (hasBorder) bw.forEach((v, i) => { if (v > 0 && !hex(cs[bKeys[i]])) bw[i] = 0; });
     const sh = shadows(el, cs);
     const bb = /blur\(([\d.]+)px\)/.exec(cs.backdropFilter || cs.webkitBackdropFilter || '');
     const isImg = tag === 'img' && el.currentSrc;
