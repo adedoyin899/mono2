@@ -84,3 +84,13 @@ Skipped/rolled back (originals left untouched): geom:Input 24, geom:Button 19, e
 (`auto/…` / `static/…` variables) rather than the library's older named tokens, so the engine's name-based classifier does not recognise them (≈84% of button-like layers remain raw layers with bound variables + text styles).
 Engine patched (backup in `mlg/dsswap_v1backup`): swapped instances now inherit the original layer's prototype reactions (marker `/*v2-reactions*/`). Spot checks: reactions preserved, none broken; light/dark verified on Rate cards (Performer) and Find performers (Client).
 Fixed along the way: sidebar items had a 2px left border drawn from `border-l-2 border-transparent` that the renderer turned into opaque black — removed from Sidebar v2 variants (98) and frames (4); serializer now ignores transparent borders (ser.js).
+
+
+## COLOUR VARIABLE CONSOLIDATION (Nov 2026)
+Analysis: of 351 renderer-generated `auto/`+`static/` colour variables only 21 pairs match an app token (tokens.css) within rounding (<=2/255); 38 are within 6 levels; 266 are >24 levels away — the app hard-codes
+many one-off hex pairs (e.g. f9f9f9|141414 vs canvas f9f9f9|000000), and the file's older named tokens (bg/surface ffffff|16161a etc.) predate the current palette.
+Applied (no node re-binding, pixel-neutral): 14 variables renamed to named app tokens `v2/bg/canvas`, `v2/text/primary`, `v2/red`, ... (description cites tokens.css); 7 duplicates of those became `v2/alias/<token>/<orig>` and ALIAS the canonical variable (<=2/255 difference);
+330 one-offs renamed `v2/{neutral|red|purple|blue|green|amber}/<light>_<dark>` with a description giving the nearest app token and distance; 32 renderer shadow colours renamed `v2/shadow/…`. Old->new mapping in `mlg/v2tokenmap`.
+Renderer patched (backup `mlg/renderer_prenames`): newly created pair variables are named `v2/unsorted/<light>_<dark>`; no `auto/`/`static/` variables remain.
+Not done on purpose: snapping the 38 near-misses (<=6 levels) or old named tokens to app tokens — that shifts visible colours (e.g. surfaces f9f9f9 -> ffffff). Decide per token, then re-bind/alias; the nearest-token note on each variable is the worklist.
+The file's original v1 named tokens (bg/canvas, text/primary, ...) are untouched (v1 pages unchanged); v1 and v2 palettes now coexist (`bg/…` vs `v2/bg/…`).
