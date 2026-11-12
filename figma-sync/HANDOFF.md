@@ -76,3 +76,11 @@ Capture notes: booking contact fields use placeholders "Your full name" / "you@c
 The processing view is on screen for microtasks only, so it is captured with a MutationObserver (screens/client-d.mjs, `p.__preD` hook in capture.mjs) and fade-in elements forced to opacity 1.
 Figma auto-creates "Flow N" starting points when reactions are added — rename/delete them (done for both pages).
 Still not capturable: onboarding calendar "error" state (dead code in the app), performer profile view from Find performers (click opens nothing).
+
+
+## SWAP ENGINE RUN ON v2 (Nov 2026)
+Ran `S.batch(<page name>)` (mlg/dsswap) on both v2 pages. Swapped to library instances: Performer — Icon Button 672, Button 356, Input 40; Client — Button 418, Icon Button 294, Input 86, Chip 2 (~1,870 layers).
+Skipped/rolled back (originals left untouched): geom:Input 24, geom:Button 19, err "set_strokeWeight: Cannot unwrap symbol" 56. Most other candidates are not classified because their fills use the app's exact colour pairs
+(`auto/…` / `static/…` variables) rather than the library's older named tokens, so the engine's name-based classifier does not recognise them (≈84% of button-like layers remain raw layers with bound variables + text styles).
+Engine patched (backup in `mlg/dsswap_v1backup`): swapped instances now inherit the original layer's prototype reactions (marker `/*v2-reactions*/`). Spot checks: reactions preserved, none broken; light/dark verified on Rate cards (Performer) and Find performers (Client).
+Fixed along the way: sidebar items had a 2px left border drawn from `border-l-2 border-transparent` that the renderer turned into opaque black — removed from Sidebar v2 variants (98) and frames (4); serializer now ignores transparent borders (ser.js).
