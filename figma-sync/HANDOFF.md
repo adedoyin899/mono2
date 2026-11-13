@@ -103,3 +103,13 @@ earnings -> withdraw, analytics -> reviews modal, settings main -> 10 sub-views,
 Totals (frame-descendant reactions): Performer 1,952, Client 1,034; 0 broken destinations. The processing screen's AFTER_TIMEOUT (1.5s) reaction sits on the frame itself (not counted above).
 Not linkable (layers are not separate clickable nodes in the captured states): project-detail lifecycle chips and tabs on Client detail, Performer project-detail tabs, "Hide balance" icon button, Performer Share/Upload close buttons, modal dismiss on states without a labelled Cancel/Close.
 Rule table code is in the session history; to extend, add [fromLabel, labelRegex, toLabel] rows and re-run (setReactionsAsync overwrites, so it is idempotent).
+
+
+## COLOUR SNAP — near-misses (<=6/255) aliased to app tokens
+Done as requested ("snap the near-miss colours to the app tokens"). 18 `v2/{family}/<light>_<dark>` variables whose nearest app token was <=6/255 away now ALIAS the canonical `v2/<token>` variable in both modes and are renamed `v2/alias/<token>/<orig>`; description reads "Snapped to v2/<token> (was Δn/255: light X / dark Y)".
+Canonical variables created from tokens.css where missing: `v2/green`, `v2/error`, `v2/success-bg`, `v2/red-soft`, `v2/error-bg`, `v2/gold-soft`.
+Examples: f9f9f9|1a1a1a -> bg/surface (visible shift f9f9f9 -> ffffff in light), 18181b|f4f4f5 -> text/primary, 71717b|9f9fa9 -> text/tertiary, e5e5e5|1a1a1a -> hairline, d81d1d|ff6c58 -> error, 1d7645|3ee08b -> green.
+Reversible: originals (name, description, Light/Dark values) are stored per variable id in root plugin data `mlg/v2snap`.
+Verified: Client C01.01 desktop frame rendered in Light and Dark after the snap — no broken fills, surfaces/text/buttons look right.
+Left alone: 18 variables within <=12/255 and 29 within <=24/255 (shift is more visible; nearest-token note is on each variable's description). 266 are far from any app token.
+Pre-existing, not caused by the snap: the Monologg wordmark (`Graphic/13nq62t`, Graphics page) has unbound hard-coded 18181b vector fills, so it is near-invisible in Dark mode. Fix = bind its vectors to `v2/text/primary` (and any other `Graphic/*` with unbound dark fills).
