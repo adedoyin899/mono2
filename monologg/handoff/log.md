@@ -1,11 +1,43 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
+**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 232 (2026-11-18) — Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page
+
+**Goal:** Resolve severe text collisions and column overlapping on mobile devices within the 3-column pricing comparison tables (Performers & Clients) on `PricingPage.tsx`.
+
+1. **Root Cause Analysis (`PricingPage.tsx`):**
+   - The outer comparison table container had `overflow-x-auto relative shrink-0 w-full max-w-[1040px]` wrapping an inner `<div className="min-w-[680px] w-full flex flex-col">`.
+   - Column 3 ("Monologg Pro") had a fixed width of `w-[388px] shrink-0`.
+   - On mobile viewports (< 1040px, e.g. 375px–430px), the inner container contracted to 680px. After subtracting Column 3's 388px, only 292px remained for Columns 1 and 2.
+   - Columns 1 and 2 used `flex flex-[1_0_0] flex-col items-start min-w-px p-[16px]`, giving each column only 146px total width (114px net width after 32px horizontal padding).
+   - All cell values and header titles had `whitespace-nowrap`. Because Column 1 contained strings up to 280px wide (e.g., `"Interactive AI Line-Reader & Rehearsals"`), text overflowed Column 1 by up to 166px and rendered directly on top of Column 2 (`"7% per booking"`, `"1 Storefront (Video/Audio)"`), which in turn bled into Column 3.
+
+2. **Responsive Column Architecture & Touch Scrolling (`PricingPage.tsx`):**
+   - **Performers Comparison Table (`178359:18050`):**
+     - Upgraded inner container from `min-w-[680px]` to `min-w-[948px] w-full flex flex-col`.
+     - Added smooth horizontal touch scrolling utilities: `overscroll-x-contain touch-pan-x`.
+     - Standardized Column 1 ("Feature / Capability"): `w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0` across header and all 9 data rows.
+     - Standardized Column 2 ("Free Tier"): `w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0` across header and all 9 data rows.
+     - Standardized Column 3 ("Monologg Pro"): `w-[388px] min-w-[388px] shrink-0` across header and all 9 data rows.
+   - **Clients Comparison Table (`178359:18148`):**
+     - Upgraded inner container from `min-w-[680px]` to `min-w-[948px] w-full flex flex-col`.
+     - Added `overscroll-x-contain touch-pan-x` to outer table container.
+     - Applied matching column width allocations (`w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0` for Col 1, `w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0` for Col 2, `w-[388px] min-w-[388px] shrink-0` for Col 3) across header, category subheader rows, and all 23 client data rows.
+   - On screens ≥ 1040px, `lg:flex-1` seamlessly expands Columns 1 and 2 to 326px each, maintaining exact 1-to-1 parity with the Figma desktop design. On mobile and tablet screens (< 1040px), the table maintains full legibility with dedicated column boundaries and smooth horizontal swipe navigation.
+
+3. **Testing & Verification:**
+   - Full test suite: 36 test files, 200 tests passing green (`npm --prefix monologg/apps/web test -- --run`).
+   - Targeted unit test suite: `PricingPage.test.tsx` (5 tests passing green).
+   - TypeScript typecheck: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+   - Vite production build: Succeeded in 2.73s (`npm --prefix monologg/apps/web run build`).
 
 ---
 

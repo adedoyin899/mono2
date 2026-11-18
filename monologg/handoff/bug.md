@@ -1,6 +1,6 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
+**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
 **This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
@@ -18,6 +18,20 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 178. Pricing Comparison Table Column Text Overlap on Mobile Viewports
+- **Severity:** Medium / Visual Collision & Responsive Layout Defect
+- **What happened:**
+  - On screens narrower than 1040px (especially mobile devices 375px–430px), the 3-column comparison tables on `PricingPage.tsx` displayed severe text collisions where Column 1 ("Interactive AI Line-Reader & Rehearsals") rendered directly on top of Column 2 ("Included", "7% per booking"), which in turn overlapped Column 3.
+- **Root Cause:**
+  - The inner table container was constrained by `min-w-[680px]` with Column 3 consuming a fixed `w-[388px] shrink-0`.
+  - The remaining 292px was split equally between Column 1 and Column 2 via `flex-[1_0_0] min-w-px` (146px total, 114px net width after 32px horizontal padding).
+  - Because all text spans used `whitespace-nowrap`, strings up to 280px wide overflowed out of Column 1 and printed directly over Columns 2 and 3.
+- **Resolution:**
+  - Replaced `min-w-[680px]` with `min-w-[948px] w-full flex flex-col` on both Performers and Clients tables.
+  - Assigned dedicated responsive minimum column widths (`w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0` for Col 1, `w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0` for Col 2, and `w-[388px] min-w-[388px] shrink-0` for Col 3).
+  - Added `overscroll-x-contain touch-pan-x` to outer table containers for smooth horizontal mobile swiping.
+  - Validated with 200 passing tests and production build.
 
 ### 177. Plural Craft Categories in Single-Performer Onboarding & Settings
 - **Severity:** Low / Persona Copy Grammar & Profile Consistency

@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-10 (Session 231: Singular Performer Craft Profile Labels in Onboarding & Settings)
+**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,18 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 191: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page (Session 232)
+
+- **Root Cause & Layout Rectification (`PricingPage.tsx`):**
+  - Identified that the 3-column pricing comparison tables were wrapped in `min-w-[680px]` with Column 3 fixed at `w-[388px] shrink-0`, compressing Columns 1 and 2 to 114px net width on mobile viewports.
+  - Because table cells had `whitespace-nowrap`, strings up to 280px wide overflowed Column 1 and rendered on top of Columns 2 and 3.
+  - Upgraded table inner containers to `min-w-[948px] w-full flex flex-col` and assigned dedicated responsive column min-widths (`w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0` for Col 1, `w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0` for Col 2, and `w-[388px] min-w-[388px] shrink-0` for Col 3) across both Performers and Clients tables.
+  - Added `overscroll-x-contain touch-pan-x` to outer table containers for fluid horizontal touch swiping on mobile.
+- **Testing & Verification:**
+  - TypeScript compilation: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+  - Production build: succeeded in 2.73s (`npm --prefix monologg/apps/web run build`).
+  - Unit tests: passed (`npm --prefix monologg/apps/web test -- --run`, 36 files, 200 tests).
 
 ### Step 190: Singular Performer Craft Profile Labels in Onboarding & Settings (Session 231)
 

@@ -745,17 +745,17 @@ export function PricingPage() {
 
             {/* Performers 3-Column Comparison Table (178359:18050) */}
             <div
-              className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
+              className="flex flex-col items-start overflow-x-auto overscroll-x-contain touch-pan-x relative shrink-0 w-full max-w-[1040px]"
               data-node-id="178359:18050"
             >
-              <div className="min-w-[680px] w-full flex flex-col">
+              <div className="min-w-[948px] w-full flex flex-col">
                 {/* Header Row (178359:18051) */}
                 <div
                   className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border border-[#e8e8e8] dark:border-[#1a1a1a] flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18051"
                 >
                   <div
-                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    className="flex flex-col items-start p-[16px] relative w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0"
                     data-node-id="178359:18052"
                   >
                     <span
@@ -766,7 +766,7 @@ export function PricingPage() {
                     </span>
                   </div>
                   <div
-                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    className="flex flex-col items-start p-[16px] relative w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0"
                     data-node-id="178359:18054"
                   >
                     <span
@@ -777,7 +777,7 @@ export function PricingPage() {
                     </span>
                   </div>
                   <div
-                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
+                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px] min-w-[388px]"
                     data-node-id="178359:18056"
                   >
                     <span
@@ -819,17 +819,17 @@ export function PricingPage() {
                     className="border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                     data-node-id={row.nodeId}
                   >
-                    <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                    <div className="flex flex-col items-start p-[16px] relative w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0">
                       <span className="font-['Inter_Tight',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
                         {row.feature}
                       </span>
                     </div>
-                    <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                    <div className="flex flex-col items-start p-[16px] relative w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0">
                       <span className="font-['Inter_Tight',sans-serif] font-normal text-[#484848] dark:text-[#bababa] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
                         {row.freeTier}
                       </span>
                     </div>
-                    <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
+                    <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px] min-w-[388px]">
                       <span className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
                         {row.proTier}
                       </span>
@@ -969,17 +969,17 @@ export function PricingPage() {
 
             {/* Clients 3-Column Comparison Table (178359:18148) */}
             <div
-              className="flex flex-col items-start overflow-x-auto relative shrink-0 w-full max-w-[1040px]"
+              className="flex flex-col items-start overflow-x-auto overscroll-x-contain touch-pan-x relative shrink-0 w-full max-w-[1040px]"
               data-node-id="178359:18148"
             >
-              <div className="min-w-[680px] w-full flex flex-col">
+              <div className="min-w-[948px] w-full flex flex-col">
                 {/* Header Row (178359:18149) */}
                 <div
                   className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-b border-solid flex items-start relative shrink-0 w-full"
                   data-node-id="178359:18149"
                 >
                   <div
-                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    className="flex flex-col items-start p-[16px] relative w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0"
                     data-node-id="178359:18150"
                   >
                     <span
@@ -990,7 +990,7 @@ export function PricingPage() {
                     </span>
                   </div>
                   <div
-                    className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative"
+                    className="flex flex-col items-start p-[16px] relative w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0"
                     data-node-id="178359:18152"
                   >
                     <span
@@ -1001,7 +1001,7 @@ export function PricingPage() {
                     </span>
                   </div>
                   <div
-                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]"
+                    className="flex gap-[24px] items-center pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px] min-w-[388px]"
                     data-node-id="178359:18154"
                   >
                     <span
@@ -1045,7 +1045,7 @@ export function PricingPage() {
                         className="bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full h-[55px]"
                         data-node-id={item.nodeId}
                       >
-                        <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                        <div className="flex flex-col items-start p-[16px] relative w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0">
                           <span
                             className={`font-['Switzer',sans-serif] ${
                               item.weight === "medium" ? "font-medium" : "font-semibold"
@@ -1054,8 +1054,8 @@ export function PricingPage() {
                             {item.title}
                           </span>
                         </div>
-                        <div className="flex flex-[1_0_0] flex-col h-[53px] items-start min-w-px p-[16px] relative" />
-                        <div className="flex flex-col h-[49px] items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]" />
+                        <div className="flex flex-col h-[53px] items-start p-[16px] relative w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0" />
+                        <div className="flex flex-col h-[49px] items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px] min-w-[388px]" />
                       </motion.div>
                     );
                   }
@@ -1081,17 +1081,17 @@ export function PricingPage() {
                       className="border-[#e8e8e8] dark:border-[#1a1a1a] border-solid border-t flex items-center pt-px relative shrink-0 w-full hover:bg-[#f9f9f9] dark:hover:bg-[#1a1a1a] transition-colors duration-150 cursor-pointer"
                       data-node-id={row.nodeId}
                     >
-                      <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                      <div className="flex flex-col items-start p-[16px] relative w-[320px] min-w-[320px] lg:w-auto lg:flex-1 shrink-0">
                         <span className="font-['Inter_Tight',sans-serif] font-medium text-[#1a1a1a] dark:text-[#f9f9f9] text-[14px] leading-[17px] tracking-[0.42px] whitespace-nowrap">
                           {row.feature}
                         </span>
                       </div>
-                      <div className="flex flex-[1_0_0] flex-col items-start min-w-px p-[16px] relative">
+                      <div className="flex flex-col items-start p-[16px] relative w-[240px] min-w-[240px] lg:w-auto lg:flex-1 shrink-0">
                         <span className="font-['Inter_Tight',sans-serif] font-normal text-[#484848] dark:text-[#bababa] text-[14px] leading-[20.93px] tracking-[0.42px] whitespace-nowrap">
                           {row.freeTier}
                         </span>
                       </div>
-                      <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px]">
+                      <div className="flex flex-col items-start pb-[17px] pt-[16px] px-[16px] relative shrink-0 w-[388px] min-w-[388px]">
                         <span className="font-['Inter_Tight',sans-serif] font-normal text-[#767676] dark:text-[#a3a3a3] text-[12.5px] leading-[15px] tracking-[0.375px] whitespace-nowrap">
                           {row.proTier}
                         </span>
