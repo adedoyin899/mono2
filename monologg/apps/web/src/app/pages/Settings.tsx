@@ -223,6 +223,10 @@ export function Settings() {
 
   // Talent fields
   const [name, setName] = useState("Emeka Johnson");
+  // Public storefront lives at the single-segment route `/:handle` (see routes.tsx);
+  // the handle is the hyphenated display name, matching how ClientDashboard links to it.
+  const storefrontSlug = (name || "Emeka Johnson").trim().toLowerCase().replace(/\s+/g, "-");
+  const storefrontPath = `/${storefrontSlug}`;
   const [email, setEmail] = useState("emeka@example.com");
   const [stageTitle, setStageTitle] = useState("Actor & Voice Artist");
   const [niche, setNiche] = useState("actors");
@@ -1135,7 +1139,7 @@ export function Settings() {
                             variant="secondary"
                             size="sm"
                             className="gap-2 text-xs h-9 hidden sm:inline-flex"
-                            onClick={() => navigate("/storefront/emeka")}
+                            onClick={() => navigate(storefrontPath)}
                           >
                             <ExternalLink className="w-3.5 h-3.5" /> Public Storefront
                           </Button>
@@ -3363,13 +3367,13 @@ export function Settings() {
               </p>
               <div className="flex items-center gap-2 p-2 rounded-xl mb-4 border" style={{ background: "var(--color-bg-elevated)", borderColor: "var(--color-border-default)" }}>
                 <div className="text-xs font-mono truncate flex-1 pl-2" style={{ color: "var(--color-text-primary)" }}>
-                  monologg.co/emeka-johnson
+                  monologg.co/{storefrontSlug}
                 </div>
                 <Button
                   variant="secondary"
                   className="h-8 px-3 text-xs shrink-0"
                   onClick={() => {
-                    const url = `${window.location.origin}/storefront/emeka`;
+                    const url = `${window.location.origin}${storefrontPath}`;
                     navigator.clipboard?.writeText(url);
                     setSaved(true);
                     setTimeout(() => setSaved(false), 2000);
@@ -3381,15 +3385,15 @@ export function Settings() {
               <div className="mb-4">
                 <Button
                   className="w-full h-10 text-xs font-semibold gap-2"
-                  onClick={() => navigate("/storefront/emeka")}
+                  onClick={() => navigate(storefrontPath)}
                 >
                   Open Public Storefront <ExternalLink className="w-3.5 h-3.5" />
                 </Button>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.origin + "/storefront/emeka")}`)}>WhatsApp</Button>
-                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + "/storefront/emeka")}`)}>Twitter</Button>
-                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + "/storefront/emeka")}`)}>LinkedIn</Button>
+                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(window.location.origin + storefrontPath)}`)}>WhatsApp</Button>
+                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + storefrontPath)}`)}>Twitter</Button>
+                <Button variant="secondary" className="h-9 text-xs" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + storefrontPath)}`)}>LinkedIn</Button>
               </div>
             </motion.div>
           </Modal>
