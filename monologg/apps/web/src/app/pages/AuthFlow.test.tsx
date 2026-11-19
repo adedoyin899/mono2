@@ -56,7 +56,7 @@ describe("AuthFlow", () => {
     });
   });
 
-  it("Terms of Service / Privacy Policy links point to the real, versioned legal pages", async () => {
+  it("Terms of Service / Cookie Policy links point to the real, versioned legal pages", async () => {
     vi.stubEnv("VITE_API_MODE", undefined as unknown as string);
     await renderAuthFlow();
 
@@ -64,7 +64,7 @@ describe("AuthFlow", () => {
     await screen.findByPlaceholderText("Full Name");
 
     expect(screen.getByText("Terms of Service").closest("a")).toHaveAttribute("href", "/legal/terms");
-    expect(screen.getByText("Privacy Policy").closest("a")).toHaveAttribute("href", "/legal/privacy");
+    expect(screen.getByText("Cookie Policy").closest("a")).toHaveAttribute("href", "/legal/cookies");
   });
 
   it("live mode: registering sends the required, versioned terms acceptance to the backend", async () => {

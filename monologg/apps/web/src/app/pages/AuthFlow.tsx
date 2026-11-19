@@ -454,7 +454,7 @@ export function AuthFlow() {
                       I agree to the{" "}
                       <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2">Terms of Service</a>{" "}
                       and{" "}
-                      <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2">Privacy Policy</a>
+                      <a href="/legal/cookies" target="_blank" rel="noopener noreferrer" className="hover:underline font-medium text-[var(--color-text-primary)] underline underline-offset-2">Cookie Policy</a>
                     </span>
                   </label>
 
