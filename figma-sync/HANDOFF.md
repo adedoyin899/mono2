@@ -113,3 +113,10 @@ Reversible: originals (name, description, Light/Dark values) are stored per vari
 Verified: Client C01.01 desktop frame rendered in Light and Dark after the snap — no broken fills, surfaces/text/buttons look right.
 Left alone: 18 variables within <=12/255 and 29 within <=24/255 (shift is more visible; nearest-token note is on each variable's description). 266 are far from any app token.
 Pre-existing, not caused by the snap: the Monologg wordmark (`Graphic/13nq62t`, Graphics page) has unbound hard-coded 18181b vector fills, so it is near-invisible in Dark mode. Fix = bind its vectors to `v2/text/primary` (and any other `Graphic/*` with unbound dark fills).
+
+
+## WORDMARK / LOGO DARK-MODE FIX
+The Monologg wordmark (`Graphic/13nq62t` mark + `Graphic/vkx078` text, plus `Graphic/ww5zg7`) and the two footer/auth lockups (`Graphic/66fp82`, `Graphic/py5so4`) had hard-coded 16161a/1a1a1a vector fills, so they vanished on the black dark canvas.
+Fix: those fills (6+1+6+7+7 vector paints) are now bound to `v2/text/primary` (1a1a1a light / f9f9f9 dark), edited on the library components so every instance follows (v2 Performer: 153 header logos + 100 lockups; v2 Client: 4 + 61). Original paints saved in root plugin data `mlg/logofix` (node id -> rgb/opacity).
+Verified on Client C01.01 desktop in Dark and Light. Hard-coded 000000 vectors inside the lockups (clip shapes) were left as is.
+Not touched: other `Graphic/*` icons with unbound dark fills (e.g. 24px icons `1ykgw7s` 000000 ×1,090 instances, 333333 icons, `1akochr`) — they are app icons rendered in the app's own colour; check them in Dark if you see dim icons, then bind the same way.
