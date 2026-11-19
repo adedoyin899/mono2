@@ -170,3 +170,11 @@ Totals: 58 variables snapped to app tokens; ~266 are far from any token and stay
 ## tokens.css PROMOTION PROPOSAL
 Draft in `figma-sync/tokens-proposal.md` (tokens.css itself untouched): ~15 proposed new tokens + "use the existing `--mono-grey-*` primitive" swaps, based on 154,141 counted colour bindings (13% one-offs).
 Correction recorded there: the earlier snap passes compared against the semantic `--color-*` tokens only and ignored the `--mono-grey-*` primitives, so some one-offs (e.g. `#BABABA`, `#1A1A1A`, `#9F9FA9`~`#A3A3A3`) are exact/near primitive matches that were not snapped.
+
+
+## PRIMITIVE RE-BIND (tokens.css `--mono-grey-*` etc.)
+Created 16 primitive Color variables (`v2/primitive/mono-grey-0|500|450|400|300|200|150|100|50|25|15|10|5`, `white`, `mono-red`, `mono-purple`; same value in Light and Dark, descriptions cite the tokens.css name).
+28 one-off variables whose Light AND Dark values are each within 9/255 of a primitive now alias those primitives per mode (a mode can point at a different primitive, e.g. `000000_ffffff` -> mono-grey-0 | white), renamed `v2/alias/primitive/<orig>`; description records the primitive per mode, the distance and the original values. Opaque colours only (translucent ones are left for the new-token decisions in tokens-proposal.md).
+Largest effect: `000000_ffffff` (4,958 uses), `000000_1a1a1a` (1,364), `9f9fa9` (700), `71717b` (316), `bababa` (184), `1a1a1a` (157), `333333_1a1a1a` (157). Visible shift is <=9/255 (Δ0 for most).
+Originals are in `mlg/v2snap` with the earlier snaps. Verified: Performer Earnings (Light), Landing and My Profile (Dark) look unchanged.
+Not re-bound: pairs where one mode is >9 away from every primitive (e.g. `52525c|9f9fa9`, `d4d4d8|52525c`) — they need the new semantic tokens or a decision first.
