@@ -178,3 +178,10 @@ Created 16 primitive Color variables (`v2/primitive/mono-grey-0|500|450|400|300|
 Largest effect: `000000_ffffff` (4,958 uses), `000000_1a1a1a` (1,364), `9f9fa9` (700), `71717b` (316), `bababa` (184), `1a1a1a` (157), `333333_1a1a1a` (157). Visible shift is <=9/255 (Δ0 for most).
 Originals are in `mlg/v2snap` with the earlier snaps. Verified: Performer Earnings (Light), Landing and My Profile (Dark) look unchanged.
 Not re-bound: pairs where one mode is >9 away from every primitive (e.g. `52525c|9f9fa9`, `d4d4d8|52525c`) — they need the new semantic tokens or a decision first.
+
+
+## EMERALD FOLDED INTO BRAND GREEN
+Decision: fold the Tailwind-emerald family into `--color-green` (`v2/green` 1A7544 | 3EE089).
+32 `v2/green/*` variables whose colour is emerald/teal-hued were aliased per mode (renamed `v2/alias/green/folded/<orig>`, original values in the description and `mlg/v2snap`): opaque emerald -> `v2/green`; light mints (luminance > 0.7, incl. ecfdf5) -> `v2/green-soft` (created: e3f6ec | 3ee089@14); translucent tints <= 12% -> `v2/success-bg`, others -> `v2/green-soft`. Modes whose value is not green (e.g. a plain 1a1a1a dark surface) were left as captured. Spotify `1db954` was excluded (third-party brand).
+Visible effect: ~3,000 uses move from bright emerald to the brand green — Light `#009966/#00BC7D` -> `#1A7544`, Dark `#00D492` -> `#3EE089`. Teal `00bba7|00d5be` was folded too (judgement call; revert via `mlg/v2snap`).
+Verified: Performer Earnings (Light) and Order room (Dark). tokens-proposal.md updated (emerald tokens dropped).
