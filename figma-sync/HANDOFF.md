@@ -141,3 +141,10 @@ Fixed:
 - Earlier this session: wordmark/lockups, stepper arrow, select caret, Client FAQ plus/X icons. Originals for all of these are in `mlg/logofix`.
 Left on purpose (faithful to the app, not capture errors): low-contrast values that are variable-bound pairs taken from the app's own dark styles (disabled calendar days 3f3f47, ledger captions white@40-50%, purple/brand-blue/Paystack-cyan text such as "FS" avatars, "₦", "Target Brief", LinkedIn "IN"); fixed marketing illustrations (landing phone mock, Product step art, phone bezels, chart area fill) which are identical in app light/dark.
 Result: no unexplained low-contrast text or icons remain in Dark. The scan only sees solid fills — gradient/image areas were skipped. All test frames reset to Light.
+
+
+## COLOUR SNAP — second batch (7–12/255)
+21 more variables (the earlier "18" estimate was approximate) whose nearest app token was 7–12/255 away now alias the canonical `v2/<token>` variable in both modes and are renamed `v2/alias/<token>/<orig>`. New canonical variable created: `v2/overlay`.
+Mappings: f8f8f6/f5f5f5/f7f7f7/f8f8f8/f4f4f5 (light) + 1a1a1a/141414 (dark) -> bg/surface; f4f4f5/ffffff/fafafa|27272a -> bg/surface-2; e8e8e8/e4e4e7|262626 -> hairline; d1d1d1/d4d4d8 -> border/strong; fb2c36, fa2d37 -> red; d81d1d@10 -> error-bg; fff0f0|f03232@20 -> red-soft; 000000@45 -> overlay; 3f3f47|d4d4d8 -> text/secondary; f4f4f5 -> red-on; e2e8f0 -> hairline.
+Visible effect: off-white surfaces in Light move to the token (e.g. f4f4f5/f5f5f5 -> ffffff); dark zinc greys 262626/27272a -> 1a1a1a/333333. Originals (name, description, Light/Dark) are in `mlg/v2snap` alongside the first batch, so both batches can be reverted.
+Verified: Performer Earnings desktop (Light) and Order room (Dark) look intact. Remaining unsnapped: variables 13–24/255 from a token (29) and the 266 far ones.
