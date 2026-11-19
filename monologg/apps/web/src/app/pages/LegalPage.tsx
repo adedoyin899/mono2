@@ -406,7 +406,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
                   &nbsp;
                 </p>
                 <p className="leading-[24px] mb-0">
-                  By accessing or using our Services, you agree to be legally bound by these Terms and our Privacy Policy. If you do not agree, please discontinue use of the Services immediately.
+                  By accessing or using our Services, you agree to be legally bound by these Terms and our Cookie Policy. If you do not agree, please discontinue use of the Services immediately.
                 </p>
               </div>
             </div>
@@ -489,7 +489,7 @@ export function LegalPage({ type }: { type: LegalPageType }) {
               <div className="h-px w-full bg-[#e8e8e8] dark:bg-[#1a1a1a]" />
 
               <p className="font-['Inter_Tight',sans-serif] leading-[24px] text-[#767676] dark:text-[#a3a3a3] text-[16px] tracking-[0.48px] w-full">
-                For complete details regarding our data collection, processing, and security practices, please consult our dedicated Privacy Policy.
+                For details on how cookies and local storage are used on our platform, please consult our Cookie Policy.
               </p>
             </div>
 
