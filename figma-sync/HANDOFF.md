@@ -148,3 +148,11 @@ Result: no unexplained low-contrast text or icons remain in Dark. The scan only 
 Mappings: f8f8f6/f5f5f5/f7f7f7/f8f8f8/f4f4f5 (light) + 1a1a1a/141414 (dark) -> bg/surface; f4f4f5/ffffff/fafafa|27272a -> bg/surface-2; e8e8e8/e4e4e7|262626 -> hairline; d1d1d1/d4d4d8 -> border/strong; fb2c36, fa2d37 -> red; d81d1d@10 -> error-bg; fff0f0|f03232@20 -> red-soft; 000000@45 -> overlay; 3f3f47|d4d4d8 -> text/secondary; f4f4f5 -> red-on; e2e8f0 -> hairline.
 Visible effect: off-white surfaces in Light move to the token (e.g. f4f4f5/f5f5f5 -> ffffff); dark zinc greys 262626/27272a -> 1a1a1a/333333. Originals (name, description, Light/Dark) are in `mlg/v2snap` alongside the first batch, so both batches can be reverted.
 Verified: Performer Earnings desktop (Light) and Order room (Dark) look intact. Remaining unsnapped: variables 13–24/255 from a token (29) and the 266 far ones.
+
+
+## COLOUR SNAP — third batch (13–24/255)
+Of 25 candidates in this band, 19 now alias canonical `v2/<token>` variables (renamed `v2/alias/<token>/<orig>`); new canonical variables: `v2/red-glow`, `v2/red-press`.
+Snapped: text greys/near-blacks (484848|bababa, 333333|cccccc, 52525c, 3f3f47, 27272a, 16161a, 09090b) -> text/secondary or text/primary; surfaces (f0f0f2|22242a, ffffff|0f172b -> bg/surface; e4e4e7|3f3f47, f8fafc|1d293d -> bg/surface-2; e4e4e7|27272a -> hairline; f4f4f5@80|27272a@80 -> bg/glass); reds ef4444 -> red, e50914 -> red-press, ff273b@10|fa2d37@20 -> red-glow; f5f5f0, f1f5f9 -> red-on (white).
+Deliberately NOT snapped (6) because the token would change the meaning, not just the shade: coloured tints that would turn grey/white (ffecec|1a1a1a, f1e9ff|1a1a1a, e9d4ff|1a1a1a, d0fae5|1a1a1a) and two translucent bar colours (ffffff@95|000000@92, ffffff|000000@92) that would become opaque canvas.
+Originals saved in `mlg/v2snap` (all three batches, 58 variables). Verified: Settings Profile (Light + Dark), Checkout with Paystack modal (Dark).
+Totals: 58 variables snapped to app tokens; ~266 are far from any token and stay as captured one-offs.
