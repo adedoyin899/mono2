@@ -120,3 +120,13 @@ The Monologg wordmark (`Graphic/13nq62t` mark + `Graphic/vkx078` text, plus `Gra
 Fix: those fills (6+1+6+7+7 vector paints) are now bound to `v2/text/primary` (1a1a1a light / f9f9f9 dark), edited on the library components so every instance follows (v2 Performer: 153 header logos + 100 lockups; v2 Client: 4 + 61). Original paints saved in root plugin data `mlg/logofix` (node id -> rgb/opacity).
 Verified on Client C01.01 desktop in Dark and Light. Hard-coded 000000 vectors inside the lockups (clip shapes) were left as is.
 Not touched: other `Graphic/*` icons with unbound dark fills (e.g. 24px icons `1ykgw7s` 000000 ×1,090 instances, 333333 icons, `1akochr`) — they are app icons rendered in the app's own colour; check them in Dark if you see dim icons, then bind the same way.
+
+
+## ICON DARK-MODE AUDIT (v2)
+Checked every `Graphic/*` with unbound dark fills against the app source (`dark:invert` / `dark:hidden` usage) and in Dark-mode screenshots.
+Fixed (bound to `v2/text/primary`, or `v2/neutral/000000_ffffff` where the Performer page already used it; originals in `mlg/logofix`):
+- `Graphic/1akochr` — Product stepper "ArrowCircleRight" (app swaps a 16161a light SVG for an f8f8f8 dark SVG; was a dark blob on the dark card) — 46 instances.
+- `Graphic/1tnr7c7` — select caret on the Resources investor form (`dark:invert` in app) — 14 instances.
+- `Graphic/1ykgw7s` — FAQ plus/X icon on the Client page: 40 instances were unbound black (Performer's 1,050 were already bound).
+Reviewed, left as is (fixed art that is identical in app light/dark): phone bezels `jfczil`/`19ywwkt`/`1dra58k` (black), landing/product illustrations `3nx0wh`, `h74oa0`, `nxrd9l`, `v0bu0k`, `hwbwv2`, `wk26vg`, `1l0fbin`, `18bnjgv`; `1delw8j` (767676 grey, legible on black).
+Not visually verified: select-caret in Dark (the form frame screenshots as empty in this file; binding confirmed via API), FAQ plus/X on Client.
