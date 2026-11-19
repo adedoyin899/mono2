@@ -130,3 +130,14 @@ Fixed (bound to `v2/text/primary`, or `v2/neutral/000000_ffffff` where the Perfo
 - `Graphic/1ykgw7s` — FAQ plus/X icon on the Client page: 40 instances were unbound black (Performer's 1,050 were already bound).
 Reviewed, left as is (fixed art that is identical in app light/dark): phone bezels `jfczil`/`19ywwkt`/`1dra58k` (black), landing/product illustrations `3nx0wh`, `h74oa0`, `nxrd9l`, `v0bu0k`, `hwbwv2`, `wk26vg`, `1l0fbin`, `18bnjgv`; `1delw8j` (767676 grey, legible on black).
 Not visually verified: select-caret in Dark (the form frame screenshots as empty in this file; binding confirmed via API), FAQ plus/X on Client.
+
+
+## FULL DARK-MODE PASS (v2, both pages)
+Method: for every device frame (Performer 443, Client 249; ~60k text/vector nodes) the Dark-mode value of each fill was resolved through variable aliases and composited over the resolved Dark background; contrast ratio computed per node (text < 2.5, vector < 1.5; second pass: unbound/raw fills < 3). Findings grouped by cause, then spot-checked in Dark screenshots (order room, guest booking calendar, analytics chart, profile, transactions, fund wallet, earnings mobile).
+Fixed:
+- `iOS Status Bar` component: 11 hard-coded black fills (time, signal, wifi, battery) -> `v2/neutral/000000_ffffff` (was invisible on every mobile frame in Dark).
+- Social icons `Graphic/1dhfuzh` (Profile chips) and `Graphic/1dk92b6` (Settings): raw 484848 -> `v2/text/secondary` (app uses fill-current + text-secondary).
+- Analytics chart graphics `hwbwv2`, `wk26vg`: 26 axis/month label fills 484848/767676 -> `v2/text/secondary` / `v2/text/tertiary`.
+- Earlier this session: wordmark/lockups, stepper arrow, select caret, Client FAQ plus/X icons. Originals for all of these are in `mlg/logofix`.
+Left on purpose (faithful to the app, not capture errors): low-contrast values that are variable-bound pairs taken from the app's own dark styles (disabled calendar days 3f3f47, ledger captions white@40-50%, purple/brand-blue/Paystack-cyan text such as "FS" avatars, "₦", "Target Brief", LinkedIn "IN"); fixed marketing illustrations (landing phone mock, Product step art, phone bezels, chart area fill) which are identical in app light/dark.
+Result: no unexplained low-contrast text or icons remain in Dark. The scan only sees solid fills — gradient/image areas were skipped. All test frames reset to Light.
