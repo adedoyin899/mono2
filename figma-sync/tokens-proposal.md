@@ -53,7 +53,7 @@ Names follow the existing `--color-*` convention. Light value first, `.dark` ove
 
 Decisions only you can make:
 1. **Two greens — DECIDED: fold emerald into the brand green** (Figma already done, see HANDOFF). Drop the three `--color-emerald*` rows above from the proposal; use `--color-green` / `--color-green-soft` / `--color-success-bg`. Original question: brand green `--color-green` (`#1A7544`) and Tailwind emerald (`#009966` family) are both in use and 36–62 steps apart. Either keep both (add the emerald tokens) or fold emerald into `--color-green` and accept a visible shift on 2,800+ bindings.
-2. **Amber vs gold.** The amber family (`#FE9A00`, `#FFB900`) is 24–25 steps from `--color-gold` (`#E6A517`). Same question: add amber, or fold into gold.
+2. **Amber vs gold — DECIDED: fold amber into gold** (Figma already done, see HANDOFF). Drop the four `--color-amber*` rows above; use `--color-gold`, `--color-gold-light`, `--color-gold-dark`, `--color-gold-glow`, `--color-gold-soft`. Original question: The amber family (`#FE9A00`, `#FFB900`) is 24–25 steps from `--color-gold` (`#E6A517`). Same question: add amber, or fold into gold.
 3. **`#5B21B6` / `#7C3AED` (violet).** 136 bindings use `#7C3AED`; it is 58 steps from `--color-purple`. Recommend mapping it to `--color-purple` and dropping it.
 
 ## C. Do not tokenise (third-party brand colours)

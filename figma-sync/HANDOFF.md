@@ -185,3 +185,10 @@ Decision: fold the Tailwind-emerald family into `--color-green` (`v2/green` 1A75
 32 `v2/green/*` variables whose colour is emerald/teal-hued were aliased per mode (renamed `v2/alias/green/folded/<orig>`, original values in the description and `mlg/v2snap`): opaque emerald -> `v2/green`; light mints (luminance > 0.7, incl. ecfdf5) -> `v2/green-soft` (created: e3f6ec | 3ee089@14); translucent tints <= 12% -> `v2/success-bg`, others -> `v2/green-soft`. Modes whose value is not green (e.g. a plain 1a1a1a dark surface) were left as captured. Spotify `1db954` was excluded (third-party brand).
 Visible effect: ~3,000 uses move from bright emerald to the brand green — Light `#009966/#00BC7D` -> `#1A7544`, Dark `#00D492` -> `#3EE089`. Teal `00bba7|00d5be` was folded too (judgement call; revert via `mlg/v2snap`).
 Verified: Performer Earnings (Light) and Order room (Dark). tokens-proposal.md updated (emerald tokens dropped).
+
+
+## AMBER FOLDED INTO GOLD
+Decision: fold the amber/orange-yellow one-offs into the `--color-gold*` family.
+29 variables with an amber-hued mode (hue 20-62deg, not grey) were aliased per mode, renamed `v2/alias/gold/folded/<orig>` (original values in description and `mlg/v2snap`). Created canonical `v2/gold`, `v2/gold-light`, `v2/gold-dark`, `v2/gold-glow` (v2/gold-soft already existed).
+Mapping rule: translucent -> gold-glow; pale opaque light fills (luminance > 0.6, e.g. fee685, fef3c6, ffd6a8, fffbeb) -> gold-soft; other solids -> the gold/gold-light/gold-dark token whose luminance in that mode is closest. Modes that are not amber (navy, dark surfaces, pink) were left as captured.
+Visible effect: bright oranges (fe9a00, ffb900, e17100, bb4d00) become gold/gold-dark - slightly less saturated; the pale peach/yellow fills become the gold-soft cream. Verified Client lifecycle (Dark) and Performer order room (Dark: star + Dispute warning). Light mode amber surfaces not individually checked.
