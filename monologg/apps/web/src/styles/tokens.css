@@ -911,14 +911,17 @@ a.bg-\[\#b91c1c\]:hover, a.bg-\[\#B91C1C\]:hover {
   color: #D1D1D1 !important;
 }
 
-/* Client logos (in Pricing & Product client grids) */
+/* Client logos (monochrome grayscale grids only — brand-colored studio badges keep original light-mode colors) */
 .dark [data-name="client-logo"] img,
 .dark .grayscale img,
 .dark img[alt*="logo" i],
-.dark img[alt*="Disney" i],
-.dark img[alt*="Netflix" i],
 .dark img[alt*="BBC" i] {
   filter: invert(1) brightness(1.8) !important;
+}
+
+/* Preserve exact light-mode colors on Pricing page client studio badges in dark mode */
+.dark [data-node-id="178359:18133"] img {
+  filter: none !important;
 }
 
 /* Social links and badges: monochrome icons inverted for dark contrast */

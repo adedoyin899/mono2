@@ -53,6 +53,14 @@ describe("ProductPage (Figma 178359:17305)", () => {
     expect(screen.getByTestId("step-card-03")).toHaveAttribute("data-step-state", "default");
     expect(screen.getByTestId("step-illustration-01")).toBeInTheDocument();
 
+    // Verify dual light/dark SVG illustration layers render (light mode UI for light mode, dark mode UI for dark mode)
+    const step01El = screen.getByTestId("step-illustration-01");
+    const lightImgs = step01El.querySelectorAll("img.block.dark\\:hidden");
+    const darkImgs = step01El.querySelectorAll("img.hidden.dark\\:block");
+    expect(lightImgs.length).toBeGreaterThan(0);
+    expect(darkImgs.length).toBe(lightImgs.length);
+    expect(lightImgs[0].getAttribute("src")).not.toBe(darkImgs[0].getAttribute("src"));
+
     // Verify product UI illustration stage is hidden on mobile (< 1024px) and only visible on lg+ screens
     const illustrationStage = screen.getByTestId("step-illustration-01").closest('[data-node-id="178359:17450"]');
     expect(illustrationStage).toHaveClass("hidden", "lg:flex");

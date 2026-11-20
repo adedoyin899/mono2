@@ -1,11 +1,36 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
+**Last updated:** 2026-11-20 (Session 233: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 233 (2026-11-20) — Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation
+
+**Goal:** Fix two visual theme defects across the public website: (1) the Product page 7-step interactive showcase was rendering dark-mode phone/card UI illustrations even in light mode, and (2) the 6 client studio logo badges on the Pricing page (Vimeo, Netflix, Amazon Prime, Disney+, Hulu, Twitch) were color-inverted in dark mode.
+
+1. **Product Page 7-Step Illustrations Dual Light/Dark Mode Parity (`ProductPage.tsx`, `ProductPage.test.tsx`):**
+   - Root cause: Commit `3db465d` added `<DualImg>` light/dark switching to `LandingPage.tsx`, but overwrote the 7-step SVG constants in `ProductPage.tsx` with the dark-mode Figma `178432:6988` assets (`fill="#222222"`), causing light mode to display black phone mockups on `#f9f9f9` cards.
+   - Restored all 7 steps' light-mode Figma `178359:17305` SVG assets alongside the dark-mode Figma `178432:6988` assets (mapped cleanly to the current 7-step sequence: 01 Sleek Bio Storefront, 02 Custom Rate Cards, 03 Performer Analytics, 04 Escrow Security, 05 Direct Proposal Bidding, 06 Integrated Scheduling, 07 Interactive AI Agent).
+   - Added a `DualImg` helper (`block dark:hidden` for light SVG, `hidden dark:block` for dark SVG) and applied it to every layer across all 7 cases in `StepIllustration`.
+   - Added unit test assertions in `ProductPage.test.tsx` verifying distinct light and dark SVG layers render in `step-illustration-01`.
+
+2. **Pricing Page Client Studio Logos Light-Mode Color Preservation (`PricingPage.tsx`, `tokens.css`, `PricingPage.test.tsx`):**
+   - Root cause: Two overlapping dark-mode inversions affected the 6 studio badges (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`):
+     1. `PricingPage.tsx` applied `dark:invert` directly on the studio badge `<img>` tags and `dark:bg-[#1a1a1a]` on the circular badge containers (making `#01147C` Disney+ illegible on dark grey).
+     2. `tokens.css` enforced `filter: invert(1) brightness(1.8) !important` on `.dark img[alt*="Disney" i]` and `.dark img[alt*="Netflix" i]`.
+   - Removed `dark:invert` from studio logo `<img>` elements and kept the light `#f9f9f9` circular badge fill in both light and dark modes (preserving crisp legibility and exact light-mode colors for all 6 logos, including navy Disney+, black-box green Hulu, and purple Twitch).
+   - Removed `.dark img[alt*="Disney" i]` and `.dark img[alt*="Netflix" i]` from the monochrome inversion block in `tokens.css` and added `.dark [data-node-id="178359:18133"] img { filter: none !important; }`.
+   - Added regression assertions in `PricingPage.test.tsx` verifying no `dark:invert` on studio logos and `bg-[#f9f9f9]` preservation.
+
+3. **Testing & Verification:**
+   - TypeScript typecheck: 0 errors (`npm --prefix monologg/apps/web run typecheck`).
+   - Targeted tests: `ProductPage.test.tsx` and `PricingPage.test.tsx` passing green.
+   - Vite production build: succeeded (`npm --prefix monologg/apps/web run build`).
 
 ---
 

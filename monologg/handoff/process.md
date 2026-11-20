@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
+**Last updated:** 2026-11-20 (Session 233: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,16 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 192: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation (Session 233)
+
+- **Product Page 7-Step Showcase Dual Illustrations (`ProductPage.tsx`, `ProductPage.test.tsx`):**
+  - Restored all 7 steps' light-mode Figma `178359:17305` SVG layers paired with dark-mode Figma `178432:6988` layers via `DualImg` (`block dark:hidden` / `hidden dark:block`) so light mode renders light phone/card UI and dark mode renders dark UI.
+- **Pricing Page Client Studio Logos Color Preservation (`PricingPage.tsx`, `tokens.css`, `PricingPage.test.tsx`):**
+  - Removed `dark:invert` from studio logo `<img>` elements and kept `bg-[#f9f9f9]` circular badge backgrounds in both light and dark modes.
+  - Removed `.dark img[alt*="Disney" i]` and `.dark img[alt*="Netflix" i]` from `tokens.css` monochrome inversion rules and added explicit `filter: none !important` for `[data-node-id="178359:18133"] img`.
+- **Testing & Verification:**
+  - TypeScript typecheck, targeted unit tests (`ProductPage.test.tsx`, `PricingPage.test.tsx`), and Vite production build all passed.
 
 ### Step 191: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page (Session 232)
 

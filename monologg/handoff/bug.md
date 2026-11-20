@@ -1,7 +1,7 @@
 # Monologg — Bug & Issue Log
 
-**Last updated:** 2026-11-18 (Session 232: Prevent Mobile Comparison Table Column Overlapping with Responsive Min-Widths on Pricing Page)
-**This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the fix. See `README.md` for the full update policy.
+**Last updated:** 2026-11-20 (Session 233: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation)
+**This is a living document** — add a new entry every time a bug is found or fixed, in the same session as the change. See `README.md` for the full update policy.
 
 This tracks every defect found during this engagement — both classic "the build broke" bugs and design-system consistency issues (things that *worked* but would silently drift out of sync on the next change). Severity is defined once here so it means the same thing every time it's used below.
 
@@ -18,6 +18,28 @@ This tracks every defect found during this engagement — both classic "the buil
 ---
 
 ## Bugs found and fixed during this engagement
+
+### 180. Pricing Page Client Studio Logos Color-Inverted in Dark Mode
+- **Severity:** Medium / Brand Fidelity & Dark Mode Rendering Defect
+- **What happened:**
+  - In dark mode on `PricingPage.tsx` (Clients tab), the 6 overlapping client studio badges (`Vimeo`, `Netflix`, `Amazon Prime`, `Disney+`, `Hulu`, `Twitch`) rendered with distorted inverted colors (orange Vimeo/Prime, cyan Netflix, white/magenta Hulu, lime Twitch).
+- **Root Cause:**
+  - `PricingPage.tsx` applied `dark:invert` directly on the colored studio logo `<img>` elements and `dark:bg-[#1a1a1a]` on the circular badge wrappers.
+  - Additionally, `tokens.css` enforced `filter: invert(1) brightness(1.8) !important` on `.dark img[alt*="Disney" i]` and `.dark img[alt*="Netflix" i]`.
+- **Resolution:**
+  - Removed `dark:invert` from studio badge `<img>` tags in `PricingPage.tsx` and retained `bg-[#f9f9f9]` light circular containers across light and dark modes so all 6 brand logos (including navy `#01147C` Disney+ and black-boxed green Hulu) render identically to light mode.
+  - Removed `.dark img[alt*="Disney" i]` and `.dark img[alt*="Netflix" i]` from the monochrome inversion block in `tokens.css` and added `.dark [data-node-id="178359:18133"] img { filter: none !important; }`.
+  - Added regression assertions in `PricingPage.test.tsx`.
+
+### 179. Product Page 7-Step Showcase Rendering Dark-Mode UI Illustrations in Light Mode
+- **Severity:** Medium / Light & Dark Theme Visual Parity Defect
+- **What happened:**
+  - On `ProductPage.tsx` in light mode, the 7-step interactive showcase stage rendered dark charcoal (`#222222`) phone/card illustrations on a light `#f9f9f9` stage box instead of light-mode UI illustrations.
+- **Root Cause:**
+  - Commit `3db465d` introduced `<DualImg>` light/dark asset switching for `LandingPage.tsx`, but overwrote the 7-step SVG constants in `ProductPage.tsx` with dark-mode-only Figma `178432:6988` assets without retaining the light-mode `178359:17305` SVGs.
+- **Resolution:**
+  - Added a `DualImg` helper (`block dark:hidden` / `hidden dark:block`) to `ProductPage.tsx` and paired all 7 steps' light-mode SVGs with their matching dark-mode SVGs in `StepIllustration`.
+  - Added regression test coverage in `ProductPage.test.tsx`.
 
 ### 178. Pricing Comparison Table Column Text Overlap on Mobile Viewports
 - **Severity:** Medium / Visual Collision & Responsive Layout Defect
