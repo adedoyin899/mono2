@@ -1,11 +1,25 @@
 # Monologg — Implementation Log
 
-**Last updated:** 2026-11-20 (Session 233: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation)
+**Last updated:** 2026-11-20 (Session 234: Dark Grey Studio Badge Circles with Original Light-Mode Icon Colors on Pricing Page)
 **This is a living document** — append a new dated entry every time a code change happens, in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of what was done, in what order, and why. Each entry names the files touched so you can `git blame`-equivalent your way back to any decision. As of Session 7 this project **is** a git repository — see Session 7 for how, and `git log` from here on for anything not narrated below.
 
 Sessions 1–6 happened before the project was in git, so their dates are the session date, 2026-07-27. Session 7 onward are dated from actual commits/pushes.
+
+---
+
+## Session 234 (2026-11-20) — Dark Grey Studio Badge Circles with Original Light-Mode Icon Colors on Pricing Page
+
+**Goal:** Restore the dark grey (`dark:bg-[#1a1a1a]`) circular container background behind the 6 client studio badges on `PricingPage.tsx` in dark mode while keeping ONLY the brand icons themselves in their original light-mode colors (no inversion).
+
+1. **Client Studio Badge Container Dark-Mode Fill (`PricingPage.tsx`, `PricingPage.test.tsx`):**
+   - Restored `dark:bg-[#1a1a1a]` on the circular badge wrapper (`bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a]`) so the badges blend naturally into the dark Pricing surface.
+   - Retained non-inverted `<img>` rendering (no `dark:invert` and `filter: none !important` in `tokens.css`) so all 6 client icons (Vimeo, Netflix, Amazon Prime, Disney+, Hulu, Twitch) preserve their exact light-mode colors.
+   - Updated unit test assertion in `PricingPage.test.tsx` to verify both `bg-[#f9f9f9] dark:bg-[#1a1a1a]` and non-inverted icons.
+
+2. **Testing & Verification:**
+   - TypeScript typecheck, `PricingPage.test.tsx`, and Vite production build all passing green.
 
 ---
 

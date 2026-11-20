@@ -931,7 +931,7 @@ export function PricingPage() {
                     {studioBadges.map((studio, i) => (
                       <div
                         key={studio.name}
-                        className={`bg-[#f9f9f9] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.354px] border-solid flex items-center ${
+                        className={`bg-[#f9f9f9] dark:bg-[#1a1a1a] border-[#e8e8e8] dark:border-[#1a1a1a] border-[0.354px] border-solid flex items-center ${
                           i < studioBadges.length - 1 ? "mr-[-15px]" : ""
                         } p-[11.323px] relative rounded-full shrink-0`}
                         data-node-id={studio.nodeId}

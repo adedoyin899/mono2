@@ -104,14 +104,13 @@ describe("PricingPage (Figma 178359:17960)", () => {
       screen.getByText(/Choose the plan that fits your production scale/i),
     ).toBeInTheDocument();
 
-    // Studio badges keep light-mode brand colors (no dark:invert on logos, light circle preserved)
+    // Studio badges keep grey dark-mode circles while icons retain exact light-mode brand colors (no dark:invert)
     for (const studioName of ["Vimeo", "Netflix", "Amazon Prime", "Disney+", "Hulu", "Twitch"]) {
       const logoImg = screen.getByAltText(studioName);
       expect(logoImg).toBeInTheDocument();
       expect(logoImg).not.toHaveClass("dark:invert");
       const badgeCircle = logoImg.closest('[class*="rounded-full"]');
-      expect(badgeCircle).toHaveClass("bg-[#f9f9f9]");
-      expect(badgeCircle).not.toHaveClass("dark:bg-[#1a1a1a]");
+      expect(badgeCircle).toHaveClass("bg-[#f9f9f9]", "dark:bg-[#1a1a1a]");
     }
 
     // Categories

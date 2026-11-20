@@ -1,6 +1,6 @@
 # Monologg — How This Was Built: The Process, Step by Step
 
-**Last updated:** 2026-11-20 (Session 233: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation)
+**Last updated:** 2026-11-20 (Session 234: Dark Grey Studio Badge Circles with Original Light-Mode Icon Colors on Pricing Page)
 **This is a living document** — add a new step whenever the high-level process changes (a new phase of work, a new workflow), in the same session as the change. See `README.md` for the full update policy.
 
 Chronological record of how the work happened, in plain language, in the order it happened. If you're technical, it'll double as a checklist you can re-run. If you're not, skip the code-y bits in *italics* and read the rest — it should still make sense.
@@ -12,6 +12,13 @@ Think of the whole engagement as two projects back to back:
 ---
 
 ## Part A — From a zip file to a working app
+
+### Step 193: Dark Grey Studio Badge Circles with Original Light-Mode Icon Colors on Pricing Page (Session 234)
+
+- **Pricing Page Client Studio Badge Fill (`PricingPage.tsx`, `PricingPage.test.tsx`):**
+  - Restored `dark:bg-[#1a1a1a]` on the circular badge wrappers behind the 6 client studio logos in dark mode while preserving non-inverted light-mode brand colors on the icons themselves.
+- **Testing & Verification:**
+  - TypeScript typecheck, `PricingPage.test.tsx`, and Vite production build all passed.
 
 ### Step 192: Light/Dark Theme Parity for Product 7-Step Illustrations & Client Studio Logos Brand Color Preservation (Session 233)
 
